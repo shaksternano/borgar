@@ -8,9 +8,11 @@ public class MediaManipulatorRegistry {
 
     private static final Map<String, MediaManipulator> registry = new HashMap<>();
 
-    public static void register(MediaManipulator manipulator, String... extensions) {
-        for (String extension : extensions) {
-            registry.put(extension.toLowerCase(), manipulator);
+    public static void register(MediaManipulator... manipulators) {
+        for (MediaManipulator manipulator : manipulators) {
+            for (String extension : manipulator.getSupportedExtensions()) {
+                registry.put(extension.toLowerCase(), manipulator);
+            }
         }
     }
 

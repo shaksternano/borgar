@@ -1,6 +1,7 @@
 package io.github.shaksternano.mediamanipulator.command;
 
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
@@ -15,20 +16,18 @@ public class CommandParser {
         String stringMessage = userMessage.getContentRaw().trim();
         String[] commandParts = parseCommandParts(stringMessage);
 
+        MessageChannel channel = event.getChannel();
+
         if (commandParts.length > 0) {
-            event.getChannel().sendTyping().submit().thenAccept(unused -> {
-                Optional<Command> commandOptional = CommandRegistry.INSTANCE.getCommand(commandParts[0]);
+            channel.sendMessage("Thinking...").queue(waitingMessage -> channel.sendTyping().queue(unused -> {
+                Optional<Command> commandOptional = CommandRegistry.getCommand(commandParts[0]);
 
-                if (commandOptional.isPresent()) {
-                    Command command = commandOptional.orElseThrow();
+                commandOptional.ifPresentOrElse(command -> {
                     String[] arguments = parseArguments(commandParts);
-
-                    Message commandReply = command.execute(arguments, event);
-                    userMessage.reply(commandReply).queue();
-                } else {
-                    userMessage.reply("Invalid command!").queue();
-                }
-            });
+                    command.execute(arguments, event);
+                    waitingMessage.delete().queue();
+                }, () -> userMessage.reply("Invalid command!").queue());
+            }));
         }
     }
 

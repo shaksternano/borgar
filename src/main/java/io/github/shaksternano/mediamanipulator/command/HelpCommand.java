@@ -6,15 +6,16 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class HelpCommand extends Command {
 
-    public static final HelpCommand INSTANCE = new HelpCommand("help");
+    public static final HelpCommand INSTANCE = new HelpCommand("help", "Lists all commands");
 
-    protected HelpCommand(String name) {
-        super(name);
+    protected HelpCommand(String name, String description) {
+        super(name, description);
     }
 
     @Override
-    public Message execute(String[] arguments, MessageReceivedEvent event) {
-        return getHelpMessage();
+    public void execute(String[] arguments, MessageReceivedEvent event) {
+        Message userMessage = event.getMessage();
+        userMessage.reply(getHelpMessage()).queue();
     }
 
     public static Message getHelpMessage() {

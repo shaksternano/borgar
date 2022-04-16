@@ -6,13 +6,14 @@ import java.io.File;
 
 public class FileUtil {
 
-    private static final File TEMP_DIR = getUniqueFile(new File(System.getProperty("java.io.tmpdir"), "mediamanipulator"), true);
+    private static final File TEMP_DIR = new File(System.getProperty("java.io.tmpdir"), "mediamanipulator");
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public static File getTempDirectory() {
-        TEMP_DIR.mkdirs();
-        TEMP_DIR.deleteOnExit();
-        return TEMP_DIR;
+        File tempDir = getUniqueFile(TEMP_DIR, true);
+        tempDir.mkdirs();
+        tempDir.deleteOnExit();
+        return tempDir;
     }
 
     public static File getUniqueFile(File file, boolean directory) {
@@ -33,5 +34,17 @@ public class FileUtil {
         }
 
         return file;
+    }
+
+    public static File getUniqueTempFile(String fileName) {
+        File tempFile = getUniqueFile(new File(getTempDirectory(), fileName), false);
+        tempFile.deleteOnExit();
+        return tempFile;
+    }
+
+    public static File appendName(File file, String toAppend) {
+        String fileNameWithoutExtension = Files.getNameWithoutExtension(file.getName());
+        String extension = Files.getFileExtension(file.getName());
+        return new File(fileNameWithoutExtension + toAppend + "." + extension);
     }
 }

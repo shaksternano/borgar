@@ -2,7 +2,6 @@ package io.github.shaksternano.mediamanipulator.command;
 
 import com.google.common.io.Files;
 import io.github.shaksternano.mediamanipulator.Main;
-import io.github.shaksternano.mediamanipulator.mediamanipulation.ImageManipulator;
 import io.github.shaksternano.mediamanipulator.mediamanipulation.MediaManipulatorRegistry;
 import io.github.shaksternano.mediamanipulator.util.FileUtil;
 import net.dv8tion.jda.api.entities.Message;
@@ -14,15 +13,15 @@ import java.util.List;
 
 public class CaptionCommand extends Command {
 
-    public static final CaptionCommand INSTANCE = new CaptionCommand("caption");
+    public static final CaptionCommand INSTANCE = new CaptionCommand("caption", "Captions a media file.");
 
-    protected CaptionCommand(String name) {
-        super(name);
+    protected CaptionCommand(String name, String description) {
+        super(name, description);
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
-    public Message execute(String[] arguments, MessageReceivedEvent event) {
+    public void execute(String[] arguments, MessageReceivedEvent event) {
         Message userMessage = event.getMessage();
         List<Message.Attachment> attachments = userMessage.getAttachments();
 
@@ -31,8 +30,7 @@ public class CaptionCommand extends Command {
             String unsupportedFileType = "Unsupported file type!";
 
             if (attachment.isImage() || attachment.isVideo()) {
-                File file = FileUtil.getUniqueFile(new File(FileUtil.getTempDirectory(), attachment.getFileName()), false);
-                file.deleteOnExit();
+                File file = FileUtil.getUniqueTempFile(attachment.getFileName());
                 attachment.downloadToFile(file).thenAccept(mediaFile -> {
                     String fileExtension = Files.getFileExtension(mediaFile.getName());
 
@@ -41,9 +39,6 @@ public class CaptionCommand extends Command {
                             File captionedMedia = mediaManipulator.caption(mediaFile, String.join(" ", arguments));
                             captionedMedia.deleteOnExit();
                             userMessage.reply(captionedMedia).queue(message -> {
-                                file.delete();
-                                captionedMedia.delete();
-                            }, throwable -> {
                                 file.delete();
                                 captionedMedia.delete();
                             });
@@ -61,6 +56,5 @@ public class CaptionCommand extends Command {
             userMessage.reply("No media found!").queue();
         }
 
-        return null;
     }
 }

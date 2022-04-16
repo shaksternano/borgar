@@ -9,6 +9,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class CommandListener extends ListenerAdapter {
 
+    public static final CommandListener INSTANCE = new CommandListener();
+
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
         if (event.getName().equals(HelpCommand.INSTANCE.getName())) {

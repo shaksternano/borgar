@@ -4,30 +4,17 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-public enum CommandRegistry {
+public class CommandRegistry {
 
-    INSTANCE;
+    private static final Map<String, Command> registry = new HashMap<>();
 
-    private final Map<String, Command> commands = new HashMap<>();
-
-    public void register(Command... commandArray) {
-        for (Command command : commandArray) {
-            commands.put(command.getName(), command);
+    public static void register(Command... commands) {
+        for (Command command : commands) {
+            registry.put(command.getName(), command);
         }
     }
 
-    public Optional<Command> getCommand(String name) {
-        return Optional.ofNullable(commands.get(name));
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-
-        for (Command command : commands.values()) {
-            builder.append(command).append("\n");
-        }
-
-        return builder.toString();
+    public static Optional<Command> getCommand(String name) {
+        return Optional.ofNullable(registry.get(name));
     }
 }
