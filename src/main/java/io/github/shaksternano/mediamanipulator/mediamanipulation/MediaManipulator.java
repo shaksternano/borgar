@@ -1,13 +1,16 @@
 package io.github.shaksternano.mediamanipulator.mediamanipulation;
 
-import com.google.common.collect.ImmutableSet;
-
 import java.io.File;
 import java.io.IOException;
+import java.util.Set;
 
 public interface MediaManipulator {
 
-    File caption(File mediaFile, String caption) throws IOException;
+    File caption(File media, String caption) throws IOException;
 
-    ImmutableSet<String> getSupportedExtensions();
+    File makeGif(File media) throws IOException;
+
+    File stretch(File media, float widthMultiplier, float heightMultiplier) throws IOException;
+
+    Set<String> getSupportedExtensions();
 }

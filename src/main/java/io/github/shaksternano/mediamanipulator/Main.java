@@ -1,13 +1,11 @@
 package io.github.shaksternano.mediamanipulator;
 
-import io.github.shaksternano.mediamanipulator.command.CaptionCommand;
-import io.github.shaksternano.mediamanipulator.command.ShutDownCommand;
+import io.github.shaksternano.mediamanipulator.command.*;
 import io.github.shaksternano.mediamanipulator.listener.CommandListener;
-import io.github.shaksternano.mediamanipulator.command.CommandRegistry;
-import io.github.shaksternano.mediamanipulator.command.HelpCommand;
-import io.github.shaksternano.mediamanipulator.mediamanipulation.AnimatedImageManipulator;
+import io.github.shaksternano.mediamanipulator.mediamanipulation.GifManipulator;
 import io.github.shaksternano.mediamanipulator.mediamanipulation.ImageManipulator;
 import io.github.shaksternano.mediamanipulator.mediamanipulation.MediaManipulatorRegistry;
+import io.github.shaksternano.mediamanipulator.util.FileUtil;
 import io.github.shaksternano.mediamanipulator.util.Fonts;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -24,6 +22,8 @@ public class Main {
     private static long ownerId = 0;
 
     public static void main(String[] args) {
+        FileUtil.cleanTempDirectory();
+
         String token = null;
 
         try {
@@ -74,14 +74,16 @@ public class Main {
         CommandRegistry.register(
                 HelpCommand.INSTANCE,
                 CaptionCommand.INSTANCE,
-                ShutDownCommand.INSTANCE
+                ShutDownCommand.INSTANCE,
+                ToGifCommand.INSTANCE,
+                StretchCommand.INSTANCE
         );
     }
 
     private static void registerMediaManipulators() {
         MediaManipulatorRegistry.register(
                 ImageManipulator.INSTANCE,
-                AnimatedImageManipulator.INSTANCE
+                GifManipulator.INSTANCE
         );
     }
 }

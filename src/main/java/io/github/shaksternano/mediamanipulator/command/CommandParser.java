@@ -19,15 +19,14 @@ public class CommandParser {
         MessageChannel channel = event.getChannel();
 
         if (commandParts.length > 0) {
-            channel.sendMessage("Thinking...").queue(waitingMessage -> channel.sendTyping().queue(unused -> {
+            channel.sendTyping().queue(unused -> {
                 Optional<Command> commandOptional = CommandRegistry.getCommand(commandParts[0]);
 
                 commandOptional.ifPresentOrElse(command -> {
                     String[] arguments = parseArguments(commandParts);
                     command.execute(arguments, event);
-                    waitingMessage.delete().queue();
                 }, () -> userMessage.reply("Invalid command!").queue());
-            }));
+            });
         }
     }
 

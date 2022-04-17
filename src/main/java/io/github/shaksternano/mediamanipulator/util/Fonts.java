@@ -10,14 +10,14 @@ import java.io.InputStream;
 
 public class Fonts {
 
-    public static Font FUTURA_CONDENSED_EXTRA_BOLD;
+    private static Font FUTURA_CONDENSED_EXTRA_BOLD;
 
     public static void registerFonts() {
         String fontFileName = "Futura_Condensed_Extra_Bold.otf";
 
         try (InputStream fontStream = Main.class.getResourceAsStream("font/" + fontFileName)) {
             if (fontStream != null) {
-                File fontFile = new File(FileUtil.getTempDirectory(), fontFileName);
+                File fontFile = FileUtil.getUniqueTempFile(fontFileName);
                 fontFile.deleteOnExit();
 
                 FileUtils.copyInputStreamToFile(fontStream, fontFile);

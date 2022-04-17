@@ -6,16 +6,16 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.io.File;
 import java.io.IOException;
 
-public class CaptionCommand extends MediaCommand {
+public class ToGifCommand extends MediaCommand {
 
-    public static final CaptionCommand INSTANCE = new CaptionCommand("caption", "Captions a media file.");
+    public static final ToGifCommand INSTANCE = new ToGifCommand("gif", "Turns media into a GIF.");
 
-    protected CaptionCommand(String name, String description) {
+    protected ToGifCommand(String name, String description) {
         super(name, description);
     }
 
     @Override
     public File applyOperation(File mediaFile, String[] arguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
-        return manipulator.caption(mediaFile, String.join(" ", arguments));
+        return manipulator.makeGif(mediaFile);
     }
 }

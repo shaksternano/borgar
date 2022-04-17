@@ -16,16 +16,22 @@ repositories {
         name = "JitPack"
         url = uri("https://jitpack.io")
     }
+
+    maven {
+        name = "Repo1"
+        url = uri("https://repo1.maven.org")
+    }
 }
 
 dependencies {
     implementation("net.dv8tion:JDA:${project.property("java_discord_api_version")}")
     implementation("com.google.guava:guava:${project.property("google_guava_version")}-jre")
     implementation("commons-io:commons-io:${project.property("apache_commons_io_version")}")
+    implementation("org.imgscalr:imgscalr-lib:${project.property("imgscalr_version")}")
     implementation("com.github.rtyley:animated-gif-lib-for-java:animated-gif-lib-${project.property("animated_gif_library_version")}")
     implementation("com.sksamuel.scrimage:scrimage-core:${project.property("scrimage_version")}")
 
-    implementation("org.slf4j:slf4j-simple:${project.property("slf4j_version")}")
+    // implementation("org.slf4j:slf4j-simple:${project.property("slf4j_version")}")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:${project.property("junit_version")}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
