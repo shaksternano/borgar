@@ -16,22 +16,17 @@ public class Fonts {
         String fontFileName = "Futura_Condensed_Extra_Bold.otf";
         File fontFile = FileUtil.getUniqueTempFile(fontFileName);
 
-        Exception exception = null;
-
         boolean success = FileUtil.getResourceAsFile("font/" + fontFileName, fontFile);
+        String fontLoadError = "Error loading font file!";
         if (success) {
             try {
                 FUTURA_CONDENSED_EXTRA_BOLD = Font.createFont(Font.TRUETYPE_FONT, fontFile);
                 GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(FUTURA_CONDENSED_EXTRA_BOLD);
             } catch (FontFormatException | IOException e) {
-                exception = e;
+                Main.LOGGER.error(fontLoadError, e);
             }
-        }
-
-        if (exception == null) {
-            Main.LOGGER.error("Error loading font file!");
         } else {
-            Main.LOGGER.error("Error loading font file!", exception);
+            Main.LOGGER.error(fontLoadError);
         }
     }
 

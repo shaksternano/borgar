@@ -3,6 +3,8 @@ package io.github.shaksternano.mediamanipulator.util;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.Files;
 import io.github.shaksternano.mediamanipulator.Main;
+import io.github.shaksternano.mediamanipulator.util.tenor.TenorMediaType;
+import io.github.shaksternano.mediamanipulator.util.tenor.TenorUtil;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.MessageHistory;
@@ -110,6 +112,11 @@ public class MessageUtil {
 
         for (String url : urls) {
             try {
+                Optional<String> tenorMediaUrlOptional = TenorUtil.getTenorMediaUrl(url, TenorMediaType.GIF_NORMAL, Main.getTenorApiKey());
+                if (tenorMediaUrlOptional.isPresent()) {
+                    url = tenorMediaUrlOptional.orElseThrow();
+                }
+
                 String nameWithoutExtension = Files.getNameWithoutExtension(url);
                 String extension = Files.getFileExtension(url);
                 String fileName = nameWithoutExtension + "." + extension;

@@ -1,4 +1,4 @@
-package io.github.shaksternano.mediamanipulator.util;
+package io.github.shaksternano.mediamanipulator.command.terminal;
 
 import net.dv8tion.jda.api.JDA;
 
@@ -15,8 +15,9 @@ public class TerminalInputListener implements Runnable {
 
     @Override
     public void run() {
+        Scanner scanner = new Scanner(System.in);
+
         while (running) {
-            Scanner scanner = new Scanner(System.in);
             String command = scanner.nextLine();
 
             if (command.equals("!shutdown")) {
