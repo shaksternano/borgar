@@ -31,7 +31,7 @@ public class FileUtil {
         try {
             FileUtils.cleanDirectory(tempDir);
         } catch (Exception e) {
-            Main.LOGGER.error("Error while cleaning temp directory!", e);
+            Main.LOGGER.warn("Error while cleaning temp directory!", e);
         }
     }
 

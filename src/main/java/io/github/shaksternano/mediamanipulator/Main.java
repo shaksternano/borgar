@@ -3,6 +3,7 @@ package io.github.shaksternano.mediamanipulator;
 import io.github.shaksternano.mediamanipulator.command.Commands;
 import io.github.shaksternano.mediamanipulator.listener.CommandListener;
 import io.github.shaksternano.mediamanipulator.mediamanipulator.MediaManipulators;
+import io.github.shaksternano.mediamanipulator.util.TerminalInputListener;
 import io.github.shaksternano.mediamanipulator.util.FileUtil;
 import io.github.shaksternano.mediamanipulator.util.Fonts;
 import net.dv8tion.jda.api.JDA;
@@ -38,6 +39,9 @@ public class Main {
             LOGGER.error("Invalid token!");
             System.exit(1);
         }
+
+        Thread commandThread = new Thread(new TerminalInputListener(jda));
+        commandThread.start();
 
         jda.getPresence().setActivity(Activity.playing("gaming"));
         jda.addEventListener(CommandListener.INSTANCE);
