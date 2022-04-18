@@ -38,10 +38,14 @@ public class Main {
 
         String tenorApiKey = parseTenorApiKey(args);
         if (tenorApiKey.isEmpty()) {
-            LOGGER.info("No Tenor API key provided as the second argument, using restricted, rate limited example key (" + getTenorApiKey() + ").");
+            LOGGER.info("No Tenor API key provided as the second argument, using default, restricted, rate limited example key (" + getTenorApiKey() + ").");
         } else {
-            Main.tenorApiKey = tenorApiKey;
-            LOGGER.info("Using custom Tenor API key.");
+            if (tenorApiKey.equals(Main.getTenorApiKey())) {
+                LOGGER.warn("Tenor API key provided as the second argument is the same as the default, restricted, rate limited example key (" + getTenorApiKey() + ")!");
+            } else {
+                Main.tenorApiKey = tenorApiKey;
+                LOGGER.info("Using custom Tenor API key.");
+            }
         }
 
         JDA jda = null;
