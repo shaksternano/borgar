@@ -6,7 +6,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class HelpCommand extends Command {
 
-    public static final HelpCommand INSTANCE = new HelpCommand("help", "Lists all commands");
+    private static String cachedHelpMessage;
 
     protected HelpCommand(String name, String description) {
         super(name, description);
@@ -19,6 +19,21 @@ public class HelpCommand extends Command {
     }
 
     public static Message getHelpMessage() {
-        return new MessageBuilder("Hello").build();
+        if (cachedHelpMessage == null) {
+            StringBuilder builder = new StringBuilder("Commands:\n");
+
+            CommandRegistry.getCommands().stream().sorted().forEach(
+                    command -> builder
+                            .append('!')
+                            .append(command.getName())
+                            .append(" - ")
+                            .append(command.getDescription())
+                            .append("\n")
+            );
+
+            cachedHelpMessage = builder.toString();
+        }
+
+        return new MessageBuilder(cachedHelpMessage).build();
     }
 }

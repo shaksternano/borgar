@@ -1,8 +1,9 @@
 package io.github.shaksternano.mediamanipulator.command;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import org.jetbrains.annotations.NotNull;
 
-public abstract class Command {
+public abstract class Command implements Comparable<Command> {
 
     private final String NAME;
     private final String DESCRIPTION;
@@ -20,6 +21,11 @@ public abstract class Command {
 
     public String getDescription() {
         return DESCRIPTION;
+    }
+
+    @Override
+    public int compareTo(@NotNull Command command) {
+        return getName().compareTo(command.getName());
     }
 
     @Override

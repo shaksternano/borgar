@@ -1,8 +1,8 @@
 package io.github.shaksternano.mediamanipulator.command;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import com.google.common.collect.ImmutableList;
+
+import java.util.*;
 
 public class CommandRegistry {
 
@@ -16,5 +16,9 @@ public class CommandRegistry {
 
     public static Optional<Command> getCommand(String name) {
         return Optional.ofNullable(registry.get(name));
+    }
+
+    public static List<Command> getCommands() {
+        return ImmutableList.copyOf(registry.values());
     }
 }

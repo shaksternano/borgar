@@ -1,4 +1,4 @@
-package io.github.shaksternano.mediamanipulator.mediamanipulation;
+package io.github.shaksternano.mediamanipulator.mediamanipulator;
 
 import java.io.File;
 import java.io.IOException;

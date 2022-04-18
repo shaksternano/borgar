@@ -1,6 +1,6 @@
 package io.github.shaksternano.mediamanipulator.util;
 
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableList;
 import com.google.common.io.Files;
 import io.github.shaksternano.mediamanipulator.Main;
 import net.dv8tion.jda.api.entities.Message;
@@ -10,15 +10,11 @@ import net.dv8tion.jda.api.entities.MessageHistory;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
-import java.util.LinkedHashSet;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -104,12 +100,12 @@ public class MessageUtil {
     }
 
     private static Optional<File> downloadUrlImage(String message, File directory, boolean needToExtractUrls) {
-        Set<String> urls;
+        List<String> urls;
 
         if (needToExtractUrls) {
             urls = extractUrls(message);
         } else {
-            urls = ImmutableSet.of(message);
+            urls = ImmutableList.of(message);
         }
 
         for (String url : urls) {
@@ -165,8 +161,8 @@ public class MessageUtil {
         return Optional.empty();
     }
 
-    private static Set<String> extractUrls(String text) {
-        Set<String> urls = new LinkedHashSet<>();
+    private static List<String> extractUrls(String text) {
+        List<String> urls = new ArrayList<>();
 
         String regex = "\\b((?:https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:, .;]*[-a-zA-Z0-9+&@#/%=~_|])";
 

@@ -1,16 +1,13 @@
 package io.github.shaksternano.mediamanipulator;
 
-import io.github.shaksternano.mediamanipulator.command.*;
+import io.github.shaksternano.mediamanipulator.command.Commands;
 import io.github.shaksternano.mediamanipulator.listener.CommandListener;
-import io.github.shaksternano.mediamanipulator.mediamanipulation.GifManipulator;
-import io.github.shaksternano.mediamanipulator.mediamanipulation.ImageManipulator;
-import io.github.shaksternano.mediamanipulator.mediamanipulation.MediaManipulatorRegistry;
+import io.github.shaksternano.mediamanipulator.mediamanipulator.MediaManipulators;
 import io.github.shaksternano.mediamanipulator.util.FileUtil;
 import io.github.shaksternano.mediamanipulator.util.Fonts;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +42,7 @@ public class Main {
         jda.getPresence().setActivity(Activity.playing("gaming"));
         jda.addEventListener(CommandListener.INSTANCE);
         jda.updateCommands()
-                .addCommands(Commands.slash(HelpCommand.INSTANCE.getName(), HelpCommand.INSTANCE.getDescription()))
+                .addCommands(net.dv8tion.jda.api.interactions.commands.build.Commands.slash(Commands.HELP.getName(), Commands.HELP.getDescription()))
                 .queue();
 
         jda.retrieveApplicationInfo().queue(
@@ -53,9 +50,9 @@ public class Main {
                 throwable -> LOGGER.error("Failed to get the owner ID of this bot, owner exclusive functionality won't available!", throwable)
         );
 
-        registerCommands();
+        Commands.registerCommands();
         Fonts.registerFonts();
-        registerMediaManipulators();
+        MediaManipulators.registerMediaManipulators();
     }
 
     public static long getOwnerId() {
@@ -68,22 +65,5 @@ public class Main {
         } else {
             throw new IllegalArgumentException();
         }
-    }
-
-    private static void registerCommands() {
-        CommandRegistry.register(
-                HelpCommand.INSTANCE,
-                CaptionCommand.INSTANCE,
-                ShutDownCommand.INSTANCE,
-                ToGifCommand.INSTANCE,
-                StretchCommand.INSTANCE
-        );
-    }
-
-    private static void registerMediaManipulators() {
-        MediaManipulatorRegistry.register(
-                ImageManipulator.INSTANCE,
-                GifManipulator.INSTANCE
-        );
     }
 }

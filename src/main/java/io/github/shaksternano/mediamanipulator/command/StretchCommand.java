@@ -1,6 +1,6 @@
 package io.github.shaksternano.mediamanipulator.command;
 
-import io.github.shaksternano.mediamanipulator.mediamanipulation.MediaManipulator;
+import io.github.shaksternano.mediamanipulator.mediamanipulator.MediaManipulator;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.io.File;
@@ -8,7 +8,8 @@ import java.io.IOException;
 
 public class StretchCommand extends MediaCommand {
 
-    public static final StretchCommand INSTANCE = new StretchCommand("stretch", "Stretches media.");
+    public static final int DEFAULT_WIDTH_MULTIPLIER = 2;
+    public static final int DEFAULT_HEIGHT_MULTIPLIER = 1;
 
     protected StretchCommand(String name, String description) {
         super(name, description);
@@ -16,8 +17,8 @@ public class StretchCommand extends MediaCommand {
 
     @Override
     public File applyOperation(File mediaFile, String[] arguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
-        float widthMultiplier = 1;
-        float heightMultiplier = 1;
+        float widthMultiplier = DEFAULT_WIDTH_MULTIPLIER;
+        float heightMultiplier = DEFAULT_HEIGHT_MULTIPLIER;
 
         if (arguments.length > 0) {
             try {
@@ -26,11 +27,11 @@ public class StretchCommand extends MediaCommand {
                     try {
                         heightMultiplier = Float.parseFloat(arguments[1]);
                     } catch (NumberFormatException e) {
-                        event.getMessage().reply("Height \"" + arguments[0] + "\" is not a number. Using default value of " + widthMultiplier + ".").queue();
+                        event.getMessage().reply("Height multiplier \"" + arguments[0] + "\" is not a number. Using default value of " + widthMultiplier + ".").queue();
                     }
                 }
             } catch (NumberFormatException e) {
-                event.getMessage().reply("Width \"" + arguments[0] + "\" is not a number. Using default value of " + widthMultiplier + ".").queue();
+                event.getMessage().reply("Width multiplier \"" + arguments[0] + "\" is not a number. Using default value of " + widthMultiplier + ".").queue();
             }
         }
 

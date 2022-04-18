@@ -1,4 +1,4 @@
-package io.github.shaksternano.mediamanipulator.mediamanipulation;
+package io.github.shaksternano.mediamanipulator.mediamanipulator;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Files;
@@ -13,9 +13,7 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.function.Function;
 
-public enum ImageManipulator implements MediaManipulator {
-
-    INSTANCE;
+public class ImageManipulator implements MediaManipulator {
 
     @Override
     public File caption(File media, String caption) throws IOException {

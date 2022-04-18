@@ -1,13 +1,10 @@
 package io.github.shaksternano.mediamanipulator.command;
 
 import io.github.shaksternano.mediamanipulator.Main;
-import io.github.shaksternano.mediamanipulator.util.Fonts;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class ShutDownCommand extends Command {
-
-    public static final ShutDownCommand INSTANCE = new ShutDownCommand("shutdown", "Shuts down the bot.");
 
     protected ShutDownCommand(String name, String description) {
         super(name, description);

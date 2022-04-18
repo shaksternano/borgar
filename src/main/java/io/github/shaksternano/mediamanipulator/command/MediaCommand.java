@@ -2,8 +2,8 @@ package io.github.shaksternano.mediamanipulator.command;
 
 import com.google.common.io.Files;
 import io.github.shaksternano.mediamanipulator.Main;
-import io.github.shaksternano.mediamanipulator.mediamanipulation.MediaManipulator;
-import io.github.shaksternano.mediamanipulator.mediamanipulation.MediaManipulatorRegistry;
+import io.github.shaksternano.mediamanipulator.mediamanipulator.MediaManipulator;
+import io.github.shaksternano.mediamanipulator.mediamanipulator.MediaManipulatorRegistry;
 import io.github.shaksternano.mediamanipulator.util.FileUtil;
 import io.github.shaksternano.mediamanipulator.util.MessageUtil;
 import net.dv8tion.jda.api.entities.Message;
@@ -14,7 +14,7 @@ import java.io.IOException;
 
 public abstract class MediaCommand extends Command {
 
-    protected MediaCommand(String name, String description) {
+    public MediaCommand(String name, String description) {
         super(name, description);
     }
 
@@ -30,14 +30,15 @@ public abstract class MediaCommand extends Command {
             MediaManipulatorRegistry.getManipulator(fileExtension).ifPresentOrElse(manipulator -> {
                 try {
                     File editedMedia = applyOperation(imageFile, arguments, manipulator, event);
+                    imageFile.delete();
                     editedMedia.deleteOnExit();
                     userMessage.reply(editedMedia).queue(message -> {
-                        imageFile.delete();
                         editedMedia.delete();
                     }, throwable -> {
-                        imageFile.delete();
                         editedMedia.delete();
-                        Main.LOGGER.error("Failed to send edited media!", throwable);
+                        String failSend = "Failed to send edited media!";
+                        userMessage.reply(failSend).queue();
+                        Main.LOGGER.error(failSend, throwable);
                     });
                 } catch (IOException e) {
                     String errorMessage = "Error applying operation to media!";

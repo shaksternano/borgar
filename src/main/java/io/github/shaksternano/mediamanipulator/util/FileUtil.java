@@ -5,10 +5,11 @@ import io.github.shaksternano.mediamanipulator.Main;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.Nullable;
 
+import java.awt.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.MalformedURLException;
+import java.io.InputStream;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
@@ -29,7 +30,8 @@ public class FileUtil {
         File tempDir = getUniqueFile(TEMP_DIR, true);
         try {
             FileUtils.cleanDirectory(tempDir);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            Main.LOGGER.error("Error while cleaning temp directory!", e);
         }
     }
 
@@ -63,14 +65,29 @@ public class FileUtil {
         return tempFile;
     }
 
+    public static boolean getResourceAsFile(String resourcePath, File file) {
+        try (InputStream inputStream = FileUtil.class.getClassLoader().getResourceAsStream(resourcePath)) {
+            if (inputStream != null) {
+                FileUtils.copyInputStreamToFile(inputStream, file);
+                return true;
+            } else {
+                Main.LOGGER.error("Could not find resource file!");
+            }
+        } catch (IOException e) {
+            Main.LOGGER.error("Error loading resource file!", e);
+        }
+
+        return false;
+    }
+
     public static File appendName(File file, String toAppend) {
         String fileNameWithoutExtension = Files.getNameWithoutExtension(file.getName());
         String extension = Files.getFileExtension(file.getName());
         return new File(fileNameWithoutExtension + toAppend + "." + extension);
     }
 
-    public static void downloadFile(String stringUrl, File file) throws IOException {
-        URL url = new URL(stringUrl);
+    public static void downloadFile(String webUrl, File file) throws IOException {
+        URL url = new URL(webUrl);
         ReadableByteChannel readableByteChannel = Channels.newChannel(url.openStream());
         FileOutputStream outputStream = new FileOutputStream(file);
         outputStream.getChannel().transferFrom(readableByteChannel, 0, Long.MAX_VALUE);

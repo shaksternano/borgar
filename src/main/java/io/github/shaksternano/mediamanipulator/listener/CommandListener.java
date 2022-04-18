@@ -1,6 +1,7 @@
 package io.github.shaksternano.mediamanipulator.listener;
 
 import io.github.shaksternano.mediamanipulator.command.CommandParser;
+import io.github.shaksternano.mediamanipulator.command.Commands;
 import io.github.shaksternano.mediamanipulator.command.HelpCommand;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -13,7 +14,7 @@ public class CommandListener extends ListenerAdapter {
 
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
-        if (event.getName().equals(HelpCommand.INSTANCE.getName())) {
+        if (event.getName().equals(Commands.HELP.getName())) {
             event.reply(HelpCommand.getHelpMessage()).queue();
         }
     }
