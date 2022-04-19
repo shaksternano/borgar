@@ -48,17 +48,20 @@ public abstract class MediaCommand extends Command {
             MediaManipulatorRegistry.getManipulator(fileExtension).ifPresentOrElse(manipulator -> {
                 try {
                     File editedMedia = applyOperation(imageFile, arguments, manipulator, event);
-                    imageFile.delete();
                     editedMedia.deleteOnExit();
+                    imageFile.delete();
+
                     userMessage.reply(editedMedia).queue(message -> editedMedia.delete(), throwable -> {
                         editedMedia.delete();
                         String failSend = "Failed to send edited media!";
+
                         userMessage.reply(failSend).queue();
                         Main.LOGGER.error(failSend, throwable);
                     });
                 } catch (IOException | UncheckedIOException e) {
                     String errorMessage = "Error applying operation to media!";
                     userMessage.reply(errorMessage).queue();
+
                     Main.LOGGER.error(errorMessage, e);
                 } catch (UnsupportedOperationException e) {
                     userMessage.reply("This operation is not supported on files with type \"" + fileExtension + "\"!").queue();
