@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 
 /**
  * A {@link Command} that manipulates media files.
@@ -55,7 +56,7 @@ public abstract class MediaCommand extends Command {
                         userMessage.reply(failSend).queue();
                         Main.LOGGER.error(failSend, throwable);
                     });
-                } catch (IOException e) {
+                } catch (IOException | UncheckedIOException e) {
                     String errorMessage = "Error applying operation to media!";
                     userMessage.reply(errorMessage).queue();
                     Main.LOGGER.error(errorMessage, e);

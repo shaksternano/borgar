@@ -1,5 +1,7 @@
 package io.github.shaksternano.mediamanipulator.util;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.awt.*;
 import java.awt.font.FontRenderContext;
 import java.awt.font.LineBreakMeasurer;
@@ -117,5 +119,43 @@ public class ImageUtil {
         graphics.drawImage(image, 0, 0, newWidth, newHeight, null);
         graphics.dispose();
         return stretchedImage;
+    }
+
+    public static BufferedImage overlayImage(BufferedImage image, BufferedImage overlay, int x, int y, boolean expand, @Nullable Color excessColor) {
+        if (expand) {
+            int imageWidth = image.getWidth();
+            int imageHeight = image.getHeight();
+
+            int overlayWidth = overlay.getWidth();
+            int overlayHeight = overlay.getHeight();
+
+            int overlaidWidth = x < 0 ? Math.max(imageWidth - x, overlayWidth) : Math.max(imageWidth, overlayWidth + x);
+            int overlaidHeight = y < 0 ? Math.max(imageHeight - y, overlayHeight) : Math.max(imageHeight, overlayHeight + y);
+
+            BufferedImage overlaidImage = new BufferedImage(overlaidWidth, overlaidHeight, image.getType());
+            Graphics2D graphics = overlaidImage.createGraphics();
+
+            if (excessColor != null) {
+                graphics.setColor(excessColor);
+            }
+
+            graphics.fillRect(0, 0, overlaidImage.getWidth(), overlaidImage.getHeight());
+
+            int imageActualX = x < 0 ? -x : 0;
+            int imageActualY = y < 0 ? -y : 0;
+
+            int overlayActualX = Math.max(x, 0);
+            int overlayActualY = Math.max(y, 0);
+
+            graphics.drawImage(image, imageActualX, imageActualY, null);
+            graphics.drawImage(overlay, overlayActualX, overlayActualY, null);
+            graphics.dispose();
+            return overlaidImage;
+        } else {
+            Graphics2D graphics = image.createGraphics();
+            graphics.drawImage(overlay, x, y, null);
+            graphics.dispose();
+            return image;
+        }
     }
 }

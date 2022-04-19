@@ -40,12 +40,12 @@ public class MessageUtil {
             return imageFileOptional;
         }
 
-        imageFileOptional = downloadUrlImage(message.getContentRaw(), directory, true);
+        imageFileOptional = downloadUrlImage(message.getContentRaw(), directory, false);
         if (imageFileOptional.isPresent()) {
             return imageFileOptional;
         }
 
-        imageFileOptional = downloadEmbedImages(message, directory);
+        imageFileOptional = downloadEmbedImage(message, directory);
         if (imageFileOptional.isPresent()) {
             return imageFileOptional;
         }
@@ -101,13 +101,13 @@ public class MessageUtil {
         return Optional.empty();
     }
 
-    private static Optional<File> downloadUrlImage(String message, File directory, boolean needToExtractUrls) {
+    private static Optional<File> downloadUrlImage(String message, File directory, boolean isMessageUrl) {
         List<String> urls;
 
-        if (needToExtractUrls) {
-            urls = extractUrls(message);
-        } else {
+        if (isMessageUrl) {
             urls = ImmutableList.of(message);
+        } else {
+            urls = extractUrls(message);
         }
 
         for (String url : urls) {
@@ -117,9 +117,8 @@ public class MessageUtil {
                     url = tenorMediaUrlOptional.orElseThrow();
                 }
 
-                String nameWithoutExtension = Files.getNameWithoutExtension(url);
+                String fileNameWithoutExtension = Files.getNameWithoutExtension(url);
                 String extension = Files.getFileExtension(url);
-                String fileName = nameWithoutExtension + "." + extension;
 
                 if (extension.isEmpty()) {
                     extension = "png";
@@ -131,6 +130,8 @@ public class MessageUtil {
                 }
 
                 BufferedImage image;
+
+                String fileName = fileNameWithoutExtension + "." + extension;
                 File imageFile = FileUtil.getUniqueFile(directory, fileName);
 
                 if (extension.equals("gif")) {
@@ -138,11 +139,11 @@ public class MessageUtil {
                     return Optional.of(imageFile);
                 } else {
                     image = ImageIO.read(new URL(url));
-                }
 
-                if (image != null) {
-                    ImageIO.write(image, extension, imageFile);
-                    return Optional.of(imageFile);
+                    if (image != null) {
+                        ImageIO.write(image, extension, imageFile);
+                        return Optional.of(imageFile);
+                    }
                 }
             } catch (IOException ignored) {
             }
@@ -151,14 +152,14 @@ public class MessageUtil {
         return Optional.empty();
     }
 
-    private static Optional<File> downloadEmbedImages(Message message, File directory) {
+    private static Optional<File> downloadEmbedImage(Message message, File directory) {
         List<MessageEmbed> embeds = message.getEmbeds();
 
         for (MessageEmbed embed : embeds) {
             MessageEmbed.ImageInfo imageInfo = embed.getImage();
-            if (imageInfo != null) {
 
-                Optional<File> imageFileOptional = downloadUrlImage(imageInfo.getUrl(), directory, false);
+            if (imageInfo != null) {
+                Optional<File> imageFileOptional = downloadUrlImage(imageInfo.getUrl(), directory, true);
                 if (imageFileOptional.isPresent()) {
                     return imageFileOptional;
                 }

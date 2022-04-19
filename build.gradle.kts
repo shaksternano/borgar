@@ -23,7 +23,6 @@ dependencies {
     implementation("com.google.guava:guava:${project.property("google_guava_version")}-jre")
     implementation("com.google.code.gson:gson:${project.property("google_gson_version")}")
     implementation("commons-io:commons-io:${project.property("apache_commons_io_version")}")
-    implementation("org.imgscalr:imgscalr-lib:${project.property("imgscalr_version")}")
     implementation("com.sksamuel.scrimage:scrimage-core:${project.property("scrimage_version")}")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:${project.property("junit_version")}")

@@ -13,20 +13,11 @@ public class Fonts {
     private static Font FUTURA_CONDENSED_EXTRA_BOLD;
 
     public static void registerFonts() {
-        String fontFileName = "Futura_Condensed_Extra_Bold.otf";
-        File fontFile = FileUtil.getUniqueTempFile(fontFileName);
-
-        boolean success = FileUtil.getResourceAsFile("font/" + fontFileName, fontFile);
-        String fontLoadError = "Error loading font file!";
-        if (success) {
-            try {
-                FUTURA_CONDENSED_EXTRA_BOLD = Font.createFont(Font.TRUETYPE_FONT, fontFile);
-                GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(FUTURA_CONDENSED_EXTRA_BOLD);
-            } catch (FontFormatException | IOException e) {
-                Main.LOGGER.error(fontLoadError, e);
-            }
-        } else {
-            Main.LOGGER.error(fontLoadError);
+        try (InputStream fontStream = FileUtil.getResource("font/futura_condensed_extra_bold.otf")) {
+            FUTURA_CONDENSED_EXTRA_BOLD = Font.createFont(Font.TRUETYPE_FONT, fontStream);
+            GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(FUTURA_CONDENSED_EXTRA_BOLD);
+        } catch (FontFormatException | IOException e) {
+            Main.LOGGER.error("Error loading font file!", e);
         }
     }
 

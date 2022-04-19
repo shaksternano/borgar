@@ -21,6 +21,8 @@ public class Commands {
             "Stretches media. Optional parameters: [width stretch multiplier, default value is " + StretchCommand.DEFAULT_WIDTH_MULTIPLIER + "], [height stretch multiplier, default value is " + StretchCommand.DEFAULT_HEIGHT_MULTIPLIER + "]"
     );
 
+    public static final Command SPEECH_BUBBLE = new SpeechBubbleCommand("speechbubble", "Overlays a speech bubble over media.");
+
     /**
      * The to-gif {@link Command}.
      */
@@ -52,6 +54,7 @@ public class Commands {
         CommandRegistry.register(
                 CAPTION,
                 STRETCH,
+                SPEECH_BUBBLE,
                 TO_GIF,
                 SHUT_DOWN,
                 HELP

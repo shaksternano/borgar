@@ -66,19 +66,35 @@ public class FileUtil {
         return tempFile;
     }
 
-    public static boolean getResourceAsFile(String resourcePath, File file) {
-        try (InputStream inputStream = FileUtil.class.getClassLoader().getResourceAsStream(resourcePath)) {
-            if (inputStream != null) {
-                FileUtils.copyInputStreamToFile(inputStream, file);
-                return true;
-            } else {
-                Main.LOGGER.error("Could not find resource file!");
-            }
-        } catch (IOException e) {
-            Main.LOGGER.error("Error loading resource file!", e);
+    public static String getFileName(String path) {
+        int index = path.lastIndexOf('/');
+        if (index >= 0) {
+            return path.substring(index + 1);
+        } else {
+            return path;
         }
+    }
 
-        return false;
+    public static InputStream getResource(String resourcePath) throws IOException {
+        InputStream inputStream = FileUtil.class.getClassLoader().getResourceAsStream(resourcePath);
+        if (inputStream == null) {
+            throw new IOException("Resource not found: " + resourcePath);
+        } else {
+            return inputStream;
+        }
+    }
+
+    public static File getResourceAsTempFile(String resourcePath) throws IOException {
+        String fileName = getFileName(resourcePath);
+        File tempFile = getUniqueTempFile(fileName);
+        getResourceAsFile(resourcePath, tempFile);
+        return tempFile;
+    }
+
+    public static void getResourceAsFile(String resourcePath, File file) throws IOException {
+        try (InputStream inputStream = getResource(resourcePath)) {
+            FileUtils.copyInputStreamToFile(inputStream, file);
+        }
     }
 
     public static File appendName(File file, String toAppend) {
