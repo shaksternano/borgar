@@ -61,7 +61,7 @@ public abstract class MediaCommand extends Command {
                     userMessage.reply(errorMessage).queue();
                     Main.LOGGER.error(errorMessage, e);
                 } catch (UnsupportedOperationException e) {
-                    userMessage.reply("This operation is not supported on this file type!").queue();
+                    userMessage.reply("This operation is not supported on files with type \"" + fileExtension + "\"!").queue();
                 }
             }, () -> userMessage.reply("Unsupported file type!").queue());
         }, () -> userMessage.reply("No media found!").queue());
