@@ -21,6 +21,6 @@ public class CommandListener extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
-        CommandParser.parseAndTryExecute(event);
+        CommandParser.parseAndExecute(event);
     }
 }

@@ -7,11 +7,21 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.util.Arrays;
 import java.util.Optional;
 
+/**
+ * Parses commands from messages.
+ */
 public class CommandParser {
 
-    private static final String COMMAND_PREFIX = "!";
+    /**
+     * The command prefix.
+     */
+    public static final String COMMAND_PREFIX = "!";
 
-    public static void parseAndTryExecute(MessageReceivedEvent event) {
+    /**
+     * Gets a {@link Command} from the command word in a message and executes it.
+     * @param event The {@link MessageReceivedEvent} that triggered the command.
+     */
+    public static void parseAndExecute(MessageReceivedEvent event) {
         Message userMessage = event.getMessage();
         String stringMessage = userMessage.getContentRaw().trim();
         String[] commandParts = parseCommandParts(stringMessage);
@@ -30,6 +40,11 @@ public class CommandParser {
         }
     }
 
+    /**
+     * Splits a message into a string array, splitting on spaces.
+     * @param message The message to split.
+     * @return The split message.
+     */
     private static String[] parseCommandParts(String message) {
         if (message.length() > 1) {
             if (message.startsWith(COMMAND_PREFIX)) {
@@ -43,6 +58,11 @@ public class CommandParser {
         return new String[0];
     }
 
+    /**
+     * Removes the command word from a message array, leaving only the arguments of the command.
+     * @param commandParts The command parts to remove the command word from.
+     * @return The arguments of the command.
+     */
     private static String[] parseArguments(String[] commandParts) {
         String[] arguments;
 

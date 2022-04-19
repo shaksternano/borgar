@@ -87,7 +87,7 @@ public class TenorUtil {
             }
         }
 
-        return JsonUtil.EMPTY_JSON;
+        return JsonUtil.EMPTY;
     }
 
     /**
@@ -109,6 +109,6 @@ public class TenorUtil {
         } catch (IOException ignored) {
         }
 
-        return JsonUtil.EMPTY_JSON;
+        return JsonUtil.EMPTY;
     }
 }

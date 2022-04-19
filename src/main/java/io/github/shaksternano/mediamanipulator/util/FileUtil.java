@@ -30,7 +30,8 @@ public class FileUtil {
         File tempDir = getUniqueFile(TEMP_DIR, true);
         try {
             FileUtils.cleanDirectory(tempDir);
-        } catch (Exception e) {
+        } catch (IllegalArgumentException ignored) {
+        } catch (IOException e) {
             Main.LOGGER.warn("Error while cleaning temp directory!", e);
         }
     }

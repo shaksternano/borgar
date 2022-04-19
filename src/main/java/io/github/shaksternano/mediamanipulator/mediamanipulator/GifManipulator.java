@@ -8,10 +8,7 @@ import com.sksamuel.scrimage.nio.AnimatedGifReader;
 import com.sksamuel.scrimage.nio.ImageSource;
 import com.sksamuel.scrimage.nio.StreamingGifWriter;
 import io.github.shaksternano.mediamanipulator.Main;
-import io.github.shaksternano.mediamanipulator.util.DelayedImage;
-import io.github.shaksternano.mediamanipulator.util.FileUtil;
-import io.github.shaksternano.mediamanipulator.util.Fonts;
-import io.github.shaksternano.mediamanipulator.util.ImageUtil;
+import io.github.shaksternano.mediamanipulator.util.*;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -53,7 +50,7 @@ public class GifManipulator implements MediaManipulator {
 
     private static File applyToEachFrame(File media, Function<BufferedImage, BufferedImage> operation, String operationName) throws IOException {
         List<DelayedImage> frames = readGifFrames(media);
-        frames = ImageUtil.removeFrames(frames, media.length(), TARGET_FILE_SIZE);
+        frames = MediaCompression.removeFrames(frames, media.length(), TARGET_FILE_SIZE);
 
         frames.parallelStream().forEach(
                 delayedImage -> {
@@ -64,9 +61,9 @@ public class GifManipulator implements MediaManipulator {
                 }
         );
 
-        File imageFile = FileUtil.getUniqueTempFile(FileUtil.appendName(media, "_" + operationName).getName());
-        writeFramesToGifFile(frames, imageFile);
-        return imageFile;
+        File gifFile = FileUtil.getUniqueTempFile(FileUtil.appendName(media, "_" + operationName).getName());
+        writeFramesToGifFile(frames, gifFile);
+        return gifFile;
     }
 
     private static List<DelayedImage> readGifFrames(File media) throws IOException {
