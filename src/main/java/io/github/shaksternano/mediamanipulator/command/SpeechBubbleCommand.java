@@ -43,7 +43,7 @@ public class SpeechBubbleCommand extends MediaCommand {
             File resizedOverlayFile = FileUtil.getUniqueTempFile(mediaFile.getName() + "_resized_" + overlayName);
             ImageIO.write(resizedOverlay, overlayExtension, resizedOverlayFile);
 
-            File overlaidMediaFile = manipulator.overlayMedia(mediaFile, resizedOverlayFile, 0, -resizedOverlayHeight, true, Color.WHITE, "speech_bubbled");
+            File overlaidMediaFile = manipulator.overlayMedia(mediaFile, resizedOverlayFile, 0, -resizedOverlayHeight, true, null, "speech_bubbled");
             resizedOverlayFile.delete();
 
             return overlaidMediaFile;
