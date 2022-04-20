@@ -15,7 +15,7 @@ public class CommandParser {
     /**
      * The command prefix.
      */
-    public static final String COMMAND_PREFIX = "!";
+    public static final String COMMAND_PREFIX = "%";
 
     /**
      * Gets a {@link Command} from the command word in a message and executes it.
