@@ -46,7 +46,7 @@ public class HelpCommand extends Command {
 
             CommandRegistry.getCommands().stream().sorted().forEach(
                     command -> builder
-                            .append('!')
+                            .append(CommandParser.COMMAND_PREFIX)
                             .append(command.getName())
                             .append(" - ")
                             .append(command.getDescription())
