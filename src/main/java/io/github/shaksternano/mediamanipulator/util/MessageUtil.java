@@ -25,6 +25,8 @@ import java.util.regex.Pattern;
 
 public class MessageUtil {
 
+    private static final int MAX_PAST_MESSAGES_TO_CHECK = 50;
+
     /**
      * Downloads an image.
      * @param message
@@ -63,7 +65,7 @@ public class MessageUtil {
 
             MessageHistory history = message.getChannel().getHistory();
             try {
-                List<Message> previousMessages = history.retrievePast(10).submit().get(10, TimeUnit.SECONDS);
+                List<Message> previousMessages = history.retrievePast(MAX_PAST_MESSAGES_TO_CHECK).submit().get(10, TimeUnit.SECONDS);
                 for (Message previousMessage : previousMessages) {
                     Optional<File> previousImageFileOptional = downloadImage(previousMessage, directory, false);
 
