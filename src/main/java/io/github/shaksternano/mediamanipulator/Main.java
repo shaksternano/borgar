@@ -37,13 +37,13 @@ public class Main {
             token = System.getenv(DISCORD_BOT_TOKEN_ENVIRONMENT_VARIABLE);
             
             if (token == null) {
-                LOGGER.error("Please provide a token as the first argument!");
+                LOGGER.error("Please provide a Discord bot token as the first argument!");
                 System.exit(1);
             } else {
-                LOGGER.info("Using token from environment variable " + DISCORD_BOT_TOKEN_ENVIRONMENT_VARIABLE + ".");
+                LOGGER.info("Using Discord bot token from environment variable " + DISCORD_BOT_TOKEN_ENVIRONMENT_VARIABLE + ".");
             }
         } else {
-            LOGGER.info("Using token from program arguments.");
+            LOGGER.info("Using Discord bot token from program arguments.");
         }
 
         String tenorApiKey = parseTenorApiKey(args);
@@ -65,7 +65,7 @@ public class Main {
                 LOGGER.warn("Tenor API key provided as the second argument is the same as the default, restricted, rate limited example key (" + getTenorApiKey() + ")!");
             } else {
                 Main.tenorApiKey = tenorApiKey;
-                LOGGER.info("Using custom Tenor API key.");
+                LOGGER.info("Using Tenor API key from program arguments.");
             }
         }
 
