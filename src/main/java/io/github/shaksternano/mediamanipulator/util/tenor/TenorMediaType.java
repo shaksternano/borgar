@@ -10,7 +10,7 @@ public enum TenorMediaType {
     MP4_EXTRA_SMALL("nanomp4"),
     MP4_SMALL("tinymp4"),
     MP4_NORMAL("mp4"),
-    MP4_LOOPED("loopedmp4"),
+    MP4_NORMAL_LOOPED("loopedmp4"),
 
     WEBM_EXTRA_SMALL("nanowebm"),
     WEBM_SMALL("tinywebm"),
