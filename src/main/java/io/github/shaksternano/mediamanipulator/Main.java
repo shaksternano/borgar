@@ -17,6 +17,10 @@ import javax.security.auth.login.LoginException;
 public class Main {
 
     public static final Logger LOGGER = LoggerFactory.getLogger("Media Manipulator");
+    
+    private static final String DISCORD_BOT_TOKEN_ENVIRONMENT_VARIABLE = "DISCORD_BOT_TOKEN";
+    private static final String TENOR_API_KEY_ENVIRONMENT_VARIABLE = "TENOR_API_KEY";
+    
     private static long ownerId = 0;
 
     /**
@@ -27,18 +31,35 @@ public class Main {
     public static void main(String[] args) {
         FileUtil.cleanTempDirectory();
 
-        String token = null;
-
-        try {
-            token = parseDiscordBotToken(args);
-        } catch (IllegalArgumentException e) {
-            LOGGER.error("Please provide a token as the first argument!");
-            System.exit(1);
+        String token = parseDiscordBotToken(args);
+        
+        if (token.isEmpty()) {
+            token = System.getenv(DISCORD_BOT_TOKEN_ENVIRONMENT_VARIABLE);
+            
+            if (token == null) {
+                LOGGER.error("Please provide a token as the first argument!");
+                System.exit(1);
+            } else {
+                LOGGER.info("Using token from environment variable " + DISCORD_BOT_TOKEN_ENVIRONMENT_VARIABLE + ".");
+            }
+        } else {
+            LOGGER.info("Using token from program arguments.");
         }
 
         String tenorApiKey = parseTenorApiKey(args);
         if (tenorApiKey.isEmpty()) {
-            LOGGER.warn("No Tenor API key provided as the second argument, using default, restricted, rate limited example key (" + getTenorApiKey() + ").");
+            tenorApiKey = System.getenv(TENOR_API_KEY_ENVIRONMENT_VARIABLE);
+
+            if (tenorApiKey == null) {
+                LOGGER.warn("No Tenor API key provided as the second argument or from environment variable " + TENOR_API_KEY_ENVIRONMENT_VARIABLE + ", using default, restricted, rate limited example key (" + getTenorApiKey() + ").");
+            } else {
+                if (tenorApiKey.equals(Main.getTenorApiKey())) {
+                    LOGGER.warn("Tenor API key provided from environment variable " + TENOR_API_KEY_ENVIRONMENT_VARIABLE + " is the same as the default, restricted, rate limited example key (" + getTenorApiKey() + ")!");
+                } else {
+                    Main.tenorApiKey = tenorApiKey;
+                    LOGGER.info("Using Tenor API key from environment variable " + TENOR_API_KEY_ENVIRONMENT_VARIABLE + ".");
+                }
+            }
         } else {
             if (tenorApiKey.equals(Main.getTenorApiKey())) {
                 LOGGER.warn("Tenor API key provided as the second argument is the same as the default, restricted, rate limited example key (" + getTenorApiKey() + ")!");
@@ -84,7 +105,7 @@ public class Main {
         if (args.length > 0) {
             return args[0];
         } else {
-            throw new IllegalArgumentException();
+            return "";
         }
     }
 

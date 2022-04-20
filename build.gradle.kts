@@ -29,6 +29,11 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 }
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
 tasks {
     named<ShadowJar>("shadowJar") {
         archiveBaseName.set("${project.property("archives_base_name")}-shadow")
@@ -43,6 +48,20 @@ tasks {
     build {
         dependsOn(shadowJar)
     }
+}
+
+task("copyToLib") {
+    doLast {
+        copy {
+            into("$buildDir/libs")
+            from(configurations.compileClasspath)
+        }
+    }
+}
+
+task("stage") {
+    dependsOn.add("build")
+    dependsOn.add("copyToLib")
 }
 
 tasks.getByName<Test>("test") {
