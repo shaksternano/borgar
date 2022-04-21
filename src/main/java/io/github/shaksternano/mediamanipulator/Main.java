@@ -102,7 +102,7 @@ public class Main {
             System.exit(1);
         }
 
-        Thread commandThread = new Thread(new TerminalInputListener(jda));
+        Thread commandThread = new Thread(new TerminalInputListener());
         commandThread.start();
 
         jda.getPresence().setActivity(Activity.playing("gaming"));
