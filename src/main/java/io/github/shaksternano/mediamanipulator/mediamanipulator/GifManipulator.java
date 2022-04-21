@@ -9,54 +9,29 @@ import com.sksamuel.scrimage.nio.ImageSource;
 import com.sksamuel.scrimage.nio.StreamingGifWriter;
 import io.github.shaksternano.mediamanipulator.Main;
 import io.github.shaksternano.mediamanipulator.util.*;
-import org.jetbrains.annotations.Nullable;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 
-public class GifManipulator implements MediaManipulator {
+/**
+ * A manipulator for GIF files.
+ */
+public class GifManipulator extends ImageBasedManipulator {
 
     /**
-     * 8MB
+     * This file is already a GIF file, so we don't need to do anything.
+     * @param media The media file to turn into a GIF.
+     * @return The media as a GIF file.
      */
-    private static final long TARGET_FILE_SIZE = 8388608;
-
-    @Override
-    public File caption(File media, String caption) throws IOException {
-        return applyToEachFrame(media, image -> ImageUtil.captionImage(image, caption, Fonts.getCaptionFont()), "captioned");
-    }
-
-    @Override
-    public File stretch(File media, float widthMultiplier, float heightMultiplier) throws IOException {
-        return applyToEachFrame(media, image -> ImageUtil.stretch(image, widthMultiplier, heightMultiplier), "stretched");
-    }
-
-    @Override
-    public File overlayMedia(File media, File overlay, int x, int y, boolean expand, @Nullable Color excessColor, @Nullable String overlayName) throws IOException {
-        return applyToEachFrame(media, image -> {
-            try {
-                BufferedImage overlayImage = ImageIO.read(overlay);
-                BufferedImage overLaidImage = ImageUtil.overlayImage(image, overlayImage, x, y, expand, excessColor);
-                overlayImage.flush();
-                return overLaidImage;
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        }, overlayName == null ? "overlaid" : overlayName);
-    }
-
     @Override
     public File makeGif(File media) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("This file is already a GIF file!");
     }
 
     @Override
@@ -66,9 +41,18 @@ public class GifManipulator implements MediaManipulator {
         );
     }
 
-    private static File applyToEachFrame(File media, Function<BufferedImage, BufferedImage> operation, String operationName) throws IOException {
+    /**
+     * Applies the given operation to every frame of the GIF file.
+     * @param media The image based file to apply the operation to.
+     * @param operation The operation to apply.
+     * @param operationName The name of the operation.
+     * @return The resulting file.
+     * @throws IOException If an error occurs while applying the operation.
+     */
+    @Override
+    protected File applyOperation(File media, Function<BufferedImage, BufferedImage> operation, String operationName) throws IOException {
         List<DelayedImage> frames = readGifFrames(media);
-        frames = MediaCompression.removeFrames(frames, media.length(), TARGET_FILE_SIZE);
+        frames = MediaCompression.removeFrames(frames, media.length(), FileUtil.DISCORD_MAXIMUM_FILE_SIZE);
 
         frames.parallelStream().forEach(
                 delayedImage -> {
@@ -84,6 +68,12 @@ public class GifManipulator implements MediaManipulator {
         return gifFile;
     }
 
+    /**
+     * Gets the frames of a GIF file.
+     * @param media The GIF file to get the frames of.
+     * @return A list of {@link DelayedImage}s representing the frames of the GIF file.
+     * @throws IOException If an error occurs while reading the GIF file.
+     */
     private static List<DelayedImage> readGifFrames(File media) throws IOException {
         List<DelayedImage> frames = new ArrayList<>();
         AnimatedGif gif = AnimatedGifReader.read(ImageSource.of(media));
@@ -97,6 +87,11 @@ public class GifManipulator implements MediaManipulator {
         return frames;
     }
 
+    /**
+     * Writes the given frames to a GIF file.
+     * @param frames The {@link DelayedImage} frames to write to the GIF file.
+     * @param outputFile The file to write the frames to.
+     */
     private static void writeFramesToGifFile(List<DelayedImage> frames, File outputFile){
         StreamingGifWriter writer = new StreamingGifWriter();
         try (StreamingGifWriter.GifStream gif = writer.prepareStream(outputFile, BufferedImage.TYPE_INT_ARGB)) {

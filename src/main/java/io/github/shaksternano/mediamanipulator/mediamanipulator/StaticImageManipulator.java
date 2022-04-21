@@ -16,31 +16,10 @@ import java.io.UncheckedIOException;
 import java.util.Set;
 import java.util.function.Function;
 
-public class ImageManipulator implements MediaManipulator {
-
-    @Override
-    public File caption(File media, String caption) throws IOException {
-        return apply(media, image -> ImageUtil.captionImage(image, caption, Fonts.getCaptionFont()), "captioned");
-    }
-
-    @Override
-    public File stretch(File media, float widthMultiplier, float heightMultiplier) throws IOException {
-        return apply(media, image -> ImageUtil.stretch(image, widthMultiplier, heightMultiplier), "stretched");
-    }
-
-    @Override
-    public File overlayMedia(File media, File overlay, int x, int y, boolean expand, @Nullable Color excessColor, @Nullable String overlayName) throws IOException {
-        return apply(media, image -> {
-            try {
-                BufferedImage overlayImage = ImageIO.read(overlay);
-                BufferedImage overLaidImage = ImageUtil.overlayImage(image, overlayImage, x, y, expand, excessColor);
-                overlayImage.flush();
-                return overLaidImage;
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        }, overlayName == null ? "overlaid" : overlayName);
-    }
+/**
+ * A manipulator for static image files.
+ */
+public class StaticImageManipulator extends ImageBasedManipulator {
 
     @Override
     public File makeGif(File media) throws IOException {
@@ -58,7 +37,16 @@ public class ImageManipulator implements MediaManipulator {
         );
     }
 
-    private static File apply(File media, Function<BufferedImage, BufferedImage> operation, String operationName) throws IOException {
+    /**
+     * Applies the given operation to the image.
+     * @param media The image based file to apply the operation to.
+     * @param operation The operation to apply.
+     * @param operationName The name of the operation.
+     * @return The resulting file.
+     * @throws IOException If an error occurs while applying the operation.
+     */
+    @Override
+    protected File applyOperation(File media, Function<BufferedImage, BufferedImage> operation, String operationName) throws IOException {
         BufferedImage uneditedImage = ImageIO.read(media);
 
         BufferedImage editedImage = operation.apply(uneditedImage);

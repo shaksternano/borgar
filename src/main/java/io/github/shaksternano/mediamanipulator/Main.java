@@ -14,13 +14,34 @@ import org.slf4j.LoggerFactory;
 
 import javax.security.auth.login.LoginException;
 
+/**
+ * The program's main class.
+ */
 public class Main {
 
+    /**
+     * The program's {@link Logger}.
+     */
     public static final Logger LOGGER = LoggerFactory.getLogger("Media Manipulator");
-    
+
+    /**
+     * The name of the environment variable that contains the Discord bot token.
+     */
     private static final String DISCORD_BOT_TOKEN_ENVIRONMENT_VARIABLE = "DISCORD_BOT_TOKEN";
+
+    /**
+     * The name of the environment variable that contains the Tenor API key.
+     */
     private static final String TENOR_API_KEY_ENVIRONMENT_VARIABLE = "TENOR_API_KEY";
-    
+
+    /**
+     * The program's {@link JDA} instance.
+     */
+    private static JDA jda;
+
+    /**
+     * The ID of the user that owns the Discord bot.
+     */
     private static long ownerId = 0;
 
     /**
@@ -28,6 +49,10 @@ public class Main {
      */
     private static String tenorApiKey = "LIVDSRZULELA";
 
+    /**
+     * The entry point of the program.
+     * @param args The program arguments.
+     */
     public static void main(String[] args) {
         FileUtil.cleanTempDirectory();
 
@@ -69,8 +94,6 @@ public class Main {
             }
         }
 
-        JDA jda = null;
-
         try {
             jda = JDABuilder.createDefault(token).build();
         } catch (LoginException e) {
@@ -97,10 +120,30 @@ public class Main {
         MediaManipulators.registerMediaManipulators();
     }
 
+    /**
+     * Terminates the program.
+     */
+    public static void shutdown() {
+        if (jda != null) {
+            jda.shutdownNow();
+        }
+        FileUtil.cleanTempDirectory();
+        System.exit(0);
+    }
+
+    /**
+     * The ID of the user that owns the Discord bot.
+     * @return The ID of the user that owns the Discord bot.
+     */
     public static long getOwnerId() {
         return ownerId;
     }
 
+    /**
+     * Parses the Discord bot token from the program arguments.
+     * @param args The program arguments.
+     * @return The Discord bot token.
+     */
     private static String parseDiscordBotToken(String[] args) {
         if (args.length > 0) {
             return args[0];
@@ -109,6 +152,11 @@ public class Main {
         }
     }
 
+    /**
+     * Parses the Tenor API key from the program arguments.
+     * @param args The program arguments.
+     * @return The Tenor API key.
+     */
     private static String parseTenorApiKey(String[] args) {
         if (args.length > 1) {
             return args[1];
@@ -117,6 +165,10 @@ public class Main {
         }
     }
 
+    /**
+     * Gets the Tenor API key.
+     * @return The Tenor API key.
+     */
     public static String getTenorApiKey() {
         return tenorApiKey;
     }

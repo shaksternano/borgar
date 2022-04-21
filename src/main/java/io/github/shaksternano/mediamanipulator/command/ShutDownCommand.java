@@ -33,8 +33,7 @@ public class ShutDownCommand extends Command {
         if (userId == Main.getOwnerId()) {
             userMessage.reply( "Shutting down!").queue(message -> {
                 Main.LOGGER.info("Shut down request received from user " + userId + ", shutting down!");
-                message.getJDA().shutdownNow();
-                System.exit(0);
+                Main.shutdown();
             });
         } else {
             userMessage.reply("You are not authorised to use this command!").queue();

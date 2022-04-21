@@ -13,8 +13,18 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
+/**
+ * For dealing with the Tenor API.
+ */
 public class TenorUtil {
 
+    /**
+     * Gets the direct file URL from a Tenor link.
+     * @param url The Tenor URL.
+     * @param mediaType The media type to get the URL of.
+     * @param apiKey The Tenor API key to use.
+     * @return The direct file URL.
+     */
     public static Optional<String> getTenorMediaUrl(String url, TenorMediaType mediaType, String apiKey) {
         if (url.contains("tenor.com") && !url.contains("media.tenor.com")) {
             String mediaId = url.substring(url.lastIndexOf("-") + 1);
@@ -58,6 +68,8 @@ public class TenorUtil {
 
     /**
      * Construct and run a GET request.
+     * @param url The URL to request.
+     * @return The response as a {@link JsonElement}.
      */
     private static JsonElement get(String url) throws IOException {
         HttpURLConnection connection = null;
@@ -92,6 +104,8 @@ public class TenorUtil {
 
     /**
      * Parse the response into JSONObject.
+     * @param connection The connection to parse.
+     * @return The response as a {@link JsonElement}.
      */
     private static JsonElement parser(HttpURLConnection connection) {
         char[] buffer = new char[1024 * 4];

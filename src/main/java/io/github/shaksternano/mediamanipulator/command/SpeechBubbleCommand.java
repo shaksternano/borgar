@@ -12,6 +12,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * Adds a speech bubble on top of media.
+ */
 public class SpeechBubbleCommand extends MediaCommand {
 
     /**
@@ -25,6 +28,15 @@ public class SpeechBubbleCommand extends MediaCommand {
         super(name, description);
     }
 
+    /**
+     * Adds a speech bubble on top of media. The speech bubble is resized so that it's width is the same as the media's width.
+     * @param mediaFile The media file to apply the operation to
+     * @param arguments The arguments of the command.
+     * @param manipulator The {@link MediaManipulator} to use for the operation.
+     * @param event The {@link MessageReceivedEvent} that triggered the command.
+     * @return The edited media file.
+     * @throws IOException If an error occurs while applying the operation.
+     */
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
     public File applyOperation(File mediaFile, String[] arguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {

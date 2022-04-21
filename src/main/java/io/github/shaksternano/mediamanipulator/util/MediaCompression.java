@@ -12,55 +12,21 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Contains static methods for compressing media files.
+ */
 public class MediaCompression {
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
-    public static BufferedImage compressImage(BufferedImage image) throws IOException {
-        File compressedImageFile = FileUtil.getUniqueTempFile("compressed_image.jpg");
-        OutputStream outputStream = new FileOutputStream(compressedImageFile);
-
-        ImageWriter writer = ImageIO.getImageWritersByFormatName("jpeg").next();
-
-        ImageOutputStream imageOutputStream = ImageIO.createImageOutputStream(outputStream);
-        writer.setOutput(imageOutputStream);
-
-        ImageWriteParam param = writer.getDefaultWriteParam();
-
-        if (param.canWriteCompressed()) {
-            param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-            param.setCompressionQuality(0.05F);
-        }
-
-        writer.write(null, new IIOImage(removeAlpha(image), null, null), param);
-
-        outputStream.close();
-        imageOutputStream.close();
-        writer.dispose();
-
-        BufferedImage compressedImage = ImageIO.read(compressedImageFile);
-        compressedImageFile.delete();
-        return compressedImage;
-    }
-
-    private static BufferedImage removeAlpha(BufferedImage image) {
-        if (image.getColorModel().hasAlpha()) {
-            BufferedImage copy = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
-
-            Graphics2D graphics = copy.createGraphics();
-            graphics.setColor(Color.WHITE);
-            graphics.fillRect(0, 0, copy.getWidth(), copy.getHeight());
-            graphics.drawImage(image, 0, 0, null);
-            graphics.dispose();
-            image.flush();
-
-            return copy;
-        } else {
-            return image;
-        }
-    }
-
+    /**
+     * Removes frames from a list of {@link DelayedImage}s.
+     * @param frames The list of DelayedImages to remove frames from.
+     * @param fileSize File size of the media file.
+     * @param targetSize The target file size to compress to.
+     * @return The list of DelayedImages with frames removed.
+     */
     public static List<DelayedImage> removeFrames(List<DelayedImage> frames, long fileSize, long targetSize) {
         if (fileSize > targetSize) {
             float frameRatio = ((float) fileSize / targetSize);
@@ -71,6 +37,12 @@ public class MediaCompression {
         }
     }
 
+    /**
+     * Removes frames from a list of {@link DelayedImage}s.
+     * @param frames The list of DelayedImages to remove frames from.
+     * @param frameRatio The ratio of frames to keep. For example, if frameRatio is 4, then every 4th frame will be kept.
+     * @return The list of DelayedImages with frames removed.
+     */
     public static List<DelayedImage> removeFrames(List<DelayedImage> frames, int frameRatio) {
         if (frames.size() <= 1) {
             return frames;

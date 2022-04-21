@@ -29,7 +29,7 @@ public class CommandRegistry {
      * @param name The name of the command.
      * @return An {@link Optional} describing the command.
      * The {@link Optional} will be empty if and only if
-     * no command was regsitered with the given name.
+     * no command was registered with the given name.
      */
     public static Optional<Command> getCommand(String name) {
         return Optional.ofNullable(registry.get(name));
@@ -37,7 +37,7 @@ public class CommandRegistry {
 
     /**
      * Gets a list of all registered {@link Command}s.
-     * @return An immutable list of all registered {@link Command}s.
+     * @return A list of all registered {@link Command}s.
      */
     public static List<Command> getCommands() {
         return ImmutableList.copyOf(registry.values());

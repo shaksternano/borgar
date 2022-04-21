@@ -1,5 +1,8 @@
 package io.github.shaksternano.mediamanipulator.util.tenor;
 
+/**
+ * Contains Tenor string constants for different media types.
+ */
 public enum TenorMediaType {
 
     GIF_EXTRA_SMALL("nanogif"),
@@ -16,12 +19,23 @@ public enum TenorMediaType {
     WEBM_SMALL("tinywebm"),
     WEBM_NORMAL("webm");
 
+    /**
+     * The Tenor JSON key for the media type.
+     */
     private final String KEY;
 
+    /**
+     * Creates a new TenorMediaType.
+     * @param key The Tenor JSON key for the media type.
+     */
     TenorMediaType(String key) {
         KEY = key;
     }
 
+    /**
+     * Gets the Tenor JSON key for the media type.
+     * @return The Tenor JSON key for the media type.
+     */
     public String getKey() {
         return KEY;
     }

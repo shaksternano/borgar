@@ -1,7 +1,7 @@
 package io.github.shaksternano.mediamanipulator.command;
 
 /**
- * Contains a method to register all the {@link Command}s.
+ * Contains registered {@link Command}s.
  */
 public class Commands {
 

@@ -11,8 +11,18 @@ import java.awt.image.BufferedImage;
 import java.text.AttributedCharacterIterator;
 import java.text.AttributedString;
 
+/**
+ * Contains static methods for dealing with images.
+ */
 public class ImageUtil {
 
+    /**
+     * Adds a caption to an image.
+     * @param image The image to add a caption to.
+     * @param caption The caption to add.
+     * @param font The font to use for the caption.
+     * @return The image with the caption added.
+     */
     public static BufferedImage captionImage(BufferedImage image, String caption, Font font) {
         font = font.deriveFont(image.getHeight() / 10F);
         int padding = (int) (image.getHeight() * 0.05);
@@ -60,6 +70,15 @@ public class ImageUtil {
         return resizedImage;
     }
 
+    /**
+     * Calculates the height of the caption box.
+     * @param text The text of the caption.
+     * @param graphics The {@link Graphics2D} of the image being captioned.
+     * @param paddingX The horizontal padding of each side of the caption box.
+     * @param paddingY The vertical padding of each side of the caption box.
+     * @param imageWidth The width of the image being captioned.
+     * @return The height of the caption box.
+     */
     private static int calculateCaptionBoxHeight(String text, Graphics2D graphics, int paddingX, int paddingY, float imageWidth) {
         AttributedString attributedString = new AttributedString(text);
         attributedString.addAttribute(TextAttribute.FONT, graphics.getFont());
@@ -85,6 +104,14 @@ public class ImageUtil {
         return height;
     }
 
+    /**
+     * Draws the text of the caption.
+     * @param text The text of the caption.
+     * @param graphics The {@link Graphics2D} of the image being captioned.
+     * @param paddingX The horizontal padding of each side of the caption box.
+     * @param paddingY The vertical padding of each side of the caption box.
+     * @param imageWidth The width of the image being captioned.
+     */
     private static void drawText(String text, Graphics2D graphics, int paddingX, int paddingY, int imageWidth) {
         AttributedString attributedString = new AttributedString(text);
         attributedString.addAttribute(TextAttribute.FONT, graphics.getFont());
@@ -111,17 +138,32 @@ public class ImageUtil {
         }
     }
 
-    public static BufferedImage stretch(BufferedImage image, float widthMultiplier, float heightMultiplier) {
-        int newWidth = (int) (image.getWidth() * widthMultiplier);
-        int newHeight = (int) (image.getHeight() * heightMultiplier);
-        BufferedImage stretchedImage = new BufferedImage(newWidth, newHeight, image.getType());
+    /**
+     * Stretches an image.
+     * @param image The image to stretch.
+     * @param targetWidth The width to stretch the image to.
+     * @param targetHeight The height to stretch the image to.
+     * @return The stretched image.
+     */
+    public static BufferedImage stretch(BufferedImage image, int targetWidth, int targetHeight) {
+        BufferedImage stretchedImage = new BufferedImage(targetWidth, targetHeight, image.getType());
         Graphics2D graphics = stretchedImage.createGraphics();
-        graphics.drawImage(image, 0, 0, newWidth, newHeight, null);
+        graphics.drawImage(image, 0, 0, targetWidth, targetHeight, null);
         graphics.dispose();
         return stretchedImage;
     }
 
-    public static BufferedImage overlayImage(BufferedImage image, BufferedImage overlay, int x, int y, boolean expand, @Nullable Color excessColor) {
+    /**
+     * Overlays an image on top of another image.
+     * @param image The image being overlaid on.
+     * @param overlay The image to overlay.
+     * @param x The x coordinate of the top left corner of the overlay in relation to the media file being overlaid on.
+     * @param y The y coordinate of the top left corner of the overlay in relation to the media file being overlaid on.
+     * @param expand Whether to expand the resulting media to fit the overlay file.
+     * @param expandColor The background color used if the resulting media is expanded.
+     * @return The overlaid image.
+     */
+    public static BufferedImage overlayImage(BufferedImage image, BufferedImage overlay, int x, int y, boolean expand, @Nullable Color expandColor) {
         if (expand) {
             int imageWidth = image.getWidth();
             int imageHeight = image.getHeight();
@@ -135,8 +177,8 @@ public class ImageUtil {
             BufferedImage overlaidImage = new BufferedImage(overlaidWidth, overlaidHeight, image.getType());
             Graphics2D graphics = overlaidImage.createGraphics();
 
-            if (excessColor != null) {
-                graphics.setColor(excessColor);
+            if (expandColor != null) {
+                graphics.setColor(expandColor);
             }
 
             graphics.fillRect(0, 0, overlaidImage.getWidth(), overlaidImage.getHeight());

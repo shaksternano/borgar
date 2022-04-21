@@ -11,7 +11,6 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 
 /**
  * A {@link Command} that manipulates media files.
@@ -51,20 +50,31 @@ public abstract class MediaCommand extends Command {
                     editedMedia.deleteOnExit();
                     imageFile.delete();
 
-                    userMessage.reply(editedMedia).queue(message -> editedMedia.delete(), throwable -> {
+                    long mediaFileSize = editedMedia.length();
+                    if (mediaFileSize > FileUtil.DISCORD_MAXIMUM_FILE_SIZE) {
+                        long mediaFileSizeInMb = mediaFileSize / (1024 * 1024);
+                        userMessage.reply("The size of the edited media file, " + mediaFileSizeInMb + "MB, is too large to send!").queue();
+                        Main.LOGGER.error("File size of edited media was too large to send! (" + mediaFileSize + "B)");
                         editedMedia.delete();
-                        String failSend = "Failed to send edited media!";
+                    } else {
+                        userMessage.reply(editedMedia).queue(message -> editedMedia.delete(), throwable -> {
+                            editedMedia.delete();
+                            String failSend = "Failed to send edited media!";
 
-                        userMessage.reply(failSend).queue();
-                        Main.LOGGER.error(failSend, throwable);
-                    });
-                } catch (IOException | UncheckedIOException e) {
-                    String errorMessage = "Error applying operation to media!";
-                    userMessage.reply(errorMessage).queue();
-
-                    Main.LOGGER.error(errorMessage, e);
+                            userMessage.reply(failSend).queue();
+                            Main.LOGGER.error(failSend, throwable);
+                        });
+                    }
                 } catch (UnsupportedOperationException e) {
-                    userMessage.reply("This operation is not supported on files with type \"" + fileExtension + "\"!").queue();
+                    userMessage.reply("This operation is not supported on files with type \"" + fileExtension + "\"! Reason: " + e.getMessage()).queue();
+                } catch (OutOfMemoryError e) {
+                    userMessage.reply("The server ran out of memory! Try again later or use a smaller file.").queue();
+                    Main.LOGGER.error("Ran out of memory!", e);
+                } catch (Throwable t) {
+                    String errorMessage = "Error applying operation to media!";
+
+                    userMessage.reply(errorMessage).queue();
+                    Main.LOGGER.error(errorMessage, t);
                 }
             }, () -> userMessage.reply("Unsupported file type!").queue());
         }, () -> userMessage.reply("No media found!").queue());

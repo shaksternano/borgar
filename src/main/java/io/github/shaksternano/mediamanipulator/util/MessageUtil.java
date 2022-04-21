@@ -23,19 +23,38 @@ import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Contains static methods for dealing with {@link Message}s.
+ */
 public class MessageUtil {
 
+    /**
+     * The maximum number of messages to retrieve from the channel history.
+     */
     private static final int MAX_PAST_MESSAGES_TO_CHECK = 50;
 
     /**
+     * A pattern to extract web URLs from a string.
+     */
+    private static final Pattern WEB_URL_PATTERN = Pattern.compile("\\b((?:https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:, .;]*[-a-zA-Z0-9+&@#/%=~_|])", Pattern.CASE_INSENSITIVE);
+
+    /**
      * Downloads an image.
-     * @param message
-     * @return
+     * @param message The message to download the image from.
+     * @param directory The directory to download the image to.
+     * @return An {@link Optional} describing the image file.
      */
     public static Optional<File> downloadImage(Message message, File directory) {
         return downloadImage(message, directory, true);
     }
 
+    /**
+     * Downloads an image.
+     * @param message The message to download the image from.
+     * @param directory The directory to download the image to.
+     * @param checkReplies Whether to check the message the given message is responding to.
+     * @return An {@link Optional} describing the image file.
+     */
     private static Optional<File> downloadImage(Message message, File directory, boolean checkReplies) {
         Optional<File> imageFileOptional = downloadAttachmentImage(message, directory);
         if (imageFileOptional.isPresent()) {
@@ -83,6 +102,12 @@ public class MessageUtil {
         return Optional.empty();
     }
 
+    /**
+     * Downloads an image from an attachment.
+     * @param message The message to download the image from.
+     * @param directory The directory to download the image to.
+     * @return An {@link Optional} describing the image file.
+     */
     private static Optional<File> downloadAttachmentImage(Message message, File directory) {
         List<Message.Attachment> attachments = message.getAttachments();
 
@@ -103,13 +128,20 @@ public class MessageUtil {
         return Optional.empty();
     }
 
-    private static Optional<File> downloadUrlImage(String message, File directory, boolean isMessageUrl) {
+    /**
+     * Downloads an image from a URL.
+     * @param text The text to download the image from.
+     * @param directory The directory to download the image to.
+     * @param isMessageUrl Whether the text is a URL.
+     * @return An {@link Optional} describing the image file.
+     */
+    private static Optional<File> downloadUrlImage(String text, File directory, boolean isMessageUrl) {
         List<String> urls;
 
         if (isMessageUrl) {
-            urls = ImmutableList.of(message);
+            urls = ImmutableList.of(text);
         } else {
-            urls = extractUrls(message);
+            urls = extractUrls(text);
         }
 
         for (String url : urls) {
@@ -154,6 +186,12 @@ public class MessageUtil {
         return Optional.empty();
     }
 
+    /**
+     * Downloads an image file from an embed.
+     * @param message The message containing the embed to download the image from.
+     * @param directory The directory to download the image to.
+     * @return An {@link Optional} describing the image file.
+     */
     private static Optional<File> downloadEmbedImage(Message message, File directory) {
         List<MessageEmbed> embeds = message.getEmbeds();
 
@@ -171,14 +209,15 @@ public class MessageUtil {
         return Optional.empty();
     }
 
+    /**
+     * Extracts all web URLs from a string.
+     * @param text The text to extract the URLs from.
+     * @return A list of all URLs in the text.
+     */
     private static List<String> extractUrls(String text) {
         List<String> urls = new ArrayList<>();
 
-        String regex = "\\b((?:https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:, .;]*[-a-zA-Z0-9+&@#/%=~_|])";
-
-        Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
-
-        Matcher matcher = pattern.matcher(text);
+        Matcher matcher = WEB_URL_PATTERN.matcher(text);
 
         while (matcher.find()) {
             urls.add(text.substring(matcher.start(0), matcher.end(0)));
