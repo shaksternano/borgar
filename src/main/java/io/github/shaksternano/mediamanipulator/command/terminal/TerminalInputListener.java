@@ -1,7 +1,6 @@
 package io.github.shaksternano.mediamanipulator.command.terminal;
 
 import io.github.shaksternano.mediamanipulator.Main;
-import net.dv8tion.jda.api.JDA;
 
 import java.util.NoSuchElementException;
 import java.util.Scanner;
@@ -15,19 +14,6 @@ public class TerminalInputListener implements Runnable {
      * Whether the thread should be running.
      */
     private boolean running = true;
-
-    /**
-     * The program's {@link JDA} instance.
-     */
-    private final JDA jda;
-
-    /**
-     * Creates a new TerminalInputListener.
-     * @param jda The program's {@link JDA} instance.
-     */
-    public TerminalInputListener(JDA jda) {
-        this.jda = jda;
-    }
 
     /**
      * If "!shutdown! is entered, the program will be terminated.

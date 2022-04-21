@@ -20,9 +20,10 @@ public class TenorUtil {
 
     /**
      * Gets the direct file URL from a Tenor link.
-     * @param url The Tenor URL.
+     *
+     * @param url       The Tenor URL.
      * @param mediaType The media type to get the URL of.
-     * @param apiKey The Tenor API key to use.
+     * @param apiKey    The Tenor API key to use.
      * @return The direct file URL.
      */
     public static Optional<String> getTenorMediaUrl(String url, TenorMediaType mediaType, String apiKey) {
@@ -34,29 +35,24 @@ public class TenorUtil {
 
             JsonElement request;
 
-            try {
-                request = get(requestUrl);
+            request = get(requestUrl);
 
-                Optional<JsonElement> resultsArrayElementOptional = JsonUtil.getNestedElement(request, "results");
-                Optional<JsonElement> resultElementOptional = JsonUtil.getArrayElement(resultsArrayElementOptional.orElse(null), 0);
-                Optional<JsonElement> mediaArrayElementOptional = JsonUtil.getNestedElement(resultElementOptional.orElse(null), "media");
-                Optional<JsonElement> mediaElementOptional = JsonUtil.getArrayElement(mediaArrayElementOptional.orElse(null), 0);
-                Optional<JsonElement> mediaUrlElementOptional = JsonUtil.getNestedElement(mediaElementOptional.orElse(null), mediaType.getKey(), "url");
+            Optional<JsonElement> resultsArrayElementOptional = JsonUtil.getNestedElement(request, "results");
+            Optional<JsonElement> resultElementOptional = JsonUtil.getArrayElement(resultsArrayElementOptional.orElse(null), 0);
+            Optional<JsonElement> mediaArrayElementOptional = JsonUtil.getNestedElement(resultElementOptional.orElse(null), "media");
+            Optional<JsonElement> mediaElementOptional = JsonUtil.getArrayElement(mediaArrayElementOptional.orElse(null), 0);
+            Optional<JsonElement> mediaUrlElementOptional = JsonUtil.getNestedElement(mediaElementOptional.orElse(null), mediaType.getKey(), "url");
 
-                if (mediaUrlElementOptional.isPresent()) {
-                    JsonElement mediaUrlElement = mediaUrlElementOptional.orElseThrow();
+            if (mediaUrlElementOptional.isPresent()) {
+                JsonElement mediaUrlElement = mediaUrlElementOptional.orElseThrow();
 
-                    if (mediaUrlElement.isJsonPrimitive()) {
-                        JsonPrimitive mediaUrlPrimitive = mediaUrlElement.getAsJsonPrimitive();
+                if (mediaUrlElement.isJsonPrimitive()) {
+                    JsonPrimitive mediaUrlPrimitive = mediaUrlElement.getAsJsonPrimitive();
 
-                        if (mediaUrlPrimitive.isString()) {
-                            return Optional.of(mediaUrlPrimitive.getAsString());
-                        }
+                    if (mediaUrlPrimitive.isString()) {
+                        return Optional.of(mediaUrlPrimitive.getAsString());
                     }
                 }
-            } catch (IOException e) {
-                Main.LOGGER.error(tenorError, e);
-                return Optional.empty();
             }
 
             Main.LOGGER.error(tenorError);
@@ -68,10 +64,11 @@ public class TenorUtil {
 
     /**
      * Construct and run a GET request.
+     *
      * @param url The URL to request.
      * @return The response as a {@link JsonElement}.
      */
-    private static JsonElement get(String url) throws IOException {
+    private static JsonElement get(String url) {
         HttpURLConnection connection = null;
         try {
             // Get request
@@ -104,6 +101,7 @@ public class TenorUtil {
 
     /**
      * Parse the response into JSONObject.
+     *
      * @param connection The connection to parse.
      * @return The response as a {@link JsonElement}.
      */

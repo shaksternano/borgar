@@ -1,10 +1,8 @@
 package io.github.shaksternano.mediamanipulator.util;
 
 import io.github.shaksternano.mediamanipulator.Main;
-import org.apache.commons.io.FileUtils;
 
 import java.awt.*;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -32,6 +30,7 @@ public class Fonts {
 
     /**
      * Gets the font used for captioning.
+     *
      * @return The font used for captioning.
      */
     public static Font getCaptionFont() {

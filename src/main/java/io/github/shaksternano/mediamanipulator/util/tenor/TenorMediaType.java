@@ -26,6 +26,7 @@ public enum TenorMediaType {
 
     /**
      * Creates a new TenorMediaType.
+     *
      * @param key The Tenor JSON key for the media type.
      */
     TenorMediaType(String key) {
@@ -34,6 +35,7 @@ public enum TenorMediaType {
 
     /**
      * Gets the Tenor JSON key for the media type.
+     *
      * @return The Tenor JSON key for the media type.
      */
     public String getKey() {

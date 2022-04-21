@@ -1,18 +1,6 @@
 package io.github.shaksternano.mediamanipulator.util;
 
-import javax.imageio.IIOImage;
-import javax.imageio.ImageIO;
-import javax.imageio.ImageWriteParam;
-import javax.imageio.ImageWriter;
-import javax.imageio.stream.ImageOutputStream;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -22,8 +10,9 @@ public class MediaCompression {
 
     /**
      * Removes frames from a list of {@link DelayedImage}s.
-     * @param frames The list of DelayedImages to remove frames from.
-     * @param fileSize File size of the media file.
+     *
+     * @param frames     The list of DelayedImages to remove frames from.
+     * @param fileSize   File size of the media file.
      * @param targetSize The target file size to compress to.
      * @return The list of DelayedImages with frames removed.
      */
@@ -39,7 +28,8 @@ public class MediaCompression {
 
     /**
      * Removes frames from a list of {@link DelayedImage}s.
-     * @param frames The list of DelayedImages to remove frames from.
+     *
+     * @param frames     The list of DelayedImages to remove frames from.
      * @param frameRatio The ratio of frames to keep. For example, if frameRatio is 4, then every 4th frame will be kept.
      * @return The list of DelayedImages with frames removed.
      */

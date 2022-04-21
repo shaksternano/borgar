@@ -1,8 +1,6 @@
 package io.github.shaksternano.mediamanipulator.command;
 
 import io.github.shaksternano.mediamanipulator.mediamanipulator.MediaManipulator;
-import io.github.shaksternano.mediamanipulator.util.MessageUtil;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.io.File;
@@ -26,10 +24,11 @@ public class CaptionCommand extends MediaCommand {
 
     /**
      * Adds a caption to media, with the caption text being the arguments of the command joined together with spaces in between.
-     * @param mediaFile The media file to apply the operation to
-     * @param arguments The arguments of the command.
+     *
+     * @param mediaFile   The media file to apply the operation to
+     * @param arguments   The arguments of the command.
      * @param manipulator The {@link MediaManipulator} to use for the operation.
-     * @param event The {@link MessageReceivedEvent} that triggered the command.
+     * @param event       The {@link MessageReceivedEvent} that triggered the command.
      * @return The edited media file.
      * @throws IOException If an error occurs while applying the operation.
      */

@@ -13,7 +13,7 @@ import java.nio.channels.ReadableByteChannel;
 /**
  * Contains static methods for dealing with files.
  */
-public class  FileUtil {
+public class FileUtil {
 
     /**
      * The program's temporary directory.
@@ -32,6 +32,7 @@ public class  FileUtil {
 
     /**
      * Gets the program's temporary directory.
+     *
      * @return The program's temporary directory.
      * This is guaranteed to be a directory instead of a file.
      */
@@ -58,8 +59,9 @@ public class  FileUtil {
 
     /**
      * Gets a {@link File} with a unique name.
+     *
      * @param directory The directory the file will be located in.
-     * @param fileName The name of the file.
+     * @param fileName  The name of the file.
      * @return A {@link File} with a unique name. If there is no other file with same name as the one provided,
      * the file will be created will have that name. If there is another file with the same name,
      * an incrementing number will be appended to the end of the file name. For example, if the provided file name
@@ -73,7 +75,8 @@ public class  FileUtil {
 
     /**
      * Gets a {@link File} with a unique name.
-     * @param file The file to get a unique name for.
+     *
+     * @param file        The file to get a unique name for.
      * @param isDirectory Whether the file is a directory.
      * @return A {@link File} with a unique name. If there is no other file with same name as the file provided,
      * the file will be created will have that name. If there is another file with the same name,
@@ -104,6 +107,7 @@ public class  FileUtil {
 
     /**
      * Gets a unique file that will be created in the program's temporary directory.
+     *
      * @param fileName The name of the file.
      * @return A {@link File} with a unique name. If there is no other file with same name as the one provided,
      * the file will be created will have that name. If there is another file with the same name,
@@ -119,21 +123,8 @@ public class  FileUtil {
     }
 
     /**
-     * Gets the name of a file from a path.
-     * @param path The path to get the name of the file from.
-     * @return The name of the file.
-     */
-    public static String getFileName(String path) {
-        int index = path.lastIndexOf('/');
-        if (index >= 0) {
-            return path.substring(index + 1);
-        } else {
-            return path;
-        }
-    }
-
-    /**
      * Gets a resource bundled with the program.
+     *
      * @param resourcePath The path to the resource.
      * @return The resource as an {@link InputStream}.
      * @throws IOException If the resource could not be found.
@@ -149,7 +140,8 @@ public class  FileUtil {
 
     /**
      * Appends a string to the end of a file name, before the file extension.
-     * @param file The file whose name the string will be appended to.
+     *
+     * @param file     The file whose name the string will be appended to.
      * @param toAppend The string to append.
      * @return The file with the string appended to the end of its name.
      */
@@ -161,8 +153,9 @@ public class  FileUtil {
 
     /**
      * Downloads a file from a web URL.
+     *
      * @param webUrl The URL to download the file from.
-     * @param file The file to download to.
+     * @param file   The file to download to.
      * @throws IOException If there was an error occurred while downloading the file.
      */
     public static void downloadFile(String webUrl, File file) throws IOException {

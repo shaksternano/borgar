@@ -19,6 +19,7 @@ public class DelayedImage {
 
     /**
      * Creates a new DelayedImage.
+     *
      * @param image The frame.
      * @param delay The amount of time the frame is shown for in milliseconds.
      */
@@ -29,6 +30,7 @@ public class DelayedImage {
 
     /**
      * Gets the frame.
+     *
      * @return The frame.
      */
     public BufferedImage getImage() {
@@ -37,6 +39,7 @@ public class DelayedImage {
 
     /**
      * Gets the amount of time the frame is shown for in milliseconds.
+     *
      * @return The amount of time the frame is shown for in milliseconds.
      */
     public int getDelay() {
@@ -45,6 +48,7 @@ public class DelayedImage {
 
     /**
      * Sets the frame.
+     *
      * @param image The frame to set.
      */
     public void setImage(BufferedImage image) {
@@ -53,6 +57,7 @@ public class DelayedImage {
 
     /**
      * Sets the amount of time the frame is shown for in milliseconds.
+     *
      * @param delay The amount of time the frame is shown for in milliseconds to set.
      */
     public void setDelay(int delay) {

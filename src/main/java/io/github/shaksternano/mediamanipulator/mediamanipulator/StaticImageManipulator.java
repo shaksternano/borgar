@@ -3,16 +3,11 @@ package io.github.shaksternano.mediamanipulator.mediamanipulator;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Files;
 import io.github.shaksternano.mediamanipulator.util.FileUtil;
-import io.github.shaksternano.mediamanipulator.util.Fonts;
-import io.github.shaksternano.mediamanipulator.util.ImageUtil;
-import org.jetbrains.annotations.Nullable;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -39,8 +34,9 @@ public class StaticImageManipulator extends ImageBasedManipulator {
 
     /**
      * Applies the given operation to the image.
-     * @param media The image based file to apply the operation to.
-     * @param operation The operation to apply.
+     *
+     * @param media         The image based file to apply the operation to.
+     * @param operation     The operation to apply.
      * @param operationName The name of the operation.
      * @return The resulting file.
      * @throws IOException If an error occurs while applying the operation.

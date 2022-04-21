@@ -36,11 +36,12 @@ public class MessageUtil {
     /**
      * A pattern to extract web URLs from a string.
      */
-    private static final Pattern WEB_URL_PATTERN = Pattern.compile("\\b((?:https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:, .;]*[-a-zA-Z0-9+&@#/%=~_|])", Pattern.CASE_INSENSITIVE);
+    private static final Pattern WEB_URL_PATTERN = Pattern.compile("\\b((?:https?|ftp|file)://[-a-zA-Z\\d+&@#/%?=~_|!:, .;]*[-a-zA-Z\\d+&@#/%=~_|])", Pattern.CASE_INSENSITIVE);
 
     /**
      * Downloads an image.
-     * @param message The message to download the image from.
+     *
+     * @param message   The message to download the image from.
      * @param directory The directory to download the image to.
      * @return An {@link Optional} describing the image file.
      */
@@ -50,8 +51,9 @@ public class MessageUtil {
 
     /**
      * Downloads an image.
-     * @param message The message to download the image from.
-     * @param directory The directory to download the image to.
+     *
+     * @param message      The message to download the image from.
+     * @param directory    The directory to download the image to.
      * @param checkReplies Whether to check the message the given message is responding to.
      * @return An {@link Optional} describing the image file.
      */
@@ -104,7 +106,8 @@ public class MessageUtil {
 
     /**
      * Downloads an image from an attachment.
-     * @param message The message to download the image from.
+     *
+     * @param message   The message to download the image from.
      * @param directory The directory to download the image to.
      * @return An {@link Optional} describing the image file.
      */
@@ -130,8 +133,9 @@ public class MessageUtil {
 
     /**
      * Downloads an image from a URL.
-     * @param text The text to download the image from.
-     * @param directory The directory to download the image to.
+     *
+     * @param text         The text to download the image from.
+     * @param directory    The directory to download the image to.
      * @param isMessageUrl Whether the text is a URL.
      * @return An {@link Optional} describing the image file.
      */
@@ -188,7 +192,8 @@ public class MessageUtil {
 
     /**
      * Downloads an image file from an embed.
-     * @param message The message containing the embed to download the image from.
+     *
+     * @param message   The message containing the embed to download the image from.
      * @param directory The directory to download the image to.
      * @return An {@link Optional} describing the image file.
      */
@@ -211,6 +216,7 @@ public class MessageUtil {
 
     /**
      * Extracts all web URLs from a string.
+     *
      * @param text The text to extract the URLs from.
      * @return A list of all URLs in the text.
      */

@@ -30,10 +30,11 @@ public class SpeechBubbleCommand extends MediaCommand {
 
     /**
      * Adds a speech bubble on top of media. The speech bubble is resized so that it's width is the same as the media's width.
-     * @param mediaFile The media file to apply the operation to
-     * @param arguments The arguments of the command.
+     *
+     * @param mediaFile   The media file to apply the operation to
+     * @param arguments   The arguments of the command.
      * @param manipulator The {@link MediaManipulator} to use for the operation.
-     * @param event The {@link MessageReceivedEvent} that triggered the command.
+     * @param event       The {@link MessageReceivedEvent} that triggered the command.
      * @return The edited media file.
      * @throws IOException If an error occurs while applying the operation.
      */
