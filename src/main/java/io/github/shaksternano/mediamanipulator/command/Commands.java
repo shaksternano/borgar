@@ -21,7 +21,13 @@ public class Commands {
             "Stretches media. Optional parameters: [width stretch multiplier, default value is " + StretchCommand.DEFAULT_WIDTH_MULTIPLIER + "], [height stretch multiplier, default value is " + StretchCommand.DEFAULT_HEIGHT_MULTIPLIER + "]"
     );
 
-    public static final Command SPEECH_BUBBLE = new SpeechBubbleCommand("speechbubble", "Overlays a speech bubble over media.");
+    /**
+     * The speech bubble {@link Command}.
+     */
+    public static final Command SPEECH_BUBBLE = new SpeechBubbleCommand(
+            "speechbubble",
+            "Overlays a speech bubble over media."
+    );
 
     /**
      * The to-gif {@link Command}.
