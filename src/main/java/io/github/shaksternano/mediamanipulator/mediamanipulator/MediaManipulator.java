@@ -5,6 +5,7 @@ import org.jetbrains.annotations.Nullable;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Set;
 
 /**
@@ -18,7 +19,9 @@ public interface MediaManipulator {
      * @param media   The media file to add a caption to.
      * @param caption The caption to add.
      * @return The media file with the caption added.
-     * @throws IOException If there is an error adding the caption.
+     * @throws IOException                   If there is an error adding the caption.
+     * @throws UncheckedIOException          If there is an error adding the caption.
+     * @throws UnsupportedOperationException If the operation is not supported by this manipulator.
      */
     File caption(File media, String caption) throws IOException;
 
@@ -29,7 +32,9 @@ public interface MediaManipulator {
      * @param widthMultiplier  The stretch width multiplier.
      * @param heightMultiplier The stretch height multiplier.
      * @return The stretched media file.
-     * @throws IOException If there is an error stretching the media file.
+     * @throws IOException                   If there is an error stretching the media file.
+     * @throws UncheckedIOException          If there is an error adding the caption.
+     * @throws UnsupportedOperationException If the operation is not supported by this manipulator.
      */
     File stretch(File media, float widthMultiplier, float heightMultiplier) throws IOException;
 
@@ -44,7 +49,9 @@ public interface MediaManipulator {
      * @param expandColor The background color used if the resulting media is expanded.
      * @param overlayName The name of the overlay operation. Used in the overlaid media's file name.
      * @return The media file with the overlay applied.
-     * @throws IOException If there is an error applying the overlay.
+     * @throws IOException                   If there is an error applying the overlay.
+     * @throws UncheckedIOException          If there is an error adding the caption.
+     * @throws UnsupportedOperationException If the operation is not supported by this manipulator.
      */
     File overlayMedia(File media, File overlay, int x, int y, boolean expand, @Nullable Color expandColor, @Nullable String overlayName) throws IOException;
 
@@ -53,7 +60,9 @@ public interface MediaManipulator {
      *
      * @param media The media file to turn into a GIF.
      * @return The media as a GIF file.
-     * @throws IOException If there is an error turning the media into a GIF.
+     * @throws IOException                   If there is an error turning the media into a GIF.
+     * @throws UncheckedIOException          If there is an error adding the caption.
+     * @throws UnsupportedOperationException If the operation is not supported by this manipulator.
      */
     File makeGif(File media) throws IOException;
 

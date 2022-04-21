@@ -56,7 +56,21 @@ public class Main {
      */
     public static void main(String[] args) {
         FileUtil.cleanTempDirectory();
+        String discordBotToken = initDiscordBotToken(args);
+        initTenorApiKey(args);
+        initJda(discordBotToken);
+        Commands.registerCommands();
+        Fonts.registerFonts();
+        MediaManipulators.registerMediaManipulators();
+    }
 
+    /**
+     * Gets the Discord bot token from the program arguments or the environment variable.
+     * If the Discord bot token is not set, the program terminates.
+     * @param args The program arguments.
+     * @return The Discord bot token.
+     */
+    private static String initDiscordBotToken(String[] args) {
         String token = parseDiscordBotToken(args);
 
         if (token.isEmpty()) {
@@ -72,7 +86,16 @@ public class Main {
             LOGGER.info("Using Discord bot token from program arguments.");
         }
 
+        return token;
+    }
+
+    /**
+     * Sets the Tenor API key from the program arguments or the environment variable.
+     * @param args The program arguments.
+     */
+    private static void initTenorApiKey(String[] args) {
         String tenorApiKey = parseTenorApiKey(args);
+
         if (tenorApiKey.isEmpty()) {
             tenorApiKey = System.getenv(TENOR_API_KEY_ENVIRONMENT_VARIABLE);
 
@@ -94,7 +117,13 @@ public class Main {
                 LOGGER.info("Using Tenor API key from program arguments.");
             }
         }
+    }
 
+    /**
+     * Initializes the JDA instance.
+     * @param token The Discord bot token.
+     */
+    private static void initJda(String token) {
         try {
             jda = JDABuilder.createDefault(token).build();
         } catch (LoginException e) {
@@ -115,10 +144,6 @@ public class Main {
                 applicationInfo -> ownerId = applicationInfo.getOwner().getIdLong(),
                 throwable -> LOGGER.error("Failed to get the owner ID of this bot, owner exclusive functionality won't available!", throwable)
         );
-
-        Commands.registerCommands();
-        Fonts.registerFonts();
-        MediaManipulators.registerMediaManipulators();
     }
 
     /**
