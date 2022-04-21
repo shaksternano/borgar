@@ -10,7 +10,7 @@ import java.util.Optional;
 /**
  * Gets the image of an emoji.
  */
-public class EmojiToImageCommand extends Command {
+public class EmojiUrlCommand extends Command {
 
     /**
      * Creates a new command object.
@@ -19,7 +19,7 @@ public class EmojiToImageCommand extends Command {
      *                    followed by this name, the command will be executed.
      * @param description The description of the command. This is displayed in the help command.
      */
-    protected EmojiToImageCommand(String name, String description) {
+    protected EmojiUrlCommand(String name, String description) {
         super(name, description);
     }
 

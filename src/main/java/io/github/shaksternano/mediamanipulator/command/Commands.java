@@ -52,9 +52,9 @@ public class Commands {
             "Turns media into a GIF."
     );
 
-    public static final Command EMOJI_TO_IMAGE = new EmojiToImageCommand(
-            "emojiimage",
-            "Gets the image of an emoji. Only works with custom emoji."
+    public static final Command EMOJI_URL = new EmojiUrlCommand(
+            "emojiurl",
+            "Gets the image URL of an emoji. Only works with custom emoji."
     );
 
     /**
@@ -85,7 +85,7 @@ public class Commands {
                 REDUCE_FPS,
                 SPEECH_BUBBLE,
                 TO_GIF,
-                EMOJI_TO_IMAGE,
+                EMOJI_URL,
                 SHUT_DOWN,
                 HELP
         );
