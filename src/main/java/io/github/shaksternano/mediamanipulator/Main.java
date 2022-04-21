@@ -56,6 +56,7 @@ public class Main {
      */
     public static void main(String[] args) {
         FileUtil.cleanTempDirectory();
+        Main.LOGGER.info("Allocated memory: " + (Runtime.getRuntime().maxMemory() / (1024 * 1024)) + " MB");
         String discordBotToken = initDiscordBotToken(args);
         initTenorApiKey(args);
         initJda(discordBotToken);
