@@ -9,6 +9,7 @@ import io.github.shaksternano.mediamanipulator.util.Fonts;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.requests.RestAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,11 +64,13 @@ public class Main {
         Commands.registerCommands();
         Fonts.registerFonts();
         MediaManipulators.registerMediaManipulators();
+        RestAction.setDefaultFailure(throwable -> Main.LOGGER.error("An error occurred while executing a REST action.", throwable));
     }
 
     /**
      * Gets the Discord bot token from the program arguments or the environment variable.
      * If the Discord bot token is not set, the program terminates.
+     *
      * @param args The program arguments.
      * @return The Discord bot token.
      */
@@ -92,6 +95,7 @@ public class Main {
 
     /**
      * Sets the Tenor API key from the program arguments or the environment variable.
+     *
      * @param args The program arguments.
      */
     private static void initTenorApiKey(String[] args) {
@@ -122,6 +126,7 @@ public class Main {
 
     /**
      * Initializes the JDA instance.
+     *
      * @param token The Discord bot token.
      */
     private static void initJda(String token) {

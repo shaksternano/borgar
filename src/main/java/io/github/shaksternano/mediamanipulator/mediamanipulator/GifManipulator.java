@@ -26,6 +26,15 @@ import java.util.function.Function;
  */
 public class GifManipulator extends ImageBasedManipulator {
 
+    @Override
+    public File reduceFps(File media, int fpsReductionRatio) throws IOException {
+        List<DelayedImage> frames = readGifFrames(media);
+        frames = MediaCompression.removeFrames(frames, fpsReductionRatio);
+        File gifFile = FileUtil.getUniqueTempFile(FileUtil.appendName(media, "_fps_reduced").getName());
+        writeFramesToGifFile(frames, gifFile);
+        return gifFile;
+    }
+
     /**
      * This file is already a GIF file, so we don't need to do anything.
      *

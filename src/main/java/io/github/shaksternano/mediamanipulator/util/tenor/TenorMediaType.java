@@ -3,6 +3,7 @@ package io.github.shaksternano.mediamanipulator.util.tenor;
 /**
  * Contains Tenor string constants for different media types.
  */
+@SuppressWarnings("unused")
 public enum TenorMediaType {
 
     GIF_EXTRA_SMALL("nanogif"),

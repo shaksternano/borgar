@@ -38,6 +38,10 @@ public interface MediaManipulator {
      */
     File stretch(File media, float widthMultiplier, float heightMultiplier) throws IOException;
 
+    File pixelate(File media, int pixelationMultiplier) throws IOException;
+
+    File reduceFps(File media, int fpsReductionRatio) throws IOException;
+
     /**
      * Overlays a media file on top of another media file.
      *

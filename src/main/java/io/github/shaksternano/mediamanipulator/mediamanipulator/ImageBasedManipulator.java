@@ -28,6 +28,15 @@ public abstract class ImageBasedManipulator implements MediaManipulator {
     }
 
     @Override
+    public File pixelate(File media, int pixelationMultiplier) throws IOException {
+        return applyOperation(media, image -> ImageUtil.stretch(
+                ImageUtil.stretch(
+                        image, image.getWidth() / pixelationMultiplier, image.getHeight() / pixelationMultiplier
+                ), image.getWidth(), image.getHeight()
+        ), "pixelated");
+    }
+
+    @Override
     public File overlayMedia(File media, File overlay, int x, int y, boolean expand, @Nullable Color expandColor, @Nullable String overlayName) throws IOException {
         return applyOperation(media, image -> {
             try {

@@ -1,5 +1,6 @@
 package io.github.shaksternano.mediamanipulator.command;
 
+import io.github.shaksternano.mediamanipulator.Main;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -35,7 +36,17 @@ public class CommandParser {
 
                 commandOptional.ifPresentOrElse(command -> {
                     String[] arguments = parseArguments(commandParts);
-                    command.execute(arguments, event);
+                    try {
+                        command.execute(arguments, event);
+                    } catch (IllegalArgumentException | MissingArgumentException e) {
+                        userMessage.reply(e.getMessage() == null ? "Missing arguments!" : e.getMessage()).queue();
+                    } catch (OutOfMemoryError e) {
+                        userMessage.reply("The server ran out of memory trying to execute this command! Try again later.").queue();
+                        Main.LOGGER.error("Ran out of memory trying to execute " + command + "!", e);
+                    } catch (Throwable t) {
+                        userMessage.reply("Error executing command!").queue();
+                        Main.LOGGER.error("Error executing command " + command + "!", t);
+                    }
                 }, () -> userMessage.reply("Invalid command!").queue());
             });
         }

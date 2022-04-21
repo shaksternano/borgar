@@ -44,7 +44,7 @@ public class HelpCommand extends Command {
      */
     public static Message getHelpMessage() {
         if (cachedHelpMessage == null) {
-            StringBuilder builder = new StringBuilder("Commands:\n");
+            StringBuilder builder = new StringBuilder("Commands:\n\n");
 
             CommandRegistry.getCommands().stream().sorted().forEach(
                     command -> builder
@@ -52,7 +52,7 @@ public class HelpCommand extends Command {
                             .append(command.getName())
                             .append(" - ")
                             .append(command.getDescription())
-                            .append("\n")
+                            .append("\n\n")
             );
 
             cachedHelpMessage = builder.toString();

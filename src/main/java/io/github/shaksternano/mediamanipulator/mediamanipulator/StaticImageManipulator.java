@@ -17,6 +17,11 @@ import java.util.function.Function;
 public class StaticImageManipulator extends ImageBasedManipulator {
 
     @Override
+    public File reduceFps(File media, int fpsReductionRatio) {
+        throw new UnsupportedOperationException("Cannot reduce the FPS of a static image.");
+    }
+
+    @Override
     public File makeGif(File media) throws IOException {
         File gifFile = FileUtil.getUniqueTempFile(Files.getNameWithoutExtension(media.getName()) + ".gif");
         ImageIO.write(ImageIO.read(media), "gif", gifFile);

@@ -6,8 +6,8 @@ import io.github.shaksternano.mediamanipulator.Main;
 import io.github.shaksternano.mediamanipulator.util.tenor.TenorMediaType;
 import io.github.shaksternano.mediamanipulator.util.tenor.TenorUtil;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.MessageHistory;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -20,6 +20,7 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -46,62 +47,83 @@ public class MessageUtil {
      * @return An {@link Optional} describing the image file.
      */
     public static Optional<File> downloadImage(Message message, File directory) {
-        return downloadImage(message, directory, true);
-    }
-
-    /**
-     * Downloads an image.
-     *
-     * @param message      The message to download the image from.
-     * @param directory    The directory to download the image to.
-     * @param checkReplies Whether to check the message the given message is responding to.
-     * @return An {@link Optional} describing the image file.
-     */
-    private static Optional<File> downloadImage(Message message, File directory, boolean checkReplies) {
-        Optional<File> imageFileOptional = downloadAttachmentImage(message, directory);
-        if (imageFileOptional.isPresent()) {
-            return imageFileOptional;
-        }
-
-        imageFileOptional = downloadUrlImage(message.getContentRaw(), directory, false);
-        if (imageFileOptional.isPresent()) {
-            return imageFileOptional;
-        }
-
-        imageFileOptional = downloadEmbedImage(message, directory);
-        if (imageFileOptional.isPresent()) {
-            return imageFileOptional;
-        }
-
-        if (checkReplies) {
-            Message referencedMessage = message.getReferencedMessage();
-
-            if (referencedMessage != null) {
-                imageFileOptional = downloadImage(referencedMessage, directory, false);
-
+        return processMessages(message, messageToProcess -> {
+            Optional<File> imageFileOptional = downloadAttachmentImage(messageToProcess, directory);
+            if (imageFileOptional.isPresent()) {
+                return imageFileOptional;
+            } else {
+                imageFileOptional = downloadUrlImage(messageToProcess.getContentRaw(), directory, false);
                 if (imageFileOptional.isPresent()) {
                     return imageFileOptional;
+                } else {
+                    imageFileOptional = downloadEmbedImage(messageToProcess, directory);
+                    if (imageFileOptional.isPresent()) {
+                        return imageFileOptional;
+                    }
                 }
             }
 
-            MessageHistory history = message.getChannel().getHistory();
-            try {
-                List<Message> previousMessages = history.retrievePast(MAX_PAST_MESSAGES_TO_CHECK).submit().get(10, TimeUnit.SECONDS);
-                for (Message previousMessage : previousMessages) {
-                    Optional<File> previousImageFileOptional = downloadImage(previousMessage, directory, false);
+            return Optional.empty();
+        });
+    }
 
-                    if (previousImageFileOptional.isPresent()) {
-                        return previousImageFileOptional;
-                    }
+    /**
+     * Processes a message, or the message it is responding to, or a previous message.
+     *
+     * @param message   The initial message to process.
+     * @param operation The operation to perform on the message. If this returns an empty {@link Optional},
+     *                  the operation will be performed on the message the initial message is responding to,
+     *                  and then if that is also empty, it will be applied to previous messages.
+     * @param <T>       The type of the result of the operation.
+     * @return An {@link Optional} describing the result of the operation.
+     */
+    public static <T> Optional<T> processMessages(Message message, Function<Message, Optional<T>> operation) {
+        Optional<T> result = operation.apply(message);
+
+        if (result.isPresent()) {
+            return result;
+        } else {
+            Message referencedMessage = message.getReferencedMessage();
+
+            if (referencedMessage != null) {
+                result = operation.apply(referencedMessage);
+
+                if (result.isPresent()) {
+                    return result;
                 }
-            } catch (InterruptedException | ExecutionException e) {
-                Main.LOGGER.error("Error while retrieving previous messages", e);
-            } catch (TimeoutException e) {
-                Main.LOGGER.error("Timeout while retrieving previous messages!", e);
+            }
+
+            List<Message> previousMessages = getPreviousMessages(message.getChannel(), MAX_PAST_MESSAGES_TO_CHECK, 10);
+            for (Message previousMessage : previousMessages) {
+                result = operation.apply(previousMessage);
+
+                if (result.isPresent()) {
+                    return result;
+                }
             }
         }
 
         return Optional.empty();
+    }
+
+    /**
+     * Gets the previous messages in the channel.
+     *
+     * @param channel The channel to get the previous messages from.
+     * @param amount  The amount of messages to get.
+     * @param timeout The timeout to wait for the messages to be retrieved.
+     * @return A list of messages. If an error occurred, an empty list is returned.
+     */
+    public static List<Message> getPreviousMessages(MessageChannel channel, int amount, long timeout) {
+        try {
+            return channel.getHistory().retrievePast(amount).submit().get(timeout, TimeUnit.SECONDS);
+        } catch (InterruptedException | ExecutionException e) {
+            Main.LOGGER.error("Error while retrieving previous messages", e);
+        } catch (TimeoutException e) {
+            Main.LOGGER.error("Timeout while retrieving previous messages!", e);
+        }
+
+        return ImmutableList.of();
     }
 
     /**

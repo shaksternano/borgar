@@ -1,7 +1,13 @@
 package io.github.shaksternano.mediamanipulator.util;
 
+import com.google.common.collect.Streams;
+
+import java.awt.image.BufferedImage;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Contains static methods for compressing media files.
@@ -37,18 +43,47 @@ public class MediaCompression {
         if (frames.size() <= 1) {
             return frames;
         } else {
+            int totalFramesTime = 0;
+            for (DelayedImage frame : frames) {
+                totalFramesTime += frame.getDelay();
+            }
+
+            List<BufferedImage> allFrames = new ArrayList<>();
+
+            for (DelayedImage frame : frames) {
+                for (int i = 0; i < frame.getDelay(); i++) {
+                    allFrames.add(frame.getImage());
+                }
+            }
+
+            allFrames = Streams
+                    .mapWithIndex(allFrames.stream(), AbstractMap.SimpleImmutableEntry::new)
+                    .filter(entry -> entry.getValue() % frameRatio == 0)
+                    .map(Map.Entry::getKey)
+                    .collect(Collectors.toList());
+
             List<DelayedImage> keptFrames = new ArrayList<>();
 
-            int keptIndex = -1;
-            for (int i = 0; i < frames.size(); i++) {
-                if (i % frameRatio == 0) {
-                    keptFrames.add(frames.get(i));
-                    keptIndex++;
+            int remainingDelay = 0;
+            for (BufferedImage frame : allFrames) {
+                int delayToAdd = frameRatio;
+                remainingDelay += delayToAdd;
+
+                if (remainingDelay > totalFramesTime) {
+                    delayToAdd -= remainingDelay - totalFramesTime;
+                }
+
+                if (keptFrames.isEmpty()) {
+                    keptFrames.add(new DelayedImage(frame, delayToAdd));
                 } else {
-                    DelayedImage keptFrame = keptFrames.get(keptIndex);
-                    int keptFrameDelay = keptFrame.getDelay();
-                    int removedFrameDelay = frames.get(i).getDelay();
-                    keptFrame.setDelay(keptFrameDelay + removedFrameDelay);
+                    DelayedImage delayedImage = keptFrames.get(keptFrames.size() - 1);
+                    BufferedImage lastFrame = delayedImage.getImage();
+
+                    if (frame.equals(lastFrame)) {
+                        delayedImage.setDelay(delayedImage.getDelay() + delayToAdd);
+                    } else {
+                        keptFrames.add(new DelayedImage(frame, delayToAdd));
+                    }
                 }
             }
 

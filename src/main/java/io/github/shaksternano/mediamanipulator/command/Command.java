@@ -36,6 +36,8 @@ public abstract class Command implements Comparable<Command> {
      *
      * @param arguments The arguments of the command.
      * @param event     The {@link MessageReceivedEvent} that triggered the command.
+     * @throws IllegalArgumentException If an argument is invalid.
+     * @throws MissingArgumentException If the operation requires an argument but none was provided.
      */
     public abstract void execute(String[] arguments, MessageReceivedEvent event);
 
