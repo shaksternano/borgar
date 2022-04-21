@@ -20,6 +20,7 @@ public class CommandListener extends ListenerAdapter {
 
     /**
      * Listens for slash commands.
+     *
      * @param event the {@link SlashCommandInteractionEvent} that triggered the listener.
      */
     @Override
@@ -31,6 +32,7 @@ public class CommandListener extends ListenerAdapter {
 
     /**
      * Listens for prefix commands.
+     *
      * @param event the {@link MessageReceivedEvent} that triggered the listener.
      */
     @Override

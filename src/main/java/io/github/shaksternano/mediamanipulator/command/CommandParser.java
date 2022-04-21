@@ -19,6 +19,7 @@ public class CommandParser {
 
     /**
      * Gets a {@link Command} from the command word in a message and executes it.
+     *
      * @param event The {@link MessageReceivedEvent} that triggered the command.
      */
     public static void parseAndExecute(MessageReceivedEvent event) {
@@ -42,6 +43,7 @@ public class CommandParser {
 
     /**
      * Splits a message into a string array, splitting on spaces.
+     *
      * @param message The message to split.
      * @return The split message.
      */
@@ -60,6 +62,7 @@ public class CommandParser {
 
     /**
      * Removes the command word from a message array, leaving only the arguments of the command.
+     *
      * @param commandParts The command parts to remove the command word from.
      * @return The arguments of the command.
      */

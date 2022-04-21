@@ -19,8 +19,9 @@ public class JsonUtil {
 
     /**
      * Gets a {@link JsonElement} nested in {@link JsonObject}s
+     *
      * @param jsonElement The JsonElement to start from
-     * @param path The path to the JsonElement.
+     * @param path        The path to the JsonElement.
      * @return An {@link Optional} describing the nested JsonElement.
      * The optional will be empty if and only if the given JsonElement is null or the path is invalid.
      */
@@ -53,8 +54,9 @@ public class JsonUtil {
 
     /**
      * Gets a {@link JsonElement} located in a {@link JsonArray}
+     *
      * @param jsonElement The JsonArray.
-     * @param index The index of the JsonElement.
+     * @param index       The index of the JsonElement.
      * @return An {@link Optional} describing the nested JsonElement.
      * The optional will be empty if and only if the given JsonElement is null, not a JsonArray, or the index is invalid.
      */

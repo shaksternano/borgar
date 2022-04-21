@@ -43,8 +43,9 @@ public abstract class ImageBasedManipulator implements MediaManipulator {
 
     /**
      * Applies the given operation to the given image based file.
-     * @param media The image based file to apply the operation to.
-     * @param operation The operation to apply.
+     *
+     * @param media         The image based file to apply the operation to.
+     * @param operation     The operation to apply.
      * @param operationName The name of the operation.
      * @return The resulting file.
      * @throws IOException If an error occurs while applying the operation.

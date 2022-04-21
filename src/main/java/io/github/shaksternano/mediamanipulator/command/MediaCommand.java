@@ -32,8 +32,9 @@ public abstract class MediaCommand extends Command {
      * Gets a media file using {@link MessageUtil#downloadImage(Message, File)},
      * edits it using {@link #applyOperation(File, String[], MediaManipulator, MessageReceivedEvent)},
      * and then sends it to the channel where the command was triggered.
+     *
      * @param arguments The arguments of the command.
-     * @param event The {@link MessageReceivedEvent} that triggered the command.
+     * @param event     The {@link MessageReceivedEvent} that triggered the command.
      */
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
@@ -82,10 +83,11 @@ public abstract class MediaCommand extends Command {
 
     /**
      * Applies an operation to the media file specified by {@link MessageUtil#downloadImage(Message, File)}
-     * @param mediaFile The media file to apply the operation to
-     * @param arguments The arguments of the command.
+     *
+     * @param mediaFile   The media file to apply the operation to
+     * @param arguments   The arguments of the command.
      * @param manipulator The {@link MediaManipulator} to use for the operation.
-     * @param event The {@link MessageReceivedEvent} that triggered the command.
+     * @param event       The {@link MessageReceivedEvent} that triggered the command.
      * @return The edited media file.
      * @throws IOException If an error occurs while applying the operation.
      */

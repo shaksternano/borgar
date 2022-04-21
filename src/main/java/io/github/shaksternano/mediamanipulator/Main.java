@@ -1,9 +1,9 @@
 package io.github.shaksternano.mediamanipulator;
 
 import io.github.shaksternano.mediamanipulator.command.Commands;
+import io.github.shaksternano.mediamanipulator.command.terminal.TerminalInputListener;
 import io.github.shaksternano.mediamanipulator.listener.CommandListener;
 import io.github.shaksternano.mediamanipulator.mediamanipulator.MediaManipulators;
-import io.github.shaksternano.mediamanipulator.command.terminal.TerminalInputListener;
 import io.github.shaksternano.mediamanipulator.util.FileUtil;
 import io.github.shaksternano.mediamanipulator.util.Fonts;
 import net.dv8tion.jda.api.JDA;
@@ -51,16 +51,17 @@ public class Main {
 
     /**
      * The entry point of the program.
+     *
      * @param args The program arguments.
      */
     public static void main(String[] args) {
         FileUtil.cleanTempDirectory();
 
         String token = parseDiscordBotToken(args);
-        
+
         if (token.isEmpty()) {
             token = System.getenv(DISCORD_BOT_TOKEN_ENVIRONMENT_VARIABLE);
-            
+
             if (token == null) {
                 LOGGER.error("Please provide a Discord bot token as the first argument!");
                 System.exit(1);
@@ -133,6 +134,7 @@ public class Main {
 
     /**
      * The ID of the user that owns the Discord bot.
+     *
      * @return The ID of the user that owns the Discord bot.
      */
     public static long getOwnerId() {
@@ -141,6 +143,7 @@ public class Main {
 
     /**
      * Parses the Discord bot token from the program arguments.
+     *
      * @param args The program arguments.
      * @return The Discord bot token.
      */
@@ -154,6 +157,7 @@ public class Main {
 
     /**
      * Parses the Tenor API key from the program arguments.
+     *
      * @param args The program arguments.
      * @return The Tenor API key.
      */
@@ -167,6 +171,7 @@ public class Main {
 
     /**
      * Gets the Tenor API key.
+     *
      * @return The Tenor API key.
      */
     public static String getTenorApiKey() {

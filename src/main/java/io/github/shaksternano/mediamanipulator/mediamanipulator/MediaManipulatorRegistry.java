@@ -16,6 +16,7 @@ public class MediaManipulatorRegistry {
 
     /**
      * Registers {@link MediaManipulator}s.
+     *
      * @param manipulators The manipulators to register.
      */
     public static void register(MediaManipulator... manipulators) {
@@ -28,6 +29,7 @@ public class MediaManipulatorRegistry {
 
     /**
      * Gets a {@link MediaManipulator} for the given file extension.
+     *
      * @param extension The file extension to get the manipulator for.
      * @return An {@link Optional} describing the manipulator.
      * The optional will be empty if and only if no manipulator was

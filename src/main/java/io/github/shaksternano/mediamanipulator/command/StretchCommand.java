@@ -37,10 +37,11 @@ public class StretchCommand extends MediaCommand {
      * with a default value of {@link #DEFAULT_WIDTH_MULTIPLIER} if it is not specified or un-parsable,
      * and the stretch height multiplier is specified by the second element of the arguments array,
      * with a default value of {@link #DEFAULT_HEIGHT_MULTIPLIER} if it is not specified or un-parsable.
-     * @param mediaFile The media file to apply the operation to
-     * @param arguments The arguments of the command.
+     *
+     * @param mediaFile   The media file to apply the operation to
+     * @param arguments   The arguments of the command.
      * @param manipulator The {@link MediaManipulator} to use for the operation.
-     * @param event The {@link MessageReceivedEvent} that triggered the command.
+     * @param event       The {@link MessageReceivedEvent} that triggered the command.
      * @return The edited media file.
      * @throws IOException If an error occurs while applying the operation.
      */

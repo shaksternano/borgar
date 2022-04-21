@@ -27,6 +27,7 @@ public class HelpCommand extends Command {
 
     /**
      * Sends the command list in the channel the command was triggered in.
+     *
      * @param arguments The arguments of the command.
      * @param event     The {@link MessageReceivedEvent} that triggered the command.
      */
@@ -38,6 +39,7 @@ public class HelpCommand extends Command {
 
     /**
      * Gets the message to be displayed when this command is run.
+     *
      * @return The message to be displayed when this command is run.
      */
     public static Message getHelpMessage() {

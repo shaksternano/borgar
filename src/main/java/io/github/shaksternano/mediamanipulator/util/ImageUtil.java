@@ -18,9 +18,10 @@ public class ImageUtil {
 
     /**
      * Adds a caption to an image.
-     * @param image The image to add a caption to.
+     *
+     * @param image   The image to add a caption to.
      * @param caption The caption to add.
-     * @param font The font to use for the caption.
+     * @param font    The font to use for the caption.
      * @return The image with the caption added.
      */
     public static BufferedImage captionImage(BufferedImage image, String caption, Font font) {
@@ -72,10 +73,11 @@ public class ImageUtil {
 
     /**
      * Calculates the height of the caption box.
-     * @param text The text of the caption.
-     * @param graphics The {@link Graphics2D} of the image being captioned.
-     * @param paddingX The horizontal padding of each side of the caption box.
-     * @param paddingY The vertical padding of each side of the caption box.
+     *
+     * @param text       The text of the caption.
+     * @param graphics   The {@link Graphics2D} of the image being captioned.
+     * @param paddingX   The horizontal padding of each side of the caption box.
+     * @param paddingY   The vertical padding of each side of the caption box.
      * @param imageWidth The width of the image being captioned.
      * @return The height of the caption box.
      */
@@ -106,10 +108,11 @@ public class ImageUtil {
 
     /**
      * Draws the text of the caption.
-     * @param text The text of the caption.
-     * @param graphics The {@link Graphics2D} of the image being captioned.
-     * @param paddingX The horizontal padding of each side of the caption box.
-     * @param paddingY The vertical padding of each side of the caption box.
+     *
+     * @param text       The text of the caption.
+     * @param graphics   The {@link Graphics2D} of the image being captioned.
+     * @param paddingX   The horizontal padding of each side of the caption box.
+     * @param paddingY   The vertical padding of each side of the caption box.
      * @param imageWidth The width of the image being captioned.
      */
     private static void drawText(String text, Graphics2D graphics, int paddingX, int paddingY, int imageWidth) {
@@ -140,8 +143,9 @@ public class ImageUtil {
 
     /**
      * Stretches an image.
-     * @param image The image to stretch.
-     * @param targetWidth The width to stretch the image to.
+     *
+     * @param image        The image to stretch.
+     * @param targetWidth  The width to stretch the image to.
      * @param targetHeight The height to stretch the image to.
      * @return The stretched image.
      */
@@ -155,11 +159,12 @@ public class ImageUtil {
 
     /**
      * Overlays an image on top of another image.
-     * @param image The image being overlaid on.
-     * @param overlay The image to overlay.
-     * @param x The x coordinate of the top left corner of the overlay in relation to the media file being overlaid on.
-     * @param y The y coordinate of the top left corner of the overlay in relation to the media file being overlaid on.
-     * @param expand Whether to expand the resulting media to fit the overlay file.
+     *
+     * @param image       The image being overlaid on.
+     * @param overlay     The image to overlay.
+     * @param x           The x coordinate of the top left corner of the overlay in relation to the media file being overlaid on.
+     * @param y           The y coordinate of the top left corner of the overlay in relation to the media file being overlaid on.
+     * @param expand      Whether to expand the resulting media to fit the overlay file.
      * @param expandColor The background color used if the resulting media is expanded.
      * @return The overlaid image.
      */

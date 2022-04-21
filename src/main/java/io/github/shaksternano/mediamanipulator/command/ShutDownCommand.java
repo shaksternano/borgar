@@ -22,6 +22,7 @@ public class ShutDownCommand extends Command {
 
     /**
      * Shuts down the bot if the user that triggered the command has the required permissions.
+     *
      * @param arguments The arguments of the command.
      * @param event     The {@link MessageReceivedEvent} that triggered the command.
      */
@@ -31,7 +32,7 @@ public class ShutDownCommand extends Command {
         long userId = userMessage.getAuthor().getIdLong();
 
         if (userId == Main.getOwnerId()) {
-            userMessage.reply( "Shutting down!").queue(message -> {
+            userMessage.reply("Shutting down!").queue(message -> {
                 Main.LOGGER.info("Shut down request received from user " + userId + ", shutting down!");
                 Main.shutdown();
             });

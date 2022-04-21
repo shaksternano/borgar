@@ -2,7 +2,10 @@ package io.github.shaksternano.mediamanipulator.command;
 
 import com.google.common.collect.ImmutableList;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Where {@link Command}s are registered.
@@ -16,6 +19,7 @@ public class CommandRegistry {
 
     /**
      * Registers {@link Command}s.
+     *
      * @param commands The commands to register.
      */
     public static void register(Command... commands) {
@@ -26,6 +30,7 @@ public class CommandRegistry {
 
     /**
      * Gets a {@link Command} by its name.
+     *
      * @param name The name of the command.
      * @return An {@link Optional} describing the command.
      * The {@link Optional} will be empty if and only if
@@ -37,6 +42,7 @@ public class CommandRegistry {
 
     /**
      * Gets a list of all registered {@link Command}s.
+     *
      * @return A list of all registered {@link Command}s.
      */
     public static List<Command> getCommands() {
