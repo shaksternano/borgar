@@ -91,7 +91,12 @@ public class Commands {
 
     public static final Command EMOJI_IMAGE = addCommandToRegister(new EmojiImageCommand(
             "emojiimage",
-            "Gets the image of a custom emoji or sticker."
+            "Gets the image of a custom emoji."
+    ));
+
+    public static final Command STICKER_IMAGE = addCommandToRegister(new StickerImageCommand(
+            "stickerimage",
+            "Gets the image of a custom sticker."
     ));
 
     /**
