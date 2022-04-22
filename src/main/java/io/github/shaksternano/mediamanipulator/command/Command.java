@@ -9,7 +9,12 @@ import org.jetbrains.annotations.NotNull;
 public abstract class Command implements Comparable<Command> {
 
     /**
-     * The name of the command. When a user sends a message starting with {@link CommandParser#COMMAND_PREFIX}
+     * The command prefix.
+     */
+    public static final String COMMAND_PREFIX = "%";
+
+    /**
+     * The name of the command. When a user sends a message starting with {@link Command#COMMAND_PREFIX}
      * followed by this name, the command will be executed.
      */
     private final String NAME;
@@ -22,7 +27,7 @@ public abstract class Command implements Comparable<Command> {
     /**
      * Creates a new command object.
      *
-     * @param name        The name of the command. When a user sends a message starting with {@link CommandParser#COMMAND_PREFIX}
+     * @param name        The name of the command. When a user sends a message starting with {@link Command#COMMAND_PREFIX}
      *                    followed by this name, the command will be executed.
      * @param description The description of the command. This is displayed in the help command.
      */
@@ -42,7 +47,7 @@ public abstract class Command implements Comparable<Command> {
     public abstract void execute(String[] arguments, MessageReceivedEvent event);
 
     /**
-     * Gets the name of the command. When a user sends a message starting with {@link CommandParser#COMMAND_PREFIX}
+     * Gets the name of the command. When a user sends a message starting with {@link Command#COMMAND_PREFIX}
      * followed by this name, the command will be executed.
      *
      * @return The name of the command.

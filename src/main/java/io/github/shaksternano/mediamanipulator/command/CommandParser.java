@@ -14,11 +14,6 @@ import java.util.Optional;
 public class CommandParser {
 
     /**
-     * The command prefix.
-     */
-    public static final String COMMAND_PREFIX = "%";
-
-    /**
      * Gets a {@link Command} from the command word in a message and executes it.
      *
      * @param event The {@link MessageReceivedEvent} that triggered the command.
@@ -60,7 +55,7 @@ public class CommandParser {
      */
     private static String[] parseCommandParts(String message) {
         if (message.length() > 1) {
-            if (message.startsWith(COMMAND_PREFIX)) {
+            if (message.startsWith(Command.COMMAND_PREFIX)) {
                 String[] commandParts = message.split("\\s+");
                 commandParts[0] = commandParts[0].substring(1).toLowerCase();
 

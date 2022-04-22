@@ -17,7 +17,7 @@ public class HelpCommand extends Command {
     /**
      * Creates a new command object.
      *
-     * @param name        The name of the command. When a user sends a message starting with {@link CommandParser#COMMAND_PREFIX}
+     * @param name        The name of the command. When a user sends a message starting with {@link Command#COMMAND_PREFIX}
      *                    followed by this name, the command will be executed.
      * @param description The description of the command. This is displayed in the help command.
      */
@@ -48,7 +48,7 @@ public class HelpCommand extends Command {
 
             CommandRegistry.getCommands().stream().sorted().forEach(
                     command -> builder
-                            .append(CommandParser.COMMAND_PREFIX)
+                            .append(Command.COMMAND_PREFIX)
                             .append(command.getName())
                             .append(" - ")
                             .append(command.getDescription())
