@@ -2,7 +2,7 @@
 
 ## How to import this project in IntelliJ IDEA
 1. In the IDEA main menu, select `Import Project` (or `File` → `Open…` if you already have a project open).
-2. Select the project's build.gradle file to import the project.
+2. Select the project's `build.gradle.kts` file to import the project.
 3. Go to `File` → `Project Structure` → `Project Settings` → `Project` and set `SDK` to a Java 17 or higher SDK.
 4. Optional, but recommended: By default, IntelliJ delegates to Gradle to build the project. This is unnecessary for this project and causes longer build times. To make it use the builtin compiler:
    1. Open the `Gradle Settings` dialog from the Gradle tab. 
