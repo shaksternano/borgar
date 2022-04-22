@@ -99,6 +99,11 @@ public class Commands {
             "Gets the image of a custom sticker."
     ));
 
+    public static final Command MEMORY_USAGE = addCommandToRegister(new MemoryUsageCommand(
+            "memory",
+            "Get the memory usage of the bot."
+    ));
+
     /**
      * The shut-down {@link Command}.
      */
