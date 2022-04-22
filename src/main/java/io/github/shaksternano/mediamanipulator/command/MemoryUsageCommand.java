@@ -18,6 +18,7 @@ public class MemoryUsageCommand extends Command {
     @Override
     public void execute(String[] arguments, MessageReceivedEvent event) {
         int toMb = 1024 * 1024;
-        event.getMessage().reply("Current memory usage: " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / toMb  + "/" + Runtime.getRuntime().totalMemory() / toMb + "MB").queue();
+        long totalMemory = Runtime.getRuntime().totalMemory();
+        event.getMessage().reply("Current memory usage: " + (totalMemory - Runtime.getRuntime().freeMemory()) / toMb  + "/" + totalMemory / toMb + "MB").queue();
     }
 }
