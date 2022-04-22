@@ -11,6 +11,7 @@
 
 ## How to run his project
 1. Run `io.github.shaksternano.mediamanipulator.Main#main`
+2. It should fail to run the first time due to missing arguments, so put those in the `Program arguments` field under the `Main` run configuration → `Edit Configurations...`.
 
 ## How to export this project
 1. Run in a terminal from the same directory as the project directory `./gradlew build` on GNU/Linux and Mac, or `gradlew build` on Windows.
