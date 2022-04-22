@@ -2,7 +2,7 @@ package io.github.shaksternano.mediamanipulator.command;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-public class MemoryUsageCommand extends Command {
+public class MemoryUsageCommand extends BotOwnerCommand {
 
     /**
      * Creates a new command object.
@@ -16,7 +16,7 @@ public class MemoryUsageCommand extends Command {
     }
 
     @Override
-    public void execute(String[] arguments, MessageReceivedEvent event) {
+    protected void botOwnerOperation(String[] arguments, MessageReceivedEvent event) {
         int toMb = 1024 * 1024;
         long totalMemory = Runtime.getRuntime().totalMemory();
         event.getMessage().reply("Current memory usage: " + (totalMemory - Runtime.getRuntime().freeMemory()) / toMb  + "/" + totalMemory / toMb + "MB").queue();
