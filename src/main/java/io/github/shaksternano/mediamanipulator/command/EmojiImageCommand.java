@@ -2,13 +2,14 @@ package io.github.shaksternano.mediamanipulator.command;
 
 import io.github.shaksternano.mediamanipulator.util.MessageUtil;
 import net.dv8tion.jda.api.entities.Emote;
+import net.dv8tion.jda.api.entities.MessageSticker;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.List;
 import java.util.Optional;
 
 /**
- * Gets the image of an emoji.
+ * Gets the image of an emoji or sticker.
  */
 public class EmojiImageCommand extends Command {
 
@@ -24,7 +25,7 @@ public class EmojiImageCommand extends Command {
     }
 
     /**
-     * Sends the image URL of the first emoji found in the message, the message it's replying to, or a previously sent message.
+     * Sends the image URL of the first emoji or sticker found in the message, the message it's replying to, or a previously sent message.
      * Only works with custom emojis.
      *
      * @param arguments The arguments of the command.
@@ -33,21 +34,20 @@ public class EmojiImageCommand extends Command {
     @Override
     public void execute(String[] arguments, MessageReceivedEvent event) {
         MessageUtil.processMessages(event.getMessage(), message -> {
-            String messageContent = message.getContentRaw();
-            if (!messageContent.isEmpty()) {
-                System.out.println("Message content: " + messageContent);
-                System.out.println(Integer.toHexString(messageContent.charAt(0)));
-            }
-
             List<Emote> emotes = message.getEmotes();
+            List<MessageSticker> stickers = message.getStickers();
             if (emotes.isEmpty()) {
-                return Optional.empty();
+                if (stickers.isEmpty()) {
+                    return Optional.empty();
+                } else {
+                    return Optional.of(stickers.get(0).getIconUrl());
+                }
             } else {
-                return Optional.of(emotes.get(0));
+                return Optional.of(emotes.get(0).getImageUrl());
             }
         }).ifPresentOrElse(
-                emote -> event.getMessage().reply(emote.getImageUrl()).queue(),
-                () -> event.getMessage().reply("No custom emoji found!").queue()
+                url -> event.getMessage().reply(url).queue(),
+                () -> event.getMessage().reply("No custom emoji or sticker found!").queue()
         );
     }
 }
