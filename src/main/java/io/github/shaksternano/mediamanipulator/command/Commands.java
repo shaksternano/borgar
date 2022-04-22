@@ -74,7 +74,14 @@ public class Commands {
      */
     public static final Command TO_GIF = addCommandToRegister(new ToGifCommand(
             "gif",
-            "Turns media into a GIF."
+            "Turns media into a GIF.",
+            false
+    ));
+
+    public static final Command TO_GIF_FALLBACK = addCommandToRegister(new ToGifCommand(
+            "giffallback",
+            "Turns media into a GIF by just renaming the file extension to \".gif\".",
+            true
     ));
 
     public static final Command AVATAR = addCommandToRegister(new AvatarCommand(

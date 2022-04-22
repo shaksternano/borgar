@@ -68,13 +68,14 @@ public interface MediaManipulator {
     /**
      * Turns a media file into a GIF file, useful for Discord GIF favoriting.
      *
-     * @param media The media file to turn into a GIF.
+     * @param media    The media file to turn into a GIF.
+     * @param fallback If this is true the media will be "converted" to a GIF file by just renaming the extension to ".gif".
      * @return The media as a GIF file.
      * @throws IOException                   If there is an error turning the media into a GIF.
      * @throws UncheckedIOException          If there is an error adding the caption.
      * @throws UnsupportedOperationException If the operation is not supported by this manipulator.
      */
-    File makeGif(File media) throws IOException;
+    File makeGif(File media, boolean fallback) throws IOException;
 
     /**
      * Gets the set of supported media file extensions that this manipulator supports.

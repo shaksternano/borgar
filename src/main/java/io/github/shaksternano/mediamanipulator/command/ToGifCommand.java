@@ -11,6 +11,8 @@ import java.io.IOException;
  */
 public class ToGifCommand extends MediaCommand {
 
+    private final boolean FALLBACK;
+
     /**
      * Creates a new command object.
      *
@@ -18,8 +20,9 @@ public class ToGifCommand extends MediaCommand {
      *                    followed by this name, the command will be executed.
      * @param description The description of the command. This is displayed in the help command.
      */
-    protected ToGifCommand(String name, String description) {
+    protected ToGifCommand(String name, String description, boolean fallback) {
         super(name, description);
+        FALLBACK = fallback;
     }
 
     /**
@@ -34,6 +37,6 @@ public class ToGifCommand extends MediaCommand {
      */
     @Override
     public File applyOperation(File media, String[] arguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
-        return manipulator.makeGif(media);
+        return manipulator.makeGif(media, FALLBACK);
     }
 }

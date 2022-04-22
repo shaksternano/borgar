@@ -27,9 +27,14 @@ public class StaticImageManipulator extends ImageBasedManipulator {
     }
 
     @Override
-    public File makeGif(File media) throws IOException {
+    public File makeGif(File media, boolean fallback) throws IOException {
         File gifFile = FileUtil.getUniqueTempFile(Files.getNameWithoutExtension(media.getName()) + ".gif");
-        ImageIO.write(ImageIO.read(media), "gif", gifFile);
+        if (fallback) {
+            Files.move(media, gifFile);
+        } else {
+            ImageIO.write(ImageIO.read(media), "gif", gifFile);
+        }
+
         return gifFile;
     }
 

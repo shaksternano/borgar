@@ -54,7 +54,7 @@ public class GifManipulator extends ImageBasedManipulator {
      * @return The media as a GIF file.
      */
     @Override
-    public File makeGif(File media) {
+    public File makeGif(File media, boolean fallback) {
         throw new UnsupportedOperationException("This file is already a GIF file!");
     }
 
