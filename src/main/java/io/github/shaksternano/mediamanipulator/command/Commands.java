@@ -89,9 +89,9 @@ public class Commands {
             "Gets the avatar of a user. Optional arguments: [User mention]"
     ));
 
-    public static final Command EMOJI_URL = addCommandToRegister(new EmojiImageCommand(
+    public static final Command EMOJI_IMAGE = addCommandToRegister(new EmojiImageCommand(
             "emojiimage",
-            "Gets the image of an emoji. Only works with custom emoji."
+            "Gets the image of a custom emoji or sticker."
     ));
 
     /**
