@@ -25,7 +25,7 @@ public class CaptionCommand extends MediaCommand {
     /**
      * Adds a caption to media, with the caption text being the arguments of the command joined together with spaces in between.
      *
-     * @param mediaFile   The media file to apply the operation to
+     * @param media       The media file to apply the operation to
      * @param arguments   The arguments of the command.
      * @param manipulator The {@link MediaManipulator} to use for the operation.
      * @param event       The {@link MessageReceivedEvent} that triggered the command.
@@ -33,7 +33,7 @@ public class CaptionCommand extends MediaCommand {
      * @throws IOException If an error occurs while applying the operation.
      */
     @Override
-    public File applyOperation(File mediaFile, String[] arguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
-        return manipulator.caption(mediaFile, String.join(" ", arguments));
+    public File applyOperation(File media, String[] arguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
+        return manipulator.caption(media, String.join(" ", arguments));
     }
 }

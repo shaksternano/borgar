@@ -1,13 +1,7 @@
 package io.github.shaksternano.mediamanipulator.util;
 
-import com.google.common.collect.Streams;
-
-import java.awt.image.BufferedImage;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Contains static methods for compressing media files.
@@ -52,9 +46,8 @@ public class MediaCompression {
                     keptIndex++;
                 } else {
                     DelayedImage keptFrame = keptFrames.get(keptIndex);
-                    int keptFrameDelay = keptFrame.getDelay();
                     int removedFrameDelay = frames.get(i).getDelay();
-                    keptFrame.setDelay(keptFrameDelay + removedFrameDelay);
+                    keptFrame.incrementDelay(removedFrameDelay);
                 }
             }
 

@@ -10,7 +10,7 @@ import java.util.Optional;
 /**
  * Gets the image of an emoji.
  */
-public class EmojiUrlCommand extends Command {
+public class EmojiImageCommand extends Command {
 
     /**
      * Creates a new command object.
@@ -19,7 +19,7 @@ public class EmojiUrlCommand extends Command {
      *                    followed by this name, the command will be executed.
      * @param description The description of the command. This is displayed in the help command.
      */
-    protected EmojiUrlCommand(String name, String description) {
+    protected EmojiImageCommand(String name, String description) {
         super(name, description);
     }
 
@@ -33,6 +33,12 @@ public class EmojiUrlCommand extends Command {
     @Override
     public void execute(String[] arguments, MessageReceivedEvent event) {
         MessageUtil.processMessages(event.getMessage(), message -> {
+            String messageContent = message.getContentRaw();
+            if (!messageContent.isEmpty()) {
+                System.out.println("Message content: " + messageContent);
+                System.out.println(Integer.toHexString(messageContent.charAt(0)));
+            }
+
             List<Emote> emotes = message.getEmotes();
             if (emotes.isEmpty()) {
                 return Optional.empty();

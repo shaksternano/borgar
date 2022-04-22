@@ -17,6 +17,11 @@ import java.util.function.Function;
 public class StaticImageManipulator extends ImageBasedManipulator {
 
     @Override
+    public File speed(File media, float speedMultiplier) {
+        throw new UnsupportedOperationException("Cannot change the speed of a static image.");
+    }
+
+    @Override
     public File reduceFps(File media, int fpsReductionRatio) {
         throw new UnsupportedOperationException("Cannot reduce the FPS of a static image.");
     }

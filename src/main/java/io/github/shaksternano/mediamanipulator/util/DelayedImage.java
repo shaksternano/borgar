@@ -8,6 +8,11 @@ import java.awt.image.BufferedImage;
 public class DelayedImage {
 
     /**
+     * The minimum frame delay allowed on GIF files.
+     */
+    public static final int GIF_MINIMUM_DELAY = 20;
+
+    /**
      * The frame.
      */
     private BufferedImage image;
@@ -62,5 +67,9 @@ public class DelayedImage {
      */
     public void setDelay(int delay) {
         this.delay = delay;
+    }
+
+    public void incrementDelay(int amount) {
+        delay += amount;
     }
 }

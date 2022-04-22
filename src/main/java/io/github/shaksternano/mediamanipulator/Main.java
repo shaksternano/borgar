@@ -1,5 +1,6 @@
 package io.github.shaksternano.mediamanipulator;
 
+import io.github.shaksternano.mediamanipulator.command.Command;
 import io.github.shaksternano.mediamanipulator.command.Commands;
 import io.github.shaksternano.mediamanipulator.command.terminal.TerminalInputListener;
 import io.github.shaksternano.mediamanipulator.listener.CommandListener;
@@ -60,10 +61,10 @@ public class Main {
         Main.LOGGER.info("Allocated memory: " + (Runtime.getRuntime().maxMemory() / (1024 * 1024)) + "MB");
         String discordBotToken = initDiscordBotToken(args);
         initTenorApiKey(args);
-        initJda(discordBotToken);
         Commands.registerCommands();
-        Fonts.registerFonts();
         MediaManipulators.registerMediaManipulators();
+        initJda(discordBotToken);
+        Fonts.registerFonts();
         RestAction.setDefaultFailure(throwable -> Main.LOGGER.error("An error occurred while executing a REST action.", throwable));
     }
 
@@ -142,8 +143,10 @@ public class Main {
 
         jda.getPresence().setActivity(Activity.playing("gaming"));
         jda.addEventListener(CommandListener.INSTANCE);
+
+        Command helpCommand = Commands.HELP;
         jda.updateCommands()
-                .addCommands(net.dv8tion.jda.api.interactions.commands.build.Commands.slash(Commands.HELP.getName(), Commands.HELP.getDescription()))
+                .addCommands(net.dv8tion.jda.api.interactions.commands.build.Commands.slash(helpCommand.getName(), helpCommand.getDescription()))
                 .queue();
 
         jda.retrieveApplicationInfo().queue(

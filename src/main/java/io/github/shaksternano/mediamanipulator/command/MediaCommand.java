@@ -82,7 +82,7 @@ public abstract class MediaCommand extends Command {
     /**
      * Applies an operation to the media file specified by {@link MessageUtil#downloadImage(Message, File)}
      *
-     * @param mediaFile   The media file to apply the operation to
+     * @param media       The media file to apply the operation to
      * @param arguments   The arguments of the command.
      * @param manipulator The {@link MediaManipulator} to use for the operation.
      * @param event       The {@link MessageReceivedEvent} that triggered the command.
@@ -91,5 +91,5 @@ public abstract class MediaCommand extends Command {
      * @throws IllegalArgumentException If an argument is invalid.
      * @throws MissingArgumentException If the operation requires an argument but none was provided.
      */
-    public abstract File applyOperation(File mediaFile, String[] arguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException;
+    public abstract File applyOperation(File media, String[] arguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException;
 }

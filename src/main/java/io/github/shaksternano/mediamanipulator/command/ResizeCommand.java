@@ -11,6 +11,8 @@ import java.io.IOException;
  */
 public class ResizeCommand extends MediaCommand {
 
+    private final boolean RAW;
+
     /**
      * Creates a new command object.
      *
@@ -18,15 +20,16 @@ public class ResizeCommand extends MediaCommand {
      *                    followed by this name, the command will be executed.
      * @param description The description of the command. This is displayed in the help command.
      */
-    public ResizeCommand(String name, String description) {
+    public ResizeCommand(String name, String description, boolean raw) {
         super(name, description);
+        RAW = raw;
     }
 
     /**
      * Resizes an image by the amount specified in the first argument.
      * Equivalent to stretching an image with the width and height multipliers set to the same amount.
      *
-     * @param mediaFile   The media file to apply the operation to
+     * @param media       The media file to apply the operation to
      * @param arguments   The arguments of the command.
      * @param manipulator The {@link MediaManipulator} to use for the operation.
      * @param event       The {@link MessageReceivedEvent} that triggered the command.
@@ -36,11 +39,11 @@ public class ResizeCommand extends MediaCommand {
      * @throws MissingArgumentException If the operation requires an argument but none was provided.
      */
     @Override
-    public File applyOperation(File mediaFile, String[] arguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
+    public File applyOperation(File media, String[] arguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
         if (arguments.length > 0) {
             try {
                 float resizeMultiplier = Float.parseFloat(arguments[0]);
-                return manipulator.stretch(mediaFile, resizeMultiplier, resizeMultiplier);
+                return manipulator.resize(media, resizeMultiplier, RAW);
             } catch (NumberFormatException e) {
                 throw new IllegalArgumentException("Scale multiplier \"" + arguments[0] + "\" is not a number!");
             }

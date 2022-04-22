@@ -23,17 +23,18 @@ public abstract class ImageBasedManipulator implements MediaManipulator {
     }
 
     @Override
-    public File stretch(File media, float widthMultiplier, float heightMultiplier) throws IOException {
-        return applyOperation(media, image -> ImageUtil.stretch(image, (int) (image.getWidth() * widthMultiplier), (int) (image.getHeight() * heightMultiplier)), "stretched");
+    public File stretch(File media, float widthMultiplier, float heightMultiplier, boolean raw) throws IOException {
+        return applyOperation(media, image -> ImageUtil.stretch(image, (int) (image.getWidth() * widthMultiplier), (int) (image.getHeight() * heightMultiplier), raw), "stretched");
+    }
+
+    @Override
+    public File resize(File media, float resizeMultiplier, boolean raw) throws IOException {
+        return applyOperation(media, image -> ImageUtil.resize(image, resizeMultiplier, raw), "resized");
     }
 
     @Override
     public File pixelate(File media, int pixelationMultiplier) throws IOException {
-        return applyOperation(media, image -> ImageUtil.stretch(
-                ImageUtil.stretch(
-                        image, image.getWidth() / pixelationMultiplier, image.getHeight() / pixelationMultiplier
-                ), image.getWidth(), image.getHeight()
-        ), "pixelated");
+        return applyOperation(media, image -> ImageUtil.pixelate(image, pixelationMultiplier), "pixelated");
     }
 
     @Override

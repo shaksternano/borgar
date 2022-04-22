@@ -1,5 +1,6 @@
 package io.github.shaksternano.mediamanipulator.util;
 
+import com.sksamuel.scrimage.ImmutableImage;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
@@ -147,14 +148,28 @@ public class ImageUtil {
      * @param image        The image to stretch.
      * @param targetWidth  The width to stretch the image to.
      * @param targetHeight The height to stretch the image to.
+     * @param raw          If false, extra processing is done to smoothen the resulting image.
+     *                     If true, no extra processing is done.
      * @return The stretched image.
      */
-    public static BufferedImage stretch(BufferedImage image, int targetWidth, int targetHeight) {
-        BufferedImage stretchedImage = new BufferedImage(targetWidth, targetHeight, image.getType());
-        Graphics2D graphics = stretchedImage.createGraphics();
-        graphics.drawImage(image, 0, 0, targetWidth, targetHeight, null);
-        graphics.dispose();
-        return stretchedImage;
+    public static BufferedImage stretch(BufferedImage image, int targetWidth, int targetHeight, boolean raw) {
+        if (raw) {
+            BufferedImage stretchedImage = new BufferedImage(targetWidth, targetHeight, image.getType());
+            Graphics2D graphics = stretchedImage.createGraphics();
+            graphics.drawImage(image, 0, 0, targetWidth, targetHeight, null);
+            graphics.dispose();
+            return stretchedImage;
+        }
+
+        return ImmutableImage.wrapAwt(image).scaleTo(targetWidth, targetHeight).awt();
+    }
+
+    public static BufferedImage resize(BufferedImage image, float resizeMultiplier, boolean raw) {
+        return stretch(image, (int) (image.getWidth() * resizeMultiplier), (int) (image.getHeight() * resizeMultiplier), raw);
+    }
+
+    public static BufferedImage pixelate(BufferedImage image, int pixelationMultiplier) {
+        return stretch(stretch(image, image.getWidth() / pixelationMultiplier, image.getHeight() / pixelationMultiplier, true), image.getWidth(), image.getHeight(), true);
     }
 
     /**

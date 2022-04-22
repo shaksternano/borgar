@@ -31,12 +31,18 @@ public interface MediaManipulator {
      * @param media            The media file to stretch.
      * @param widthMultiplier  The stretch width multiplier.
      * @param heightMultiplier The stretch height multiplier.
+     * @param raw              If false, extra processing is done to smoothen the resulting image.
+     *                         If true, no extra processing is done.
      * @return The stretched media file.
      * @throws IOException                   If there is an error stretching the media file.
      * @throws UncheckedIOException          If there is an error adding the caption.
      * @throws UnsupportedOperationException If the operation is not supported by this manipulator.
      */
-    File stretch(File media, float widthMultiplier, float heightMultiplier) throws IOException;
+    File stretch(File media, float widthMultiplier, float heightMultiplier, boolean raw) throws IOException;
+
+    File resize(File media, float resizeMultiplier, boolean raw) throws IOException;
+
+    File speed(File media, float speedMultiplier) throws IOException;
 
     File pixelate(File media, int pixelationMultiplier) throws IOException;
 

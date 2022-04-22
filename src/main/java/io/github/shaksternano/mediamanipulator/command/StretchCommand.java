@@ -21,6 +21,8 @@ public class StretchCommand extends MediaCommand {
      */
     public static final float DEFAULT_HEIGHT_MULTIPLIER = 1;
 
+    private final boolean RAW;
+
     /**
      * Creates a new command object.
      *
@@ -28,8 +30,9 @@ public class StretchCommand extends MediaCommand {
      *                    followed by this name, the command will be executed.
      * @param description The description of the command. This is displayed in the help command.
      */
-    protected StretchCommand(String name, String description) {
+    protected StretchCommand(String name, String description, boolean raw) {
         super(name, description);
+        RAW = raw;
     }
 
     /**
@@ -38,7 +41,7 @@ public class StretchCommand extends MediaCommand {
      * and the stretch height multiplier is specified by the second element of the arguments array,
      * with a default value of {@link #DEFAULT_HEIGHT_MULTIPLIER} if it is not specified or un-parsable.
      *
-     * @param mediaFile   The media file to apply the operation to
+     * @param media       The media file to apply the operation to
      * @param arguments   The arguments of the command.
      * @param manipulator The {@link MediaManipulator} to use for the operation.
      * @param event       The {@link MessageReceivedEvent} that triggered the command.
@@ -46,7 +49,7 @@ public class StretchCommand extends MediaCommand {
      * @throws IOException If an error occurs while applying the operation.
      */
     @Override
-    public File applyOperation(File mediaFile, String[] arguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
+    public File applyOperation(File media, String[] arguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
         float widthMultiplier = DEFAULT_WIDTH_MULTIPLIER;
         float heightMultiplier = DEFAULT_HEIGHT_MULTIPLIER;
 
@@ -65,6 +68,6 @@ public class StretchCommand extends MediaCommand {
             }
         }
 
-        return manipulator.stretch(mediaFile, widthMultiplier, heightMultiplier);
+        return manipulator.stretch(media, widthMultiplier, heightMultiplier, RAW);
     }
 }

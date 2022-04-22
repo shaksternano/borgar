@@ -23,7 +23,7 @@ public class ReduceFpsCommand extends MediaCommand {
     }
 
     @Override
-    public File applyOperation(File mediaFile, String[] arguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
+    public File applyOperation(File media, String[] arguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
         int fpsReductionMultiplier = DEFAULT_FPS_REDUCTION_MULTIPLIER;
 
         if (arguments.length > 0) {
@@ -34,6 +34,6 @@ public class ReduceFpsCommand extends MediaCommand {
             }
         }
 
-        return manipulator.reduceFps(mediaFile, fpsReductionMultiplier);
+        return manipulator.reduceFps(media, fpsReductionMultiplier);
     }
 }
