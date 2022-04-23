@@ -52,12 +52,12 @@ public class Commands {
     ));
 
     public static final Command PIXELATE = addCommandToRegister(new PixelateCommand(
-            "pixelate",
+            "pixel",
             "Pixelates media. Equivalent to " + Command.COMMAND_PREFIX + RESIZE_RAW.getName() + " 1/x followed by " + Command.COMMAND_PREFIX + RESIZE_RAW.getName() + " x Optional arguments: [pixelation multiplier, default value is " + PixelateCommand.DEFAULT_PIXELATION_MULTIPLIER + "]"
     ));
 
     public static final Command REDUCE_FPS = addCommandToRegister(new ReduceFpsCommand(
-            "reducefps",
+            "redfps",
             "Reduces the FPS of a media file. Optional arguments: [fps reduction multiplier, default value is " + ReduceFpsCommand.DEFAULT_FPS_REDUCTION_MULTIPLIER + "]"
     ));
 
@@ -65,14 +65,14 @@ public class Commands {
      * The speech bubble {@link Command}.
      */
     public static final Command SPEECH_BUBBLE = addCommandToRegister(new SpeechBubbleCommand(
-            "speechbubble",
+            "sb",
             "Overlays a speech bubble over media.",
             false
     ));
 
     public static final Command INVERTED_SPEECH_BUBBLE = addCommandToRegister(new SpeechBubbleCommand(
-            "speechbubbleinv",
-            "Cuts out a speech bubble from media.",
+            "sbi",
+            "Cuts out a speech bubble from media (Inverted speech bubble).",
             true
     ));
 
@@ -86,7 +86,7 @@ public class Commands {
     ));
 
     public static final Command TO_GIF_FALLBACK = addCommandToRegister(new ToGifCommand(
-            "giffallback",
+            "gif2",
             "Turns media into a GIF by just renaming the file extension to \".gif\". Use this when there are problems with the " + Command.COMMAND_PREFIX + TO_GIF.getName() + " command.",
             true
     ));
@@ -97,12 +97,12 @@ public class Commands {
     ));
 
     public static final Command EMOJI_IMAGE = addCommandToRegister(new EmojiImageCommand(
-            "emojiimage",
+            "emoji",
             "Gets the image of a custom emoji."
     ));
 
     public static final Command STICKER_IMAGE = addCommandToRegister(new StickerImageCommand(
-            "stickerimage",
+            "sticker",
             "Gets the image of a custom sticker."
     ));
 
