@@ -118,7 +118,7 @@ public class Commands {
      */
     public static final Command SHUT_DOWN = addCommandToRegister(new ShutDownCommand(
             "shutdown",
-            "Shuts down the bot. Only the owner of the bot can use this command."
+            "Shuts down the bot."
     ));
 
     /**

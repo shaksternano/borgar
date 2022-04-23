@@ -14,7 +14,7 @@ public abstract class BotOwnerCommand extends Command {
      * @param description The description of the command. This is displayed in the help command.
      */
     protected BotOwnerCommand(String name, String description) {
-        super(name, description);
+        super(name, description + " Only the owner of this bot can use this command.");
     }
 
     @Override
@@ -25,7 +25,7 @@ public abstract class BotOwnerCommand extends Command {
         if (userId == Main.getOwnerId()) {
             botOwnerOperation(arguments, event);
         } else {
-            userMessage.reply("You are not authorised to use this command!").queue();
+            userMessage.reply("Only the owner of this bot can use this command!").queue();
         }
     }
 
