@@ -26,8 +26,8 @@ public class ImageUtil {
      * @return The image with the caption added.
      */
     public static BufferedImage captionImage(BufferedImage image, String caption, Font font) {
-        font = font.deriveFont(image.getHeight() / 10F);
-        int padding = (int) (image.getHeight() * 0.05);
+        font = font.deriveFont(image.getWidth() / 10F);
+        int padding = (int) (image.getWidth() * 0.04);
         Graphics2D graphics = image.createGraphics();
 
         graphics.setRenderingHint(
