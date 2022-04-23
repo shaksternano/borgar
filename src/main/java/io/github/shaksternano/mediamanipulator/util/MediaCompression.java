@@ -19,7 +19,7 @@ public class MediaCompression {
     public static List<DelayedImage> removeFrames(List<DelayedImage> frames, long fileSize, long targetSize) {
         if (fileSize > targetSize) {
             float frameRatio = ((float) fileSize / targetSize);
-            frameRatio *= 6;
+            frameRatio *= 7;
             return removeFrames(frames, (int) frameRatio);
         } else {
             return frames;

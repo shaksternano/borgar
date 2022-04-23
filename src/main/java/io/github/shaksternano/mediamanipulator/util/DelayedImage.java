@@ -69,6 +69,10 @@ public class DelayedImage {
         this.delay = delay;
     }
 
+    public void incrementDelay() {
+        incrementDelay(1);
+    }
+
     public void incrementDelay(int amount) {
         delay += amount;
     }

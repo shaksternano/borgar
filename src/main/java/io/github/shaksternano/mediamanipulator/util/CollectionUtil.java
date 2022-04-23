@@ -20,7 +20,7 @@ public class CollectionUtil {
      * @param <T>  The type of the list.
      * @return A new list with every Nth element removed.
      */
-    public static <T> List<T> removeEveryNthElement(List<T> list, int n) {
+    public static <T> List<T> keepEveryNthElement(List<T> list, int n) {
         return Streams
                 .mapWithIndex(list.stream(), AbstractMap.SimpleImmutableEntry::new)
                 .filter(entry -> entry.getValue() % n == 0)

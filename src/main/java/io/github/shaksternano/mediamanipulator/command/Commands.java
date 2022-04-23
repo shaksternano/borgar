@@ -24,19 +24,19 @@ public class Commands {
      */
     public static final Command STRETCH = addCommandToRegister(new StretchCommand(
             "stretch",
-            "Stretches media. Optional arguments: [width stretch multiplier, default value is " + StretchCommand.DEFAULT_WIDTH_MULTIPLIER + "], [height stretch multiplier, default value is " + StretchCommand.DEFAULT_HEIGHT_MULTIPLIER + "]",
+            "Stretches media with extra processing to smoothen the resulting image. Optional arguments: [width stretch multiplier, default value is " + StretchCommand.DEFAULT_WIDTH_MULTIPLIER + "], [height stretch multiplier, default value is " + StretchCommand.DEFAULT_HEIGHT_MULTIPLIER + "]",
             false
     ));
 
     public static final Command STRETCH_RAW = addCommandToRegister(new StretchCommand(
             "stretchraw",
-            "Stretches media. Optional arguments: [width stretch multiplier, default value is " + StretchCommand.DEFAULT_WIDTH_MULTIPLIER + "], [height stretch multiplier, default value is " + StretchCommand.DEFAULT_HEIGHT_MULTIPLIER + "]",
+            "Stretches media without extra processing. Optional arguments: [width stretch multiplier, default value is " + StretchCommand.DEFAULT_WIDTH_MULTIPLIER + "], [height stretch multiplier, default value is " + StretchCommand.DEFAULT_HEIGHT_MULTIPLIER + "]",
             true
     ));
 
     public static final Command RESIZE = addCommandToRegister(new ResizeCommand(
             "resize",
-            "Resizes media with processing to smoothen the resulting image. Equivalent to " + Command.COMMAND_PREFIX + STRETCH.getName() + " x x. Required arguments: [resize multiplier]",
+            "Resizes media with extra processing to smoothen the resulting image. Equivalent to " + Command.COMMAND_PREFIX + STRETCH.getName() + " x x. Required arguments: [resize multiplier]",
             false
     ));
 

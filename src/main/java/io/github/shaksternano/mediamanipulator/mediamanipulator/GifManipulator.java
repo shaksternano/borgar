@@ -31,8 +31,10 @@ public class GifManipulator extends ImageBasedManipulator {
     @Override
     public File speed(File media, float speedMultiplier) throws IOException {
         List<DelayedImage> frames = readGifFrames(media);
-        frames = MediaCompression.removeFrames(frames, media.length(), FileUtil.DISCORD_MAXIMUM_FILE_SIZE);
+        frames = MediaCompression.removeFrames(frames, media.length(), FileUtil.DISCORD_MAXIMUM_FILE_SIZE);;
+
         List<DelayedImage> newFrames = changeSpeed(frames, speedMultiplier);
+
         File gifFile = FileUtil.getUniqueTempFile(FileUtil.appendName(media, "_changed_speed").getName());
         writeFramesToGifFile(newFrames, gifFile);
         return gifFile;
@@ -141,12 +143,12 @@ public class GifManipulator extends ImageBasedManipulator {
 
                 List<BufferedImage> bufferedFrames = delayedImagesToBufferedImages(frames);
 
-                bufferedFrames = CollectionUtil.removeEveryNthElement(bufferedFrames, DelayedImage.GIF_MINIMUM_DELAY);
+                List<BufferedImage> keptFrames = CollectionUtil.keepEveryNthElement(bufferedFrames, DelayedImage.GIF_MINIMUM_DELAY);
 
-                List<DelayedImage> newFrames = bufferedImagesToDelayedImages(bufferedFrames);
+                List<DelayedImage> newFrames = bufferedImagesToDelayedImages(keptFrames);
 
                 for (DelayedImage frame : newFrames) {
-                    frame.setDelay(DelayedImage.GIF_MINIMUM_DELAY);
+                    frame.setDelay(frame.getDelay() * DelayedImage.GIF_MINIMUM_DELAY);
                 }
 
                 if (newFrames.isEmpty()) {
@@ -185,7 +187,7 @@ public class GifManipulator extends ImageBasedManipulator {
                 BufferedImage lastFrame = delayedImage.getImage();
 
                 if (frame.equals(lastFrame)) {
-                    delayedImage.setDelay(delayedImage.getDelay() + 1);
+                    delayedImage.incrementDelay();
                 } else {
                     delayedFrames.add(new DelayedImage(frame, 1));
                 }
