@@ -1,5 +1,6 @@
 package io.github.shaksternano.mediamanipulator.command;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +11,7 @@ import java.util.List;
 public class Commands {
 
     private static final List<Command> commandsToRegister = new ArrayList<>();
+    private static final DecimalFormat FORMAT = new DecimalFormat("0.####");
 
     /**
      * The caption {@link Command}.
@@ -24,13 +26,13 @@ public class Commands {
      */
     public static final Command STRETCH = addCommandToRegister(new StretchCommand(
             "stretch",
-            "Stretches media with extra processing to smoothen the resulting image. Optional arguments: [width stretch multiplier, default value is " + StretchCommand.DEFAULT_WIDTH_MULTIPLIER + "], [height stretch multiplier, default value is " + StretchCommand.DEFAULT_HEIGHT_MULTIPLIER + "]",
+            "Stretches media with extra processing to smoothen the resulting image. Optional arguments: [width stretch multiplier, default value is " + FORMAT.format(StretchCommand.DEFAULT_WIDTH_MULTIPLIER )+ "], [height stretch multiplier, default value is " + FORMAT.format(StretchCommand.DEFAULT_HEIGHT_MULTIPLIER) + "]",
             false
     ));
 
     public static final Command STRETCH_RAW = addCommandToRegister(new StretchCommand(
             "stretchraw",
-            "Stretches media without extra processing. Optional arguments: [width stretch multiplier, default value is " + StretchCommand.DEFAULT_WIDTH_MULTIPLIER + "], [height stretch multiplier, default value is " + StretchCommand.DEFAULT_HEIGHT_MULTIPLIER + "]",
+            "Stretches media without extra processing. Optional arguments: [width stretch multiplier, default value is " + FORMAT.format(StretchCommand.DEFAULT_WIDTH_MULTIPLIER) + "], [height stretch multiplier, default value is " + FORMAT.format(StretchCommand.DEFAULT_HEIGHT_MULTIPLIER) + "]",
             true
     ));
 
@@ -48,17 +50,17 @@ public class Commands {
 
     public static final Command SPEED = addCommandToRegister(new SpeedCommand(
             "speed",
-            "Speeds up or slows down media. Optional arguments: [speed multiplier, default value is " + SpeedCommand.DEFAULT_SPEED_MULTIPLIER + "]"
+            "Speeds up or slows down media. Optional arguments: [speed multiplier, default value is " + FORMAT.format(SpeedCommand.DEFAULT_SPEED_MULTIPLIER) + "]"
     ));
 
     public static final Command PIXELATE = addCommandToRegister(new PixelateCommand(
             "pixel",
-            "Pixelates media. Equivalent to " + Command.COMMAND_PREFIX + RESIZE_RAW.getName() + " 1/x followed by " + Command.COMMAND_PREFIX + RESIZE_RAW.getName() + " x Optional arguments: [pixelation multiplier, default value is " + PixelateCommand.DEFAULT_PIXELATION_MULTIPLIER + "]"
+            "Pixelates media. Equivalent to " + Command.COMMAND_PREFIX + RESIZE_RAW.getName() + " 1/x followed by " + Command.COMMAND_PREFIX + RESIZE_RAW.getName() + " x Optional arguments: [pixelation multiplier, default value is " + FORMAT.format(PixelateCommand.DEFAULT_PIXELATION_MULTIPLIER) + "]"
     ));
 
     public static final Command REDUCE_FPS = addCommandToRegister(new ReduceFpsCommand(
             "redfps",
-            "Reduces the FPS of a media file. Optional arguments: [fps reduction multiplier, default value is " + ReduceFpsCommand.DEFAULT_FPS_REDUCTION_MULTIPLIER + "]"
+            "Reduces the FPS of a media file. Optional arguments: [fps reduction multiplier, default value is " + FORMAT.format(ReduceFpsCommand.DEFAULT_FPS_REDUCTION_MULTIPLIER) + "]"
     ));
 
     /**
