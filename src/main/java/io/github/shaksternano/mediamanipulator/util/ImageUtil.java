@@ -222,9 +222,8 @@ public class ImageUtil {
 
             if (expandColor != null) {
                 graphics.setColor(expandColor);
+                graphics.fillRect(0, 0, overlaidImage.getWidth(), overlaidImage.getHeight());
             }
-
-            graphics.fillRect(0, 0, overlaidImage.getWidth(), overlaidImage.getHeight());
 
             int imageActualX = x < 0 ? -x : 0;
             int imageActualY = y < 0 ? -y : 0;
