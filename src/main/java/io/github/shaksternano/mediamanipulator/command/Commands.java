@@ -66,7 +66,14 @@ public class Commands {
      */
     public static final Command SPEECH_BUBBLE = addCommandToRegister(new SpeechBubbleCommand(
             "speechbubble",
-            "Overlays a speech bubble over media."
+            "Overlays a speech bubble over media.",
+            false
+    ));
+
+    public static final Command INVERTED_SPEECH_BUBBLE = addCommandToRegister(new SpeechBubbleCommand(
+            "speechbubbleinv",
+            "Cuts out a speech bubble from media.",
+            true
     ));
 
     /**

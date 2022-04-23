@@ -3,12 +3,15 @@ package io.github.shaksternano.mediamanipulator.util;
 import com.sksamuel.scrimage.ImmutableImage;
 import org.jetbrains.annotations.Nullable;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.font.FontRenderContext;
 import java.awt.font.LineBreakMeasurer;
 import java.awt.font.TextAttribute;
 import java.awt.font.TextLayout;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.AttributedCharacterIterator;
 import java.text.AttributedString;
 
@@ -16,6 +19,12 @@ import java.text.AttributedString;
  * Contains static methods for dealing with images.
  */
 public class ImageUtil {
+
+    public static BufferedImage getImageResource(String resourcePath) throws IOException {
+        try (InputStream imageStream = FileUtil.getResource(resourcePath)) {
+            return ImageIO.read(imageStream);
+        }
+    }
 
     /**
      * Adds a caption to an image.
@@ -172,6 +181,20 @@ public class ImageUtil {
         return stretch(stretch(image, image.getWidth() / pixelationMultiplier, image.getHeight() / pixelationMultiplier, true), image.getWidth(), image.getHeight(), true);
     }
 
+    public static BufferedImage fitWidth(BufferedImage toFit, int width) {
+        return ImmutableImage.wrapAwt(toFit).scaleToWidth(width).awt();
+    }
+
+    public static BufferedImage fill(BufferedImage toFill, Color color) {
+        BufferedImage filledImage = new BufferedImage(toFill.getWidth(), toFill.getHeight(), toFill.getType());
+        Graphics2D graphics = filledImage.createGraphics();
+        graphics.setColor(color);
+        graphics.fillRect(0, 0, filledImage.getWidth(), filledImage.getHeight());
+        graphics.drawImage(toFill, 0, 0, null);
+        graphics.dispose();
+        return filledImage;
+    }
+
     /**
      * Overlays an image on top of another image.
      *
@@ -219,5 +242,46 @@ public class ImageUtil {
             graphics.dispose();
             return image;
         }
+    }
+
+    public static BufferedImage cutoutImage(BufferedImage imageToCut, BufferedImage imageToCutout, int x, int y) {
+        int toCutWidth = imageToCut.getWidth();
+        int toCutHeight = imageToCut.getHeight();
+
+        int toCutoutWidth = imageToCutout.getWidth();
+        int toCutoutHeight = imageToCutout.getHeight();
+
+        int[] toCutPixels = imageToCut.getRGB(0, 0, toCutWidth, toCutHeight, null, 0, toCutWidth);
+        int[] toCutoutPixels = imageToCutout.getRGB(0, 0, toCutoutWidth, toCutoutHeight, null, 0, toCutoutWidth);
+
+        for (int i = 0; i < toCutoutPixels.length; i++) {
+            int toCutoutRgb = toCutoutPixels[i];
+            if (!isTransparent(toCutoutRgb)) {
+                int toCutIndex = get1dIndex(Math.min(toCutWidth, x + getX(i, toCutWidth)), Math.min(toCutHeight, y + getY(i, toCutWidth)), toCutWidth);
+
+                if (toCutIndex < toCutPixels.length) {
+                    toCutPixels[toCutIndex] = 0x00000000;
+                }
+            }
+        }
+
+        imageToCut.setRGB(0, 0, toCutWidth, toCutHeight, toCutPixels, 0, toCutWidth);
+        return imageToCut;
+    }
+
+    private static boolean isTransparent(int rgb) {
+        return (rgb >> 24) == 0x00;
+    }
+
+    private static int get1dIndex(int x, int y, int width) {
+        return y * width + x;
+    }
+
+    private static int getX(int index, int width) {
+        return index % width;
+    }
+
+    private static int getY(int index, int width) {
+        return index / width;
     }
 }

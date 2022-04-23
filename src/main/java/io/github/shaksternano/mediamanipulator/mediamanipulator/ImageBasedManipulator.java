@@ -2,9 +2,7 @@ package io.github.shaksternano.mediamanipulator.mediamanipulator;
 
 import io.github.shaksternano.mediamanipulator.util.Fonts;
 import io.github.shaksternano.mediamanipulator.util.ImageUtil;
-import org.jetbrains.annotations.Nullable;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -38,17 +36,31 @@ public abstract class ImageBasedManipulator implements MediaManipulator {
     }
 
     @Override
-    public File overlayMedia(File media, File overlay, int x, int y, boolean expand, @Nullable Color expandColor, @Nullable String overlayName) throws IOException {
+    public File speechBubble(File media, boolean cutOut) throws IOException {
         return applyOperation(media, image -> {
+            String speechBubblePath = cutOut ? "image/overlay/speech_bubble_2_partial.png" : "image/overlay/speech_bubble_1_partial.png";
+
             try {
-                BufferedImage overlayImage = ImageIO.read(overlay);
-                BufferedImage overLaidImage = ImageUtil.overlayImage(image, overlayImage, x, y, expand, expandColor);
-                overlayImage.flush();
-                return overLaidImage;
+                BufferedImage speechBubble = ImageUtil.getImageResource(speechBubblePath);
+                BufferedImage resizedSpeechBubble = ImageUtil.fitWidth(speechBubble, image.getWidth());
+                speechBubble.flush();
+
+                BufferedImage speechBubbled;
+                if (cutOut) {
+                    speechBubbled = ImageUtil.cutoutImage(image, resizedSpeechBubble, 0, 0);
+                } else {
+                    BufferedImage filledSpeechBubble = ImageUtil.fill(resizedSpeechBubble, Color.WHITE);
+                    speechBubbled = ImageUtil.overlayImage(image, filledSpeechBubble, 0, -filledSpeechBubble.getHeight(), true, null);
+                    filledSpeechBubble.flush();
+                }
+
+                resizedSpeechBubble.flush();
+                image.flush();
+                return speechBubbled;
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
-        }, overlayName == null ? "overlaid" : overlayName);
+        }, "speech_bubbled");
     }
 
     /**

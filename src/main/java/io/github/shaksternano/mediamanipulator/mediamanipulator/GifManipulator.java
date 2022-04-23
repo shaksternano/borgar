@@ -31,7 +31,7 @@ public class GifManipulator extends ImageBasedManipulator {
     @Override
     public File speed(File media, float speedMultiplier) throws IOException {
         List<DelayedImage> frames = readGifFrames(media);
-        frames = MediaCompression.removeFrames(frames, media.length(), FileUtil.DISCORD_MAXIMUM_FILE_SIZE);;
+        frames = MediaCompression.removeFrames(frames, media.length(), FileUtil.DISCORD_MAXIMUM_FILE_SIZE);
 
         List<DelayedImage> newFrames = changeSpeed(frames, speedMultiplier);
 
