@@ -1,8 +1,11 @@
 package io.github.shaksternano.mediamanipulator.mediamanipulator;
 
+import com.google.common.io.Files;
+import io.github.shaksternano.mediamanipulator.util.FileUtil;
 import io.github.shaksternano.mediamanipulator.util.Fonts;
 import io.github.shaksternano.mediamanipulator.util.ImageUtil;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -61,6 +64,30 @@ public abstract class ImageBasedManipulator implements MediaManipulator {
                 throw new UncheckedIOException(e);
             }
         }, "speech_bubbled");
+    }
+
+    @Override
+    public File makePng(File media) throws IOException {
+        String fileExtension = Files.getFileExtension(media.getName());
+
+        if (fileExtension.equals("png")) {
+            throw new UnsupportedOperationException("The file is already a PNG file!");
+        } else {
+            File pngFile = FileUtil.getUniqueTempFile(Files.getNameWithoutExtension(media.getName()) + ".png");
+            BufferedImage nonPngImage = ImageIO.read(media);
+
+            if (nonPngImage.getColorModel().hasAlpha()) {
+                ImageIO.write(nonPngImage, "png", pngFile);
+            } else {
+                BufferedImage nonPngImageWithAlpha = ImageUtil.addAlpha(nonPngImage);
+                ImageIO.write(nonPngImageWithAlpha, "png", pngFile);
+                nonPngImageWithAlpha.flush();
+            }
+
+            nonPngImage.flush();
+
+            return pngFile;
+        }
     }
 
     /**

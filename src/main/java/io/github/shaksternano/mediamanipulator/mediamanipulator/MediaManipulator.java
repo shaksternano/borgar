@@ -59,6 +59,8 @@ public interface MediaManipulator {
      */
     File makeGif(File media, boolean fallback) throws IOException;
 
+    File makePng(File media) throws IOException;
+
     /**
      * Gets the set of supported media file extensions that this manipulator supports.
      *

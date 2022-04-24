@@ -3,8 +3,10 @@ package io.github.shaksternano.mediamanipulator.mediamanipulator;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Files;
 import io.github.shaksternano.mediamanipulator.util.FileUtil;
+import io.github.shaksternano.mediamanipulator.util.ImageUtil;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -32,7 +34,17 @@ public class StaticImageManipulator extends ImageBasedManipulator {
         if (fallback) {
             Files.move(media, gifFile);
         } else {
-            ImageIO.write(ImageIO.read(media), "gif", gifFile);
+            BufferedImage nonGifImage = ImageIO.read(media);
+
+            if (nonGifImage.getColorModel().hasAlpha()) {
+                ImageIO.write(nonGifImage, "gif", gifFile);
+            } else {
+                BufferedImage nonGifImageWithAlpha = ImageUtil.addAlpha(nonGifImage);
+                ImageIO.write(nonGifImageWithAlpha, "gif", gifFile);
+                nonGifImageWithAlpha.flush();
+            }
+
+            nonGifImage.flush();
         }
 
         return gifFile;
@@ -43,7 +55,11 @@ public class StaticImageManipulator extends ImageBasedManipulator {
         return ImmutableSet.of(
                 "png",
                 "jpg",
-                "jpeg"
+                "jpeg",
+                "bmp",
+                "wbmp",
+                "tif",
+                "tiff"
         );
     }
 

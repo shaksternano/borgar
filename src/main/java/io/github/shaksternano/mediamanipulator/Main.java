@@ -162,6 +162,7 @@ public class Main {
         if (jda != null) {
             jda.shutdownNow();
         }
+
         FileUtil.cleanTempDirectory();
         System.exit(0);
     }

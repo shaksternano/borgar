@@ -283,4 +283,12 @@ public class ImageUtil {
     private static int getY(int index, int width) {
         return index / width;
     }
+
+    public static BufferedImage addAlpha(BufferedImage image) {
+        BufferedImage imageWithAlpha = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        Graphics2D graphics = imageWithAlpha.createGraphics();
+        graphics.drawImage(image, 0, 0, null);
+        graphics.dispose();
+        return imageWithAlpha;
+    }
 }
