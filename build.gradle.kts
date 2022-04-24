@@ -2,6 +2,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
     java
+    `maven-publish`
     id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
@@ -29,7 +30,7 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 }
 
-java {
+extensions.configure<JavaPluginExtension> {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
 }
@@ -50,6 +51,13 @@ tasks {
     }
 }
 
+tasks {
+    withType<JavaCompile> {
+        options.encoding = "UTF-8"
+        options.release.set(17)
+    }
+}
+
 task("copyToLib") {
     doLast {
         copy {
@@ -66,4 +74,13 @@ task("stage") {
 
 tasks.getByName<Test>("test") {
     useJUnitPlatform()
+}
+
+publishing {
+    publications {
+        register("mavenJava", MavenPublication::class) {
+            artifact("imperishable-items-fabric")
+            from(components["java"])
+        }
+    }
 }
