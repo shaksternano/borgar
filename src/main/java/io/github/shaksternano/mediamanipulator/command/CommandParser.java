@@ -33,7 +33,9 @@ public class CommandParser {
                     String[] arguments = parseArguments(commandParts);
                     try {
                         command.execute(arguments, event);
-                    } catch (IllegalArgumentException | MissingArgumentException e) {
+                    } catch (IllegalArgumentException e) {
+                        userMessage.reply(e.getMessage() == null ? "Invalid arguments!" : e.getMessage()).queue();
+                    } catch (MissingArgumentException e) {
                         userMessage.reply(e.getMessage() == null ? "Missing arguments!" : e.getMessage()).queue();
                     } catch (OutOfMemoryError e) {
                         userMessage.reply("The server ran out of memory trying to execute this command! Try again later.").queue();

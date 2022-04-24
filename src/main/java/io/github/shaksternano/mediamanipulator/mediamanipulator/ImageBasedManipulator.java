@@ -75,15 +75,9 @@ public abstract class ImageBasedManipulator implements MediaManipulator {
         } else {
             File pngFile = FileUtil.getUniqueTempFile(Files.getNameWithoutExtension(media.getName()) + ".png");
             BufferedImage nonPngImage = ImageIO.read(media);
-
-            if (nonPngImage.getColorModel().hasAlpha()) {
-                ImageIO.write(nonPngImage, "png", pngFile);
-            } else {
-                BufferedImage nonPngImageWithAlpha = ImageUtil.addAlpha(nonPngImage);
-                ImageIO.write(nonPngImageWithAlpha, "png", pngFile);
-                nonPngImageWithAlpha.flush();
-            }
-
+            BufferedImage nonPngImageWithAlpha = ImageUtil.addAlpha(nonPngImage);
+            ImageIO.write(nonPngImageWithAlpha, "png", pngFile);
+            nonPngImageWithAlpha.flush();
             nonPngImage.flush();
 
             return pngFile;

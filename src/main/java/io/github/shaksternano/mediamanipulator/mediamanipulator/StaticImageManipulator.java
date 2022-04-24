@@ -6,7 +6,6 @@ import io.github.shaksternano.mediamanipulator.util.FileUtil;
 import io.github.shaksternano.mediamanipulator.util.ImageUtil;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -31,19 +30,14 @@ public class StaticImageManipulator extends ImageBasedManipulator {
     @Override
     public File makeGif(File media, boolean fallback) throws IOException {
         File gifFile = FileUtil.getUniqueTempFile(Files.getNameWithoutExtension(media.getName()) + ".gif");
+
         if (fallback) {
             Files.move(media, gifFile);
         } else {
             BufferedImage nonGifImage = ImageIO.read(media);
-
-            if (nonGifImage.getColorModel().hasAlpha()) {
-                ImageIO.write(nonGifImage, "gif", gifFile);
-            } else {
-                BufferedImage nonGifImageWithAlpha = ImageUtil.addAlpha(nonGifImage);
-                ImageIO.write(nonGifImageWithAlpha, "gif", gifFile);
-                nonGifImageWithAlpha.flush();
-            }
-
+            BufferedImage nonGifImageWithAlpha = ImageUtil.addAlpha(nonGifImage);
+            ImageIO.write(nonGifImageWithAlpha, "gif", gifFile);
+            nonGifImageWithAlpha.flush();
             nonGifImage.flush();
         }
 
