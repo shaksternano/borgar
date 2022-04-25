@@ -29,8 +29,8 @@ public abstract class ImageBasedManipulator implements MediaManipulator {
     }
 
     @Override
-    public File resize(File media, float resizeMultiplier, boolean raw, boolean compressionNeeded) throws IOException {
-        return applyOperation(media, image -> ImageUtil.resize(image, resizeMultiplier, raw), "resized", compressionNeeded);
+    public File resize(File media, float resizeMultiplier, boolean raw) throws IOException {
+        return applyOperation(media, image -> ImageUtil.resize(image, resizeMultiplier, raw), "resized", false);
     }
 
     @Override

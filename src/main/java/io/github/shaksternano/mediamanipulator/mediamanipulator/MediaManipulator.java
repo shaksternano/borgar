@@ -37,7 +37,7 @@ public interface MediaManipulator {
      */
     File stretch(File media, float widthMultiplier, float heightMultiplier, boolean raw) throws IOException;
 
-    File resize(File media, float resizeMultiplier, boolean raw, boolean compressionNeeded) throws IOException;
+    File resize(File media, float resizeMultiplier, boolean raw) throws IOException;
 
     File speed(File media, float speedMultiplier) throws IOException;
 
