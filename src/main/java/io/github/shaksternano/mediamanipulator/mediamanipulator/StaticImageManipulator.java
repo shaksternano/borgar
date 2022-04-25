@@ -3,7 +3,7 @@ package io.github.shaksternano.mediamanipulator.mediamanipulator;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Files;
 import io.github.shaksternano.mediamanipulator.util.FileUtil;
-import io.github.shaksternano.mediamanipulator.util.ImageUtil;
+import io.github.shaksternano.mediamanipulator.util.MediaCompression;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -28,20 +28,23 @@ public class StaticImageManipulator extends ImageBasedManipulator {
     }
 
     @Override
-    public File makeGif(File media, boolean fallback) throws IOException {
+    public File makeGif(File media) throws IOException {
         File gifFile = FileUtil.getUniqueTempFile(Files.getNameWithoutExtension(media.getName()) + ".gif");
+        Files.move(media, gifFile);
+        return gifFile;
+    }
 
-        if (fallback) {
-            Files.move(media, gifFile);
-        } else {
-            BufferedImage nonGifImage = ImageIO.read(media);
-            BufferedImage nonGifImageWithAlpha = ImageUtil.addAlpha(nonGifImage);
-            ImageIO.write(nonGifImageWithAlpha, "gif", gifFile);
-            nonGifImageWithAlpha.flush();
-            nonGifImage.flush();
+    @Override
+    public File compress(File media) throws IOException {
+        if (media.length() > FileUtil.DISCORD_MAXIMUM_FILE_SIZE) {
+            media = applyOperation(media, MediaCompression::reduceToDisplaySize, "resized", false);
+
+            while (media.length() > FileUtil.DISCORD_MAXIMUM_FILE_SIZE) {
+                media = resize(media, 0.75F, false, false);
+            }
         }
 
-        return gifFile;
+        return media;
     }
 
     @Override
@@ -58,7 +61,7 @@ public class StaticImageManipulator extends ImageBasedManipulator {
     }
 
     /**
-     * Applies the given operation to the image.
+     * Applies the given operation to the image. The original file is deleted after the operation.
      *
      * @param media         The image based file to apply the operation to.
      * @param operation     The operation to apply.
@@ -66,8 +69,9 @@ public class StaticImageManipulator extends ImageBasedManipulator {
      * @return The resulting file.
      * @throws IOException If an error occurs while applying the operation.
      */
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
-    protected File applyOperation(File media, Function<BufferedImage, BufferedImage> operation, String operationName) throws IOException {
+    protected File applyOperation(File media, Function<BufferedImage, BufferedImage> operation, String operationName, boolean compressionNeeded) throws IOException {
         BufferedImage uneditedImage = ImageIO.read(media);
 
         BufferedImage editedImage = operation.apply(uneditedImage);
@@ -75,8 +79,14 @@ public class StaticImageManipulator extends ImageBasedManipulator {
         String extension = Files.getFileExtension(media.getName());
         File editedImageFile = FileUtil.getUniqueTempFile(FileUtil.appendName(media, "_" + operationName).getName());
 
+        media.delete();
+
         ImageIO.write(editedImage, extension, editedImageFile);
         uneditedImage.flush();
+
+        if (compressionNeeded) {
+            editedImageFile = compress(editedImageFile);
+        }
 
         return editedImageFile;
     }

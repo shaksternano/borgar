@@ -20,22 +20,22 @@ public abstract class ImageBasedManipulator implements MediaManipulator {
 
     @Override
     public File caption(File media, String caption) throws IOException {
-        return applyOperation(media, image -> ImageUtil.captionImage(image, caption, Fonts.getCaptionFont()), "captioned");
+        return applyOperation(media, image -> ImageUtil.captionImage(image, caption, Fonts.getCaptionFont()), "captioned", true);
     }
 
     @Override
     public File stretch(File media, float widthMultiplier, float heightMultiplier, boolean raw) throws IOException {
-        return applyOperation(media, image -> ImageUtil.stretch(image, (int) (image.getWidth() * widthMultiplier), (int) (image.getHeight() * heightMultiplier), raw), "stretched");
+        return applyOperation(media, image -> ImageUtil.stretch(image, (int) (image.getWidth() * widthMultiplier), (int) (image.getHeight() * heightMultiplier), raw), "stretched", true);
     }
 
     @Override
-    public File resize(File media, float resizeMultiplier, boolean raw) throws IOException {
-        return applyOperation(media, image -> ImageUtil.resize(image, resizeMultiplier, raw), "resized");
+    public File resize(File media, float resizeMultiplier, boolean raw, boolean compressionNeeded) throws IOException {
+        return applyOperation(media, image -> ImageUtil.resize(image, resizeMultiplier, raw), "resized", compressionNeeded);
     }
 
     @Override
     public File pixelate(File media, int pixelationMultiplier) throws IOException {
-        return applyOperation(media, image -> ImageUtil.pixelate(image, pixelationMultiplier), "pixelated");
+        return applyOperation(media, image -> ImageUtil.pixelate(image, pixelationMultiplier), "pixelated", true);
     }
 
     @Override
@@ -63,7 +63,7 @@ public abstract class ImageBasedManipulator implements MediaManipulator {
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
-        }, "speech_bubbled");
+        }, "speech_bubbled", true);
     }
 
     @Override
@@ -85,7 +85,7 @@ public abstract class ImageBasedManipulator implements MediaManipulator {
     }
 
     /**
-     * Applies the given operation to the given image based file.
+     * Applies the given operation to the given image based file. The original file is deleted after the operation.
      *
      * @param media         The image based file to apply the operation to.
      * @param operation     The operation to apply.
@@ -93,5 +93,5 @@ public abstract class ImageBasedManipulator implements MediaManipulator {
      * @return The resulting file.
      * @throws IOException If an error occurs while applying the operation.
      */
-    protected abstract File applyOperation(File media, Function<BufferedImage, BufferedImage> operation, String operationName) throws IOException;
+    protected abstract File applyOperation(File media, Function<BufferedImage, BufferedImage> operation, String operationName, boolean compressionNeeded) throws IOException;
 }

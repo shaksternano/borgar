@@ -40,11 +40,15 @@ public class GifManipulator extends ImageBasedManipulator {
         return gifFile;
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
     public File reduceFps(File media, int fpsReductionRatio) throws IOException {
         List<DelayedImage> frames = readGifFrames(media);
         frames = MediaCompression.removeFrames(frames, fpsReductionRatio);
         File gifFile = FileUtil.getUniqueTempFile(FileUtil.appendName(media, "_fps_reduced").getName());
+
+        media.delete();
+
         writeFramesToGifFile(frames, gifFile);
         return gifFile;
     }
@@ -56,7 +60,7 @@ public class GifManipulator extends ImageBasedManipulator {
      * @return The media as a GIF file.
      */
     @Override
-    public File makeGif(File media, boolean fallback) {
+    public File makeGif(File media) {
         throw new UnsupportedOperationException("This file is already a GIF file!");
     }
 
@@ -67,8 +71,30 @@ public class GifManipulator extends ImageBasedManipulator {
         );
     }
 
+    @Override
+    public File compress(File media) throws IOException {
+        if (media.length() > FileUtil.DISCORD_MAXIMUM_FILE_SIZE) {
+            media = applyOperation(media, MediaCompression::reduceToDisplaySize, "resized", false);
+
+            boolean reduceResolution = true;
+
+            while (media.length() > FileUtil.DISCORD_MAXIMUM_FILE_SIZE) {
+                if (reduceResolution) {
+                    media = resize(media, 0.75F, false, false);
+                } else {
+                    media = reduceFps(media, 2);
+                }
+
+                reduceResolution = !reduceResolution;
+            }
+
+        }
+
+        return media;
+    }
+
     /**
-     * Applies the given operation to every frame of the GIF file.
+     * Applies the given operation to every frame of the GIF file. The original file is deleted after the operation.
      *
      * @param media         The image based file to apply the operation to.
      * @param operation     The operation to apply.
@@ -76,22 +102,34 @@ public class GifManipulator extends ImageBasedManipulator {
      * @return The resulting file.
      * @throws IOException If an error occurs while applying the operation.
      */
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
-    protected File applyOperation(File media, Function<BufferedImage, BufferedImage> operation, String operationName) throws IOException {
+    protected File applyOperation(File media, Function<BufferedImage, BufferedImage> operation, String operationName, boolean compressionNeeded) throws IOException {
         List<DelayedImage> frames = readGifFrames(media);
-        frames = MediaCompression.removeFrames(frames, media.length(), FileUtil.DISCORD_MAXIMUM_FILE_SIZE);
 
         frames.parallelStream().forEach(
                 delayedImage -> {
                     BufferedImage uneditedImage = delayedImage.getImage();
+
+                    uneditedImage = MediaCompression.reduceToDisplaySize(uneditedImage);
+
                     BufferedImage image = operation.apply(uneditedImage);
-                    delayedImage.setImage(image);
                     uneditedImage.flush();
+
+                    delayedImage.setImage(image);
                 }
         );
 
         File gifFile = FileUtil.getUniqueTempFile(FileUtil.appendName(media, "_" + operationName).getName());
+
+        media.delete();
+
         writeFramesToGifFile(frames, gifFile);
+
+        if (compressionNeeded) {
+            gifFile = compress(gifFile);
+        }
+
         return gifFile;
     }
 

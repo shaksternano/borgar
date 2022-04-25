@@ -26,25 +26,25 @@ public class CommandParser {
         MessageChannel channel = event.getChannel();
 
         if (commandParts.length > 0) {
-            channel.sendTyping().queue(unused -> {
-                Optional<Command> commandOptional = CommandRegistry.getCommand(commandParts[0]);
+            Optional<Command> commandOptional = CommandRegistry.getCommand(commandParts[0]);
 
-                commandOptional.ifPresentOrElse(command -> {
-                    String[] arguments = parseArguments(commandParts);
-                    try {
-                        command.execute(arguments, event);
-                    } catch (IllegalArgumentException e) {
-                        userMessage.reply(e.getMessage() == null ? "Invalid arguments!" : e.getMessage()).queue();
-                    } catch (MissingArgumentException e) {
-                        userMessage.reply(e.getMessage() == null ? "Missing arguments!" : e.getMessage()).queue();
-                    } catch (OutOfMemoryError e) {
-                        userMessage.reply("The server ran out of memory trying to execute this command! Try again later.").queue();
-                        Main.LOGGER.error("Ran out of memory trying to execute " + command + "!", e);
-                    } catch (Throwable t) {
-                        userMessage.reply("Error executing command!").queue();
-                        Main.LOGGER.error("Error executing command " + command + "!", t);
-                    }
-                }, () -> userMessage.reply("Invalid command!").queue());
+            commandOptional.ifPresent(command -> {
+                channel.sendTyping().queue();
+                String[] arguments = parseArguments(commandParts);
+
+                try {
+                    command.execute(arguments, event);
+                } catch (IllegalArgumentException e) {
+                    userMessage.reply(e.getMessage() == null ? "Invalid arguments!" : e.getMessage()).queue();
+                } catch (MissingArgumentException e) {
+                    userMessage.reply(e.getMessage() == null ? "Missing arguments!" : e.getMessage()).queue();
+                } catch (OutOfMemoryError e) {
+                    userMessage.reply("The server ran out of memory trying to execute this command! Try again later.").queue();
+                    Main.LOGGER.error("Ran out of memory trying to execute " + command + "!", e);
+                } catch (Throwable t) {
+                    userMessage.reply("Error executing command!").queue();
+                    Main.LOGGER.error("Error executing command " + command + "!", t);
+                }
             });
         }
     }

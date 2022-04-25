@@ -1,5 +1,8 @@
 package io.github.shaksternano.mediamanipulator.util;
 
+import com.sksamuel.scrimage.ImmutableImage;
+
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,6 +10,25 @@ import java.util.List;
  * Contains static methods for compressing media files.
  */
 public class MediaCompression {
+
+    public static final int DISCORD_MAX_DISPLAY_WIDTH = 400;
+    public static final int DISCORD_MAX_DISPLAY_HEIGHT = 300;
+
+    public static BufferedImage reduceToDisplaySize(BufferedImage image) {
+        BufferedImage oldImage = image;
+
+        if (image.getWidth() > MediaCompression.DISCORD_MAX_DISPLAY_WIDTH) {
+            image = ImmutableImage.wrapAwt(image).scaleToWidth(MediaCompression.DISCORD_MAX_DISPLAY_WIDTH).awt();
+            oldImage.flush();
+        }
+
+        if (image.getHeight() > MediaCompression.DISCORD_MAX_DISPLAY_HEIGHT) {
+            image = ImmutableImage.wrapAwt(image).scaleToHeight(MediaCompression.DISCORD_MAX_DISPLAY_HEIGHT).awt();
+            oldImage.flush();
+        }
+
+        return image;
+    }
 
     /**
      * Removes frames from a list of {@link DelayedImage}s.

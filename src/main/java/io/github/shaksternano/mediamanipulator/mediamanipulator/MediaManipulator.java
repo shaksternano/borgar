@@ -37,7 +37,7 @@ public interface MediaManipulator {
      */
     File stretch(File media, float widthMultiplier, float heightMultiplier, boolean raw) throws IOException;
 
-    File resize(File media, float resizeMultiplier, boolean raw) throws IOException;
+    File resize(File media, float resizeMultiplier, boolean raw, boolean compressionNeeded) throws IOException;
 
     File speed(File media, float speedMultiplier) throws IOException;
 
@@ -47,17 +47,18 @@ public interface MediaManipulator {
 
     File speechBubble(File media, boolean cutOut) throws IOException;
 
+    File compress(File media) throws IOException;
+
     /**
      * Turns a media file into a GIF file, useful for Discord GIF favoriting.
      *
-     * @param media    The media file to turn into a GIF.
-     * @param fallback If this is true the media will be "converted" to a GIF file by just renaming the extension to ".gif".
+     * @param media The media file to turn into a GIF.
      * @return The media as a GIF file.
      * @throws IOException                   If there is an error turning the media into a GIF.
      * @throws UncheckedIOException          If there is an error adding the caption.
      * @throws UnsupportedOperationException If the operation is not supported by this manipulator.
      */
-    File makeGif(File media, boolean fallback) throws IOException;
+    File makeGif(File media) throws IOException;
 
     File makePng(File media) throws IOException;
 

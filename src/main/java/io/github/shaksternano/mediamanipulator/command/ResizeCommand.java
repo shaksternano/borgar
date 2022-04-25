@@ -43,7 +43,7 @@ public class ResizeCommand extends MediaCommand {
         if (arguments.length > 0) {
             try {
                 float resizeMultiplier = Float.parseFloat(arguments[0]);
-                return manipulator.resize(media, resizeMultiplier, RAW);
+                return manipulator.resize(media, resizeMultiplier, RAW, true);
             } catch (NumberFormatException e) {
                 throw new IllegalArgumentException("Scale multiplier \"" + arguments[0] + "\" is not a number!");
             }
