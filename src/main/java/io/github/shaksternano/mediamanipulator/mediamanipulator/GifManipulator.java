@@ -80,7 +80,7 @@ public class GifManipulator extends ImageBasedManipulator {
 
             while (media.length() > FileUtil.DISCORD_MAXIMUM_FILE_SIZE) {
                 if (reduceResolution) {
-                    media = resize(media, 0.75F, false, false);
+                    media = resize(media, 0.75F, false);
                 } else {
                     media = reduceFps(media, 2);
                 }

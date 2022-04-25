@@ -40,7 +40,7 @@ public class StaticImageManipulator extends ImageBasedManipulator {
             media = applyOperation(media, MediaCompression::reduceToDisplaySize, "resized", false);
 
             while (media.length() > FileUtil.DISCORD_MAXIMUM_FILE_SIZE) {
-                media = resize(media, 0.75F, false, false);
+                media = resize(media, 0.75F, false);
             }
         }
 
