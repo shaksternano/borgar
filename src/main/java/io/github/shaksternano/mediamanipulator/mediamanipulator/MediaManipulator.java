@@ -47,6 +47,8 @@ public interface MediaManipulator {
 
     File speechBubble(File media, boolean cutOut) throws IOException;
 
+    File rotate(File media, float degrees) throws IOException;
+
     File compress(File media) throws IOException;
 
     /**

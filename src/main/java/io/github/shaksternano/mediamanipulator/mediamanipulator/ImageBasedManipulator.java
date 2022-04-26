@@ -67,6 +67,11 @@ public abstract class ImageBasedManipulator implements MediaManipulator {
     }
 
     @Override
+    public File rotate(File media, float degrees) throws IOException {
+        return applyOperation(media, image -> ImageUtil.rotate(image, degrees), "rotated", true);
+    }
+
+    @Override
     public File makePng(File media) throws IOException {
         String fileExtension = Files.getFileExtension(media.getName());
 

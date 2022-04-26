@@ -78,6 +78,11 @@ public class Commands {
             true
     ));
 
+    public static final Command rotate = addCommandToRegister(new RotateCommand(
+            "rotate",
+            "Rotates media. Optional arguments: [Rotation amount, default value is " + FORMAT.format(RotateCommand.DEFAULT_ROTATION) + "]"
+    ));
+
     /**
      * Turns media into a GIF file.
      */
