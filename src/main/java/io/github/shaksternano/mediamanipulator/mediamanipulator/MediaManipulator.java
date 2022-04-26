@@ -58,7 +58,7 @@ public interface MediaManipulator {
      * @throws UncheckedIOException          If there is an error adding the caption.
      * @throws UnsupportedOperationException If the operation is not supported by this manipulator.
      */
-    File makeGif(File media) throws IOException;
+    File makeGif(File media, boolean justRenameFile) throws IOException;
 
     File makePng(File media) throws IOException;
 

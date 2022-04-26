@@ -3,6 +3,7 @@ package io.github.shaksternano.mediamanipulator.mediamanipulator;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Files;
 import io.github.shaksternano.mediamanipulator.util.FileUtil;
+import io.github.shaksternano.mediamanipulator.util.ImageUtil;
 import io.github.shaksternano.mediamanipulator.util.MediaCompression;
 
 import javax.imageio.ImageIO;
@@ -28,9 +29,19 @@ public class StaticImageManipulator extends ImageBasedManipulator {
     }
 
     @Override
-    public File makeGif(File media) throws IOException {
+    public File makeGif(File media, boolean justRenameFile) throws IOException {
         File gifFile = FileUtil.getUniqueTempFile(Files.getNameWithoutExtension(media.getName()) + ".gif");
-        Files.move(media, gifFile);
+
+        if (justRenameFile) {
+            Files.move(media, gifFile);
+        } else {
+            BufferedImage nonGifImage = ImageIO.read(media);
+            BufferedImage nonGifImageWithAlpha = ImageUtil.addAlpha(nonGifImage);
+            ImageIO.write(nonGifImageWithAlpha, "gif", gifFile);
+            nonGifImage.flush();
+            nonGifImageWithAlpha.flush();
+        }
+
         return gifFile;
     }
 

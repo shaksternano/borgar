@@ -83,7 +83,14 @@ public class Commands {
      */
     public static final Command TO_GIF = addCommandToRegister(new ToGifCommand(
             "gif",
-            "Turns media into a GIF file."
+            "Turns media into a GIF file.",
+            false
+    ));
+
+    public static final Command TO_GIF_2 = addCommandToRegister(new ToGifCommand(
+            "gif2",
+            "Turns media into a GIF file by just renaming the file extension to \".gif\". Use this when there are problems with the " + Command.COMMAND_PREFIX + TO_GIF.getName() + " command.",
+            true
     ));
 
     public static final Command TO_PNG = addCommandToRegister(new ToPngCommand(
