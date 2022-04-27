@@ -18,7 +18,6 @@ public class MemoryUsageCommand extends BotOwnerCommand {
     @Override
     protected void botOwnerOperation(String[] arguments, MessageReceivedEvent event) {
         int toMb = 1024 * 1024;
-        long totalMemory = Runtime.getRuntime().maxMemory();
-        event.getMessage().reply("Current memory usage: " + (totalMemory - Runtime.getRuntime().freeMemory()) / toMb + "/" + totalMemory / toMb + "MB").queue();
+        event.getMessage().reply("Current memory usage: " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / toMb + "/" + Runtime.getRuntime().maxMemory() / toMb + "MB").queue();
     }
 }
