@@ -23,15 +23,15 @@ public class JsonUtil {
      * @param jsonElement The JsonElement to start from
      * @param path        The path to the JsonElement.
      * @return An {@link Optional} describing the nested JsonElement.
-     * The optional will be empty if and only if the given JsonElement is null or the path is invalid.
+     * The Optional will be empty if and only if the given JsonElement is null or the path is invalid.
      */
     public static Optional<JsonElement> getNestedElement(@Nullable JsonElement jsonElement, String... path) {
         if (jsonElement == null) {
             return Optional.empty();
         } else {
             JsonElement currentElement = jsonElement;
-
             Iterator<String> pathIterator = Arrays.asList(path).iterator();
+
             while (pathIterator.hasNext()) {
                 String key = pathIterator.next();
 
@@ -58,14 +58,19 @@ public class JsonUtil {
      * @param jsonElement The JsonArray.
      * @param index       The index of the JsonElement.
      * @return An {@link Optional} describing the nested JsonElement.
-     * The optional will be empty if and only if the given JsonElement is null, not a JsonArray, or the index is invalid.
+     * The Optional will be empty if and only if the given JsonElement is null, not a JsonArray, or the index is out of bounds.
      */
     public static Optional<JsonElement> getArrayElement(@Nullable JsonElement jsonElement, int index) {
-        if (jsonElement != null && jsonElement.isJsonArray()) {
-            JsonElement currentElement = jsonElement.getAsJsonArray().get(index);
-            return Optional.ofNullable(currentElement);
-        } else {
-            return Optional.empty();
+        if (jsonElement != null) {
+            if (jsonElement.isJsonArray() ) {
+                JsonArray jsonArray = jsonElement.getAsJsonArray();
+
+                if (jsonArray.size() > index) {
+                    return Optional.of(jsonArray.get(index));
+                }
+            }
         }
+
+        return Optional.empty();
     }
 }

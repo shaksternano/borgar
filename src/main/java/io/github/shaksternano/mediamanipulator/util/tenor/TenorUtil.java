@@ -9,6 +9,7 @@ import io.github.shaksternano.mediamanipulator.util.JsonUtil;
 import java.io.*;
 import java.net.ConnectException;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
@@ -27,15 +28,13 @@ public class TenorUtil {
      * @return The direct file URL.
      */
     public static Optional<String> getTenorMediaUrl(String url, TenorMediaType mediaType, String apiKey) {
-        if (url.contains("tenor.com") && !url.contains("media.tenor.com")) {
+        String urlWithoutPrefix = url.replaceFirst("^(http[s]?://www\\.|http[s]?://|www\\.)","");
+
+        if (urlWithoutPrefix.startsWith("tenor.com/")) {
             String mediaId = url.substring(url.lastIndexOf("-") + 1);
             String requestUrl = "https://g.tenor.com/v1/gifs?key=" + apiKey + "&ids=" + mediaId;
 
-            String tenorError = "Error while getting Tenor media URL from Tenor URL " + url + "!";
-
-            JsonElement request;
-
-            request = get(requestUrl);
+            JsonElement request = get(requestUrl);
 
             Optional<JsonElement> resultsArrayElementOptional = JsonUtil.getNestedElement(request, "results");
             Optional<JsonElement> resultElementOptional = JsonUtil.getArrayElement(resultsArrayElementOptional.orElse(null), 0);
@@ -55,7 +54,7 @@ public class TenorUtil {
                 }
             }
 
-            Main.LOGGER.error(tenorError);
+            Main.LOGGER.error("Error while getting Tenor media URL from Tenor URL " + url + "!");
             Main.LOGGER.error("Erroneous Tenor JSON contents:\n" + request);
         }
 
