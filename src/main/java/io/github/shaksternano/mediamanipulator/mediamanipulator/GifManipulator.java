@@ -40,6 +40,11 @@ public class GifManipulator extends ImageBasedManipulator {
         return gifFile;
     }
 
+    @Override
+    public File spin(File media, float speed) throws IOException {
+        return null;
+    }
+
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
     public File reduceFps(File media, int fpsReductionRatio) throws IOException {
@@ -111,7 +116,9 @@ public class GifManipulator extends ImageBasedManipulator {
                 delayedImage -> {
                     BufferedImage uneditedImage = delayedImage.getImage();
 
-                    uneditedImage = MediaCompression.reduceToDisplaySize(uneditedImage);
+                    if (compressionNeeded) {
+                        uneditedImage = MediaCompression.reduceToDisplaySize(uneditedImage);
+                    }
 
                     BufferedImage image = operation.apply(uneditedImage);
                     uneditedImage.flush();

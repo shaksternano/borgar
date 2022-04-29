@@ -49,6 +49,8 @@ public interface MediaManipulator {
 
     File rotate(File media, float degrees) throws IOException;
 
+    File spin(File media, float speed) throws IOException;
+
     File compress(File media) throws IOException;
 
     /**

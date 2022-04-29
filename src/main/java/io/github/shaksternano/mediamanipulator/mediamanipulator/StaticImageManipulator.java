@@ -1,6 +1,8 @@
 package io.github.shaksternano.mediamanipulator.mediamanipulator;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Streams;
 import com.google.common.io.Files;
 import io.github.shaksternano.mediamanipulator.util.FileUtil;
 import io.github.shaksternano.mediamanipulator.util.ImageUtil;
@@ -10,8 +12,9 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * A manipulator for static image files.
@@ -21,6 +24,40 @@ public class StaticImageManipulator extends ImageBasedManipulator {
     @Override
     public File speed(File media, float speedMultiplier) {
         throw new UnsupportedOperationException("Cannot change the speed of a static image.");
+    }
+
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    @Override
+    public File spin(File media, float speed) throws IOException {
+        BufferedImage uneditedImage = ImageIO.read(media);
+
+        uneditedImage = MediaCompression.reduceToDisplaySize(uneditedImage);
+
+        int fps = 24;
+        int degreesPerFrame = (int) (360 / fps * speed);
+
+        int frameCount = 50;
+
+        List<Map.Entry<Integer, BufferedImage>> indexedFrames = new ArrayList<>(frameCount);
+
+        for (int i = 0; i < frameCount; i++) {
+            indexedFrames.add(new AbstractMap.SimpleEntry<>(i, uneditedImage));
+        }
+
+
+        BufferedImage editedImage = null;
+
+        String extension = Files.getFileExtension(media.getName());
+        File editedImageFile = FileUtil.getUniqueTempFile(FileUtil.appendName(media, "_spun").getName());
+
+        media.delete();
+
+        ImageIO.write(editedImage, extension, editedImageFile);
+        uneditedImage.flush();
+
+        editedImageFile = compress(editedImageFile);
+
+        return editedImageFile;
     }
 
     @Override
@@ -84,6 +121,10 @@ public class StaticImageManipulator extends ImageBasedManipulator {
     @Override
     protected File applyOperation(File media, Function<BufferedImage, BufferedImage> operation, String operationName, boolean compressionNeeded) throws IOException {
         BufferedImage uneditedImage = ImageIO.read(media);
+
+        if (compressionNeeded) {
+            uneditedImage = MediaCompression.reduceToDisplaySize(uneditedImage);
+        }
 
         BufferedImage editedImage = operation.apply(uneditedImage);
 

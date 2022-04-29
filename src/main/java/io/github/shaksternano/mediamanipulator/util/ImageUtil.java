@@ -297,21 +297,27 @@ public class ImageUtil {
         }
     }
 
-    public static BufferedImage rotate(BufferedImage image, float angle) {
+    public static BufferedImage rotate(BufferedImage image, float angle, @Nullable Integer newWidth, @Nullable Integer newHeight) {
         double sin = Math.abs(Math.sin(Math.toRadians(angle)));
         double cos = Math.abs(Math.cos(Math.toRadians(angle)));
 
         int width = image.getWidth();
         int height = image.getHeight();
-        int newWidth = (int) Math.floor(width * cos + height * sin);
-        int newHeight = (int) Math.floor(height * cos + width * sin);
+
+        if (newWidth == null) {
+            newWidth = (int) Math.floor(width * cos + height * sin);
+        }
+
+        if (newHeight == null) {
+            newHeight = (int) Math.floor(height * cos + width * sin);
+        }
 
         BufferedImage rotated = new BufferedImage(newWidth, newHeight, image.getType());
-        Graphics2D graphic = rotated.createGraphics();
-        graphic.translate((newWidth - width) / 2, (newHeight-height) / 2);
-        graphic.rotate(Math.toRadians(angle), width / 2F, height / 2F);
-        graphic.drawRenderedImage(image, null);
-        graphic.dispose();
+        Graphics2D graphics = rotated.createGraphics();
+        graphics.translate((newWidth - width) / 2, (newHeight - height) / 2);
+        graphics.rotate(Math.toRadians(angle), width / 2F, height / 2F);
+        graphics.drawRenderedImage(image, null);
+        graphics.dispose();
 
         return rotated;
     }
