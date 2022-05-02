@@ -30,6 +30,6 @@ public class MediaManipulators {
      * Registers all the {@link MediaManipulator}s.
      */
     public static void registerMediaManipulators() {
-        MediaManipulatorRegistry.register(manipulatorsToRegister.toArray(new MediaManipulator[0]));
+        MediaManipulatorRegistry.register(manipulatorsToRegister);
     }
 }

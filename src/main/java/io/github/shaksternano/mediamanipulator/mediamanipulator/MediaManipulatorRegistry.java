@@ -19,7 +19,7 @@ public class MediaManipulatorRegistry {
      *
      * @param manipulators The manipulators to register.
      */
-    public static void register(MediaManipulator... manipulators) {
+    public static void register(Iterable<MediaManipulator> manipulators) {
         for (MediaManipulator manipulator : manipulators) {
             for (String extension : manipulator.getSupportedExtensions()) {
                 registry.put(extension.toLowerCase(), manipulator);
