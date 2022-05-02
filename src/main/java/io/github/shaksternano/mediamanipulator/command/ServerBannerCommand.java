@@ -20,6 +20,6 @@ public class ServerBannerCommand extends Command {
     public void execute(String[] arguments, MessageReceivedEvent event) {
         Message message = event.getMessage();
         String serverBannerUrl = message.getGuild().getBannerUrl();
-        message.reply(serverBannerUrl == null ? "No server banner set!" : serverBannerUrl).queue();
+        message.reply(serverBannerUrl == null ? "No server banner image set!" : serverBannerUrl).queue();
     }
 }

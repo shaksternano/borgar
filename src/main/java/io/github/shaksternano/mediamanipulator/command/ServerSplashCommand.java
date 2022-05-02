@@ -20,6 +20,6 @@ public class ServerSplashCommand extends Command {
     public void execute(String[] arguments, MessageReceivedEvent event) {
         Message message = event.getMessage();
         String serverSplashUrl = message.getGuild().getSplashUrl();
-        message.reply(serverSplashUrl == null ? "No server splash set!" : serverSplashUrl).queue();
+        message.reply(serverSplashUrl == null ? "No server invite background image set!" : serverSplashUrl).queue();
     }
 }

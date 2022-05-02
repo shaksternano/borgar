@@ -110,12 +110,12 @@ public class Commands {
 
     public static final Command SERVER_BANNER = addCommandToRegister(new ServerBannerCommand(
             "serverbanner",
-            "Gets the banner image of the server."
+            "Gets the image of the server banner."
     ));
 
     public static final Command SERVER_SPLASH = addCommandToRegister(new ServerSplashCommand(
             "serversplash",
-            "Gets the splash image of the server."
+            "Gets the image of the server invite background."
     ));
 
     public static final Command AVATAR = addCommandToRegister(new AvatarCommand(
