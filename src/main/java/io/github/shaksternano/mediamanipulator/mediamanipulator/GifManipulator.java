@@ -79,7 +79,7 @@ public class GifManipulator extends ImageBasedManipulator {
     @Override
     public File compress(File media) throws IOException {
         if (media.length() > FileUtil.DISCORD_MAXIMUM_FILE_SIZE) {
-            media = applyOperation(media, MediaCompression::reduceToDisplaySize, "resized", false);
+            media = applyToEachFrame(media, MediaCompression::reduceToDisplaySize, "resized", false);
 
             boolean reduceResolution = true;
 
@@ -109,7 +109,7 @@ public class GifManipulator extends ImageBasedManipulator {
      */
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
-    protected File applyOperation(File media, Function<BufferedImage, BufferedImage> operation, String operationName, boolean compressionNeeded) throws IOException {
+    protected File applyToEachFrame(File media, Function<BufferedImage, BufferedImage> operation, String operationName, boolean compressionNeeded) throws IOException {
         List<DelayedImage> frames = readGifFrames(media);
 
         frames.parallelStream().forEach(

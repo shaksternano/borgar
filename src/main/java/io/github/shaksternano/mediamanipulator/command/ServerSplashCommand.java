@@ -1,8 +1,9 @@
 package io.github.shaksternano.mediamanipulator.command;
 
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-public class MemoryUsageCommand extends BotOwnerCommand {
+public class ServerSplashCommand extends Command {
 
     /**
      * Creates a new command object.
@@ -11,13 +12,14 @@ public class MemoryUsageCommand extends BotOwnerCommand {
      *                    followed by this name, the command will be executed.
      * @param description The description of the command. This is displayed in the help command.
      */
-    public MemoryUsageCommand(String name, String description) {
+    public ServerSplashCommand(String name, String description) {
         super(name, description);
     }
 
     @Override
-    protected void botOwnerOperation(String[] arguments, MessageReceivedEvent event) {
-        int toMb = 1024 * 1024;
-        event.getMessage().reply("Current memory usage: " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / toMb + "/" + Runtime.getRuntime().maxMemory() / toMb + "MB").queue();
+    public void execute(String[] arguments, MessageReceivedEvent event) {
+        Message message = event.getMessage();
+        String serverSplashUrl = message.getGuild().getSplashUrl();
+        message.reply(serverSplashUrl == null ? "No server splash set!" : serverSplashUrl).queue();
     }
 }

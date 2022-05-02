@@ -103,6 +103,21 @@ public class Commands {
             "Turns media into a PNG file."
     ));
 
+    public static final Command SERVER_ICON = addCommandToRegister(new ServerIconCommand(
+            "servericon",
+            "Gets the icon of the server."
+    ));
+
+    public static final Command SERVER_BANNER = addCommandToRegister(new ServerBannerCommand(
+            "serverbanner",
+            "Gets the banner image of the server."
+    ));
+
+    public static final Command SERVER_SPLASH = addCommandToRegister(new ServerSplashCommand(
+            "serversplash",
+            "Gets the splash image of the server."
+    ));
+
     public static final Command AVATAR = addCommandToRegister(new AvatarCommand(
             "avatar",
             "Gets the avatar of a user. Optional arguments: [User mention]"
@@ -148,6 +163,6 @@ public class Commands {
      * Registers all the {@link Command}s.
      */
     public static void registerCommands() {
-        CommandRegistry.register(commandsToRegister.toArray(new Command[0]));
+        CommandRegistry.register(commandsToRegister);
     }
 }

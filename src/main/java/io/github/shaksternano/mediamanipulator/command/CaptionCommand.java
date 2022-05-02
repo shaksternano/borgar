@@ -18,7 +18,7 @@ public class CaptionCommand extends MediaCommand {
      *                    followed by this name, the command will be executed.
      * @param description The description of the command. This is displayed in the help command.
      */
-    protected CaptionCommand(String name, String description) {
+    public CaptionCommand(String name, String description) {
         super(name, description);
     }
 

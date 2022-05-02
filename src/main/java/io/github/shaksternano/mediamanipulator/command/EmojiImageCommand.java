@@ -19,7 +19,7 @@ public class EmojiImageCommand extends Command {
      *                    followed by this name, the command will be executed.
      * @param description The description of the command. This is displayed in the help command.
      */
-    protected EmojiImageCommand(String name, String description) {
+    public EmojiImageCommand(String name, String description) {
         super(name, description);
     }
 

@@ -21,7 +21,7 @@ public class HelpCommand extends Command {
      *                    followed by this name, the command will be executed.
      * @param description The description of the command. This is displayed in the help command.
      */
-    protected HelpCommand(String name, String description) {
+    public HelpCommand(String name, String description) {
         super(name, description);
     }
 

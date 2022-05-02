@@ -16,7 +16,7 @@ public class ShutDownCommand extends BotOwnerCommand {
      *                    followed by this name, the command will be executed.
      * @param description The description of the command. This is displayed in the help command.
      */
-    protected ShutDownCommand(String name, String description) {
+    public ShutDownCommand(String name, String description) {
         super(name, description);
     }
 

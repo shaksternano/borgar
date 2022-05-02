@@ -1,8 +1,6 @@
 package io.github.shaksternano.mediamanipulator.mediamanipulator;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Streams;
 import com.google.common.io.Files;
 import io.github.shaksternano.mediamanipulator.util.FileUtil;
 import io.github.shaksternano.mediamanipulator.util.ImageUtil;
@@ -14,7 +12,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * A manipulator for static image files.
@@ -85,7 +82,7 @@ public class StaticImageManipulator extends ImageBasedManipulator {
     @Override
     public File compress(File media) throws IOException {
         if (media.length() > FileUtil.DISCORD_MAXIMUM_FILE_SIZE) {
-            media = applyOperation(media, MediaCompression::reduceToDisplaySize, "resized", false);
+            media = applyToEachFrame(media, MediaCompression::reduceToDisplaySize, "resized", false);
 
             while (media.length() > FileUtil.DISCORD_MAXIMUM_FILE_SIZE) {
                 media = resize(media, 0.75F, false);
@@ -119,7 +116,7 @@ public class StaticImageManipulator extends ImageBasedManipulator {
      */
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
-    protected File applyOperation(File media, Function<BufferedImage, BufferedImage> operation, String operationName, boolean compressionNeeded) throws IOException {
+    protected File applyToEachFrame(File media, Function<BufferedImage, BufferedImage> operation, String operationName, boolean compressionNeeded) throws IOException {
         BufferedImage uneditedImage = ImageIO.read(media);
 
         if (compressionNeeded) {

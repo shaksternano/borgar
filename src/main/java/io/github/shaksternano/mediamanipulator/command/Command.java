@@ -31,7 +31,7 @@ public abstract class Command implements Comparable<Command> {
      *                    followed by this name, the command will be executed.
      * @param description The description of the command. This is displayed in the help command.
      */
-    protected Command(String name, String description) {
+    public Command(String name, String description) {
         NAME = name;
         DESCRIPTION = description;
     }

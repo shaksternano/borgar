@@ -20,27 +20,27 @@ public abstract class ImageBasedManipulator implements MediaManipulator {
 
     @Override
     public File caption(File media, String caption) throws IOException {
-        return applyOperation(media, image -> ImageUtil.captionImage(image, caption, Fonts.getCaptionFont()), "captioned", true);
+        return applyToEachFrame(media, image -> ImageUtil.captionImage(image, caption, Fonts.getCaptionFont()), "captioned", true);
     }
 
     @Override
     public File stretch(File media, float widthMultiplier, float heightMultiplier, boolean raw) throws IOException {
-        return applyOperation(media, image -> ImageUtil.stretch(image, (int) (image.getWidth() * widthMultiplier), (int) (image.getHeight() * heightMultiplier), raw), "stretched", true);
+        return applyToEachFrame(media, image -> ImageUtil.stretch(image, (int) (image.getWidth() * widthMultiplier), (int) (image.getHeight() * heightMultiplier), raw), "stretched", true);
     }
 
     @Override
     public File resize(File media, float resizeMultiplier, boolean raw) throws IOException {
-        return applyOperation(media, image -> ImageUtil.resize(image, resizeMultiplier, raw), "resized", false);
+        return applyToEachFrame(media, image -> ImageUtil.resize(image, resizeMultiplier, raw), "resized", false);
     }
 
     @Override
     public File pixelate(File media, int pixelationMultiplier) throws IOException {
-        return applyOperation(media, image -> ImageUtil.pixelate(image, pixelationMultiplier), "pixelated", true);
+        return applyToEachFrame(media, image -> ImageUtil.pixelate(image, pixelationMultiplier), "pixelated", true);
     }
 
     @Override
     public File speechBubble(File media, boolean cutOut) throws IOException {
-        return applyOperation(media, image -> {
+        return applyToEachFrame(media, image -> {
             String speechBubblePath = cutOut ? "image/overlay/speech_bubble_2_partial.png" : "image/overlay/speech_bubble_1_partial.png";
 
             try {
@@ -68,7 +68,7 @@ public abstract class ImageBasedManipulator implements MediaManipulator {
 
     @Override
     public File rotate(File media, float degrees) throws IOException {
-        return applyOperation(media, image -> ImageUtil.rotate(image, degrees, null, null), "rotated", true);
+        return applyToEachFrame(media, image -> ImageUtil.rotate(image, degrees, null, null), "rotated", true);
     }
 
     @Override
@@ -98,5 +98,5 @@ public abstract class ImageBasedManipulator implements MediaManipulator {
      * @return The resulting file.
      * @throws IOException If an error occurs while applying the operation.
      */
-    protected abstract File applyOperation(File media, Function<BufferedImage, BufferedImage> operation, String operationName, boolean compressionNeeded) throws IOException;
+    protected abstract File applyToEachFrame(File media, Function<BufferedImage, BufferedImage> operation, String operationName, boolean compressionNeeded) throws IOException;
 }

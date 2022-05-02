@@ -30,7 +30,7 @@ public class StretchCommand extends MediaCommand {
      *                    followed by this name, the command will be executed.
      * @param description The description of the command. This is displayed in the help command.
      */
-    protected StretchCommand(String name, String description, boolean raw) {
+    public StretchCommand(String name, String description, boolean raw) {
         super(name, description);
         RAW = raw;
     }

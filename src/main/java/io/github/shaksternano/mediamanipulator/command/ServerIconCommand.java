@@ -1,8 +1,9 @@
 package io.github.shaksternano.mediamanipulator.command;
 
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-public class MemoryUsageCommand extends BotOwnerCommand {
+public class ServerIconCommand extends Command {
 
     /**
      * Creates a new command object.
@@ -11,13 +12,14 @@ public class MemoryUsageCommand extends BotOwnerCommand {
      *                    followed by this name, the command will be executed.
      * @param description The description of the command. This is displayed in the help command.
      */
-    public MemoryUsageCommand(String name, String description) {
+    public ServerIconCommand(String name, String description) {
         super(name, description);
     }
 
     @Override
-    protected void botOwnerOperation(String[] arguments, MessageReceivedEvent event) {
-        int toMb = 1024 * 1024;
-        event.getMessage().reply("Current memory usage: " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / toMb + "/" + Runtime.getRuntime().maxMemory() / toMb + "MB").queue();
+    public void execute(String[] arguments, MessageReceivedEvent event) {
+        Message message = event.getMessage();
+        String serverIconUrl = message.getGuild().getIconUrl();
+        message.reply(serverIconUrl == null ? "No server icon set!" : serverIconUrl).queue();
     }
 }

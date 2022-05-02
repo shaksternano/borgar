@@ -20,7 +20,7 @@ public class ToGifCommand extends MediaCommand {
      *                    followed by this name, the command will be executed.
      * @param description The description of the command. This is displayed in the help command.
      */
-    protected ToGifCommand(String name, String description, boolean justRenameFile) {
+    public ToGifCommand(String name, String description, boolean justRenameFile) {
         super(name, description);
         JUST_RENAME_FILE = justRenameFile;
     }
