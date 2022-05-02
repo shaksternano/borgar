@@ -20,6 +20,6 @@ public class ServerIconCommand extends Command {
     public void execute(String[] arguments, MessageReceivedEvent event) {
         Message message = event.getMessage();
         String serverIconUrl = message.getGuild().getIconUrl();
-        message.reply(serverIconUrl == null ? "No server icon set!" : serverIconUrl).queue();
+        message.reply(serverIconUrl == null ? "No server icon set!" : serverIconUrl + "?size=1024").queue();
     }
 }
