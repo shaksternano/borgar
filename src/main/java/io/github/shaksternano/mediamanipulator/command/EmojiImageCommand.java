@@ -33,7 +33,7 @@ public class EmojiImageCommand extends Command {
     public void execute(String[] arguments, MessageReceivedEvent event) {
         MessageUtil.processMessages(event.getMessage(), MessageUtil::getFirstEmojiUrl).ifPresentOrElse(
                 url -> event.getMessage().reply(url).queue(),
-                () -> event.getMessage().reply("No custom emoji found!").queue()
+                () -> event.getMessage().reply("No emoji found!").queue()
         );
     }
 }

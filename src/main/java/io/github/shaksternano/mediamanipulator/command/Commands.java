@@ -130,12 +130,12 @@ public class Commands {
 
     public static final Command EMOJI_IMAGE = addCommandToRegister(new EmojiImageCommand(
             "emoji",
-            "Gets the image of a custom emoji."
+            "Gets the image of an emoji."
     ));
 
     public static final Command STICKER_IMAGE = addCommandToRegister(new StickerImageCommand(
             "sticker",
-            "Gets the image of a custom sticker."
+            "Gets the image of a sticker."
     ));
 
     public static final Command MEMORY_USAGE = addCommandToRegister(new MemoryUsageCommand(
