@@ -4,6 +4,7 @@ import io.github.shaksternano.mediamanipulator.Main;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.exceptions.PermissionException;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -29,21 +30,28 @@ public class CommandParser {
             Optional<Command> commandOptional = CommandRegistry.getCommand(commandParts[0]);
 
             commandOptional.ifPresent(command -> {
-                channel.sendTyping().queue();
-                String[] arguments = parseArguments(commandParts);
-
                 try {
-                    command.execute(arguments, event);
-                } catch (IllegalArgumentException e) {
-                    userMessage.reply(e.getMessage() == null ? "Invalid arguments!" : e.getMessage()).queue();
-                } catch (MissingArgumentException e) {
-                    userMessage.reply(e.getMessage() == null ? "Missing arguments!" : e.getMessage()).queue();
-                } catch (OutOfMemoryError e) {
-                    userMessage.reply("The server ran out of memory trying to execute this command! Try again later.").queue();
-                    Main.LOGGER.error("Ran out of memory trying to execute " + command + "!", e);
-                } catch (Throwable t) {
-                    userMessage.reply("Error executing command!").queue();
-                    Main.LOGGER.error("Error executing command " + command + "!", t);
+                    channel.sendTyping().queue();
+                    String[] arguments = parseArguments(commandParts);
+
+                    try {
+                        command.execute(arguments, event);
+                    } catch (PermissionException e) {
+                        userMessage.reply("This bot doesn't have the required permissions to execute this command!").queue();
+                        Main.LOGGER.error("This bot doesn't have the required permissions needed to execute " + command + "!", e);
+                    } catch (IllegalArgumentException e) {
+                        userMessage.reply(e.getMessage() == null ? "Invalid arguments!" : e.getMessage()).queue();
+                    } catch (MissingArgumentException e) {
+                        userMessage.reply(e.getMessage() == null ? "Missing arguments!" : e.getMessage()).queue();
+                    } catch (OutOfMemoryError e) {
+                        userMessage.reply("The server ran out of memory trying to execute this command! Try again later.").queue();
+                        Main.LOGGER.error("Ran out of memory trying to execute " + command + "!", e);
+                    } catch (Throwable t) {
+                        userMessage.reply("Error executing command!").queue();
+                        Main.LOGGER.error("Error executing " + command + "!", t);
+                    }
+                } catch (PermissionException e) {
+                    Main.LOGGER.error("Missing send message permission!", e);
                 }
             });
         }

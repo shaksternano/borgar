@@ -21,6 +21,11 @@ public class Commands {
             "Captions a media file."
     ));
 
+    public static final Command SPIN = addCommandToRegister(new SpinCommand(
+            "spin",
+            "Spins a media file. Optional arguments: [spin speed, default value is " + FORMAT.format(SpinCommand.DEFAULT_SPIN_SPEED) + "]"
+    ));
+
     /**
      * The stretch {@link Command}.
      */
@@ -100,7 +105,7 @@ public class Commands {
 
     public static final Command TO_PNG = addCommandToRegister(new ToPngCommand(
             "png",
-            "Turns media into a PNG file."
+            "Turns media into a PNG file and adds transparency."
     ));
 
     public static final Command SERVER_ICON = addCommandToRegister(new ServerIconCommand(

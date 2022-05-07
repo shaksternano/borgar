@@ -8,6 +8,8 @@ import java.io.IOException;
 
 public class SpinCommand extends MediaCommand {
 
+    public static final int DEFAULT_SPIN_SPEED = 1;
+
     /**
      * Creates a new command object.
      *
@@ -21,6 +23,16 @@ public class SpinCommand extends MediaCommand {
 
     @Override
     public File applyOperation(File media, String[] arguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
-        return null;
+        float spinSpeed = DEFAULT_SPIN_SPEED;
+
+        if (arguments.length > 0) {
+            try {
+                spinSpeed = Float.parseFloat(arguments[0]);
+            } catch (NumberFormatException e) {
+                event.getMessage().reply("Spin speed \"" + arguments[0] + "\" is not a number. Using default value of " + spinSpeed + ".").queue();
+            }
+        }
+
+        return manipulator.spin(media, spinSpeed);
     }
 }

@@ -2,6 +2,7 @@ package io.github.shaksternano.mediamanipulator.mediamanipulator;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Files;
+import io.github.shaksternano.mediamanipulator.util.DelayedImage;
 import io.github.shaksternano.mediamanipulator.util.FileUtil;
 import io.github.shaksternano.mediamanipulator.util.ImageUtil;
 import io.github.shaksternano.mediamanipulator.util.MediaCompression;
@@ -10,7 +11,9 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 
 /**
@@ -26,35 +29,51 @@ public class StaticImageManipulator extends ImageBasedManipulator {
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
     public File spin(File media, float speed) throws IOException {
-        BufferedImage uneditedImage = ImageIO.read(media);
+        BufferedImage image = ImageIO.read(media);
+        image = MediaCompression.reduceToDisplaySize(image);
+        image = ImageUtil.addAlpha(image);
 
-        uneditedImage = MediaCompression.reduceToDisplaySize(uneditedImage);
+        int width = image.getWidth();
+        int height = image.getHeight();
+        int maxDimension = Math.max(width, height);
 
-        int fps = 24;
-        int degreesPerFrame = (int) (360 / fps * speed);
-
-        int frameCount = 50;
-
-        List<Map.Entry<Integer, BufferedImage>> indexedFrames = new ArrayList<>(frameCount);
-
-        for (int i = 0; i < frameCount; i++) {
-            indexedFrames.add(new AbstractMap.SimpleEntry<>(i, uneditedImage));
+        int frameCount = 150;
+        if (speed >= 1) {
+            frameCount = Math.max((int) (frameCount / Math.abs(speed)), 1);
         }
 
+        Map<Integer, DelayedImage> indexedFrames = new LinkedHashMap<>(frameCount);
 
-        BufferedImage editedImage = null;
+        for (int i = 0; i < frameCount; i++) {
+            int delay = DelayedImage.GIF_MINIMUM_DELAY;
+            if (speed < 1) {
+                delay /= speed;
+            }
 
-        String extension = Files.getFileExtension(media.getName());
-        File editedImageFile = FileUtil.getUniqueTempFile(FileUtil.appendName(media, "_spun").getName());
+            indexedFrames.put(i, new DelayedImage(image, delay));
+        }
 
+        final int finalFrameCount = frameCount;
+        indexedFrames.entrySet().parallelStream().forEach(bufferedImageEntry -> {
+            int index = bufferedImageEntry.getKey();
+            DelayedImage frame = bufferedImageEntry.getValue();
+            BufferedImage oldFrame = frame.getImage();
+            float angle = 360 * ((index + 1F) / finalFrameCount);
+
+            if (speed < 0) {
+                angle = -angle;
+            }
+
+            frame.setImage(ImageUtil.rotate(oldFrame, angle, maxDimension, maxDimension));
+            oldFrame.flush();
+        });
+
+        File outputFile = FileUtil.getUniqueTempFile(Files.getNameWithoutExtension(media.getName()) + "_spun.gif");
         media.delete();
 
-        ImageIO.write(editedImage, extension, editedImageFile);
-        uneditedImage.flush();
-
-        editedImageFile = compress(editedImageFile);
-
-        return editedImageFile;
+        ImageUtil.writeFramesToGifFile(indexedFrames.values(), outputFile);
+        outputFile = MediaManipulators.GIF.compress(outputFile);
+        return outputFile;
     }
 
     @Override

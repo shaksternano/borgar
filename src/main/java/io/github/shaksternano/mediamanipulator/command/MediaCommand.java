@@ -1,6 +1,5 @@
 package io.github.shaksternano.mediamanipulator.command;
 
-import com.google.common.io.Files;
 import io.github.shaksternano.mediamanipulator.Main;
 import io.github.shaksternano.mediamanipulator.mediamanipulator.MediaManipulator;
 import io.github.shaksternano.mediamanipulator.mediamanipulator.MediaManipulatorRegistry;
@@ -43,14 +42,14 @@ public abstract class MediaCommand extends Command {
         Message userMessage = event.getMessage();
         File tempDirectory = FileUtil.getTempDirectory();
 
-        MessageUtil.downloadImage(userMessage, tempDirectory).ifPresentOrElse(imageFile -> {
-            String fileExtension = Files.getFileExtension(imageFile.getName());
+        MessageUtil.downloadImage(userMessage, tempDirectory).ifPresentOrElse(file -> {
+            String fileType = FileUtil.getFileType(file);
 
-            MediaManipulatorRegistry.getManipulator(fileExtension).ifPresentOrElse(manipulator -> {
+            MediaManipulatorRegistry.getManipulator(fileType).ifPresentOrElse(manipulator -> {
                 try {
-                    File editedMedia = applyOperation(imageFile, arguments, manipulator, event);
+                    File editedMedia = applyOperation(file, arguments, manipulator, event);
                     editedMedia.deleteOnExit();
-                    imageFile.delete();
+                    file.delete();
 
                     long mediaFileSize = editedMedia.length();
                     if (mediaFileSize > FileUtil.DISCORD_MAXIMUM_FILE_SIZE) {
@@ -68,7 +67,13 @@ public abstract class MediaCommand extends Command {
                         });
                     }
                 } catch (UnsupportedOperationException e) {
-                    userMessage.reply("This operation is not supported on files with type \"" + fileExtension + "\"! Reason: " + e.getMessage()).queue();
+                    String unsupportedMessage = "This operation is not supported on files with type \"" + fileType + "\"!";
+
+                    if (e.getMessage() != null) {
+                        unsupportedMessage = unsupportedMessage + " Reason: " + e.getMessage();
+                    }
+
+                    userMessage.reply(unsupportedMessage).queue();
                 } catch (IOException e) {
                     throw new UncheckedIOException(e);
                 } catch (OutOfMemoryError e) {

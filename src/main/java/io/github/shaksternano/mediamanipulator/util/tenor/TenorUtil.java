@@ -7,10 +7,7 @@ import io.github.shaksternano.mediamanipulator.Main;
 import io.github.shaksternano.mediamanipulator.util.JsonUtil;
 
 import java.io.*;
-import java.net.ConnectException;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URL;
+import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
@@ -28,34 +25,39 @@ public class TenorUtil {
      * @return The direct file URL.
      */
     public static Optional<String> getTenorMediaUrl(String url, TenorMediaType mediaType, String apiKey) {
-        String urlWithoutPrefix = url.replaceFirst("^(http[s]?://www\\.|http[s]?://|www\\.)","");
+        try {
+            URI uri = new URI(url);
+            String domain = uri.getHost();
 
-        if (urlWithoutPrefix.startsWith("tenor.com/")) {
-            String mediaId = url.substring(url.lastIndexOf("-") + 1);
-            String requestUrl = "https://g.tenor.com/v1/gifs?key=" + apiKey + "&ids=" + mediaId;
+            if (domain.contains("tenor.com")) {
+                String mediaId = url.substring(url.lastIndexOf("-") + 1);
+                String requestUrl = "https://g.tenor.com/v1/gifs?key=" + apiKey + "&ids=" + mediaId;
 
-            JsonElement request = get(requestUrl);
+                JsonElement request = get(requestUrl);
 
-            Optional<JsonElement> resultsArrayElementOptional = JsonUtil.getNestedElement(request, "results");
-            Optional<JsonElement> resultElementOptional = JsonUtil.getArrayElement(resultsArrayElementOptional.orElse(null), 0);
-            Optional<JsonElement> mediaArrayElementOptional = JsonUtil.getNestedElement(resultElementOptional.orElse(null), "media");
-            Optional<JsonElement> mediaElementOptional = JsonUtil.getArrayElement(mediaArrayElementOptional.orElse(null), 0);
-            Optional<JsonElement> mediaUrlElementOptional = JsonUtil.getNestedElement(mediaElementOptional.orElse(null), mediaType.getKey(), "url");
+                Optional<JsonElement> resultsArrayElementOptional = JsonUtil.getNestedElement(request, "results");
+                Optional<JsonElement> resultElementOptional = JsonUtil.getArrayElement(resultsArrayElementOptional.orElse(null), 0);
+                Optional<JsonElement> mediaArrayElementOptional = JsonUtil.getNestedElement(resultElementOptional.orElse(null), "media");
+                Optional<JsonElement> mediaElementOptional = JsonUtil.getArrayElement(mediaArrayElementOptional.orElse(null), 0);
+                Optional<JsonElement> mediaUrlElementOptional = JsonUtil.getNestedElement(mediaElementOptional.orElse(null), mediaType.getKey(), "url");
 
-            if (mediaUrlElementOptional.isPresent()) {
-                JsonElement mediaUrlElement = mediaUrlElementOptional.orElseThrow();
+                if (mediaUrlElementOptional.isPresent()) {
+                    JsonElement mediaUrlElement = mediaUrlElementOptional.orElseThrow();
 
-                if (mediaUrlElement.isJsonPrimitive()) {
-                    JsonPrimitive mediaUrlPrimitive = mediaUrlElement.getAsJsonPrimitive();
+                    if (mediaUrlElement.isJsonPrimitive()) {
+                        JsonPrimitive mediaUrlPrimitive = mediaUrlElement.getAsJsonPrimitive();
 
-                    if (mediaUrlPrimitive.isString()) {
-                        return Optional.of(mediaUrlPrimitive.getAsString());
+                        if (mediaUrlPrimitive.isString()) {
+                            return Optional.of(mediaUrlPrimitive.getAsString());
+                        }
                     }
                 }
-            }
 
-            Main.LOGGER.error("Error while getting Tenor media URL from Tenor URL " + url + "!");
-            Main.LOGGER.error("Erroneous Tenor JSON contents:\n" + request);
+                Main.LOGGER.error("Error while getting Tenor media URL from Tenor URL " + url + "!");
+                Main.LOGGER.error("Erroneous Tenor JSON contents:\n" + request);
+            }
+        } catch (URISyntaxException e) {
+            Main.LOGGER.error("Error parsing URL " + url + "!", e);
         }
 
         return Optional.empty();

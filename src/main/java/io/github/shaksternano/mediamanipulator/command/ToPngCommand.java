@@ -21,6 +21,6 @@ public class ToPngCommand extends MediaCommand {
 
     @Override
     public File applyOperation(File media, String[] arguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
-        return manipulator.makePng(media);
+        return manipulator.makePngOrTransparent(media);
     }
 }

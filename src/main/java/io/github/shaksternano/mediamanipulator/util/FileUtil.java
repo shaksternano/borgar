@@ -9,6 +9,7 @@ import java.io.*;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.util.Optional;
 
 /**
  * Contains static methods for dealing with files.
@@ -18,7 +19,7 @@ public class FileUtil {
     /**
      * The program's temporary directory.
      */
-    private static final File TEMP_DIR = new File(System.getProperty("java.io.tmpdir"), "mediamanipulator");
+    private static final String TEMP_DIR = System.getProperty("java.io.tmpdir") + File.separator + "mediamanipulator";
 
     /**
      * The maximum file size that can be sent in a Discord message, 8MB.
@@ -70,13 +71,13 @@ public class FileUtil {
      * {@code text_file2.txt}, and so on.
      */
     public static File getUniqueFile(@Nullable File directory, String fileName) {
-        return getUniqueFile(new File(directory, fileName), false);
+        return getUniqueFile(directory + File.separator + fileName, false);
     }
 
     /**
-     * Gets a {@link File} with a unique name.
+     * Gets a {@link File} representing a file that doesn't exist or a directory that doesn't exist or is a directory.
      *
-     * @param file        The file to get a unique name for.
+     * @param filePath    The starting file path to get a unique file path from.
      * @param isDirectory Whether the file is a directory.
      * @return A {@link File} with a unique name. If there is no other file with same name as the file provided,
      * the file will be created will have that name. If there is another file with the same name,
@@ -85,21 +86,24 @@ public class FileUtil {
      * {@code text_file1.txt}. If there is also a file called {@code text_file1.txt}, the file will be created as
      * {@code text_file2.txt}, and so on.
      */
-    public static File getUniqueFile(File file, boolean isDirectory) {
+    public static File getUniqueFile(String filePath, boolean isDirectory) {
         int num = 1;
 
-        String fileNameWithoutExtension = Files.getNameWithoutExtension(file.getName());
-        String fileExtension = Files.getFileExtension(file.getName());
+        String fileNameWithoutExtension = Files.getNameWithoutExtension(filePath);
+        String fileExtension = Files.getFileExtension(filePath);
+
+        File file = new File(filePath);
         String fileDirectory = file.getParent();
 
         while ((!isDirectory && file.exists()) || (isDirectory && file.isFile())) {
-            String fileName = fileNameWithoutExtension + (num++);
+            String fileName = fileNameWithoutExtension + num;
 
             if (!fileExtension.isEmpty()) {
                 fileName = fileName + "." + fileExtension;
             }
 
             file = new File(fileDirectory, fileName);
+            num++;
         }
 
         return file;
@@ -166,5 +170,17 @@ public class FileUtil {
         ) {
             outputStream.getChannel().transferFrom(readableByteChannel, 0, MAXIMUM_FILE_SIZE_TO_DOWNLOAD);
         }
+    }
+
+    public static String getFileType(File file) {
+        Optional<String> fileTypeOptional = Optional.empty();
+
+        try {
+            fileTypeOptional = ImageUtil.getImageType(file);
+        } catch (IOException e) {
+            Main.LOGGER.error("Error getting file type from file " + file + "!", e);
+        }
+
+        return fileTypeOptional.orElse(Files.getFileExtension(file.getName()));
     }
 }

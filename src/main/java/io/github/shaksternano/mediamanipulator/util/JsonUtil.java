@@ -62,7 +62,7 @@ public class JsonUtil {
      */
     public static Optional<JsonElement> getArrayElement(@Nullable JsonElement jsonElement, int index) {
         if (jsonElement != null) {
-            if (jsonElement.isJsonArray() ) {
+            if (jsonElement.isJsonArray()) {
                 JsonArray jsonArray = jsonElement.getAsJsonArray();
 
                 if (jsonArray.size() > index) {

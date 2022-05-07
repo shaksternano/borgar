@@ -72,21 +72,23 @@ public abstract class ImageBasedManipulator implements MediaManipulator {
     }
 
     @Override
-    public File makePng(File media) throws IOException {
-        String fileExtension = Files.getFileExtension(media.getName());
+    public File makePngOrTransparent(File media) throws IOException {
+        String fileType = FileUtil.getFileType(media);
+        File newPngFile = FileUtil.getUniqueTempFile(Files.getNameWithoutExtension(media.getName()) + ".png");
+        BufferedImage image = ImageIO.read(media);
 
-        if (fileExtension.equals("png")) {
-            throw new UnsupportedOperationException("The file is already a PNG file!");
-        } else {
-            File pngFile = FileUtil.getUniqueTempFile(Files.getNameWithoutExtension(media.getName()) + ".png");
-            BufferedImage nonPngImage = ImageIO.read(media);
-            BufferedImage nonPngImageWithAlpha = ImageUtil.addAlpha(nonPngImage);
-            ImageIO.write(nonPngImageWithAlpha, "png", pngFile);
-            nonPngImageWithAlpha.flush();
-            nonPngImage.flush();
-
-            return pngFile;
+        if (fileType.equals("png")) {
+            if (image.getColorModel().hasAlpha()) {
+                throw new UnsupportedOperationException("The file is already a PNG file and already has transparency!");
+            }
         }
+
+        BufferedImage imageWithAlpha = ImageUtil.addAlpha(image);
+        image.flush();
+        ImageIO.write(imageWithAlpha, "png", newPngFile);
+        imageWithAlpha.flush();
+
+        return newPngFile;
     }
 
     /**

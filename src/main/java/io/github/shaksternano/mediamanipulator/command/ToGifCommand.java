@@ -11,7 +11,7 @@ import java.io.IOException;
  */
 public class ToGifCommand extends MediaCommand {
 
-    private boolean JUST_RENAME_FILE;
+    private final boolean JUST_RENAME_FILE;
 
     /**
      * Creates a new command object.

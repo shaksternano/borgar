@@ -2,23 +2,16 @@ package io.github.shaksternano.mediamanipulator.mediamanipulator;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.sksamuel.scrimage.DisposeMethod;
-import com.sksamuel.scrimage.ImmutableImage;
 import com.sksamuel.scrimage.nio.AnimatedGif;
 import com.sksamuel.scrimage.nio.AnimatedGifReader;
 import com.sksamuel.scrimage.nio.ImageSource;
-import com.sksamuel.scrimage.nio.StreamingGifWriter;
-import io.github.shaksternano.mediamanipulator.Main;
-import io.github.shaksternano.mediamanipulator.util.CollectionUtil;
-import io.github.shaksternano.mediamanipulator.util.DelayedImage;
-import io.github.shaksternano.mediamanipulator.util.FileUtil;
-import io.github.shaksternano.mediamanipulator.util.MediaCompression;
+import io.github.shaksternano.mediamanipulator.util.*;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
@@ -36,13 +29,13 @@ public class GifManipulator extends ImageBasedManipulator {
         List<DelayedImage> newFrames = changeSpeed(frames, speedMultiplier);
 
         File gifFile = FileUtil.getUniqueTempFile(FileUtil.appendName(media, "_changed_speed").getName());
-        writeFramesToGifFile(newFrames, gifFile);
+        ImageUtil.writeFramesToGifFile(newFrames, gifFile);
         return gifFile;
     }
 
     @Override
-    public File spin(File media, float speed) throws IOException {
-        return null;
+    public File spin(File media, float speed) {
+        throw new UnsupportedOperationException();
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
@@ -54,7 +47,7 @@ public class GifManipulator extends ImageBasedManipulator {
 
         media.delete();
 
-        writeFramesToGifFile(frames, gifFile);
+        ImageUtil.writeFramesToGifFile(frames, gifFile);
         return gifFile;
     }
 
@@ -131,7 +124,7 @@ public class GifManipulator extends ImageBasedManipulator {
 
         media.delete();
 
-        writeFramesToGifFile(frames, gifFile);
+        ImageUtil.writeFramesToGifFile(frames, gifFile);
 
         if (compressionNeeded) {
             gifFile = compress(gifFile);
@@ -160,24 +153,7 @@ public class GifManipulator extends ImageBasedManipulator {
         return frames;
     }
 
-    /**
-     * Writes the given frames to a GIF file.
-     *
-     * @param frames     The {@link DelayedImage} frames to write to the GIF file.
-     * @param outputFile The file to write the frames to.
-     */
-    private static void writeFramesToGifFile(List<DelayedImage> frames, File outputFile) {
-        StreamingGifWriter writer = new StreamingGifWriter();
-        try (StreamingGifWriter.GifStream gif = writer.prepareStream(outputFile, BufferedImage.TYPE_INT_ARGB)) {
-            for (DelayedImage frame : frames) {
-                gif.writeFrame(ImmutableImage.wrapAwt(frame.getImage()), Duration.ofMillis(frame.getDelay()), DisposeMethod.RESTORE_TO_BACKGROUND_COLOR);
-            }
-        } catch (Exception e) {
-            Main.LOGGER.error("Error writing GIF file", e);
-        }
-    }
-
-    private static List<DelayedImage> changeSpeed(List<DelayedImage> frames, float speedMultiplier) {
+    private static List<DelayedImage> changeSpeed(Collection<DelayedImage> frames, float speedMultiplier) {
         if (frames.size() <= 1) {
             throw new UnsupportedOperationException("Cannot change the speed of a static image.");
         } else {
@@ -198,7 +174,7 @@ public class GifManipulator extends ImageBasedManipulator {
 
                 if (newFrames.isEmpty()) {
                     if (!frames.isEmpty()) {
-                        newFrames = ImmutableList.of(frames.get(0));
+                        newFrames = ImmutableList.of(frames.iterator().next());
                     }
                 }
 
@@ -209,7 +185,7 @@ public class GifManipulator extends ImageBasedManipulator {
         }
     }
 
-    private static List<BufferedImage> delayedImagesToBufferedImages(List<DelayedImage> delayedFrames) {
+    private static List<BufferedImage> delayedImagesToBufferedImages(Iterable<DelayedImage> delayedFrames) {
         List<BufferedImage> bufferedFrames = new ArrayList<>();
 
         for (DelayedImage frame : delayedFrames) {
@@ -221,7 +197,7 @@ public class GifManipulator extends ImageBasedManipulator {
         return bufferedFrames;
     }
 
-    private static List<DelayedImage> bufferedImagesToDelayedImages(List<BufferedImage> bufferedFrames) {
+    private static List<DelayedImage> bufferedImagesToDelayedImages(Iterable<BufferedImage> bufferedFrames) {
         List<DelayedImage> delayedFrames = new ArrayList<>();
 
         for (BufferedImage frame : bufferedFrames) {

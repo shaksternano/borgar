@@ -64,7 +64,7 @@ public interface MediaManipulator {
      */
     File makeGif(File media, boolean justRenameFile) throws IOException;
 
-    File makePng(File media) throws IOException;
+    File makePngOrTransparent(File media) throws IOException;
 
     /**
      * Gets the set of supported media file extensions that this manipulator supports.

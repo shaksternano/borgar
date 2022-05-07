@@ -1,19 +1,28 @@
 package io.github.shaksternano.mediamanipulator.util;
 
+import com.sksamuel.scrimage.DisposeMethod;
 import com.sksamuel.scrimage.ImmutableImage;
+import com.sksamuel.scrimage.nio.StreamingGifWriter;
+import io.github.shaksternano.mediamanipulator.Main;
 import org.jetbrains.annotations.Nullable;
 
 import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
 import java.awt.*;
 import java.awt.font.FontRenderContext;
 import java.awt.font.LineBreakMeasurer;
 import java.awt.font.TextAttribute;
 import java.awt.font.TextLayout;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.AttributedCharacterIterator;
 import java.text.AttributedString;
+import java.time.Duration;
+import java.util.Iterator;
+import java.util.Optional;
 
 /**
  * Contains static methods for dealing with images.
@@ -202,8 +211,8 @@ public class ImageUtil {
      * @param overlay     The image to overlay.
      * @param x           The x coordinate of the top left corner of the overlay in relation to the media file being overlaid on.
      * @param y           The y coordinate of the top left corner of the overlay in relation to the media file being overlaid on.
-     * @param expand      Whether to expand the resulting media to fit the overlay file.
-     * @param expandColor The background color used if the resulting media is expanded.
+     * @param expand      Whether to expand the resulting image to fit the overlay image.
+     * @param expandColor The background color used if the resulting image is expanded.
      * @return The overlaid image.
      */
     public static BufferedImage overlayImage(BufferedImage image, BufferedImage overlay, int x, int y, boolean expand, @Nullable Color expandColor) {
@@ -320,5 +329,37 @@ public class ImageUtil {
         graphics.dispose();
 
         return rotated;
+    }
+
+    /**
+     * Writes the given frames to a GIF file.
+     *
+     * @param frames     The {@link DelayedImage} frames to write to the GIF file.
+     * @param outputFile The file to write the frames to.
+     */
+    public static void writeFramesToGifFile(Iterable<DelayedImage> frames, File outputFile) {
+        StreamingGifWriter writer = new StreamingGifWriter();
+        try (StreamingGifWriter.GifStream gif = writer.prepareStream(outputFile, BufferedImage.TYPE_INT_ARGB)) {
+            for (DelayedImage frame : frames) {
+                gif.writeFrame(ImmutableImage.wrapAwt(frame.getImage()), Duration.ofMillis(frame.getDelay()), DisposeMethod.RESTORE_TO_BACKGROUND_COLOR);
+            }
+        } catch (Exception e) {
+            Main.LOGGER.error("Error writing GIF file", e);
+        }
+    }
+
+    public static Optional<String> getImageType(File file) throws IOException {
+        try (ImageInputStream imageInputStream = ImageIO.createImageInputStream(file)) {
+            if (imageInputStream != null) {
+                Iterator<ImageReader> imageReaders = ImageIO.getImageReaders(imageInputStream);
+
+                if (imageReaders.hasNext()) {
+                    ImageReader reader = imageReaders.next();
+                    return Optional.of(reader.getFormatName());
+                }
+            }
+
+            return Optional.empty();
+        }
     }
 }
