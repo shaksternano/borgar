@@ -273,6 +273,7 @@ public class MessageUtil {
                         if (image == null) {
                             Main.LOGGER.error("Could not read image from URL " + emojiUrl + "!");
                         } else {
+                            image.flush();
                             return Optional.of(emojiUrl);
                         }
                     } catch (MalformedURLException e) {
