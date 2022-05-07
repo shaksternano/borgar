@@ -37,17 +37,18 @@ public class StaticImageManipulator extends ImageBasedManipulator {
         int height = image.getHeight();
         int maxDimension = Math.max(width, height);
 
+        float absoluteSpeed = Math.abs(speed);
         int frameCount = 150;
-        if (speed >= 1) {
-            frameCount = Math.max((int) (frameCount / Math.abs(speed)), 1);
+        if (absoluteSpeed >= 1) {
+            frameCount = Math.max((int) (frameCount / absoluteSpeed), 1);
         }
 
         Map<Integer, DelayedImage> indexedFrames = new LinkedHashMap<>(frameCount);
 
         for (int i = 0; i < frameCount; i++) {
             int delay = DelayedImage.GIF_MINIMUM_DELAY;
-            if (speed < 1) {
-                delay /= speed;
+            if (absoluteSpeed < 1) {
+                delay /= absoluteSpeed;
             }
 
             indexedFrames.put(i, new DelayedImage(image, delay));
