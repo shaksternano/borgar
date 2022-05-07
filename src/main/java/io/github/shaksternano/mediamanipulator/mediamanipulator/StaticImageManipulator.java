@@ -36,8 +36,8 @@ public class StaticImageManipulator extends ImageBasedManipulator {
         int width = image.getWidth();
         int height = image.getHeight();
         int maxDimension = Math.max(width, height);
-
         float absoluteSpeed = Math.abs(speed);
+
         int frameCount = 150;
         if (absoluteSpeed >= 1) {
             frameCount = Math.max((int) (frameCount / absoluteSpeed), 1);
