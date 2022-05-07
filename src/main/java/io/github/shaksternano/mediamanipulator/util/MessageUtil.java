@@ -5,6 +5,7 @@ import com.google.common.io.Files;
 import io.github.shaksternano.mediamanipulator.Main;
 import io.github.shaksternano.mediamanipulator.util.tenor.TenorMediaType;
 import io.github.shaksternano.mediamanipulator.util.tenor.TenorUtil;
+import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -13,6 +14,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +25,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Contains static methods for dealing with {@link Message}s.
@@ -252,5 +255,36 @@ public class MessageUtil {
         }
 
         return urls;
+    }
+
+    public static Optional<String> getFirstEmojiUrl(Message message) {
+        List<Emote> emotes = message.getEmotes();
+
+        if (emotes.isEmpty()) {
+            List<String> characterCodes = message.getContentRaw().codePoints().mapToObj(Integer::toHexString).toList();
+
+            for (String characterCode : characterCodes) {
+                if (characterCode.length() >= 5) {
+                    String emojiUrl = "https://raw.githubusercontent.com/twitter/twemoji/master/assets/72x72/" + characterCode + ".png";
+
+                    try {
+                        BufferedImage image = ImageIO.read(new URL(emojiUrl));
+
+                        if (image == null) {
+                            Main.LOGGER.error("Could not read image from URL " + emojiUrl + "!");
+                        } else {
+                            return Optional.of(emojiUrl);
+                        }
+                    } catch (MalformedURLException e) {
+                        Main.LOGGER.error("Failed to parse emoji URL " + emojiUrl + "!", e);
+                    } catch (IOException ignored) {
+                    }
+                }
+            }
+        } else {
+            return Optional.of(emotes.get(0).getImageUrl());
+        }
+
+        return Optional.empty();
     }
 }
