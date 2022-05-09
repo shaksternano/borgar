@@ -123,9 +123,14 @@ public class Commands {
             "Gets the image of the server invite background."
     ));
 
-    public static final Command AVATAR = addCommandToRegister(new AvatarCommand(
+    public static final Command USER_AVATAR = addCommandToRegister(new UserAvatarCommand(
             "avatar",
             "Gets the avatar of a user. Optional arguments: [User mention]"
+    ));
+
+    public static final Command USER_BANNER = addCommandToRegister(new UserBannerCommand(
+            "banner",
+            "Gets the banner of a user. Optional arguments: [User mention]"
     ));
 
     public static final Command EMOJI_IMAGE = addCommandToRegister(new EmojiImageCommand(

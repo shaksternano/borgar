@@ -8,7 +8,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.util.List;
 import java.util.Optional;
 
-public class AvatarCommand extends Command {
+public class UserAvatarCommand extends Command {
 
     /**
      * Creates a new command object.
@@ -17,7 +17,7 @@ public class AvatarCommand extends Command {
      *                    followed by this name, the command will be executed.
      * @param description The description of the command. This is displayed in the help command.
      */
-    public AvatarCommand(String name, String description) {
+    public UserAvatarCommand(String name, String description) {
         super(name, description);
     }
 
@@ -26,10 +26,10 @@ public class AvatarCommand extends Command {
         MessageUtil.processMessages(event.getMessage(), message -> {
             if (event.getMessage().equals(message)) {
                 List<Member> members = message.getMentionedMembers();
-                if (!members.isEmpty()) {
-                    return Optional.of(members.get(0).getUser().getEffectiveAvatarUrl());
-                } else {
+                if (members.isEmpty()) {
                     return Optional.of(message.getAuthor().getEffectiveAvatarUrl());
+                } else {
+                    return Optional.of(members.get(0).getEffectiveAvatarUrl());
                 }
             } else {
                 return Optional.of(message.getAuthor().getEffectiveAvatarUrl());

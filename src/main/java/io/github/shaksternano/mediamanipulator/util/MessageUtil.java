@@ -5,7 +5,10 @@ import com.google.common.io.Files;
 import io.github.shaksternano.mediamanipulator.Main;
 import io.github.shaksternano.mediamanipulator.util.tenor.TenorMediaType;
 import io.github.shaksternano.mediamanipulator.util.tenor.TenorUtil;
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.Emote;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -290,6 +293,7 @@ public class MessageUtil {
 
     /**
      * Gets the linked message in the message embed. For Revolt bridged messages.
+     *
      * @param message The message that contains the embed to get the message link from.
      * @return The linked message.
      */
