@@ -313,7 +313,7 @@ public class MessageUtil {
             URI uri = new URI(url);
 
             if (uri.getHost().contains("discord.com")) {
-                String[] parts = url.split("/");
+                String[] parts = url.split(Pattern.quote("/"));
 
                 if (parts.length >= 1) {
                     try {

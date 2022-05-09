@@ -1,8 +1,15 @@
 package io.github.shaksternano.mediamanipulator.command;
 
+import com.google.common.collect.ImmutableList;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * A command that displays the all registered commands.
@@ -10,9 +17,9 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 public class HelpCommand extends Command {
 
     /**
-     * The command list string is cached here.
+     * The command list strings are cached here.
      */
-    private static String cachedHelpMessage;
+    private static List<String> cachedHelpMessages = null;
 
     /**
      * Creates a new command object.
@@ -34,17 +41,31 @@ public class HelpCommand extends Command {
     @Override
     public void execute(String[] arguments, MessageReceivedEvent event) {
         Message userMessage = event.getMessage();
-        userMessage.reply(getHelpMessage()).queue();
+        List<Message> messages = getHelpMessages();
+        for (int i = 0; i < messages.size(); i++) {
+            Message message = messages.get(i);
+
+            if (i == 0) {
+                userMessage.reply(message).queue();
+            } else {
+                event.getChannel().sendMessage(message).queue();
+            }
+        }
     }
 
     /**
-     * Gets the message to be displayed when this command is run.
+     * Gets the messages to be displayed when this command is run.
      *
-     * @return The message to be displayed when this command is run.
+     * @return The messages to be displayed when this command is run.
      */
-    public static Message getHelpMessage() {
-        if (cachedHelpMessage == null) {
-            StringBuilder builder = new StringBuilder("Commands:\n\n");
+    public static List<Message> getHelpMessages() {
+        if (cachedHelpMessages == null) {
+            /*
+            List<Command> commands = CommandRegistry
+                    .getCommands()
+                    .stream()
+                    .sorted()
+                    .collect(ImmutableList.toImmutableList());
 
             CommandRegistry.getCommands().stream().sorted().forEach(
                     command -> builder
@@ -55,9 +76,76 @@ public class HelpCommand extends Command {
                             .append("\n\n")
             );
 
-            cachedHelpMessage = builder.toString();
+             */
+
+            cachedHelpMessages = createHelpMessages();
         }
 
-        return new MessageBuilder(cachedHelpMessage).build();
+        return cachedHelpMessages
+                .stream()
+                .map(message -> new MessageBuilder(message).build())
+                .collect(ImmutableList.toImmutableList());
+    }
+
+    private static List<String> createHelpMessages() {
+        int maxLength = 2000;
+
+        StringBuilder builder = new StringBuilder("Commands:\n\n");
+        int totalLength = builder.length();
+        List<String> messages = new ArrayList<>();
+
+        List<Command> commands = CommandRegistry
+                .getCommands()
+                .stream()
+                .sorted()
+                .collect(ImmutableList.toImmutableList());
+
+        for (Command command : commands) {
+            String commandLine = Command.COMMAND_PREFIX + command.getName() + " - " + command.getDescription() + "\n\n";
+            int length = commandLine.length();
+            totalLength += length;
+
+            if (totalLength > maxLength) {
+                builder.deleteCharAt(builder.length() - 1);
+                builder.append("\u200B");
+                messages.add(builder.toString());
+                builder = new StringBuilder(commandLine);
+                totalLength = length;
+            } else {
+                builder.append(commandLine);
+            }
+        }
+
+        messages.add(builder.toString());
+
+        return messages;
+    }
+
+    private static List<String> splitMessage(String message) {
+        int maxLength = 2000;
+        if (message.length() > maxLength) {
+            String[] splitMessage = message.split(Pattern.quote("\n"));
+
+            int totalLength = 0;
+            StringBuilder builder = new StringBuilder();
+            List<String> messages = new ArrayList<>();
+
+            for (String line : splitMessage) {
+                totalLength += line.length();
+                if (totalLength <= maxLength) {
+                    builder.append(line).append("\n");
+                } else {
+                    messages.add(builder.toString());
+                    builder = new StringBuilder(line);
+                    totalLength = line.length();
+                }
+            }
+
+            messages.add(builder.toString());
+
+            return messages;
+        } else {
+            return ImmutableList.of(message);
+        }
     }
 }
