@@ -38,20 +38,6 @@ public class CommandListener extends ListenerAdapter {
      */
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
-        for (MessageEmbed embed : event.getMessage().getEmbeds()) {
-            System.out.println(embed.toData());
-            System.out.println("URL: " + embed.getUrl());
-            if (embed.getThumbnail() != null) {
-                System.out.println("Thumbnail URL: " + embed.getThumbnail().getUrl());
-            }
-            if (embed.getSiteProvider() != null) {
-                System.out.println("Site Provider URL: " + embed.getSiteProvider().getUrl());
-            }
-            if (embed.getAuthor() != null) {
-                System.out.println("Author URL: " + embed.getAuthor().getUrl());
-            }
-        }
-
         CommandParser.parseAndExecute(event);
     }
 }

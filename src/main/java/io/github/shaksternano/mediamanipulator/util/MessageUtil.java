@@ -79,33 +79,34 @@ public class MessageUtil {
      * @return An {@link Optional} describing the result of the operation.
      */
     public static <T> Optional<T> processMessages(Message message, Function<Message, Optional<T>> operation) {
-        Optional<T> result = operation.apply(message);
+        Optional<T> result;
 
+        Message referencedMessage = message.getReferencedMessage();
+        if (referencedMessage != null) {
+            result = operation.apply(referencedMessage);
+            if (result.isPresent()) {
+                return result;
+            }
+        }
+
+        Optional<Message> linkedMessage = getEmbedLinkedMessage(message);
+        if (linkedMessage.isPresent()) {
+            result = operation.apply(linkedMessage.orElseThrow());
+            if (result.isPresent()) {
+                return result;
+            }
+        }
+
+        result = operation.apply(message);
         if (result.isPresent()) {
             return result;
-        } else {
-            Message referencedMessage = message.getReferencedMessage();
-            if (referencedMessage != null) {
-                result = operation.apply(referencedMessage);
-                if (result.isPresent()) {
-                    return result;
-                }
-            }
+        }
 
-            Optional<Message> linkedMessage = getEmbedLinkedMessage(message);
-            if (linkedMessage.isPresent()) {
-                result = operation.apply(linkedMessage.get());
-                if (result.isPresent()) {
-                    return result;
-                }
-            }
-
-            List<Message> previousMessages = getPreviousMessages(message.getChannel(), MAX_PAST_MESSAGES_TO_CHECK);
-            for (Message previousMessage : previousMessages) {
-                result = operation.apply(previousMessage);
-                if (result.isPresent()) {
-                    return result;
-                }
+        List<Message> previousMessages = getPreviousMessages(message.getChannel(), MAX_PAST_MESSAGES_TO_CHECK);
+        for (Message previousMessage : previousMessages) {
+            result = operation.apply(previousMessage);
+            if (result.isPresent()) {
+                return result;
             }
         }
 

@@ -29,10 +29,10 @@ public class AvatarCommand extends Command {
                 if (!members.isEmpty()) {
                     return Optional.of(members.get(0).getUser().getEffectiveAvatarUrl());
                 } else {
-                    return Optional.of(event.getAuthor().getEffectiveAvatarUrl());
+                    return Optional.of(message.getAuthor().getEffectiveAvatarUrl());
                 }
             } else {
-                return Optional.of(event.getAuthor().getEffectiveAvatarUrl());
+                return Optional.of(message.getAuthor().getEffectiveAvatarUrl());
             }
         }).ifPresentOrElse(
                 url -> event.getMessage().reply(url + "?size=1024").queue(),
