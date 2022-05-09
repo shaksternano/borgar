@@ -5,16 +5,15 @@ import com.google.common.io.Files;
 import io.github.shaksternano.mediamanipulator.Main;
 import io.github.shaksternano.mediamanipulator.util.tenor.TenorMediaType;
 import io.github.shaksternano.mediamanipulator.util.tenor.TenorUtil;
-import net.dv8tion.jda.api.entities.Emote;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.*;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +24,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * Contains static methods for dealing with {@link Message}s.
@@ -87,19 +85,24 @@ public class MessageUtil {
             return result;
         } else {
             Message referencedMessage = message.getReferencedMessage();
-
             if (referencedMessage != null) {
                 result = operation.apply(referencedMessage);
-
                 if (result.isPresent()) {
                     return result;
                 }
             }
 
-            List<Message> previousMessages = getPreviousMessages(message.getChannel(), MAX_PAST_MESSAGES_TO_CHECK, 10);
+            Optional<Message> linkedMessage = getEmbedLinkedMessage(message);
+            if (linkedMessage.isPresent()) {
+                result = operation.apply(linkedMessage.get());
+                if (result.isPresent()) {
+                    return result;
+                }
+            }
+
+            List<Message> previousMessages = getPreviousMessages(message.getChannel(), MAX_PAST_MESSAGES_TO_CHECK);
             for (Message previousMessage : previousMessages) {
                 result = operation.apply(previousMessage);
-
                 if (result.isPresent()) {
                     return result;
                 }
@@ -114,16 +117,13 @@ public class MessageUtil {
      *
      * @param channel The channel to get the previous messages from.
      * @param amount  The amount of messages to get.
-     * @param timeout The timeout to wait for the messages to be retrieved.
      * @return A list of messages. If an error occurred, an empty list is returned.
      */
-    public static List<Message> getPreviousMessages(MessageChannel channel, int amount, long timeout) {
+    public static List<Message> getPreviousMessages(MessageChannel channel, int amount) {
         try {
-            return channel.getHistory().retrievePast(amount).submit().get(timeout, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException e) {
+            return channel.getHistory().retrievePast(amount).complete();
+        } catch (RuntimeException e) {
             Main.LOGGER.error("Error while retrieving previous messages", e);
-        } catch (TimeoutException e) {
-            Main.LOGGER.error("Timeout while retrieving previous messages!", e);
         }
 
         return ImmutableList.of();
@@ -229,10 +229,7 @@ public class MessageUtil {
             MessageEmbed.ImageInfo imageInfo = embed.getImage();
 
             if (imageInfo != null) {
-                Optional<File> imageFileOptional = downloadUrlImage(imageInfo.getUrl(), directory, true);
-                if (imageFileOptional.isPresent()) {
-                    return imageFileOptional;
-                }
+                return downloadUrlImage(imageInfo.getUrl(), directory, true);
             }
         }
 
@@ -284,6 +281,44 @@ public class MessageUtil {
             }
         } else {
             return Optional.of(emotes.get(0).getImageUrl());
+        }
+
+        return Optional.empty();
+    }
+
+    /**
+     * Gets the linked message in the message embed. For Revolt bridged messages.
+     * @param message The message that contains the embed to get the message link from.
+     * @return The linked message.
+     */
+    private static Optional<Message> getEmbedLinkedMessage(Message message) {
+        List<MessageEmbed> embeds = message.getEmbeds();
+
+        for (MessageEmbed embed : embeds) {
+            Optional<String> authorUrl = Optional.ofNullable(embed.getAuthor()).map(MessageEmbed.AuthorInfo::getUrl);
+            return getLinkedMessage(authorUrl.orElse(""), message.getChannel());
+        }
+
+        return Optional.empty();
+    }
+
+    private static Optional<Message> getLinkedMessage(String url, MessageChannel channel) {
+        try {
+            URI uri = new URI(url);
+
+            if (uri.getHost().contains("discord.com")) {
+                String[] parts = url.split("/");
+
+                if (parts.length >= 1) {
+                    try {
+                        long messageId = Long.parseLong(parts[parts.length - 1]);
+                        return Optional.of(channel.retrieveMessageById(messageId).complete());
+                    } catch (NumberFormatException ignored) {
+                    }
+                }
+            }
+        } catch (URISyntaxException e) {
+            Main.LOGGER.error("Failed to parse URL " + url + "!", e);
         }
 
         return Optional.empty();

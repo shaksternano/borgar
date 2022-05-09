@@ -27,9 +27,8 @@ public class TenorUtil {
     public static Optional<String> getTenorMediaUrl(String url, TenorMediaType mediaType, String apiKey) {
         try {
             URI uri = new URI(url);
-            String domain = uri.getHost();
 
-            if (domain.contains("tenor.com")) {
+            if (uri.getHost().contains("tenor.com")) {
                 String mediaId = url.substring(url.lastIndexOf("-") + 1);
                 String requestUrl = "https://g.tenor.com/v1/gifs?key=" + apiKey + "&ids=" + mediaId;
 
