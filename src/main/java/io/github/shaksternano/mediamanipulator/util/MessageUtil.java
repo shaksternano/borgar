@@ -69,12 +69,13 @@ public class MessageUtil {
     }
 
     /**
-     * Processes a message, or the message it is responding to, or a previous message.
+     * Processes the message a message is responding to, then the message itself, then previous messages.
      *
-     * @param message   The initial message to process.
-     * @param operation The operation to perform on the message. If this returns an empty {@link Optional},
-     *                  the operation will be performed on the message the initial message is responding to,
-     *                  and then if that is also empty, it will be applied to previous messages.
+     * @param message   The initial message.
+     * @param operation The operation to perform on the message the initial message is responding to.
+     *                  If this returns an empty {@link Optional}, the operation will be performed on
+     *                  the initial message itself,and then if that is also empty, it will be applied
+     *                  to previous messages.
      * @param <T>       The type of the result of the operation.
      * @return An {@link Optional} describing the result of the operation.
      */

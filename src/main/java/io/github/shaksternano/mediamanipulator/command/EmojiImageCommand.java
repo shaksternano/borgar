@@ -1,11 +1,7 @@
 package io.github.shaksternano.mediamanipulator.command;
 
 import io.github.shaksternano.mediamanipulator.util.MessageUtil;
-import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-
-import java.util.List;
-import java.util.Optional;
 
 /**
  * Gets the image of an emoji.
