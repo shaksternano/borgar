@@ -2,18 +2,15 @@ package io.github.shaksternano.mediamanipulator.mediamanipulator;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.sksamuel.scrimage.nio.AnimatedGif;
-import com.sksamuel.scrimage.nio.AnimatedGifReader;
-import com.sksamuel.scrimage.nio.ImageSource;
 import io.github.shaksternano.mediamanipulator.util.*;
+import org.jetbrains.annotations.Nullable;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -23,7 +20,7 @@ public class GifManipulator extends ImageBasedManipulator {
 
     @Override
     public File speed(File media, float speedMultiplier) throws IOException {
-        List<DelayedImage> frames = readGifFrames(media);
+        List<DelayedImage> frames = ImageUtil.readGifFrames(media);
         frames = MediaCompression.removeFrames(frames, media.length(), FileUtil.DISCORD_MAXIMUM_FILE_SIZE);
 
         List<DelayedImage> newFrames = changeSpeed(frames, speedMultiplier);
@@ -34,14 +31,44 @@ public class GifManipulator extends ImageBasedManipulator {
     }
 
     @Override
-    public File spin(File media, float speed) {
-        throw new UnsupportedOperationException();
+    public File spin(File media, float speed, @Nullable Color backgroundColor) throws IOException {
+        List<DelayedImage> frames = ImageUtil.readGifFrames(media);
+        List<BufferedImage> bufferedFrames = delayedImagesToBufferedImages(frames);
+        List<BufferedImage> keptFrames = CollectionUtil.keepEveryNthElement(bufferedFrames, DelayedImage.GIF_MINIMUM_DELAY, Image::flush);
+        List<BufferedImage> compressedFrames = new ArrayList<>(keptFrames.size());
+
+        for (BufferedImage frame : keptFrames) {
+            compressedFrames.add(MediaCompression.reduceToDisplaySize(frame));
+        }
+
+        BufferedImage firstFrame = compressedFrames.get(0);
+
+        int maxDimension = Math.max(firstFrame.getWidth(), firstFrame.getHeight());
+        float absoluteSpeed = Math.abs(speed);
+
+        int framesPerRotation = 150;
+        if (absoluteSpeed >= 1) {
+            framesPerRotation = Math.max((int) (framesPerRotation / absoluteSpeed), 1);
+        }
+
+        int size = framesPerRotation * ((compressedFrames.size() + (framesPerRotation - 1)) / framesPerRotation);
+        Map<Integer, DelayedImage> indexedFrames = new LinkedHashMap<>(size);
+        for (int i = 0; i < size; i++) {
+            int delay = DelayedImage.GIF_MINIMUM_DELAY;
+            if (absoluteSpeed < 1) {
+                delay /= absoluteSpeed;
+            }
+
+            indexedFrames.put(i, new DelayedImage(compressedFrames.get(i % compressedFrames.size()), delay));
+        }
+
+        return spinFrames(indexedFrames, speed, framesPerRotation, maxDimension, media, backgroundColor);
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
     public File reduceFps(File media, int fpsReductionRatio) throws IOException {
-        List<DelayedImage> frames = readGifFrames(media);
+        List<DelayedImage> frames = ImageUtil.readGifFrames(media);
         frames = MediaCompression.removeFrames(frames, fpsReductionRatio);
         File gifFile = FileUtil.getUniqueTempFile(FileUtil.appendName(media, "_fps_reduced").getName());
 
@@ -103,7 +130,7 @@ public class GifManipulator extends ImageBasedManipulator {
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
     protected File applyToEachFrame(File media, Function<BufferedImage, BufferedImage> operation, String operationName, boolean compressionNeeded) throws IOException {
-        List<DelayedImage> frames = readGifFrames(media);
+        List<DelayedImage> frames = ImageUtil.readGifFrames(media);
 
         frames.parallelStream().forEach(
                 delayedImage -> {
@@ -133,26 +160,6 @@ public class GifManipulator extends ImageBasedManipulator {
         return gifFile;
     }
 
-    /**
-     * Gets the frames of a GIF file.
-     *
-     * @param media The GIF file to get the frames of.
-     * @return A list of {@link DelayedImage}s representing the frames of the GIF file.
-     * @throws IOException If an error occurs while reading the GIF file.
-     */
-    private static List<DelayedImage> readGifFrames(File media) throws IOException {
-        List<DelayedImage> frames = new ArrayList<>();
-        AnimatedGif gif = AnimatedGifReader.read(ImageSource.of(media));
-
-        for (int i = 0; i < gif.getFrameCount(); i++) {
-            BufferedImage frame = gif.getFrame(i).awt();
-            int delay = (int) gif.getDelay(i).toMillis();
-            frames.add(new DelayedImage(frame, delay));
-        }
-
-        return frames;
-    }
-
     private static List<DelayedImage> changeSpeed(Collection<DelayedImage> frames, float speedMultiplier) {
         if (frames.size() <= 1) {
             throw new UnsupportedOperationException("Cannot change the speed of a static image.");
@@ -163,9 +170,7 @@ public class GifManipulator extends ImageBasedManipulator {
                 }
 
                 List<BufferedImage> bufferedFrames = delayedImagesToBufferedImages(frames);
-
-                List<BufferedImage> keptFrames = CollectionUtil.keepEveryNthElement(bufferedFrames, DelayedImage.GIF_MINIMUM_DELAY);
-
+                List<BufferedImage> keptFrames = CollectionUtil.keepEveryNthElement(bufferedFrames, DelayedImage.GIF_MINIMUM_DELAY, Image::flush);
                 List<DelayedImage> newFrames = bufferedImagesToDelayedImages(keptFrames);
 
                 for (DelayedImage frame : newFrames) {

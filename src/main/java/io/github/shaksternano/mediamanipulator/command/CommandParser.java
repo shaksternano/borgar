@@ -6,13 +6,17 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.PermissionException;
 
+import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.function.BiFunction;
 
 /**
  * Parses commands from messages.
  */
 public class CommandParser {
+
+    public static final DecimalFormat FORMAT = new DecimalFormat("0.####");
 
     /**
      * Gets a {@link Command} from the command word in a message and executes it.
@@ -40,9 +44,11 @@ public class CommandParser {
                         userMessage.reply("This bot doesn't have the required permissions to execute this command!").queue();
                         Main.LOGGER.error("This bot doesn't have the required permissions needed to execute " + command + "!", e);
                     } catch (IllegalArgumentException e) {
-                        userMessage.reply(e.getMessage() == null ? "Invalid arguments!" : e.getMessage()).queue();
+                        userMessage.reply(e.getMessage() == null ? "Invalid arguments!" : "Invalid arguments: " + e.getMessage()).queue();
+                        Main.LOGGER.warn("Invalid arguments for " + command + "!", e);
                     } catch (MissingArgumentException e) {
-                        userMessage.reply(e.getMessage() == null ? "Missing arguments!" : e.getMessage()).queue();
+                        userMessage.reply(e.getMessage() == null ? "Missing arguments!" : "Missing arguments: " + e.getMessage()).queue();
+                        Main.LOGGER.warn("Missing arguments for " + command + "!", e);
                     } catch (OutOfMemoryError e) {
                         userMessage.reply("The server ran out of memory trying to execute this command! Try again later.").queue();
                         Main.LOGGER.error("Ran out of memory trying to execute " + command + "!", e);
@@ -92,5 +98,35 @@ public class CommandParser {
         }
 
         return arguments;
+    }
+
+    public static int parseIntegerArgument(String[] arguments, int toParseIndex, int defaultValue, MessageChannel triggerChannel, BiFunction<String, String, String> errorMessage) {
+        if (arguments.length > toParseIndex) {
+            String argument = arguments[toParseIndex];
+
+            try {
+                return Integer.decode(argument);
+            } catch (NumberFormatException e) {
+                triggerChannel.sendMessage(errorMessage.apply(argument, String.valueOf(defaultValue))).queue();
+                triggerChannel.sendTyping().queue();
+            }
+        }
+
+        return defaultValue;
+    }
+
+    public static float parseFloatArgument(String[] arguments, int toParseIndex, float defaultValue, MessageChannel triggerChannel, BiFunction<String, String, String> errorMessage) {
+        if (arguments.length > toParseIndex) {
+            String argument = arguments[toParseIndex];
+
+            try {
+                return Float.parseFloat(argument);
+            } catch (NumberFormatException e) {
+                triggerChannel.sendMessage(errorMessage.apply(argument, FORMAT.format(defaultValue))).queue();
+                triggerChannel.sendTyping().queue();
+            }
+        }
+
+        return defaultValue;
     }
 }

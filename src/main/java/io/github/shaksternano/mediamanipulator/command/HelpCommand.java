@@ -6,10 +6,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * A command that displays the all registered commands.
@@ -60,24 +57,6 @@ public class HelpCommand extends Command {
      */
     public static List<Message> getHelpMessages() {
         if (cachedHelpMessages == null) {
-            /*
-            List<Command> commands = CommandRegistry
-                    .getCommands()
-                    .stream()
-                    .sorted()
-                    .collect(ImmutableList.toImmutableList());
-
-            CommandRegistry.getCommands().stream().sorted().forEach(
-                    command -> builder
-                            .append(Command.COMMAND_PREFIX)
-                            .append(command.getName())
-                            .append(" - ")
-                            .append(command.getDescription())
-                            .append("\n\n")
-            );
-
-             */
-
             cachedHelpMessages = createHelpMessages();
         }
 
@@ -119,33 +98,5 @@ public class HelpCommand extends Command {
         messages.add(builder.toString());
 
         return messages;
-    }
-
-    private static List<String> splitMessage(String message) {
-        int maxLength = 2000;
-        if (message.length() > maxLength) {
-            String[] splitMessage = message.split(Pattern.quote("\n"));
-
-            int totalLength = 0;
-            StringBuilder builder = new StringBuilder();
-            List<String> messages = new ArrayList<>();
-
-            for (String line : splitMessage) {
-                totalLength += line.length();
-                if (totalLength <= maxLength) {
-                    builder.append(line).append("\n");
-                } else {
-                    messages.add(builder.toString());
-                    builder = new StringBuilder(line);
-                    totalLength = line.length();
-                }
-            }
-
-            messages.add(builder.toString());
-
-            return messages;
-        } else {
-            return ImmutableList.of(message);
-        }
     }
 }

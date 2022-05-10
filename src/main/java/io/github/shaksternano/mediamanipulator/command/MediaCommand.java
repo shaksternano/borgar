@@ -66,6 +66,9 @@ public abstract class MediaCommand extends Command {
                             Main.LOGGER.error(failSend, throwable);
                         });
                     }
+                } catch (InvalidMediaException e) {
+                    userMessage.reply(e.getMessage() == null ? "Invalid media!" : "Invalid media: " + e.getMessage()).queue();
+                    Main.LOGGER.error("Invalid media!", e);
                 } catch (UnsupportedOperationException e) {
                     String unsupportedMessage = "This operation is not supported on files with type \"" + fileType + "\"!";
 
@@ -74,6 +77,7 @@ public abstract class MediaCommand extends Command {
                     }
 
                     userMessage.reply(unsupportedMessage).queue();
+                    Main.LOGGER.warn("Unsupported operation!", e);
                 } catch (IOException e) {
                     throw new UncheckedIOException(e);
                 } catch (OutOfMemoryError e) {

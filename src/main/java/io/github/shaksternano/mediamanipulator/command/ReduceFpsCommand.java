@@ -24,16 +24,13 @@ public class ReduceFpsCommand extends MediaCommand {
 
     @Override
     public File applyOperation(File media, String[] arguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
-        int fpsReductionMultiplier = DEFAULT_FPS_REDUCTION_MULTIPLIER;
-
-        if (arguments.length > 0) {
-            try {
-                fpsReductionMultiplier = Integer.parseInt(arguments[0]);
-            } catch (NumberFormatException e) {
-                event.getMessage().reply("FPS reduction multiplier \"" + arguments[0] + "\" is not a whole number. Using default value of " + fpsReductionMultiplier + ".").queue();
-            }
-        }
-
+        int fpsReductionMultiplier = CommandParser.parseIntegerArgument(
+                arguments,
+                0,
+                DEFAULT_FPS_REDUCTION_MULTIPLIER,
+                event.getChannel(),
+                (argument, defaultValue) -> "FPS reduction multiplier \"" + argument + "\" is not a whole number. Using default value of " + defaultValue + "."
+        );
         return manipulator.reduceFps(media, fpsReductionMultiplier);
     }
 }

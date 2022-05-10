@@ -6,8 +6,10 @@ import io.github.shaksternano.mediamanipulator.util.DelayedImage;
 import io.github.shaksternano.mediamanipulator.util.FileUtil;
 import io.github.shaksternano.mediamanipulator.util.ImageUtil;
 import io.github.shaksternano.mediamanipulator.util.MediaCompression;
+import org.jetbrains.annotations.Nullable;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -26,26 +28,21 @@ public class StaticImageManipulator extends ImageBasedManipulator {
         throw new UnsupportedOperationException("Cannot change the speed of a static image.");
     }
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
-    public File spin(File media, float speed) throws IOException {
-        BufferedImage image = ImageIO.read(media);
+    public File spin(File media, float speed, @Nullable Color backgroundColor) throws IOException {
+        BufferedImage image = ImageUtil.loadImageWithAlpha(media);
         image = MediaCompression.reduceToDisplaySize(image);
-        image = ImageUtil.addAlpha(image);
 
-        int width = image.getWidth();
-        int height = image.getHeight();
-        int maxDimension = Math.max(width, height);
+        int maxDimension = Math.max(image.getWidth(), image.getHeight());
         float absoluteSpeed = Math.abs(speed);
 
-        int frameCount = 150;
+        int framesPerRotation = 150;
         if (absoluteSpeed >= 1) {
-            frameCount = Math.max((int) (frameCount / absoluteSpeed), 1);
+            framesPerRotation = Math.max((int) (framesPerRotation / absoluteSpeed), 1);
         }
 
-        Map<Integer, DelayedImage> indexedFrames = new LinkedHashMap<>(frameCount);
-
-        for (int i = 0; i < frameCount; i++) {
+        Map<Integer, DelayedImage> indexedFrames = new LinkedHashMap<>(framesPerRotation);
+        for (int i = 0; i < framesPerRotation; i++) {
             int delay = DelayedImage.GIF_MINIMUM_DELAY;
             if (absoluteSpeed < 1) {
                 delay /= absoluteSpeed;
@@ -54,27 +51,7 @@ public class StaticImageManipulator extends ImageBasedManipulator {
             indexedFrames.put(i, new DelayedImage(image, delay));
         }
 
-        final int finalFrameCount = frameCount;
-        indexedFrames.entrySet().parallelStream().forEach(bufferedImageEntry -> {
-            int index = bufferedImageEntry.getKey();
-            DelayedImage frame = bufferedImageEntry.getValue();
-            BufferedImage oldFrame = frame.getImage();
-            float angle = 360 * ((index + 1F) / finalFrameCount);
-
-            if (speed < 0) {
-                angle = -angle;
-            }
-
-            frame.setImage(ImageUtil.rotate(oldFrame, angle, maxDimension, maxDimension));
-            oldFrame.flush();
-        });
-
-        File outputFile = FileUtil.getUniqueTempFile(Files.getNameWithoutExtension(media.getName()) + "_spun.gif");
-        media.delete();
-
-        ImageUtil.writeFramesToGifFile(indexedFrames.values(), outputFile);
-        outputFile = MediaManipulators.GIF.compress(outputFile);
-        return outputFile;
+        return spinFrames(indexedFrames, speed, framesPerRotation, maxDimension, media, backgroundColor);
     }
 
     @Override
@@ -89,11 +66,9 @@ public class StaticImageManipulator extends ImageBasedManipulator {
         if (justRenameFile) {
             Files.move(media, gifFile);
         } else {
-            BufferedImage nonGifImage = ImageIO.read(media);
-            BufferedImage nonGifImageWithAlpha = ImageUtil.addAlpha(nonGifImage);
-            ImageIO.write(nonGifImageWithAlpha, "gif", gifFile);
+            BufferedImage nonGifImage = ImageUtil.loadImageWithAlpha(media);
+            ImageIO.write(nonGifImage, "gif", gifFile);
             nonGifImage.flush();
-            nonGifImageWithAlpha.flush();
         }
 
         return gifFile;

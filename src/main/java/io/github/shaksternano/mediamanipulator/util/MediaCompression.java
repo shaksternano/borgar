@@ -20,6 +20,7 @@ public class MediaCompression {
         if (image.getWidth() > MediaCompression.DISCORD_MAX_DISPLAY_WIDTH) {
             image = ImmutableImage.wrapAwt(image).scaleToWidth(MediaCompression.DISCORD_MAX_DISPLAY_WIDTH).awt();
             oldImage.flush();
+            oldImage = image;
         }
 
         if (image.getHeight() > MediaCompression.DISCORD_MAX_DISPLAY_HEIGHT) {

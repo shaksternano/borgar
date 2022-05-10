@@ -50,24 +50,20 @@ public class StretchCommand extends MediaCommand {
      */
     @Override
     public File applyOperation(File media, String[] arguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
-        float widthMultiplier = DEFAULT_WIDTH_MULTIPLIER;
-        float heightMultiplier = DEFAULT_HEIGHT_MULTIPLIER;
-
-        if (arguments.length > 0) {
-            try {
-                widthMultiplier = Float.parseFloat(arguments[0]);
-                if (arguments.length > 1) {
-                    try {
-                        heightMultiplier = Float.parseFloat(arguments[1]);
-                    } catch (NumberFormatException e) {
-                        event.getMessage().reply("Height multiplier \"" + arguments[0] + "\" is not a number. Using default value of " + widthMultiplier + ".").queue();
-                    }
-                }
-            } catch (NumberFormatException e) {
-                event.getMessage().reply("Width multiplier \"" + arguments[0] + "\" is not a number. Using default value of " + widthMultiplier + ".").queue();
-            }
-        }
-
+        float widthMultiplier = CommandParser.parseFloatArgument(
+                arguments,
+                0,
+                DEFAULT_WIDTH_MULTIPLIER,
+                event.getChannel(),
+                (argument, defaultValue) -> "Width multiplier \"" + argument + "\" is not a number. Using default value of " + defaultValue + "."
+        );
+        float heightMultiplier = CommandParser.parseFloatArgument(
+                arguments,
+                1,
+                DEFAULT_HEIGHT_MULTIPLIER,
+                event.getChannel(),
+                (argument, defaultValue) -> "Height multiplier \"" + argument + "\" is not a number. Using default value of " + defaultValue + "."
+        );
         return manipulator.stretch(media, widthMultiplier, heightMultiplier, RAW);
     }
 }

@@ -1,9 +1,12 @@
 package io.github.shaksternano.mediamanipulator.mediamanipulator;
 
 import com.google.common.io.Files;
+import io.github.shaksternano.mediamanipulator.command.InvalidMediaException;
+import io.github.shaksternano.mediamanipulator.util.DelayedImage;
 import io.github.shaksternano.mediamanipulator.util.FileUtil;
 import io.github.shaksternano.mediamanipulator.util.Fonts;
 import io.github.shaksternano.mediamanipulator.util.ImageUtil;
+import org.jetbrains.annotations.Nullable;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -11,6 +14,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.Map;
 import java.util.function.Function;
 
 /**
@@ -50,7 +54,7 @@ public abstract class ImageBasedManipulator implements MediaManipulator {
 
                 BufferedImage speechBubbled;
                 if (cutOut) {
-                    speechBubbled = ImageUtil.cutoutImage(image, resizedSpeechBubble, 0, 0);
+                    speechBubbled = ImageUtil.cutoutImage(image, resizedSpeechBubble, 0, 0, 0xFFFFFF);
                 } else {
                     BufferedImage filledSpeechBubble = ImageUtil.fill(resizedSpeechBubble, Color.WHITE);
                     speechBubbled = ImageUtil.overlayImage(image, filledSpeechBubble, 0, -filledSpeechBubble.getHeight(), true, null);
@@ -62,33 +66,30 @@ public abstract class ImageBasedManipulator implements MediaManipulator {
                 return speechBubbled;
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
+            } catch (RuntimeException e) {
+                String message = e.getMessage();
+                if (message != null && message.contains("Error doing rescale. Target size was")) {
+                    throw new InvalidMediaException("Image is too small!");
+                } else {
+                    throw e;
+                }
             }
         }, "speech_bubbled", true);
     }
 
     @Override
-    public File rotate(File media, float degrees) throws IOException {
-        return applyToEachFrame(media, image -> ImageUtil.rotate(image, degrees, null, null), "rotated", true);
+    public File rotate(File media, float degrees, @Nullable Color backgroundColor) throws IOException {
+        return applyToEachFrame(media, image -> ImageUtil.rotate(image, degrees, null, null, backgroundColor), "rotated", true);
     }
 
     @Override
     public File makePngOrTransparent(File media) throws IOException {
-        String fileType = FileUtil.getFileType(media);
-        File newPngFile = FileUtil.getUniqueTempFile(Files.getNameWithoutExtension(media.getName()) + ".png");
-        BufferedImage image = ImageIO.read(media);
-
-        if (fileType.equals("png")) {
-            if (image.getColorModel().hasAlpha()) {
-                throw new UnsupportedOperationException("The file is already a PNG file and already has transparency!");
-            }
-        }
-
-        BufferedImage imageWithAlpha = ImageUtil.addAlpha(image);
+        File pngFile = FileUtil.getUniqueTempFile(Files.getNameWithoutExtension(media.getName()) + ".png");
+        BufferedImage image = ImageUtil.loadImageWithAlpha(media);
+        ImageIO.write(image, "png", pngFile);
         image.flush();
-        ImageIO.write(imageWithAlpha, "png", newPngFile);
-        imageWithAlpha.flush();
 
-        return newPngFile;
+        return pngFile;
     }
 
     /**
@@ -101,4 +102,28 @@ public abstract class ImageBasedManipulator implements MediaManipulator {
      * @throws IOException If an error occurs while applying the operation.
      */
     protected abstract File applyToEachFrame(File media, Function<BufferedImage, BufferedImage> operation, String operationName, boolean compressionNeeded) throws IOException;
+
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    protected File spinFrames(Map<Integer, DelayedImage> indexedFrames, float speed, int framesPerRotation, int maxDimension, File originalMedia, @Nullable Color backgroundColor) throws IOException {
+        indexedFrames.entrySet().parallelStream().forEach(delayedImageEntry -> {
+            float index = delayedImageEntry.getKey();
+            DelayedImage frame = delayedImageEntry.getValue();
+            BufferedImage originalFrame = frame.getImage();
+            float angle = 360 * (index / framesPerRotation);
+
+            if (speed < 0) {
+                angle = -angle;
+            }
+
+            frame.setImage(ImageUtil.rotate(originalFrame, angle, maxDimension, maxDimension, backgroundColor));
+            originalFrame.flush();
+        });
+
+        File outputFile = FileUtil.getUniqueTempFile(Files.getNameWithoutExtension(originalMedia.getName()) + "_spun.gif");
+        originalMedia.delete();
+
+        ImageUtil.writeFramesToGifFile(indexedFrames.values(), outputFile);
+        outputFile = compress(outputFile);
+        return outputFile;
+    }
 }

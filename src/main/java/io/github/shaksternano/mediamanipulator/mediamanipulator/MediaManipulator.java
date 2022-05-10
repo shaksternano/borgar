@@ -1,5 +1,8 @@
 package io.github.shaksternano.mediamanipulator.mediamanipulator;
 
+import org.jetbrains.annotations.Nullable;
+
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -47,9 +50,9 @@ public interface MediaManipulator {
 
     File speechBubble(File media, boolean cutOut) throws IOException;
 
-    File rotate(File media, float degrees) throws IOException;
+    File rotate(File media, float degrees, @Nullable Color backgroundColor) throws IOException;
 
-    File spin(File media, float speed) throws IOException;
+    File spin(File media, float speed, @Nullable Color backgroundColor) throws IOException;
 
     File compress(File media) throws IOException;
 

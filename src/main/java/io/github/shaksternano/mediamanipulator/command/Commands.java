@@ -23,7 +23,7 @@ public class Commands {
 
     public static final Command SPIN = addCommandToRegister(new SpinCommand(
             "spin",
-            "Spins a media file. Optional arguments: [spin speed, default value is " + FORMAT.format(SpinCommand.DEFAULT_SPIN_SPEED) + "]"
+            "Spins a media file. Optional arguments: [spin speed, default value is " + FORMAT.format(SpinCommand.DEFAULT_SPIN_SPEED) + "], [background RGB colour, by default it is transparent]."
     ));
 
     /**
@@ -83,9 +83,9 @@ public class Commands {
             true
     ));
 
-    public static final Command rotate = addCommandToRegister(new RotateCommand(
+    public static final Command ROTATE = addCommandToRegister(new RotateCommand(
             "rotate",
-            "Rotates media. Optional arguments: [Rotation amount, default value is " + FORMAT.format(RotateCommand.DEFAULT_ROTATION) + "]"
+            "Rotates media. Optional arguments: [Rotation amount, default value is " + FORMAT.format(RotateCommand.DEFAULT_ROTATION) + "], [background RGB colour, by default it is transparent]."
     ));
 
     /**

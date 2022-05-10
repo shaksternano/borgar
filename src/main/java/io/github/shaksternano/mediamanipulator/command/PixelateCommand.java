@@ -23,16 +23,13 @@ public class PixelateCommand extends MediaCommand {
 
     @Override
     public File applyOperation(File media, String[] arguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
-        int pixelationMultiplier = DEFAULT_PIXELATION_MULTIPLIER;
-
-        if (arguments.length > 0) {
-            try {
-                pixelationMultiplier = Integer.parseInt(arguments[0]);
-            } catch (NumberFormatException e) {
-                event.getMessage().reply("Pixelation multiplier \"" + arguments[0] + "\" is not a whole number. Using default value of " + pixelationMultiplier + ".").queue();
-            }
-        }
-
+        int pixelationMultiplier = CommandParser.parseIntegerArgument(
+                arguments,
+                0,
+                DEFAULT_PIXELATION_MULTIPLIER,
+                event.getChannel(),
+                (argument, defaultValue) -> "Pixelation multiplier \"" + argument + "\" is not a number. Using default value of " + defaultValue + "."
+        );
         return manipulator.pixelate(media, pixelationMultiplier);
     }
 }

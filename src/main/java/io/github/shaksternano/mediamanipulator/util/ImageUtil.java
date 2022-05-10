@@ -2,6 +2,9 @@ package io.github.shaksternano.mediamanipulator.util;
 
 import com.sksamuel.scrimage.DisposeMethod;
 import com.sksamuel.scrimage.ImmutableImage;
+import com.sksamuel.scrimage.nio.AnimatedGif;
+import com.sksamuel.scrimage.nio.AnimatedGifReader;
+import com.sksamuel.scrimage.nio.ImageSource;
 import com.sksamuel.scrimage.nio.StreamingGifWriter;
 import io.github.shaksternano.mediamanipulator.Main;
 import org.jetbrains.annotations.Nullable;
@@ -15,13 +18,16 @@ import java.awt.font.LineBreakMeasurer;
 import java.awt.font.TextAttribute;
 import java.awt.font.TextLayout;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorConvertOp;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.AttributedCharacterIterator;
 import java.text.AttributedString;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -252,30 +258,34 @@ public class ImageUtil {
         }
     }
 
-    public static BufferedImage cutoutImage(BufferedImage imageToCut, BufferedImage imageToCutout, int x, int y) {
-        int toCutWidth = imageToCut.getWidth();
-        int toCutHeight = imageToCut.getHeight();
+    public static BufferedImage cutoutImage(BufferedImage imageToCut, BufferedImage imageToCutout, int x, int y, int cutoutColor) {
+        if (cutoutColor > 0xFFFFFF) {
+            throw new IllegalArgumentException("Cutout color must be a 24-bit color!");
+        } else {
+            int toCutWidth = imageToCut.getWidth();
+            int toCutHeight = imageToCut.getHeight();
 
-        int toCutoutWidth = imageToCutout.getWidth();
-        int toCutoutHeight = imageToCutout.getHeight();
+            int toCutoutWidth = imageToCutout.getWidth();
+            int toCutoutHeight = imageToCutout.getHeight();
 
-        int[] toCutPixels = imageToCut.getRGB(0, 0, toCutWidth, toCutHeight, null, 0, toCutWidth);
-        int[] toCutoutPixels = imageToCutout.getRGB(0, 0, toCutoutWidth, toCutoutHeight, null, 0, toCutoutWidth);
+            int[] toCutPixels = imageToCut.getRGB(0, 0, toCutWidth, toCutHeight, null, 0, toCutWidth);
+            int[] toCutoutPixels = imageToCutout.getRGB(0, 0, toCutoutWidth, toCutoutHeight, null, 0, toCutoutWidth);
 
-        for (int i = 0; i < toCutoutPixels.length; i++) {
-            int toCutoutRgb = toCutoutPixels[i];
+            for (int i = 0; i < toCutoutPixels.length; i++) {
+                int toCutoutRgb = toCutoutPixels[i];
 
-            if (!isTransparent(toCutoutRgb)) {
-                int toCutIndex = get1dIndex(Math.min(toCutWidth, x + getX(i, toCutWidth)), Math.min(toCutHeight, y + getY(i, toCutWidth)), toCutWidth);
+                if (!isTransparent(toCutoutRgb)) {
+                    int toCutIndex = get1dIndex(Math.min(toCutWidth, x + getX(i, toCutWidth)), Math.min(toCutHeight, y + getY(i, toCutWidth)), toCutWidth);
 
-                if (toCutIndex < toCutPixels.length) {
-                    toCutPixels[toCutIndex] = 0x00FFFFFF;
+                    if (toCutIndex < toCutPixels.length) {
+                        toCutPixels[toCutIndex] = cutoutColor;
+                    }
                 }
             }
-        }
 
-        imageToCut.setRGB(0, 0, toCutWidth, toCutHeight, toCutPixels, 0, toCutWidth);
-        return imageToCut;
+            imageToCut.setRGB(0, 0, toCutWidth, toCutHeight, toCutPixels, 0, toCutWidth);
+            return imageToCut;
+        }
     }
 
     private static boolean isTransparent(int rgb) {
@@ -294,19 +304,7 @@ public class ImageUtil {
         return index / width;
     }
 
-    public static BufferedImage addAlpha(BufferedImage image) {
-        if (image.getColorModel().hasAlpha()) {
-            return image;
-        } else {
-            BufferedImage imageWithAlpha = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
-            Graphics2D graphics = imageWithAlpha.createGraphics();
-            graphics.drawImage(image, 0, 0, null);
-            graphics.dispose();
-            return imageWithAlpha;
-        }
-    }
-
-    public static BufferedImage rotate(BufferedImage image, float angle, @Nullable Integer newWidth, @Nullable Integer newHeight) {
+    public static BufferedImage rotate(BufferedImage image, float angle, @Nullable Integer newWidth, @Nullable Integer newHeight, @Nullable Color backgroundColor) {
         double sin = Math.abs(Math.sin(Math.toRadians(angle)));
         double cos = Math.abs(Math.cos(Math.toRadians(angle)));
 
@@ -323,12 +321,38 @@ public class ImageUtil {
 
         BufferedImage rotated = new BufferedImage(newWidth, newHeight, image.getType());
         Graphics2D graphics = rotated.createGraphics();
+
+        if (backgroundColor != null) {
+            graphics.setColor(backgroundColor);
+            graphics.fillRect(0, 0, newWidth, newHeight);
+        }
+
         graphics.translate((newWidth - width) / 2, (newHeight - height) / 2);
         graphics.rotate(Math.toRadians(angle), width / 2F, height / 2F);
         graphics.drawRenderedImage(image, null);
         graphics.dispose();
 
         return rotated;
+    }
+
+    /**
+     * Gets the frames of a GIF file.
+     *
+     * @param media The GIF file to get the frames of.
+     * @return A list of {@link DelayedImage}s representing the frames of the GIF file.
+     * @throws IOException If an error occurs while reading the GIF file.
+     */
+    public static List<DelayedImage> readGifFrames(File media) throws IOException {
+        List<DelayedImage> frames = new ArrayList<>();
+        AnimatedGif gif = AnimatedGifReader.read(ImageSource.of(media));
+
+        for (int i = 0; i < gif.getFrameCount(); i++) {
+            BufferedImage frame = gif.getFrame(i).awt();
+            int delay = (int) gif.getDelay(i).toMillis();
+            frames.add(new DelayedImage(frame, delay));
+        }
+
+        return frames;
     }
 
     /**
@@ -342,6 +366,7 @@ public class ImageUtil {
         try (StreamingGifWriter.GifStream gif = writer.prepareStream(outputFile, BufferedImage.TYPE_INT_ARGB)) {
             for (DelayedImage frame : frames) {
                 gif.writeFrame(ImmutableImage.wrapAwt(frame.getImage()), Duration.ofMillis(frame.getDelay()), DisposeMethod.RESTORE_TO_BACKGROUND_COLOR);
+                frame.getImage().flush();
             }
         } catch (Exception e) {
             Main.LOGGER.error("Error writing GIF file", e);
@@ -360,6 +385,23 @@ public class ImageUtil {
             }
 
             return Optional.empty();
+        }
+    }
+
+    public static BufferedImage loadImageWithAlpha(File file) throws IOException {
+        BufferedImage originalImage = ImageIO.read(file);
+        BufferedImage imageWithAlpha = addAlpha(originalImage);
+        originalImage.flush();
+        return imageWithAlpha;
+    }
+
+    public static BufferedImage addAlpha(BufferedImage image) {
+        if (image.getColorModel().hasAlpha()) {
+            return image;
+        } else {
+            BufferedImage imageWithAlpha = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
+            ColorConvertOp convertOp = new ColorConvertOp(null);
+            return convertOp.filter(image, imageWithAlpha);
         }
     }
 }
