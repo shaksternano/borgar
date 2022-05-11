@@ -337,17 +337,27 @@ public class MessageUtil {
         int currentLength = 0;
 
         for (String line : lines) {
-            currentLength += line.length();
-
-            if (currentLength > maxLength) {
+            if (currentLength + line.length() > maxLength) {
                 messages.add(builder.toString());
+                builder = new StringBuilder();
 
-                builder = new StringBuilder(line);
-                builder.append("\n");
-                currentLength = builder.length();
+                if (line.length() > maxLength) {
+                    for (int i = 0; i < line.length(); i++) {
+                        if (i == 0 || i % maxLength != 0) {
+                            builder.append(line.charAt(i));
+                        } else {
+                            messages.add(builder.toString());
+                            builder = new StringBuilder();
+                        }
+                    }
+                } else {
+                    builder.append(line).append("\n");
+                }
             } else {
                 builder.append(line).append("\n");
             }
+
+            currentLength = builder.length();
         }
 
         messages.add(builder.toString());

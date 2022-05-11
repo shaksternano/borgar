@@ -69,7 +69,7 @@ public abstract class ImageBasedManipulator implements MediaManipulator {
             } catch (RuntimeException e) {
                 String message = e.getMessage();
                 if (message != null && message.contains("Error doing rescale. Target size was")) {
-                    throw new InvalidMediaException("Image is too small!");
+                    throw new InvalidMediaException("Image dimensions " + image.getWidth() + " x " + image.getHeight() + " is too small!");
                 } else {
                     throw e;
                 }

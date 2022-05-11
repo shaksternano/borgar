@@ -42,9 +42,9 @@ public class DiscordLogger extends InterceptLogger {
             builder.append(stacktrace);
         }
 
-        List<String> lines = MessageUtil.splitString(builder.toString(), 2000);
-        for (String line : lines) {
-            channel.sendMessage(line).queue();
+        List<String> parts = MessageUtil.splitString(builder.toString(), 2000);
+        for (String part : parts) {
+            channel.sendMessage(part).queue();
         }
     }
 
