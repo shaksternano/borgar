@@ -25,14 +25,14 @@ public class TerminalInputListener implements Runnable {
                 String command = scanner.nextLine();
 
                 if (command.equals("!shutdown")) {
-                    Main.LOGGER.info("Shutting down!");
+                    Main.getLogger().info("Shutting down!");
                     running = false;
                     Main.shutdown();
                 }
             }
         } catch (NoSuchElementException e) {
             running = false;
-            Main.LOGGER.error("Unable to get terminal input!", e);
+            Main.getLogger().error("Unable to get terminal input!", e);
         }
     }
 }

@@ -4,6 +4,7 @@ import io.github.shaksternano.mediamanipulator.command.Command;
 import io.github.shaksternano.mediamanipulator.command.Commands;
 import io.github.shaksternano.mediamanipulator.command.terminal.TerminalInputListener;
 import io.github.shaksternano.mediamanipulator.listener.CommandListener;
+import io.github.shaksternano.mediamanipulator.logging.DiscordLogger;
 import io.github.shaksternano.mediamanipulator.mediamanipulator.MediaManipulators;
 import io.github.shaksternano.mediamanipulator.util.FileUtil;
 import io.github.shaksternano.mediamanipulator.util.Fonts;
@@ -11,7 +12,9 @@ import io.github.shaksternano.mediamanipulator.util.ProgramArguments;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.requests.RestAction;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +29,10 @@ public class Main {
     /**
      * The program's {@link Logger}.
      */
-    public static final Logger LOGGER = LoggerFactory.getLogger("Media Manipulator");
+    private static final Logger logger = LoggerFactory.getLogger("Media Manipulator");
+
+    @Nullable
+    private static Logger discordLogger;
 
     /**
      * The name of the program argument or environment variable that contains the Discord bot token.
@@ -37,6 +43,8 @@ public class Main {
      * The name of the program argument or environment variable that contains the Tenor API key.
      */
     private static final String TENOR_API_KEY_ARGUMENT_NAME = "TENOR_API_KEY";
+
+    private static final String DISCORD_LOG_CHANNEL_ID_ARGUMENT_NAME = "DISCORD_LOG_CHANNEL_ID";
 
     /**
      * The program's {@link JDA} instance.
@@ -60,16 +68,39 @@ public class Main {
      *
      * @param args The program arguments.
      */
-    public static void main(String[] args) {
-        FileUtil.cleanTempDirectory();
+    public static void main(String[] args) throws InterruptedException {
+        System.setProperty("log4j2.contextSelector", "org.apache.logging.log4j.core.async.AsyncLoggerContextSelector");
+
         arguments = new ProgramArguments(args);
-        String discordBotToken = initDiscordBotToken();
+
+        initJda(initDiscordBotToken());
+        jda.awaitReady();
+
+        arguments.getArgumentOrEnvironmentVariable(DISCORD_LOG_CHANNEL_ID_ARGUMENT_NAME).ifPresentOrElse(logChannelIdString -> {
+            try {
+                long logChannelIdLong = Long.parseLong(logChannelIdString);
+                getLogChannel(logChannelIdLong).ifPresentOrElse(logChannel -> {
+                    discordLogger = new DiscordLogger(logger, logChannel);
+                    logger.info("Logging to Discord channel with ID!");
+                }, () -> getLogger().error("Could not find Discord channel with ID!"));
+            } catch (NumberFormatException e) {
+                getLogger().error("Provided Discord channel ID is not a number!");
+            }
+        }, () -> getLogger().info("No log channel ID provided."));
+
+        getLogger().info("Starting!");
+        FileUtil.cleanTempDirectory();
+
         initTenorApiKey();
+
         Commands.registerCommands();
         MediaManipulators.registerMediaManipulators();
-        initJda(discordBotToken);
         Fonts.registerFonts();
-        RestAction.setDefaultFailure(throwable -> Main.LOGGER.error("An error occurred while executing a REST action.", throwable));
+
+        Thread commandThread = new Thread(new TerminalInputListener());
+        commandThread.start();
+
+        configureJda();
     }
 
     /**
@@ -84,10 +115,20 @@ public class Main {
         if (tokenOptional.isPresent()) {
             return tokenOptional.orElseThrow();
         } else {
-            LOGGER.error("Please provide a Discord bot token as an argument in the form of " + DISCORD_BOT_TOKEN_ARGUMENT_NAME + "=<token> or set the environment variable " + DISCORD_BOT_TOKEN_ARGUMENT_NAME + " to the Discord bot token.");
+            getLogger().error("Please provide a Discord bot token as an argument in the form of " + DISCORD_BOT_TOKEN_ARGUMENT_NAME + "=<token> or set the environment variable " + DISCORD_BOT_TOKEN_ARGUMENT_NAME + " to the Discord bot token.");
             System.exit(1);
             throw new AssertionError("The program should not reach this point!");
         }
+    }
+
+    private static Optional<MessageChannel> getLogChannel(long channelId) {
+        Optional<MessageChannel> channelOptional = Optional.ofNullable(jda.getChannelById(MessageChannel.class, channelId));
+
+        if (channelOptional.isEmpty()) {
+            getLogger().error("Could not find channel with ID " + channelId);
+        }
+
+        return channelOptional;
     }
 
     /**
@@ -100,13 +141,13 @@ public class Main {
             String tenorApiKey = apiKeyOptional.orElseThrow();
 
             if (tenorApiKey.equals(Main.getTenorApiKey())) {
-                LOGGER.warn("Tenor API key provided is the same as the default, restricted, rate limited example key (" + getTenorApiKey() + ")!");
+                getLogger().warn("Tenor API key provided is the same as the default, restricted, rate limited example key (" + getTenorApiKey() + ")!");
             } else {
                 Main.tenorApiKey = tenorApiKey;
-                LOGGER.info("Using custom Tenor API key!");
+                getLogger().info("Using custom Tenor API key!");
             }
         } else {
-            LOGGER.warn("No Tenor API key provided, using default, restricted, rate limited example key (" + getTenorApiKey() + ").");
+            getLogger().warn("No Tenor API key provided, using default, restricted, rate limited example key (" + getTenorApiKey() + ").");
         }
     }
 
@@ -118,14 +159,14 @@ public class Main {
     private static void initJda(String token) {
         try {
             jda = JDABuilder.createDefault(token).build();
+            RestAction.setDefaultFailure(throwable -> logger.error("An error occurred while executing a REST action.", throwable));
         } catch (LoginException e) {
-            LOGGER.error("Invalid token!");
+            getLogger().error("Invalid token!");
             System.exit(1);
         }
+    }
 
-        Thread commandThread = new Thread(new TerminalInputListener());
-        commandThread.start();
-
+    private static void configureJda() {
         jda.getPresence().setActivity(Activity.playing("gaming"));
         jda.addEventListener(CommandListener.INSTANCE);
 
@@ -136,7 +177,7 @@ public class Main {
 
         jda.retrieveApplicationInfo().queue(
                 applicationInfo -> ownerId = applicationInfo.getOwner().getIdLong(),
-                throwable -> LOGGER.error("Failed to get the owner ID of this bot, owner exclusive functionality won't available!", throwable)
+                throwable -> getLogger().error("Failed to get the owner ID of this bot, owner exclusive functionality won't available!", throwable)
         );
     }
 
@@ -150,6 +191,10 @@ public class Main {
 
         FileUtil.cleanTempDirectory();
         System.exit(0);
+    }
+
+    public static Logger getLogger() {
+        return discordLogger == null ? logger : discordLogger;
     }
 
     /**

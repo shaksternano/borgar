@@ -128,7 +128,7 @@ public class MessageUtil {
         try {
             return channel.getHistory().retrievePast(amount).complete();
         } catch (RuntimeException e) {
-            Main.LOGGER.error("Error while retrieving previous messages", e);
+            Main.getLogger().error("Error while retrieving previous messages", e);
         }
 
         return ImmutableList.of();
@@ -151,9 +151,9 @@ public class MessageUtil {
                 try {
                     return Optional.of(attachment.downloadToFile(imageFile).get(10, TimeUnit.SECONDS));
                 } catch (ExecutionException | InterruptedException e) {
-                    Main.LOGGER.error("Error downloading image!", e);
+                    Main.getLogger().error("Error downloading image!", e);
                 } catch (TimeoutException e) {
-                    Main.LOGGER.error("Image took too long to download!", e);
+                    Main.getLogger().error("Image took too long to download!", e);
                 }
             }
         }
@@ -273,13 +273,13 @@ public class MessageUtil {
                         BufferedImage image = ImageIO.read(new URL(emojiUrl));
 
                         if (image == null) {
-                            Main.LOGGER.error("Could not read image from URL " + emojiUrl + "!");
+                            Main.getLogger().error("Could not read image from URL " + emojiUrl + "!");
                         } else {
                             image.flush();
                             return Optional.of(emojiUrl);
                         }
                     } catch (MalformedURLException e) {
-                        Main.LOGGER.error("Failed to parse emoji URL " + emojiUrl + "!", e);
+                        Main.getLogger().error("Failed to parse emoji URL " + emojiUrl + "!", e);
                     } catch (IOException ignored) {
                     }
                 }
@@ -324,9 +324,34 @@ public class MessageUtil {
                 }
             }
         } catch (URISyntaxException e) {
-            Main.LOGGER.error("Failed to parse URL " + url + "!", e);
+            Main.getLogger().error("Failed to parse URL " + url + "!", e);
         }
 
         return Optional.empty();
+    }
+
+    public static List<String> splitString(String string, int maxLength) {
+        List<String> messages = new ArrayList<>();
+        String[] lines = string.split("\n");
+        StringBuilder builder = new StringBuilder();
+        int currentLength = 0;
+
+        for (String line : lines) {
+            currentLength += line.length();
+
+            if (currentLength > maxLength) {
+                messages.add(builder.toString());
+
+                builder = new StringBuilder(line);
+                builder.append("\n");
+                currentLength = builder.length();
+            } else {
+                builder.append(line).append("\n");
+            }
+        }
+
+        messages.add(builder.toString());
+
+        return messages;
     }
 }

@@ -54,7 +54,7 @@ public class FileUtil {
             FileUtils.cleanDirectory(tempDir);
         } catch (IllegalArgumentException ignored) {
         } catch (IOException e) {
-            Main.LOGGER.warn("Error while cleaning temp directory!", e);
+            Main.getLogger().warn("Error while cleaning temp directory!", e);
         }
     }
 
@@ -178,7 +178,7 @@ public class FileUtil {
         try {
             fileTypeOptional = ImageUtil.getImageType(file);
         } catch (IOException e) {
-            Main.LOGGER.error("Error getting file type from file " + file + "!", e);
+            Main.getLogger().error("Error getting file type from file " + file + "!", e);
         }
 
         return fileTypeOptional.orElse(Files.getFileExtension(file.getName()));

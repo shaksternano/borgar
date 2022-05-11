@@ -24,7 +24,7 @@ public class Fonts {
             FUTURA_CONDENSED_EXTRA_BOLD = Font.createFont(Font.TRUETYPE_FONT, fontStream);
             GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(FUTURA_CONDENSED_EXTRA_BOLD);
         } catch (FontFormatException | IOException e) {
-            Main.LOGGER.error("Error loading font file!", e);
+            Main.getLogger().error("Error loading font file!", e);
         }
     }
 

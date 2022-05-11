@@ -52,11 +52,11 @@ public class TenorUtil {
                     }
                 }
 
-                Main.LOGGER.error("Error while getting Tenor media URL from Tenor URL " + url + "!");
-                Main.LOGGER.error("Erroneous Tenor JSON contents:\n" + request);
+                Main.getLogger().error("Error while getting Tenor media URL from Tenor URL " + url + "!");
+                Main.getLogger().error("Erroneous Tenor JSON contents:\n" + request);
             }
         } catch (URISyntaxException e) {
-            Main.LOGGER.error("Error parsing URL " + url + "!", e);
+            Main.getLogger().error("Error parsing URL " + url + "!", e);
         }
 
         return Optional.empty();

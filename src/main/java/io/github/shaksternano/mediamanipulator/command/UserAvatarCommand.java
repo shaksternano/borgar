@@ -38,7 +38,7 @@ public class UserAvatarCommand extends Command {
                 url -> event.getMessage().reply(url + "?size=1024").queue(),
                 () -> {
                     event.getMessage().reply("Could not find a user to get the profile picture of!").queue();
-                    Main.LOGGER.error("Could not find a user to get the profile picture of, this shouldn't happen!", new IllegalStateException());
+                    Main.getLogger().error("Could not find a user to get the profile picture of, this shouldn't happen!", new IllegalStateException());
                 }
         );
     }

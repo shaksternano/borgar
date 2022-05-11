@@ -2,6 +2,7 @@ package io.github.shaksternano.mediamanipulator.mediamanipulator;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import io.github.shaksternano.mediamanipulator.command.InvalidArgumentException;
 import io.github.shaksternano.mediamanipulator.util.*;
 import org.jetbrains.annotations.Nullable;
 
@@ -185,7 +186,7 @@ public class GifManipulator extends ImageBasedManipulator {
 
                 return newFrames;
             } else {
-                throw new IllegalArgumentException("Speed multiplier " + speedMultiplier + " is not allowed!");
+                throw new InvalidArgumentException("Speed multiplier " + speedMultiplier + " is not allowed!");
             }
         }
     }

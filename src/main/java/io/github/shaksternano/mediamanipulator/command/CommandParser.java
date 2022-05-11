@@ -42,22 +42,22 @@ public class CommandParser {
                         command.execute(arguments, event);
                     } catch (PermissionException e) {
                         userMessage.reply("This bot doesn't have the required permissions to execute this command!").queue();
-                        Main.LOGGER.error("This bot doesn't have the required permissions needed to execute " + command + "!", e);
-                    } catch (IllegalArgumentException e) {
+                        Main.getLogger().error("This bot doesn't have the required permissions needed to execute " + command + "!", e);
+                    } catch (InvalidArgumentException e) {
                         userMessage.reply(e.getMessage() == null ? "Invalid arguments!" : "Invalid arguments: " + e.getMessage()).queue();
-                        Main.LOGGER.warn("Invalid arguments for " + command + "!", e);
+                        Main.getLogger().warn("Invalid arguments for " + command + "!", e);
                     } catch (MissingArgumentException e) {
                         userMessage.reply(e.getMessage() == null ? "Missing arguments!" : "Missing arguments: " + e.getMessage()).queue();
-                        Main.LOGGER.warn("Missing arguments for " + command + "!", e);
+                        Main.getLogger().warn("Missing arguments for " + command + "!", e);
                     } catch (OutOfMemoryError e) {
                         userMessage.reply("The server ran out of memory trying to execute this command! Try again later.").queue();
-                        Main.LOGGER.error("Ran out of memory trying to execute " + command + "!", e);
+                        Main.getLogger().error("Ran out of memory trying to execute " + command + "!", e);
                     } catch (Throwable t) {
                         userMessage.reply("Error executing command!").queue();
-                        Main.LOGGER.error("Error executing " + command + "!", t);
+                        Main.getLogger().error("Error executing " + command + "!", t);
                     }
                 } catch (PermissionException e) {
-                    Main.LOGGER.error("Missing send message permission!", e);
+                    Main.getLogger().error("Missing send message permission!", e);
                 }
             });
         }

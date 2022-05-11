@@ -45,7 +45,7 @@ public class ResizeCommand extends MediaCommand {
                 float resizeMultiplier = Float.parseFloat(arguments[0]);
                 return manipulator.resize(media, resizeMultiplier, RAW);
             } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("Scale multiplier \"" + arguments[0] + "\" is not a number!");
+                throw new InvalidArgumentException("Scale multiplier \"" + arguments[0] + "\" is not a number!");
             }
         } else {
             throw new MissingArgumentException("Please specify a scale multiplier!");

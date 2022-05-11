@@ -55,7 +55,7 @@ public abstract class MediaCommand extends Command {
                     if (mediaFileSize > FileUtil.DISCORD_MAXIMUM_FILE_SIZE) {
                         long mediaFileSizeInMb = mediaFileSize / (1024 * 1024);
                         userMessage.reply("The size of the edited media file, " + mediaFileSizeInMb + "MB, is too large to send!").queue();
-                        Main.LOGGER.error("File size of edited media was too large to send! (" + mediaFileSize + "B)");
+                        Main.getLogger().error("File size of edited media was too large to send! (" + mediaFileSize + "B)");
                         editedMedia.delete();
                     } else {
                         userMessage.reply(editedMedia).queue(message -> editedMedia.delete(), throwable -> {
@@ -63,12 +63,12 @@ public abstract class MediaCommand extends Command {
                             String failSend = "Failed to send edited media!";
 
                             userMessage.reply(failSend).queue();
-                            Main.LOGGER.error(failSend, throwable);
+                            Main.getLogger().error(failSend, throwable);
                         });
                     }
                 } catch (InvalidMediaException e) {
                     userMessage.reply(e.getMessage() == null ? "Invalid media!" : "Invalid media: " + e.getMessage()).queue();
-                    Main.LOGGER.error("Invalid media!", e);
+                    Main.getLogger().error("Invalid media!", e);
                 } catch (UnsupportedOperationException e) {
                     String unsupportedMessage = "This operation is not supported on files with type \"" + fileType + "\"!";
 
@@ -77,12 +77,12 @@ public abstract class MediaCommand extends Command {
                     }
 
                     userMessage.reply(unsupportedMessage).queue();
-                    Main.LOGGER.warn("Unsupported operation!", e);
+                    Main.getLogger().warn("Unsupported operation!", e);
                 } catch (IOException e) {
                     throw new UncheckedIOException(e);
                 } catch (OutOfMemoryError e) {
                     userMessage.reply("The server ran out of memory! Try again later or use a smaller file.").queue();
-                    Main.LOGGER.error("Ran out of memory!", e);
+                    Main.getLogger().error("Ran out of memory!", e);
                 }
             }, () -> userMessage.reply("Unsupported file type!").queue());
         }, () -> userMessage.reply("No media found!").queue());

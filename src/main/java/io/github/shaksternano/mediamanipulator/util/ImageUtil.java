@@ -369,7 +369,7 @@ public class ImageUtil {
                 frame.getImage().flush();
             }
         } catch (Exception e) {
-            Main.LOGGER.error("Error writing GIF file", e);
+            Main.getLogger().error("Error writing GIF file", e);
         }
     }
 
