@@ -8,14 +8,12 @@ import org.slf4j.event.Level;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.text.DecimalFormat;
 import java.util.List;
 import java.util.regex.Pattern;
 
 public class DiscordLogger extends InterceptLogger {
 
     private final MessageChannel channel;
-    private final DecimalFormat FORMAT = new DecimalFormat("0.########");
 
     public DiscordLogger(Logger logger, MessageChannel channel) {
         super(logger);
@@ -29,15 +27,8 @@ public class DiscordLogger extends InterceptLogger {
 
     @Override
     protected void intercept(Level level, String message, @Nullable Throwable t, Object... arguments) {
-        String messageWithArguments = message;
-
-        for (int i = 0; i < arguments.length; i++) {
-            String argument = arguments[i].toString();
-            messageWithArguments = messageWithArguments.replaceFirst(Pattern.quote("{}"), argument);
-            messageWithArguments = messageWithArguments.replaceAll(Pattern.quote("{" + i + "}"), argument);
-        }
-
         StringBuilder builder = new StringBuilder();
+        String messageWithArguments = formatArguments(message, arguments);
         builder.append("**").append(level.toString()).append("** - ").append(getName()).append("\n").append(messageWithArguments);
 
         if (t != null) {
@@ -55,5 +46,17 @@ public class DiscordLogger extends InterceptLogger {
         for (String line : lines) {
             channel.sendMessage(line).queue();
         }
+    }
+
+    private static String formatArguments(String message, Object... arguments) {
+        String messageWithArguments = message;
+
+        for (int i = 0; i < arguments.length; i++) {
+            String argument = arguments[i].toString();
+            messageWithArguments = messageWithArguments.replaceFirst(Pattern.quote("{}"), argument);
+            messageWithArguments = messageWithArguments.replaceAll(Pattern.quote("{" + i + "}"), argument);
+        }
+
+        return messageWithArguments;
     }
 }
