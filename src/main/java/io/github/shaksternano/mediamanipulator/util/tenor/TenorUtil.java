@@ -35,10 +35,10 @@ public class TenorUtil {
                 JsonElement request = get(requestUrl);
 
                 Optional<JsonElement> resultsArrayElementOptional = JsonUtil.getNestedElement(request, "results");
-                Optional<JsonElement> resultElementOptional = JsonUtil.getArrayElement(resultsArrayElementOptional.orElse(null), 0);
-                Optional<JsonElement> mediaArrayElementOptional = JsonUtil.getNestedElement(resultElementOptional.orElse(null), "media");
-                Optional<JsonElement> mediaElementOptional = JsonUtil.getArrayElement(mediaArrayElementOptional.orElse(null), 0);
-                Optional<JsonElement> mediaUrlElementOptional = JsonUtil.getNestedElement(mediaElementOptional.orElse(null), mediaType.getKey(), "url");
+                Optional<JsonElement> resultElementOptional = JsonUtil.getArrayElement(resultsArrayElementOptional.orElse(JsonUtil.EMPTY), 0);
+                Optional<JsonElement> mediaArrayElementOptional = JsonUtil.getNestedElement(resultElementOptional.orElse(JsonUtil.EMPTY), "media");
+                Optional<JsonElement> mediaElementOptional = JsonUtil.getArrayElement(mediaArrayElementOptional.orElse(JsonUtil.EMPTY), 0);
+                Optional<JsonElement> mediaUrlElementOptional = JsonUtil.getNestedElement(mediaElementOptional.orElse(JsonUtil.EMPTY), mediaType.getKey(), "url");
 
                 if (mediaUrlElementOptional.isPresent()) {
                     JsonElement mediaUrlElement = mediaUrlElementOptional.orElseThrow();

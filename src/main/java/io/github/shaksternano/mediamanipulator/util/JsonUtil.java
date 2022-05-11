@@ -4,7 +4,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -25,31 +24,27 @@ public class JsonUtil {
      * @return An {@link Optional} describing the nested JsonElement.
      * The Optional will be empty if and only if the given JsonElement is null or the path is invalid.
      */
-    public static Optional<JsonElement> getNestedElement(@Nullable JsonElement jsonElement, String... path) {
-        if (jsonElement == null) {
-            return Optional.empty();
-        } else {
-            JsonElement currentElement = jsonElement;
-            Iterator<String> pathIterator = Arrays.asList(path).iterator();
+    public static Optional<JsonElement> getNestedElement(JsonElement jsonElement, String... path) {
+        JsonElement currentElement = jsonElement;
+        Iterator<String> pathIterator = Arrays.asList(path).iterator();
 
-            while (pathIterator.hasNext()) {
-                String key = pathIterator.next();
+        while (pathIterator.hasNext()) {
+            String key = pathIterator.next();
 
-                if (currentElement.isJsonObject()) {
-                    currentElement = currentElement.getAsJsonObject().get(key);
+            if (currentElement.isJsonObject()) {
+                currentElement = currentElement.getAsJsonObject().get(key);
 
-                    if (currentElement == null) {
-                        return Optional.empty();
-                    }
-                } else {
-                    if (pathIterator.hasNext()) {
-                        return Optional.empty();
-                    }
+                if (currentElement == null) {
+                    return Optional.empty();
+                }
+            } else {
+                if (pathIterator.hasNext()) {
+                    return Optional.empty();
                 }
             }
-
-            return Optional.of(currentElement);
         }
+
+        return Optional.of(currentElement);
     }
 
     /**
@@ -60,14 +55,12 @@ public class JsonUtil {
      * @return An {@link Optional} describing the nested JsonElement.
      * The Optional will be empty if and only if the given JsonElement is null, not a JsonArray, or the index is out of bounds.
      */
-    public static Optional<JsonElement> getArrayElement(@Nullable JsonElement jsonElement, int index) {
-        if (jsonElement != null) {
-            if (jsonElement.isJsonArray()) {
-                JsonArray jsonArray = jsonElement.getAsJsonArray();
+    public static Optional<JsonElement> getArrayElement(JsonElement jsonElement, int index) {
+        if (jsonElement.isJsonArray()) {
+            JsonArray jsonArray = jsonElement.getAsJsonArray();
 
-                if (jsonArray.size() > index) {
-                    return Optional.of(jsonArray.get(index));
-                }
+            if (jsonArray.size() > index) {
+                return Optional.of(jsonArray.get(index));
             }
         }
 
