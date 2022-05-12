@@ -35,24 +35,6 @@ public class MediaCompression {
      * Removes frames from a list of {@link DelayedImage}s.
      *
      * @param frames     The list of DelayedImages to remove frames from.
-     * @param fileSize   File size of the media file.
-     * @param targetSize The target file size to compress to.
-     * @return The list of DelayedImages with frames removed.
-     */
-    public static List<DelayedImage> removeFrames(List<DelayedImage> frames, long fileSize, long targetSize) {
-        if (fileSize > targetSize) {
-            float frameRatio = ((float) fileSize / targetSize);
-            frameRatio *= 7;
-            return removeFrames(frames, (int) frameRatio);
-        } else {
-            return frames;
-        }
-    }
-
-    /**
-     * Removes frames from a list of {@link DelayedImage}s.
-     *
-     * @param frames     The list of DelayedImages to remove frames from.
      * @param frameRatio The ratio of frames to keep. For example, if frameRatio is 4, then every 4th frame will be kept.
      * @return The list of DelayedImages with frames removed.
      */

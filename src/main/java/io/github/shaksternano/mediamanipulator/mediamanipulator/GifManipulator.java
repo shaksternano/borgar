@@ -22,12 +22,11 @@ public class GifManipulator extends ImageBasedManipulator {
     @Override
     public File speed(File media, float speedMultiplier) throws IOException {
         List<DelayedImage> frames = ImageUtil.readGifFrames(media);
-        frames = MediaCompression.removeFrames(frames, media.length(), FileUtil.DISCORD_MAXIMUM_FILE_SIZE);
-
         List<DelayedImage> newFrames = changeSpeed(frames, speedMultiplier);
 
         File gifFile = FileUtil.getUniqueTempFile(FileUtil.appendName(media, "_changed_speed").getName());
         ImageUtil.writeFramesToGifFile(newFrames, gifFile);
+        compress(gifFile);
         return gifFile;
     }
 
