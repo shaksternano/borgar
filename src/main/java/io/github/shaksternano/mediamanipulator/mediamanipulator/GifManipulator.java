@@ -23,7 +23,7 @@ public class GifManipulator extends ImageBasedManipulator {
     public File speed(File media, float speedMultiplier) throws IOException {
         List<DelayedImage> frames = ImageUtil.readGifFrames(media);
         List<DelayedImage> newFrames = changeSpeed(frames, speedMultiplier);
-        newFrames.parallelStream().forEach(delayedImage -> delayedImage.setImage(delayedImage.getImage()));
+        newFrames.parallelStream().forEach(delayedImage -> delayedImage.setImage(MediaCompression.reduceToDisplaySize(delayedImage.getImage())));
 
         File gifFile = FileUtil.getUniqueTempFile(FileUtil.appendName(media, "_changed_speed").getName());
         ImageUtil.writeFramesToGifFile(newFrames, gifFile);
