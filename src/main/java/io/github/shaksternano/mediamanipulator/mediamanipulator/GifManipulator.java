@@ -26,7 +26,7 @@ public class GifManipulator extends ImageBasedManipulator {
 
         File gifFile = FileUtil.getUniqueTempFile(FileUtil.appendName(media, "_changed_speed").getName());
         ImageUtil.writeFramesToGifFile(newFrames, gifFile);
-        compress(gifFile);
+        gifFile = compress(gifFile);
         return gifFile;
     }
 
