@@ -69,6 +69,8 @@ public interface MediaManipulator {
 
     File makePngOrTransparent(File media) throws IOException;
 
+    File makeIco(File media) throws IOException;
+
     /**
      * Gets the set of supported media file extensions that this manipulator supports.
      *

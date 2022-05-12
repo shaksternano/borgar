@@ -2,7 +2,7 @@ package io.github.shaksternano.mediamanipulator.mediamanipulator;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Files;
-import io.github.shaksternano.mediamanipulator.util.DelayedImage;
+import io.github.shaksternano.mediamanipulator.util.DurationImage;
 import io.github.shaksternano.mediamanipulator.util.FileUtil;
 import io.github.shaksternano.mediamanipulator.util.ImageUtil;
 import io.github.shaksternano.mediamanipulator.util.MediaCompression;
@@ -41,14 +41,14 @@ public class StaticImageManipulator extends ImageBasedManipulator {
             framesPerRotation = Math.max((int) (framesPerRotation / absoluteSpeed), 1);
         }
 
-        Map<Integer, DelayedImage> indexedFrames = new LinkedHashMap<>(framesPerRotation);
+        Map<Integer, DurationImage> indexedFrames = new LinkedHashMap<>(framesPerRotation);
         for (int i = 0; i < framesPerRotation; i++) {
-            int delay = DelayedImage.GIF_MINIMUM_DELAY;
+            int duration = DurationImage.GIF_MINIMUM_FRAME_DURATION;
             if (absoluteSpeed < 1) {
-                delay /= absoluteSpeed;
+                duration /= absoluteSpeed;
             }
 
-            indexedFrames.put(i, new DelayedImage(image, delay));
+            indexedFrames.put(i, new DurationImage(image, duration));
         }
 
         return spinFrames(indexedFrames, speed, framesPerRotation, maxDimension, media, backgroundColor);
@@ -93,8 +93,7 @@ public class StaticImageManipulator extends ImageBasedManipulator {
                 "png",
                 "jpg",
                 "jpeg",
-                "bmp",
-                "wbmp",
+                "webp",
                 "tif",
                 "tiff"
         );
@@ -112,7 +111,7 @@ public class StaticImageManipulator extends ImageBasedManipulator {
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
     protected File applyToEachFrame(File media, Function<BufferedImage, BufferedImage> operation, String operationName, boolean compressionNeeded) throws IOException {
-        BufferedImage uneditedImage = ImageIO.read(media);
+        BufferedImage uneditedImage = ImageUtil.loadImage(media);
 
         if (compressionNeeded) {
             uneditedImage = MediaCompression.reduceToDisplaySize(uneditedImage);

@@ -15,34 +15,28 @@ public class MediaCompression {
     public static final int DISCORD_MAX_DISPLAY_HEIGHT = 300;
 
     public static BufferedImage reduceToDisplaySize(BufferedImage image) {
+        return reduceToSize(image, DISCORD_MAX_DISPLAY_WIDTH, DISCORD_MAX_DISPLAY_HEIGHT);
+    }
+
+    public static BufferedImage reduceToSize(BufferedImage image, int width, int height) {
         BufferedImage oldImage = image;
-
-        if (image.getWidth() > MediaCompression.DISCORD_MAX_DISPLAY_WIDTH) {
-            image = ImmutableImage.wrapAwt(image).scaleToWidth(MediaCompression.DISCORD_MAX_DISPLAY_WIDTH).awt();
-            oldImage.flush();
-            oldImage = image;
-        }
-
-        if (image.getHeight() > MediaCompression.DISCORD_MAX_DISPLAY_HEIGHT) {
-            image = ImmutableImage.wrapAwt(image).scaleToHeight(MediaCompression.DISCORD_MAX_DISPLAY_HEIGHT).awt();
-            oldImage.flush();
-        }
-
+        image = ImmutableImage.wrapAwt(image).bound(width, height).awt();
+        oldImage.flush();
         return image;
     }
 
     /**
-     * Removes frames from a list of {@link DelayedImage}s.
+     * Removes frames from a list of {@link DurationImage}s.
      *
-     * @param frames     The list of DelayedImages to remove frames from.
+     * @param frames     The list of DurationImages to remove frames from.
      * @param frameRatio The ratio of frames to keep. For example, if frameRatio is 4, then every 4th frame will be kept.
-     * @return The list of DelayedImages with frames removed.
+     * @return The list of DurationImage with frames removed.
      */
-    public static List<DelayedImage> removeFrames(List<DelayedImage> frames, int frameRatio) {
+    public static List<DurationImage> removeFrames(List<DurationImage> frames, int frameRatio) {
         if (frames.size() <= 1) {
             return frames;
         } else {
-            List<DelayedImage> keptFrames = new ArrayList<>();
+            List<DurationImage> keptFrames = new ArrayList<>();
 
             int keptIndex = -1;
             for (int i = 0; i < frames.size(); i++) {
@@ -50,9 +44,9 @@ public class MediaCompression {
                     keptFrames.add(frames.get(i));
                     keptIndex++;
                 } else {
-                    DelayedImage keptFrame = keptFrames.get(keptIndex);
-                    int removedFrameDelay = frames.get(i).getDelay();
-                    keptFrame.incrementDelay(removedFrameDelay);
+                    DurationImage keptFrame = keptFrames.get(keptIndex);
+                    int removedFrameDuration = frames.get(i).getDuration();
+                    keptFrame.incrementDuration(removedFrameDuration);
                 }
             }
 

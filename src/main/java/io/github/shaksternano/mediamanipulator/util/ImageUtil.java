@@ -339,17 +339,17 @@ public class ImageUtil {
      * Gets the frames of a GIF file.
      *
      * @param media The GIF file to get the frames of.
-     * @return A list of {@link DelayedImage}s representing the frames of the GIF file.
+     * @return A list of {@link DurationImage}s representing the frames of the GIF file.
      * @throws IOException If an error occurs while reading the GIF file.
      */
-    public static List<DelayedImage> readGifFrames(File media) throws IOException {
-        List<DelayedImage> frames = new ArrayList<>();
+    public static List<DurationImage> readGifFrames(File media) throws IOException {
+        List<DurationImage> frames = new ArrayList<>();
         AnimatedGif gif = AnimatedGifReader.read(ImageSource.of(media));
 
         for (int i = 0; i < gif.getFrameCount(); i++) {
             BufferedImage frame = gif.getFrame(i).awt();
-            int delay = (int) gif.getDelay(i).toMillis();
-            frames.add(new DelayedImage(frame, delay));
+            int duration = (int) gif.getDelay(i).toMillis();
+            frames.add(new DurationImage(frame, duration));
         }
 
         return frames;
@@ -358,14 +358,14 @@ public class ImageUtil {
     /**
      * Writes the given frames to a GIF file.
      *
-     * @param frames     The {@link DelayedImage} frames to write to the GIF file.
+     * @param frames     The {@link DurationImage} frames to write to the GIF file.
      * @param outputFile The file to write the frames to.
      */
-    public static void writeFramesToGifFile(Iterable<DelayedImage> frames, File outputFile) {
+    public static void writeFramesToGifFile(Iterable<DurationImage> frames, File outputFile) {
         StreamingGifWriter writer = new StreamingGifWriter();
         try (StreamingGifWriter.GifStream gif = writer.prepareStream(outputFile, BufferedImage.TYPE_INT_ARGB)) {
-            for (DelayedImage frame : frames) {
-                gif.writeFrame(ImmutableImage.wrapAwt(frame.getImage()), Duration.ofMillis(frame.getDelay()), DisposeMethod.RESTORE_TO_BACKGROUND_COLOR);
+            for (DurationImage frame : frames) {
+                gif.writeFrame(ImmutableImage.wrapAwt(frame.getImage()), Duration.ofMillis(frame.getDuration()), DisposeMethod.RESTORE_TO_BACKGROUND_COLOR);
                 frame.getImage().flush();
             }
         } catch (Exception e) {
@@ -388,8 +388,12 @@ public class ImageUtil {
         }
     }
 
+    public static BufferedImage loadImage(File file) throws IOException {
+        return ImmutableImage.loader().fromFile(file).awt();
+    }
+
     public static BufferedImage loadImageWithAlpha(File file) throws IOException {
-        BufferedImage originalImage = ImageIO.read(file);
+        BufferedImage originalImage = loadImage(file);
         BufferedImage imageWithAlpha = addAlpha(originalImage);
         originalImage.flush();
         return imageWithAlpha;

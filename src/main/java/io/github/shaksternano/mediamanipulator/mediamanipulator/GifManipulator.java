@@ -21,9 +21,9 @@ public class GifManipulator extends ImageBasedManipulator {
 
     @Override
     public File speed(File media, float speedMultiplier) throws IOException {
-        List<DelayedImage> frames = ImageUtil.readGifFrames(media);
-        List<DelayedImage> newFrames = changeSpeed(frames, speedMultiplier);
-        newFrames.parallelStream().forEach(delayedImage -> delayedImage.setImage(MediaCompression.reduceToDisplaySize(delayedImage.getImage())));
+        List<DurationImage> frames = ImageUtil.readGifFrames(media);
+        List<DurationImage> newFrames = changeSpeed(frames, speedMultiplier);
+        newFrames.parallelStream().forEach(durationImage -> durationImage.setImage(MediaCompression.reduceToDisplaySize(durationImage.getImage())));
 
         File gifFile = FileUtil.getUniqueTempFile(FileUtil.appendName(media, "_changed_speed").getName());
         ImageUtil.writeFramesToGifFile(newFrames, gifFile);
@@ -33,9 +33,9 @@ public class GifManipulator extends ImageBasedManipulator {
 
     @Override
     public File spin(File media, float speed, @Nullable Color backgroundColor) throws IOException {
-        List<DelayedImage> frames = ImageUtil.readGifFrames(media);
-        List<BufferedImage> bufferedFrames = delayedImagesToBufferedImages(frames);
-        List<BufferedImage> keptFrames = CollectionUtil.keepEveryNthElement(bufferedFrames, DelayedImage.GIF_MINIMUM_DELAY, Image::flush);
+        List<DurationImage> frames = ImageUtil.readGifFrames(media);
+        List<BufferedImage> bufferedFrames = durationImagesToBufferedImages(frames);
+        List<BufferedImage> keptFrames = CollectionUtil.keepEveryNthElement(bufferedFrames, DurationImage.GIF_MINIMUM_FRAME_DURATION, Image::flush);
         List<BufferedImage> compressedFrames = new ArrayList<>(keptFrames.size());
 
         for (BufferedImage frame : keptFrames) {
@@ -53,14 +53,14 @@ public class GifManipulator extends ImageBasedManipulator {
         }
 
         int size = framesPerRotation * ((compressedFrames.size() + (framesPerRotation - 1)) / framesPerRotation);
-        Map<Integer, DelayedImage> indexedFrames = new LinkedHashMap<>(size);
+        Map<Integer, DurationImage> indexedFrames = new LinkedHashMap<>(size);
         for (int i = 0; i < size; i++) {
-            int delay = DelayedImage.GIF_MINIMUM_DELAY;
+            int duration = DurationImage.GIF_MINIMUM_FRAME_DURATION;
             if (absoluteSpeed < 1) {
-                delay /= absoluteSpeed;
+                duration /= absoluteSpeed;
             }
 
-            indexedFrames.put(i, new DelayedImage(compressedFrames.get(i % compressedFrames.size()), delay));
+            indexedFrames.put(i, new DurationImage(compressedFrames.get(i % compressedFrames.size()), duration));
         }
 
         return spinFrames(indexedFrames, speed, framesPerRotation, maxDimension, media, backgroundColor);
@@ -69,7 +69,7 @@ public class GifManipulator extends ImageBasedManipulator {
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
     public File reduceFps(File media, int fpsReductionRatio) throws IOException {
-        List<DelayedImage> frames = ImageUtil.readGifFrames(media);
+        List<DurationImage> frames = ImageUtil.readGifFrames(media);
         frames = MediaCompression.removeFrames(frames, fpsReductionRatio);
         File gifFile = FileUtil.getUniqueTempFile(FileUtil.appendName(media, "_fps_reduced").getName());
 
@@ -131,11 +131,11 @@ public class GifManipulator extends ImageBasedManipulator {
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
     protected File applyToEachFrame(File media, Function<BufferedImage, BufferedImage> operation, String operationName, boolean compressionNeeded) throws IOException {
-        List<DelayedImage> frames = ImageUtil.readGifFrames(media);
+        List<DurationImage> frames = ImageUtil.readGifFrames(media);
 
         frames.parallelStream().forEach(
-                delayedImage -> {
-                    BufferedImage uneditedImage = delayedImage.getImage();
+                durationImage -> {
+                    BufferedImage uneditedImage = durationImage.getImage();
 
                     if (compressionNeeded) {
                         uneditedImage = MediaCompression.reduceToDisplaySize(uneditedImage);
@@ -144,7 +144,7 @@ public class GifManipulator extends ImageBasedManipulator {
                     BufferedImage image = operation.apply(uneditedImage);
                     uneditedImage.flush();
 
-                    delayedImage.setImage(image);
+                    durationImage.setImage(image);
                 }
         );
 
@@ -161,21 +161,21 @@ public class GifManipulator extends ImageBasedManipulator {
         return gifFile;
     }
 
-    private static List<DelayedImage> changeSpeed(Collection<DelayedImage> frames, float speedMultiplier) {
+    private static List<DurationImage> changeSpeed(Collection<DurationImage> frames, float speedMultiplier) {
         if (frames.size() <= 1) {
             throw new UnsupportedOperationException("Cannot change the speed of a static image.");
         } else {
             if (speedMultiplier != 1 && speedMultiplier > 0) {
-                for (DelayedImage frame : frames) {
-                    frame.setDelay((int) (frame.getDelay() / speedMultiplier));
+                for (DurationImage frame : frames) {
+                    frame.setDuration((int) (frame.getDuration() / speedMultiplier));
                 }
 
-                List<BufferedImage> bufferedFrames = delayedImagesToBufferedImages(frames);
-                List<BufferedImage> keptFrames = CollectionUtil.keepEveryNthElement(bufferedFrames, DelayedImage.GIF_MINIMUM_DELAY, Image::flush);
-                List<DelayedImage> newFrames = bufferedImagesToDelayedImages(keptFrames);
+                List<BufferedImage> bufferedFrames = durationImagesToBufferedImages(frames);
+                List<BufferedImage> keptFrames = CollectionUtil.keepEveryNthElement(bufferedFrames, DurationImage.GIF_MINIMUM_FRAME_DURATION, Image::flush);
+                List<DurationImage> newFrames = bufferedImagesToDurationImages(keptFrames);
 
-                for (DelayedImage frame : newFrames) {
-                    frame.setDelay(frame.getDelay() * DelayedImage.GIF_MINIMUM_DELAY);
+                for (DurationImage frame : newFrames) {
+                    frame.setDuration(frame.getDuration() * DurationImage.GIF_MINIMUM_FRAME_DURATION);
                 }
 
                 if (newFrames.isEmpty()) {
@@ -191,11 +191,11 @@ public class GifManipulator extends ImageBasedManipulator {
         }
     }
 
-    private static List<BufferedImage> delayedImagesToBufferedImages(Iterable<DelayedImage> delayedFrames) {
+    private static List<BufferedImage> durationImagesToBufferedImages(Iterable<DurationImage> durationFrames) {
         List<BufferedImage> bufferedFrames = new ArrayList<>();
 
-        for (DelayedImage frame : delayedFrames) {
-            for (int i = 0; i < frame.getDelay(); i++) {
+        for (DurationImage frame : durationFrames) {
+            for (int i = 0; i < frame.getDuration(); i++) {
                 bufferedFrames.add(frame.getImage());
             }
         }
@@ -203,24 +203,24 @@ public class GifManipulator extends ImageBasedManipulator {
         return bufferedFrames;
     }
 
-    private static List<DelayedImage> bufferedImagesToDelayedImages(Iterable<BufferedImage> bufferedFrames) {
-        List<DelayedImage> delayedFrames = new ArrayList<>();
+    private static List<DurationImage> bufferedImagesToDurationImages(Iterable<BufferedImage> bufferedFrames) {
+        List<DurationImage> durationFrames = new ArrayList<>();
 
         for (BufferedImage frame : bufferedFrames) {
-            if (delayedFrames.isEmpty()) {
-                delayedFrames.add(new DelayedImage(frame, 1));
+            if (durationFrames.isEmpty()) {
+                durationFrames.add(new DurationImage(frame, 1));
             } else {
-                DelayedImage delayedImage = delayedFrames.get(delayedFrames.size() - 1);
-                BufferedImage lastFrame = delayedImage.getImage();
+                DurationImage durationImage = durationFrames.get(durationFrames.size() - 1);
+                BufferedImage lastFrame = durationImage.getImage();
 
                 if (frame.equals(lastFrame)) {
-                    delayedImage.incrementDelay();
+                    durationImage.incrementDuration();
                 } else {
-                    delayedFrames.add(new DelayedImage(frame, 1));
+                    durationFrames.add(new DurationImage(frame, 1));
                 }
             }
         }
 
-        return delayedFrames;
+        return durationFrames;
     }
 }

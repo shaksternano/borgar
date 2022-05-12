@@ -3,14 +3,14 @@ package io.github.shaksternano.mediamanipulator.util;
 import java.awt.image.BufferedImage;
 
 /**
- * Represents a frame of an animated image file.
+ * Represents a frame with a duration
  */
-public class DelayedImage {
+public class DurationImage {
 
     /**
-     * The minimum frame delay allowed on GIF files.
+     * The minimum frame duration in milliseconds allowed on GIF files.
      */
-    public static final int GIF_MINIMUM_DELAY = 20;
+    public static final int GIF_MINIMUM_FRAME_DURATION = 20;
 
     /**
      * The frame.
@@ -20,17 +20,17 @@ public class DelayedImage {
     /**
      * The amount of time the frame is shown for in milliseconds.
      */
-    private int delay;
+    private int duration;
 
     /**
-     * Creates a new DelayedImage.
+     * Creates a new DurationImage.
      *
      * @param image The frame.
-     * @param delay The amount of time the frame is shown for in milliseconds.
+     * @param duration The amount of time the frame is shown for in milliseconds.
      */
-    public DelayedImage(BufferedImage image, int delay) {
+    public DurationImage(BufferedImage image, int duration) {
         this.image = image;
-        this.delay = delay;
+        this.duration = duration;
     }
 
     /**
@@ -47,8 +47,8 @@ public class DelayedImage {
      *
      * @return The amount of time the frame is shown for in milliseconds.
      */
-    public int getDelay() {
-        return delay;
+    public int getDuration() {
+        return duration;
     }
 
     /**
@@ -63,17 +63,17 @@ public class DelayedImage {
     /**
      * Sets the amount of time the frame is shown for in milliseconds.
      *
-     * @param delay The amount of time the frame is shown for in milliseconds to set.
+     * @param duration The amount of time the frame is shown for in milliseconds to set.
      */
-    public void setDelay(int delay) {
-        this.delay = delay;
+    public void setDuration(int duration) {
+        this.duration = duration;
     }
 
-    public void incrementDelay() {
-        incrementDelay(1);
+    public void incrementDuration() {
+        incrementDuration(1);
     }
 
-    public void incrementDelay(int amount) {
-        delay += amount;
+    public void incrementDuration(int amount) {
+        duration += amount;
     }
 }

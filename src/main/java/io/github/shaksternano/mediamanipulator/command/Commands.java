@@ -108,6 +108,11 @@ public class Commands {
             "Turns media into a PNG file and adds transparency."
     ));
 
+    public static final Command TO_ICO = addCommandToRegister(new ToIcoCommand(
+            "ico",
+            "Turns media into an ICO file."
+    ));
+
     public static final Command SERVER_ICON = addCommandToRegister(new ServerIconCommand(
             "servericon",
             "Gets the icon of the server."

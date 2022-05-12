@@ -2,10 +2,8 @@ package io.github.shaksternano.mediamanipulator.mediamanipulator;
 
 import com.google.common.io.Files;
 import io.github.shaksternano.mediamanipulator.command.InvalidMediaException;
-import io.github.shaksternano.mediamanipulator.util.DelayedImage;
-import io.github.shaksternano.mediamanipulator.util.FileUtil;
-import io.github.shaksternano.mediamanipulator.util.Fonts;
-import io.github.shaksternano.mediamanipulator.util.ImageUtil;
+import io.github.shaksternano.mediamanipulator.util.*;
+import net.ifok.image.image4j.codec.ico.ICOEncoder;
 import org.jetbrains.annotations.Nullable;
 
 import javax.imageio.ImageIO;
@@ -88,8 +86,17 @@ public abstract class ImageBasedManipulator implements MediaManipulator {
         BufferedImage image = ImageUtil.loadImageWithAlpha(media);
         ImageIO.write(image, "png", pngFile);
         image.flush();
-
         return pngFile;
+    }
+
+    @Override
+    public File makeIco(File media) throws IOException {
+        File icoFile = FileUtil.getUniqueTempFile(Files.getNameWithoutExtension(media.getName()) + ".ico");
+        BufferedImage image = ImageUtil.loadImage(media);
+        BufferedImage resizedImage = MediaCompression.reduceToSize(image, 256, 256);
+        ICOEncoder.write(resizedImage, icoFile);
+        resizedImage.flush();
+        return icoFile;
     }
 
     /**
@@ -104,10 +111,10 @@ public abstract class ImageBasedManipulator implements MediaManipulator {
     protected abstract File applyToEachFrame(File media, Function<BufferedImage, BufferedImage> operation, String operationName, boolean compressionNeeded) throws IOException;
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    protected File spinFrames(Map<Integer, DelayedImage> indexedFrames, float speed, int framesPerRotation, int maxDimension, File originalMedia, @Nullable Color backgroundColor) throws IOException {
-        indexedFrames.entrySet().parallelStream().forEach(delayedImageEntry -> {
-            float index = delayedImageEntry.getKey();
-            DelayedImage frame = delayedImageEntry.getValue();
+    protected File spinFrames(Map<Integer, DurationImage> indexedFrames, float speed, int framesPerRotation, int maxDimension, File originalMedia, @Nullable Color backgroundColor) throws IOException {
+        indexedFrames.entrySet().parallelStream().forEach(durationImageEntry -> {
+            float index = durationImageEntry.getKey();
+            DurationImage frame = durationImageEntry.getValue();
             BufferedImage originalFrame = frame.getImage();
             float angle = 360 * (index / framesPerRotation);
 
