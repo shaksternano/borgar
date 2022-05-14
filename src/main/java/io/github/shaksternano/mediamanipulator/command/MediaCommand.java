@@ -29,7 +29,7 @@ public abstract class MediaCommand extends Command {
     }
 
     /**
-     * Gets a media file using {@link MessageUtil#downloadImage(Message, File)},
+     * Gets a media file using {@link FileUtil#downloadFile(String, String)},
      * edits it using {@link #applyOperation(File, String[], MediaManipulator, MessageReceivedEvent)},
      * and then sends it to the channel where the command was triggered.
      *
@@ -42,7 +42,7 @@ public abstract class MediaCommand extends Command {
         Message userMessage = event.getMessage();
         File tempDirectory = FileUtil.getTempDirectory();
 
-        MessageUtil.downloadImage(userMessage, tempDirectory).ifPresentOrElse(file -> {
+        MessageUtil.downloadImage(userMessage, tempDirectory.toString()).ifPresentOrElse(file -> {
             String fileType = FileUtil.getFileType(file);
 
             MediaManipulatorRegistry.getManipulator(fileType).ifPresentOrElse(manipulator -> {
@@ -89,7 +89,7 @@ public abstract class MediaCommand extends Command {
     }
 
     /**
-     * Applies an operation to the media file specified by {@link MessageUtil#downloadImage(Message, File)}
+     * Applies an operation to the media file specified by {@link FileUtil#downloadFile(String, String)}.
      *
      * @param media       The media file to apply the operation to
      * @param arguments   The arguments of the command.

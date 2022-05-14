@@ -2,6 +2,8 @@ package io.github.shaksternano.mediamanipulator.util;
 
 import com.google.common.io.Files;
 import io.github.shaksternano.mediamanipulator.Main;
+import io.github.shaksternano.mediamanipulator.util.tenor.TenorMediaType;
+import io.github.shaksternano.mediamanipulator.util.tenor.TenorUtil;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -70,8 +72,9 @@ public class FileUtil {
      * {@code text_file1.txt}. If there is also a file called {@code text_file1.txt}, the file will be created as
      * {@code text_file2.txt}, and so on.
      */
-    public static File getUniqueFile(@Nullable File directory, String fileName) {
-        return getUniqueFile(directory + File.separator + fileName, false);
+    public static File getUniqueFile(@Nullable String directory, String fileName) {
+        String filePath = directory == null ? fileName : directory + File.separator + fileName;
+        return getUniqueFile(filePath, false);
     }
 
     /**
@@ -121,7 +124,7 @@ public class FileUtil {
      * {@code text_file2.txt}, and so on.
      */
     public static File getUniqueTempFile(String fileName) {
-        File tempFile = getUniqueFile(getTempDirectory(), fileName);
+        File tempFile = getUniqueFile(getTempDirectory().toString(), fileName);
         tempFile.deleteOnExit();
         return tempFile;
     }
@@ -156,17 +159,52 @@ public class FileUtil {
     }
 
     /**
+     * Downloads a file from a URL.
+     *
+     * @param url         The text to download the image from.
+     * @param directory    The directory to download the image to.
+     * @return An {@link Optional} describing the image file.
+     */
+    public static Optional<File> downloadFile(String url, String directory) {
+        try {
+            Optional<String> tenorMediaUrlOptional = TenorUtil.getTenorMediaUrl(url, TenorMediaType.GIF_NORMAL, Main.getTenorApiKey());
+            if (tenorMediaUrlOptional.isPresent()) {
+                url = tenorMediaUrlOptional.orElseThrow();
+            }
+
+            String fileNameWithoutExtension = Files.getNameWithoutExtension(url);
+            String extension = Files.getFileExtension(url);
+
+            if (extension.isEmpty()) {
+                extension = "png";
+            } else {
+                int index = extension.indexOf("?");
+                if (index != -1) {
+                    extension = extension.substring(0, index);
+                }
+            }
+
+            String fileName = fileNameWithoutExtension + "." + extension;
+            File imageFile = getUniqueFile(directory, fileName);
+            downloadFile(url, imageFile);
+            return Optional.of(imageFile);
+        } catch (IOException ignored) {
+        }
+
+        return Optional.empty();
+    }
+
+    /**
      * Downloads a file from a web URL.
      *
-     * @param webUrl The URL to download the file from.
+     * @param url The URL to download the file from.
      * @param file   The file to download to.
      * @throws IOException If there was an error occurred while downloading the file.
      */
-    public static void downloadFile(String webUrl, File file) throws IOException {
-        URL url = new URL(webUrl);
+    public static void downloadFile(String url, File file) throws IOException {
         try (
                 FileOutputStream outputStream = new FileOutputStream(file);
-                ReadableByteChannel readableByteChannel = Channels.newChannel(url.openStream())
+                ReadableByteChannel readableByteChannel = Channels.newChannel(new URL(url).openStream())
         ) {
             outputStream.getChannel().transferFrom(readableByteChannel, 0, MAXIMUM_FILE_SIZE_TO_DOWNLOAD);
         }

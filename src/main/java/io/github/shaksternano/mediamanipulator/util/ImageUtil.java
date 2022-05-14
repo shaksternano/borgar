@@ -7,6 +7,11 @@ import com.sksamuel.scrimage.nio.AnimatedGifReader;
 import com.sksamuel.scrimage.nio.ImageSource;
 import com.sksamuel.scrimage.nio.StreamingGifWriter;
 import io.github.shaksternano.mediamanipulator.Main;
+import io.github.shaksternano.mediamanipulator.graphics.TextAlignment;
+import io.github.shaksternano.mediamanipulator.graphics.drawable.CompositeDrawable;
+import io.github.shaksternano.mediamanipulator.graphics.drawable.Drawable;
+import io.github.shaksternano.mediamanipulator.graphics.drawable.ParagraphDrawable;
+import io.github.shaksternano.mediamanipulator.graphics.drawable.TextDrawable;
 import org.jetbrains.annotations.Nullable;
 
 import javax.imageio.ImageIO;
@@ -22,6 +27,7 @@ import java.awt.image.ColorConvertOp;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.text.AttributedCharacterIterator;
 import java.text.AttributedString;
 import java.time.Duration;
@@ -29,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 /**
  * Contains static methods for dealing with images.
@@ -37,7 +44,7 @@ public class ImageUtil {
 
     public static BufferedImage getImageResource(String resourcePath) throws IOException {
         try (InputStream imageStream = FileUtil.getResource(resourcePath)) {
-            return ImageIO.read(imageStream);
+            return readImage(imageStream);
         }
     }
 
@@ -49,7 +56,7 @@ public class ImageUtil {
      * @param font    The font to use for the caption.
      * @return The image with the caption added.
      */
-    public static BufferedImage captionImage(BufferedImage image, String caption, Font font) {
+    public static BufferedImage captionImageOld(BufferedImage image, String caption, Font font) {
         font = font.deriveFont(image.getWidth() / 10F);
         int padding = (int) (image.getWidth() * 0.04);
         Graphics2D graphics = image.createGraphics();
@@ -65,7 +72,7 @@ public class ImageUtil {
         );
 
         graphics.setFont(font);
-        int fillHeight = calculateCaptionBoxHeight(caption, graphics, padding, padding, image.getWidth());
+        int fillHeight = calculateCaptionBoxHeightOld(caption, graphics, padding, padding, image.getWidth());
         graphics.dispose();
 
         BufferedImage resizedImage = new BufferedImage(image.getWidth(), image.getHeight() + fillHeight, image.getType());
@@ -90,7 +97,7 @@ public class ImageUtil {
 
         graphics.setColor(Color.BLACK);
 
-        drawText(caption, graphics, padding, padding, resizedImage.getWidth());
+        drawTextOld(caption, graphics, padding, padding, resizedImage.getWidth());
 
         graphics.dispose();
         return resizedImage;
@@ -106,7 +113,7 @@ public class ImageUtil {
      * @param imageWidth The width of the image being captioned.
      * @return The height of the caption box.
      */
-    private static int calculateCaptionBoxHeight(String text, Graphics2D graphics, int paddingX, int paddingY, float imageWidth) {
+    private static int calculateCaptionBoxHeightOld(String text, Graphics2D graphics, int paddingX, int paddingY, float imageWidth) {
         AttributedString attributedString = new AttributedString(text);
         attributedString.addAttribute(TextAttribute.FONT, graphics.getFont());
 
@@ -131,6 +138,60 @@ public class ImageUtil {
         return height;
     }
 
+    public static BufferedImage captionImage(BufferedImage image, String caption, Font font) {
+        font = font.deriveFont(image.getWidth() / 10F);
+        int padding = (int) (image.getWidth() * 0.04);
+        Graphics2D graphics = image.createGraphics();
+
+        graphics.setRenderingHint(
+                RenderingHints.KEY_FRACTIONALMETRICS,
+                RenderingHints.VALUE_FRACTIONALMETRICS_ON
+        );
+
+        graphics.setRenderingHint(
+                RenderingHints.KEY_TEXT_ANTIALIASING,
+                RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB
+        );
+
+        graphics.setFont(font);
+
+        CompositeDrawable drawable = new ParagraphDrawable(TextAlignment.CENTER, image.getWidth() - (padding * 2), 0);
+        String[] words = caption.split(Pattern.quote(" "));
+        for (String word : words) {
+            drawable.addPart(new TextDrawable(word));
+        }
+
+        int fillHeight = drawable.getHeight(graphics) + (padding * 2);
+        graphics.dispose();
+
+        BufferedImage resizedImage = new BufferedImage(image.getWidth(), image.getHeight() + fillHeight, image.getType());
+
+        graphics = resizedImage.createGraphics();
+        graphics.setFont(font);
+
+        graphics.drawImage(image, 0, fillHeight, null);
+
+        graphics.setRenderingHint(
+                RenderingHints.KEY_FRACTIONALMETRICS,
+                RenderingHints.VALUE_FRACTIONALMETRICS_ON
+        );
+
+        graphics.setRenderingHint(
+                RenderingHints.KEY_TEXT_ANTIALIASING,
+                RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB
+        );
+
+        graphics.setColor(Color.WHITE);
+        graphics.fillRect(0, 0, resizedImage.getWidth(), fillHeight);
+
+        graphics.setColor(Color.BLACK);
+
+        drawable.draw(graphics, padding, padding);
+
+        graphics.dispose();
+        return resizedImage;
+    }
+
     /**
      * Draws the text of the caption.
      *
@@ -140,7 +201,7 @@ public class ImageUtil {
      * @param paddingY   The vertical padding of each side of the caption box.
      * @param imageWidth The width of the image being captioned.
      */
-    private static void drawText(String text, Graphics2D graphics, int paddingX, int paddingY, int imageWidth) {
+    private static void drawTextOld(String text, Graphics2D graphics, int paddingX, int paddingY, int imageWidth) {
         AttributedString attributedString = new AttributedString(text);
         attributedString.addAttribute(TextAttribute.FONT, graphics.getFont());
 
@@ -198,6 +259,10 @@ public class ImageUtil {
 
     public static BufferedImage fitWidth(BufferedImage toFit, int width) {
         return ImmutableImage.wrapAwt(toFit).scaleToWidth(width).awt();
+    }
+
+    public static BufferedImage fitHeight(BufferedImage toFit, int height) {
+        return ImmutableImage.wrapAwt(toFit).scaleToHeight(height).awt();
     }
 
     public static BufferedImage fill(BufferedImage toFill, Color color) {
@@ -388,24 +453,32 @@ public class ImageUtil {
         }
     }
 
-    public static BufferedImage loadImage(File file) throws IOException {
+    public static BufferedImage readImage(File file) throws IOException {
         return ImmutableImage.loader().fromFile(file).awt();
     }
 
+    public static BufferedImage readImage(InputStream inputStream) throws IOException {
+        return ImmutableImage.loader().fromStream(inputStream).awt();
+    }
+
+    public static BufferedImage readImage(URL url) throws IOException {
+        return ImageIO.read(url);
+    }
+
     public static BufferedImage loadImageWithAlpha(File file) throws IOException {
-        BufferedImage originalImage = loadImage(file);
+        BufferedImage originalImage = readImage(file);
         BufferedImage imageWithAlpha = addAlpha(originalImage);
         originalImage.flush();
         return imageWithAlpha;
     }
 
     public static BufferedImage addAlpha(BufferedImage image) {
-        if (image.getColorModel().hasAlpha()) {
-            return image;
-        } else {
-            BufferedImage imageWithAlpha = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
-            ColorConvertOp convertOp = new ColorConvertOp(null);
-            return convertOp.filter(image, imageWithAlpha);
-        }
+        return convertType(image, BufferedImage.TYPE_INT_ARGB);
+    }
+
+    private static BufferedImage convertType(BufferedImage image, int type) {
+        BufferedImage imageWithAlpha = new BufferedImage(image.getWidth(), image.getHeight(), type);
+        ColorConvertOp convertOp = new ColorConvertOp(null);
+        return convertOp.filter(image, imageWithAlpha);
     }
 }

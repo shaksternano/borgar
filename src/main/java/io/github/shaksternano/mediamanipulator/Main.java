@@ -29,7 +29,7 @@ public class Main {
     /**
      * The program's {@link Logger}.
      */
-    private static final Logger logger = LoggerFactory.getLogger("Media Manipulator");
+    private static Logger logger;
 
     @Nullable
     private static Logger discordLogger;
@@ -70,23 +70,13 @@ public class Main {
      */
     public static void main(String[] args) throws InterruptedException {
         System.setProperty("log4j2.contextSelector", "org.apache.logging.log4j.core.async.AsyncLoggerContextSelector");
+        logger = LoggerFactory.getLogger("Media Manipulator");
 
         arguments = new ProgramArguments(args);
 
         initJda(initDiscordBotToken());
-        jda.awaitReady();
 
-        arguments.getArgumentOrEnvironmentVariable(DISCORD_LOG_CHANNEL_ID_ARGUMENT_NAME).ifPresentOrElse(logChannelIdString -> {
-            try {
-                long logChannelIdLong = Long.parseLong(logChannelIdString);
-                getLogChannel(logChannelIdLong).ifPresentOrElse(logChannel -> {
-                    discordLogger = new DiscordLogger(logger, logChannel);
-                    logger.info("Logging to Discord channel with ID!");
-                }, () -> getLogger().error("Could not find Discord channel with ID!"));
-            } catch (NumberFormatException e) {
-                getLogger().error("Provided Discord channel ID is not a number!");
-            }
-        }, () -> getLogger().info("No log channel ID provided."));
+        initDiscordLogger();
 
         getLogger().info("Starting!");
         FileUtil.cleanTempDirectory();
@@ -119,6 +109,20 @@ public class Main {
             System.exit(1);
             throw new AssertionError("The program should not reach this point!");
         }
+    }
+
+    private static void initDiscordLogger() {
+        arguments.getArgumentOrEnvironmentVariable(DISCORD_LOG_CHANNEL_ID_ARGUMENT_NAME).ifPresentOrElse(logChannelIdString -> {
+            try {
+                long logChannelIdLong = Long.parseLong(logChannelIdString);
+                getLogChannel(logChannelIdLong).ifPresentOrElse(logChannel -> {
+                    discordLogger = new DiscordLogger(logger, logChannel);
+                    logger.info("Logging to Discord channel with ID!");
+                }, () -> getLogger().error("Could not find Discord channel with ID!"));
+            } catch (NumberFormatException e) {
+                getLogger().error("Provided Discord channel ID is not a number!");
+            }
+        }, () -> getLogger().info("No log channel ID provided."));
     }
 
     private static Optional<MessageChannel> getLogChannel(long channelId) {
@@ -160,10 +164,15 @@ public class Main {
         try {
             jda = JDABuilder.createDefault(token).build();
             RestAction.setDefaultFailure(throwable -> logger.error("An error occurred while executing a REST action.", throwable));
+            jda.awaitReady();
+            return;
         } catch (LoginException e) {
             getLogger().error("Invalid token!");
-            System.exit(1);
+        } catch (InterruptedException e) {
+            getLogger().error("Interrupted while waiting for JDA to be ready!", e);
         }
+
+        System.exit(1);
     }
 
     private static void configureJda() {

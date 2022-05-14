@@ -92,7 +92,7 @@ public abstract class ImageBasedManipulator implements MediaManipulator {
     @Override
     public File makeIco(File media) throws IOException {
         File icoFile = FileUtil.getUniqueTempFile(Files.getNameWithoutExtension(media.getName()) + ".ico");
-        BufferedImage image = ImageUtil.loadImage(media);
+        BufferedImage image = ImageUtil.readImage(media);
         BufferedImage resizedImage = MediaCompression.reduceToSize(image, 256, 256);
         ICOEncoder.write(resizedImage, icoFile);
         resizedImage.flush();

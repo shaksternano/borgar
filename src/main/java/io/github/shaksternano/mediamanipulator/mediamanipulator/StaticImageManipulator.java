@@ -111,7 +111,7 @@ public class StaticImageManipulator extends ImageBasedManipulator {
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
     protected File applyToEachFrame(File media, Function<BufferedImage, BufferedImage> operation, String operationName, boolean compressionNeeded) throws IOException {
-        BufferedImage uneditedImage = ImageUtil.loadImage(media);
+        BufferedImage uneditedImage = ImageUtil.readImage(media);
 
         if (compressionNeeded) {
             uneditedImage = MediaCompression.reduceToDisplaySize(uneditedImage);

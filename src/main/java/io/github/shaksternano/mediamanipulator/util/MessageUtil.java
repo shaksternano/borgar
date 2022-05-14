@@ -1,10 +1,7 @@
 package io.github.shaksternano.mediamanipulator.util;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.io.Files;
 import io.github.shaksternano.mediamanipulator.Main;
-import io.github.shaksternano.mediamanipulator.util.tenor.TenorMediaType;
-import io.github.shaksternano.mediamanipulator.util.tenor.TenorUtil;
 import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -18,14 +15,11 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -39,30 +33,28 @@ public class MessageUtil {
     private static final int MAX_PAST_MESSAGES_TO_CHECK = 50;
 
     /**
-     * A pattern to extract web URLs from a string.
-     */
-    private static final Pattern WEB_URL_PATTERN = Pattern.compile("\\b((?:https?|ftp|file)://[-a-zA-Z\\d+&@#/%?=~_|!:, .;]*[-a-zA-Z\\d+&@#/%=~_|])", Pattern.CASE_INSENSITIVE);
-
-    /**
      * Downloads an image.
      *
      * @param message   The message to download the image from.
      * @param directory The directory to download the image to.
      * @return An {@link Optional} describing the image file.
      */
-    public static Optional<File> downloadImage(Message message, File directory) {
+    public static Optional<File> downloadImage(Message message, String directory) {
         return processMessages(message, messageToProcess -> {
             Optional<File> imageFileOptional = downloadAttachmentImage(messageToProcess, directory);
             if (imageFileOptional.isPresent()) {
                 return imageFileOptional;
             } else {
-                imageFileOptional = downloadUrlImage(messageToProcess.getContentRaw(), directory, false);
-                if (imageFileOptional.isPresent()) {
-                    return imageFileOptional;
-                } else {
-                    imageFileOptional = downloadEmbedImage(messageToProcess, directory);
+                List<String> urls = StringUtil.extractUrls(messageToProcess.getContentRaw());
+                if (!urls.isEmpty()) {
+                    imageFileOptional = FileUtil.downloadFile(urls.get(0), directory);
                     if (imageFileOptional.isPresent()) {
                         return imageFileOptional;
+                    } else {
+                        imageFileOptional = downloadEmbedImage(messageToProcess, directory);
+                        if (imageFileOptional.isPresent()) {
+                            return imageFileOptional;
+                        }
                     }
                 }
             }
@@ -141,7 +133,7 @@ public class MessageUtil {
      * @param directory The directory to download the image to.
      * @return An {@link Optional} describing the image file.
      */
-    private static Optional<File> downloadAttachmentImage(Message message, File directory) {
+    private static Optional<File> downloadAttachmentImage(Message message, String directory) {
         List<Message.Attachment> attachments = message.getAttachments();
 
         for (Message.Attachment attachment : attachments) {
@@ -162,133 +154,80 @@ public class MessageUtil {
     }
 
     /**
-     * Downloads an image from a URL.
-     *
-     * @param text         The text to download the image from.
-     * @param directory    The directory to download the image to.
-     * @param isMessageUrl Whether the text is a URL.
-     * @return An {@link Optional} describing the image file.
-     */
-    private static Optional<File> downloadUrlImage(String text, File directory, boolean isMessageUrl) {
-        List<String> urls;
-
-        if (isMessageUrl) {
-            urls = ImmutableList.of(text);
-        } else {
-            urls = extractUrls(text);
-        }
-
-        for (String url : urls) {
-            try {
-                Optional<String> tenorMediaUrlOptional = TenorUtil.getTenorMediaUrl(url, TenorMediaType.GIF_NORMAL, Main.getTenorApiKey());
-                if (tenorMediaUrlOptional.isPresent()) {
-                    url = tenorMediaUrlOptional.orElseThrow();
-                }
-
-                String fileNameWithoutExtension = Files.getNameWithoutExtension(url);
-                String extension = Files.getFileExtension(url);
-
-                if (extension.isEmpty()) {
-                    extension = "png";
-                } else {
-                    int index = extension.indexOf("?");
-                    if (index != -1) {
-                        extension = extension.substring(0, index);
-                    }
-                }
-
-                BufferedImage image;
-
-                String fileName = fileNameWithoutExtension + "." + extension;
-                File imageFile = FileUtil.getUniqueFile(directory, fileName);
-
-                if (extension.equals("gif")) {
-                    FileUtil.downloadFile(url, imageFile);
-                    return Optional.of(imageFile);
-                } else {
-                    image = ImageIO.read(new URL(url));
-
-                    if (image != null) {
-                        ImageIO.write(image, extension, imageFile);
-                        return Optional.of(imageFile);
-                    }
-                }
-            } catch (IOException ignored) {
-            }
-        }
-
-        return Optional.empty();
-    }
-
-    /**
      * Downloads an image file from an embed.
      *
      * @param message   The message containing the embed to download the image from.
      * @param directory The directory to download the image to.
      * @return An {@link Optional} describing the image file.
      */
-    private static Optional<File> downloadEmbedImage(Message message, File directory) {
+    private static Optional<File> downloadEmbedImage(Message message, String directory) {
         List<MessageEmbed> embeds = message.getEmbeds();
 
         for (MessageEmbed embed : embeds) {
             MessageEmbed.ImageInfo imageInfo = embed.getImage();
 
             if (imageInfo != null) {
-                return downloadUrlImage(imageInfo.getUrl(), directory, true);
+                return FileUtil.downloadFile(imageInfo.getUrl(), directory);
             }
         }
 
         return Optional.empty();
-    }
-
-    /**
-     * Extracts all web URLs from a string.
-     *
-     * @param text The text to extract the URLs from.
-     * @return A list of all URLs in the text.
-     */
-    private static List<String> extractUrls(String text) {
-        List<String> urls = new ArrayList<>();
-
-        Matcher matcher = WEB_URL_PATTERN.matcher(text);
-
-        while (matcher.find()) {
-            urls.add(text.substring(matcher.start(0), matcher.end(0)));
-        }
-
-        return urls;
     }
 
     public static Optional<String> getFirstEmojiUrl(Message message) {
+        Map<String, String> emojiUrls = getEmojiUrls(message, true);
+        if (emojiUrls.isEmpty()) {
+            return Optional.empty();
+        } else {
+            return Optional.of(emojiUrls.values().iterator().next());
+        }
+    }
+
+    public static Map<String, String> getEmojiUrls(Message message) {
+        return getEmojiUrls(message, false);
+    }
+
+    public static Map<String, String> getEmojiUrls(Message message, boolean onlyGetFirst) {
+        Map<String, String> emojiUrls = new HashMap<>(1);
         List<Emote> emotes = message.getEmotes();
 
-        if (emotes.isEmpty()) {
-            List<String> characterCodes = message.getContentRaw().codePoints().mapToObj(Integer::toHexString).toList();
+        for (Emote emote : emotes) {
+            emojiUrls.put(emote.getAsMention(), emote.getImageUrl());
 
-            for (String characterCode : characterCodes) {
-                if (characterCode.length() >= 5) {
-                    String emojiUrl = "https://raw.githubusercontent.com/twitter/twemoji/master/assets/72x72/" + characterCode + ".png";
-
-                    try {
-                        BufferedImage image = ImageIO.read(new URL(emojiUrl));
-
-                        if (image == null) {
-                            Main.getLogger().error("Could not read image from URL " + emojiUrl + "!");
-                        } else {
-                            image.flush();
-                            return Optional.of(emojiUrl);
-                        }
-                    } catch (MalformedURLException e) {
-                        Main.getLogger().error("Failed to parse emoji URL " + emojiUrl + "!", e);
-                    } catch (IOException ignored) {
-                    }
-                }
+            if (onlyGetFirst) {
+                return emojiUrls;
             }
-        } else {
-            return Optional.of(emotes.get(0).getImageUrl());
         }
 
-        return Optional.empty();
+        String messageContent = message.getContentRaw();
+        List<String> characterCodes = messageContent.codePoints().mapToObj(Integer::toHexString).toList();
+        for (int i = 0; i < characterCodes.size(); i++) {
+            String characterCode = characterCodes.get(i);
+            if (characterCode.length() >= 5) {
+                String emojiUrl = "https://raw.githubusercontent.com/twitter/twemoji/master/assets/72x72/" + characterCode + ".png";
+
+                try {
+                    BufferedImage emojiImage = ImageUtil.readImage(new URL(emojiUrl));
+
+                    if (emojiImage == null) {
+                        Main.getLogger().error("Could not read image from URL " + emojiUrl + "!");
+                    } else {
+                        emojiImage.flush();
+                        char emojiCharacter = messageContent.charAt(i);
+                        emojiUrls.put(String.valueOf(emojiCharacter), emojiUrl);
+
+                        if (onlyGetFirst) {
+                            return emojiUrls;
+                        }
+                    }
+                } catch (MalformedURLException e) {
+                    Main.getLogger().error("Failed to parse emoji URL " + emojiUrl + "!", e);
+                } catch (IOException ignored) {
+                }
+            }
+        }
+
+        return emojiUrls;
     }
 
     /**
