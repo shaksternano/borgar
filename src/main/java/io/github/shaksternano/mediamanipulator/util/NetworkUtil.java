@@ -9,9 +9,10 @@ public class NetworkUtil {
     public static boolean doesUrlExist(String stringUrl) {
         try {
             URL url = new URL(stringUrl);
-            HttpURLConnection huc = (HttpURLConnection) url.openConnection();
-            huc.setRequestMethod("HEAD");
-            int responseCode = huc.getResponseCode();
+            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestMethod("HEAD");
+            int responseCode = urlConnection.getResponseCode();
+            urlConnection.disconnect();
             return responseCode == HttpURLConnection.HTTP_OK;
         } catch (IOException e) {
             return false;
