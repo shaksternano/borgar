@@ -2,8 +2,12 @@ package io.github.shaksternano.mediamanipulator.mediamanipulator;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import io.github.shaksternano.mediamanipulator.command.InvalidArgumentException;
-import io.github.shaksternano.mediamanipulator.util.*;
+import io.github.shaksternano.mediamanipulator.command.util.InvalidArgumentException;
+import io.github.shaksternano.mediamanipulator.io.FileUtil;
+import io.github.shaksternano.mediamanipulator.util.CollectionUtil;
+import io.github.shaksternano.mediamanipulator.util.DurationImage;
+import io.github.shaksternano.mediamanipulator.util.ImageUtil;
+import io.github.shaksternano.mediamanipulator.util.MediaCompression;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;

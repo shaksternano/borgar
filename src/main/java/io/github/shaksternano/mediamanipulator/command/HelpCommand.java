@@ -1,17 +1,19 @@
 package io.github.shaksternano.mediamanipulator.command;
 
 import com.google.common.collect.ImmutableList;
+import io.github.shaksternano.mediamanipulator.command.util.CommandRegistry;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
  * A command that displays the all registered commands.
  */
-public class HelpCommand extends Command {
+public class HelpCommand extends BaseCommand {
 
     /**
      * The command list strings are cached here.
@@ -21,7 +23,7 @@ public class HelpCommand extends Command {
     /**
      * Creates a new command object.
      *
-     * @param name        The name of the command. When a user sends a message starting with {@link Command#COMMAND_PREFIX}
+     * @param name        The name of the command. When a user sends a message starting with {@link Command#PREFIX}
      *                    followed by this name, the command will be executed.
      * @param description The description of the command. This is displayed in the help command.
      */
@@ -73,14 +75,11 @@ public class HelpCommand extends Command {
         int totalLength = builder.length();
         List<String> messages = new ArrayList<>();
 
-        List<Command> commands = CommandRegistry
-                .getCommands()
-                .stream()
-                .sorted()
-                .collect(ImmutableList.toImmutableList());
+        List<Command> commands = new ArrayList<>(CommandRegistry.getCommands());
+        commands.sort(Comparator.comparing(Command::getName));
 
         for (Command command : commands) {
-            String commandLine = Command.COMMAND_PREFIX + command.getName() + " - " + command.getDescription() + "\n\n";
+            String commandLine = Command.PREFIX + command.getName() + " - " + command.getDescription() + "\n\n";
             int length = commandLine.length();
             totalLength += length;
 

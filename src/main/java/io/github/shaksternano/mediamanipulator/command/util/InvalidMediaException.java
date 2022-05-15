@@ -1,4 +1,4 @@
-package io.github.shaksternano.mediamanipulator.command;
+package io.github.shaksternano.mediamanipulator.command.util;
 
 public class InvalidMediaException extends RuntimeException {
 

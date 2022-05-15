@@ -6,12 +6,12 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 /**
  * Gets the image of an emoji.
  */
-public class EmojiImageCommand extends Command {
+public class EmojiImageCommand extends BaseCommand {
 
     /**
      * Creates a new command object.
      *
-     * @param name        The name of the command. When a user sends a message starting with {@link Command#COMMAND_PREFIX}
+     * @param name        The name of the command. When a user sends a message starting with {@link Command#PREFIX}
      *                    followed by this name, the command will be executed.
      * @param description The description of the command. This is displayed in the help command.
      */

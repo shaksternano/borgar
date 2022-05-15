@@ -15,7 +15,7 @@ public class MediaCompression {
     public static final int DISCORD_MAX_DISPLAY_HEIGHT = 300;
 
     public static BufferedImage reduceToDisplaySize(BufferedImage image) {
-        return reduceToSize(image, DISCORD_MAX_DISPLAY_WIDTH, DISCORD_MAX_DISPLAY_HEIGHT);
+        return reduceToSize(image, DISCORD_MAX_DISPLAY_WIDTH * 2, DISCORD_MAX_DISPLAY_HEIGHT * 2);
     }
 
     public static BufferedImage reduceToSize(BufferedImage image, int width, int height) {

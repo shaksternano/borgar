@@ -25,7 +25,7 @@ public class DurationImage {
     /**
      * Creates a new DurationImage.
      *
-     * @param image The frame.
+     * @param image    The frame.
      * @param duration The amount of time the frame is shown for in milliseconds.
      */
     public DurationImage(BufferedImage image, int duration) {

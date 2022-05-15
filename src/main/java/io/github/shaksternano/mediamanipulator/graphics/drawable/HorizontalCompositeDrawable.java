@@ -31,4 +31,19 @@ public class HorizontalCompositeDrawable extends BaseCompositeDrawable {
 
         return maxHeight;
     }
+
+    @Override
+    public void resizeToWidth(int width) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void resizeToHeight(int height) {
+        for (Drawable part : getParts()) {
+            try {
+                part.resizeToHeight(height);
+            } catch (UnsupportedOperationException ignored) {
+            }
+        }
+    }
 }

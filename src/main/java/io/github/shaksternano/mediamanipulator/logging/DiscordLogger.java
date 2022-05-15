@@ -1,6 +1,6 @@
 package io.github.shaksternano.mediamanipulator.logging;
 
-import io.github.shaksternano.mediamanipulator.util.MessageUtil;
+import io.github.shaksternano.mediamanipulator.util.StringUtil;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -42,7 +42,7 @@ public class DiscordLogger extends InterceptLogger {
             builder.append(stacktrace);
         }
 
-        List<String> parts = MessageUtil.splitString(builder.toString(), 2000);
+        List<String> parts = StringUtil.splitString(builder.toString(), 2000);
         for (String part : parts) {
             channel.sendMessage(part).queue();
         }

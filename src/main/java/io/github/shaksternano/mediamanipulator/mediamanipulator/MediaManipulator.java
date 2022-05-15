@@ -3,9 +3,11 @@ package io.github.shaksternano.mediamanipulator.mediamanipulator;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -16,14 +18,14 @@ public interface MediaManipulator {
     /**
      * Adds a caption to a media file.
      *
-     * @param media   The media file to add a caption to.
-     * @param caption The caption to add.
+     * @param media The media file to add a caption to.
+     * @param words The words of the caption.
      * @return The media file with the caption added.
      * @throws IOException                   If there is an error adding the caption.
      * @throws UncheckedIOException          If there is an error adding the caption.
      * @throws UnsupportedOperationException If the operation is not supported by this manipulator.
      */
-    File caption(File media, String caption) throws IOException;
+    File caption(File media, String[] words, Map<String, BufferedImage> images) throws IOException;
 
     /**
      * Stretches a media file.

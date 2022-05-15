@@ -18,6 +18,7 @@ public interface Drawable {
 
     /**
      * Gets the width of the drawable.
+     *
      * @param graphicsContext The graphics that the drawable will be drawn on.
      * @return The width of the drawable.
      */
@@ -25,8 +26,25 @@ public interface Drawable {
 
     /**
      * Gets the height of the drawable.
+     *
      * @param graphicsContext The graphics that the drawable will be drawn on.
      * @return The height of the drawable.
      */
     int getHeight(Graphics2D graphicsContext);
+
+    /**
+     * Resizes the drawable to the given width.
+     *
+     * @param width The width to resize to.
+     * @throws UnsupportedOperationException If the drawable cannot be resized by width.
+     */
+    void resizeToWidth(int width);
+
+    /**
+     * Resizes the drawable to the given height.
+     *
+     * @param height The height to resize to.
+     * @throws UnsupportedOperationException If the drawable cannot be resized by height.
+     */
+    void resizeToHeight(int height);
 }

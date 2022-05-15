@@ -1,6 +1,7 @@
-package io.github.shaksternano.mediamanipulator.command;
+package io.github.shaksternano.mediamanipulator.command.util;
 
 import io.github.shaksternano.mediamanipulator.Main;
+import io.github.shaksternano.mediamanipulator.command.Command;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -35,26 +36,26 @@ public class CommandParser {
 
             commandOptional.ifPresent(command -> {
                 try {
-                    channel.sendTyping().queue();
+                    channel.sendTyping().complete();
                     String[] arguments = parseArguments(commandParts);
 
                     try {
                         command.execute(arguments, event);
                     } catch (PermissionException e) {
                         userMessage.reply("This bot doesn't have the required permissions to execute this command!").queue();
-                        Main.getLogger().error("This bot doesn't have the required permissions needed to execute " + command + "!", e);
+                        Main.getLogger().error("This bot doesn't have the required permissions needed to execute command " + command.getName() + "!", e);
                     } catch (InvalidArgumentException e) {
                         userMessage.reply(e.getMessage() == null ? "Invalid arguments!" : "Invalid arguments: " + e.getMessage()).queue();
-                        Main.getLogger().warn("Invalid arguments for " + command + "!", e);
+                        Main.getLogger().warn("Invalid arguments for command " + command.getName() + "!", e);
                     } catch (MissingArgumentException e) {
                         userMessage.reply(e.getMessage() == null ? "Missing arguments!" : "Missing arguments: " + e.getMessage()).queue();
-                        Main.getLogger().warn("Missing arguments for " + command + "!", e);
+                        Main.getLogger().warn("Missing arguments for command " + command.getName() + "!", e);
                     } catch (OutOfMemoryError e) {
                         userMessage.reply("The server ran out of memory trying to execute this command! Try again later.").queue();
-                        Main.getLogger().error("Ran out of memory trying to execute " + command + "!", e);
+                        Main.getLogger().error("Ran out of memory trying to execute command " + command.getName() + "!", e);
                     } catch (Throwable t) {
                         userMessage.reply("Error executing command!").queue();
-                        Main.getLogger().error("Error executing " + command + "!", t);
+                        Main.getLogger().error("Error executing command " + command.getName() + "!", t);
                     }
                 } catch (PermissionException e) {
                     Main.getLogger().error("Missing send message permission!", e);
@@ -71,7 +72,7 @@ public class CommandParser {
      */
     private static String[] parseCommandParts(String message) {
         if (message.length() > 1) {
-            if (message.startsWith(Command.COMMAND_PREFIX)) {
+            if (message.startsWith(Command.PREFIX)) {
                 String[] commandParts = message.split("\\s+");
                 commandParts[0] = commandParts[0].substring(1).toLowerCase();
 
@@ -108,7 +109,7 @@ public class CommandParser {
                 return Integer.decode(argument);
             } catch (NumberFormatException e) {
                 triggerChannel.sendMessage(errorMessage.apply(argument, String.valueOf(defaultValue))).queue();
-                triggerChannel.sendTyping().queue();
+                triggerChannel.sendTyping().complete();
             }
         }
 
@@ -123,7 +124,7 @@ public class CommandParser {
                 return Float.parseFloat(argument);
             } catch (NumberFormatException e) {
                 triggerChannel.sendMessage(errorMessage.apply(argument, FORMAT.format(defaultValue))).queue();
-                triggerChannel.sendTyping().queue();
+                triggerChannel.sendTyping().complete();
             }
         }
 

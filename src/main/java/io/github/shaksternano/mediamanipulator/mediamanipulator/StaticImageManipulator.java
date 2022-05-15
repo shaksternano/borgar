@@ -2,8 +2,8 @@ package io.github.shaksternano.mediamanipulator.mediamanipulator;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Files;
+import io.github.shaksternano.mediamanipulator.io.FileUtil;
 import io.github.shaksternano.mediamanipulator.util.DurationImage;
-import io.github.shaksternano.mediamanipulator.util.FileUtil;
 import io.github.shaksternano.mediamanipulator.util.ImageUtil;
 import io.github.shaksternano.mediamanipulator.util.MediaCompression;
 import org.jetbrains.annotations.Nullable;
@@ -30,7 +30,7 @@ public class StaticImageManipulator extends ImageBasedManipulator {
 
     @Override
     public File spin(File media, float speed, @Nullable Color backgroundColor) throws IOException {
-        BufferedImage image = ImageUtil.loadImageWithAlpha(media);
+        BufferedImage image = ImageUtil.readImageWithAlpha(media);
         image = MediaCompression.reduceToDisplaySize(image);
 
         int maxDimension = Math.max(image.getWidth(), image.getHeight());
@@ -66,7 +66,7 @@ public class StaticImageManipulator extends ImageBasedManipulator {
         if (justRenameFile) {
             Files.move(media, gifFile);
         } else {
-            BufferedImage nonGifImage = ImageUtil.loadImageWithAlpha(media);
+            BufferedImage nonGifImage = ImageUtil.readImageWithAlpha(media);
             ImageIO.write(nonGifImage, "gif", gifFile);
             nonGifImage.flush();
         }

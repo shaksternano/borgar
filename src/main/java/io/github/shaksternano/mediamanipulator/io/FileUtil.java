@@ -1,7 +1,8 @@
-package io.github.shaksternano.mediamanipulator.util;
+package io.github.shaksternano.mediamanipulator.io;
 
 import com.google.common.io.Files;
 import io.github.shaksternano.mediamanipulator.Main;
+import io.github.shaksternano.mediamanipulator.util.ImageUtil;
 import io.github.shaksternano.mediamanipulator.util.tenor.TenorMediaType;
 import io.github.shaksternano.mediamanipulator.util.tenor.TenorUtil;
 import org.apache.commons.io.FileUtils;
@@ -41,7 +42,7 @@ public class FileUtil {
      */
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public static File getTempDirectory() {
-        File tempDir = getUniqueFile(TEMP_DIR, true);
+        File tempDir = getUniqueFile(TEMP_DIR, true, false);
         tempDir.mkdirs();
         tempDir.deleteOnExit();
         return tempDir;
@@ -51,7 +52,7 @@ public class FileUtil {
      * Deletes all the contents of the program's temporary directory.
      */
     public static void cleanTempDirectory() {
-        File tempDir = getUniqueFile(TEMP_DIR, true);
+        File tempDir = getUniqueFile(TEMP_DIR, true, false);
         try {
             FileUtils.cleanDirectory(tempDir);
         } catch (IllegalArgumentException ignored) {
@@ -61,52 +62,48 @@ public class FileUtil {
     }
 
     /**
-     * Gets a {@link File} with a unique name.
+     * Gets a file that doesn't already exist by creating temporary folders
+     * that don't exist and placing the file in there.
      *
      * @param directory The directory the file will be located in.
      * @param fileName  The name of the file.
-     * @return A {@link File} with a unique name. If there is no other file with same name as the one provided,
-     * the file will be created will have that name. If there is another file with the same name,
-     * an incrementing number will be appended to the end of the file name. For example, if the provided file name
-     * is {@code text_file.txt}, and there is another file with the same name, the file will be created as
-     * {@code text_file1.txt}. If there is also a file called {@code text_file1.txt}, the file will be created as
-     * {@code text_file2.txt}, and so on.
+     * @return A file that doesn't already exist.
      */
     public static File getUniqueFile(@Nullable String directory, String fileName) {
         String filePath = directory == null ? fileName : directory + File.separator + fileName;
-        return getUniqueFile(filePath, false);
+        return getUniqueFile(filePath, false, false);
     }
 
     /**
-     * Gets a {@link File} representing a file that doesn't exist or a directory that doesn't exist or is a directory.
+     * Gets a file that doesn't already exist by creating temporary folders
+     * that don't exist and placing the file in there.
      *
-     * @param filePath    The starting file path to get a unique file path from.
-     * @param isDirectory Whether the file is a directory.
-     * @return A {@link File} with a unique name. If there is no other file with same name as the file provided,
-     * the file will be created will have that name. If there is another file with the same name,
-     * an incrementing number will be appended to the end of the file name. For example, if the provided file name
-     * is {@code text_file.txt}, and there is another file with the same name, the file will be created as
-     * {@code text_file1.txt}. If there is also a file called {@code text_file1.txt}, the file will be created as
-     * {@code text_file2.txt}, and so on.
+     * @param filePath        The starting file path to get a unique file path from.
+     * @param isDirectory     Whether the file is a directory.
+     * @param uniqueDirectory Whether the directory should be unique if trying to get a directory.
+     * @return A file that doesn't already exist.
      */
-    public static File getUniqueFile(String filePath, boolean isDirectory) {
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    public static File getUniqueFile(String filePath, boolean isDirectory, boolean uniqueDirectory) {
         int num = 1;
 
-        String fileNameWithoutExtension = Files.getNameWithoutExtension(filePath);
-        String fileExtension = Files.getFileExtension(filePath);
-
         File file = new File(filePath);
+        String name = file.getName();
         String fileDirectory = file.getParent();
 
-        while ((!isDirectory && file.exists()) || (isDirectory && file.isFile())) {
-            String fileName = fileNameWithoutExtension + num;
-
-            if (!fileExtension.isEmpty()) {
-                fileName = fileName + "." + fileExtension;
+        if (isDirectory) {
+            while (uniqueDirectory ? file.exists() : file.isFile()) {
+                String fileName = name + num;
+                file = new File(fileDirectory, fileName);
+                num++;
             }
-
-            file = new File(fileDirectory, fileName);
-            num++;
+        } else {
+            while (file.exists()) {
+                File tempDirectory = getUniqueFile(fileDirectory + File.separator + "temp", true, true);
+                tempDirectory.mkdirs();
+                tempDirectory.deleteOnExit();
+                file = new DeletableParentFile(tempDirectory, name);
+            }
         }
 
         return file;
@@ -116,12 +113,7 @@ public class FileUtil {
      * Gets a unique file that will be created in the program's temporary directory.
      *
      * @param fileName The name of the file.
-     * @return A {@link File} with a unique name. If there is no other file with same name as the one provided,
-     * the file will be created will have that name. If there is another file with the same name,
-     * an incrementing number will be appended to the end of the file name. For example, if the provided file name
-     * is {@code text_file.txt}, and there is another file with the same name, the file will be created as
-     * {@code text_file1.txt}. If there is also a file called {@code text_file1.txt}, the file will be created as
-     * {@code text_file2.txt}, and so on.
+     * @return A {@link File} with a unique name.
      */
     public static File getUniqueTempFile(String fileName) {
         File tempFile = getUniqueFile(getTempDirectory().toString(), fileName);
@@ -161,8 +153,8 @@ public class FileUtil {
     /**
      * Downloads a file from a URL.
      *
-     * @param url         The text to download the image from.
-     * @param directory    The directory to download the image to.
+     * @param url       The text to download the image from.
+     * @param directory The directory to download the image to.
      * @return An {@link Optional} describing the image file.
      */
     public static Optional<File> downloadFile(String url, String directory) {
@@ -197,8 +189,8 @@ public class FileUtil {
     /**
      * Downloads a file from a web URL.
      *
-     * @param url The URL to download the file from.
-     * @param file   The file to download to.
+     * @param url  The URL to download the file from.
+     * @param file The file to download to.
      * @throws IOException If there was an error occurred while downloading the file.
      */
     public static void downloadFile(String url, File file) throws IOException {

@@ -8,6 +8,7 @@ public interface CompositeDrawable extends Drawable {
 
     /**
      * Adds a part to the composite drawable.
+     *
      * @param part The part to add.
      */
     void addPart(Drawable part);

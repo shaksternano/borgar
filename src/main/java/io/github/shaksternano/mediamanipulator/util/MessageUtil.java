@@ -2,12 +2,12 @@ package io.github.shaksternano.mediamanipulator.util;
 
 import com.google.common.collect.ImmutableList;
 import io.github.shaksternano.mediamanipulator.Main;
+import io.github.shaksternano.mediamanipulator.io.FileUtil;
 import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -15,7 +15,10 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -188,7 +191,7 @@ public class MessageUtil {
     }
 
     public static Map<String, String> getEmojiUrls(Message message, boolean onlyGetFirst) {
-        Map<String, String> emojiUrls = new HashMap<>(1);
+        Map<String, String> emojiUrls = new HashMap<>();
         List<Emote> emotes = message.getEmotes();
 
         for (Emote emote : emotes) {
@@ -267,40 +270,5 @@ public class MessageUtil {
         }
 
         return Optional.empty();
-    }
-
-    public static List<String> splitString(String string, int maxLength) {
-        List<String> messages = new ArrayList<>();
-        String[] lines = string.split("\n");
-        StringBuilder builder = new StringBuilder();
-        int currentLength = 0;
-
-        for (String line : lines) {
-            if (currentLength + line.length() > maxLength) {
-                messages.add(builder.toString());
-                builder = new StringBuilder();
-
-                if (line.length() > maxLength) {
-                    for (int i = 0; i < line.length(); i++) {
-                        if (i == 0 || i % maxLength != 0) {
-                            builder.append(line.charAt(i));
-                        } else {
-                            messages.add(builder.toString());
-                            builder = new StringBuilder();
-                        }
-                    }
-                } else {
-                    builder.append(line).append("\n");
-                }
-            } else {
-                builder.append(line).append("\n");
-            }
-
-            currentLength = builder.length();
-        }
-
-        messages.add(builder.toString());
-
-        return messages;
     }
 }

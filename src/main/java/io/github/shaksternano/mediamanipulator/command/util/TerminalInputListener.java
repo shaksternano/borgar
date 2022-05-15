@@ -1,4 +1,4 @@
-package io.github.shaksternano.mediamanipulator.command.terminal;
+package io.github.shaksternano.mediamanipulator.command.util;
 
 import io.github.shaksternano.mediamanipulator.Main;
 

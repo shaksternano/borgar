@@ -1,4 +1,8 @@
-package io.github.shaksternano.mediamanipulator.mediamanipulator;
+package io.github.shaksternano.mediamanipulator.mediamanipulator.util;
+
+import io.github.shaksternano.mediamanipulator.mediamanipulator.GifManipulator;
+import io.github.shaksternano.mediamanipulator.mediamanipulator.MediaManipulator;
+import io.github.shaksternano.mediamanipulator.mediamanipulator.StaticImageManipulator;
 
 import java.util.ArrayList;
 import java.util.List;

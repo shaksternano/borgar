@@ -1,8 +1,12 @@
 package io.github.shaksternano.mediamanipulator.mediamanipulator;
 
 import com.google.common.io.Files;
-import io.github.shaksternano.mediamanipulator.command.InvalidMediaException;
-import io.github.shaksternano.mediamanipulator.util.*;
+import io.github.shaksternano.mediamanipulator.command.util.InvalidMediaException;
+import io.github.shaksternano.mediamanipulator.io.FileUtil;
+import io.github.shaksternano.mediamanipulator.util.DurationImage;
+import io.github.shaksternano.mediamanipulator.util.Fonts;
+import io.github.shaksternano.mediamanipulator.util.ImageUtil;
+import io.github.shaksternano.mediamanipulator.util.MediaCompression;
 import net.ifok.image.image4j.codec.ico.ICOEncoder;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,8 +25,8 @@ import java.util.function.Function;
 public abstract class ImageBasedManipulator implements MediaManipulator {
 
     @Override
-    public File caption(File media, String caption) throws IOException {
-        return applyToEachFrame(media, image -> ImageUtil.captionImage(image, caption, Fonts.getCaptionFont()), "captioned", true);
+    public File caption(File media, String[] words, Map<String, BufferedImage> images) throws IOException {
+        return applyToEachFrame(media, image -> ImageUtil.captionImage(image, words, Fonts.getCaptionFont(), images), "captioned", true);
     }
 
     @Override
@@ -83,7 +87,7 @@ public abstract class ImageBasedManipulator implements MediaManipulator {
     @Override
     public File makePngOrTransparent(File media) throws IOException {
         File pngFile = FileUtil.getUniqueTempFile(Files.getNameWithoutExtension(media.getName()) + ".png");
-        BufferedImage image = ImageUtil.loadImageWithAlpha(media);
+        BufferedImage image = ImageUtil.readImageWithAlpha(media);
         ImageIO.write(image, "png", pngFile);
         image.flush();
         return pngFile;

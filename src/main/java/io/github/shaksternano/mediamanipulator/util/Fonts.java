@@ -1,6 +1,7 @@
 package io.github.shaksternano.mediamanipulator.util;
 
 import io.github.shaksternano.mediamanipulator.Main;
+import io.github.shaksternano.mediamanipulator.io.FileUtil;
 
 import java.awt.*;
 import java.io.IOException;

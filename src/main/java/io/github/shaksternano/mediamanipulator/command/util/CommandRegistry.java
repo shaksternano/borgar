@@ -1,11 +1,8 @@
-package io.github.shaksternano.mediamanipulator.command;
+package io.github.shaksternano.mediamanipulator.command.util;
 
-import com.google.common.collect.ImmutableList;
+import io.github.shaksternano.mediamanipulator.command.Command;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Where {@link Command}s are registered.
@@ -41,11 +38,11 @@ public class CommandRegistry {
     }
 
     /**
-     * Gets a list of all registered {@link Command}s.
+     * Gets an unmodifiable view of all registered {@link Command}s.
      *
-     * @return A list of all registered {@link Command}s.
+     * @return An unmodifiable view of all registered {@link Command}s.
      */
-    public static List<Command> getCommands() {
-        return ImmutableList.copyOf(registry.values());
+    public static Collection<Command> getCommands() {
+        return Collections.unmodifiableCollection(registry.values());
     }
 }

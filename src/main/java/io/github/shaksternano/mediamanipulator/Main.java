@@ -1,12 +1,12 @@
 package io.github.shaksternano.mediamanipulator;
 
 import io.github.shaksternano.mediamanipulator.command.Command;
-import io.github.shaksternano.mediamanipulator.command.Commands;
-import io.github.shaksternano.mediamanipulator.command.terminal.TerminalInputListener;
+import io.github.shaksternano.mediamanipulator.command.util.Commands;
+import io.github.shaksternano.mediamanipulator.command.util.TerminalInputListener;
+import io.github.shaksternano.mediamanipulator.io.FileUtil;
 import io.github.shaksternano.mediamanipulator.listener.CommandListener;
 import io.github.shaksternano.mediamanipulator.logging.DiscordLogger;
-import io.github.shaksternano.mediamanipulator.mediamanipulator.MediaManipulators;
-import io.github.shaksternano.mediamanipulator.util.FileUtil;
+import io.github.shaksternano.mediamanipulator.mediamanipulator.util.MediaManipulators;
 import io.github.shaksternano.mediamanipulator.util.Fonts;
 import io.github.shaksternano.mediamanipulator.util.ProgramArguments;
 import net.dv8tion.jda.api.JDA;
@@ -68,7 +68,7 @@ public class Main {
      *
      * @param args The program arguments.
      */
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) {
         System.setProperty("log4j2.contextSelector", "org.apache.logging.log4j.core.async.AsyncLoggerContextSelector");
         logger = LoggerFactory.getLogger("Media Manipulator");
 

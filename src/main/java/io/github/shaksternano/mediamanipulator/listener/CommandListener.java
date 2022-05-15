@@ -1,8 +1,8 @@
 package io.github.shaksternano.mediamanipulator.listener;
 
-import io.github.shaksternano.mediamanipulator.command.CommandParser;
-import io.github.shaksternano.mediamanipulator.command.Commands;
 import io.github.shaksternano.mediamanipulator.command.HelpCommand;
+import io.github.shaksternano.mediamanipulator.command.util.CommandParser;
+import io.github.shaksternano.mediamanipulator.command.util.Commands;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;

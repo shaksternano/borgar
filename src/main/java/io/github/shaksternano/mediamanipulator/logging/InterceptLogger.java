@@ -369,4 +369,9 @@ public abstract class InterceptLogger implements Logger {
         logger.error(marker, msg, t);
         intercept(Level.ERROR, msg, t);
     }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[" + logger + "]";
+    }
 }

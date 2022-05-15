@@ -1,4 +1,6 @@
-package io.github.shaksternano.mediamanipulator.mediamanipulator;
+package io.github.shaksternano.mediamanipulator.mediamanipulator.util;
+
+import io.github.shaksternano.mediamanipulator.mediamanipulator.MediaManipulator;
 
 import java.util.HashMap;
 import java.util.Map;

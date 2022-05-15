@@ -4,8 +4,9 @@ import io.github.shaksternano.mediamanipulator.util.ImageUtil;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.Objects;
 
-public class ImageDrawable implements ResizableDrawable {
+public class ImageDrawable implements Drawable {
 
     private BufferedImage image;
 
@@ -44,5 +45,26 @@ public class ImageDrawable implements ResizableDrawable {
             image = ImageUtil.fitHeight(image, height);
             oldImage.flush();
         }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        } else if (obj instanceof ImageDrawable other) {
+            return Objects.equals(image, other.image);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(image);
+    }
+
+    @Override
+    public String toString() {
+        return "ImageDrawable[" + image + "]";
     }
 }

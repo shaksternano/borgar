@@ -1,9 +1,11 @@
 package io.github.shaksternano.mediamanipulator.command;
 
 import io.github.shaksternano.mediamanipulator.Main;
+import io.github.shaksternano.mediamanipulator.command.util.InvalidMediaException;
+import io.github.shaksternano.mediamanipulator.command.util.MissingArgumentException;
+import io.github.shaksternano.mediamanipulator.io.FileUtil;
 import io.github.shaksternano.mediamanipulator.mediamanipulator.MediaManipulator;
-import io.github.shaksternano.mediamanipulator.mediamanipulator.MediaManipulatorRegistry;
-import io.github.shaksternano.mediamanipulator.util.FileUtil;
+import io.github.shaksternano.mediamanipulator.mediamanipulator.util.MediaManipulatorRegistry;
 import io.github.shaksternano.mediamanipulator.util.MessageUtil;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -15,12 +17,12 @@ import java.io.UncheckedIOException;
 /**
  * A {@link Command} that manipulates media files.
  */
-public abstract class MediaCommand extends Command {
+public abstract class MediaCommand extends BaseCommand {
 
     /**
      * Creates a new command object.
      *
-     * @param name        The name of the command. When a user sends a message starting with {@link Command#COMMAND_PREFIX}
+     * @param name        The name of the command. When a user sends a message starting with {@link Command#PREFIX}
      *                    followed by this name, the command will be executed.
      * @param description The description of the command. This is displayed in the help command.
      */
@@ -82,7 +84,7 @@ public abstract class MediaCommand extends Command {
                     throw new UncheckedIOException(e);
                 } catch (OutOfMemoryError e) {
                     userMessage.reply("The server ran out of memory! Try again later or use a smaller file.").queue();
-                    Main.getLogger().error("Ran out of memory!", e);
+                    Main.getLogger().error("Ran out of memory executing command " + getName() + "!", e);
                 }
             }, () -> userMessage.reply("Unsupported file type!").queue());
         }, () -> userMessage.reply("No media found!").queue());

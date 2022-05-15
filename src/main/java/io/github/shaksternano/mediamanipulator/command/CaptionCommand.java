@@ -1,10 +1,18 @@
 package io.github.shaksternano.mediamanipulator.command;
 
 import io.github.shaksternano.mediamanipulator.mediamanipulator.MediaManipulator;
+import io.github.shaksternano.mediamanipulator.util.ImageUtil;
+import io.github.shaksternano.mediamanipulator.util.MessageUtil;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.net.URL;
+import java.util.AbstractMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * A command that adds a captions media.
@@ -14,7 +22,7 @@ public class CaptionCommand extends MediaCommand {
     /**
      * Creates a new command object.
      *
-     * @param name        The name of the command. When a user sends a message starting with {@link Command#COMMAND_PREFIX}
+     * @param name        The name of the command. When a user sends a message starting with {@link Command#PREFIX}
      *                    followed by this name, the command will be executed.
      * @param description The description of the command. This is displayed in the help command.
      */
@@ -34,6 +42,16 @@ public class CaptionCommand extends MediaCommand {
      */
     @Override
     public File applyOperation(File media, String[] arguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
-        return manipulator.caption(media, String.join(" ", arguments));
+        Map<String, String> imageUrls = MessageUtil.getEmojiUrls(event.getMessage());
+        Map<String, BufferedImage> images = imageUrls.entrySet().parallelStream().map(imageUrlEntry -> {
+            try {
+                BufferedImage image = ImageUtil.readImage(new URL(imageUrlEntry.getValue()));
+                return new AbstractMap.SimpleEntry<>(imageUrlEntry.getKey(), image);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }).collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        return manipulator.caption(media, arguments, images);
     }
 }
