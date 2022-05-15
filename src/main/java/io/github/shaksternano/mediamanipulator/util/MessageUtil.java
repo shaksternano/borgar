@@ -1,6 +1,7 @@
 package io.github.shaksternano.mediamanipulator.util;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import io.github.shaksternano.mediamanipulator.Main;
 import io.github.shaksternano.mediamanipulator.io.FileUtil;
 import net.dv8tion.jda.api.entities.Emote;
@@ -188,14 +189,14 @@ public class MessageUtil {
     }
 
     public static Map<String, String> getEmojiUrls(Message message, boolean onlyGetFirst) {
-        Map<String, String> emojiUrls = new ConcurrentHashMap<>();
+        Map<String, String> emojiUrls = onlyGetFirst ? null : new ConcurrentHashMap<>();
         List<Emote> emotes = message.getEmotes();
 
         for (Emote emote : emotes) {
-            emojiUrls.put(emote.getAsMention(), emote.getImageUrl());
-
             if (onlyGetFirst) {
-                return emojiUrls;
+                return ImmutableMap.of(emote.getAsMention(), emote.getImageUrl());
+            } else {
+                emojiUrls.put(emote.getAsMention(), emote.getImageUrl());
             }
         }
 
@@ -205,28 +206,32 @@ public class MessageUtil {
         if (onlyGetFirst) {
             int[] codePoints = codePointsStream.toArray();
             for (int codePoint : codePoints) {
-                String hexCodePoint = Integer.toHexString(codePoint);
-                String emojiUrl = "https://raw.githubusercontent.com/twitter/twemoji/master/assets/72x72/" + hexCodePoint + ".png";
-
+                String emojiUrl = getEmojiUrl(codePoint);
                 if (NetworkUtil.doesUrlExist(emojiUrl)) {
-                    String emojiCharacters = String.valueOf(Character.toChars(codePoint));
-                    emojiUrls.put(emojiCharacters, emojiUrl);
-                    return emojiUrls;
+                    String emojiCharacters = getCharacters(codePoint);
+                    return ImmutableMap.of(emojiCharacters, emojiUrl);
                 }
             }
         } else {
             codePointsStream.parallel().forEach(codePoint -> {
-                String hexCodePoint = Integer.toHexString(codePoint);
-                String emojiUrl = "https://raw.githubusercontent.com/twitter/twemoji/master/assets/72x72/" + hexCodePoint + ".png";
-
+                String emojiUrl = getEmojiUrl(codePoint);
                 if (NetworkUtil.doesUrlExist(emojiUrl)) {
-                    String emojiCharacters = String.valueOf(Character.toChars(codePoint));
+                    String emojiCharacters = getCharacters(codePoint);
                     emojiUrls.put(emojiCharacters, emojiUrl);
                 }
             });
         }
 
         return emojiUrls;
+    }
+
+    private static String getEmojiUrl(int codePoint) {
+        String hexCodePoint = Integer.toHexString(codePoint);
+        return  "https://raw.githubusercontent.com/twitter/twemoji/master/assets/72x72/" + hexCodePoint + ".png";
+    }
+
+    private static String getCharacters(int codePoint) {
+        return String.valueOf(Character.toChars(codePoint));
     }
 
     /**
