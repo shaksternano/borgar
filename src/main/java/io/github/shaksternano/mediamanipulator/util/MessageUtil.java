@@ -189,7 +189,7 @@ public class MessageUtil {
     }
 
     public static Map<String, String> getEmojiUrls(Message message, boolean onlyGetFirst) {
-        Map<String, String> emojiUrls = onlyGetFirst ? null : new ConcurrentHashMap<>();
+        Map<String, String> emojiUrls = new ConcurrentHashMap<>();
         List<Emote> emotes = message.getEmotes();
 
         for (Emote emote : emotes) {
