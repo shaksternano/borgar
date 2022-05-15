@@ -227,7 +227,7 @@ public class MessageUtil {
 
     private static String getEmojiUrl(int codePoint) {
         String hexCodePoint = Integer.toHexString(codePoint);
-        return  "https://raw.githubusercontent.com/twitter/twemoji/master/assets/72x72/" + hexCodePoint + ".png";
+        return "https://raw.githubusercontent.com/twitter/twemoji/master/assets/72x72/" + hexCodePoint + ".png";
     }
 
     private static String getCharacters(int codePoint) {
