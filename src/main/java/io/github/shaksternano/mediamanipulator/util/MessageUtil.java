@@ -8,22 +8,19 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 
 /**
  * Contains static methods for dealing with {@link Message}s.
@@ -191,7 +188,7 @@ public class MessageUtil {
     }
 
     public static Map<String, String> getEmojiUrls(Message message, boolean onlyGetFirst) {
-        Map<String, String> emojiUrls = new HashMap<>();
+        Map<String, String> emojiUrls = new ConcurrentHashMap<>();
         List<Emote> emotes = message.getEmotes();
 
         for (Emote emote : emotes) {
@@ -203,31 +200,30 @@ public class MessageUtil {
         }
 
         String messageContent = message.getContentRaw();
-        int[] codePoints = messageContent.codePoints().toArray();
-        for (int codePoint : codePoints) {
-            String hexCodePoint = Integer.toHexString(codePoint);
-            if (hexCodePoint.length() >= 5) {
+        IntStream codePointsStream = messageContent.codePoints();
+
+        if (onlyGetFirst) {
+            int[] codePoints = codePointsStream.toArray();
+            for (int codePoint : codePoints) {
+                String hexCodePoint = Integer.toHexString(codePoint);
                 String emojiUrl = "https://raw.githubusercontent.com/twitter/twemoji/master/assets/72x72/" + hexCodePoint + ".png";
 
-                try {
-                    BufferedImage emojiImage = ImageUtil.readImage(new URL(emojiUrl));
-
-                    if (emojiImage == null) {
-                        Main.getLogger().error("Could not read image from URL " + emojiUrl + "!");
-                    } else {
-                        emojiImage.flush();
-                        String emojiCharacters = String.valueOf(Character.toChars(codePoint));
-                        emojiUrls.put(emojiCharacters, emojiUrl);
-
-                        if (onlyGetFirst) {
-                            return emojiUrls;
-                        }
-                    }
-                } catch (MalformedURLException e) {
-                    Main.getLogger().error("Failed to parse emoji URL " + emojiUrl + "!", e);
-                } catch (IOException ignored) {
+                if (NetworkUtil.doesUrlExist(emojiUrl)) {
+                    String emojiCharacters = String.valueOf(Character.toChars(codePoint));
+                    emojiUrls.put(emojiCharacters, emojiUrl);
+                    return emojiUrls;
                 }
             }
+        } else {
+            codePointsStream.parallel().forEach(codePoint -> {
+                String hexCodePoint = Integer.toHexString(codePoint);
+                String emojiUrl = "https://raw.githubusercontent.com/twitter/twemoji/master/assets/72x72/" + hexCodePoint + ".png";
+
+                if (NetworkUtil.doesUrlExist(emojiUrl)) {
+                    String emojiCharacters = String.valueOf(Character.toChars(codePoint));
+                    emojiUrls.put(emojiCharacters, emojiUrl);
+                }
+            });
         }
 
         return emojiUrls;

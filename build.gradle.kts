@@ -28,6 +28,7 @@ dependencies {
     implementation("commons-io:commons-io:${project.property("apache_commons_io_version")}")
     implementation("com.sksamuel.scrimage:scrimage-core:${project.property("scrimage_version")}")
     implementation("net.ifok.image:image4j:${project.property("image4j_version")}")
+    implementation("com.kcthota:emoji4j:${project.property("emoji4j_version")}")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:${project.property("junit_version")}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
