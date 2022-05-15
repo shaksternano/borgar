@@ -15,9 +15,8 @@ public class DeletableParentFile extends File {
      * pathname string into an abstract pathname.  If the given string is
      * the empty string, then the result is the empty abstract pathname.
      *
-     * @param   pathname  A pathname string
-     * @throws  NullPointerException
-     *          If the {@code pathname} argument is {@code null}
+     * @param pathname A pathname string
+     * @throws NullPointerException If the {@code pathname} argument is {@code null}
      */
     public DeletableParentFile(@NotNull String pathname) {
         super(pathname);
@@ -43,10 +42,9 @@ public class DeletableParentFile extends File {
      * string is converted into an abstract pathname and the child abstract
      * pathname is resolved against the parent.
      *
-     * @param   parent  The parent pathname string
-     * @param   child   The child pathname string
-     * @throws  NullPointerException
-     *          If {@code child} is {@code null}
+     * @param parent The parent pathname string
+     * @param child  The child pathname string
+     * @throws NullPointerException If {@code child} is {@code null}
      */
     public DeletableParentFile(String parent, @NotNull String child) {
         super(parent, child);
@@ -72,10 +70,9 @@ public class DeletableParentFile extends File {
      * pathname string is converted into an abstract pathname and the child
      * abstract pathname is resolved against the parent.
      *
-     * @param   parent  The parent abstract pathname
-     * @param   child   The child pathname string
-     * @throws  NullPointerException
-     *          If {@code child} is {@code null}
+     * @param parent The parent abstract pathname
+     * @param child  The child pathname string
+     * @throws NullPointerException If {@code child} is {@code null}
      */
     public DeletableParentFile(File parent, @NotNull String child) {
         super(parent, child);
@@ -95,7 +92,7 @@ public class DeletableParentFile extends File {
      * new File(</code><i>&nbsp;f</i><code>.{@link #toURI()
      * toURI}()).equals(</code><i>&nbsp;f</i><code>.{@link #getAbsoluteFile() getAbsoluteFile}())
      * </code></blockquote>
-     *
+     * <p>
      * so long as the original abstract pathname, the URI, and the new abstract
      * pathname are all created in (possibly different invocations of) the same
      * Java virtual machine.  This relationship typically does not hold,
@@ -103,17 +100,11 @@ public class DeletableParentFile extends File {
      * on one operating system is converted into an abstract pathname in a
      * virtual machine on a different operating system.
      *
-     * @param  uri
-     *         An absolute, hierarchical URI with a scheme equal to
-     *         {@code "file"}, a non-empty path component, and undefined
-     *         authority, query, and fragment components
-     *
-     * @throws  NullPointerException
-     *          If {@code uri} is {@code null}
-     *
-     * @throws  IllegalArgumentException
-     *          If the preconditions on the parameter do not hold
-     *
+     * @param uri An absolute, hierarchical URI with a scheme equal to
+     *            {@code "file"}, a non-empty path component, and undefined
+     *            authority, query, and fragment components
+     * @throws NullPointerException     If {@code uri} is {@code null}
+     * @throws IllegalArgumentException If the preconditions on the parameter do not hold
      * @see #toURI()
      * @see java.net.URI
      * @since 1.4

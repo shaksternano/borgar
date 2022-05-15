@@ -203,11 +203,11 @@ public class MessageUtil {
         }
 
         String messageContent = message.getContentRaw();
-        List<String> characterCodes = messageContent.codePoints().mapToObj(Integer::toHexString).toList();
-        for (int i = 0; i < characterCodes.size(); i++) {
-            String characterCode = characterCodes.get(i);
-            if (characterCode.length() >= 5) {
-                String emojiUrl = "https://raw.githubusercontent.com/twitter/twemoji/master/assets/72x72/" + characterCode + ".png";
+        int[] codePoints = messageContent.codePoints().toArray();
+        for (int codePoint : codePoints) {
+            String hexCodePoint = Integer.toHexString(codePoint);
+            if (hexCodePoint.length() >= 5) {
+                String emojiUrl = "https://raw.githubusercontent.com/twitter/twemoji/master/assets/72x72/" + hexCodePoint + ".png";
 
                 try {
                     BufferedImage emojiImage = ImageUtil.readImage(new URL(emojiUrl));
@@ -216,8 +216,8 @@ public class MessageUtil {
                         Main.getLogger().error("Could not read image from URL " + emojiUrl + "!");
                     } else {
                         emojiImage.flush();
-                        char emojiCharacter = messageContent.charAt(i);
-                        emojiUrls.put(String.valueOf(emojiCharacter), emojiUrl);
+                        String emojiCharacters = String.valueOf(Character.toChars(codePoint));
+                        emojiUrls.put(emojiCharacters, emojiUrl);
 
                         if (onlyGetFirst) {
                             return emojiUrls;
