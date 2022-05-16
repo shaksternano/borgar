@@ -35,8 +35,6 @@ public class StringUtil {
         StringWriter stringWriter = new StringWriter();
         PrintWriter printWriter = new PrintWriter(stringWriter);
         t.printStackTrace(printWriter);
-        String stacktrace = stringWriter.toString();
-        printWriter.close();
-        return stacktrace;
+        return stringWriter.toString();
     }
 }
