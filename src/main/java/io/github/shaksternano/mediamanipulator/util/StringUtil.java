@@ -8,6 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class StringUtil {
+    
     /**
      * A pattern to extract web URLs from a string.
      */
