@@ -155,6 +155,11 @@ public class Commands {
             "Get the memory usage of the bot."
     ));
 
+    public static final Command GARBAGE_COLLECTOR = addCommandToRegister(new GarbageCollectorCommand(
+            "gc",
+            "Runs the garbage collector."
+    ));
+
     /**
      * The shut-down {@link Command}.
      */
