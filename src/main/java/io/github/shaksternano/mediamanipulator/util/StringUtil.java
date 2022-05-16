@@ -1,5 +1,7 @@
 package io.github.shaksternano.mediamanipulator.util;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -29,38 +31,12 @@ public class StringUtil {
         return urls;
     }
 
-    public static List<String> splitString(String string, int maxLength) {
-        List<String> messages = new ArrayList<>();
-        String[] lines = string.split(Pattern.quote("\n"));
-        StringBuilder builder = new StringBuilder();
-        int currentLength = 0;
-
-        for (String line : lines) {
-            if (currentLength + line.length() > maxLength) {
-                messages.add(builder.toString());
-                builder.setLength(0);
-
-                if (line.length() > maxLength) {
-                    for (int i = 0; i < line.length(); i++) {
-                        if (i == 0 || i % maxLength != 0) {
-                            builder.append(line.charAt(i));
-                        } else {
-                            messages.add(builder.toString());
-                            builder.setLength(0);
-                        }
-                    }
-                } else {
-                    builder.append(line).append("\n");
-                }
-            } else {
-                builder.append(line).append("\n");
-            }
-
-            currentLength = builder.length();
-        }
-
-        messages.add(builder.toString());
-
-        return messages;
+    public static String getStacktrace(Throwable t) {
+        StringWriter stringWriter = new StringWriter();
+        PrintWriter printWriter = new PrintWriter(stringWriter);
+        t.printStackTrace(printWriter);
+        String stacktrace = stringWriter.toString();
+        printWriter.close();
+        return stacktrace;
     }
 }

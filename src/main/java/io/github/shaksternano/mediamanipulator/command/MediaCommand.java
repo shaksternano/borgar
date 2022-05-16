@@ -1,8 +1,9 @@
 package io.github.shaksternano.mediamanipulator.command;
 
 import io.github.shaksternano.mediamanipulator.Main;
-import io.github.shaksternano.mediamanipulator.command.util.InvalidMediaException;
-import io.github.shaksternano.mediamanipulator.command.util.MissingArgumentException;
+import io.github.shaksternano.mediamanipulator.command.util.exception.InvalidMediaException;
+import io.github.shaksternano.mediamanipulator.command.util.exception.MissingArgumentException;
+import io.github.shaksternano.mediamanipulator.command.util.exception.UnsupportedFileTypeException;
 import io.github.shaksternano.mediamanipulator.io.FileUtil;
 import io.github.shaksternano.mediamanipulator.mediamanipulator.MediaManipulator;
 import io.github.shaksternano.mediamanipulator.mediamanipulator.util.MediaManipulatorRegistry;
@@ -71,10 +72,10 @@ public abstract class MediaCommand extends BaseCommand {
                 } catch (InvalidMediaException e) {
                     userMessage.reply(e.getMessage() == null ? "Invalid media!" : "Invalid media: " + e.getMessage()).queue();
                     Main.getLogger().error("Invalid media!", e);
-                } catch (UnsupportedOperationException e) {
+                } catch (UnsupportedFileTypeException e) {
                     String unsupportedMessage = "This operation is not supported on files with type \"" + fileType + "\"!";
 
-                    if (e.getMessage() != null) {
+                    if (e.getMessage() != null && !e.getMessage().isEmpty()) {
                         unsupportedMessage = unsupportedMessage + " Reason: " + e.getMessage();
                     }
 

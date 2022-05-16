@@ -1,5 +1,6 @@
 package io.github.shaksternano.mediamanipulator.mediamanipulator;
 
+import io.github.shaksternano.mediamanipulator.command.util.exception.UnsupportedFileTypeException;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
@@ -21,9 +22,9 @@ public interface MediaManipulator {
      * @param media The media file to add a caption to.
      * @param words The words of the caption.
      * @return The media file with the caption added.
-     * @throws IOException                   If there is an error adding the caption.
-     * @throws UncheckedIOException          If there is an error adding the caption.
-     * @throws UnsupportedOperationException If the operation is not supported by this manipulator.
+     * @throws IOException                  If there is an error adding the caption.
+     * @throws UncheckedIOException         If there is an error adding the caption.
+     * @throws UnsupportedFileTypeException If the operation is not supported by this manipulator.
      */
     File caption(File media, String[] words, Map<String, BufferedImage> images) throws IOException;
 
@@ -36,9 +37,9 @@ public interface MediaManipulator {
      * @param raw              If false, extra processing is done to smoothen the resulting image.
      *                         If true, no extra processing is done.
      * @return The stretched media file.
-     * @throws IOException                   If there is an error stretching the media file.
-     * @throws UncheckedIOException          If there is an error adding the caption.
-     * @throws UnsupportedOperationException If the operation is not supported by this manipulator.
+     * @throws IOException                  If there is an error stretching the media file.
+     * @throws UncheckedIOException         If there is an error adding the caption.
+     * @throws UnsupportedFileTypeException If the operation is not supported by this manipulator.
      */
     File stretch(File media, float widthMultiplier, float heightMultiplier, boolean raw) throws IOException;
 
@@ -63,9 +64,9 @@ public interface MediaManipulator {
      *
      * @param media The media file to turn into a GIF.
      * @return The media as a GIF file.
-     * @throws IOException                   If there is an error turning the media into a GIF.
-     * @throws UncheckedIOException          If there is an error adding the caption.
-     * @throws UnsupportedOperationException If the operation is not supported by this manipulator.
+     * @throws IOException                  If there is an error turning the media into a GIF.
+     * @throws UncheckedIOException         If there is an error adding the caption.
+     * @throws UnsupportedFileTypeException If the operation is not supported by this manipulator.
      */
     File makeGif(File media, boolean justRenameFile) throws IOException;
 

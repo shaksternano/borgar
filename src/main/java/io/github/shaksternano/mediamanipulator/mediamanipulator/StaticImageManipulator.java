@@ -2,6 +2,7 @@ package io.github.shaksternano.mediamanipulator.mediamanipulator;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Files;
+import io.github.shaksternano.mediamanipulator.command.util.exception.UnsupportedFileTypeException;
 import io.github.shaksternano.mediamanipulator.io.FileUtil;
 import io.github.shaksternano.mediamanipulator.util.DurationImage;
 import io.github.shaksternano.mediamanipulator.util.ImageUtil;
@@ -25,7 +26,7 @@ public class StaticImageManipulator extends ImageBasedManipulator {
 
     @Override
     public File speed(File media, float speedMultiplier) {
-        throw new UnsupportedOperationException("Cannot change the speed of a static image.");
+        throw new UnsupportedFileTypeException("Cannot change the speed of a static image.");
     }
 
     @Override
@@ -56,7 +57,7 @@ public class StaticImageManipulator extends ImageBasedManipulator {
 
     @Override
     public File reduceFps(File media, int fpsReductionRatio) {
-        throw new UnsupportedOperationException("Cannot reduce the FPS of a static image.");
+        throw new UnsupportedFileTypeException("Cannot reduce the FPS of a static image.");
     }
 
     @Override

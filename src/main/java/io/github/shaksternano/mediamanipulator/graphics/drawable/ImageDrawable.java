@@ -65,6 +65,6 @@ public class ImageDrawable implements Drawable {
 
     @Override
     public String toString() {
-        return "ImageDrawable[" + image + "]";
+        return getClass().getSimpleName() + "[" + image + "]";
     }
 }

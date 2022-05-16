@@ -55,6 +55,6 @@ public class TextDrawable implements Drawable {
 
     @Override
     public String toString() {
-        return "TextDrawable[" + TEXT + "]";
+        return getClass().getSimpleName() + "[" + TEXT + "]";
     }
 }

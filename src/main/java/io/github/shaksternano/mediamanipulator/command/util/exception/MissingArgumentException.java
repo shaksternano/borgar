@@ -1,4 +1,4 @@
-package io.github.shaksternano.mediamanipulator.command.util;
+package io.github.shaksternano.mediamanipulator.command.util.exception;
 
 import io.github.shaksternano.mediamanipulator.command.Command;
 

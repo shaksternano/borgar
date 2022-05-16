@@ -1,14 +1,12 @@
 package io.github.shaksternano.mediamanipulator.logging;
 
+import io.github.shaksternano.mediamanipulator.util.LimitedStringBuilder;
 import io.github.shaksternano.mediamanipulator.util.StringUtil;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.event.Level;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.List;
 import java.util.regex.Pattern;
 
 public class DiscordLogger extends InterceptLogger {
@@ -27,23 +25,15 @@ public class DiscordLogger extends InterceptLogger {
 
     @Override
     protected void intercept(Level level, String message, @Nullable Throwable t, Object... arguments) {
-        StringBuilder builder = new StringBuilder();
+        LimitedStringBuilder builder = new LimitedStringBuilder(2000);
         String messageWithArguments = formatArguments(message, arguments);
-        builder.append("**").append(level.toString()).append("** - ").append(getName()).append("\n").append(messageWithArguments);
+        builder.append("**").append(level).append("** - ").append(getName()).append("\n").append(messageWithArguments);
 
         if (t != null) {
-            builder.append("\nStacktrace:\n");
-            StringWriter stringWriter = new StringWriter();
-            PrintWriter printWriter = new PrintWriter(stringWriter);
-
-            t.printStackTrace(printWriter);
-            String stacktrace = stringWriter.toString();
-
-            builder.append(stacktrace);
+            builder.append("\nStacktrace:\n").append(StringUtil.getStacktrace(t));
         }
 
-        List<String> parts = StringUtil.splitString(builder.toString(), 2000);
-        for (String part : parts) {
+        for (String part : builder.getParts()) {
             channel.sendMessage(part).queue();
         }
     }

@@ -2,7 +2,8 @@ package io.github.shaksternano.mediamanipulator.mediamanipulator;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import io.github.shaksternano.mediamanipulator.command.util.InvalidArgumentException;
+import io.github.shaksternano.mediamanipulator.command.util.exception.InvalidArgumentException;
+import io.github.shaksternano.mediamanipulator.command.util.exception.UnsupportedFileTypeException;
 import io.github.shaksternano.mediamanipulator.io.FileUtil;
 import io.github.shaksternano.mediamanipulator.util.CollectionUtil;
 import io.github.shaksternano.mediamanipulator.util.DurationImage;
@@ -91,7 +92,7 @@ public class GifManipulator extends ImageBasedManipulator {
      */
     @Override
     public File makeGif(File media, boolean justRenameFile) {
-        throw new UnsupportedOperationException("This file is already a GIF file!");
+        throw new UnsupportedFileTypeException("This file is already a GIF file!");
     }
 
     @Override
@@ -167,7 +168,7 @@ public class GifManipulator extends ImageBasedManipulator {
 
     private static List<DurationImage> changeSpeed(Collection<DurationImage> frames, float speedMultiplier) {
         if (frames.size() <= 1) {
-            throw new UnsupportedOperationException("Cannot change the speed of a static image.");
+            throw new UnsupportedFileTypeException("Cannot change the speed of a static image.");
         } else {
             if (speedMultiplier != 1 && speedMultiplier > 0) {
                 for (DurationImage frame : frames) {

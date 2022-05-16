@@ -1,7 +1,6 @@
 package io.github.shaksternano.mediamanipulator.graphics.drawable;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -48,19 +47,6 @@ public abstract class BaseCompositeDrawable implements CompositeDrawable {
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder(getClass().getSimpleName() + "[");
-
-        Iterator<Drawable> drawableIterator = parts.iterator();
-        while (drawableIterator.hasNext()) {
-            Drawable part = drawableIterator.next();
-            builder.append(part);
-
-            if (drawableIterator.hasNext()) {
-                builder.append(", ");
-            }
-        }
-
-        builder.append("]");
-        return builder.toString();
+        return getClass().getSimpleName() + parts;
     }
 }

@@ -1,7 +1,7 @@
 package io.github.shaksternano.mediamanipulator.mediamanipulator;
 
 import com.google.common.io.Files;
-import io.github.shaksternano.mediamanipulator.command.util.InvalidMediaException;
+import io.github.shaksternano.mediamanipulator.command.util.exception.InvalidMediaException;
 import io.github.shaksternano.mediamanipulator.io.FileUtil;
 import io.github.shaksternano.mediamanipulator.util.DurationImage;
 import io.github.shaksternano.mediamanipulator.util.Fonts;
