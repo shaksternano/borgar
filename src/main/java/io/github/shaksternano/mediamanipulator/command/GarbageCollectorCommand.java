@@ -23,7 +23,7 @@ public class GarbageCollectorCommand extends BotOwnerCommand {
         long userId = userMessage.getAuthor().getIdLong();
 
         userMessage.reply("Running garbage collector!").queue();
-        Main.getLogger().info("Garbage collection request received from user " + userId + ", shutting down!");
+        Main.getLogger().info("Garbage collection request received from user " + userId + ", running garbage collector!");
         System.gc();
     }
 }
