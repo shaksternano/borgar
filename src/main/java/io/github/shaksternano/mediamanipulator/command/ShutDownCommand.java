@@ -31,9 +31,13 @@ public class ShutDownCommand extends BotOwnerCommand {
         Message userMessage = event.getMessage();
         long userId = userMessage.getAuthor().getIdLong();
 
-        userMessage.reply("Shutting down!").queue(message -> {
+        try {
+            userMessage.reply("Shutting down!").complete();
             Main.getLogger().info("Shut down request received from user " + userId + ", shutting down!");
-            Main.shutdown();
-        });
+        } catch (Throwable t) {
+            Main.getLogger().error("Error while shutting down!", t);
+        }
+
+        Main.shutdown();
     }
 }

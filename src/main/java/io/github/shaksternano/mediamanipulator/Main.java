@@ -3,6 +3,7 @@ package io.github.shaksternano.mediamanipulator;
 import io.github.shaksternano.mediamanipulator.command.Command;
 import io.github.shaksternano.mediamanipulator.command.util.Commands;
 import io.github.shaksternano.mediamanipulator.command.util.TerminalInputListener;
+import io.github.shaksternano.mediamanipulator.emoji.EmojiUtil;
 import io.github.shaksternano.mediamanipulator.io.FileUtil;
 import io.github.shaksternano.mediamanipulator.listener.CommandListener;
 import io.github.shaksternano.mediamanipulator.logging.DiscordLogger;
@@ -64,7 +65,7 @@ public class Main {
     private static ProgramArguments arguments;
 
     /**
-     * The entry point of the program.
+     * The program's main class.
      *
      * @param args The program arguments.
      */
@@ -91,6 +92,7 @@ public class Main {
         commandThread.start();
 
         configureJda();
+        EmojiUtil.initEmojiUnicodeSet();
     }
 
     /**

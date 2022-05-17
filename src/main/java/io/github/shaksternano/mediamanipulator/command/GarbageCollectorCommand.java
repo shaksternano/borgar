@@ -1,5 +1,7 @@
 package io.github.shaksternano.mediamanipulator.command;
 
+import io.github.shaksternano.mediamanipulator.Main;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class GarbageCollectorCommand extends BotOwnerCommand {
@@ -17,7 +19,11 @@ public class GarbageCollectorCommand extends BotOwnerCommand {
 
     @Override
     protected void botOwnerOperation(String[] arguments, MessageReceivedEvent event) {
-        event.getMessage().reply("Running garbage collector!").queue();
+        Message userMessage = event.getMessage();
+        long userId = userMessage.getAuthor().getIdLong();
+
+        userMessage.reply("Running garbage collector!").queue();
+        Main.getLogger().info("Garbage collection request received from user " + userId + ", shutting down!");
         System.gc();
     }
 }

@@ -1,9 +1,7 @@
 package io.github.shaksternano.mediamanipulator.util;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -65,5 +63,17 @@ public class JsonUtil {
         }
 
         return Optional.empty();
+    }
+
+    @Nullable
+    public static String getString(JsonElement jsonElement) {
+        if (jsonElement.isJsonPrimitive()) {
+            JsonPrimitive primitive = jsonElement.getAsJsonPrimitive();
+            if (primitive.isString()) {
+                return primitive.getAsString();
+            }
+        }
+
+        return null;
     }
 }

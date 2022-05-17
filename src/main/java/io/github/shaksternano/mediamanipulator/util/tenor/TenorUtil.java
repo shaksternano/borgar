@@ -1,14 +1,12 @@
 package io.github.shaksternano.mediamanipulator.util.tenor;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonPrimitive;
 import io.github.shaksternano.mediamanipulator.Main;
 import io.github.shaksternano.mediamanipulator.util.JsonUtil;
+import io.github.shaksternano.mediamanipulator.util.NetworkUtil;
 
-import java.io.*;
-import java.net.*;
-import java.nio.charset.StandardCharsets;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Optional;
 
 /**
@@ -32,7 +30,7 @@ public class TenorUtil {
                 String mediaId = url.substring(url.lastIndexOf("-") + 1);
                 String requestUrl = "https://g.tenor.com/v1/gifs?key=" + apiKey + "&ids=" + mediaId;
 
-                JsonElement request = get(requestUrl);
+                JsonElement request = NetworkUtil.httpGet(requestUrl);
 
                 Optional<JsonElement> resultsArrayElementOptional = JsonUtil.getNestedElement(request, "results");
                 Optional<JsonElement> resultElementOptional = JsonUtil.getArrayElement(resultsArrayElementOptional.orElse(JsonUtil.EMPTY), 0);
@@ -40,87 +38,18 @@ public class TenorUtil {
                 Optional<JsonElement> mediaElementOptional = JsonUtil.getArrayElement(mediaArrayElementOptional.orElse(JsonUtil.EMPTY), 0);
                 Optional<JsonElement> mediaUrlElementOptional = JsonUtil.getNestedElement(mediaElementOptional.orElse(JsonUtil.EMPTY), mediaType.getKey(), "url");
 
-                if (mediaUrlElementOptional.isPresent()) {
-                    JsonElement mediaUrlElement = mediaUrlElementOptional.orElseThrow();
-
-                    if (mediaUrlElement.isJsonPrimitive()) {
-                        JsonPrimitive mediaUrlPrimitive = mediaUrlElement.getAsJsonPrimitive();
-
-                        if (mediaUrlPrimitive.isString()) {
-                            return Optional.of(mediaUrlPrimitive.getAsString());
-                        }
-                    }
+                Optional<String> mediaUrlOptional = mediaUrlElementOptional.map(JsonUtil::getString);
+                if (mediaUrlOptional.isPresent()) {
+                    return mediaUrlOptional;
+                } else {
+                    Main.getLogger().error("Error while getting Tenor media URL from Tenor URL " + url + "!");
+                    Main.getLogger().error("Erroneous Tenor JSON contents:\n" + request);
                 }
-
-                Main.getLogger().error("Error while getting Tenor media URL from Tenor URL " + url + "!");
-                Main.getLogger().error("Erroneous Tenor JSON contents:\n" + request);
             }
         } catch (URISyntaxException e) {
             Main.getLogger().error("Error parsing URL " + url + "!", e);
         }
 
         return Optional.empty();
-    }
-
-    /**
-     * Construct and run a GET request.
-     *
-     * @param url The URL to request.
-     * @return The response as a {@link JsonElement}.
-     */
-    private static JsonElement get(String url) {
-        HttpURLConnection connection = null;
-        try {
-            // Get request
-            connection = (HttpURLConnection) new URL(url).openConnection();
-            connection.setDoInput(true);
-            connection.setDoOutput(true);
-            connection.setRequestMethod("GET");
-            connection.setRequestProperty("Content-Type", "application/json");
-            connection.setRequestProperty("Accept", "application/json");
-            connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-
-            // Handle failure
-            int statusCode = connection.getResponseCode();
-            if (statusCode != HttpURLConnection.HTTP_OK && statusCode != HttpURLConnection.HTTP_CREATED) {
-                String error = String.format("HTTP Code: '%1$s' from '%2$s'", statusCode, url);
-                throw new ConnectException(error);
-            }
-
-            // Parse response
-            return parser(connection);
-        } catch (Exception ignored) {
-        } finally {
-            if (connection != null) {
-                connection.disconnect();
-            }
-        }
-
-        return JsonUtil.EMPTY;
-    }
-
-    /**
-     * Parse the response into JSONObject.
-     *
-     * @param connection The connection to parse.
-     * @return The response as a {@link JsonElement}.
-     */
-    private static JsonElement parser(HttpURLConnection connection) {
-        char[] buffer = new char[1024 * 4];
-        int characterCount;
-
-        try (InputStream stream = new BufferedInputStream(connection.getInputStream())) {
-            InputStreamReader reader = new InputStreamReader(stream, StandardCharsets.UTF_8);
-            StringWriter writer = new StringWriter();
-
-            while (-1 != (characterCount = reader.read(buffer))) {
-                writer.write(buffer, 0, characterCount);
-            }
-
-            return JsonParser.parseString(writer.toString());
-        } catch (IOException ignored) {
-        }
-
-        return JsonUtil.EMPTY;
     }
 }
