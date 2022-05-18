@@ -56,8 +56,14 @@ public class ImageUtil {
         graphics.setFont(font);
 
         CompositeDrawable paragraph = new ParagraphCompositeDrawable(TextAlignment.CENTER, image.getWidth() - (padding * 2), null);
+        Map<String, BufferedImage> sortedImages = new TreeMap<>(Comparator
+                .comparingInt(String::length)
+                .reversed()
+                .thenComparing(Comparator.naturalOrder())
+        );
+        sortedImages.putAll(images);
         for (String word : words) {
-            paragraph.addPart(createWordImageDrawable(word, images));
+            paragraph.addPart(createWordImageDrawable(word, sortedImages));
         }
 
         int fillHeight = paragraph.getHeight(graphics) + (padding * 2);

@@ -26,9 +26,12 @@ public class LimitedStringBuilder {
             String lastPart = parts.get(parts.size() - 1);
             if (lastPart.length() + part.length() > MAX_LENGTH) {
                 if (part.length() > MAX_LENGTH) {
-                    int index = part.length() - MAX_LENGTH;
-                    parts.add(part.substring(0, index));
-                    parts.add(part.substring(index));
+                    String nextPart = part;
+                    while (nextPart.length() > MAX_LENGTH) {
+                        parts.add(nextPart.substring(0, MAX_LENGTH));
+                        nextPart = nextPart.substring(MAX_LENGTH);
+                    }
+                    parts.add(nextPart);
                 } else {
                     parts.add(part);
                 }
