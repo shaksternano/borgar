@@ -1,10 +1,8 @@
 package io.github.shaksternano.mediamanipulator.util;
 
+import com.madgag.gif.fmsware.GifDecoder;
 import com.sksamuel.scrimage.DisposeMethod;
 import com.sksamuel.scrimage.ImmutableImage;
-import com.sksamuel.scrimage.nio.AnimatedGif;
-import com.sksamuel.scrimage.nio.AnimatedGifReader;
-import com.sksamuel.scrimage.nio.ImageSource;
 import com.sksamuel.scrimage.nio.StreamingGifWriter;
 import io.github.shaksternano.mediamanipulator.Main;
 import io.github.shaksternano.mediamanipulator.graphics.TextAlignment;
@@ -321,15 +319,15 @@ public class ImageUtil {
      *
      * @param media The GIF file to get the frames of.
      * @return A list of {@link DurationImage}s representing the frames of the GIF file.
-     * @throws IOException If an error occurs while reading the GIF file.
      */
-    public static List<DurationImage> readGifFrames(File media) throws IOException {
+    public static List<DurationImage> readGifFrames(File media) {
         List<DurationImage> frames = new ArrayList<>();
-        AnimatedGif gif = AnimatedGifReader.read(ImageSource.of(media));
 
-        for (int i = 0; i < gif.getFrameCount(); i++) {
-            BufferedImage frame = gif.getFrame(i).awt();
-            int duration = (int) gif.getDelay(i).toMillis();
+        GifDecoder decoder = new GifDecoder();
+        decoder.read(media.getPath());
+        for (int i = 0; i < decoder.getFrameCount(); i++) {
+            int duration = decoder.getDelay(i);
+            BufferedImage frame = decoder.getFrame(i);
             frames.add(new DurationImage(frame, duration));
         }
 

@@ -27,8 +27,8 @@ dependencies {
     implementation("com.google.code.gson:gson:${project.property("google_gson_version")}")
     implementation("commons-io:commons-io:${project.property("apache_commons_io_version")}")
     implementation("com.sksamuel.scrimage:scrimage-core:${project.property("scrimage_version")}")
+    implementation("com.github.rtyley:animated-gif-lib-for-java:animated-gif-lib-${project.property("java_animated_gif_library_version")}")
     implementation("net.ifok.image:image4j:${project.property("image4j_version")}")
-    implementation("org.kohsuke:github-api:${project.property("java_github_api_version")}")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:${project.property("junit_version")}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
