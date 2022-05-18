@@ -103,14 +103,11 @@ public class Main {
      */
     private static String initDiscordBotToken() {
         Optional<String> tokenOptional = arguments.getArgumentOrEnvironmentVariable(DISCORD_BOT_TOKEN_ARGUMENT_NAME);
-
-        if (tokenOptional.isPresent()) {
-            return tokenOptional.orElseThrow();
-        } else {
+        return tokenOptional.orElseThrow(() -> {
             getLogger().error("Please provide a Discord bot token as an argument in the form of " + DISCORD_BOT_TOKEN_ARGUMENT_NAME + "=<token> or set the environment variable " + DISCORD_BOT_TOKEN_ARGUMENT_NAME + " to the Discord bot token.");
             System.exit(1);
-            throw new AssertionError("The program should not reach this point!");
-        }
+            return new AssertionError("The program should not reach this point!");
+        });
     }
 
     private static void initDiscordLogger() {
@@ -143,18 +140,14 @@ public class Main {
     private static void initTenorApiKey() {
         Optional<String> apiKeyOptional = arguments.getArgumentOrEnvironmentVariable(TENOR_API_KEY_ARGUMENT_NAME);
 
-        if (apiKeyOptional.isPresent()) {
-            String tenorApiKey = apiKeyOptional.orElseThrow();
-
+        apiKeyOptional.ifPresentOrElse(tenorApiKey -> {
             if (tenorApiKey.equals(Main.getTenorApiKey())) {
                 getLogger().warn("Tenor API key provided is the same as the default, restricted, rate limited example key (" + getTenorApiKey() + ")!");
             } else {
                 Main.tenorApiKey = tenorApiKey;
                 getLogger().info("Using custom Tenor API key!");
             }
-        } else {
-            getLogger().warn("No Tenor API key provided, using default, restricted, rate limited example key (" + getTenorApiKey() + ").");
-        }
+        }, () -> getLogger().warn("No Tenor API key provided, using default, restricted, rate limited example key (" + getTenorApiKey() + ")."));
     }
 
     /**
