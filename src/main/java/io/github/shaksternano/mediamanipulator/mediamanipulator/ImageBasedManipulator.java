@@ -2,6 +2,7 @@ package io.github.shaksternano.mediamanipulator.mediamanipulator;
 
 import com.google.common.io.Files;
 import io.github.shaksternano.mediamanipulator.command.util.exception.InvalidMediaException;
+import io.github.shaksternano.mediamanipulator.graphics.drawable.Drawable;
 import io.github.shaksternano.mediamanipulator.io.FileUtil;
 import io.github.shaksternano.mediamanipulator.util.DurationImage;
 import io.github.shaksternano.mediamanipulator.util.Fonts;
@@ -25,8 +26,8 @@ import java.util.function.Function;
 public abstract class ImageBasedManipulator implements MediaManipulator {
 
     @Override
-    public File caption(File media, String[] words, Map<String, BufferedImage> images) throws IOException {
-        return applyToEachFrame(media, image -> ImageUtil.captionImage(image, words, Fonts.getCaptionFont(), images), "captioned", true);
+    public File caption(File media, String[] words, Map<String, Drawable> nonTextParts) throws IOException {
+        return applyToEachFrame(media, image -> ImageUtil.captionImage(image, words, Fonts.getCaptionFont(), nonTextParts), "captioned", true);
     }
 
     @Override

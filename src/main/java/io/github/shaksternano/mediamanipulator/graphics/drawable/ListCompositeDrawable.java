@@ -5,9 +5,9 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * This class provides some default implementations for the {@code CompositeDrawable} interface.
+ * A {@code CompositeDrawable} that stores its parts in a {@link List}.
  */
-public abstract class BaseCompositeDrawable implements CompositeDrawable {
+public abstract class ListCompositeDrawable implements CompositeDrawable {
 
     /**
      * The parts of this composite drawable.
@@ -26,18 +26,6 @@ public abstract class BaseCompositeDrawable implements CompositeDrawable {
     @Override
     public void addPart(Drawable part) {
         parts.add(part);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        } else if (obj != null && getClass() == obj.getClass()) {
-            BaseCompositeDrawable other = (BaseCompositeDrawable) obj;
-            return Objects.equals(parts, other.parts);
-        } else {
-            return false;
-        }
     }
 
     @Override

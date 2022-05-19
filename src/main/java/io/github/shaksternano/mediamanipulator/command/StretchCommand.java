@@ -65,6 +65,7 @@ public class StretchCommand extends MediaCommand {
                 event.getChannel(),
                 (argument, defaultValue) -> "Height multiplier \"" + argument + "\" is not a number. Using default value of " + defaultValue + "."
         );
+
         return manipulator.stretch(media, widthMultiplier, heightMultiplier, RAW);
     }
 }

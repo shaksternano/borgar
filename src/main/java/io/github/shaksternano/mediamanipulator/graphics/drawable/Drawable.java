@@ -33,18 +33,20 @@ public interface Drawable {
     int getHeight(Graphics2D graphicsContext);
 
     /**
-     * Resizes the drawable to the given width.
+     * Creates a new drawable from this one that has been resized to the given width.
      *
      * @param width The width to resize to.
+     * @return A new drawable that has been resized to the given width.
      * @throws UnsupportedOperationException If the drawable cannot be resized by width.
      */
-    void resizeToWidth(int width);
+    Drawable resizeToWidth(int width);
 
     /**
-     * Resizes the drawable to the given height.
+     * Creates a new drawable from this one that has been resized to the given height.
      *
      * @param height The height to resize to.
+     * @return A new drawable that has been resized to the given height.
      * @throws UnsupportedOperationException If the drawable cannot be resized by height.
      */
-    void resizeToHeight(int height);
+    Drawable resizeToHeight(int height);
 }

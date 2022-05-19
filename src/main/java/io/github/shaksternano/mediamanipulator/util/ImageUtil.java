@@ -8,7 +8,9 @@ import com.sksamuel.scrimage.nio.ImageSource;
 import com.sksamuel.scrimage.nio.StreamingGifWriter;
 import io.github.shaksternano.mediamanipulator.Main;
 import io.github.shaksternano.mediamanipulator.graphics.TextAlignment;
-import io.github.shaksternano.mediamanipulator.graphics.drawable.*;
+import io.github.shaksternano.mediamanipulator.graphics.drawable.CompositeDrawable;
+import io.github.shaksternano.mediamanipulator.graphics.drawable.Drawable;
+import io.github.shaksternano.mediamanipulator.graphics.drawable.ParagraphCompositeDrawable;
 import io.github.shaksternano.mediamanipulator.io.FileUtil;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,13 +42,13 @@ public class ImageUtil {
     /**
      * Adds a caption to an image.
      *
-     * @param image  The image to add a caption to.
-     * @param words  The words of the caption.
-     * @param font   The font to use for the caption.
-     * @param images The images to use in the caption.
+     * @param image        The image to add a caption to.
+     * @param words        The words of the caption.
+     * @param font         The font to use for the caption.
+     * @param nonTextParts The non text parts to use in the caption.
      * @return The image with the caption added.
      */
-    public static BufferedImage captionImage(BufferedImage image, String[] words, Font font, Map<String, BufferedImage> images) {
+    public static BufferedImage captionImage(BufferedImage image, String[] words, Font font, Map<String, Drawable> nonTextParts) {
         font = font.deriveFont(image.getWidth() / 10F);
         int padding = (int) (image.getWidth() * 0.04);
         Graphics2D graphics = image.createGraphics();
@@ -55,16 +57,9 @@ public class ImageUtil {
 
         graphics.setFont(font);
 
-        CompositeDrawable paragraph = new ParagraphCompositeDrawable(TextAlignment.CENTER, image.getWidth() - (padding * 2), null);
-        Map<String, BufferedImage> sortedImages = new TreeMap<>(Comparator
-                .comparingInt(String::length)
-                .reversed()
-                .thenComparing(Comparator.naturalOrder())
-        );
-        sortedImages.putAll(images);
-        for (String word : words) {
-            paragraph.addPart(createWordImageDrawable(word, sortedImages));
-        }
+        CompositeDrawable paragraph = new ParagraphCompositeDrawable.Builder(nonTextParts)
+                .addWords(words)
+                .build(TextAlignment.CENTER, image.getWidth() - (padding * 2), null);
 
         int fillHeight = paragraph.getHeight(graphics) + (padding * 2);
         graphics.dispose();
@@ -99,48 +94,6 @@ public class ImageUtil {
                 RenderingHints.KEY_TEXT_ANTIALIASING,
                 RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB
         );
-    }
-
-    private static Drawable createWordImageDrawable(String word, Map<String, BufferedImage> images) {
-        if (images.isEmpty()) {
-            return new TextDrawable(word);
-        } else {
-            CompositeDrawable wordImageDrawable = new HorizontalCompositeDrawable();
-            StringBuilder actualWordBuilder = new StringBuilder();
-
-            int index = 0;
-            while (index < word.length()) {
-                String subWord = word.substring(index);
-                boolean foundImage = false;
-
-                for (Map.Entry<String, BufferedImage> entry : images.entrySet()) {
-                    String key = entry.getKey();
-                    int keyLength = key.length();
-                    if (subWord.startsWith(key)) {
-                        if (!actualWordBuilder.isEmpty()) {
-                            wordImageDrawable.addPart(new TextDrawable(actualWordBuilder.toString()));
-                            actualWordBuilder.setLength(0);
-                        }
-
-                        wordImageDrawable.addPart(new ImageDrawable(entry.getValue()));
-                        index += keyLength;
-                        foundImage = true;
-                        break;
-                    }
-                }
-
-                if (!foundImage) {
-                    actualWordBuilder.append(subWord.charAt(0));
-                    index++;
-                }
-            }
-
-            if (!actualWordBuilder.isEmpty()) {
-                wordImageDrawable.addPart(new TextDrawable(actualWordBuilder.toString()));
-            }
-
-            return wordImageDrawable;
-        }
     }
 
     /**

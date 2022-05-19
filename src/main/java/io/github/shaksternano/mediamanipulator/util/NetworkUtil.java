@@ -11,18 +11,6 @@ import java.nio.charset.StandardCharsets;
 
 public class NetworkUtil {
 
-    public static boolean doesUrlExist(String url) {
-        try {
-            HttpURLConnection urlConnection = (HttpURLConnection) new URL(url).openConnection();
-            urlConnection.setRequestMethod("HEAD");
-            int responseCode = urlConnection.getResponseCode();
-            urlConnection.disconnect();
-            return responseCode == HttpURLConnection.HTTP_OK;
-        } catch (IOException e) {
-            return false;
-        }
-    }
-
     /**
      * Construct and run a GET request.
      *

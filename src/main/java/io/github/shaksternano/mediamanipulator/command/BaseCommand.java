@@ -1,12 +1,14 @@
 package io.github.shaksternano.mediamanipulator.command;
 
+import java.util.Objects;
+
 /**
  * This class provides some default implementations for the {@code Command} interface.
  */
 public abstract class BaseCommand implements Command {
 
     /**
-     * The name of the command. When a user sends a message starting with {@link Command#PREFIX}
+     * The unique name of the command. When a user sends a message starting with {@link Command#PREFIX}
      * followed by this name, the command will be executed.
      */
     private final String NAME;
@@ -36,6 +38,22 @@ public abstract class BaseCommand implements Command {
     @Override
     public String getDescription() {
         return DESCRIPTION;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(NAME, DESCRIPTION);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        } else if (obj instanceof BaseCommand other) {
+            return Objects.equals(NAME, other.NAME);
+        } else {
+            return false;
+        }
     }
 
     /**

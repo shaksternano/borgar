@@ -48,6 +48,11 @@ public class LimitedStringBuilder {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(MAX_LENGTH, parts);
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
@@ -60,12 +65,7 @@ public class LimitedStringBuilder {
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(MAX_LENGTH, parts);
-    }
-
-    @Override
     public String toString() {
-        return getClass().getSimpleName() + "{Max Length: " + MAX_LENGTH + ", Parts: " + parts + "}";
+        return getClass().getSimpleName() + "[Max Length: " + MAX_LENGTH + ", Parts: " + parts + "]";
     }
 }

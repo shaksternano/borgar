@@ -28,13 +28,18 @@ public class TextDrawable implements Drawable {
     }
 
     @Override
-    public void resizeToWidth(int width) {
+    public Drawable resizeToWidth(int width) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void resizeToHeight(int height) {
+    public Drawable resizeToHeight(int height) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int hashCode() {
+        return TEXT.hashCode();
     }
 
     @Override
@@ -46,11 +51,6 @@ public class TextDrawable implements Drawable {
         } else {
             return false;
         }
-    }
-
-    @Override
-    public int hashCode() {
-        return TEXT.hashCode();
     }
 
     @Override

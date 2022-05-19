@@ -19,7 +19,7 @@ import java.util.function.BiFunction;
  */
 public class CommandParser {
 
-    public static final DecimalFormat FORMAT = new DecimalFormat("0.####");
+    private static final DecimalFormat FORMAT = new DecimalFormat("0.####");
 
     /**
      * Gets a {@link Command} from the command word in a message and executes it.
@@ -110,7 +110,7 @@ public class CommandParser {
             try {
                 return Integer.decode(argument);
             } catch (NumberFormatException e) {
-                triggerChannel.sendMessage(errorMessage.apply(argument, String.valueOf(defaultValue))).queue();
+                triggerChannel.sendMessage(errorMessage.apply(argument, String.valueOf(defaultValue))).complete();
                 triggerChannel.sendTyping().complete();
             }
         }
@@ -125,7 +125,7 @@ public class CommandParser {
             try {
                 return Float.parseFloat(argument);
             } catch (NumberFormatException e) {
-                triggerChannel.sendMessage(errorMessage.apply(argument, FORMAT.format(defaultValue))).queue();
+                triggerChannel.sendMessage(errorMessage.apply(argument, FORMAT.format(defaultValue))).complete();
                 triggerChannel.sendTyping().complete();
             }
         }

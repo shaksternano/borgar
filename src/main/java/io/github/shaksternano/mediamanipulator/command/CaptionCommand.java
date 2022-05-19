@@ -1,5 +1,7 @@
 package io.github.shaksternano.mediamanipulator.command;
 
+import io.github.shaksternano.mediamanipulator.graphics.drawable.Drawable;
+import io.github.shaksternano.mediamanipulator.graphics.drawable.ImageDrawable;
 import io.github.shaksternano.mediamanipulator.mediamanipulator.MediaManipulator;
 import io.github.shaksternano.mediamanipulator.util.ImageUtil;
 import io.github.shaksternano.mediamanipulator.util.MessageUtil;
@@ -43,15 +45,16 @@ public class CaptionCommand extends MediaCommand {
     @Override
     public File applyOperation(File media, String[] arguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
         Map<String, String> imageUrls = MessageUtil.getEmojiUrls(event.getMessage());
-        Map<String, BufferedImage> images = imageUrls.entrySet().parallelStream().map(imageUrlEntry -> {
+        Map<String, Drawable> nonTextParts = imageUrls.entrySet().parallelStream().map(imageUrlEntry -> {
             try {
                 BufferedImage image = ImageUtil.readImage(new URL(imageUrlEntry.getValue()));
-                return new AbstractMap.SimpleEntry<>(imageUrlEntry.getKey(), image);
+                Drawable drawable = new ImageDrawable(image);
+                return new AbstractMap.SimpleEntry<>(imageUrlEntry.getKey(), drawable);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
         }).collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue));
 
-        return manipulator.caption(media, arguments, images);
+        return manipulator.caption(media, arguments, nonTextParts);
     }
 }

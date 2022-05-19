@@ -200,7 +200,7 @@ public class GifManipulator extends ImageBasedManipulator {
         List<BufferedImage> bufferedFrames = new ArrayList<>();
 
         for (DurationImage frame : durationFrames) {
-            for (int i = 0; i < frame.getDuration(); i++) {
+            for (int i = 0; i < Math.max(frame.getDuration(), 1); i++) {
                 bufferedFrames.add(frame.getImage());
             }
         }

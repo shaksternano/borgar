@@ -8,7 +8,7 @@ import java.util.Objects;
 
 public class ImageDrawable implements Drawable {
 
-    private BufferedImage image;
+    private final BufferedImage image;
 
     public ImageDrawable(BufferedImage image) {
         this.image = image;
@@ -30,21 +30,26 @@ public class ImageDrawable implements Drawable {
     }
 
     @Override
-    public void resizeToWidth(int width) {
-        if (image.getWidth() != width) {
-            BufferedImage oldImage = image;
-            image = ImageUtil.fitWidth(image, width);
-            oldImage.flush();
+    public Drawable resizeToWidth(int width) {
+        if (image.getWidth() == width) {
+            return this;
+        } else {
+            return new ImageDrawable(ImageUtil.fitWidth(image, width));
         }
     }
 
     @Override
-    public void resizeToHeight(int height) {
-        if (image.getHeight() != height) {
-            BufferedImage oldImage = image;
-            image = ImageUtil.fitHeight(image, height);
-            oldImage.flush();
+    public Drawable resizeToHeight(int height) {
+        if (image.getHeight() == height) {
+            return this;
+        } else {
+            return new ImageDrawable(ImageUtil.fitHeight(image, height));
         }
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(image);
     }
 
     @Override
@@ -56,11 +61,6 @@ public class ImageDrawable implements Drawable {
         } else {
             return false;
         }
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(image);
     }
 
     @Override
