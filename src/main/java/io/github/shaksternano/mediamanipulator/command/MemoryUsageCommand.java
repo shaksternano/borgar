@@ -4,6 +4,8 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class MemoryUsageCommand extends BotOwnerCommand {
 
+    private static final int TO_MB = 1024 * 1024;
+
     /**
      * Creates a new command object.
      *
@@ -17,7 +19,6 @@ public class MemoryUsageCommand extends BotOwnerCommand {
 
     @Override
     protected void botOwnerOperation(String[] arguments, MessageReceivedEvent event) {
-        int toMb = 1024 * 1024;
-        event.getMessage().reply("Current memory usage: " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / toMb + "/" + Runtime.getRuntime().maxMemory() / toMb + "MB").queue();
+        event.getMessage().reply("Current memory usage: " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / TO_MB + "/" + Runtime.getRuntime().maxMemory() / TO_MB + "MB").queue();
     }
 }
