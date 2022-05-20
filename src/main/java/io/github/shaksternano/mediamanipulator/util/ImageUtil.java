@@ -323,15 +323,38 @@ public class ImageUtil {
     }
 
     public static BufferedImage readImage(File file) throws IOException {
-        return ImmutableImage.loader().fromFile(file).awt();
+        try {
+            return ImmutableImage.loader().fromFile(file).awt();
+        } catch (IOException e) {
+            BufferedImage image = ImageIO.read(file);
+            if (image == null) {
+                throw new IOException("Could not read image file!");
+            } else {
+                return image;
+            }
+        }
     }
 
     public static BufferedImage readImage(InputStream inputStream) throws IOException {
-        return ImmutableImage.loader().fromStream(inputStream).awt();
+        try {
+            return ImmutableImage.loader().fromStream(inputStream).awt();
+        } catch (IOException e) {
+            BufferedImage image = ImageIO.read(inputStream);
+            if (image == null) {
+                throw new IOException("Could not read image file!");
+            } else {
+                return image;
+            }
+        }
     }
 
     public static BufferedImage readImage(URL url) throws IOException {
-        return ImageIO.read(url);
+        BufferedImage image = ImageIO.read(url);
+        if (image == null) {
+            throw new IOException("Could not read image file from URL: " + url);
+        } else {
+            return image;
+        }
     }
 
     public static BufferedImage readImageWithAlpha(File file) throws IOException {
