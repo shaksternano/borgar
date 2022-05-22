@@ -18,11 +18,11 @@ public class EmojiUtil {
             ImmutableSet.Builder<String> builder = ImmutableSet.builder();
             String line;
             while ((line = reader.readLine()) != null) {
-                builder.add(line);
+                builder.add(line.toLowerCase());
             }
             emojiUnicodeSet = builder.build();
         } catch (IOException e) {
-            Main.getLogger().warn("Error while loading emoji unicodes!", e);
+            Main.getLogger().error("Error while loading emoji unicodes!", e);
         }
     }
 
