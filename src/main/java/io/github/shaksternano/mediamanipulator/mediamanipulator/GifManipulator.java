@@ -41,11 +41,17 @@ public class GifManipulator extends ImageBasedManipulator {
         List<DurationImage> frames = ImageUtil.readGifFrames(media);
         List<BufferedImage> bufferedFrames = durationImagesToBufferedImages(frames);
         List<BufferedImage> keptFrames = CollectionUtil.keepEveryNthElement(bufferedFrames, DurationImage.GIF_MINIMUM_FRAME_DURATION, Image::flush);
+
+        frames.clear();
+        bufferedFrames.clear();
+
         List<BufferedImage> compressedFrames = new ArrayList<>(keptFrames.size());
 
         for (BufferedImage frame : keptFrames) {
             compressedFrames.add(MediaCompression.reduceToDisplaySize(frame));
         }
+
+        keptFrames.clear();
 
         BufferedImage firstFrame = compressedFrames.get(0);
 
@@ -67,6 +73,8 @@ public class GifManipulator extends ImageBasedManipulator {
 
             indexedFrames.put(i, new DurationImage(compressedFrames.get(i % compressedFrames.size()), duration));
         }
+
+        compressedFrames.clear();
 
         return spinFrames(indexedFrames, speed, framesPerRotation, maxDimension, media, backgroundColor);
     }
@@ -177,6 +185,7 @@ public class GifManipulator extends ImageBasedManipulator {
 
                 List<BufferedImage> bufferedFrames = durationImagesToBufferedImages(frames);
                 List<BufferedImage> keptFrames = CollectionUtil.keepEveryNthElement(bufferedFrames, DurationImage.GIF_MINIMUM_FRAME_DURATION, Image::flush);
+                bufferedFrames.clear();
                 List<DurationImage> newFrames = bufferedImagesToDurationImages(keptFrames);
 
                 for (DurationImage frame : newFrames) {
