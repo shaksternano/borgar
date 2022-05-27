@@ -102,6 +102,7 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
                 currentLineIsEmpty = false;
             } else {
                 lineWidth = part.getWidth(graphicsContext);
+                currentLineIsEmpty = true;
             }
         }
 
@@ -134,6 +135,7 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
             } else {
                 lineWidth = part.getWidth(graphicsContext);
                 lineY += lineHeight + lineSpace;
+                currentLineIsEmpty = true;
             }
         }
 
