@@ -3,10 +3,10 @@ package io.github.shaksternano.mediamanipulator.command;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.Drawable;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.ImageDrawable;
 import io.github.shaksternano.mediamanipulator.mediamanipulator.MediaManipulator;
-import io.github.shaksternano.mediamanipulator.util.ImageUtil;
 import io.github.shaksternano.mediamanipulator.util.MessageUtil;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -48,7 +48,7 @@ public class CaptionCommand extends MediaCommand {
         Map<String, String> imageUrls = MessageUtil.getEmojiUrls(event.getMessage());
         Map<String, Drawable> nonTextParts = imageUrls.entrySet().parallelStream().map(imageUrlEntry -> {
             try {
-                BufferedImage image = ImageUtil.readImage(new URL(imageUrlEntry.getValue()));
+                BufferedImage image = ImageIO.read(new URL(imageUrlEntry.getValue()));
                 Drawable drawable = new ImageDrawable(image);
                 return new AbstractMap.SimpleEntry<>(imageUrlEntry.getKey(), drawable);
             } catch (IOException e) {

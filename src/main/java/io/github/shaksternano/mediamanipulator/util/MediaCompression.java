@@ -7,8 +7,6 @@ import io.github.shaksternano.mediamanipulator.image.util.Frame;
 import io.github.shaksternano.mediamanipulator.image.util.ImageMediaBuilder;
 
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Contains static methods for compressing media files.

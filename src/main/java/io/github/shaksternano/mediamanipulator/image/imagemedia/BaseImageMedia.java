@@ -1,7 +1,7 @@
 package io.github.shaksternano.mediamanipulator.image.imagemedia;
 
+import com.google.common.collect.ImmutableList;
 import io.github.shaksternano.mediamanipulator.image.util.Frame;
-import io.github.shaksternano.mediamanipulator.util.ImageUtil;
 
 import java.awt.image.BufferedImage;
 import java.util.List;
@@ -22,7 +22,15 @@ public abstract class BaseImageMedia implements ImageMedia {
 
     @Override
     public List<BufferedImage> toBufferedImages() {
-        return ImageUtil.framesToBufferedImages(this);
+        ImmutableList.Builder<BufferedImage> builder = new ImmutableList.Builder<>();
+
+        for (Frame frame : this) {
+            for (int i = 0; i < Math.max(frame.getDuration(), 1); i++) {
+                builder.add(frame.getImage());
+            }
+        }
+
+        return builder.build();
     }
 
     @Override

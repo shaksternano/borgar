@@ -7,7 +7,7 @@ import com.sksamuel.scrimage.nio.ImageSource;
 import io.github.shaksternano.mediamanipulator.image.imagemedia.ImageMedia;
 import io.github.shaksternano.mediamanipulator.image.util.AwtFrame;
 import io.github.shaksternano.mediamanipulator.image.util.ImageMediaBuilder;
-import io.github.shaksternano.mediamanipulator.util.ImageUtil;
+import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.image.BufferedImage;

@@ -23,8 +23,8 @@ public interface MediaManipulator {
      * @param words        The words of the caption.
      * @param nonTextParts The non text parts to use in the caption.
      * @return The media file with the caption added.
-     * @throws IOException                  If there is an error adding the caption.
-     * @throws UncheckedIOException         If there is an error adding the caption.
+     * @throws IOException                    If there is an error adding the caption.
+     * @throws UncheckedIOException           If there is an error adding the caption.
      * @throws UnsupportedFileFormatException If the operation is not supported by this manipulator.
      */
     File caption(File media, String fileFormat, String[] words, Map<String, Drawable> nonTextParts) throws IOException;
@@ -38,8 +38,8 @@ public interface MediaManipulator {
      * @param raw              If false, extra processing is done to smoothen the resulting image.
      *                         If true, no extra processing is done.
      * @return The stretched media file.
-     * @throws IOException                  If there is an error stretching the media file.
-     * @throws UncheckedIOException         If there is an error adding the caption.
+     * @throws IOException                    If there is an error stretching the media file.
+     * @throws UncheckedIOException           If there is an error adding the caption.
      * @throws UnsupportedFileFormatException If the operation is not supported by this manipulator.
      */
     File stretch(File media, String fileFormat, float widthMultiplier, float heightMultiplier, boolean raw) throws IOException;
@@ -65,8 +65,8 @@ public interface MediaManipulator {
      *
      * @param media The media file to turn into a GIF.
      * @return The media as a GIF file.
-     * @throws IOException                  If there is an error turning the media into a GIF.
-     * @throws UncheckedIOException         If there is an error adding the caption.
+     * @throws IOException                    If there is an error turning the media into a GIF.
+     * @throws UncheckedIOException           If there is an error adding the caption.
      * @throws UnsupportedFileFormatException If the operation is not supported by this manipulator.
      */
     File makeGif(File media, String fileFormat, boolean justRenameFile) throws IOException;

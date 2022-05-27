@@ -1,19 +1,6 @@
-package io.github.shaksternano.mediamanipulator.util;
+package io.github.shaksternano.mediamanipulator.image.util;
 
-import com.google.common.collect.ImmutableList;
-import com.sksamuel.scrimage.DisposeMethod;
 import com.sksamuel.scrimage.ImmutableImage;
-import com.sksamuel.scrimage.nio.AnimatedGif;
-import com.sksamuel.scrimage.nio.AnimatedGifReader;
-import com.sksamuel.scrimage.nio.ImageSource;
-import com.sksamuel.scrimage.nio.StreamingGifWriter;
-import io.github.shaksternano.mediamanipulator.Main;
-import io.github.shaksternano.mediamanipulator.graphics.TextAlignment;
-import io.github.shaksternano.mediamanipulator.graphics.drawable.CompositeDrawable;
-import io.github.shaksternano.mediamanipulator.graphics.drawable.Drawable;
-import io.github.shaksternano.mediamanipulator.graphics.drawable.ParagraphCompositeDrawable;
-import io.github.shaksternano.mediamanipulator.image.util.AwtFrame;
-import io.github.shaksternano.mediamanipulator.image.util.Frame;
 import io.github.shaksternano.mediamanipulator.io.FileUtil;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,12 +10,10 @@ import javax.imageio.stream.ImageInputStream;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorConvertOp;
-import java.io.*;
-import java.net.URL;
-import java.time.Duration;
-import java.util.List;
-import java.util.*;
-import java.util.function.Function;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Iterator;
 
 /**
  * Contains static methods for dealing with images.
@@ -36,57 +21,12 @@ import java.util.function.Function;
 public class ImageUtil {
 
     public static BufferedImage getImageResource(String resourcePath) throws IOException {
-        try (InputStream imageStream = FileUtil.getResource(resourcePath)) {
-            return readImage(imageStream);
+        try (InputStream inputStream = FileUtil.getResource(resourcePath)) {
+            return ImageIO.read(inputStream);
         }
     }
 
-    /**
-     * Adds a caption to an image.
-     *
-     * @param image        The image to add a caption to.
-     * @param words        The words of the caption.
-     * @param font         The font to use for the caption.
-     * @param nonTextParts The non text parts to use in the caption.
-     * @return The image with the caption added.
-     */
-    public static BufferedImage captionImage(BufferedImage image, String[] words, Font font, Map<String, Drawable> nonTextParts) {
-        font = font.deriveFont(image.getWidth() / 10F);
-        int padding = (int) (image.getWidth() * 0.04);
-        Graphics2D graphics = image.createGraphics();
-
-        configureTextSettings(graphics);
-
-        graphics.setFont(font);
-
-        CompositeDrawable paragraph = new ParagraphCompositeDrawable.Builder(nonTextParts)
-                .addWords(words)
-                .build(TextAlignment.CENTER, image.getWidth() - (padding * 2), null);
-
-        int fillHeight = paragraph.getHeight(graphics) + (padding * 2);
-        graphics.dispose();
-
-        BufferedImage resizedImage = new BufferedImage(image.getWidth(), image.getHeight() + fillHeight, image.getType());
-
-        graphics = resizedImage.createGraphics();
-        graphics.setFont(font);
-
-        graphics.drawImage(image, 0, fillHeight, null);
-
-        configureTextSettings(graphics);
-
-        graphics.setColor(Color.WHITE);
-        graphics.fillRect(0, 0, resizedImage.getWidth(), fillHeight);
-
-        graphics.setColor(Color.BLACK);
-
-        paragraph.draw(graphics, padding, padding);
-
-        graphics.dispose();
-        return resizedImage;
-    }
-
-    private static void configureTextSettings(Graphics2D graphics) {
+    public static void configureTextDrawSettings(Graphics2D graphics) {
         graphics.setRenderingHint(
                 RenderingHints.KEY_FRACTIONALMETRICS,
                 RenderingHints.VALUE_FRACTIONALMETRICS_ON
@@ -122,10 +62,6 @@ public class ImageUtil {
 
     public static BufferedImage resize(BufferedImage image, float resizeMultiplier, boolean raw) {
         return stretch(image, (int) (image.getWidth() * resizeMultiplier), (int) (image.getHeight() * resizeMultiplier), raw);
-    }
-
-    public static BufferedImage pixelate(BufferedImage image, int pixelationMultiplier) {
-        return stretch(stretch(image, image.getWidth() / pixelationMultiplier, image.getHeight() / pixelationMultiplier, true), image.getWidth(), image.getHeight(), true);
     }
 
     public static BufferedImage fitWidth(BufferedImage toFit, int width) {
@@ -286,32 +222,6 @@ public class ImageUtil {
         }
     }
 
-    public static BufferedImage readImage(File file) throws IOException {
-        return readImage(new FileInputStream(file));
-    }
-
-    public static BufferedImage readImage(InputStream inputStream) throws IOException {
-        BufferedImage image = ImageIO.read(inputStream);
-        if (image == null) {
-            throw new IOException("Unable to read image");
-        } else {
-            return image;
-        }
-    }
-
-    public static BufferedImage readImage(URL url) throws IOException {
-        BufferedImage image = ImageIO.read(url);
-        if (image == null) {
-            throw new IOException("Could not read image file from URL: " + url);
-        } else {
-            return image;
-        }
-    }
-
-    public static BufferedImage addAlpha(BufferedImage image) {
-        return convertType(image, BufferedImage.TYPE_INT_ARGB);
-    }
-
     public static BufferedImage convertType(BufferedImage image, int type) {
         if (image.getType() == type) {
             return image;
@@ -320,17 +230,5 @@ public class ImageUtil {
             ColorConvertOp convertOp = new ColorConvertOp(null);
             return convertOp.filter(image, imageWithAlpha);
         }
-    }
-
-    public static List<BufferedImage> framesToBufferedImages(Iterable<Frame> frames) {
-        ImmutableList.Builder<BufferedImage> builder = new ImmutableList.Builder<>();
-
-        for (Frame frame : frames) {
-            for (int i = 0; i < Math.max(frame.getDuration(), 1); i++) {
-                builder.add(frame.getImage());
-            }
-        }
-
-        return builder.build();
     }
 }

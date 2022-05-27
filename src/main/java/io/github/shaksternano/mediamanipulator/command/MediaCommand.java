@@ -96,7 +96,7 @@ public abstract class MediaCommand extends BaseCommand {
      * Applies an operation to the media file specified by {@link FileUtil#downloadFile(String, String)}.
      *
      * @param media       The media file to apply the operation to
-     * @param fileFormat    The type of the media file.
+     * @param fileFormat  The type of the media file.
      * @param arguments   The arguments of the command.
      * @param manipulator The {@link MediaManipulator} to use for the operation.
      * @param event       The {@link MessageReceivedEvent} that triggered the command.

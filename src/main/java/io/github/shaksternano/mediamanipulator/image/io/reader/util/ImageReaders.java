@@ -9,7 +9,6 @@ import io.github.shaksternano.mediamanipulator.image.io.reader.ScrimageAnimatedG
 import io.github.shaksternano.mediamanipulator.image.io.reader.ScrimageImageReader;
 import io.github.shaksternano.mediamanipulator.image.io.writer.Image4jIcoImageWriter;
 import io.github.shaksternano.mediamanipulator.image.io.writer.util.ImageWriterRegistry;
-import io.github.shaksternano.mediamanipulator.io.FileUtil;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;

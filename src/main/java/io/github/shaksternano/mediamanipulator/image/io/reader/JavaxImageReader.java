@@ -3,7 +3,7 @@ package io.github.shaksternano.mediamanipulator.image.io.reader;
 import com.google.common.collect.ImmutableSet;
 import io.github.shaksternano.mediamanipulator.image.imagemedia.ImageMedia;
 import io.github.shaksternano.mediamanipulator.image.imagemedia.StaticImage;
-import io.github.shaksternano.mediamanipulator.util.ImageUtil;
+import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
 import org.jetbrains.annotations.Nullable;
 
 import javax.imageio.ImageIO;

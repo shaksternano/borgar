@@ -1,6 +1,6 @@
 package io.github.shaksternano.mediamanipulator.graphics.drawable;
 
-import io.github.shaksternano.mediamanipulator.util.ImageUtil;
+import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;

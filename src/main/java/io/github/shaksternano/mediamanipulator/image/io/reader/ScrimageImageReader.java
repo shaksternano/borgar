@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableSet;
 import com.sksamuel.scrimage.ImmutableImage;
 import io.github.shaksternano.mediamanipulator.image.imagemedia.ImageMedia;
 import io.github.shaksternano.mediamanipulator.image.imagemedia.StaticImage;
-import io.github.shaksternano.mediamanipulator.util.ImageUtil;
+import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.image.BufferedImage;

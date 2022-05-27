@@ -6,7 +6,10 @@ import com.google.common.io.Files;
 import io.github.shaksternano.mediamanipulator.exception.InvalidArgumentException;
 import io.github.shaksternano.mediamanipulator.exception.InvalidMediaException;
 import io.github.shaksternano.mediamanipulator.exception.UnsupportedFileFormatException;
+import io.github.shaksternano.mediamanipulator.graphics.TextAlignment;
+import io.github.shaksternano.mediamanipulator.graphics.drawable.CompositeDrawable;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.Drawable;
+import io.github.shaksternano.mediamanipulator.graphics.drawable.ParagraphCompositeDrawable;
 import io.github.shaksternano.mediamanipulator.image.imagemedia.ImageMedia;
 import io.github.shaksternano.mediamanipulator.image.io.reader.util.ImageReaderRegistry;
 import io.github.shaksternano.mediamanipulator.image.io.reader.util.ImageReaders;
@@ -15,10 +18,10 @@ import io.github.shaksternano.mediamanipulator.image.io.writer.util.ImageWriters
 import io.github.shaksternano.mediamanipulator.image.util.AwtFrame;
 import io.github.shaksternano.mediamanipulator.image.util.Frame;
 import io.github.shaksternano.mediamanipulator.image.util.ImageMediaBuilder;
+import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
 import io.github.shaksternano.mediamanipulator.io.FileUtil;
 import io.github.shaksternano.mediamanipulator.util.CollectionUtil;
 import io.github.shaksternano.mediamanipulator.util.Fonts;
-import io.github.shaksternano.mediamanipulator.util.ImageUtil;
 import io.github.shaksternano.mediamanipulator.util.MediaCompression;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,9 +45,60 @@ public class ImageManipulator implements MediaManipulator {
             "gif"
     );
 
+    private static File animatedOnlyOperation(File media, String fileFormat, Function<ImageMedia, ImageMedia> operation, String operationName, String staticImageErrorMessage) throws IOException {
+        if (ANIMATED_IMAGE_FORMATS.contains(fileFormat.toLowerCase())) {
+            ImageMedia imageMedia = ImageReaders.read(media, fileFormat, null);
+
+            if (imageMedia.isAnimated()) {
+                ImageMedia result = operation.apply(imageMedia);
+                File output = FileUtil.getUniqueTempFile(operationName + "." + fileFormat);
+                ImageWriters.write(result, output, fileFormat);
+                return output;
+            } else {
+                throw new UnsupportedFileFormatException(staticImageErrorMessage);
+            }
+        } else {
+            throw new UnsupportedFileFormatException(staticImageErrorMessage);
+        }
+    }
+
     @Override
     public File caption(File media, String fileFormat, String[] words, Map<String, Drawable> nonTextParts) throws IOException {
-        return applyToEachFrame(media, fileFormat, image -> ImageUtil.captionImage(image, words, Fonts.getCaptionFont(), nonTextParts), "captioned");
+        return applyToEachFrame(media, fileFormat, image -> {
+            Font font = Fonts.getCaptionFont().deriveFont(image.getWidth() / 10F);
+            int padding = (int) (image.getWidth() * 0.04);
+            Graphics2D graphics = image.createGraphics();
+
+            ImageUtil.configureTextDrawSettings(graphics);
+
+            graphics.setFont(font);
+
+            CompositeDrawable paragraph = new ParagraphCompositeDrawable.Builder(nonTextParts)
+                    .addWords(words)
+                    .build(TextAlignment.CENTER, image.getWidth() - (padding * 2), null);
+
+            int fillHeight = paragraph.getHeight(graphics) + (padding * 2);
+            graphics.dispose();
+
+            BufferedImage resizedImage = new BufferedImage(image.getWidth(), image.getHeight() + fillHeight, image.getType());
+
+            graphics = resizedImage.createGraphics();
+            graphics.setFont(font);
+
+            graphics.drawImage(image, 0, fillHeight, null);
+
+            ImageUtil.configureTextDrawSettings(graphics);
+
+            graphics.setColor(Color.WHITE);
+            graphics.fillRect(0, 0, resizedImage.getWidth(), fillHeight);
+
+            graphics.setColor(Color.BLACK);
+
+            paragraph.draw(graphics, padding, padding);
+
+            graphics.dispose();
+            return resizedImage;
+        }, "captioned");
     }
 
     @Override
@@ -59,7 +113,22 @@ public class ImageManipulator implements MediaManipulator {
 
     @Override
     public File pixelate(File media, String fileFormat, int pixelationMultiplier) throws IOException {
-        return applyToEachFrame(media, fileFormat, image -> ImageUtil.pixelate(image, pixelationMultiplier), "pixelated");
+        return applyToEachFrame(
+                media,
+                fileFormat,
+                image -> ImageUtil.stretch(
+                        ImageUtil.stretch(
+                                image,
+                                image.getWidth() / pixelationMultiplier,
+                                image.getHeight() / pixelationMultiplier,
+                                true
+                        ),
+                        image.getWidth(),
+                        image.getHeight(),
+                        true
+                ),
+                "pixelated"
+        );
     }
 
     @Override
@@ -303,22 +372,5 @@ public class ImageManipulator implements MediaManipulator {
         ImageWriters.write(outputImage, output, imageFormat);
 
         return output;
-    }
-
-    private static File animatedOnlyOperation(File media, String fileFormat, Function<ImageMedia, ImageMedia> operation, String operationName, String staticImageErrorMessage) throws IOException {
-        if (ANIMATED_IMAGE_FORMATS.contains(fileFormat.toLowerCase())) {
-            ImageMedia imageMedia = ImageReaders.read(media, fileFormat, null);
-
-            if (imageMedia.isAnimated()) {
-                ImageMedia result = operation.apply(imageMedia);
-                File output = FileUtil.getUniqueTempFile(operationName + "." + fileFormat);
-                ImageWriters.write(result, output, fileFormat);
-                return output;
-            } else {
-                throw new UnsupportedFileFormatException(staticImageErrorMessage);
-            }
-        } else {
-            throw new UnsupportedFileFormatException(staticImageErrorMessage);
-        }
     }
 }

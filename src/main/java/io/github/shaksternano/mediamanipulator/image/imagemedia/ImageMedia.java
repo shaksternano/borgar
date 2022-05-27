@@ -10,6 +10,7 @@ public interface ImageMedia extends Iterable<Frame> {
 
     /**
      * Gets the frame at the specified index.
+     *
      * @param index The index of the frame to get.
      * @return The frame at the specified index.
      */
@@ -17,6 +18,7 @@ public interface ImageMedia extends Iterable<Frame> {
 
     /**
      * Gets the number of frames in this ImageMedia.
+     *
      * @return The number of frames in this ImageMedia.
      */
     int size();
