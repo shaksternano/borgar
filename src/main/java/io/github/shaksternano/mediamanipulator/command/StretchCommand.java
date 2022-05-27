@@ -42,7 +42,8 @@ public class StretchCommand extends MediaCommand {
      * and the stretch height multiplier is specified by the second element of the arguments array,
      * with a default value of {@link #DEFAULT_HEIGHT_MULTIPLIER} if it is not specified or un-parsable.
      *
-     * @param media       The media file to apply the operation to
+     * @param media       The media file to apply the operation to.
+     * @param fileFormat  The file format of the media file.
      * @param arguments   The arguments of the command.
      * @param manipulator The {@link MediaManipulator} to use for the operation.
      * @param event       The {@link MessageReceivedEvent} that triggered the command.
@@ -50,7 +51,7 @@ public class StretchCommand extends MediaCommand {
      * @throws IOException If an error occurs while applying the operation.
      */
     @Override
-    public File applyOperation(File media, String[] arguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
+    public File applyOperation(File media, String fileFormat, String[] arguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
         float widthMultiplier = CommandParser.parseFloatArgument(
                 arguments,
                 0,
@@ -66,6 +67,6 @@ public class StretchCommand extends MediaCommand {
                 (argument, defaultValue) -> "Height multiplier \"" + argument + "\" is not a number. Using default value of " + defaultValue + "."
         );
 
-        return manipulator.stretch(media, widthMultiplier, heightMultiplier, RAW);
+        return manipulator.stretch(media, fileFormat, widthMultiplier, heightMultiplier, RAW);
     }
 }

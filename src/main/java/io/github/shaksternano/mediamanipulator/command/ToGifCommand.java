@@ -28,7 +28,8 @@ public class ToGifCommand extends MediaCommand {
     /**
      * Turns media into a GIF.
      *
-     * @param media       The media file to apply the operation to
+     * @param media       The media file to apply the operation to.
+     * @param fileFormat  The file format of the media file.
      * @param arguments   The arguments of the command.
      * @param manipulator The {@link MediaManipulator} to use for the operation.
      * @param event       The {@link MessageReceivedEvent} that triggered the command.
@@ -36,7 +37,7 @@ public class ToGifCommand extends MediaCommand {
      * @throws IOException If an error occurs while applying the operation.
      */
     @Override
-    public File applyOperation(File media, String[] arguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
-        return manipulator.makeGif(media, JUST_RENAME_FILE);
+    public File applyOperation(File media, String fileFormat, String[] arguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
+        return manipulator.makeGif(media, fileFormat, JUST_RENAME_FILE);
     }
 }

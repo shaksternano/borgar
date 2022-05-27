@@ -1,5 +1,6 @@
 package io.github.shaksternano.mediamanipulator.util;
 
+import com.google.common.collect.ImmutableList;
 import com.sksamuel.scrimage.DisposeMethod;
 import com.sksamuel.scrimage.ImmutableImage;
 import com.sksamuel.scrimage.nio.AnimatedGif;
@@ -11,6 +12,8 @@ import io.github.shaksternano.mediamanipulator.graphics.TextAlignment;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.CompositeDrawable;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.Drawable;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.ParagraphCompositeDrawable;
+import io.github.shaksternano.mediamanipulator.image.util.AwtFrame;
+import io.github.shaksternano.mediamanipulator.image.util.Frame;
 import io.github.shaksternano.mediamanipulator.io.FileUtil;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,13 +23,12 @@ import javax.imageio.stream.ImageInputStream;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorConvertOp;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URL;
 import java.time.Duration;
 import java.util.List;
 import java.util.*;
+import java.util.function.Function;
 
 /**
  * Contains static methods for dealing with images.
@@ -269,82 +271,31 @@ public class ImageUtil {
         return rotated;
     }
 
-    /**
-     * Gets the frames of a GIF file.
-     *
-     * @param media The GIF file to get the frames of.
-     * @return A list of {@link DurationImage}s representing the frames of the GIF file.
-     * @throws IOException If an error occurs while reading the GIF file.
-     */
-    public static List<DurationImage> readGifFrames(File media) throws IOException {
-        List<DurationImage> frames = new ArrayList<>();
-        AnimatedGif gif = AnimatedGifReader.read(ImageSource.of(media));
-
-        for (int i = 0; i < gif.getFrameCount(); i++) {
-            BufferedImage frame = gif.getFrame(i).awt();
-            int duration = (int) gif.getDelay(i).toMillis();
-            frames.add(new DurationImage(frame, duration));
-        }
-
-        return frames;
-    }
-
-    /**
-     * Writes the given frames to a GIF file.
-     *
-     * @param frames     The {@link DurationImage} frames to write to the GIF file.
-     * @param outputFile The file to write the frames to.
-     */
-    public static void writeFramesToGifFile(Iterable<DurationImage> frames, File outputFile) {
-        StreamingGifWriter writer = new StreamingGifWriter();
-        try (StreamingGifWriter.GifStream gif = writer.prepareStream(outputFile, BufferedImage.TYPE_INT_ARGB)) {
-            for (DurationImage frame : frames) {
-                gif.writeFrame(ImmutableImage.wrapAwt(frame.getImage()), Duration.ofMillis(frame.getDuration()), DisposeMethod.RESTORE_TO_BACKGROUND_COLOR);
-                frame.getImage().flush();
-            }
-        } catch (Exception e) {
-            Main.getLogger().error("Error writing GIF file", e);
-        }
-    }
-
-    public static Optional<String> getImageType(File file) throws IOException {
+    public static String getImageType(File file) throws IOException {
         try (ImageInputStream imageInputStream = ImageIO.createImageInputStream(file)) {
             if (imageInputStream != null) {
                 Iterator<ImageReader> imageReaders = ImageIO.getImageReaders(imageInputStream);
 
                 if (imageReaders.hasNext()) {
                     ImageReader reader = imageReaders.next();
-                    return Optional.of(reader.getFormatName());
+                    return reader.getFormatName();
                 }
             }
 
-            return Optional.empty();
+            throw new IOException("Unable to determine image type");
         }
     }
 
     public static BufferedImage readImage(File file) throws IOException {
-        try {
-            return ImmutableImage.loader().fromFile(file).awt();
-        } catch (IOException e) {
-            BufferedImage image = ImageIO.read(file);
-            if (image == null) {
-                throw new IOException("Could not read image file!");
-            } else {
-                return image;
-            }
-        }
+        return readImage(new FileInputStream(file));
     }
 
     public static BufferedImage readImage(InputStream inputStream) throws IOException {
-        try {
-            return ImmutableImage.loader().fromStream(inputStream).awt();
-        } catch (IOException e) {
-            BufferedImage image = ImageIO.read(inputStream);
-            if (image == null) {
-                throw new IOException("Could not read image file!");
-            } else {
-                return image;
-            }
+        BufferedImage image = ImageIO.read(inputStream);
+        if (image == null) {
+            throw new IOException("Unable to read image");
+        } else {
+            return image;
         }
     }
 
@@ -357,20 +308,29 @@ public class ImageUtil {
         }
     }
 
-    public static BufferedImage readImageWithAlpha(File file) throws IOException {
-        BufferedImage originalImage = readImage(file);
-        BufferedImage imageWithAlpha = addAlpha(originalImage);
-        originalImage.flush();
-        return imageWithAlpha;
-    }
-
     public static BufferedImage addAlpha(BufferedImage image) {
         return convertType(image, BufferedImage.TYPE_INT_ARGB);
     }
 
-    private static BufferedImage convertType(BufferedImage image, int type) {
-        BufferedImage imageWithAlpha = new BufferedImage(image.getWidth(), image.getHeight(), type);
-        ColorConvertOp convertOp = new ColorConvertOp(null);
-        return convertOp.filter(image, imageWithAlpha);
+    public static BufferedImage convertType(BufferedImage image, int type) {
+        if (image.getType() == type) {
+            return image;
+        } else {
+            BufferedImage imageWithAlpha = new BufferedImage(image.getWidth(), image.getHeight(), type);
+            ColorConvertOp convertOp = new ColorConvertOp(null);
+            return convertOp.filter(image, imageWithAlpha);
+        }
+    }
+
+    public static List<BufferedImage> framesToBufferedImages(Iterable<Frame> frames) {
+        ImmutableList.Builder<BufferedImage> builder = new ImmutableList.Builder<>();
+
+        for (Frame frame : frames) {
+            for (int i = 0; i < Math.max(frame.getDuration(), 1); i++) {
+                builder.add(frame.getImage());
+            }
+        }
+
+        return builder.build();
     }
 }

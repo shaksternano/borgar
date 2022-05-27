@@ -20,7 +20,7 @@ public class ToIcoCommand extends MediaCommand {
     }
 
     @Override
-    public File applyOperation(File media, String[] arguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
-        return manipulator.makeIco(media);
+    public File applyOperation(File media, String fileFormat, String[] arguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
+        return manipulator.makeIco(media, fileFormat);
     }
 }

@@ -35,7 +35,8 @@ public class CaptionCommand extends MediaCommand {
     /**
      * Adds a caption to media, with the caption text being the arguments of the command joined together with spaces in between.
      *
-     * @param media       The media file to apply the operation to
+     * @param media       The media file to apply the operation to.
+     * @param fileFormat  The file format of the media file.
      * @param arguments   The arguments of the command.
      * @param manipulator The {@link MediaManipulator} to use for the operation.
      * @param event       The {@link MessageReceivedEvent} that triggered the command.
@@ -43,7 +44,7 @@ public class CaptionCommand extends MediaCommand {
      * @throws IOException If an error occurs while applying the operation.
      */
     @Override
-    public File applyOperation(File media, String[] arguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
+    public File applyOperation(File media, String fileFormat, String[] arguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
         Map<String, String> imageUrls = MessageUtil.getEmojiUrls(event.getMessage());
         Map<String, Drawable> nonTextParts = imageUrls.entrySet().parallelStream().map(imageUrlEntry -> {
             try {
@@ -55,6 +56,6 @@ public class CaptionCommand extends MediaCommand {
             }
         }).collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue));
 
-        return manipulator.caption(media, arguments, nonTextParts);
+        return manipulator.caption(media, fileFormat, arguments, nonTextParts);
     }
 }

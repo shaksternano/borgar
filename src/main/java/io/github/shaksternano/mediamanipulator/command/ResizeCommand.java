@@ -1,7 +1,7 @@
 package io.github.shaksternano.mediamanipulator.command;
 
-import io.github.shaksternano.mediamanipulator.command.util.exception.InvalidArgumentException;
-import io.github.shaksternano.mediamanipulator.command.util.exception.MissingArgumentException;
+import io.github.shaksternano.mediamanipulator.exception.InvalidArgumentException;
+import io.github.shaksternano.mediamanipulator.exception.MissingArgumentException;
 import io.github.shaksternano.mediamanipulator.mediamanipulator.MediaManipulator;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -31,7 +31,8 @@ public class ResizeCommand extends MediaCommand {
      * Resizes an image by the amount specified in the first argument.
      * Equivalent to stretching an image with the width and height multipliers set to the same amount.
      *
-     * @param media       The media file to apply the operation to
+     * @param media       The media file to apply the operation to.
+     * @param fileFormat  The file format of the media file.
      * @param arguments   The arguments of the command.
      * @param manipulator The {@link MediaManipulator} to use for the operation.
      * @param event       The {@link MessageReceivedEvent} that triggered the command.
@@ -41,11 +42,11 @@ public class ResizeCommand extends MediaCommand {
      * @throws MissingArgumentException If the operation requires an argument but none was provided.
      */
     @Override
-    public File applyOperation(File media, String[] arguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
+    public File applyOperation(File media, String fileFormat, String[] arguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
         if (arguments.length > 0) {
             try {
                 float resizeMultiplier = Float.parseFloat(arguments[0]);
-                return manipulator.resize(media, resizeMultiplier, RAW);
+                return manipulator.resize(media, fileFormat, resizeMultiplier, RAW, true);
             } catch (NumberFormatException e) {
                 throw new InvalidArgumentException("Scale multiplier \"" + arguments[0] + "\" is not a number!");
             }

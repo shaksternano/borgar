@@ -1,4 +1,4 @@
-package io.github.shaksternano.mediamanipulator.command.util.exception;
+package io.github.shaksternano.mediamanipulator.exception;
 
 public class InvalidArgumentException extends RuntimeException {
 

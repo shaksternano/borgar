@@ -17,15 +17,13 @@ public class MediaManipulatorRegistry {
     private static final Map<String, MediaManipulator> registry = new HashMap<>();
 
     /**
-     * Registers {@link MediaManipulator}s.
+     * Registers a {@link MediaManipulator}.
      *
-     * @param manipulators The manipulators to register.
+     * @param manipulator The manipulator to register.
      */
-    public static void register(Iterable<MediaManipulator> manipulators) {
-        for (MediaManipulator manipulator : manipulators) {
-            for (String extension : manipulator.getSupportedExtensions()) {
-                registry.put(extension.toLowerCase(), manipulator);
-            }
+    public static void register(MediaManipulator manipulator) {
+        for (String extension : manipulator.getSupportedExtensions()) {
+            registry.put(extension.toLowerCase(), manipulator);
         }
     }
 

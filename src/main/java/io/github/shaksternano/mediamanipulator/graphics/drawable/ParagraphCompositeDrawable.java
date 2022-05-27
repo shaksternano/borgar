@@ -205,8 +205,8 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
             return this;
         }
 
-        public CompositeDrawable build(TextAlignment alignment, int maxWidth, @Nullable Integer maxHeight) {
-            CompositeDrawable paragraph = new ParagraphCompositeDrawable(alignment, maxWidth, maxHeight);
+        public ParagraphCompositeDrawable build(TextAlignment alignment, int maxWidth, @Nullable Integer maxHeight) {
+            ParagraphCompositeDrawable paragraph = new ParagraphCompositeDrawable(alignment, maxWidth, maxHeight);
 
             for (Drawable part : words) {
                 paragraph.addPart(part);
