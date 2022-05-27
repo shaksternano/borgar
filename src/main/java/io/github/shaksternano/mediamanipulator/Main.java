@@ -96,6 +96,8 @@ public class Main {
 
         EmojiUtil.initEmojiUnicodeSet();
         configureJda();
+
+        getLogger().info("Initialised!");
     }
 
     /**
