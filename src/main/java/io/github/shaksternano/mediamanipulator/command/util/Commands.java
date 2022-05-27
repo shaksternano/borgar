@@ -20,12 +20,17 @@ public class Commands {
      */
     public static final Command CAPTION = addCommandToRegister(new CaptionCommand(
             "caption",
-            "Captions a media file."
+            "Captions a media file. Optional arguments: [caption text]"
+    ));
+
+    public static final Command SONIC_SAYS = addCommandToRegister(new SonicSaysCommand(
+            "sonic",
+            "Sonic says. Optional arguments: [what sonic says]"
     ));
 
     public static final Command SPIN = addCommandToRegister(new SpinCommand(
             "spin",
-            "Spins a media file. Optional arguments: [spin speed, default value is " + FORMAT.format(SpinCommand.DEFAULT_SPIN_SPEED) + "], [background RGB colour, by default it is transparent]."
+            "Spins a media file. Optional arguments: [spin speed, default value is " + FORMAT.format(SpinCommand.DEFAULT_SPIN_SPEED) + "], [background RGB colour, by default it is transparent]"
     ));
 
     /**

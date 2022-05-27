@@ -21,7 +21,6 @@ public class MediaCompression {
     }
 
     public static ImageMedia removeFrames(ImageMedia imageMedia, int frameRatio) {
-        System.out.println(imageMedia.size());
         if (imageMedia.isAnimated()) {
             ImageMediaBuilder builder = new ImageMediaBuilder();
 
@@ -36,7 +35,6 @@ public class MediaCompression {
                     builder.setFrame(keptIndex, new AwtFrame(keptFrame.getImage(), keptFrame.getDuration() + removedFrameDuration));
                 }
             }
-            System.out.println(builder.build().size());
             return builder.build();
         } else {
             return imageMedia;

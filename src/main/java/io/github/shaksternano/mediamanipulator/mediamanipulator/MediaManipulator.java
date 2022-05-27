@@ -29,6 +29,8 @@ public interface MediaManipulator {
      */
     File caption(File media, String fileFormat, String[] words, Map<String, Drawable> nonTextParts) throws IOException;
 
+    File sonicSays(String[] words, Map<String, Drawable> nonTextParts) throws IOException;
+
     /**
      * Stretches a media file.
      *

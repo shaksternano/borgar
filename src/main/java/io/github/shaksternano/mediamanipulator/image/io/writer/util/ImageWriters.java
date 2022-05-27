@@ -2,10 +2,12 @@ package io.github.shaksternano.mediamanipulator.image.io.writer.util;
 
 import io.github.shaksternano.mediamanipulator.Main;
 import io.github.shaksternano.mediamanipulator.image.imagemedia.ImageMedia;
+import io.github.shaksternano.mediamanipulator.image.imagemedia.StaticImage;
 import io.github.shaksternano.mediamanipulator.image.io.writer.ImageWriter;
 import io.github.shaksternano.mediamanipulator.image.io.writer.JavaxImageWriter;
 import io.github.shaksternano.mediamanipulator.image.io.writer.ScrimageAnimatedGifWriter;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -33,5 +35,9 @@ public class ImageWriters {
 
             throw new IOException("Could not write image with format: " + format + "!");
         }
+    }
+
+    public static void write(BufferedImage image, File file, String format) throws IOException {
+        write(new StaticImage(image), file, format);
     }
 }

@@ -1,7 +1,6 @@
 package io.github.shaksternano.mediamanipulator.graphics.drawable;
 
 import io.github.shaksternano.mediamanipulator.graphics.TextAlignment;
-import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.util.List;
@@ -11,31 +10,16 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
 
     private final TextAlignment ALIGNMENT;
     private final int MAX_WIDTH;
-    @Nullable
-    private final Integer MAX_HEIGHT;
 
     private static final Drawable SPACE = new TextDrawable(" ");
 
-    public ParagraphCompositeDrawable(TextAlignment alignment, int maxWidth, @Nullable Integer maxHeight) {
+    public ParagraphCompositeDrawable(TextAlignment alignment, int maxWidth) {
         ALIGNMENT = alignment;
         MAX_WIDTH = Math.max(0, maxWidth);
-        MAX_HEIGHT = maxHeight == null ? null : Math.max(0, maxHeight);
     }
 
     @Override
     public void draw(Graphics2D graphics, int x, int y) {
-        Font font = graphics.getFont();
-        boolean needToResetFont = false;
-
-        if (MAX_HEIGHT != null) {
-            float sizeRatio = (float) MAX_HEIGHT / getHeight(graphics);
-            if (sizeRatio < 1) {
-                float newSize = font.getSize() * sizeRatio;
-                graphics.setFont(font.deriveFont(newSize));
-                needToResetFont = true;
-            }
-        }
-
         FontMetrics metrics = graphics.getFontMetrics();
         int lineHeight = metrics.getAscent() + metrics.getDescent();
         int lineSpace = metrics.getLeading();
@@ -82,10 +66,6 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
         for (Drawable linePart : currentLine) {
             linePart.draw(graphics, lineX, lineY);
             lineX += linePart.getWidth(graphics) + SPACE.getWidth(graphics);
-        }
-
-        if (needToResetFont) {
-            graphics.setFont(font);
         }
     }
 
@@ -166,7 +146,7 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), ALIGNMENT, MAX_WIDTH, MAX_HEIGHT);
+        return Objects.hash(super.hashCode(), ALIGNMENT, MAX_WIDTH);
     }
 
     @Override
@@ -176,8 +156,7 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
         } else if (obj instanceof ParagraphCompositeDrawable other) {
             return Objects.equals(getParts(), other.getParts()) &&
                     Objects.equals(ALIGNMENT, other.ALIGNMENT) &&
-                    MAX_WIDTH == other.MAX_WIDTH &&
-                    Objects.equals(MAX_HEIGHT, other.MAX_HEIGHT);
+                    MAX_WIDTH == other.MAX_WIDTH;
         } else {
             return false;
         }
@@ -205,8 +184,8 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
             return this;
         }
 
-        public ParagraphCompositeDrawable build(TextAlignment alignment, int maxWidth, @Nullable Integer maxHeight) {
-            ParagraphCompositeDrawable paragraph = new ParagraphCompositeDrawable(alignment, maxWidth, maxHeight);
+        public ParagraphCompositeDrawable build(TextAlignment alignment, int maxWidth) {
+            ParagraphCompositeDrawable paragraph = new ParagraphCompositeDrawable(alignment, maxWidth);
 
             for (Drawable part : words) {
                 paragraph.addPart(part);

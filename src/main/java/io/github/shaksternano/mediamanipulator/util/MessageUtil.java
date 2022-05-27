@@ -4,21 +4,29 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import io.github.shaksternano.mediamanipulator.Main;
 import io.github.shaksternano.mediamanipulator.emoji.EmojiUtil;
+import io.github.shaksternano.mediamanipulator.graphics.drawable.Drawable;
+import io.github.shaksternano.mediamanipulator.graphics.drawable.ImageDrawable;
 import io.github.shaksternano.mediamanipulator.io.FileUtil;
 import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Contains static methods for dealing with {@link Message}s.
@@ -266,5 +274,18 @@ public class MessageUtil {
         }
 
         return Optional.empty();
+    }
+
+    public static Map<String, Drawable> getNonTextParts(Message message) {
+        Map<String, String> imageUrls = MessageUtil.getEmojiUrls(message);
+        return imageUrls.entrySet().parallelStream().map(imageUrlEntry -> {
+            try {
+                BufferedImage image = ImageIO.read(new URL(imageUrlEntry.getValue()));
+                Drawable drawable = new ImageDrawable(image);
+                return new AbstractMap.SimpleEntry<>(imageUrlEntry.getKey(), drawable);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }).collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 }

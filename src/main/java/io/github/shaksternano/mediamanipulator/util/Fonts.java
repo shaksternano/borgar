@@ -1,40 +1,55 @@
 package io.github.shaksternano.mediamanipulator.util;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.io.Files;
 import io.github.shaksternano.mediamanipulator.Main;
 import io.github.shaksternano.mediamanipulator.io.FileUtil;
 
 import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Handles custom fonts.
  */
 public class Fonts {
 
-    /**
-     * The font used for captioning.
-     */
-    private static Font FUTURA_CONDENSED_EXTRA_BOLD;
+    private static Map<String, Font> FONTS;
+
+    private static final Set<String> FONT_FILES = ImmutableSet.of(
+            "futura_condensed_extra_bold.otf",
+            "bitstream_vera_sans.ttf"
+    );
 
     /**
      * Registers the custom fonts.
      */
     public static void registerFonts() {
-        try (InputStream fontStream = FileUtil.getResource("font/futura_condensed_extra_bold.otf")) {
-            FUTURA_CONDENSED_EXTRA_BOLD = Font.createFont(Font.TRUETYPE_FONT, fontStream);
-            GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(FUTURA_CONDENSED_EXTRA_BOLD);
-        } catch (FontFormatException | IOException e) {
-            Main.getLogger().error("Error loading font file!", e);
+        ImmutableMap.Builder<String, Font> builder = new ImmutableMap.Builder<>();
+
+        for (String fontFile : FONT_FILES) {
+            try (InputStream inputStream = FileUtil.getResource("font/" + fontFile)) {
+                Font font = Font.createFont(Font.TRUETYPE_FONT, inputStream);
+                GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(font);
+                builder.put(Files.getNameWithoutExtension(fontFile), font);
+            } catch (FontFormatException | IOException e) {
+                e.printStackTrace();
+            }
         }
+
+        FONTS = builder.build();
     }
 
-    /**
-     * Gets the font used for captioning.
-     *
-     * @return The font used for captioning.
-     */
-    public static Font getCaptionFont() {
-        return FUTURA_CONDENSED_EXTRA_BOLD;
+    public static Font getCustomFont(String fontName) {
+        Font font = FONTS.get(fontName);
+
+        if (font == null) {
+            throw new IllegalArgumentException("Font not found: " + fontName);
+        } else {
+            return FONTS.get(fontName);
+        }
     }
 }

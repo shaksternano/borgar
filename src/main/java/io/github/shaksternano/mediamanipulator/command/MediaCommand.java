@@ -52,7 +52,6 @@ public abstract class MediaCommand extends BaseCommand {
                     File editedMedia = applyOperation(file, fileFormat, arguments, manipulator, event);
                     String newFileFormat = FileUtil.getFileFormat(editedMedia);
                     File compressedMedia = manipulator.compress(editedMedia, newFileFormat);
-                    compressedMedia.deleteOnExit();
                     file.delete();
 
                     long mediaFileSize = compressedMedia.length();
@@ -60,9 +59,14 @@ public abstract class MediaCommand extends BaseCommand {
                         long mediaFileSizeInMb = mediaFileSize / (1024 * 1024);
                         userMessage.reply("The size of the edited media file, " + mediaFileSizeInMb + "MB, is too large to send!").queue();
                         Main.getLogger().error("File size of edited media was too large to send! (" + mediaFileSize + "B)");
+                        editedMedia.delete();
                         compressedMedia.delete();
                     } else {
-                        userMessage.reply(compressedMedia).queue(message -> compressedMedia.delete(), throwable -> {
+                        userMessage.reply(compressedMedia).queue(message -> {
+                            editedMedia.delete();
+                            compressedMedia.delete();
+                        }, throwable -> {
+                            editedMedia.delete();
                             compressedMedia.delete();
                             String failSend = "Failed to send edited media!";
 

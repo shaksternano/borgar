@@ -29,10 +29,8 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.LinkedHashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 
 /**
@@ -71,7 +69,7 @@ public class ImageManipulator implements MediaManipulator {
         int height = firstImage.getHeight();
         int type = firstImage.getType();
 
-        Font font = Fonts.getCaptionFont().deriveFont(width / 10F);
+        Font font = Fonts.getCustomFont("futura_condensed_extra_bold").deriveFont(width / 10F);
         int padding = (int) (width * 0.04);
         Graphics2D originalGraphics = firstImage.createGraphics();
 
@@ -81,7 +79,7 @@ public class ImageManipulator implements MediaManipulator {
 
         CompositeDrawable paragraph = new ParagraphCompositeDrawable.Builder(nonTextParts)
                 .addWords(words)
-                .build(TextAlignment.CENTER, width - (padding * 2), null);
+                .build(TextAlignment.CENTER, width - (padding * 2));
 
         int fillHeight = paragraph.getHeight(originalGraphics) + (padding * 2);
         int newHeight = height + fillHeight;
@@ -110,6 +108,51 @@ public class ImageManipulator implements MediaManipulator {
             graphics.dispose();
             return resizedImage;
         }, "captioned");
+    }
+
+    @Override
+    public File sonicSays(String[] words, Map<String, Drawable> nonTextParts) throws IOException {
+        int speechBubbleX = 345;
+        int speechBubbleY = 35;
+
+        int speechBubbleWidth = 630;
+        int speechBubbleHeight = 490;
+
+        int speechBubbleCentreY = speechBubbleY + (speechBubbleHeight / 2);
+
+        int padding = 50;
+        int doubledPadding = padding * 2;
+
+        BufferedImage sonic = ImageUtil.getImageResource("image/background/sonic.jpg");
+        Graphics2D graphics = sonic.createGraphics();
+
+        Font font = Fonts.getCustomFont("bitstream_vera_sans").deriveFont(speechBubbleWidth / 10F);
+        graphics.setFont(font);
+        graphics.setColor(Color.WHITE);
+        ImageUtil.configureTextDrawSettings(graphics);
+
+        ParagraphCompositeDrawable paragraph = new ParagraphCompositeDrawable.Builder(nonTextParts)
+                .addWords(words)
+                .build(TextAlignment.CENTER, speechBubbleWidth - doubledPadding);
+
+        int maxParagraphHeight = speechBubbleHeight - doubledPadding;
+        int paragraphHeight = paragraph.getHeight(graphics);
+
+        while (paragraphHeight > maxParagraphHeight) {
+            float sizeRatio = (float) paragraphHeight / maxParagraphHeight;
+            font = font.deriveFont(font.getSize() - sizeRatio);
+            graphics.setFont(font);
+            paragraphHeight = paragraph.getHeight(graphics);
+        }
+
+        int paragraphY = speechBubbleCentreY - (paragraphHeight / 2);
+
+        paragraph.draw(graphics, speechBubbleX + padding, paragraphY);
+
+        File output = FileUtil.getUniqueTempFile("sonic_says.jpg");
+        ImageWriters.write(sonic, output, "jpg");
+
+        return output;
     }
 
     @Override

@@ -5,6 +5,8 @@ import io.github.shaksternano.mediamanipulator.exception.InvalidArgumentExceptio
 import io.github.shaksternano.mediamanipulator.exception.MissingArgumentException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.io.IOException;
+
 /**
  * A command that is executed when a user sends a certain message. Commands are registered in {@link Commands}.
  */
@@ -23,7 +25,7 @@ public interface Command {
      * @throws InvalidArgumentException If an argument is invalid.
      * @throws MissingArgumentException If the operation requires an argument but none was provided.
      */
-    void execute(String[] arguments, MessageReceivedEvent event);
+    void execute(String[] arguments, MessageReceivedEvent event) throws IOException;
 
     /**
      * Gets the name of the command. When a user sends a message starting with {@link #PREFIX}
