@@ -10,6 +10,7 @@ import io.github.shaksternano.mediamanipulator.graphics.TextAlignment;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.CompositeDrawable;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.Drawable;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.ParagraphCompositeDrawable;
+import io.github.shaksternano.mediamanipulator.graphics.drawable.util.DrawableUtil;
 import io.github.shaksternano.mediamanipulator.image.imagemedia.ImageMedia;
 import io.github.shaksternano.mediamanipulator.image.io.reader.util.ImageReaderRegistry;
 import io.github.shaksternano.mediamanipulator.image.io.reader.util.ImageReaders;
@@ -136,14 +137,8 @@ public class ImageManipulator implements MediaManipulator {
                 .build(TextAlignment.CENTER, speechBubbleWidth - doubledPadding);
 
         int maxParagraphHeight = speechBubbleHeight - doubledPadding;
-        int paragraphHeight = paragraph.getHeight(graphics);
 
-        while (paragraphHeight > maxParagraphHeight) {
-            float sizeRatio = (float) paragraphHeight / maxParagraphHeight;
-            font = font.deriveFont(font.getSize() - sizeRatio);
-            graphics.setFont(font);
-            paragraphHeight = paragraph.getHeight(graphics);
-        }
+        int paragraphHeight = DrawableUtil.fitHeight(maxParagraphHeight, paragraph, graphics);
 
         int paragraphY = speechBubbleCentreY - (paragraphHeight / 2);
 
