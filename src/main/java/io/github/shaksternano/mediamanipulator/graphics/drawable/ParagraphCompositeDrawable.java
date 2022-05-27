@@ -39,7 +39,8 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
             if (lineWidth > 0) {
                 newLineWidth += SPACE.getWidth(graphics);
             }
-            if (newLineWidth <= MAX_WIDTH) {
+
+            if (newLineWidth <= MAX_WIDTH || currentLine.isEmpty()) {
                 currentLine.add(part);
                 lineWidth = newLineWidth;
             } else {
@@ -84,6 +85,7 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
         int lineHeight = metrics.getAscent() + metrics.getDescent();
         int lineWidth = 0;
 
+        boolean currentLineIsEmpty = true;
         for (Drawable part : getParts()) {
             try {
                 part = part.resizeToHeight(lineHeight);
@@ -94,8 +96,10 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
             if (lineWidth > 0) {
                 newLineWidth += SPACE.getWidth(graphicsContext);
             }
-            if (newLineWidth <= MAX_WIDTH) {
+
+            if (newLineWidth <= MAX_WIDTH || currentLineIsEmpty) {
                 lineWidth = newLineWidth;
+                currentLineIsEmpty = false;
             } else {
                 lineWidth = part.getWidth(graphicsContext);
             }
@@ -112,6 +116,7 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
         int lineWidth = 0;
         int lineY = 0;
 
+        boolean currentLineIsEmpty = true;
         for (Drawable part : getParts()) {
             try {
                 part = part.resizeToHeight(lineHeight);
@@ -122,8 +127,10 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
             if (lineWidth > 0) {
                 newLineWidth += SPACE.getWidth(graphicsContext);
             }
-            if (newLineWidth <= MAX_WIDTH) {
+
+            if (newLineWidth <= MAX_WIDTH || currentLineIsEmpty) {
                 lineWidth = newLineWidth;
+                currentLineIsEmpty = false;
             } else {
                 lineWidth = part.getWidth(graphicsContext);
                 lineY += lineHeight + lineSpace;
