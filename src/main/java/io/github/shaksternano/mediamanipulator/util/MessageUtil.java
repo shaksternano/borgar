@@ -39,7 +39,7 @@ public class MessageUtil {
      */
     public static Optional<File> downloadImage(Message message, String directory) {
         return processMessages(message, messageToProcess -> {
-            Optional<File> imageFileOptional = downloadAttachmentImage(messageToProcess, directory);
+            Optional<File> imageFileOptional = downloadAttachment(messageToProcess, directory);
             if (imageFileOptional.isPresent()) {
                 return imageFileOptional;
             } else {
@@ -131,20 +131,18 @@ public class MessageUtil {
      * @param directory The directory to download the image to.
      * @return An {@link Optional} describing the image file.
      */
-    private static Optional<File> downloadAttachmentImage(Message message, String directory) {
+    private static Optional<File> downloadAttachment(Message message, String directory) {
         List<Message.Attachment> attachments = message.getAttachments();
 
         for (Message.Attachment attachment : attachments) {
-            if (attachment.isImage()) {
-                File imageFile = FileUtil.getUniqueFile(directory, attachment.getFileName());
+            File imageFile = FileUtil.getUniqueFile(directory, attachment.getFileName());
 
-                try {
-                    return Optional.of(attachment.downloadToFile(imageFile).get(10, TimeUnit.SECONDS));
-                } catch (ExecutionException | InterruptedException e) {
-                    Main.getLogger().error("Error downloading image!", e);
-                } catch (TimeoutException e) {
-                    Main.getLogger().error("Image took too long to download!", e);
-                }
+            try {
+                return Optional.of(attachment.downloadToFile(imageFile).get(10, TimeUnit.SECONDS));
+            } catch (ExecutionException | InterruptedException e) {
+                Main.getLogger().error("Error downloading image!", e);
+            } catch (TimeoutException e) {
+                Main.getLogger().error("Image took too long to download!", e);
             }
         }
 

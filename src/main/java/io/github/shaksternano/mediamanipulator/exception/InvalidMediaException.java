@@ -1,6 +1,8 @@
 package io.github.shaksternano.mediamanipulator.exception;
 
-public class InvalidMediaException extends RuntimeException {
+import java.io.IOException;
+
+public class InvalidMediaException extends IOException {
 
     public InvalidMediaException(String message) {
         super(message);

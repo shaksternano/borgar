@@ -29,7 +29,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +38,7 @@ import java.util.function.Function;
 /**
  * A manipulator that works with image based media.
  */
+@SuppressWarnings("UnusedAssignment")
 public class ImageManipulator implements MediaManipulator {
 
     private static final Set<String> ANIMATED_IMAGE_FORMATS = ImmutableSet.of(
@@ -64,25 +64,36 @@ public class ImageManipulator implements MediaManipulator {
 
     @Override
     public File caption(File media, String fileFormat, String[] words, Map<String, Drawable> nonTextParts) throws IOException {
+        ImageMedia imageMedia = ImageReaders.read(media, fileFormat, null);
+        BufferedImage firstImage = imageMedia.getFrame(0).getImage();
+
+        int width = firstImage.getWidth();
+        int height = firstImage.getHeight();
+        int type = firstImage.getType();
+
+        Font font = Fonts.getCaptionFont().deriveFont(width / 10F);
+        int padding = (int) (width * 0.04);
+        Graphics2D originalGraphics = firstImage.createGraphics();
+
+        ImageUtil.configureTextDrawSettings(originalGraphics);
+
+        originalGraphics.setFont(font);
+
+        CompositeDrawable paragraph = new ParagraphCompositeDrawable.Builder(nonTextParts)
+                .addWords(words)
+                .build(TextAlignment.CENTER, width - (padding * 2), null);
+
+        int fillHeight = paragraph.getHeight(originalGraphics) + (padding * 2);
+        int newHeight = height + fillHeight;
+        originalGraphics.dispose();
+
+        firstImage.flush();
+        firstImage = null;
+        imageMedia = null;
+
         return applyToEachFrame(media, fileFormat, image -> {
-            Font font = Fonts.getCaptionFont().deriveFont(image.getWidth() / 10F);
-            int padding = (int) (image.getWidth() * 0.04);
-            Graphics2D graphics = image.createGraphics();
-
-            ImageUtil.configureTextDrawSettings(graphics);
-
-            graphics.setFont(font);
-
-            CompositeDrawable paragraph = new ParagraphCompositeDrawable.Builder(nonTextParts)
-                    .addWords(words)
-                    .build(TextAlignment.CENTER, image.getWidth() - (padding * 2), null);
-
-            int fillHeight = paragraph.getHeight(graphics) + (padding * 2);
-            graphics.dispose();
-
-            BufferedImage resizedImage = new BufferedImage(image.getWidth(), image.getHeight() + fillHeight, image.getType());
-
-            graphics = resizedImage.createGraphics();
+            BufferedImage resizedImage = new BufferedImage(width, newHeight, type);
+            Graphics2D graphics = resizedImage.createGraphics();
             graphics.setFont(font);
 
             graphics.drawImage(image, 0, fillHeight, null);
@@ -133,37 +144,51 @@ public class ImageManipulator implements MediaManipulator {
 
     @Override
     public File speechBubble(File media, String fileFormat, boolean cutOut) throws IOException {
-        return applyToEachFrame(media, fileFormat, image -> {
-            String speechBubblePath = cutOut ? "image/overlay/speech_bubble_2_partial.png" : "image/overlay/speech_bubble_1_partial.png";
+        String speechBubblePath = cutOut ? "image/overlay/speech_bubble_2_partial.png" : "image/overlay/speech_bubble_1_partial.png";
 
-            try {
-                BufferedImage speechBubble = ImageUtil.getImageResource(speechBubblePath);
-                BufferedImage resizedSpeechBubble = ImageUtil.fitWidth(speechBubble, image.getWidth());
-                speechBubble.flush();
+        ImageMedia imageMedia = ImageReaders.read(media, fileFormat, null);
+        BufferedImage firstImage = imageMedia.getFrame(0).getImage();
 
-                BufferedImage speechBubbled;
-                if (cutOut) {
-                    speechBubbled = ImageUtil.cutoutImage(image, resizedSpeechBubble, 0, 0, 0xFFFFFF);
-                } else {
-                    BufferedImage filledSpeechBubble = ImageUtil.fill(resizedSpeechBubble, Color.WHITE);
-                    speechBubbled = ImageUtil.overlayImage(image, filledSpeechBubble, 0, -filledSpeechBubble.getHeight(), true, null);
-                    filledSpeechBubble.flush();
-                }
+        int width = firstImage.getWidth();
+        int height = firstImage.getHeight();
 
-                resizedSpeechBubble.flush();
-                image.flush();
-                return speechBubbled;
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            } catch (RuntimeException e) {
-                String message = e.getMessage();
-                if (message != null && message.contains("Error doing rescale. Target size was")) {
-                    throw new InvalidMediaException("Image dimensions " + image.getWidth() + " x " + image.getHeight() + " is too small!");
-                } else {
-                    throw e;
+        BufferedImage speechBubble = ImageUtil.getImageResource(speechBubblePath);
+
+        int minDimension = 3;
+        if (width < minDimension) {
+            throw new InvalidMediaException("Image width of " + width + " pixels is too small!");
+        } else {
+            if (speechBubble.getHeight() < speechBubble.getWidth()) {
+                float scaleRatio = (float) width / speechBubble.getWidth();
+                int newHeight = (int) (speechBubble.getHeight() * scaleRatio);
+
+                if (newHeight < minDimension) {
+                    throw new InvalidMediaException("Image height of " + height + " pixels is too small!");
                 }
             }
-        }, "speech_bubbled");
+        }
+
+        firstImage.flush();
+        firstImage = null;
+        imageMedia = null;
+
+        BufferedImage resizedSpeechBubble = ImageUtil.fitWidth(speechBubble, width);
+
+        speechBubble.flush();
+        speechBubble = null;
+
+        String operationName = "speech_bubbled";
+        if (cutOut) {
+            final BufferedImage finalResizedSpeechBubble = resizedSpeechBubble;
+            return applyToEachFrame(media, fileFormat, image -> ImageUtil.cutoutImage(image, finalResizedSpeechBubble, 0, 0, 0xFFFFFF), operationName);
+        } else {
+            BufferedImage filledSpeechBubble = ImageUtil.fill(resizedSpeechBubble, Color.WHITE);
+
+            resizedSpeechBubble.flush();
+            resizedSpeechBubble = null;
+
+            return applyToEachFrame(media, fileFormat, image -> ImageUtil.overlayImage(image, filledSpeechBubble, 0, -filledSpeechBubble.getHeight(), true, null), operationName);
+        }
     }
 
     @Override
@@ -216,7 +241,6 @@ public class ImageManipulator implements MediaManipulator {
         return applyToEachFrame(media, fileFormat, image -> ImageUtil.rotate(image, degrees, null, null, backgroundColor), "rotated");
     }
 
-    @SuppressWarnings("UnusedAssignment")
     @Override
     public File spin(File media, String fileFormat, float speed, @Nullable Color backgroundColor) throws IOException {
         ImageMedia image = ImageReaders.read(media, fileFormat, BufferedImage.TYPE_INT_ARGB);
