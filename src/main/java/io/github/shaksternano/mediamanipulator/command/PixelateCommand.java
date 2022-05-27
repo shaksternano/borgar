@@ -23,7 +23,7 @@ public class PixelateCommand extends MediaCommand {
     }
 
     @Override
-    public File applyOperation(File media, String[] arguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
+    public File applyOperation(File media, String fileFormat, String[] arguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
         int pixelationMultiplier = CommandParser.parseIntegerArgument(
                 arguments,
                 0,
@@ -31,6 +31,6 @@ public class PixelateCommand extends MediaCommand {
                 event.getChannel(),
                 (argument, defaultValue) -> "Pixelation multiplier \"" + argument + "\" is not a number. Using default value of " + defaultValue + "."
         );
-        return manipulator.pixelate(media, pixelationMultiplier);
+        return manipulator.pixelate(media, fileFormat, pixelationMultiplier);
     }
 }

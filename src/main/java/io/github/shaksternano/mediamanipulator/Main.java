@@ -4,7 +4,8 @@ import io.github.shaksternano.mediamanipulator.command.Command;
 import io.github.shaksternano.mediamanipulator.command.util.Commands;
 import io.github.shaksternano.mediamanipulator.command.util.TerminalInputListener;
 import io.github.shaksternano.mediamanipulator.emoji.EmojiUtil;
-import io.github.shaksternano.mediamanipulator.io.FileUtil;
+import io.github.shaksternano.mediamanipulator.image.io.reader.util.ImageReaders;
+import io.github.shaksternano.mediamanipulator.image.io.writer.util.ImageWriters;
 import io.github.shaksternano.mediamanipulator.listener.CommandListener;
 import io.github.shaksternano.mediamanipulator.logging.DiscordLogger;
 import io.github.shaksternano.mediamanipulator.mediamanipulator.util.MediaManipulators;
@@ -80,7 +81,9 @@ public class Main {
         initDiscordLogger();
 
         getLogger().info("Starting!");
-        FileUtil.cleanTempDirectory();
+
+        ImageReaders.registerImageReaders();
+        ImageWriters.registerImageWriters();
 
         initTenorApiKey();
 
@@ -91,8 +94,10 @@ public class Main {
         Thread commandThread = new Thread(new TerminalInputListener());
         commandThread.start();
 
-        configureJda();
         EmojiUtil.initEmojiUnicodeSet();
+        configureJda();
+
+        getLogger().info("Initialised!");
     }
 
     /**
@@ -172,17 +177,17 @@ public class Main {
 
     private static void configureJda() {
         jda.getPresence().setActivity(Activity.playing("gaming"));
-        jda.addEventListener(CommandListener.INSTANCE);
-
-        Command helpCommand = Commands.HELP;
-        jda.updateCommands()
-                .addCommands(net.dv8tion.jda.api.interactions.commands.build.Commands.slash(helpCommand.getName(), helpCommand.getDescription()))
-                .queue();
 
         jda.retrieveApplicationInfo().queue(
                 applicationInfo -> ownerId = applicationInfo.getOwner().getIdLong(),
                 throwable -> getLogger().error("Failed to get the owner ID of this bot, owner exclusive functionality won't available!", throwable)
         );
+
+        Command helpCommand = Commands.HELP;
+        jda.updateCommands()
+                .addCommands(net.dv8tion.jda.api.interactions.commands.build.Commands.slash(helpCommand.getName(), helpCommand.getDescription()))
+                .queue();
+        jda.addEventListener(CommandListener.INSTANCE);
     }
 
     /**
@@ -193,7 +198,6 @@ public class Main {
             jda.shutdownNow();
         }
 
-        FileUtil.cleanTempDirectory();
         System.exit(0);
     }
 

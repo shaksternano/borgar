@@ -24,7 +24,7 @@ public class RotateCommand extends MediaCommand {
     }
 
     @Override
-    public File applyOperation(File media, String[] arguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
+    public File applyOperation(File media, String fileFormat, String[] arguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
         float rotation = CommandParser.parseFloatArgument(
                 arguments,
                 0,
@@ -39,6 +39,6 @@ public class RotateCommand extends MediaCommand {
                 event.getChannel(),
                 (argument, defaultValue) -> "RGB value \"" + argument + "\" is not a whole number. Setting transparent background color."
         );
-        return manipulator.rotate(media, rotation, rgb < 0 ? null : new Color(rgb));
+        return manipulator.rotate(media, fileFormat, rotation, rgb < 0 ? null : new Color(rgb));
     }
 }

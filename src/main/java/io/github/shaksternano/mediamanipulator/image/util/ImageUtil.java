@@ -1,16 +1,6 @@
-package io.github.shaksternano.mediamanipulator.util;
+package io.github.shaksternano.mediamanipulator.image.util;
 
-import com.sksamuel.scrimage.DisposeMethod;
 import com.sksamuel.scrimage.ImmutableImage;
-import com.sksamuel.scrimage.nio.AnimatedGif;
-import com.sksamuel.scrimage.nio.AnimatedGifReader;
-import com.sksamuel.scrimage.nio.ImageSource;
-import com.sksamuel.scrimage.nio.StreamingGifWriter;
-import io.github.shaksternano.mediamanipulator.Main;
-import io.github.shaksternano.mediamanipulator.graphics.TextAlignment;
-import io.github.shaksternano.mediamanipulator.graphics.drawable.CompositeDrawable;
-import io.github.shaksternano.mediamanipulator.graphics.drawable.Drawable;
-import io.github.shaksternano.mediamanipulator.graphics.drawable.ParagraphCompositeDrawable;
 import io.github.shaksternano.mediamanipulator.io.FileUtil;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,10 +13,7 @@ import java.awt.image.ColorConvertOp;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
-import java.time.Duration;
-import java.util.List;
-import java.util.*;
+import java.util.Iterator;
 
 /**
  * Contains static methods for dealing with images.
@@ -34,57 +21,12 @@ import java.util.*;
 public class ImageUtil {
 
     public static BufferedImage getImageResource(String resourcePath) throws IOException {
-        try (InputStream imageStream = FileUtil.getResource(resourcePath)) {
-            return readImage(imageStream);
+        try (InputStream inputStream = FileUtil.getResource(resourcePath)) {
+            return ImageIO.read(inputStream);
         }
     }
 
-    /**
-     * Adds a caption to an image.
-     *
-     * @param image        The image to add a caption to.
-     * @param words        The words of the caption.
-     * @param font         The font to use for the caption.
-     * @param nonTextParts The non text parts to use in the caption.
-     * @return The image with the caption added.
-     */
-    public static BufferedImage captionImage(BufferedImage image, String[] words, Font font, Map<String, Drawable> nonTextParts) {
-        font = font.deriveFont(image.getWidth() / 10F);
-        int padding = (int) (image.getWidth() * 0.04);
-        Graphics2D graphics = image.createGraphics();
-
-        configureTextSettings(graphics);
-
-        graphics.setFont(font);
-
-        CompositeDrawable paragraph = new ParagraphCompositeDrawable.Builder(nonTextParts)
-                .addWords(words)
-                .build(TextAlignment.CENTER, image.getWidth() - (padding * 2), null);
-
-        int fillHeight = paragraph.getHeight(graphics) + (padding * 2);
-        graphics.dispose();
-
-        BufferedImage resizedImage = new BufferedImage(image.getWidth(), image.getHeight() + fillHeight, image.getType());
-
-        graphics = resizedImage.createGraphics();
-        graphics.setFont(font);
-
-        graphics.drawImage(image, 0, fillHeight, null);
-
-        configureTextSettings(graphics);
-
-        graphics.setColor(Color.WHITE);
-        graphics.fillRect(0, 0, resizedImage.getWidth(), fillHeight);
-
-        graphics.setColor(Color.BLACK);
-
-        paragraph.draw(graphics, padding, padding);
-
-        graphics.dispose();
-        return resizedImage;
-    }
-
-    private static void configureTextSettings(Graphics2D graphics) {
+    public static void configureTextDrawSettings(Graphics2D graphics) {
         graphics.setRenderingHint(
                 RenderingHints.KEY_FRACTIONALMETRICS,
                 RenderingHints.VALUE_FRACTIONALMETRICS_ON
@@ -120,10 +62,6 @@ public class ImageUtil {
 
     public static BufferedImage resize(BufferedImage image, float resizeMultiplier, boolean raw) {
         return stretch(image, (int) (image.getWidth() * resizeMultiplier), (int) (image.getHeight() * resizeMultiplier), raw);
-    }
-
-    public static BufferedImage pixelate(BufferedImage image, int pixelationMultiplier) {
-        return stretch(stretch(image, image.getWidth() / pixelationMultiplier, image.getHeight() / pixelationMultiplier, true), image.getWidth(), image.getHeight(), true);
     }
 
     public static BufferedImage fitWidth(BufferedImage toFit, int width) {
@@ -269,108 +207,28 @@ public class ImageUtil {
         return rotated;
     }
 
-    /**
-     * Gets the frames of a GIF file.
-     *
-     * @param media The GIF file to get the frames of.
-     * @return A list of {@link DurationImage}s representing the frames of the GIF file.
-     * @throws IOException If an error occurs while reading the GIF file.
-     */
-    public static List<DurationImage> readGifFrames(File media) throws IOException {
-        List<DurationImage> frames = new ArrayList<>();
-        AnimatedGif gif = AnimatedGifReader.read(ImageSource.of(media));
-
-        for (int i = 0; i < gif.getFrameCount(); i++) {
-            BufferedImage frame = gif.getFrame(i).awt();
-            int duration = (int) gif.getDelay(i).toMillis();
-            frames.add(new DurationImage(frame, duration));
-        }
-
-        return frames;
-    }
-
-    /**
-     * Writes the given frames to a GIF file.
-     *
-     * @param frames     The {@link DurationImage} frames to write to the GIF file.
-     * @param outputFile The file to write the frames to.
-     */
-    public static void writeFramesToGifFile(Iterable<DurationImage> frames, File outputFile) {
-        StreamingGifWriter writer = new StreamingGifWriter();
-        try (StreamingGifWriter.GifStream gif = writer.prepareStream(outputFile, BufferedImage.TYPE_INT_ARGB)) {
-            for (DurationImage frame : frames) {
-                gif.writeFrame(ImmutableImage.wrapAwt(frame.getImage()), Duration.ofMillis(frame.getDuration()), DisposeMethod.RESTORE_TO_BACKGROUND_COLOR);
-                frame.getImage().flush();
-            }
-        } catch (Exception e) {
-            Main.getLogger().error("Error writing GIF file", e);
-        }
-    }
-
-    public static Optional<String> getImageType(File file) throws IOException {
+    public static String getImageType(File file) throws IOException {
         try (ImageInputStream imageInputStream = ImageIO.createImageInputStream(file)) {
             if (imageInputStream != null) {
                 Iterator<ImageReader> imageReaders = ImageIO.getImageReaders(imageInputStream);
 
                 if (imageReaders.hasNext()) {
                     ImageReader reader = imageReaders.next();
-                    return Optional.of(reader.getFormatName());
+                    return reader.getFormatName();
                 }
             }
 
-            return Optional.empty();
+            throw new IOException("Unable to determine image type");
         }
     }
 
-    public static BufferedImage readImage(File file) throws IOException {
-        try {
-            return ImmutableImage.loader().fromFile(file).awt();
-        } catch (IOException e) {
-            BufferedImage image = ImageIO.read(file);
-            if (image == null) {
-                throw new IOException("Could not read image file!");
-            } else {
-                return image;
-            }
-        }
-    }
-
-    public static BufferedImage readImage(InputStream inputStream) throws IOException {
-        try {
-            return ImmutableImage.loader().fromStream(inputStream).awt();
-        } catch (IOException e) {
-            BufferedImage image = ImageIO.read(inputStream);
-            if (image == null) {
-                throw new IOException("Could not read image file!");
-            } else {
-                return image;
-            }
-        }
-    }
-
-    public static BufferedImage readImage(URL url) throws IOException {
-        BufferedImage image = ImageIO.read(url);
-        if (image == null) {
-            throw new IOException("Could not read image file from URL: " + url);
-        } else {
+    public static BufferedImage convertType(BufferedImage image, int type) {
+        if (image.getType() == type) {
             return image;
+        } else {
+            BufferedImage imageWithAlpha = new BufferedImage(image.getWidth(), image.getHeight(), type);
+            ColorConvertOp convertOp = new ColorConvertOp(null);
+            return convertOp.filter(image, imageWithAlpha);
         }
-    }
-
-    public static BufferedImage readImageWithAlpha(File file) throws IOException {
-        BufferedImage originalImage = readImage(file);
-        BufferedImage imageWithAlpha = addAlpha(originalImage);
-        originalImage.flush();
-        return imageWithAlpha;
-    }
-
-    public static BufferedImage addAlpha(BufferedImage image) {
-        return convertType(image, BufferedImage.TYPE_INT_ARGB);
-    }
-
-    private static BufferedImage convertType(BufferedImage image, int type) {
-        BufferedImage imageWithAlpha = new BufferedImage(image.getWidth(), image.getHeight(), type);
-        ColorConvertOp convertOp = new ColorConvertOp(null);
-        return convertOp.filter(image, imageWithAlpha);
     }
 }

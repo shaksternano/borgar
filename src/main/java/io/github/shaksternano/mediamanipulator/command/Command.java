@@ -1,8 +1,8 @@
 package io.github.shaksternano.mediamanipulator.command;
 
 import io.github.shaksternano.mediamanipulator.command.util.Commands;
-import io.github.shaksternano.mediamanipulator.command.util.exception.InvalidArgumentException;
-import io.github.shaksternano.mediamanipulator.command.util.exception.MissingArgumentException;
+import io.github.shaksternano.mediamanipulator.exception.InvalidArgumentException;
+import io.github.shaksternano.mediamanipulator.exception.MissingArgumentException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 /**

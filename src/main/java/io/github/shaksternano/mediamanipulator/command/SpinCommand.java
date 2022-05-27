@@ -24,7 +24,7 @@ public class SpinCommand extends MediaCommand {
     }
 
     @Override
-    public File applyOperation(File media, String[] arguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
+    public File applyOperation(File media, String fileFormat, String[] arguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
         float spinSpeed = CommandParser.parseFloatArgument(arguments,
                 0,
                 DEFAULT_SPIN_SPEED,
@@ -38,6 +38,6 @@ public class SpinCommand extends MediaCommand {
                 event.getChannel(),
                 (argument, defaultValue) -> "RGB value \"" + argument + "\" is not a whole number. Setting transparent background color."
         );
-        return manipulator.spin(media, spinSpeed, rgb < 0 ? null : new Color(rgb));
+        return manipulator.spin(media, fileFormat, spinSpeed, rgb < 0 ? null : new Color(rgb));
     }
 }

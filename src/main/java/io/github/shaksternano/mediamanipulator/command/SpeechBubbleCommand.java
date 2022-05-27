@@ -29,7 +29,8 @@ public class SpeechBubbleCommand extends MediaCommand {
     /**
      * Adds a speech bubble on top of media. The speech bubble is resized so that it's width is the same as the media's width.
      *
-     * @param media       The media file to apply the operation to
+     * @param media       The media file to apply the operation to.
+     * @param fileFormat  The file format of the media file.
      * @param arguments   The arguments of the command.
      * @param manipulator The {@link MediaManipulator} to use for the operation.
      * @param event       The {@link MessageReceivedEvent} that triggered the command.
@@ -37,7 +38,7 @@ public class SpeechBubbleCommand extends MediaCommand {
      * @throws IOException If an error occurs while applying the operation.
      */
     @Override
-    public File applyOperation(File media, String[] arguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
-        return manipulator.speechBubble(media, CUT_OUT);
+    public File applyOperation(File media, String fileFormat, String[] arguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
+        return manipulator.speechBubble(media, fileFormat, CUT_OUT);
     }
 }

@@ -1,9 +1,9 @@
 package io.github.shaksternano.mediamanipulator.command;
 
 import io.github.shaksternano.mediamanipulator.Main;
-import io.github.shaksternano.mediamanipulator.command.util.exception.InvalidMediaException;
-import io.github.shaksternano.mediamanipulator.command.util.exception.MissingArgumentException;
-import io.github.shaksternano.mediamanipulator.command.util.exception.UnsupportedFileTypeException;
+import io.github.shaksternano.mediamanipulator.exception.InvalidMediaException;
+import io.github.shaksternano.mediamanipulator.exception.MissingArgumentException;
+import io.github.shaksternano.mediamanipulator.exception.UnsupportedFileFormatException;
 import io.github.shaksternano.mediamanipulator.io.FileUtil;
 import io.github.shaksternano.mediamanipulator.mediamanipulator.MediaManipulator;
 import io.github.shaksternano.mediamanipulator.mediamanipulator.util.MediaManipulatorRegistry;
@@ -33,7 +33,7 @@ public abstract class MediaCommand extends BaseCommand {
 
     /**
      * Gets a media file using {@link FileUtil#downloadFile(String, String)},
-     * edits it using {@link #applyOperation(File, String[], MediaManipulator, MessageReceivedEvent)},
+     * edits it using {@link #applyOperation(File, String, String[], MediaManipulator, MessageReceivedEvent)},
      * and then sends it to the channel where the command was triggered.
      *
      * @param arguments The arguments of the command.
@@ -43,26 +43,27 @@ public abstract class MediaCommand extends BaseCommand {
     @Override
     public void execute(String[] arguments, MessageReceivedEvent event) {
         Message userMessage = event.getMessage();
-        File tempDirectory = FileUtil.getTempDirectory();
 
-        MessageUtil.downloadImage(userMessage, tempDirectory.toString()).ifPresentOrElse(file -> {
-            String fileType = FileUtil.getFileType(file);
+        MessageUtil.downloadImage(userMessage, FileUtil.getTempDir().toString()).ifPresentOrElse(file -> {
+            String fileFormat = FileUtil.getFileFormat(file);
 
-            MediaManipulatorRegistry.getManipulator(fileType).ifPresentOrElse(manipulator -> {
+            MediaManipulatorRegistry.getManipulator(fileFormat).ifPresentOrElse(manipulator -> {
                 try {
-                    File editedMedia = applyOperation(file, arguments, manipulator, event);
-                    editedMedia.deleteOnExit();
+                    File editedMedia = applyOperation(file, fileFormat, arguments, manipulator, event);
+                    String newFileFormat = FileUtil.getFileFormat(editedMedia);
+                    File compressedMedia = manipulator.compress(editedMedia, newFileFormat);
+                    compressedMedia.deleteOnExit();
                     file.delete();
 
-                    long mediaFileSize = editedMedia.length();
+                    long mediaFileSize = compressedMedia.length();
                     if (mediaFileSize > FileUtil.DISCORD_MAXIMUM_FILE_SIZE) {
                         long mediaFileSizeInMb = mediaFileSize / (1024 * 1024);
                         userMessage.reply("The size of the edited media file, " + mediaFileSizeInMb + "MB, is too large to send!").queue();
                         Main.getLogger().error("File size of edited media was too large to send! (" + mediaFileSize + "B)");
-                        editedMedia.delete();
+                        compressedMedia.delete();
                     } else {
-                        userMessage.reply(editedMedia).queue(message -> editedMedia.delete(), throwable -> {
-                            editedMedia.delete();
+                        userMessage.reply(compressedMedia).queue(message -> compressedMedia.delete(), throwable -> {
+                            compressedMedia.delete();
                             String failSend = "Failed to send edited media!";
 
                             userMessage.reply(failSend).queue();
@@ -72,8 +73,8 @@ public abstract class MediaCommand extends BaseCommand {
                 } catch (InvalidMediaException e) {
                     userMessage.reply(e.getMessage() == null ? "Invalid media!" : "Invalid media: " + e.getMessage()).queue();
                     Main.getLogger().error("Invalid media!", e);
-                } catch (UnsupportedFileTypeException e) {
-                    String unsupportedMessage = "This operation is not supported on files with type \"" + fileType + "\"!";
+                } catch (UnsupportedFileFormatException e) {
+                    String unsupportedMessage = "This operation is not supported on files with type \"" + fileFormat + "\"!";
 
                     if (e.getMessage() != null && !e.getMessage().isEmpty()) {
                         unsupportedMessage = unsupportedMessage + " Reason: " + e.getMessage();
@@ -95,6 +96,7 @@ public abstract class MediaCommand extends BaseCommand {
      * Applies an operation to the media file specified by {@link FileUtil#downloadFile(String, String)}.
      *
      * @param media       The media file to apply the operation to
+     * @param fileFormat  The type of the media file.
      * @param arguments   The arguments of the command.
      * @param manipulator The {@link MediaManipulator} to use for the operation.
      * @param event       The {@link MessageReceivedEvent} that triggered the command.
@@ -103,5 +105,5 @@ public abstract class MediaCommand extends BaseCommand {
      * @throws IllegalArgumentException If an argument is invalid.
      * @throws MissingArgumentException If the operation requires an argument but none was provided.
      */
-    public abstract File applyOperation(File media, String[] arguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException;
+    public abstract File applyOperation(File media, String fileFormat, String[] arguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException;
 }

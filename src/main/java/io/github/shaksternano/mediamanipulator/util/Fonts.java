@@ -35,6 +35,6 @@ public class Fonts {
      * @return The font used for captioning.
      */
     public static Font getCaptionFont() {
-        return FUTURA_CONDENSED_EXTRA_BOLD == null ? new Font("Futura", Font.BOLD, 20) : FUTURA_CONDENSED_EXTRA_BOLD;
+        return FUTURA_CONDENSED_EXTRA_BOLD;
     }
 }

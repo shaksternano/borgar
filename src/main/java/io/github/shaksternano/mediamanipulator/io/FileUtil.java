@@ -1,8 +1,7 @@
 package io.github.shaksternano.mediamanipulator.io;
 
-import com.google.common.io.Files;
 import io.github.shaksternano.mediamanipulator.Main;
-import io.github.shaksternano.mediamanipulator.util.ImageUtil;
+import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
 import io.github.shaksternano.mediamanipulator.util.tenor.TenorMediaType;
 import io.github.shaksternano.mediamanipulator.util.tenor.TenorUtil;
 import org.apache.commons.io.FileUtils;
@@ -12,6 +11,8 @@ import java.io.*;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Optional;
 
 /**
@@ -19,10 +20,7 @@ import java.util.Optional;
  */
 public class FileUtil {
 
-    /**
-     * The program's temporary directory.
-     */
-    private static final String TEMP_DIR = System.getProperty("java.io.tmpdir") + File.separator + "mediamanipulator";
+    private static Path TEMP_DIR;
 
     /**
      * The maximum file size that can be sent in a Discord message, 8MB.
@@ -34,31 +32,29 @@ public class FileUtil {
      */
     private static final long MAXIMUM_FILE_SIZE_TO_DOWNLOAD = 104857600;
 
+    private static Path createTempDir() throws IOException {
+        Path tempDir = Files.createTempDirectory("mediamanipulator");
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> FileUtils.deleteQuietly(tempDir.toFile())));
+        return tempDir;
+    }
+
     /**
      * Gets the program's temporary directory.
      *
      * @return The program's temporary directory.
      * This is guaranteed to be a directory instead of a file.
      */
-    @SuppressWarnings("ResultOfMethodCallIgnored")
-    public static File getTempDirectory() {
-        File tempDir = getUniqueFile(TEMP_DIR, true, false);
-        tempDir.mkdirs();
-        tempDir.deleteOnExit();
-        return tempDir;
-    }
-
-    /**
-     * Deletes all the contents of the program's temporary directory.
-     */
-    public static void cleanTempDirectory() {
-        File tempDir = getUniqueFile(TEMP_DIR, true, false);
-        try {
-            FileUtils.cleanDirectory(tempDir);
-        } catch (IllegalArgumentException ignored) {
-        } catch (IOException e) {
-            Main.getLogger().warn("Error while cleaning temp directory!", e);
+    public static Path getTempDir() {
+        if (TEMP_DIR == null || !TEMP_DIR.toFile().isDirectory()) {
+            try {
+                TEMP_DIR = createTempDir();
+            } catch (IOException e) {
+                Main.getLogger().error("Failed to create temporary directory!", e);
+                System.exit(1);
+            }
         }
+
+        return TEMP_DIR;
     }
 
     /**
@@ -116,7 +112,7 @@ public class FileUtil {
      * @return A {@link File} with a unique name.
      */
     public static File getUniqueTempFile(String fileName) {
-        File tempFile = getUniqueFile(getTempDirectory().toString(), fileName);
+        File tempFile = getUniqueFile(getTempDir().toString(), fileName);
         tempFile.deleteOnExit();
         return tempFile;
     }
@@ -138,19 +134,6 @@ public class FileUtil {
     }
 
     /**
-     * Appends a string to the end of a file name, before the file extension.
-     *
-     * @param file     The file whose name the string will be appended to.
-     * @param toAppend The string to append.
-     * @return The file with the string appended to the end of its name.
-     */
-    public static File appendName(File file, String toAppend) {
-        String fileNameWithoutExtension = Files.getNameWithoutExtension(file.getName());
-        String extension = Files.getFileExtension(file.getName());
-        return new File(fileNameWithoutExtension + toAppend + "." + extension);
-    }
-
-    /**
      * Downloads a file from a URL.
      *
      * @param url       The text to download the image from.
@@ -161,8 +144,8 @@ public class FileUtil {
         try {
             Optional<String> tenorMediaUrlOptional = TenorUtil.getTenorMediaUrl(url, TenorMediaType.GIF_SMALL, Main.getTenorApiKey());
             url = tenorMediaUrlOptional.orElse(url);
-            String fileNameWithoutExtension = Files.getNameWithoutExtension(url);
-            String extension = Files.getFileExtension(url);
+            String fileNameWithoutExtension = com.google.common.io.Files.getNameWithoutExtension(url);
+            String extension = com.google.common.io.Files.getFileExtension(url);
 
             if (extension.isEmpty()) {
                 extension = "png";
@@ -199,15 +182,24 @@ public class FileUtil {
         }
     }
 
-    public static String getFileType(File file) {
-        Optional<String> fileTypeOptional = Optional.empty();
+    public static String getFileFormat(File file) {
+        Optional<String> fileFormatOptional = Optional.empty();
 
         try {
-            fileTypeOptional = ImageUtil.getImageType(file);
+            fileFormatOptional = Optional.of(ImageUtil.getImageType(file));
         } catch (IOException e) {
             Main.getLogger().error("Error getting file type from file " + file + "!", e);
         }
 
-        return fileTypeOptional.orElse(Files.getFileExtension(file.getName()));
+        return fileFormatOptional.orElse(com.google.common.io.Files.getFileExtension(file.getName()));
+    }
+
+    public static String changeFileName(String fileNameAndExtension, String newFileName) {
+        String extension = com.google.common.io.Files.getFileExtension(fileNameAndExtension);
+        return newFileName + "." + extension;
+    }
+
+    public static String changeExtension(String fileName, String newExtension) {
+        return com.google.common.io.Files.getNameWithoutExtension(fileName) + "." + newExtension;
     }
 }
