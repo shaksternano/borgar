@@ -78,6 +78,16 @@ public class ImageUtil {
         return ImmutableImage.wrapAwt(toFit).scaleToHeight(height).awt();
     }
 
+    public static BufferedImage fit(BufferedImage toFit, int width, int height) {
+        float widthToHeightRatio = (float) toFit.getWidth() / toFit.getHeight();
+        float targetWidthToHeightRatio = (float) width / height;
+        if (widthToHeightRatio > targetWidthToHeightRatio) {
+            return fitWidth(toFit, width);
+        } else {
+            return fitHeight(toFit, height);
+        }
+    }
+
     public static BufferedImage fill(BufferedImage toFill, Color color) {
         BufferedImage filledImage = new BufferedImage(toFill.getWidth(), toFill.getHeight(), toFill.getType());
         Graphics2D graphics = filledImage.createGraphics();

@@ -32,6 +32,8 @@ public interface MediaManipulator {
 
     File sonicSaysText(String[] words, Map<String, Drawable> nonTextParts) throws IOException;
 
+    File sonicSaysImage(File media, String fileFormat) throws IOException;
+
     /**
      * Stretches a media file.
      *

@@ -43,6 +43,10 @@ public class ImageMediaBuilder {
         return frames.size();
     }
 
+    public boolean isEmpty() {
+        return getFrameCount() == 0;
+    }
+
     public ImageMediaBuilder increaseLastFrameDuration(int duration) {
         if (frames.isEmpty()) {
             throw new IllegalStateException("Builder is empty!");

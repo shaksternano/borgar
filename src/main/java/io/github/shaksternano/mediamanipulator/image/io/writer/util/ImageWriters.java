@@ -44,8 +44,4 @@ public class ImageWriters {
             throw new IOException("Could not write image with format " + format + "!");
         }
     }
-
-    public static void write(BufferedImage image, File file, String format) throws IOException {
-        write(new StaticImage(image), file, format);
-    }
 }

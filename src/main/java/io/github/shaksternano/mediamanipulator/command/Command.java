@@ -22,10 +22,8 @@ public interface Command {
      *
      * @param arguments The arguments of the command.
      * @param event     The event that triggered the command.
-     * @throws InvalidArgumentException If an argument is invalid.
-     * @throws MissingArgumentException If the operation requires an argument but none was provided.
      */
-    void execute(String[] arguments, MessageReceivedEvent event) throws IOException;
+    void execute(String[] arguments, MessageReceivedEvent event);
 
     /**
      * Gets the name of the command. When a user sends a message starting with {@link #PREFIX}

@@ -1,7 +1,6 @@
 package io.github.shaksternano.mediamanipulator.image.imagemedia;
 
 import com.google.common.collect.Iterators;
-import io.github.shaksternano.mediamanipulator.graphics.drawable.ImageDrawable;
 import io.github.shaksternano.mediamanipulator.image.util.AwtFrame;
 import io.github.shaksternano.mediamanipulator.image.util.Frame;
 

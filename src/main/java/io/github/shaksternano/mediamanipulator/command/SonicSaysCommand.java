@@ -1,19 +1,26 @@
 package io.github.shaksternano.mediamanipulator.command;
 
-import io.github.shaksternano.mediamanipulator.Main;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.Drawable;
 import io.github.shaksternano.mediamanipulator.mediamanipulator.MediaManipulator;
 import io.github.shaksternano.mediamanipulator.mediamanipulator.util.MediaManipulatorRegistry;
-import io.github.shaksternano.mediamanipulator.util.DiscordUtil;
 import io.github.shaksternano.mediamanipulator.util.MessageUtil;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
-public class SonicSaysCommand extends BaseCommand {
+public class SonicSaysCommand extends OptionalFileInputMediaCommand {
+
+    public static final String IMAGE_PATH = "image/background/sonic_says.jpg";
+    public static final String IMAGE_NAME = "sonic_says.jpg";
+    public static final int SPEECH_BUBBLE_X = 345;
+    public static final int SPEECH_BUBBLE_Y = 35;
+    public static final int SPEECH_BUBBLE_WIDTH = 630;
+    public static final int SPEECH_BUBBLE_HEIGHT = 490;
+    public static final int SPEECH_BUBBLE_PADDING = 50;
+    public static final int DOUBLE_SPEECH_PADDING = SPEECH_BUBBLE_PADDING * 2;
+
 
     /**
      * Creates a new command object.
@@ -26,34 +33,15 @@ public class SonicSaysCommand extends BaseCommand {
         super(name, description);
     }
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
-    public void execute(String[] arguments, MessageReceivedEvent event) throws IOException {
-        Message userMessage = event.getMessage();
+    public File applyOperation(File media, String fileFormat, String[] arguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
+        return manipulator.sonicSaysImage(media, fileFormat);
+    }
 
-        Map<String, Drawable> nonTextParts = MessageUtil.getNonTextParts(userMessage);
+    @Override
+    public File applyOperation(String[] arguments, MessageReceivedEvent event) throws IOException {
+        Map<String, Drawable> nonTextParts = MessageUtil.getNonTextParts(event.getMessage());
         MediaManipulator manipulator = MediaManipulatorRegistry.getManipulator("jpg").orElseThrow();
-        File sonicSays = manipulator.sonicSaysText(arguments, nonTextParts);
-        File compressedMedia = manipulator.compress(sonicSays, "jpg", event.getGuild());
-
-        long mediaFileSize = compressedMedia.length();
-        if (mediaFileSize > DiscordUtil.getMaxUploadSize(event.getGuild())) {
-            long mediaFileSizeInMb = mediaFileSize / (1024 * 1024);
-            userMessage.reply("The size of the edited media file, " + mediaFileSizeInMb + "MB, is too large to send!").queue();
-            Main.getLogger().error("File size of edited media was too large to send! (" + mediaFileSize + "B)");
-            sonicSays.delete();
-            compressedMedia.delete();
-        } else {
-            userMessage.reply(compressedMedia).queue(message -> {
-                sonicSays.delete();
-                compressedMedia.delete();
-            }, throwable -> {
-                sonicSays.delete();
-                compressedMedia.delete();
-                String failSend = "Failed to send edited media!";
-                userMessage.reply(failSend).queue();
-                Main.getLogger().error(failSend, throwable);
-            });
-        }
+        return manipulator.sonicSaysText(arguments, nonTextParts);
     }
 }

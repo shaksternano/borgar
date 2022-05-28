@@ -15,6 +15,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.Optional;
 
 /**
  * A {@link Command} that manipulates media files.
@@ -44,7 +45,6 @@ public abstract class MediaCommand extends BaseCommand {
     @Override
     public void execute(String[] arguments, MessageReceivedEvent event) {
         Message userMessage = event.getMessage();
-
         MessageUtil.downloadImage(userMessage, FileUtil.getTempDir().toString()).ifPresentOrElse(file -> {
             String fileFormat = FileUtil.getFileFormat(file);
 
@@ -52,14 +52,21 @@ public abstract class MediaCommand extends BaseCommand {
                 try {
                     File editedMedia = applyOperation(file, fileFormat, arguments, manipulator, event);
                     String newFileFormat = FileUtil.getFileFormat(editedMedia);
-                    File compressedMedia = manipulator.compress(editedMedia, newFileFormat, event.getGuild() );
+                    File compressedMedia;
+                    Optional<MediaManipulator> manipulatorOptional = MediaManipulatorRegistry.getManipulator(newFileFormat);
+                    if (manipulatorOptional.isPresent()) {
+                        compressedMedia = manipulatorOptional.orElseThrow().compress(editedMedia, newFileFormat, event.getGuild());
+                    } else {
+                        compressedMedia = editedMedia;
+                    }
+
                     file.delete();
 
                     long mediaFileSize = compressedMedia.length();
                     if (mediaFileSize > DiscordUtil.getMaxUploadSize(event.getGuild())) {
                         long mediaFileSizeInMb = mediaFileSize / (1024 * 1024);
                         userMessage.reply("The size of the edited media file, " + mediaFileSizeInMb + "MB, is too large to send!").queue();
-                        Main.getLogger().error("File size of edited media was too large to send! (" + mediaFileSize + "B)");
+                        Main.getLogger().error("File size of edited media was too large to send! (" + mediaFileSize + "MB)");
                         editedMedia.delete();
                         compressedMedia.delete();
                     } else {
