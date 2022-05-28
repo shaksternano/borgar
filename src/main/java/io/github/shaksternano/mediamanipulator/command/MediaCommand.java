@@ -7,6 +7,7 @@ import io.github.shaksternano.mediamanipulator.exception.UnsupportedFileFormatEx
 import io.github.shaksternano.mediamanipulator.io.FileUtil;
 import io.github.shaksternano.mediamanipulator.mediamanipulator.MediaManipulator;
 import io.github.shaksternano.mediamanipulator.mediamanipulator.util.MediaManipulatorRegistry;
+import io.github.shaksternano.mediamanipulator.util.DiscordUtil;
 import io.github.shaksternano.mediamanipulator.util.MessageUtil;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -51,11 +52,11 @@ public abstract class MediaCommand extends BaseCommand {
                 try {
                     File editedMedia = applyOperation(file, fileFormat, arguments, manipulator, event);
                     String newFileFormat = FileUtil.getFileFormat(editedMedia);
-                    File compressedMedia = manipulator.compress(editedMedia, newFileFormat);
+                    File compressedMedia = manipulator.compress(editedMedia, newFileFormat, event.getGuild() );
                     file.delete();
 
                     long mediaFileSize = compressedMedia.length();
-                    if (mediaFileSize > FileUtil.DISCORD_MAXIMUM_FILE_SIZE) {
+                    if (mediaFileSize > DiscordUtil.getMaxUploadSize(event.getGuild())) {
                         long mediaFileSizeInMb = mediaFileSize / (1024 * 1024);
                         userMessage.reply("The size of the edited media file, " + mediaFileSizeInMb + "MB, is too large to send!").queue();
                         Main.getLogger().error("File size of edited media was too large to send! (" + mediaFileSize + "B)");

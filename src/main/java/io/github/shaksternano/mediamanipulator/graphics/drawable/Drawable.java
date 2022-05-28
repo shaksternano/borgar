@@ -49,4 +49,8 @@ public interface Drawable {
      * @throws UnsupportedOperationException If the drawable cannot be resized by height.
      */
     Drawable resizeToHeight(int height);
+
+    int getFrameCount();
+
+    boolean sameAsPreviousFrame();
 }

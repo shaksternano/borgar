@@ -21,7 +21,7 @@ public interface ImageMedia extends Iterable<Frame> {
      *
      * @return The number of frames in this ImageMedia.
      */
-    int size();
+    int getFrameCount();
 
     boolean isEmpty();
 

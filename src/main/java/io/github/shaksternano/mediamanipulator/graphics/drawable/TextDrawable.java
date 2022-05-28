@@ -38,6 +38,16 @@ public class TextDrawable implements Drawable {
     }
 
     @Override
+    public int getFrameCount() {
+        return 1;
+    }
+
+    @Override
+    public boolean sameAsPreviousFrame() {
+        return true;
+    }
+
+    @Override
     public int hashCode() {
         return TEXT.hashCode();
     }

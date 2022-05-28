@@ -29,9 +29,11 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
 
         List<Drawable> currentLine = new ArrayList<>();
 
-        for (Drawable part : getParts()) {
+        for (int i = 0; i < getParts().size(); i++) {
+            Drawable part = getParts().get(i);
             try {
                 part = part.resizeToHeight(lineHeight);
+                getParts().set(i, part);
             } catch (UnsupportedOperationException ignored) {
             }
 

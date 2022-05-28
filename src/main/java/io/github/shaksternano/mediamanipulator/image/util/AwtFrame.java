@@ -1,8 +1,10 @@
 package io.github.shaksternano.mediamanipulator.image.util;
 
+import io.github.shaksternano.mediamanipulator.image.imagemedia.AnimatedImage;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.image.BufferedImage;
+import java.util.Objects;
 
 /**
  * Represents a frame with a duration
@@ -68,5 +70,44 @@ public class AwtFrame implements Frame {
             image.flush();
             image = null;
         }
+    }
+
+    @Override
+    public Frame copyWithDuration(int duration) {
+        return new AwtFrame(image, duration);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(image, duration);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        } else if (obj instanceof AwtFrame other) {
+            return Objects.equals(image, other.image) &&
+                    Objects.equals(duration, other.duration);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder(getClass().getSimpleName() + "[");
+
+        if (image == null) {
+            builder.append("Flushed");
+        } else {
+            builder.append("Image: ")
+                    .append(ImageUtil.imageToString(image))
+                    .append(", Duration:")
+                    .append(duration);
+        }
+
+        builder.append("]");
+        return builder.toString();
     }
 }

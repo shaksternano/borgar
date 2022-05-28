@@ -22,11 +22,6 @@ public class FileUtil {
     private static File TEMP_DIR;
 
     /**
-     * The maximum file size that can be sent in a Discord message, 8MB.
-     */
-    public static final long DISCORD_MAXIMUM_FILE_SIZE = 8388608;
-
-    /**
      * The maximum file size that is allowed to be downloaded, 100MB.
      */
     private static final long MAXIMUM_FILE_SIZE_TO_DOWNLOAD = 104857600;
@@ -128,7 +123,7 @@ public class FileUtil {
     public static InputStream getResource(String resourcePath) throws FileNotFoundException {
         InputStream inputStream = FileUtil.class.getClassLoader().getResourceAsStream(resourcePath);
         if (inputStream == null) {
-            throw new FileNotFoundException("Resource not found: " + resourcePath);
+            throw new FileNotFoundException("Resource not found: " + resourcePath + "!");
         } else {
             return inputStream;
         }

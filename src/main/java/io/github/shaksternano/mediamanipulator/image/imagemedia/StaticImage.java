@@ -1,12 +1,14 @@
 package io.github.shaksternano.mediamanipulator.image.imagemedia;
 
 import com.google.common.collect.Iterators;
+import io.github.shaksternano.mediamanipulator.graphics.drawable.ImageDrawable;
 import io.github.shaksternano.mediamanipulator.image.util.AwtFrame;
 import io.github.shaksternano.mediamanipulator.image.util.Frame;
 
 import java.awt.image.BufferedImage;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.Spliterator;
 
 public class StaticImage extends BaseImageMedia {
@@ -27,7 +29,7 @@ public class StaticImage extends BaseImageMedia {
     }
 
     @Override
-    public int size() {
+    public int getFrameCount() {
         return 1;
     }
 
@@ -39,5 +41,26 @@ public class StaticImage extends BaseImageMedia {
     @Override
     public Spliterator<Frame> spliterator() {
         return Collections.singleton(frame).spliterator();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(frame);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        } else if (obj instanceof StaticImage other) {
+            return Objects.equals(frame, other.frame);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[Frame: " + frame + "]";
     }
 }

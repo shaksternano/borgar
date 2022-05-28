@@ -14,6 +14,27 @@ public abstract class ListCompositeDrawable implements CompositeDrawable {
      */
     private final List<Drawable> parts = new ArrayList<>();
 
+    @Override
+    public int getFrameCount() {
+        int maxFrameCount = 1;
+        for (Drawable part : parts) {
+            maxFrameCount = Math.max(maxFrameCount, part.getFrameCount());
+        }
+
+        return maxFrameCount;
+    }
+
+    @Override
+    public boolean sameAsPreviousFrame() {
+        for (Drawable part : parts) {
+            if (!part.sameAsPreviousFrame()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     /**
      * Gets the parts of this composite drawable.
      *

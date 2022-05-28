@@ -1,20 +1,13 @@
 package io.github.shaksternano.mediamanipulator.command;
 
 import io.github.shaksternano.mediamanipulator.graphics.drawable.Drawable;
-import io.github.shaksternano.mediamanipulator.graphics.drawable.ImageDrawable;
 import io.github.shaksternano.mediamanipulator.mediamanipulator.MediaManipulator;
 import io.github.shaksternano.mediamanipulator.util.MessageUtil;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.net.URL;
-import java.util.AbstractMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * A command that adds a captions media.

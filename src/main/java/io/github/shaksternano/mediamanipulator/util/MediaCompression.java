@@ -25,7 +25,7 @@ public class MediaCompression {
             ImageMediaBuilder builder = new ImageMediaBuilder();
 
             int keptIndex = -1;
-            for (int i = 0; i < imageMedia.size(); i++) {
+            for (int i = 0; i < imageMedia.getFrameCount(); i++) {
                 if (i % frameRatio == 0) {
                     builder.add(imageMedia.getFrame(i));
                     keptIndex++;

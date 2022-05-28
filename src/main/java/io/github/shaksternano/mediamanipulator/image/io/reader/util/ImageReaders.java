@@ -11,8 +11,7 @@ import io.github.shaksternano.mediamanipulator.image.io.writer.Image4jIcoImageWr
 import io.github.shaksternano.mediamanipulator.image.io.writer.util.ImageWriterRegistry;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.List;
 
 public class ImageReaders {
@@ -24,14 +23,20 @@ public class ImageReaders {
         ImageWriterRegistry.register(new Image4jIcoImageWriter());
     }
 
-    public static ImageMedia read(File file, String imageFormat, @Nullable Integer imageType) throws UnreadableFileException {
+    public static ImageMedia read(File file, String imageFormat, @Nullable Integer imageType) throws IOException {
+        try (InputStream fileInputStream = new FileInputStream(file)) {
+            return read(fileInputStream, imageFormat, imageType);
+        }
+    }
+
+    public static ImageMedia read(InputStream inputStream, String imageFormat, @Nullable Integer imageType) throws UnreadableFileException {
         List<ImageReader> readers = ImageReaderRegistry.getReaders(imageFormat);
         if (readers.isEmpty()) {
             throw new UnreadableFileException("No image reader found for image type " + imageFormat + "!");
         } else {
             for (ImageReader reader : readers) {
                 try {
-                    return reader.read(file, imageType);
+                    return reader.read(inputStream, imageType);
                 } catch (IOException e) {
                     Main.getLogger().error("Error reading image with reader " + reader.getClass().getSimpleName() + "!", e);
                 }

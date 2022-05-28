@@ -2,9 +2,9 @@ package io.github.shaksternano.mediamanipulator.command;
 
 import io.github.shaksternano.mediamanipulator.Main;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.Drawable;
-import io.github.shaksternano.mediamanipulator.io.FileUtil;
 import io.github.shaksternano.mediamanipulator.mediamanipulator.MediaManipulator;
 import io.github.shaksternano.mediamanipulator.mediamanipulator.util.MediaManipulatorRegistry;
+import io.github.shaksternano.mediamanipulator.util.DiscordUtil;
 import io.github.shaksternano.mediamanipulator.util.MessageUtil;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -33,11 +33,11 @@ public class SonicSaysCommand extends BaseCommand {
 
         Map<String, Drawable> nonTextParts = MessageUtil.getNonTextParts(userMessage);
         MediaManipulator manipulator = MediaManipulatorRegistry.getManipulator("jpg").orElseThrow();
-        File sonicSays = manipulator.sonicSays(arguments, nonTextParts);
-        File compressedMedia = manipulator.compress(sonicSays, "jpg");
+        File sonicSays = manipulator.sonicSaysText(arguments, nonTextParts);
+        File compressedMedia = manipulator.compress(sonicSays, "jpg", event.getGuild());
 
         long mediaFileSize = compressedMedia.length();
-        if (mediaFileSize > FileUtil.DISCORD_MAXIMUM_FILE_SIZE) {
+        if (mediaFileSize > DiscordUtil.getMaxUploadSize(event.getGuild())) {
             long mediaFileSizeInMb = mediaFileSize / (1024 * 1024);
             userMessage.reply("The size of the edited media file, " + mediaFileSizeInMb + "MB, is too large to send!").queue();
             Main.getLogger().error("File size of edited media was too large to send! (" + mediaFileSize + "B)");

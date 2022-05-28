@@ -48,25 +48,28 @@ public class EmojiUnicodeFileGenerator {
     @SuppressWarnings("ResultOfMethodCallIgnored")
     private static void generateEmojiUnicodesFile() {
         Optional<String> shaOptional = GithubUtil.getLatestReleaseTagCommitSha(REPOSITORY_OWNER, REPOSITORY_NAME);
-        shaOptional.ifPresentOrElse(sha -> {
-            List<String> fileNames = GithubUtil.listFiles(REPOSITORY_OWNER, REPOSITORY_NAME, sha, "assets", "72x72");
-            if (fileNames.isEmpty()) {
-                logger.error("Failed to load emoji unicodes!");
-            } else {
-                Stream<String> emojiUnicodeStream = fileNames.stream()
-                        .map(com.google.common.io.Files::getNameWithoutExtension)
-                        .map(String::toLowerCase);
-                Iterable<String> emojiUnicodeIterable = emojiUnicodeStream::iterator;
+        shaOptional.ifPresentOrElse(
+                sha -> {
+                    List<String> fileNames = GithubUtil.listFiles(REPOSITORY_OWNER, REPOSITORY_NAME, sha, "assets", "72x72");
+                    if (fileNames.isEmpty()) {
+                        logger.error("Failed to load emoji unicodes!");
+                    } else {
+                        Stream<String> emojiUnicodeStream = fileNames.stream()
+                                .map(com.google.common.io.Files::getNameWithoutExtension)
+                                .map(String::toLowerCase);
+                        Iterable<String> emojiUnicodeIterable = emojiUnicodeStream::iterator;
 
-                File directory = new File("src/main/resources/emoji");
-                directory.mkdirs();
-                try {
-                    Files.write(directory.toPath().resolve("emoji_unicodes.txt"), emojiUnicodeIterable);
-                    logger.info("Created emoji unicodes file!");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }, () -> logger.error("Failed to get latest release tag commit SHA!"));
+                        File directory = new File("src/main/resources/emoji");
+                        directory.mkdirs();
+                        try {
+                            Files.write(directory.toPath().resolve("emoji_unicodes.txt"), emojiUnicodeIterable);
+                            logger.info("Created emoji unicodes file!");
+                        } catch (IOException e) {
+                            logger.error("Failed to create emoji unicodes file!", e);
+                        }
+                    }
+                },
+                () -> logger.error("Failed to get latest release tag commit SHA!")
+        );
     }
 }

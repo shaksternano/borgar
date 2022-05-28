@@ -22,8 +22,10 @@ import io.github.shaksternano.mediamanipulator.image.util.ImageMediaBuilder;
 import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
 import io.github.shaksternano.mediamanipulator.io.FileUtil;
 import io.github.shaksternano.mediamanipulator.util.CollectionUtil;
+import io.github.shaksternano.mediamanipulator.util.DiscordUtil;
 import io.github.shaksternano.mediamanipulator.util.Fonts;
 import io.github.shaksternano.mediamanipulator.util.MediaCompression;
+import net.dv8tion.jda.api.entities.Guild;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,7 +41,6 @@ import java.util.function.Function;
 /**
  * A manipulator that works with image based media.
  */
-@SuppressWarnings("UnusedAssignment")
 public class ImageManipulator implements MediaManipulator {
 
     private static final Set<String> ANIMATED_IMAGE_FORMATS = ImmutableSet.of(
@@ -63,14 +64,13 @@ public class ImageManipulator implements MediaManipulator {
         }
     }
 
+    @SuppressWarnings("UnusedAssignment")
     @Override
     public File caption(File media, String fileFormat, String[] words, Map<String, Drawable> nonTextParts) throws IOException {
         ImageMedia imageMedia = ImageReaders.read(media, fileFormat, null);
         BufferedImage firstImage = imageMedia.getFrame(0).getImage();
 
         int width = firstImage.getWidth();
-        int height = firstImage.getHeight();
-        int type = firstImage.getType();
 
         Font font = Fonts.getCustomFont("futura_condensed_extra_bold").deriveFont(width / 10F);
         int padding = (int) (width * 0.04);
@@ -85,44 +85,75 @@ public class ImageManipulator implements MediaManipulator {
                 .build(TextAlignment.CENTER, width - (padding * 2));
 
         int fillHeight = paragraph.getHeight(originalGraphics) + (padding * 2);
-        int newHeight = height + fillHeight;
         originalGraphics.dispose();
 
         firstImage.flush();
         firstImage = null;
-        imageMedia = null;
 
-        return applyToEachFrame(media, fileFormat, image -> {
-            BufferedImage resizedImage = new BufferedImage(width, newHeight, type);
-            Graphics2D graphics = resizedImage.createGraphics();
-            graphics.setFont(font);
+        ImageMediaBuilder builder = new ImageMediaBuilder();
 
-            graphics.drawImage(image, 0, fillHeight, null);
+        int paragraphFrameCount = paragraph.getFrameCount();
+        if (paragraphFrameCount == 1) {
+            for (Frame frame : imageMedia) {
+                BufferedImage image = frame.getImage();
+                BufferedImage captionedImage = drawCaption(image, fillHeight, padding, paragraph, font);
+                builder.add(new AwtFrame(captionedImage, frame.getDuration()));
+            }
+        } else {
+            List<BufferedImage> images = imageMedia.toBufferedImages();
+            List<BufferedImage> normalisedImages = CollectionUtil.keepEveryNthElement(images, Frame.GIF_MINIMUM_FRAME_DURATION, Image::flush);
+            List<BufferedImage> extendedImages = CollectionUtil.extendLoop(normalisedImages, paragraphFrameCount);
 
-            ImageUtil.configureTextDrawSettings(graphics);
+            images = null;
+            normalisedImages = null;
 
-            graphics.setColor(Color.WHITE);
-            graphics.fillRect(0, 0, resizedImage.getWidth(), fillHeight);
+            BufferedImage previousImage = null;
 
-            graphics.setColor(Color.BLACK);
+            Iterator<BufferedImage> imageIterator = extendedImages.iterator();
+            while (imageIterator.hasNext()) {
+                BufferedImage image = imageIterator.next();
 
-            paragraph.draw(graphics, padding, padding);
+                if (image.equals(previousImage) && paragraph.sameAsPreviousFrame()) {
+                    builder.increaseLastFrameDuration(Frame.GIF_MINIMUM_FRAME_DURATION);
+                } else {
+                    BufferedImage captionedImage = drawCaption(image, fillHeight, padding, paragraph, font);
+                    builder.add(new AwtFrame(captionedImage, Frame.GIF_MINIMUM_FRAME_DURATION));
+                    previousImage = image;
+                }
 
-            graphics.dispose();
-            return resizedImage;
-        }, "captioned");
+                imageIterator.remove();
+            }
+        }
+
+        String outputFormat;
+        String outputExtension;
+        if (paragraphFrameCount > 1 && !imageMedia.isAnimated()) {
+            outputFormat = "gif";
+            outputExtension = "." + outputFormat;
+        } else {
+            outputFormat = fileFormat;
+            outputExtension = Files.getFileExtension(media.getName());
+
+            if (!outputExtension.isEmpty()) {
+                outputExtension = "." + outputExtension;
+            }
+        }
+
+        ImageMedia result = builder.build();
+        File outputFile = FileUtil.getUniqueTempFile("captioned" + outputExtension);
+        ImageWriters.write(result, outputFile, outputFormat);
+        return outputFile;
     }
 
     @Override
-    public File sonicSays(String[] words, Map<String, Drawable> nonTextParts) throws IOException {
+    public File sonicSaysText(String[] words, Map<String, Drawable> nonTextParts) throws IOException {
         String sonicImagePath = "image/background/sonic_says.jpg";
-        String fileName = "sonic_says.jpg";
+        File outputFile;
 
         if (words.length == 0) {
             try (InputStream inputStream = FileUtil.getResource(sonicImagePath)) {
-                File file = FileUtil.getUniqueTempFile(fileName);
-                FileUtils.copyInputStreamToFile(inputStream, file);
-                return file;
+                outputFile = FileUtil.getUniqueTempFile("sonic_says.jpg");
+                FileUtils.copyInputStreamToFile(inputStream, outputFile);
             }
         } else {
             int speechBubbleX = 345;
@@ -136,13 +167,13 @@ public class ImageManipulator implements MediaManipulator {
             int padding = 50;
             int doubledPadding = padding * 2;
 
-            BufferedImage sonic = ImageUtil.getImageResource("image/background/sonic_says.jpg");
-            Graphics2D graphics = sonic.createGraphics();
+            BufferedImage sonic = ImageUtil.getImageResource(sonicImagePath);
+            Graphics2D sonicGraphics = sonic.createGraphics();
 
             Font font = Fonts.getCustomFont("bitstream_vera_sans").deriveFont(speechBubbleWidth / 10F);
-            graphics.setFont(font);
-            graphics.setColor(Color.WHITE);
-            ImageUtil.configureTextDrawSettings(graphics);
+            sonicGraphics.setFont(font);
+            sonicGraphics.setColor(Color.WHITE);
+            ImageUtil.configureTextDrawSettings(sonicGraphics);
 
             ParagraphCompositeDrawable paragraph = new ParagraphCompositeDrawable.Builder(nonTextParts)
                     .addWords(words)
@@ -150,17 +181,51 @@ public class ImageManipulator implements MediaManipulator {
 
             int maxParagraphHeight = speechBubbleHeight - doubledPadding;
 
-            int paragraphHeight = DrawableUtil.fitHeight(maxParagraphHeight, paragraph, graphics);
+            int paragraphHeight = DrawableUtil.fitHeight(maxParagraphHeight, paragraph, sonicGraphics);
+
+            sonicGraphics.dispose();
 
             int paragraphY = speechBubbleCentreY - (paragraphHeight / 2);
 
-            paragraph.draw(graphics, speechBubbleX + padding, paragraphY);
+            String outputFileName = "sonic_says.";
+            String outputFormat;
 
-            File output = FileUtil.getUniqueTempFile(fileName);
-            ImageWriters.write(sonic, output, "jpg");
+            int paragraphFrameCount = paragraph.getFrameCount();
+            if (paragraphFrameCount == 1) {
+                outputFormat = Files.getFileExtension(sonicImagePath);
+                outputFileName += outputFormat;
+            } else {
+                outputFormat = "gif";
+                outputFileName += outputFormat;
+            }
 
-            return output;
+            ImageMediaBuilder builder = new ImageMediaBuilder();
+
+            for (int i = 0; i < paragraphFrameCount; i++) {
+                if (paragraph.sameAsPreviousFrame()) {
+                    builder.increaseLastFrameDuration(Frame.GIF_MINIMUM_FRAME_DURATION);
+                } else {
+                    BufferedImage sonicText = new BufferedImage(sonic.getWidth(), sonic.getHeight(), sonic.getType());
+                    Graphics2D sonicTextGraphics = sonicText.createGraphics();
+
+                    sonicTextGraphics.setFont(font);
+                    sonicTextGraphics.setColor(Color.WHITE);
+                    ImageUtil.configureTextDrawSettings(sonicTextGraphics);
+
+                    sonicTextGraphics.drawImage(sonic, 0, 0, null);
+                    paragraph.draw(sonicTextGraphics, speechBubbleX + padding, paragraphY);
+
+                    sonicTextGraphics.dispose();
+                    builder.add(new AwtFrame(sonicText, Frame.GIF_MINIMUM_FRAME_DURATION));
+                }
+            }
+
+            ImageMedia result = builder.build();
+            outputFile = FileUtil.getUniqueTempFile(outputFileName);
+            ImageWriters.write(result, outputFile, outputFormat);
         }
+
+        return outputFile;
     }
 
     @Override
@@ -193,6 +258,7 @@ public class ImageManipulator implements MediaManipulator {
         );
     }
 
+    @SuppressWarnings("UnusedAssignment")
     @Override
     public File speechBubble(File media, String fileFormat, boolean cutOut) throws IOException {
         String speechBubblePath = cutOut ? "image/overlay/speech_bubble_2_partial.png" : "image/overlay/speech_bubble_1_partial.png";
@@ -292,6 +358,7 @@ public class ImageManipulator implements MediaManipulator {
         return applyToEachFrame(media, fileFormat, image -> ImageUtil.rotate(image, degrees, null, null, backgroundColor), "rotated");
     }
 
+    @SuppressWarnings("UnusedAssignment")
     @Override
     public File spin(File media, String fileFormat, float speed, @Nullable Color backgroundColor) throws IOException {
         ImageMedia image = ImageReaders.read(media, fileFormat, BufferedImage.TYPE_INT_ARGB);
@@ -384,13 +451,13 @@ public class ImageManipulator implements MediaManipulator {
     }
 
     @Override
-    public File compress(File media, String fileFormat) throws IOException {
-        if (media.length() > FileUtil.DISCORD_MAXIMUM_FILE_SIZE) {
-            float ratio = (float) FileUtil.DISCORD_MAXIMUM_FILE_SIZE / media.length();
+    public File compress(File media, String fileFormat, @Nullable Guild guild) throws IOException {
+        if (media.length() > DiscordUtil.getMaxUploadSize(guild)) {
+            float ratio = (float) DiscordUtil.getMaxUploadSize(guild) / media.length();
             media = resize(media, fileFormat, ratio, false, false);
 
             boolean reduceResolution = true;
-            while (media.length() > FileUtil.DISCORD_MAXIMUM_FILE_SIZE) {
+            while (media.length() > DiscordUtil.getMaxUploadSize(guild)) {
                 if (reduceResolution || !ANIMATED_IMAGE_FORMATS.contains(fileFormat)) {
                     media = resize(media, fileFormat, 0.75F, false, false);
                 } else {
@@ -410,6 +477,25 @@ public class ImageManipulator implements MediaManipulator {
         Set<String> readerFormats = ImageReaderRegistry.getSupportedFormats();
         Set<String> writerFormats = ImageWriterRegistry.getSupportedFormats();
         return CollectionUtil.intersection(readerFormats, writerFormats);
+    }
+
+    private static BufferedImage drawCaption(BufferedImage image, int fillHeight, int padding, Drawable paragraph, Font font) {
+        BufferedImage captionedImage = new BufferedImage(image.getWidth(), image.getHeight() + fillHeight, image.getType());
+        Graphics2D graphics = captionedImage.createGraphics();
+        ImageUtil.configureTextDrawSettings(graphics);
+
+        graphics.drawImage(image, 0, fillHeight, null);
+
+        graphics.setColor(Color.WHITE);
+        graphics.fillRect(0, 0, captionedImage.getWidth(), fillHeight);
+
+        graphics.setFont(font);
+        graphics.setColor(Color.BLACK);
+        paragraph.draw(graphics, padding, padding);
+
+        graphics.dispose();
+
+        return captionedImage;
     }
 
     /**

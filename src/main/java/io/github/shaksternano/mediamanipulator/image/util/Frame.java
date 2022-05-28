@@ -24,4 +24,6 @@ public interface Frame {
     int getDuration();
 
     void flush();
+
+    Frame copyWithDuration(int duration);
 }

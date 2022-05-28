@@ -2,6 +2,7 @@ package io.github.shaksternano.mediamanipulator.mediamanipulator;
 
 import io.github.shaksternano.mediamanipulator.exception.UnsupportedFileFormatException;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.Drawable;
+import net.dv8tion.jda.api.entities.Guild;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
@@ -29,7 +30,7 @@ public interface MediaManipulator {
      */
     File caption(File media, String fileFormat, String[] words, Map<String, Drawable> nonTextParts) throws IOException;
 
-    File sonicSays(String[] words, Map<String, Drawable> nonTextParts) throws IOException;
+    File sonicSaysText(String[] words, Map<String, Drawable> nonTextParts) throws IOException;
 
     /**
      * Stretches a media file.
@@ -60,7 +61,7 @@ public interface MediaManipulator {
 
     File spin(File media, String fileFormat, float speed, @Nullable Color backgroundColor) throws IOException;
 
-    File compress(File media, String fileFormat) throws IOException;
+    File compress(File media, String fileFormat, @Nullable Guild guild) throws IOException;
 
     /**
      * Turns a media file into a GIF file, useful for Discord GIF favoriting.

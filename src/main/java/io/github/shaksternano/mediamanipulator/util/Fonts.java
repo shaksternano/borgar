@@ -31,12 +31,12 @@ public class Fonts {
         ImmutableMap.Builder<String, Font> builder = new ImmutableMap.Builder<>();
 
         for (String fontFile : FONT_FILES) {
-            try (InputStream inputStream = FileUtil.getResource("font/" + fontFile)) {
-                Font font = Font.createFont(Font.TRUETYPE_FONT, inputStream);
+            try (InputStream fontInputStream = FileUtil.getResource("font/" + fontFile)) {
+                Font font = Font.createFont(Font.TRUETYPE_FONT, fontInputStream);
                 GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(font);
                 builder.put(Files.getNameWithoutExtension(fontFile), font);
             } catch (FontFormatException | IOException e) {
-                e.printStackTrace();
+                Main.getLogger().error("Could not load font " + fontFile + "!", e);
             }
         }
 

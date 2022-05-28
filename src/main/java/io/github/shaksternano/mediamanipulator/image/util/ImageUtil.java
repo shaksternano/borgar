@@ -1,7 +1,10 @@
 package io.github.shaksternano.mediamanipulator.image.util;
 
 import com.sksamuel.scrimage.ImmutableImage;
+import io.github.shaksternano.mediamanipulator.image.imagemedia.ImageMedia;
+import io.github.shaksternano.mediamanipulator.image.imagemedia.StaticImage;
 import io.github.shaksternano.mediamanipulator.io.FileUtil;
+import io.github.shaksternano.mediamanipulator.util.CollectionUtil;
 import org.jetbrains.annotations.Nullable;
 
 import javax.imageio.ImageIO;
@@ -11,9 +14,12 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorConvertOp;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Contains static methods for dealing with images.
@@ -85,7 +91,7 @@ public class ImageUtil {
     /**
      * Overlays an image on top of another image.
      *
-     * @param image       The image being overlaid on.
+     * @param background       The image being overlaid on.
      * @param overlay     The image to overlay.
      * @param x           The x coordinate of the top left corner of the overlay in relation to the media file being overlaid on.
      * @param y           The y coordinate of the top left corner of the overlay in relation to the media file being overlaid on.
@@ -93,41 +99,113 @@ public class ImageUtil {
      * @param expandColor The background color used if the resulting image is expanded.
      * @return The overlaid image.
      */
-    public static BufferedImage overlayImage(BufferedImage image, BufferedImage overlay, int x, int y, boolean expand, @Nullable Color expandColor) {
+    public static BufferedImage overlayImage(BufferedImage background, BufferedImage overlay, int x, int y, boolean expand, @Nullable Color expandColor) {
+        ImageMedia backgroundImage = new StaticImage(background);
+        ImageMedia overlayImage = new StaticImage(overlay);
+        return overlayImage(backgroundImage, overlayImage, x, y, expand, expandColor).getFrame(0).getImage();
+    }
+
+    @SuppressWarnings("UnusedAssignment")
+    public static ImageMedia overlayImage(ImageMedia background, ImageMedia overlay, int x, int y, boolean expand, @Nullable Color expandColor) {
+        List<BufferedImage> backgroundImages = background.toBufferedImages();
+        List<BufferedImage> overlayImages = overlay.toBufferedImages();
+
+        List<BufferedImage> normalisedBackgroundImages = CollectionUtil.keepEveryNthElement(backgroundImages, Frame.GIF_MINIMUM_FRAME_DURATION, Image::flush);
+        List<BufferedImage> normalisedOverlayImages = CollectionUtil.keepEveryNthElement(overlayImages, Frame.GIF_MINIMUM_FRAME_DURATION, Image::flush);
+
+        BufferedImage firstBackground = normalisedBackgroundImages.get(0);
+        BufferedImage firstOverlay = normalisedOverlayImages.get(0);
+
+        int backgroundWidth = firstBackground.getWidth();
+        int backgroundHeight = firstBackground.getHeight();
+
+        int overlayWidth = firstOverlay.getWidth();
+        int overlayHeight = firstOverlay.getHeight();
+
+        int type = firstBackground.getType();
+
+        background = null;
+        overlay = null;
+
+        backgroundImages = null;
+        overlayImages = null;
+
+        firstBackground.flush();
+        firstOverlay.flush();
+        firstBackground = null;
+        firstOverlay = null;
+
+        int overlaidWidth;
+        int overlaidHeight;
+
+        int backgroundX;
+        int backgroundY;
+
+        int overlayX;
+        int overlayY;
+
         if (expand) {
-            int imageWidth = image.getWidth();
-            int imageHeight = image.getHeight();
+            if (x < 0) {
+                overlaidWidth = Math.max(backgroundWidth - x, overlayWidth);
+                backgroundX = -x;
+            } else {
+                overlaidWidth = Math.max(backgroundWidth, overlayWidth + x);
+                backgroundX = 0;
+            }
 
-            int overlayWidth = overlay.getWidth();
-            int overlayHeight = overlay.getHeight();
+            if (y < 0) {
+                overlaidHeight = Math.max(backgroundHeight - y, overlayHeight);
+                backgroundY = -y;
+            } else {
+                overlaidHeight = Math.max(backgroundHeight, overlayHeight + y);
+                backgroundY = 0;
+            }
 
-            int overlaidWidth = x < 0 ? Math.max(imageWidth - x, overlayWidth) : Math.max(imageWidth, overlayWidth + x);
-            int overlaidHeight = y < 0 ? Math.max(imageHeight - y, overlayHeight) : Math.max(imageHeight, overlayHeight + y);
+            overlayX = Math.max(x, 0);
+            overlayY = Math.max(y, 0);
+        } else {
+            overlaidWidth = backgroundWidth;
+            overlaidHeight = backgroundHeight;
 
-            BufferedImage overlaidImage = new BufferedImage(overlaidWidth, overlaidHeight, image.getType());
+            backgroundX = 0;
+            backgroundY = 0;
+
+            overlayX = x;
+            overlayY = y;
+        }
+
+        ImageMediaBuilder builder = new ImageMediaBuilder();
+
+        BufferedImage previousBackground = null;
+        BufferedImage previousOverlay = null;
+
+        for (int i = 0; i < Math.max(normalisedBackgroundImages.size(), normalisedOverlayImages.size()); i++) {
+            BufferedImage overlaidImage = new BufferedImage(overlaidWidth, overlaidHeight, type);
             Graphics2D graphics = overlaidImage.createGraphics();
 
             if (expandColor != null) {
                 graphics.setColor(expandColor);
-                graphics.fillRect(0, 0, overlaidImage.getWidth(), overlaidImage.getHeight());
+                graphics.fillRect(0, 0, overlaidWidth, overlaidHeight);
             }
 
-            int imageActualX = x < 0 ? -x : 0;
-            int imageActualY = y < 0 ? -y : 0;
+            BufferedImage backgroundImage = normalisedBackgroundImages.get(i % normalisedBackgroundImages.size());
+            BufferedImage overlayImage = normalisedOverlayImages.get(i % normalisedOverlayImages.size());
 
-            int overlayActualX = Math.max(x, 0);
-            int overlayActualY = Math.max(y, 0);
+            if (backgroundImage.equals(previousBackground) && overlayImage.equals(previousOverlay)) {
+                builder.increaseLastFrameDuration(Frame.GIF_MINIMUM_FRAME_DURATION);
+            } else {
+                graphics.drawImage(backgroundImage, backgroundX, backgroundY, null);
+                graphics.drawImage(overlayImage, overlayX, overlayY, null);
+                graphics.dispose();
 
-            graphics.drawImage(image, imageActualX, imageActualY, null);
-            graphics.drawImage(overlay, overlayActualX, overlayActualY, null);
-            graphics.dispose();
-            return overlaidImage;
-        } else {
-            Graphics2D graphics = image.createGraphics();
-            graphics.drawImage(overlay, x, y, null);
-            graphics.dispose();
-            return image;
+                builder.add(new AwtFrame(overlaidImage, Frame.GIF_MINIMUM_FRAME_DURATION));
+
+                previousBackground = backgroundImage;
+                previousOverlay = overlayImage;
+            }
         }
+
+        return builder.build();
     }
 
     public static BufferedImage cutoutImage(BufferedImage imageToCut, BufferedImage imageToCutout, int x, int y, int cutoutColor) {
@@ -207,8 +285,8 @@ public class ImageUtil {
         return rotated;
     }
 
-    public static String getImageType(File file) throws IOException {
-        try (ImageInputStream imageInputStream = ImageIO.createImageInputStream(file)) {
+    public static String getImageType(InputStream inputStream) throws IOException {
+        try (ImageInputStream imageInputStream = ImageIO.createImageInputStream(inputStream)) {
             if (imageInputStream != null) {
                 Iterator<ImageReader> imageReaders = ImageIO.getImageReaders(imageInputStream);
 
@@ -222,6 +300,14 @@ public class ImageUtil {
         }
     }
 
+    public static String getImageType(File file) throws IOException {
+        return getImageType(new FileInputStream(file));
+    }
+
+    public static String getImageType(URL url) throws IOException {
+        return getImageType(url.openStream());
+    }
+
     public static BufferedImage convertType(BufferedImage image, int type) {
         if (image.getType() == type) {
             return image;
@@ -230,5 +316,14 @@ public class ImageUtil {
             ColorConvertOp convertOp = new ColorConvertOp(null);
             return convertOp.filter(image, imageWithAlpha);
         }
+    }
+
+    public static String imageToString(BufferedImage image) {
+        return image.getClass().getSimpleName() +
+                "[" +
+                image.getWidth() +
+                "x" +
+                image.getHeight() +
+                "]";
     }
 }

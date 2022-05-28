@@ -6,6 +6,11 @@ import io.github.shaksternano.mediamanipulator.Main;
 import io.github.shaksternano.mediamanipulator.emoji.EmojiUtil;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.Drawable;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.ImageDrawable;
+import io.github.shaksternano.mediamanipulator.image.imagemedia.ImageMedia;
+import io.github.shaksternano.mediamanipulator.image.io.reader.util.ImageReaders;
+import io.github.shaksternano.mediamanipulator.image.io.writer.util.ImageWriters;
+import io.github.shaksternano.mediamanipulator.image.util.Frame;
+import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
 import io.github.shaksternano.mediamanipulator.io.FileUtil;
 import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Message;
@@ -13,14 +18,17 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -280,9 +288,16 @@ public class MessageUtil {
         Map<String, String> imageUrls = MessageUtil.getEmojiUrls(message);
         return imageUrls.entrySet().parallelStream().map(imageUrlEntry -> {
             try {
-                BufferedImage image = ImageIO.read(new URL(imageUrlEntry.getValue()));
-                Drawable drawable = new ImageDrawable(image);
-                return new AbstractMap.SimpleEntry<>(imageUrlEntry.getKey(), drawable);
+                URL url = new URL(imageUrlEntry.getValue());
+                String imageType = ImageUtil.getImageType(url);
+
+                try (InputStream inputStream = url.openStream()) {
+                    ImageMedia imageMedia = ImageReaders.read(inputStream, imageType, null);
+                    List<BufferedImage> images = imageMedia.toBufferedImages();
+                    List<BufferedImage> normalisedImages = CollectionUtil.keepEveryNthElement(images, Frame.GIF_MINIMUM_FRAME_DURATION, Image::flush);
+                    Drawable drawable = new ImageDrawable(normalisedImages);
+                    return new AbstractMap.SimpleEntry<>(imageUrlEntry.getKey(), drawable);
+                }
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }

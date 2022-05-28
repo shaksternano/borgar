@@ -5,20 +5,26 @@ import io.github.shaksternano.mediamanipulator.image.imagemedia.ImageMedia;
 import io.github.shaksternano.mediamanipulator.image.imagemedia.StaticImage;
 
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 public class ImageMediaBuilder {
 
     private final List<Frame> frames = new ArrayList<>();
 
     public ImageMediaBuilder add(Frame... frames) {
-        if (frames.length == 1) {
-            this.frames.add(frames[0]);
-        } else {
-            this.frames.addAll(Arrays.asList(frames));
+        for (Frame frame : frames) {
+            if (this.frames.isEmpty()) {
+                this.frames.add(frame);
+            } else {
+                int lastIndex = this.frames.size() - 1;
+                Frame lastFrame = this.frames.get(lastIndex);
+                if (frame.getImage().equals(lastFrame.getImage())) {
+                    int newDuration = frame.getDuration() + lastFrame.getDuration();
+                    this.frames.set(lastIndex, frame.copyWithDuration(newDuration));
+                } else {
+                    this.frames.add(frame);
+                }
+            }
         }
 
         return this;
@@ -33,6 +39,23 @@ public class ImageMediaBuilder {
         return this;
     }
 
+    public int getFrameCount() {
+        return frames.size();
+    }
+
+    public ImageMediaBuilder increaseLastFrameDuration(int duration) {
+        if (frames.isEmpty()) {
+            throw new IllegalStateException("Builder is empty!");
+        } else {
+            int lastIndex = frames.size() - 1;
+            Frame lastFrame = frames.get(lastIndex);
+            int newDuration = lastFrame.getDuration() + duration;
+            frames.set(lastIndex, lastFrame.copyWithDuration(newDuration));
+        }
+
+        return this;
+    }
+
     public ImageMedia build() {
         if (frames.size() == 1) {
             return new StaticImage(frames.get(0).getImage());
@@ -41,9 +64,23 @@ public class ImageMediaBuilder {
         }
     }
 
-    public static ImageMedia fromCollection(Collection<Frame> frames) {
-        if (frames.size() == 1) {
-            return new StaticImage(frames.iterator().next().getImage());
+    public static ImageMedia fromCollection(Iterable<Frame> frames) {
+        int frameCount = 0;
+        BufferedImage firstImage = null;
+        for (Frame frame : frames) {
+            if (firstImage == null) {
+                firstImage = frame.getImage();
+            }
+
+            frameCount++;
+
+            if (frameCount > 1) {
+                break;
+            }
+        }
+
+        if (frameCount == 1) {
+            return new StaticImage(firstImage);
         } else {
             return new AnimatedImage(frames);
         }

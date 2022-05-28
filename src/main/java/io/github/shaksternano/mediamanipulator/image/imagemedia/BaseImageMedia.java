@@ -12,12 +12,12 @@ public abstract class BaseImageMedia implements ImageMedia {
 
     @Override
     public boolean isEmpty() {
-        return size() == 0;
+        return getFrameCount() == 0;
     }
 
     @Override
     public boolean isAnimated() {
-        return size() > 1;
+        return getFrameCount() > 1;
     }
 
     @Override

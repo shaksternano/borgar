@@ -20,14 +20,14 @@ public class CollectionUtil {
      * @param collection The collection to remove elements from.
      * @param n          The n value.
      * @param cleanup    The code run on elements that are removed.
-     * @param <T>        The type of the collection.
+     * @param <E>        The type of the collection.
      * @return A new {@link List} with every Nth element removed.
      */
-    public static <T> List<T> keepEveryNthElement(Collection<T> collection, int n, @Nullable Consumer<T> cleanup) {
+    public static <E> List<E> keepEveryNthElement(Collection<E> collection, int n, @Nullable Consumer<E> cleanup) {
         return keepEveryNthElement(collection.stream(), n, cleanup);
     }
 
-    public static <T> List<T> keepEveryNthElement(Stream<T> stream, int n, @Nullable Consumer<T> cleanup) {
+    public static <E> List<E> keepEveryNthElement(Stream<E> stream, int n, @Nullable Consumer<E> cleanup) {
         return Streams
                 .mapWithIndex(stream, AbstractMap.SimpleImmutableEntry::new)
                 .filter(entry -> {
@@ -45,9 +45,35 @@ public class CollectionUtil {
                 .collect(Collectors.toList());
     }
 
-    public static <T> Set<T> intersection(Collection<T> collection1, Collection<T> collection2) {
-        Set<T> intersection = new HashSet<>(collection1);
+    public static <E> Set<E> intersection(Collection<E> collection1, Collection<E> collection2) {
+        Set<E> intersection = new HashSet<>(collection1);
         intersection.retainAll(collection2);
         return ImmutableSet.copyOf(intersection);
+    }
+
+    public static <E> List<E> extendLoop(Collection<E> collection, int size) {
+        if (collection.size() < size) {
+            List<E> extended = new ArrayList<>(size);
+
+            while (size - extended.size() >= collection.size()) {
+                extended.addAll(collection);
+            }
+
+            if (extended.size() < size) {
+                int remaining = size - extended.size();
+                for (E element : collection) {
+                    extended.add(element);
+                    remaining--;
+
+                    if (remaining == 0) {
+                        break;
+                    }
+                }
+            }
+
+            return extended;
+        } else {
+            return new ArrayList<>(collection);
+        }
     }
 }
