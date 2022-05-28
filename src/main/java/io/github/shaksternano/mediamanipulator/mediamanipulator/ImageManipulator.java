@@ -531,7 +531,7 @@ public class ImageManipulator implements MediaManipulator {
             int duration = frame.getDuration();
             frame.flush();
             return (Frame) new AwtFrame(modifiedImage, duration);
-        }).toList();
+        }).collect(ImmutableList.toImmutableList());
 
         ImageMedia outputImage = ImageMediaBuilder.fromCollection(frames);
 
