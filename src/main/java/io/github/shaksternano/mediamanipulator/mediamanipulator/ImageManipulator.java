@@ -24,12 +24,14 @@ import io.github.shaksternano.mediamanipulator.io.FileUtil;
 import io.github.shaksternano.mediamanipulator.util.CollectionUtil;
 import io.github.shaksternano.mediamanipulator.util.Fonts;
 import io.github.shaksternano.mediamanipulator.util.MediaCompression;
+import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 import java.util.List;
 import java.util.function.Function;
@@ -113,41 +115,52 @@ public class ImageManipulator implements MediaManipulator {
 
     @Override
     public File sonicSays(String[] words, Map<String, Drawable> nonTextParts) throws IOException {
-        int speechBubbleX = 345;
-        int speechBubbleY = 35;
+        String sonicImagePath = "image/background/sonic_says.jpg";
+        String fileName = "sonic_says.jpg";
 
-        int speechBubbleWidth = 630;
-        int speechBubbleHeight = 490;
+        if (words.length == 0) {
+            try (InputStream inputStream = FileUtil.getResource(sonicImagePath)) {
+                File file = FileUtil.getUniqueTempFile(fileName);
+                FileUtils.copyInputStreamToFile(inputStream, file);
+                return file;
+            }
+        } else {
+            int speechBubbleX = 345;
+            int speechBubbleY = 35;
 
-        int speechBubbleCentreY = speechBubbleY + (speechBubbleHeight / 2);
+            int speechBubbleWidth = 630;
+            int speechBubbleHeight = 490;
 
-        int padding = 50;
-        int doubledPadding = padding * 2;
+            int speechBubbleCentreY = speechBubbleY + (speechBubbleHeight / 2);
 
-        BufferedImage sonic = ImageUtil.getImageResource("image/background/sonic.jpg");
-        Graphics2D graphics = sonic.createGraphics();
+            int padding = 50;
+            int doubledPadding = padding * 2;
 
-        Font font = Fonts.getCustomFont("bitstream_vera_sans").deriveFont(speechBubbleWidth / 10F);
-        graphics.setFont(font);
-        graphics.setColor(Color.WHITE);
-        ImageUtil.configureTextDrawSettings(graphics);
+            BufferedImage sonic = ImageUtil.getImageResource("image/background/sonic_says.jpg");
+            Graphics2D graphics = sonic.createGraphics();
 
-        ParagraphCompositeDrawable paragraph = new ParagraphCompositeDrawable.Builder(nonTextParts)
-                .addWords(words)
-                .build(TextAlignment.CENTER, speechBubbleWidth - doubledPadding);
+            Font font = Fonts.getCustomFont("bitstream_vera_sans").deriveFont(speechBubbleWidth / 10F);
+            graphics.setFont(font);
+            graphics.setColor(Color.WHITE);
+            ImageUtil.configureTextDrawSettings(graphics);
 
-        int maxParagraphHeight = speechBubbleHeight - doubledPadding;
+            ParagraphCompositeDrawable paragraph = new ParagraphCompositeDrawable.Builder(nonTextParts)
+                    .addWords(words)
+                    .build(TextAlignment.CENTER, speechBubbleWidth - doubledPadding);
 
-        int paragraphHeight = DrawableUtil.fitHeight(maxParagraphHeight, paragraph, graphics);
+            int maxParagraphHeight = speechBubbleHeight - doubledPadding;
 
-        int paragraphY = speechBubbleCentreY - (paragraphHeight / 2);
+            int paragraphHeight = DrawableUtil.fitHeight(maxParagraphHeight, paragraph, graphics);
 
-        paragraph.draw(graphics, speechBubbleX + padding, paragraphY);
+            int paragraphY = speechBubbleCentreY - (paragraphHeight / 2);
 
-        File output = FileUtil.getUniqueTempFile("sonic_says.jpg");
-        ImageWriters.write(sonic, output, "jpg");
+            paragraph.draw(graphics, speechBubbleX + padding, paragraphY);
 
-        return output;
+            File output = FileUtil.getUniqueTempFile(fileName);
+            ImageWriters.write(sonic, output, "jpg");
+
+            return output;
+        }
     }
 
     @Override

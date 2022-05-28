@@ -12,7 +12,6 @@ import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Optional;
 
 /**
@@ -20,7 +19,7 @@ import java.util.Optional;
  */
 public class FileUtil {
 
-    private static Path TEMP_DIR;
+    private static File TEMP_DIR;
 
     /**
      * The maximum file size that can be sent in a Discord message, 8MB.
@@ -32,9 +31,9 @@ public class FileUtil {
      */
     private static final long MAXIMUM_FILE_SIZE_TO_DOWNLOAD = 104857600;
 
-    private static Path createTempDir() throws IOException {
-        Path tempDir = Files.createTempDirectory("mediamanipulator");
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> FileUtils.deleteQuietly(tempDir.toFile())));
+    private static File createTempDir() throws IOException {
+        File tempDir = Files.createTempDirectory("mediamanipulator").toFile();
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> FileUtils.deleteQuietly(tempDir)));
         return tempDir;
     }
 
@@ -44,8 +43,8 @@ public class FileUtil {
      * @return The program's temporary directory.
      * This is guaranteed to be a directory instead of a file.
      */
-    public static Path getTempDir() {
-        if (TEMP_DIR == null || !TEMP_DIR.toFile().isDirectory()) {
+    public static File getTempDir() {
+        if (TEMP_DIR == null || !TEMP_DIR.isDirectory()) {
             try {
                 TEMP_DIR = createTempDir();
             } catch (IOException e) {
@@ -66,7 +65,7 @@ public class FileUtil {
      * @return A file that doesn't already exist.
      */
     public static File getUniqueFile(@Nullable String directory, String fileName) {
-        String filePath = directory == null ? fileName : directory + File.separator + fileName;
+        String filePath = directory == null ? fileName : directory + File.separatorChar + fileName;
         return getUniqueFile(filePath, false, false);
     }
 
@@ -93,12 +92,14 @@ public class FileUtil {
                 file = new File(fileDirectory, fileName);
                 num++;
             }
+
+            file.mkdirs();
         } else {
             while (file.exists()) {
-                File tempDirectory = getUniqueFile(fileDirectory + File.separator + "temp", true, true);
+                File tempDirectory = getUniqueFile(fileDirectory + File.separatorChar + "temp", true, false);
                 tempDirectory.mkdirs();
                 tempDirectory.deleteOnExit();
-                file = new DeletableParentFile(tempDirectory, name);
+                file = new File(tempDirectory, name);
             }
         }
 
@@ -122,9 +123,9 @@ public class FileUtil {
      *
      * @param resourcePath The path to the resource.
      * @return The resource as an {@link InputStream}.
-     * @throws IOException If the resource could not be found.
+     * @throws FileNotFoundException If the resource could not be found.
      */
-    public static InputStream getResource(String resourcePath) throws IOException {
+    public static InputStream getResource(String resourcePath) throws FileNotFoundException {
         InputStream inputStream = FileUtil.class.getClassLoader().getResourceAsStream(resourcePath);
         if (inputStream == null) {
             throw new FileNotFoundException("Resource not found: " + resourcePath);
