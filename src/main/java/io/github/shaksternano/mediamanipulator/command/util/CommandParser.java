@@ -4,6 +4,7 @@ import io.github.shaksternano.mediamanipulator.Main;
 import io.github.shaksternano.mediamanipulator.command.Command;
 import io.github.shaksternano.mediamanipulator.exception.InvalidArgumentException;
 import io.github.shaksternano.mediamanipulator.exception.MissingArgumentException;
+import io.github.shaksternano.mediamanipulator.util.DiscordUtil;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -28,7 +29,7 @@ public class CommandParser {
      */
     public static void parseAndExecute(MessageReceivedEvent event) {
         Message userMessage = event.getMessage();
-        String stringMessage = userMessage.getContentRaw().trim();
+        String stringMessage = DiscordUtil.getContentDisplayKeepEmotes(userMessage).trim();
         String[] commandParts = parseCommandParts(stringMessage);
 
         MessageChannel channel = event.getChannel();

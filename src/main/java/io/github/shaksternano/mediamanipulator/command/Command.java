@@ -1,11 +1,7 @@
 package io.github.shaksternano.mediamanipulator.command;
 
 import io.github.shaksternano.mediamanipulator.command.util.Commands;
-import io.github.shaksternano.mediamanipulator.exception.InvalidArgumentException;
-import io.github.shaksternano.mediamanipulator.exception.MissingArgumentException;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-
-import java.io.IOException;
 
 /**
  * A command that is executed when a user sends a certain message. Commands are registered in {@link Commands}.

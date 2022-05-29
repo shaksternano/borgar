@@ -70,17 +70,16 @@ public abstract class MediaCommand extends BaseCommand {
                         editedMedia.delete();
                         compressedMedia.delete();
                     } else {
-                        userMessage.reply(compressedMedia).queue(message -> {
-                            editedMedia.delete();
-                            compressedMedia.delete();
-                        }, throwable -> {
-                            editedMedia.delete();
-                            compressedMedia.delete();
+                        try {
+                            userMessage.reply(compressedMedia).complete();
+                        } catch (RuntimeException e) {
                             String failSend = "Failed to send edited media!";
-
                             userMessage.reply(failSend).queue();
-                            Main.getLogger().error(failSend, throwable);
-                        });
+                            Main.getLogger().error(failSend, e);
+                        }
+
+                        editedMedia.delete();
+                        compressedMedia.delete();
                     }
                 } catch (InvalidMediaException e) {
                     userMessage.reply(e.getMessage() == null ? "Invalid media!" : "Invalid media: " + e.getMessage()).queue();

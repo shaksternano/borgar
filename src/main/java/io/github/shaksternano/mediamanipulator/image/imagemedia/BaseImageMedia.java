@@ -2,8 +2,11 @@ package io.github.shaksternano.mediamanipulator.image.imagemedia;
 
 import com.google.common.collect.ImmutableList;
 import io.github.shaksternano.mediamanipulator.image.util.Frame;
+import io.github.shaksternano.mediamanipulator.util.CollectionUtil;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -22,15 +25,14 @@ public abstract class BaseImageMedia implements ImageMedia {
 
     @Override
     public List<BufferedImage> toBufferedImages() {
-        ImmutableList.Builder<BufferedImage> builder = new ImmutableList.Builder<>();
+        return stream().map(frame -> Collections.nCopies(Math.max(frame.getDuration(), 1), frame.getImage()))
+                .flatMap(List::stream)
+                .collect(ImmutableList.toImmutableList());
+    }
 
-        for (Frame frame : this) {
-            for (int i = 0; i < Math.max(frame.getDuration(), 1); i++) {
-                builder.add(frame.getImage());
-            }
-        }
-
-        return builder.build();
+    @Override
+    public List<BufferedImage> toNormalisedImages() {
+        return CollectionUtil.keepEveryNthElement(toBufferedImages(), Frame.GIF_MINIMUM_FRAME_DURATION, Image::flush);
     }
 
     @Override

@@ -11,7 +11,10 @@ import io.github.shaksternano.mediamanipulator.image.io.writer.Image4jIcoImageWr
 import io.github.shaksternano.mediamanipulator.image.io.writer.util.ImageWriterRegistry;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 public class ImageReaders {

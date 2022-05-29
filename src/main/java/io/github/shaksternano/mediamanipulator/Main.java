@@ -4,6 +4,7 @@ import io.github.shaksternano.mediamanipulator.command.Command;
 import io.github.shaksternano.mediamanipulator.command.util.Commands;
 import io.github.shaksternano.mediamanipulator.command.util.TerminalInputListener;
 import io.github.shaksternano.mediamanipulator.emoji.EmojiUtil;
+import io.github.shaksternano.mediamanipulator.image.backgroundimage.ResourceContainerImageInfo;
 import io.github.shaksternano.mediamanipulator.image.io.reader.util.ImageReaders;
 import io.github.shaksternano.mediamanipulator.image.io.writer.util.ImageWriters;
 import io.github.shaksternano.mediamanipulator.listener.CommandListener;
@@ -22,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.security.auth.login.LoginException;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The program's main class.
@@ -31,7 +33,7 @@ public class Main {
     /**
      * The program's {@link Logger}.
      */
-    private static Logger logger;
+    private static final Logger LOGGER = initLogger();
 
     @Nullable
     private static Logger discordLogger;
@@ -71,9 +73,6 @@ public class Main {
      * @param args The program arguments.
      */
     public static void main(String[] args) {
-        System.setProperty("log4j2.contextSelector", "org.apache.logging.log4j.core.async.AsyncLoggerContextSelector");
-        logger = LoggerFactory.getLogger("Media Manipulator");
-
         arguments = new ProgramArguments(args);
 
         initJda(initDiscordBotToken());
@@ -87,9 +86,10 @@ public class Main {
 
         initTenorApiKey();
 
+        Fonts.registerFonts();
         Commands.registerCommands();
         MediaManipulators.registerMediaManipulators();
-        Fonts.registerFonts();
+        ResourceContainerImageInfo.validateFilePaths();
 
         Thread commandThread = new Thread(new TerminalInputListener());
         commandThread.start();
@@ -98,6 +98,11 @@ public class Main {
         configureJda();
 
         getLogger().info("Initialised!");
+    }
+
+    private static Logger initLogger() {
+        System.setProperty("log4j2.contextSelector", "org.apache.logging.log4j.core.async.AsyncLoggerContextSelector");
+        return LoggerFactory.getLogger("Media Manipulator");
     }
 
     /**
@@ -110,7 +115,7 @@ public class Main {
         Optional<String> tokenOptional = arguments.getArgumentOrEnvironmentVariable(DISCORD_BOT_TOKEN_ARGUMENT_NAME);
         return tokenOptional.orElseThrow(() -> {
             getLogger().error("Please provide a Discord bot token as an argument in the form of " + DISCORD_BOT_TOKEN_ARGUMENT_NAME + "=<token> or set the environment variable " + DISCORD_BOT_TOKEN_ARGUMENT_NAME + " to the Discord bot token.");
-            System.exit(1);
+            Main.shutdown(1);
             return new AssertionError("The program should not reach this point!");
         });
     }
@@ -120,8 +125,8 @@ public class Main {
             try {
                 long logChannelIdLong = Long.parseLong(logChannelIdString);
                 getLogChannel(logChannelIdLong).ifPresentOrElse(logChannel -> {
-                    discordLogger = new DiscordLogger(logger, logChannel);
-                    logger.info("Logging to Discord channel with ID!");
+                    discordLogger = new DiscordLogger(LOGGER, logChannel);
+                    LOGGER.info("Logging to Discord channel with ID!");
                 }, () -> getLogger().error("Could not find Discord channel with ID!"));
             } catch (NumberFormatException e) {
                 getLogger().error("Provided Discord channel ID is not a number!");
@@ -163,7 +168,7 @@ public class Main {
     private static void initJda(String token) {
         try {
             jda = JDABuilder.createDefault(token).build();
-            RestAction.setDefaultFailure(throwable -> logger.error("An error occurred while executing a REST action.", throwable));
+            RestAction.setDefaultFailure(throwable -> LOGGER.error("An error occurred while executing a REST action.", throwable));
             jda.awaitReady();
             return;
         } catch (LoginException e) {
@@ -172,7 +177,7 @@ public class Main {
             getLogger().error("Interrupted while waiting for JDA to be ready!", e);
         }
 
-        System.exit(1);
+        Main.shutdown(1);
     }
 
     private static void configureJda() {
@@ -193,16 +198,22 @@ public class Main {
     /**
      * Terminates the program.
      */
-    public static void shutdown() {
+    public static void shutdown(int exitCode) {
+        try {
+            TimeUnit.SECONDS.sleep(1);
+        } catch (InterruptedException e) {
+            LOGGER.error("Interrupted while waiting for the program to terminate!", e);
+        }
+
         if (jda != null) {
             jda.shutdownNow();
         }
 
-        System.exit(0);
+        System.exit(exitCode);
     }
 
     public static Logger getLogger() {
-        return discordLogger == null ? logger : discordLogger;
+        return discordLogger == null ? LOGGER : discordLogger;
     }
 
     /**

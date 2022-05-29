@@ -27,7 +27,7 @@ public class TerminalInputListener implements Runnable {
                 if (command.equals("!shutdown")) {
                     Main.getLogger().info("Shutting down!");
                     running = false;
-                    Main.shutdown();
+                    Main.shutdown(0);
                 }
             }
         } catch (NoSuchElementException e) {

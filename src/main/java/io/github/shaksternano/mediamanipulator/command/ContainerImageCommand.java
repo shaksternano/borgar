@@ -1,6 +1,7 @@
 package io.github.shaksternano.mediamanipulator.command;
 
 import io.github.shaksternano.mediamanipulator.graphics.drawable.Drawable;
+import io.github.shaksternano.mediamanipulator.image.backgroundimage.ContainerImageInfo;
 import io.github.shaksternano.mediamanipulator.mediamanipulator.MediaManipulator;
 import io.github.shaksternano.mediamanipulator.mediamanipulator.util.MediaManipulatorRegistry;
 import io.github.shaksternano.mediamanipulator.util.MessageUtil;
@@ -10,17 +11,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
-public class SonicSaysCommand extends OptionalFileInputMediaCommand {
+public class ContainerImageCommand extends OptionalFileInputMediaCommand {
 
-    public static final String IMAGE_PATH = "image/background/sonic_says.jpg";
-    public static final String IMAGE_NAME = "sonic_says.jpg";
-    public static final int SPEECH_BUBBLE_X = 345;
-    public static final int SPEECH_BUBBLE_Y = 35;
-    public static final int SPEECH_BUBBLE_WIDTH = 630;
-    public static final int SPEECH_BUBBLE_HEIGHT = 490;
-    public static final int SPEECH_BUBBLE_PADDING = 50;
-    public static final int DOUBLE_SPEECH_PADDING = SPEECH_BUBBLE_PADDING * 2;
-
+    private final ContainerImageInfo CONTAINER_IMAGE_INFO;
 
     /**
      * Creates a new command object.
@@ -29,19 +22,20 @@ public class SonicSaysCommand extends OptionalFileInputMediaCommand {
      *                    followed by this name, the command will be executed.
      * @param description The description of the command. This is displayed in the help command.
      */
-    public SonicSaysCommand(String name, String description) {
+    public ContainerImageCommand(String name, String description, ContainerImageInfo containerImageInfo) {
         super(name, description);
+        this.CONTAINER_IMAGE_INFO = containerImageInfo;
     }
 
     @Override
     public File applyOperation(File media, String fileFormat, String[] arguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
-        return manipulator.sonicSaysImage(media, fileFormat);
+        return manipulator.containerImageWithImage(media, fileFormat, CONTAINER_IMAGE_INFO);
     }
 
     @Override
     public File applyOperation(String[] arguments, MessageReceivedEvent event) throws IOException {
         Map<String, Drawable> nonTextParts = MessageUtil.getNonTextParts(event.getMessage());
-        MediaManipulator manipulator = MediaManipulatorRegistry.getManipulator("jpg").orElseThrow();
-        return manipulator.sonicSaysText(arguments, nonTextParts);
+        MediaManipulator manipulator = MediaManipulatorRegistry.getManipulator("png").orElseThrow();
+        return manipulator.containerImageWithText(arguments, nonTextParts, CONTAINER_IMAGE_INFO);
     }
 }

@@ -3,8 +3,8 @@ package io.github.shaksternano.mediamanipulator.image.util;
 import com.sksamuel.scrimage.ImmutableImage;
 import io.github.shaksternano.mediamanipulator.image.imagemedia.ImageMedia;
 import io.github.shaksternano.mediamanipulator.image.imagemedia.StaticImage;
+import io.github.shaksternano.mediamanipulator.image.io.reader.util.ImageReaders;
 import io.github.shaksternano.mediamanipulator.io.FileUtil;
-import io.github.shaksternano.mediamanipulator.util.CollectionUtil;
 import org.jetbrains.annotations.Nullable;
 
 import javax.imageio.ImageIO;
@@ -26,9 +26,13 @@ import java.util.List;
  */
 public class ImageUtil {
 
-    public static BufferedImage getImageResource(String resourcePath) throws IOException {
-        try (InputStream inputStream = FileUtil.getResource(resourcePath)) {
-            return ImageIO.read(inputStream);
+    public static ImageMedia getImageResource(String resourcePath) throws IOException {
+        try (InputStream imageTypeInputStream = FileUtil.getResource(resourcePath)) {
+            String imageFormat = getImageFormat(imageTypeInputStream);
+
+            try (InputStream loadImageInputStream = FileUtil.getResource(resourcePath)) {
+                return ImageReaders.read(loadImageInputStream, imageFormat, null);
+            }
         }
     }
 
@@ -56,7 +60,7 @@ public class ImageUtil {
      */
     public static BufferedImage stretch(BufferedImage image, int targetWidth, int targetHeight, boolean raw) {
         if (raw) {
-            BufferedImage stretchedImage = new BufferedImage(targetWidth, targetHeight, image.getType());
+            BufferedImage stretchedImage = new BufferedImage(targetWidth, targetHeight, ImageUtil.getType(image));
             Graphics2D graphics = stretchedImage.createGraphics();
             graphics.drawImage(image, 0, 0, targetWidth, targetHeight, null);
             graphics.dispose();
@@ -89,7 +93,7 @@ public class ImageUtil {
     }
 
     public static BufferedImage fill(BufferedImage toFill, Color color) {
-        BufferedImage filledImage = new BufferedImage(toFill.getWidth(), toFill.getHeight(), toFill.getType());
+        BufferedImage filledImage = new BufferedImage(toFill.getWidth(), toFill.getHeight(), ImageUtil.getType(toFill));
         Graphics2D graphics = filledImage.createGraphics();
         graphics.setColor(color);
         graphics.fillRect(0, 0, filledImage.getWidth(), filledImage.getHeight());
@@ -101,27 +105,26 @@ public class ImageUtil {
     /**
      * Overlays an image on top of another image.
      *
-     * @param background       The image being overlaid on.
-     * @param overlay     The image to overlay.
-     * @param x           The x coordinate of the top left corner of the overlay in relation to the media file being overlaid on.
-     * @param y           The y coordinate of the top left corner of the overlay in relation to the media file being overlaid on.
-     * @param expand      Whether to expand the resulting image to fit the overlay image.
-     * @param expandColor The background color used if the resulting image is expanded.
+     * @param background      The image being overlaid on.
+     * @param overlay         The image to overlay.
+     * @param x               The x coordinate of the top left corner of the overlay in relation to the media file being overlaid on.
+     * @param y               The y coordinate of the top left corner of the overlay in relation to the media file being overlaid on.
+     * @param imageType       The type of the resulting image.
+     * @param fill            The background color.
+     * @param expand          Whether to expand the resulting image to fit the overlay image.
+     * @param invertDrawOrder Whether to draw the background image first.
      * @return The overlaid image.
      */
-    public static BufferedImage overlayImage(BufferedImage background, BufferedImage overlay, int x, int y, boolean expand, @Nullable Color expandColor) {
+    public static BufferedImage overlayImage(BufferedImage background, BufferedImage overlay, int x, int y, @Nullable Integer imageType, @Nullable Color fill, boolean expand, boolean invertDrawOrder) {
         ImageMedia backgroundImage = new StaticImage(background);
         ImageMedia overlayImage = new StaticImage(overlay);
-        return overlayImage(backgroundImage, overlayImage, x, y, expand, expandColor).getFrame(0).getImage();
+        return overlayImage(backgroundImage, overlayImage, x, y, imageType, fill, expand, false).getFrame(0).getImage();
     }
 
     @SuppressWarnings("UnusedAssignment")
-    public static ImageMedia overlayImage(ImageMedia background, ImageMedia overlay, int x, int y, boolean expand, @Nullable Color expandColor) {
-        List<BufferedImage> backgroundImages = background.toBufferedImages();
-        List<BufferedImage> overlayImages = overlay.toBufferedImages();
-
-        List<BufferedImage> normalisedBackgroundImages = CollectionUtil.keepEveryNthElement(backgroundImages, Frame.GIF_MINIMUM_FRAME_DURATION, Image::flush);
-        List<BufferedImage> normalisedOverlayImages = CollectionUtil.keepEveryNthElement(overlayImages, Frame.GIF_MINIMUM_FRAME_DURATION, Image::flush);
+    public static ImageMedia overlayImage(ImageMedia background, ImageMedia overlay, int x, int y, @Nullable Integer imageType, @Nullable Color fill, boolean expand, boolean invertDrawOrder) {
+        List<BufferedImage> normalisedBackgroundImages = background.toNormalisedImages();
+        List<BufferedImage> normalisedOverlayImages = overlay.toNormalisedImages();
 
         BufferedImage firstBackground = normalisedBackgroundImages.get(0);
         BufferedImage firstOverlay = normalisedOverlayImages.get(0);
@@ -132,13 +135,10 @@ public class ImageUtil {
         int overlayWidth = firstOverlay.getWidth();
         int overlayHeight = firstOverlay.getHeight();
 
-        int type = firstBackground.getType();
+        int type = imageType == null ? ImageUtil.getType(firstBackground) : imageType;
 
         background = null;
         overlay = null;
-
-        backgroundImages = null;
-        overlayImages = null;
 
         firstBackground.flush();
         firstOverlay.flush();
@@ -193,8 +193,8 @@ public class ImageUtil {
             BufferedImage overlaidImage = new BufferedImage(overlaidWidth, overlaidHeight, type);
             Graphics2D graphics = overlaidImage.createGraphics();
 
-            if (expandColor != null) {
-                graphics.setColor(expandColor);
+            if (fill != null) {
+                graphics.setColor(fill);
                 graphics.fillRect(0, 0, overlaidWidth, overlaidHeight);
             }
 
@@ -204,8 +204,14 @@ public class ImageUtil {
             if (backgroundImage.equals(previousBackground) && overlayImage.equals(previousOverlay)) {
                 builder.increaseLastFrameDuration(Frame.GIF_MINIMUM_FRAME_DURATION);
             } else {
-                graphics.drawImage(backgroundImage, backgroundX, backgroundY, null);
-                graphics.drawImage(overlayImage, overlayX, overlayY, null);
+                if (invertDrawOrder) {
+                    graphics.drawImage(overlayImage, overlayX, overlayY, null);
+                    graphics.drawImage(backgroundImage, backgroundX, backgroundY, null);
+                } else {
+                    graphics.drawImage(backgroundImage, backgroundX, backgroundY, null);
+                    graphics.drawImage(overlayImage, overlayX, overlayY, null);
+                }
+
                 graphics.dispose();
 
                 builder.add(new AwtFrame(overlaidImage, Frame.GIF_MINIMUM_FRAME_DURATION));
@@ -279,7 +285,7 @@ public class ImageUtil {
             newHeight = (int) Math.floor(height * cos + width * sin);
         }
 
-        BufferedImage rotated = new BufferedImage(newWidth, newHeight, image.getType());
+        BufferedImage rotated = new BufferedImage(newWidth, newHeight, ImageUtil.getType(image));
         Graphics2D graphics = rotated.createGraphics();
 
         if (backgroundColor != null) {
@@ -295,7 +301,7 @@ public class ImageUtil {
         return rotated;
     }
 
-    public static String getImageType(InputStream inputStream) throws IOException {
+    public static String getImageFormat(InputStream inputStream) throws IOException {
         try (ImageInputStream imageInputStream = ImageIO.createImageInputStream(inputStream)) {
             if (imageInputStream != null) {
                 Iterator<ImageReader> imageReaders = ImageIO.getImageReaders(imageInputStream);
@@ -310,12 +316,12 @@ public class ImageUtil {
         }
     }
 
-    public static String getImageType(File file) throws IOException {
-        return getImageType(new FileInputStream(file));
+    public static String getImageFormat(File file) throws IOException {
+        return getImageFormat(new FileInputStream(file));
     }
 
-    public static String getImageType(URL url) throws IOException {
-        return getImageType(url.openStream());
+    public static String getImageFormat(URL url) throws IOException {
+        return getImageFormat(url.openStream());
     }
 
     public static BufferedImage convertType(BufferedImage image, int type) {
@@ -335,5 +341,10 @@ public class ImageUtil {
                 "x" +
                 image.getHeight() +
                 "]";
+    }
+
+    public static int getType(BufferedImage image) {
+        int type = image.getType();
+        return type <= 0 ? BufferedImage.TYPE_INT_ARGB : type;
     }
 }

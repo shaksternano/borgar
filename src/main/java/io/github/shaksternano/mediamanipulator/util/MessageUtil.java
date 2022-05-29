@@ -8,7 +8,6 @@ import io.github.shaksternano.mediamanipulator.graphics.drawable.Drawable;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.ImageDrawable;
 import io.github.shaksternano.mediamanipulator.image.imagemedia.ImageMedia;
 import io.github.shaksternano.mediamanipulator.image.io.reader.util.ImageReaders;
-import io.github.shaksternano.mediamanipulator.image.util.Frame;
 import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
 import io.github.shaksternano.mediamanipulator.io.FileUtil;
 import net.dv8tion.jda.api.entities.Emote;
@@ -16,7 +15,6 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -26,7 +24,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -152,7 +149,7 @@ public class MessageUtil {
             File imageFile = FileUtil.getUniqueFile(directory, attachment.getFileName());
 
             try {
-                return Optional.of(attachment.downloadToFile(imageFile).get(10, TimeUnit.SECONDS));
+                return Optional.of(attachment.getProxy().downloadToFile(imageFile).get(10, TimeUnit.SECONDS));
             } catch (ExecutionException | InterruptedException e) {
                 Main.getLogger().error("Error downloading image!", e);
             } catch (TimeoutException e) {
@@ -199,7 +196,7 @@ public class MessageUtil {
 
     public static Map<String, String> getEmojiUrls(Message message, boolean onlyGetFirst) {
         Map<String, String> emojiUrls = new HashMap<>();
-        List<Emote> emotes = message.getEmotes();
+        List<Emote> emotes = message.getMentions().getEmotes();
 
         for (Emote emote : emotes) {
             if (onlyGetFirst) {
@@ -287,12 +284,11 @@ public class MessageUtil {
         return imageUrls.entrySet().parallelStream().map(imageUrlEntry -> {
             try {
                 URL url = new URL(imageUrlEntry.getValue());
-                String imageType = ImageUtil.getImageType(url);
+                String imageType = ImageUtil.getImageFormat(url);
 
                 try (InputStream inputStream = url.openStream()) {
                     ImageMedia imageMedia = ImageReaders.read(inputStream, imageType, null);
-                    List<BufferedImage> images = imageMedia.toBufferedImages();
-                    List<BufferedImage> normalisedImages = CollectionUtil.keepEveryNthElement(images, Frame.GIF_MINIMUM_FRAME_DURATION, Image::flush);
+                    List<BufferedImage> normalisedImages = imageMedia.toNormalisedImages();
                     Drawable drawable = new ImageDrawable(normalisedImages);
                     return new AbstractMap.SimpleEntry<>(imageUrlEntry.getKey(), drawable);
                 }

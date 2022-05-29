@@ -29,6 +29,8 @@ public interface ImageMedia extends Iterable<Frame> {
 
     List<BufferedImage> toBufferedImages();
 
+    List<BufferedImage> toNormalisedImages();
+
     Stream<Frame> stream();
 
     Stream<Frame> parallelStream();

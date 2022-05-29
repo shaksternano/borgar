@@ -1,6 +1,7 @@
 package io.github.shaksternano.mediamanipulator.io;
 
 import io.github.shaksternano.mediamanipulator.Main;
+import io.github.shaksternano.mediamanipulator.image.backgroundimage.ResourceContainerImageInfo;
 import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
 import io.github.shaksternano.mediamanipulator.util.tenor.TenorMediaType;
 import io.github.shaksternano.mediamanipulator.util.tenor.TenorUtil;
@@ -28,6 +29,7 @@ public class FileUtil {
 
     private static File createTempDir() throws IOException {
         File tempDir = Files.createTempDirectory("mediamanipulator").toFile();
+        tempDir.deleteOnExit();
         Runtime.getRuntime().addShutdownHook(new Thread(() -> FileUtils.deleteQuietly(tempDir)));
         return tempDir;
     }
@@ -44,7 +46,7 @@ public class FileUtil {
                 TEMP_DIR = createTempDir();
             } catch (IOException e) {
                 Main.getLogger().error("Failed to create temporary directory!", e);
-                System.exit(1);
+                Main.shutdown(1);
             }
         }
 
@@ -91,7 +93,7 @@ public class FileUtil {
             file.mkdirs();
         } else {
             while (file.exists()) {
-                File tempDirectory = getUniqueFile(fileDirectory + File.separatorChar + "temp", true, false);
+                File tempDirectory = getUniqueFile(fileDirectory + File.separatorChar + "temp", true, true);
                 tempDirectory.mkdirs();
                 tempDirectory.deleteOnExit();
                 file = new File(tempDirectory, name);
@@ -182,7 +184,7 @@ public class FileUtil {
         Optional<String> fileFormatOptional = Optional.empty();
 
         try {
-            fileFormatOptional = Optional.of(ImageUtil.getImageType(file));
+            fileFormatOptional = Optional.of(ImageUtil.getImageFormat(file));
         } catch (IOException e) {
             Main.getLogger().error("Error getting file type from file " + file + "!", e);
         }
@@ -197,5 +199,19 @@ public class FileUtil {
 
     public static String changeExtension(String fileName, String newExtension) {
         return com.google.common.io.Files.getNameWithoutExtension(fileName) + "." + newExtension;
+    }
+
+    public static void validateResourcePath(String filePath) throws IOException {
+        if (filePath == null || filePath.isEmpty()) {
+            throw new IllegalArgumentException("File path cannot be null or empty!");
+        } else {
+            try (InputStream inputStream = ResourceContainerImageInfo.class.getClassLoader().getResourceAsStream(filePath)) {
+                if (inputStream == null) {
+                    throw new FileNotFoundException("File path not found: " + filePath);
+                }
+            } catch (IOException e) {
+                throw new IOException("Error loading file with path " + filePath, e);
+            }
+        }
     }
 }

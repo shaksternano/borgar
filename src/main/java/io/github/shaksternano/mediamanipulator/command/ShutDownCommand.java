@@ -38,6 +38,6 @@ public class ShutDownCommand extends BotOwnerCommand {
             Main.getLogger().error("Error while shutting down!", t);
         }
 
-        Main.shutdown();
+        Main.shutdown(0);
     }
 }

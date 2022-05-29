@@ -25,7 +25,7 @@ public class UserBannerCommand extends BaseCommand {
     public void execute(String[] arguments, MessageReceivedEvent event) {
         MessageUtil.processMessages(event.getMessage(), message -> {
             if (event.getMessage().equals(message)) {
-                List<Member> members = message.getMentionedMembers();
+                List<Member> members = message.getMentions().getMembers();
                 User user = members.isEmpty() ? message.getAuthor() : members.get(0).getUser();
                 return Optional.ofNullable(user.retrieveProfile().complete().getBannerUrl());
             } else {

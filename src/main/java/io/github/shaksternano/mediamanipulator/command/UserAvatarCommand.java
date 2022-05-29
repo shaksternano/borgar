@@ -25,7 +25,7 @@ public class UserAvatarCommand extends BaseCommand {
     public void execute(String[] arguments, MessageReceivedEvent event) {
         MessageUtil.processMessages(event.getMessage(), message -> {
             if (event.getMessage().equals(message)) {
-                List<Member> members = message.getMentionedMembers();
+                List<Member> members = message.getMentions().getMembers();
                 if (members.isEmpty()) {
                     return Optional.of(message.getAuthor().getEffectiveAvatarUrl());
                 } else {

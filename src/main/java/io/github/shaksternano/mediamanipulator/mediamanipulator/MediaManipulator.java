@@ -2,6 +2,7 @@ package io.github.shaksternano.mediamanipulator.mediamanipulator;
 
 import io.github.shaksternano.mediamanipulator.exception.UnsupportedFileFormatException;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.Drawable;
+import io.github.shaksternano.mediamanipulator.image.backgroundimage.ContainerImageInfo;
 import net.dv8tion.jda.api.entities.Guild;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,9 +31,9 @@ public interface MediaManipulator {
      */
     File caption(File media, String fileFormat, String[] words, Map<String, Drawable> nonTextParts) throws IOException;
 
-    File sonicSaysText(String[] words, Map<String, Drawable> nonTextParts) throws IOException;
+    File containerImageWithText(String[] words, Map<String, Drawable> nonTextParts, ContainerImageInfo containerImageInfo) throws IOException;
 
-    File sonicSaysImage(File media, String fileFormat) throws IOException;
+    File containerImageWithImage(File media, String fileFormat, ContainerImageInfo containerImageInfo) throws IOException;
 
     /**
      * Stretches a media file.

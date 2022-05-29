@@ -6,16 +6,16 @@ import java.awt.*;
 
 public class DrawableUtil {
 
-    public static int fitHeight(int maxHeight, Drawable drawable, Graphics2D graphics) {
+    public static int fitHeight(int maxHeight, Drawable text, Graphics2D graphics) {
         Font font = graphics.getFont();
-        int paragraphHeight = drawable.getHeight(graphics);
-        while (paragraphHeight > maxHeight) {
-            float sizeRatio = (float) paragraphHeight / maxHeight;
+        int textHeight = text.getHeight(graphics);
+        while (textHeight > maxHeight) {
+            float sizeRatio = (float) textHeight / maxHeight;
             font = font.deriveFont(font.getSize() - sizeRatio);
             graphics.setFont(font);
-            paragraphHeight = drawable.getHeight(graphics);
+            textHeight = text.getHeight(graphics);
         }
 
-        return paragraphHeight;
+        return textHeight;
     }
 }

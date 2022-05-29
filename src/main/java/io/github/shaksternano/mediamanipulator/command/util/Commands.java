@@ -1,6 +1,7 @@
 package io.github.shaksternano.mediamanipulator.command.util;
 
 import io.github.shaksternano.mediamanipulator.command.*;
+import io.github.shaksternano.mediamanipulator.image.backgroundimage.ResourceContainerImageInfo;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -23,9 +24,16 @@ public class Commands {
             "Captions a media file. Optional arguments: [caption text]"
     ));
 
-    public static final Command SONIC_SAYS = addCommandToRegister(new SonicSaysCommand(
+    public static final Command SONIC_SAYS = addCommandToRegister(new ContainerImageCommand(
             "sonic",
-            "Sonic says. Optional arguments: [what sonic says]"
+            "Sonic says. Optional arguments: [what sonic says]",
+            ResourceContainerImageInfo.SONIC_SAYS
+    ));
+
+    public static final Command SOYJAK_POINTING = addCommandToRegister(new ContainerImageCommand(
+            "soy",
+            "Soyjak pointing. Optional arguments: [what is being pointed at]",
+            ResourceContainerImageInfo.SOYJAK_POINTING
     ));
 
     public static final Command SPIN = addCommandToRegister(new SpinCommand(
