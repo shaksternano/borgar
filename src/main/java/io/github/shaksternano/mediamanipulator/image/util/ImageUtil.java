@@ -18,6 +18,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -123,8 +124,8 @@ public class ImageUtil {
 
     @SuppressWarnings("UnusedAssignment")
     public static ImageMedia overlayImage(ImageMedia background, ImageMedia overlay, int x, int y, @Nullable Integer imageType, @Nullable Color fill, boolean expand, boolean invertDrawOrder) {
-        List<BufferedImage> normalisedBackgroundImages = background.toNormalisedImages();
-        List<BufferedImage> normalisedOverlayImages = overlay.toNormalisedImages();
+        List<BufferedImage> normalisedBackgroundImages = new ArrayList<>(background.toNormalisedImages());
+        List<BufferedImage> normalisedOverlayImages = new ArrayList<>(overlay.toNormalisedImages());
 
         BufferedImage firstBackground = normalisedBackgroundImages.get(0);
         BufferedImage firstOverlay = normalisedOverlayImages.get(0);
@@ -189,7 +190,8 @@ public class ImageUtil {
         BufferedImage previousBackground = null;
         BufferedImage previousOverlay = null;
 
-        for (int i = 0; i < Math.max(normalisedBackgroundImages.size(), normalisedOverlayImages.size()); i++) {
+        int size = Math.max(normalisedBackgroundImages.size(), normalisedOverlayImages.size());
+        for (int i = 0; i < size; i++) {
             BufferedImage overlaidImage = new BufferedImage(overlaidWidth, overlaidHeight, type);
             Graphics2D graphics = overlaidImage.createGraphics();
 
@@ -200,6 +202,14 @@ public class ImageUtil {
 
             BufferedImage backgroundImage = normalisedBackgroundImages.get(i % normalisedBackgroundImages.size());
             BufferedImage overlayImage = normalisedOverlayImages.get(i % normalisedOverlayImages.size());
+
+            int remaining = size - i;
+            if (normalisedBackgroundImages.size() - remaining >= 0) {
+                normalisedBackgroundImages.set(i % normalisedBackgroundImages.size(), null);
+            }
+            if (normalisedOverlayImages.size() - remaining >= 0) {
+                normalisedOverlayImages.set(i % normalisedOverlayImages.size(), null);
+            }
 
             if (backgroundImage.equals(previousBackground) && overlayImage.equals(previousOverlay)) {
                 builder.increaseLastFrameDuration(Frame.GIF_MINIMUM_FRAME_DURATION);

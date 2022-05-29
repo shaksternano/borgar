@@ -31,13 +31,13 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
     SOYJAK_POINTING(
             "image/containerimage/soyjak_pointing.png",
             "soyjak_pointing",
-            200,
-            100,
-            600,
-            400,
+            0,
+            0,
+            1024,
+            810,
             0,
             false,
-            Color.WHITE,
+            null,
             Fonts.getCustomFont("futura_condensed_extra_bold"),
             Color.BLACK,
             100

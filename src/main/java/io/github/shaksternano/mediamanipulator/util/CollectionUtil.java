@@ -6,7 +6,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -42,7 +41,7 @@ public class CollectionUtil {
                     }
                 })
                 .map(Map.Entry::getKey)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public static <E> Set<E> intersection(Collection<E> collection1, Collection<E> collection2) {

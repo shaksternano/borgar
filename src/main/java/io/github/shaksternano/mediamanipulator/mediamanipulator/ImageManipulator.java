@@ -247,7 +247,12 @@ public class ImageManipulator implements MediaManipulator {
         int imageX = containerImageInfo.getContentX() + ((containerImageInfo.getContentWidth() - resizedWidth) / 2);
         int imageY = containerImageInfo.getContentY() + ((containerImageInfo.getContentHeight() - resizedHeight) / 2);
 
-        ImageMedia result = ImageUtil.overlayImage(containerImage, resizedContentImage, imageX, imageY, imageType, containerImageInfo.getFill().orElse(null), false, !containerImageInfo.isBackground());
+        Color fill = containerImageInfo.getFill().orElse(null);
+        if (fill == null && !resizedContentImage.getFrame(0).getImage().getColorModel().hasAlpha()) {
+            fill = Color.WHITE;
+        }
+
+        ImageMedia result = ImageUtil.overlayImage(containerImage, resizedContentImage, imageX, imageY, imageType, fill, false, !containerImageInfo.isBackground());
 
         File output = FileUtil.getUniqueTempFile(containerImageInfo.getResultName() + "." + Files.getFileExtension(media.getName()));
         ImageWriters.write(result, output, fileFormat);
