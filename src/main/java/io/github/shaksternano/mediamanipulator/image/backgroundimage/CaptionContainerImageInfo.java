@@ -57,22 +57,42 @@ public class CaptionContainerImageInfo implements ContainerImageInfo {
     }
 
     @Override
-    public int getContentX() {
+    public int getImageContentX() {
         return CONTENT_X;
     }
 
     @Override
-    public int getContentY() {
+    public int getImageContentY() {
         return CONTENT_Y;
     }
 
     @Override
-    public int getContentWidth() {
+    public int getImageContentWidth() {
         return CONTENT_WIDTH;
     }
 
     @Override
-    public int getContentHeight() {
+    public int getImageContentHeight() {
+        return CONTENT_HEIGHT;
+    }
+
+    @Override
+    public int getTextContentX() {
+        return CONTENT_X;
+    }
+
+    @Override
+    public int getTextContentY() {
+        return CONTENT_Y;
+    }
+
+    @Override
+    public int getTextContentWidth() {
+        return CONTENT_WIDTH;
+    }
+
+    @Override
+    public int getTextContentHeight() {
         return CONTENT_HEIGHT;
     }
 

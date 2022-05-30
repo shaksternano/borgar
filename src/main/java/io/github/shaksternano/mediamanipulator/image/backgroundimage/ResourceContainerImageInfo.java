@@ -36,6 +36,11 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
             1024,
             810,
             0,
+            250,
+            150,
+            500,
+            300,
+            0,
             false,
             null,
             Fonts.getCustomFont("futura_condensed_extra_bold"),
@@ -45,10 +50,14 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
 
     private final String IMAGE_PATH;
     private final String RESULT_NAME;
-    private final int CONTENT_X;
-    private final int CONTENT_Y;
-    private final int CONTENT_WIDTH;
-    private final int CONTENT_HEIGHT;
+    private final int IMAGE_CONTENT_X;
+    private final int IMAGE_CONTENT_Y;
+    private final int IMAGE_CONTENT_WIDTH;
+    private final int IMAGE_CONTENT_HEIGHT;
+    private final int TEXT_CONTENT_X;
+    private final int TEXT_CONTENT_Y;
+    private final int TEXT_CONTENT_WIDTH;
+    private final int TEXT_CONTENT_HEIGHT;
     private final boolean IS_BACKGROUND;
     @Nullable
     private final Color FILL;
@@ -71,11 +80,52 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
     ) {
         IMAGE_PATH = imagePath;
         RESULT_NAME = resultName;
-        CONTENT_X = contentContainerX + contentContainerPadding;
-        CONTENT_Y = contentContainerY + contentContainerPadding;
+        IMAGE_CONTENT_X = contentContainerX + contentContainerPadding;
+        IMAGE_CONTENT_Y = contentContainerY + contentContainerPadding;
+        TEXT_CONTENT_X = contentContainerX + contentContainerPadding;
+        TEXT_CONTENT_Y = contentContainerY + contentContainerPadding;
         int doublePadding = contentContainerPadding * 2;
-        CONTENT_WIDTH = contentContainerWidth - doublePadding;
-        CONTENT_HEIGHT = contentContainerHeight - doublePadding;
+        IMAGE_CONTENT_WIDTH = contentContainerWidth - doublePadding;
+        IMAGE_CONTENT_HEIGHT = contentContainerHeight - doublePadding;
+        TEXT_CONTENT_WIDTH = contentContainerWidth - doublePadding;
+        TEXT_CONTENT_HEIGHT = contentContainerHeight - doublePadding;
+        IS_BACKGROUND = isBackground;
+        FILL = fill;
+        FONT = font.deriveFont(maxFontSize);
+        TEXT_COLOR = textColor;
+    }
+
+    ResourceContainerImageInfo(
+            String imagePath,
+            String resultName,
+            int imageContainerX,
+            int imageContainerY,
+            int imageContainerWidth,
+            int imageContainerHeight,
+            int imageContainerPadding,
+            int textContainerX,
+            int textContainerY,
+            int textContainerWidth,
+            int textContainerHeight,
+            int textContainerPadding,
+            boolean isBackground,
+            @Nullable Color fill,
+            Font font,
+            Color textColor,
+            float maxFontSize
+    ) {
+        IMAGE_PATH = imagePath;
+        RESULT_NAME = resultName;
+        IMAGE_CONTENT_X = imageContainerX + imageContainerPadding;
+        IMAGE_CONTENT_Y = imageContainerY + imageContainerPadding;
+        TEXT_CONTENT_X = textContainerX + textContainerPadding;
+        TEXT_CONTENT_Y = textContainerY + textContainerPadding;
+        int doubleImagePadding = imageContainerPadding * 2;
+        int doubleTextPadding = textContainerPadding * 2;
+        IMAGE_CONTENT_WIDTH = imageContainerWidth - doubleImagePadding;
+        IMAGE_CONTENT_HEIGHT = imageContainerHeight - doubleImagePadding;
+        TEXT_CONTENT_WIDTH = textContainerWidth - doubleTextPadding;
+        TEXT_CONTENT_HEIGHT = textContainerHeight - doubleTextPadding;
         IS_BACKGROUND = isBackground;
         FILL = fill;
         FONT = font.deriveFont(maxFontSize);
@@ -93,23 +143,43 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
     }
 
     @Override
-    public int getContentX() {
-        return CONTENT_X;
+    public int getImageContentX() {
+        return IMAGE_CONTENT_X;
     }
 
     @Override
-    public int getContentY() {
-        return CONTENT_Y;
+    public int getImageContentY() {
+        return IMAGE_CONTENT_Y;
     }
 
     @Override
-    public int getContentWidth() {
-        return CONTENT_WIDTH;
+    public int getImageContentWidth() {
+        return IMAGE_CONTENT_WIDTH;
     }
 
     @Override
-    public int getContentHeight() {
-        return CONTENT_HEIGHT;
+    public int getImageContentHeight() {
+        return IMAGE_CONTENT_HEIGHT;
+    }
+
+    @Override
+    public int getTextContentX() {
+        return TEXT_CONTENT_X;
+    }
+
+    @Override
+    public int getTextContentY() {
+        return TEXT_CONTENT_Y;
+    }
+
+    @Override
+    public int getTextContentWidth() {
+        return TEXT_CONTENT_WIDTH;
+    }
+
+    @Override
+    public int getTextContentHeight() {
+        return TEXT_CONTENT_HEIGHT;
     }
 
     @Override

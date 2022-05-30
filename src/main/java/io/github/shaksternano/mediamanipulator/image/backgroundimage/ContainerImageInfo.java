@@ -12,13 +12,21 @@ public interface ContainerImageInfo {
 
     String getResultName();
 
-    int getContentX();
+    int getImageContentX();
 
-    int getContentY();
+    int getImageContentY();
 
-    int getContentWidth();
+    int getImageContentWidth();
 
-    int getContentHeight();
+    int getImageContentHeight();
+
+    int getTextContentX();
+
+    int getTextContentY();
+
+    int getTextContentWidth();
+
+    int getTextContentHeight();
 
     boolean isBackground();
 

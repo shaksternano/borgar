@@ -169,21 +169,21 @@ public class ImageManipulator implements MediaManipulator {
 
         ParagraphCompositeDrawable paragraph = new ParagraphCompositeDrawable.Builder(nonTextParts)
                 .addWords(words)
-                .build(TextAlignment.CENTER, containerImageInfo.getContentWidth());
+                .build(TextAlignment.CENTER, containerImageInfo.getTextContentWidth());
 
         Graphics2D graphics = imageMedia.getFrame(0).getImage().createGraphics();
 
         Font font = containerImageInfo.getFont();
         graphics.setFont(font);
 
-        int paragraphHeight = DrawableUtil.fitHeight(containerImageInfo.getContentHeight(), paragraph, graphics);
+        int paragraphHeight = DrawableUtil.fitHeight(containerImageInfo.getTextContentHeight(), paragraph, graphics);
         float fontSize = graphics.getFont().getSize2D();
 
         graphics.dispose();
 
-        int containerCentreY = containerImageInfo.getContentY() + (containerImageInfo.getContentHeight() / 2);
+        int containerCentreY = containerImageInfo.getTextContentY() + (containerImageInfo.getTextContentHeight() / 2);
 
-        int paragraphX = containerImageInfo.getContentX();
+        int paragraphX = containerImageInfo.getTextContentX();
         int paragraphY = containerCentreY - (paragraphHeight / 2);
 
         ImageMediaBuilder builder = new ImageMediaBuilder();
@@ -231,8 +231,8 @@ public class ImageManipulator implements MediaManipulator {
         int imageType = ImageUtil.getType(contentImage.getFrame(0).getImage());
 
         ImageMedia resizedContentImage = ImageMediaBuilder.fromCollection(contentImage.parallelStream().map(frame -> {
-            int width = containerImageInfo.getContentWidth();
-            int height = containerImageInfo.getContentHeight();
+            int width = containerImageInfo.getImageContentWidth();
+            int height = containerImageInfo.getImageContentHeight();
             BufferedImage resizedImage = ImageUtil.fit(frame.getImage(), width, height);
             int duration = frame.getDuration();
             frame.flush();
@@ -244,8 +244,8 @@ public class ImageManipulator implements MediaManipulator {
         int resizedWidth = resizedContentImage.getFrame(0).getImage().getWidth();
         int resizedHeight = resizedContentImage.getFrame(0).getImage().getHeight();
 
-        int imageX = containerImageInfo.getContentX() + ((containerImageInfo.getContentWidth() - resizedWidth) / 2);
-        int imageY = containerImageInfo.getContentY() + ((containerImageInfo.getContentHeight() - resizedHeight) / 2);
+        int imageX = containerImageInfo.getImageContentX() + ((containerImageInfo.getImageContentWidth() - resizedWidth) / 2);
+        int imageY = containerImageInfo.getImageContentY() + ((containerImageInfo.getImageContentHeight() - resizedHeight) / 2);
 
         Color fill = containerImageInfo.getFill().orElse(null);
         if (fill == null && !resizedContentImage.getFrame(0).getImage().getColorModel().hasAlpha()) {
@@ -510,25 +510,6 @@ public class ImageManipulator implements MediaManipulator {
         Set<String> readerFormats = ImageReaderRegistry.getSupportedFormats();
         Set<String> writerFormats = ImageWriterRegistry.getSupportedFormats();
         return CollectionUtil.intersection(readerFormats, writerFormats);
-    }
-
-    private static BufferedImage drawCaption(BufferedImage image, int fillHeight, int padding, Drawable paragraph, Font font) {
-        BufferedImage captionedImage = new BufferedImage(image.getWidth(), image.getHeight() + fillHeight, ImageUtil.getType(image));
-        Graphics2D graphics = captionedImage.createGraphics();
-        ImageUtil.configureTextDrawSettings(graphics);
-
-        graphics.drawImage(image, 0, fillHeight, null);
-
-        graphics.setColor(Color.WHITE);
-        graphics.fillRect(0, 0, captionedImage.getWidth(), fillHeight);
-
-        graphics.setFont(font);
-        graphics.setColor(Color.BLACK);
-        paragraph.draw(graphics, padding, padding);
-
-        graphics.dispose();
-
-        return captionedImage;
     }
 
     private static BufferedImage drawText(BufferedImage image, ContainerImageInfo containerImageInfo, Drawable text, int textX, int textY, float fontSize) {
