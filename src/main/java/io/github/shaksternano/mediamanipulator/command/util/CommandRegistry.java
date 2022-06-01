@@ -21,7 +21,7 @@ public class CommandRegistry {
      */
     public static void register(Iterable<Command> commands) {
         for (Command command : commands) {
-            registry.put(command.getName(), command);
+            registry.put(command.getName().toLowerCase(), command);
         }
     }
 
@@ -34,7 +34,7 @@ public class CommandRegistry {
      * no command was registered with the given name.
      */
     public static Optional<Command> getCommand(String name) {
-        return Optional.ofNullable(registry.get(name));
+        return Optional.ofNullable(registry.get(name.toLowerCase()));
     }
 
     /**

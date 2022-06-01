@@ -14,7 +14,7 @@ public class EmojiUtil {
     private static Set<String> emojiUnicodeSet = ImmutableSet.of();
 
     public static void initEmojiUnicodeSet() {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(FileUtil.getResource("emoji/emoji_unicodes.txt")))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(FileUtil.getResourceInRootPackage("emoji/emoji_unicodes.txt")))) {
             ImmutableSet.Builder<String> builder = ImmutableSet.builder();
             String line;
             while ((line = reader.readLine()) != null) {

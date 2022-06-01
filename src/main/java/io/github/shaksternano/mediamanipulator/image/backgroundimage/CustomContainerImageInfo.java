@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Nullable;
 import java.awt.*;
 import java.util.Optional;
 
-public class CaptionContainerImageInfo implements ContainerImageInfo {
+public class CustomContainerImageInfo implements ContainerImageInfo {
 
     private final ImageMedia IMAGE;
     private final String RESULT_NAME;
@@ -20,7 +20,7 @@ public class CaptionContainerImageInfo implements ContainerImageInfo {
     private final Font FONT;
     private final Color TEXT_COLOR;
 
-    public CaptionContainerImageInfo(
+    public CustomContainerImageInfo(
             ImageMedia image,
             String resultName,
             int contentContainerX,

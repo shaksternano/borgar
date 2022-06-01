@@ -4,7 +4,6 @@ import io.github.shaksternano.mediamanipulator.Main;
 import io.github.shaksternano.mediamanipulator.image.imagemedia.ImageMedia;
 import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
 import io.github.shaksternano.mediamanipulator.io.FileUtil;
-import io.github.shaksternano.mediamanipulator.util.Fonts;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
@@ -23,7 +22,7 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
             60,
             true,
             null,
-            Fonts.getCustomFont("bitstream_vera_sans"),
+            "Bitstream Vera Sans",
             Color.WHITE,
             100
     ),
@@ -43,12 +42,12 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
             0,
             false,
             null,
-            Fonts.getCustomFont("futura_condensed_extra_bold"),
+            "Futura-CondensedExtraBold",
             Color.BLACK,
             100
     );
 
-    private final String IMAGE_PATH;
+    private final String IMAGE_PATH_FROM_ROOT_PACKAGE;
     private final String RESULT_NAME;
     private final int IMAGE_CONTENT_X;
     private final int IMAGE_CONTENT_Y;
@@ -65,38 +64,7 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
     private final Color TEXT_COLOR;
 
     ResourceContainerImageInfo(
-            String imagePath,
-            String resultName,
-            int contentContainerX,
-            int contentContainerY,
-            int contentContainerWidth,
-            int contentContainerHeight,
-            int contentContainerPadding,
-            boolean isBackground,
-            @Nullable Color fill,
-            Font font,
-            Color textColor,
-            float maxFontSize
-    ) {
-        IMAGE_PATH = imagePath;
-        RESULT_NAME = resultName;
-        IMAGE_CONTENT_X = contentContainerX + contentContainerPadding;
-        IMAGE_CONTENT_Y = contentContainerY + contentContainerPadding;
-        TEXT_CONTENT_X = contentContainerX + contentContainerPadding;
-        TEXT_CONTENT_Y = contentContainerY + contentContainerPadding;
-        int doublePadding = contentContainerPadding * 2;
-        IMAGE_CONTENT_WIDTH = contentContainerWidth - doublePadding;
-        IMAGE_CONTENT_HEIGHT = contentContainerHeight - doublePadding;
-        TEXT_CONTENT_WIDTH = contentContainerWidth - doublePadding;
-        TEXT_CONTENT_HEIGHT = contentContainerHeight - doublePadding;
-        IS_BACKGROUND = isBackground;
-        FILL = fill;
-        FONT = font.deriveFont(maxFontSize);
-        TEXT_COLOR = textColor;
-    }
-
-    ResourceContainerImageInfo(
-            String imagePath,
+            String imagePathFromRootPackage,
             String resultName,
             int imageContainerX,
             int imageContainerY,
@@ -110,11 +78,11 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
             int textContainerPadding,
             boolean isBackground,
             @Nullable Color fill,
-            Font font,
+            String fontName,
             Color textColor,
-            float maxFontSize
+            int maxFontSize
     ) {
-        IMAGE_PATH = imagePath;
+        IMAGE_PATH_FROM_ROOT_PACKAGE = imagePathFromRootPackage;
         RESULT_NAME = resultName;
         IMAGE_CONTENT_X = imageContainerX + imageContainerPadding;
         IMAGE_CONTENT_Y = imageContainerY + imageContainerPadding;
@@ -128,13 +96,48 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
         TEXT_CONTENT_HEIGHT = textContainerHeight - doubleTextPadding;
         IS_BACKGROUND = isBackground;
         FILL = fill;
-        FONT = font.deriveFont(maxFontSize);
+        FONT = new Font(fontName, Font.PLAIN, maxFontSize);
         TEXT_COLOR = textColor;
+    }
+
+    ResourceContainerImageInfo(
+            String imagePathFromRootPackage,
+            String resultName,
+            int contentContainerX,
+            int contentContainerY,
+            int contentContainerWidth,
+            int contentContainerHeight,
+            int contentContainerPadding,
+            boolean isBackground,
+            @Nullable Color fill,
+            String fontName,
+            Color textColor,
+            int maxFontSize
+    ) {
+        this(
+                imagePathFromRootPackage,
+                resultName,
+                contentContainerX,
+                contentContainerY,
+                contentContainerWidth,
+                contentContainerHeight,
+                contentContainerPadding,
+                contentContainerX,
+                contentContainerY,
+                contentContainerWidth,
+                contentContainerHeight,
+                contentContainerPadding,
+                isBackground,
+                fill,
+                fontName,
+                textColor,
+                maxFontSize
+        );
     }
 
     @Override
     public ImageMedia getImage() throws IOException {
-        return ImageUtil.getImageResource(IMAGE_PATH);
+        return ImageUtil.getImageResourceInRootPackage(IMAGE_PATH_FROM_ROOT_PACKAGE);
     }
 
     @Override
@@ -205,9 +208,9 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
     public static void validateFilePaths() {
         for (ResourceContainerImageInfo backgroundImage : ResourceContainerImageInfo.values()) {
             try {
-                FileUtil.validateResourcePath(backgroundImage.IMAGE_PATH);
+                FileUtil.validateResourcePathInRootPackage(backgroundImage.IMAGE_PATH_FROM_ROOT_PACKAGE);
             } catch (Throwable t) {
-                Main.getLogger().error("Error with " + backgroundImage + "'s file path " + backgroundImage.IMAGE_PATH, t);
+                Main.getLogger().error("Error with " + backgroundImage + "'s file path " + backgroundImage.IMAGE_PATH_FROM_ROOT_PACKAGE, t);
                 Main.shutdown(1);
             }
         }

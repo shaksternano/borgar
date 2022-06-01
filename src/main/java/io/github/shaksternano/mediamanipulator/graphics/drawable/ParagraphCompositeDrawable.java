@@ -1,10 +1,12 @@
 package io.github.shaksternano.mediamanipulator.graphics.drawable;
 
 import io.github.shaksternano.mediamanipulator.graphics.TextAlignment;
+import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.util.List;
 import java.util.*;
+import java.util.function.Function;
 
 public class ParagraphCompositeDrawable extends ListCompositeDrawable {
 
@@ -187,9 +189,9 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
             NON_TEXT_PARTS.putAll(nonTextParts);
         }
 
-        public Builder addWords(String... words) {
+        public Builder addWords(@Nullable Function<String, Drawable> customTextDrawableFunction, String... words) {
             for (String word : words) {
-                addCompositeWord(word);
+                addCompositeWord(customTextDrawableFunction, word);
             }
 
             return this;
@@ -205,7 +207,7 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
             return paragraph;
         }
 
-        private void addCompositeWord(String word) {
+        private void addCompositeWord(@Nullable Function<String, Drawable> customTextDrawableSupplier, String word) {
             if (NON_TEXT_PARTS.isEmpty()) {
                 words.add(new TextDrawable(word));
             } else {
@@ -223,7 +225,11 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
                         int keyLength = key.length();
                         if (subWord.startsWith(key)) {
                             if (!actualWordBuilder.isEmpty()) {
-                                compositeWord.addPart(new TextDrawable(actualWordBuilder.toString()));
+                                String text = actualWordBuilder.toString();
+                                Drawable textPart = customTextDrawableSupplier == null ?
+                                        new TextDrawable(text) :
+                                        customTextDrawableSupplier.apply(text);
+                                compositeWord.addPart(textPart);
                                 actualWordBuilder.setLength(0);
                             }
 
@@ -241,7 +247,11 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
                 }
 
                 if (!actualWordBuilder.isEmpty()) {
-                    compositeWord.addPart(new TextDrawable(actualWordBuilder.toString()));
+                    String text = actualWordBuilder.toString();
+                    Drawable textPart = customTextDrawableSupplier == null ?
+                            new TextDrawable(text) :
+                            customTextDrawableSupplier.apply(text);
+                    compositeWord.addPart(textPart);
                 }
 
                 words.add(compositeWord);

@@ -233,4 +233,8 @@ public class Main {
     public static String getTenorApiKey() {
         return tenorApiKey;
     }
+
+    public static String getRootPackage() {
+        return Main.class.getPackageName();
+    }
 }

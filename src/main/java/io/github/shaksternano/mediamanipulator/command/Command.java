@@ -30,6 +30,12 @@ public interface Command {
     String getName();
 
     /**
+     * Gets the name of the command prepended with the {@link #PREFIX}.
+     * @return The name of the command prepended with the {@link #PREFIX}.
+     */
+    String getNameWithPrefix();
+
+    /**
      * Gets the description of the command..
      *
      * @return The description of the command.

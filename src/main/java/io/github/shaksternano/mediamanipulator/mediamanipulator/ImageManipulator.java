@@ -9,9 +9,10 @@ import io.github.shaksternano.mediamanipulator.exception.UnsupportedFileFormatEx
 import io.github.shaksternano.mediamanipulator.graphics.TextAlignment;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.CompositeDrawable;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.Drawable;
+import io.github.shaksternano.mediamanipulator.graphics.drawable.OutlinedTextDrawable;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.ParagraphCompositeDrawable;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.util.DrawableUtil;
-import io.github.shaksternano.mediamanipulator.image.backgroundimage.CaptionContainerImageInfo;
+import io.github.shaksternano.mediamanipulator.image.backgroundimage.CustomContainerImageInfo;
 import io.github.shaksternano.mediamanipulator.image.backgroundimage.ContainerImageInfo;
 import io.github.shaksternano.mediamanipulator.image.imagemedia.ImageMedia;
 import io.github.shaksternano.mediamanipulator.image.io.reader.util.ImageReaderRegistry;
@@ -25,7 +26,6 @@ import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
 import io.github.shaksternano.mediamanipulator.io.FileUtil;
 import io.github.shaksternano.mediamanipulator.util.CollectionUtil;
 import io.github.shaksternano.mediamanipulator.util.DiscordUtil;
-import io.github.shaksternano.mediamanipulator.util.Fonts;
 import io.github.shaksternano.mediamanipulator.util.MediaCompression;
 import net.dv8tion.jda.api.entities.Guild;
 import org.jetbrains.annotations.Nullable;
@@ -72,16 +72,16 @@ public class ImageManipulator implements MediaManipulator {
 
         int width = firstImage.getWidth();
 
-        Font font = Fonts.getCustomFont("futura_condensed_extra_bold").deriveFont(width / 10F);
+        Font font = new Font("Futura-CondensedExtraBold", Font.PLAIN, width / 10);
         int padding = (int) (width * 0.04);
         Graphics2D originalGraphics = firstImage.createGraphics();
 
-        ImageUtil.configureTextDrawSettings(originalGraphics);
+        ImageUtil.configureTextDrawQuality(originalGraphics);
 
         originalGraphics.setFont(font);
 
         CompositeDrawable paragraph = new ParagraphCompositeDrawable.Builder(nonTextParts)
-                .addWords(words)
+                .addWords(null, words)
                 .build(TextAlignment.CENTER, width - (padding * 2));
 
         int fillHeight = paragraph.getHeight(originalGraphics) + (padding * 2);
@@ -109,7 +109,7 @@ public class ImageManipulator implements MediaManipulator {
 
         imageMedia = null;
 
-        ContainerImageInfo containerImageInfo = new CaptionContainerImageInfo(
+        ContainerImageInfo containerImageInfo = new CustomContainerImageInfo(
                 withCaptionBox,
                 "captioned",
                 0,
@@ -145,6 +145,37 @@ public class ImageManipulator implements MediaManipulator {
     }
 
     @Override
+    public File impact(File media, String fileFormat, String[] words, Map<String, Drawable> nonTextParts) throws IOException {
+        ImageMedia imageMedia = ImageReaders.read(media, fileFormat, null);
+        BufferedImage firstImage = imageMedia.getFrame(0).getImage();
+
+        int width = firstImage.getWidth();
+
+        Font font = new Font("Impact", Font.PLAIN, width / 10);
+        int padding = (int) (width * 0.04);
+        Graphics2D originalGraphics = firstImage.createGraphics();
+
+        ImageUtil.configureTextDrawQuality(originalGraphics);
+
+        originalGraphics.setFont(font);
+
+        CompositeDrawable paragraph = new ParagraphCompositeDrawable.Builder(nonTextParts)
+                .addWords(word -> new OutlinedTextDrawable(word, Color.WHITE, Color.BLACK, 2), words)
+                .build(TextAlignment.CENTER, width - (padding * 2));
+
+        originalGraphics.dispose();
+
+        firstImage.flush();
+        firstImage = null;
+
+        paragraph = null;
+
+        boolean originalIsAnimated = imageMedia.isAnimated();
+
+        return null;
+    }
+
+    @Override
     public File containerImageWithText(String[] words, Map<String, Drawable> nonTextParts, ContainerImageInfo containerImageInfo) throws IOException {
         ImageMedia result = drawTextOnImage(words, nonTextParts, containerImageInfo);
 
@@ -168,7 +199,7 @@ public class ImageManipulator implements MediaManipulator {
         ImageMedia imageMedia = containerImageInfo.getImage();
 
         ParagraphCompositeDrawable paragraph = new ParagraphCompositeDrawable.Builder(nonTextParts)
-                .addWords(words)
+                .addWords(null, words)
                 .build(TextAlignment.CENTER, containerImageInfo.getTextContentWidth());
 
         Graphics2D graphics = imageMedia.getFrame(0).getImage().createGraphics();
@@ -301,7 +332,7 @@ public class ImageManipulator implements MediaManipulator {
         int width = firstImage.getWidth();
         int height = firstImage.getHeight();
 
-        BufferedImage speechBubble = ImageUtil.getImageResource(speechBubblePath).getFrame(0).getImage();
+        BufferedImage speechBubble = ImageUtil.getImageResourceInRootPackage(speechBubblePath).getFrame(0).getImage();
 
         int minDimension = 3;
         if (width < minDimension) {
@@ -515,12 +546,11 @@ public class ImageManipulator implements MediaManipulator {
     private static BufferedImage drawText(BufferedImage image, ContainerImageInfo containerImageInfo, Drawable text, int textX, int textY, float fontSize) {
         BufferedImage imageWithText = new BufferedImage(image.getWidth(), image.getHeight(), ImageUtil.getType(image));
         Graphics2D graphics = imageWithText.createGraphics();
-        ImageUtil.configureTextDrawSettings(graphics);
+        ImageUtil.configureTextDrawQuality(graphics);
 
-        containerImageInfo.getFill().ifPresent(color -> {
-            graphics.setColor(color);
-            graphics.fillRect(0, 0, imageWithText.getWidth(), imageWithText.getHeight());
-        });
+        Color color = containerImageInfo.getFill().orElse(null);
+        graphics.setColor(color);
+        graphics.fillRect(0, 0, imageWithText.getWidth(), imageWithText.getHeight());
 
         if (containerImageInfo.isBackground()) {
             graphics.drawImage(image, 0, 0, null);

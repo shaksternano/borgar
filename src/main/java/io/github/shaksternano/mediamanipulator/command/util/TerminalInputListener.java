@@ -1,6 +1,7 @@
 package io.github.shaksternano.mediamanipulator.command.util;
 
 import io.github.shaksternano.mediamanipulator.Main;
+import io.github.shaksternano.mediamanipulator.command.Command;
 
 import java.util.NoSuchElementException;
 import java.util.Scanner;
@@ -24,7 +25,7 @@ public class TerminalInputListener implements Runnable {
             while (running) {
                 String command = scanner.nextLine();
 
-                if (command.equals("!shutdown")) {
+                if (command.equalsIgnoreCase(Command.PREFIX + "shutdown")) {
                     Main.getLogger().info("Shutting down!");
                     running = false;
                     Main.shutdown(0);

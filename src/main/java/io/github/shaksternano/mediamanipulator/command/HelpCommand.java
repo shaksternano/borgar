@@ -79,7 +79,7 @@ public class HelpCommand extends BaseCommand {
         commands.sort(Comparator.comparing(Command::getName));
 
         for (Command command : commands) {
-            String commandLine = Command.PREFIX + command.getName() + " - " + command.getDescription() + "\n\n";
+            String commandLine = command.getNameWithPrefix() + " - " + command.getDescription() + "\n\n";
             int length = commandLine.length();
             totalLength += length;
 

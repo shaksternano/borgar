@@ -65,6 +65,6 @@ public class TextDrawable implements Drawable {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "[" + TEXT + "]";
+        return getClass().getSimpleName() + "[Text: " + TEXT + "]";
     }
 }

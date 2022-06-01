@@ -11,6 +11,9 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 import java.awt.*;
+import java.awt.font.FontRenderContext;
+import java.awt.font.GlyphVector;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorConvertOp;
 import java.io.File;
@@ -27,17 +30,17 @@ import java.util.List;
  */
 public class ImageUtil {
 
-    public static ImageMedia getImageResource(String resourcePath) throws IOException {
-        try (InputStream imageTypeInputStream = FileUtil.getResource(resourcePath)) {
+    public static ImageMedia getImageResourceInRootPackage(String resourcePath) throws IOException {
+        try (InputStream imageTypeInputStream = FileUtil.getResourceInRootPackage(resourcePath)) {
             String imageFormat = getImageFormat(imageTypeInputStream);
 
-            try (InputStream loadImageInputStream = FileUtil.getResource(resourcePath)) {
+            try (InputStream loadImageInputStream = FileUtil.getResourceInRootPackage(resourcePath)) {
                 return ImageReaders.read(loadImageInputStream, imageFormat, null);
             }
         }
     }
 
-    public static void configureTextDrawSettings(Graphics2D graphics) {
+    public static void configureTextDrawQuality(Graphics2D graphics) {
         graphics.setRenderingHint(
                 RenderingHints.KEY_FRACTIONALMETRICS,
                 RenderingHints.VALUE_FRACTIONALMETRICS_ON
@@ -47,6 +50,49 @@ public class ImageUtil {
                 RenderingHints.KEY_TEXT_ANTIALIASING,
                 RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB
         );
+
+        graphics.setRenderingHint(
+                RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON
+
+        );
+
+        graphics.setRenderingHint(
+                RenderingHints.KEY_RENDERING,
+                RenderingHints.VALUE_RENDER_QUALITY
+        );
+    }
+
+    public static void drawOutlinedText(Graphics2D graphics, String text, int x, int y, Color textFillColor, Color textOutlineColor) {
+        BasicStroke outlineStroke = new BasicStroke(2.0f);
+
+        Color originalColor = graphics.getColor();
+        Stroke originalStroke = graphics.getStroke();
+        RenderingHints originalHints = graphics.getRenderingHints();
+
+        AffineTransform transform = graphics.getTransform();
+        double originalX = transform.getTranslateX();
+        double originalY = transform.getTranslateY();
+
+        Font font = graphics.getFont();
+        FontRenderContext fontRenderContext = graphics.getFontRenderContext();
+        GlyphVector glyphVector = font.createGlyphVector(fontRenderContext, text);
+        Shape textShape = glyphVector.getOutline();
+
+        configureTextDrawQuality(graphics);
+
+        graphics.setColor(textOutlineColor);
+        graphics.setStroke(outlineStroke);
+        graphics.translate(x, y);
+        graphics.draw(textShape);
+
+        graphics.setColor(textFillColor);
+        graphics.fill(textShape);
+
+        graphics.setColor(originalColor);
+        graphics.setStroke(originalStroke);
+        graphics.setRenderingHints(originalHints);
+        graphics.translate(originalX, originalY);
     }
 
     /**

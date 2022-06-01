@@ -58,13 +58,13 @@ public class Commands {
 
     public static final Command RESIZE = addCommandToRegister(new ResizeCommand(
             "resize",
-            "Resizes media with extra processing to smoothen the resulting image. Equivalent to " + Command.PREFIX + STRETCH.getName() + " x x. Required arguments: [resize multiplier]",
+            "Resizes media with extra processing to smoothen the resulting image. Equivalent to " + STRETCH.getNameWithPrefix() + " x x. Required arguments: [resize multiplier]",
             false
     ));
 
     public static final Command RESIZE_RAW = addCommandToRegister(new ResizeCommand(
             "resizeraw",
-            "Resizes media without extra processing. Equivalent to " + Command.PREFIX + STRETCH_RAW.getName() + " x x. Required arguments: [resize multiplier]",
+            "Resizes media without extra processing. Equivalent to " + STRETCH_RAW.getNameWithPrefix() + " x x. Required arguments: [resize multiplier]",
             true
     ));
 
@@ -75,7 +75,7 @@ public class Commands {
 
     public static final Command PIXELATE = addCommandToRegister(new PixelateCommand(
             "pixel",
-            "Pixelates media. Equivalent to " + Command.PREFIX + RESIZE_RAW.getName() + " 1/x followed by " + Command.PREFIX + RESIZE_RAW.getName() + " x Optional arguments: [pixelation multiplier, default value is " + FORMAT.format(PixelateCommand.DEFAULT_PIXELATION_MULTIPLIER) + "]"
+            "Pixelates media. Equivalent to " + RESIZE_RAW.getNameWithPrefix() + " 1/x followed by " + Command.PREFIX + RESIZE_RAW.getName() + " x Optional arguments: [pixelation multiplier, default value is " + FORMAT.format(PixelateCommand.DEFAULT_PIXELATION_MULTIPLIER) + "]"
     ));
 
     public static final Command REDUCE_FPS = addCommandToRegister(new ReduceFpsCommand(
@@ -114,7 +114,7 @@ public class Commands {
 
     public static final Command TO_GIF_2 = addCommandToRegister(new ToGifCommand(
             "gif2",
-            "Turns media into a GIF file by just renaming the file extension to \".gif\". Use this when there are problems with the " + Command.PREFIX + TO_GIF.getName() + " command.",
+            "Turns media into a GIF file by just renaming the file extension to \".gif\". Use this when there are problems with the " + TO_GIF.getNameWithPrefix() + " command.",
             true
     ));
 
@@ -154,7 +154,7 @@ public class Commands {
     ));
 
     public static final Command EMOJI_IMAGE = addCommandToRegister(new EmojiImageCommand(
-            "emoji",
+            "io/github/shaksternano/mediamanipulator/emoji",
             "Gets the image of an emoji."
     ));
 

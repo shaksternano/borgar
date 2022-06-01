@@ -97,7 +97,7 @@ public abstract class MediaCommand extends BaseCommand {
                     throw new UncheckedIOException(e);
                 } catch (OutOfMemoryError e) {
                     userMessage.reply("The server ran out of memory! Try again later or use a smaller file.").queue();
-                    Main.getLogger().error("Ran out of memory executing command " + getName() + "!", e);
+                    Main.getLogger().error("Ran out of memory executing command " + getNameWithPrefix() + "!", e);
                 }
             }, () -> userMessage.reply("Unsupported file type!").queue());
         }, () -> userMessage.reply("No media found!").queue());

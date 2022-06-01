@@ -7,6 +7,8 @@ import io.github.shaksternano.mediamanipulator.util.tenor.TenorMediaType;
 import io.github.shaksternano.mediamanipulator.util.tenor.TenorUtil;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.Nullable;
+import org.reflections.Reflections;
+import org.reflections.scanners.Scanners;
 
 import java.io.*;
 import java.net.URL;
@@ -14,6 +16,9 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.regex.Pattern;
 
 /**
  * Contains static methods for dealing with files.
@@ -21,6 +26,7 @@ import java.util.Optional;
 public class FileUtil {
 
     private static File TEMP_DIR;
+    private static final String ROOT_RESOURCE_DIRECTORY = Main.getRootPackage().replace(".", "/") + "/";
 
     /**
      * The maximum file size that is allowed to be downloaded, 100MB.
@@ -122,7 +128,11 @@ public class FileUtil {
      * @return The resource as an {@link InputStream}.
      * @throws FileNotFoundException If the resource could not be found.
      */
-    public static InputStream getResource(String resourcePath) throws FileNotFoundException {
+    public static InputStream getResourceInRootPackage(String resourcePath) throws FileNotFoundException {
+        return getResource(ROOT_RESOURCE_DIRECTORY + resourcePath);
+    }
+
+    private static InputStream getResource(String resourcePath) throws FileNotFoundException {
         InputStream inputStream = FileUtil.class.getClassLoader().getResourceAsStream(resourcePath);
         if (inputStream == null) {
             throw new FileNotFoundException("Resource not found: " + resourcePath + "!");
@@ -201,16 +211,34 @@ public class FileUtil {
         return com.google.common.io.Files.getNameWithoutExtension(fileName) + "." + newExtension;
     }
 
-    public static void validateResourcePath(String filePath) throws IOException {
+    public static void validateResourcePathInRootPackage(String filePath) throws IOException {
         if (filePath == null || filePath.isEmpty()) {
             throw new IllegalArgumentException("File path cannot be null or empty!");
         } else {
-            try (InputStream inputStream = ResourceContainerImageInfo.class.getClassLoader().getResourceAsStream(filePath)) {
+            try (InputStream inputStream = ResourceContainerImageInfo.class.getClassLoader().getResourceAsStream(ROOT_RESOURCE_DIRECTORY + filePath)) {
                 if (inputStream == null) {
                     throw new FileNotFoundException("File path not found: " + filePath);
                 }
             } catch (IOException e) {
                 throw new IOException("Error loading file with path " + filePath, e);
+            }
+        }
+    }
+
+    private static Set<String> getResourcePaths(String packageName) {
+        Reflections reflections = new Reflections(packageName, Scanners.Resources);
+        return reflections.getResources("(.*?)");
+    }
+
+    public static void forEachResource(String directory, BiConsumer<String, InputStream> operation) {
+        String trimmedDirectory = directory.replaceAll("/$", "").trim();
+        String packageName = Main.getRootPackage() + "." + trimmedDirectory.replaceAll(Pattern.quote("/"), ".");
+        Set<String> resourcePaths = getResourcePaths(packageName);
+        for (String resourcePath : resourcePaths) {
+            try (InputStream inputStream = getResource(resourcePath)) {
+                operation.accept(resourcePath, inputStream);
+            } catch (IOException e) {
+                Main.getLogger().error("Error loading resource " + resourcePath, e);
             }
         }
     }

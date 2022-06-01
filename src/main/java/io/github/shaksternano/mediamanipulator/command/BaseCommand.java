@@ -36,6 +36,11 @@ public abstract class BaseCommand implements Command {
     }
 
     @Override
+    public String getNameWithPrefix() {
+        return Command.PREFIX + NAME;
+    }
+
+    @Override
     public String getDescription() {
         return DESCRIPTION;
     }
@@ -63,6 +68,6 @@ public abstract class BaseCommand implements Command {
      */
     @Override
     public String toString() {
-        return "Command: " + getName() + ", description: " + getDescription();
+        return "Command: " + getNameWithPrefix() + ", description: " + getDescription();
     }
 }
