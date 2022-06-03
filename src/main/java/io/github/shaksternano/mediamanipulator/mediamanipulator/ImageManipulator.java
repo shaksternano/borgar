@@ -167,7 +167,6 @@ public class ImageManipulator implements MediaManipulator {
 
         boolean originalIsAnimated = imageMedia.isAnimated();
 
-        Font font = new Font("Impact", Font.PLAIN, smallestDimension / 2);
         ContainerImageInfo topWordsContainerImageInfo = new CustomContainerImageInfo(
                 imageMedia,
                 "impacted",
@@ -178,7 +177,7 @@ public class ImageManipulator implements MediaManipulator {
                 padding,
                 true,
                 null,
-                font,
+                new Font("Impact", Font.PLAIN, smallestDimension / 2),
                 Color.WHITE,
                 word -> new OutlinedTextDrawable(word, Color.WHITE, Color.BLACK, 0.15F)
         );
@@ -187,17 +186,17 @@ public class ImageManipulator implements MediaManipulator {
 
         ContainerImageInfo bottomWordsContainerImageInfo = new CustomContainerImageInfo(
                 result,
-                "impacted",
+                topWordsContainerImageInfo.getResultName(),
                 0,
                 bottomY,
                 width,
                 height,
                 padding,
-                true,
-                null,
-                font,
-                Color.WHITE,
-                word -> new OutlinedTextDrawable(word, Color.WHITE, Color.BLACK, 0.15F)
+                topWordsContainerImageInfo.isBackground(),
+                topWordsContainerImageInfo.getFill().orElse(null),
+                topWordsContainerImageInfo.getFont(),
+                topWordsContainerImageInfo.getTextColor(),
+                topWordsContainerImageInfo.getCustomTextDrawableFactory().orElse(null)
         );
 
         result = drawTextOnImage(bottomWords, nonTextParts, bottomWordsContainerImageInfo);
