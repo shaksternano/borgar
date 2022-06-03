@@ -12,8 +12,8 @@ import io.github.shaksternano.mediamanipulator.graphics.drawable.Drawable;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.OutlinedTextDrawable;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.ParagraphCompositeDrawable;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.util.DrawableUtil;
-import io.github.shaksternano.mediamanipulator.image.backgroundimage.CustomContainerImageInfo;
 import io.github.shaksternano.mediamanipulator.image.backgroundimage.ContainerImageInfo;
+import io.github.shaksternano.mediamanipulator.image.backgroundimage.CustomContainerImageInfo;
 import io.github.shaksternano.mediamanipulator.image.imagemedia.ImageMedia;
 import io.github.shaksternano.mediamanipulator.image.io.reader.util.ImageReaderRegistry;
 import io.github.shaksternano.mediamanipulator.image.io.reader.util.ImageReaders;
@@ -66,14 +66,17 @@ public class ImageManipulator implements MediaManipulator {
 
     @SuppressWarnings("UnusedAssignment")
     @Override
-    public File caption(File media, String fileFormat, String[] words, Map<String, Drawable> nonTextParts) throws IOException {
+    public File caption(File media, String fileFormat, List<String> words, Map<String, Drawable> nonTextParts) throws IOException {
         ImageMedia imageMedia = ImageReaders.read(media, fileFormat, null);
         BufferedImage firstImage = imageMedia.getFrame(0).getImage();
 
         int width = firstImage.getWidth();
+        int height = firstImage.getHeight();
 
-        Font font = new Font("Futura-CondensedExtraBold", Font.PLAIN, width / 10);
-        int padding = (int) (width * 0.04);
+        int smallestDimension = Math.min(width, height);
+
+        Font font = new Font("Futura-CondensedExtraBold", Font.PLAIN, smallestDimension / 7);
+        int padding = (int) (smallestDimension * 0.04);
         Graphics2D originalGraphics = firstImage.createGraphics();
 
         ImageUtil.configureTextDrawQuality(originalGraphics);
@@ -82,7 +85,7 @@ public class ImageManipulator implements MediaManipulator {
 
         CompositeDrawable paragraph = new ParagraphCompositeDrawable.Builder(nonTextParts)
                 .addWords(null, words)
-                .build(TextAlignment.CENTER, width - (padding * 2));
+                .build(TextAlignment.CENTER, smallestDimension - (padding * 2));
 
         int fillHeight = paragraph.getHeight(originalGraphics) + (padding * 2);
         originalGraphics.dispose();
@@ -120,8 +123,8 @@ public class ImageManipulator implements MediaManipulator {
                 true,
                 null,
                 font,
-                Color.BLACK
-        );
+                Color.BLACK,
+                null);
 
         ImageMedia result = drawTextOnImage(words, nonTextParts, containerImageInfo);
 
@@ -144,39 +147,82 @@ public class ImageManipulator implements MediaManipulator {
         return outputFile;
     }
 
+    @SuppressWarnings("UnusedAssignment")
     @Override
-    public File impact(File media, String fileFormat, String[] words, Map<String, Drawable> nonTextParts) throws IOException {
+    public File impact(File media, String fileFormat, List<String> topWords, List<String> bottomWords, Map<String, Drawable> nonTextParts) throws IOException {
         ImageMedia imageMedia = ImageReaders.read(media, fileFormat, null);
         BufferedImage firstImage = imageMedia.getFrame(0).getImage();
 
         int width = firstImage.getWidth();
+        int height = firstImage.getHeight() / 5;
 
-        Font font = new Font("Impact", Font.PLAIN, width / 10);
-        int padding = (int) (width * 0.04);
-        Graphics2D originalGraphics = firstImage.createGraphics();
+        int smallestDimension = Math.min(width, height);
+        int padding = (int) (smallestDimension * 0.04);
 
-        ImageUtil.configureTextDrawQuality(originalGraphics);
-
-        originalGraphics.setFont(font);
-
-        CompositeDrawable paragraph = new ParagraphCompositeDrawable.Builder(nonTextParts)
-                .addWords(word -> new OutlinedTextDrawable(word, Color.WHITE, Color.BLACK, 2), words)
-                .build(TextAlignment.CENTER, width - (padding * 2));
-
-        originalGraphics.dispose();
+        int topY = 0;
+        int bottomY = firstImage.getHeight() - height;
 
         firstImage.flush();
         firstImage = null;
 
-        paragraph = null;
-
         boolean originalIsAnimated = imageMedia.isAnimated();
 
-        return null;
+        Font font = new Font("Impact", Font.PLAIN, smallestDimension / 2);
+        ContainerImageInfo topWordsContainerImageInfo = new CustomContainerImageInfo(
+                imageMedia,
+                "impacted",
+                0,
+                topY,
+                width,
+                height,
+                padding,
+                true,
+                null,
+                font,
+                Color.WHITE,
+                word -> new OutlinedTextDrawable(word, Color.WHITE, Color.BLACK, 0.15F)
+        );
+
+        ImageMedia result = drawTextOnImage(topWords, nonTextParts, topWordsContainerImageInfo);
+
+        ContainerImageInfo bottomWordsContainerImageInfo = new CustomContainerImageInfo(
+                result,
+                "impacted",
+                0,
+                bottomY,
+                width,
+                height,
+                padding,
+                true,
+                null,
+                font,
+                Color.WHITE,
+                word -> new OutlinedTextDrawable(word, Color.WHITE, Color.BLACK, 0.15F)
+        );
+
+        result = drawTextOnImage(bottomWords, nonTextParts, bottomWordsContainerImageInfo);
+
+        String outputFormat;
+        String outputExtension;
+        if (result.isAnimated() && !originalIsAnimated) {
+            outputFormat = "gif";
+            outputExtension = "." + outputFormat;
+        } else {
+            outputFormat = fileFormat;
+            outputExtension = Files.getFileExtension(media.getName());
+
+            if (!outputExtension.isEmpty()) {
+                outputExtension = "." + outputExtension;
+            }
+        }
+
+        File outputFile = FileUtil.getUniqueTempFile(topWordsContainerImageInfo.getResultName() + outputExtension);
+        ImageWriters.write(result, outputFile, outputFormat);
+        return outputFile;
     }
 
     @Override
-    public File containerImageWithText(String[] words, Map<String, Drawable> nonTextParts, ContainerImageInfo containerImageInfo) throws IOException {
+    public File containerImageWithText(List<String> words, Map<String, Drawable> nonTextParts, ContainerImageInfo containerImageInfo) throws IOException {
         ImageMedia result = drawTextOnImage(words, nonTextParts, containerImageInfo);
 
         String outputFileName = containerImageInfo.getResultName() + ".";
@@ -195,62 +241,68 @@ public class ImageManipulator implements MediaManipulator {
     }
 
     @SuppressWarnings("UnusedAssignment")
-    private static ImageMedia drawTextOnImage(String[] words, Map<String, Drawable> nonTextParts, ContainerImageInfo containerImageInfo) throws IOException {
+    private static ImageMedia drawTextOnImage(List<String> words, Map<String, Drawable> nonTextParts, ContainerImageInfo containerImageInfo) throws IOException {
         ImageMedia imageMedia = containerImageInfo.getImage();
 
-        ParagraphCompositeDrawable paragraph = new ParagraphCompositeDrawable.Builder(nonTextParts)
-                .addWords(null, words)
-                .build(TextAlignment.CENTER, containerImageInfo.getTextContentWidth());
-
-        Graphics2D graphics = imageMedia.getFrame(0).getImage().createGraphics();
-
-        Font font = containerImageInfo.getFont();
-        graphics.setFont(font);
-
-        int paragraphHeight = DrawableUtil.fitHeight(containerImageInfo.getTextContentHeight(), paragraph, graphics);
-        float fontSize = graphics.getFont().getSize2D();
-
-        graphics.dispose();
-
-        int containerCentreY = containerImageInfo.getTextContentY() + (containerImageInfo.getTextContentHeight() / 2);
-
-        int paragraphX = containerImageInfo.getTextContentX();
-        int paragraphY = containerCentreY - (paragraphHeight / 2);
-
-        ImageMediaBuilder builder = new ImageMediaBuilder();
-
-        int paragraphFrameCount = paragraph.getFrameCount();
-        if (paragraphFrameCount == 1) {
-            for (Frame frame : imageMedia) {
-                BufferedImage image = frame.getImage();
-                BufferedImage imageWithText = drawText(image, containerImageInfo, paragraph, paragraphX, paragraphY, fontSize);
-                builder.add(new AwtFrame(imageWithText, frame.getDuration()));
-            }
+        if (words.isEmpty()) {
+            return imageMedia;
         } else {
-            List<BufferedImage> normalisedImages = imageMedia.toNormalisedImages();
-            List<BufferedImage> extendedImages = CollectionUtil.extendLoop(normalisedImages, paragraphFrameCount);
+            ParagraphCompositeDrawable paragraph = new ParagraphCompositeDrawable.Builder(nonTextParts)
+                    .addWords(containerImageInfo.getCustomTextDrawableFactory().orElse(null), words)
+                    .build(TextAlignment.CENTER, containerImageInfo.getTextContentWidth());
 
-            normalisedImages = null;
+            Graphics2D graphics = imageMedia.getFrame(0).getImage().createGraphics();
 
-            BufferedImage previousImage = null;
+            Font font = containerImageInfo.getFont();
+            graphics.setFont(font);
 
-            Iterator<BufferedImage> imageIterator = extendedImages.iterator();
-            while (imageIterator.hasNext()) {
-                BufferedImage image = imageIterator.next();
+            int paragraphHeight = DrawableUtil.fitHeight(containerImageInfo.getTextContentHeight(), paragraph, graphics);
+            float fontSize = graphics.getFont().getSize2D();
 
-                if (image.equals(previousImage) && paragraph.sameAsPreviousFrame()) {
-                    builder.increaseLastFrameDuration(Frame.GIF_MINIMUM_FRAME_DURATION);
-                } else {
+            graphics.dispose();
+
+            int containerCentreY = containerImageInfo.getTextContentY() + (containerImageInfo.getTextContentHeight() / 2);
+
+            int paragraphX = containerImageInfo.getTextContentX();
+            int paragraphY = containerCentreY - (paragraphHeight / 2);
+
+            ImageMediaBuilder builder = new ImageMediaBuilder();
+
+            int paragraphFrameCount = paragraph.getFrameCount();
+            if (paragraphFrameCount == 1) {
+                for (Frame frame : imageMedia) {
+                    BufferedImage image = frame.getImage();
                     BufferedImage imageWithText = drawText(image, containerImageInfo, paragraph, paragraphX, paragraphY, fontSize);
-                    builder.add(new AwtFrame(imageWithText, Frame.GIF_MINIMUM_FRAME_DURATION));
-                    previousImage = imageWithText;
+                    int duration = frame.getDuration();
+                    builder.add(new AwtFrame(imageWithText, duration));
+                    frame.flush();
                 }
+            } else {
+                List<BufferedImage> normalisedImages = imageMedia.toNormalisedImages();
+                List<BufferedImage> extendedImages = CollectionUtil.extendLoop(normalisedImages, paragraphFrameCount);
 
-                imageIterator.remove();
+                normalisedImages = null;
+
+                BufferedImage previousImage = null;
+
+                Iterator<BufferedImage> imageIterator = extendedImages.iterator();
+                while (imageIterator.hasNext()) {
+                    BufferedImage image = imageIterator.next();
+
+                    if (image.equals(previousImage) && paragraph.sameAsPreviousFrame()) {
+                        builder.increaseLastFrameDuration(Frame.GIF_MINIMUM_FRAME_DURATION);
+                    } else {
+                        BufferedImage imageWithText = drawText(image, containerImageInfo, paragraph, paragraphX, paragraphY, fontSize);
+                        builder.add(new AwtFrame(imageWithText, Frame.GIF_MINIMUM_FRAME_DURATION));
+                        previousImage = imageWithText;
+                    }
+
+                    imageIterator.remove();
+                }
             }
-        }
 
-        return builder.build();
+            return builder.build();
+        }
     }
 
     @SuppressWarnings("UnusedAssignment")
@@ -513,9 +565,6 @@ public class ImageManipulator implements MediaManipulator {
     @Override
     public File compress(File media, String fileFormat, @Nullable Guild guild) throws IOException {
         if (media.length() > DiscordUtil.getMaxUploadSize(guild)) {
-            float ratio = (float) DiscordUtil.getMaxUploadSize(guild) / media.length();
-            media = resize(media, fileFormat, ratio, false, false);
-
             boolean reduceResolution = true;
             while (media.length() > DiscordUtil.getMaxUploadSize(guild)) {
                 if (reduceResolution || !ANIMATED_IMAGE_FORMATS.contains(fileFormat)) {

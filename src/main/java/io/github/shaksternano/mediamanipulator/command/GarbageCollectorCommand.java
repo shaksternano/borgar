@@ -1,8 +1,11 @@
 package io.github.shaksternano.mediamanipulator.command;
 
+import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.Main;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+
+import java.util.List;
 
 public class GarbageCollectorCommand extends BotOwnerCommand {
 
@@ -18,7 +21,7 @@ public class GarbageCollectorCommand extends BotOwnerCommand {
     }
 
     @Override
-    protected void botOwnerOperation(String[] arguments, MessageReceivedEvent event) {
+    protected void botOwnerOperation(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
         Message userMessage = event.getMessage();
         long userId = userMessage.getAuthor().getIdLong();
 

@@ -56,7 +56,8 @@ public class TextDrawable implements Drawable {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (obj instanceof TextDrawable other) {
+        } else if (obj.getClass().equals(getClass())) {
+            TextDrawable other = (TextDrawable) obj;
             return Objects.equals(TEXT, other.TEXT);
         } else {
             return false;
@@ -66,5 +67,9 @@ public class TextDrawable implements Drawable {
     @Override
     public String toString() {
         return getClass().getSimpleName() + "[Text: " + TEXT + "]";
+    }
+
+    protected String getText() {
+        return TEXT;
     }
 }

@@ -1,11 +1,13 @@
 package io.github.shaksternano.mediamanipulator.command;
 
+import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.command.util.CommandParser;
 import io.github.shaksternano.mediamanipulator.mediamanipulator.MediaManipulator;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * A command that stretches media.
@@ -42,16 +44,17 @@ public class StretchCommand extends MediaCommand {
      * and the stretch height multiplier is specified by the second element of the arguments array,
      * with a default value of {@link #DEFAULT_HEIGHT_MULTIPLIER} if it is not specified or un-parsable.
      *
-     * @param media       The media file to apply the operation to.
-     * @param fileFormat  The file format of the media file.
-     * @param arguments   The arguments of the command.
-     * @param manipulator The {@link MediaManipulator} to use for the operation.
-     * @param event       The {@link MessageReceivedEvent} that triggered the command.
+     * @param media          The media file to apply the operation to.
+     * @param fileFormat     The file format of the media file.
+     * @param arguments      The arguments of the command.
+     * @param extraArguments A multimap mapping the additional parameter names to a list of the arguments.
+     * @param manipulator    The {@link MediaManipulator} to use for the operation.
+     * @param event          The {@link MessageReceivedEvent} that triggered the command.
      * @return The edited media file.
      * @throws IOException If an error occurs while applying the operation.
      */
     @Override
-    public File applyOperation(File media, String fileFormat, String[] arguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
+    public File applyOperation(File media, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
         float widthMultiplier = CommandParser.parseFloatArgument(
                 arguments,
                 0,

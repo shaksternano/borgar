@@ -21,24 +21,29 @@ public class Commands {
      */
     public static final Command CAPTION = addCommandToRegister(new CaptionCommand(
             "caption",
-            "Captions a media file. Optional arguments: [caption text]"
+            "Captions a media file. Optional arguments: [Caption text]"
+    ));
+
+    public static final Command IMPACT = addCommandToRegister(new ImpactCommand(
+            "impact",
+            "Adds Impact text to a media file. Required arguments: [The text to be drawn. By default, the text is drawn at the top. To specify text drawn at the bottom, add \"%bottom\" before the text. Top text and bottom text can be combined.]"
     ));
 
     public static final Command SONIC_SAYS = addCommandToRegister(new ContainerImageCommand(
             "sonic",
-            "Sonic says. Optional arguments: [what sonic says]",
+            "Sonic says. Optional arguments: [What sonic says]",
             ResourceContainerImageInfo.SONIC_SAYS
     ));
 
     public static final Command SOYJAK_POINTING = addCommandToRegister(new ContainerImageCommand(
             "soy",
-            "Soyjak pointing. Optional arguments: [what is being pointed at]",
+            "Soyjak pointing. Optional arguments: [What is being pointed at]",
             ResourceContainerImageInfo.SOYJAK_POINTING
     ));
 
     public static final Command SPIN = addCommandToRegister(new SpinCommand(
             "spin",
-            "Spins a media file. Optional arguments: [spin speed, default value is " + FORMAT.format(SpinCommand.DEFAULT_SPIN_SPEED) + "], [background RGB colour, by default it is transparent]"
+            "Spins a media file. Optional arguments: [Spin speed, default value is " + FORMAT.format(SpinCommand.DEFAULT_SPIN_SPEED) + "], [Background RGB colour, by default it is transparent]"
     ));
 
     /**
@@ -46,41 +51,41 @@ public class Commands {
      */
     public static final Command STRETCH = addCommandToRegister(new StretchCommand(
             "stretch",
-            "Stretches media with extra processing to smoothen the resulting image. Optional arguments: [width stretch multiplier, default value is " + FORMAT.format(StretchCommand.DEFAULT_WIDTH_MULTIPLIER) + "], [height stretch multiplier, default value is " + FORMAT.format(StretchCommand.DEFAULT_HEIGHT_MULTIPLIER) + "]",
+            "Stretches media with extra processing to smoothen the resulting image. Optional arguments: [Width stretch multiplier, default value is " + FORMAT.format(StretchCommand.DEFAULT_WIDTH_MULTIPLIER) + "], [Height stretch multiplier, default value is " + FORMAT.format(StretchCommand.DEFAULT_HEIGHT_MULTIPLIER) + "]",
             false
     ));
 
     public static final Command STRETCH_RAW = addCommandToRegister(new StretchCommand(
             "stretchraw",
-            "Stretches media without extra processing. Optional arguments: [width stretch multiplier, default value is " + FORMAT.format(StretchCommand.DEFAULT_WIDTH_MULTIPLIER) + "], [height stretch multiplier, default value is " + FORMAT.format(StretchCommand.DEFAULT_HEIGHT_MULTIPLIER) + "]",
+            "Stretches media without extra processing. Optional arguments: [Width stretch multiplier, default value is " + FORMAT.format(StretchCommand.DEFAULT_WIDTH_MULTIPLIER) + "], [Height stretch multiplier, default value is " + FORMAT.format(StretchCommand.DEFAULT_HEIGHT_MULTIPLIER) + "]",
             true
     ));
 
     public static final Command RESIZE = addCommandToRegister(new ResizeCommand(
             "resize",
-            "Resizes media with extra processing to smoothen the resulting image. Equivalent to " + STRETCH.getNameWithPrefix() + " x x. Required arguments: [resize multiplier]",
+            "Resizes media with extra processing to smoothen the resulting image. Equivalent to " + STRETCH.getNameWithPrefix() + " x x. Required arguments: [Resize multiplier]",
             false
     ));
 
     public static final Command RESIZE_RAW = addCommandToRegister(new ResizeCommand(
             "resizeraw",
-            "Resizes media without extra processing. Equivalent to " + STRETCH_RAW.getNameWithPrefix() + " x x. Required arguments: [resize multiplier]",
+            "Resizes media without extra processing. Equivalent to " + STRETCH_RAW.getNameWithPrefix() + " x x. Required arguments: [Resize multiplier]",
             true
     ));
 
     public static final Command SPEED = addCommandToRegister(new SpeedCommand(
             "speed",
-            "Speeds up or slows down media. Optional arguments: [speed multiplier, default value is " + FORMAT.format(SpeedCommand.DEFAULT_SPEED_MULTIPLIER) + "]"
+            "Speeds up or slows down media. Optional arguments: [Speed multiplier, default value is " + FORMAT.format(SpeedCommand.DEFAULT_SPEED_MULTIPLIER) + "]"
     ));
 
     public static final Command PIXELATE = addCommandToRegister(new PixelateCommand(
             "pixel",
-            "Pixelates media. Equivalent to " + RESIZE_RAW.getNameWithPrefix() + " 1/x followed by " + Command.PREFIX + RESIZE_RAW.getName() + " x Optional arguments: [pixelation multiplier, default value is " + FORMAT.format(PixelateCommand.DEFAULT_PIXELATION_MULTIPLIER) + "]"
+            "Pixelates media. Equivalent to " + RESIZE_RAW.getNameWithPrefix() + " 1/x followed by " + Command.PREFIX + RESIZE_RAW.getName() + " x Optional arguments: [Pixelation multiplier, default value is " + FORMAT.format(PixelateCommand.DEFAULT_PIXELATION_MULTIPLIER) + "]"
     ));
 
     public static final Command REDUCE_FPS = addCommandToRegister(new ReduceFpsCommand(
             "redfps",
-            "Reduces the FPS of a media file. Optional arguments: [fps reduction multiplier, default value is " + FORMAT.format(ReduceFpsCommand.DEFAULT_FPS_REDUCTION_MULTIPLIER) + "]"
+            "Reduces the FPS of a media file. Optional arguments: [FPS reduction multiplier, default value is " + FORMAT.format(ReduceFpsCommand.DEFAULT_FPS_REDUCTION_MULTIPLIER) + "]"
     ));
 
     /**
@@ -114,7 +119,7 @@ public class Commands {
 
     public static final Command TO_GIF_2 = addCommandToRegister(new ToGifCommand(
             "gif2",
-            "Turns media into a GIF file by just renaming the file extension to \".gif\". Use this when there are problems with the " + TO_GIF.getNameWithPrefix() + " command.",
+            "Turns media into a GIF file by just renaming the file extension to \".gif\".",
             true
     ));
 
@@ -154,7 +159,7 @@ public class Commands {
     ));
 
     public static final Command EMOJI_IMAGE = addCommandToRegister(new EmojiImageCommand(
-            "io/github/shaksternano/mediamanipulator/emoji",
+            "emoji",
             "Gets the image of an emoji."
     ));
 

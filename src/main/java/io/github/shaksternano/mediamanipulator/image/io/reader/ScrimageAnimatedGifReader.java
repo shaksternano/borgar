@@ -11,6 +11,7 @@ import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Set;
@@ -19,8 +20,18 @@ public class ScrimageAnimatedGifReader implements ImageReader {
 
     @Override
     public ImageMedia read(InputStream inputStream, @Nullable Integer type) throws IOException {
-        ImageMediaBuilder builder = new ImageMediaBuilder();
         AnimatedGif gif = AnimatedGifReader.read(ImageSource.of(inputStream));
+        return processGif(gif, type);
+    }
+
+    @Override
+    public ImageMedia read(File file, @Nullable Integer type) throws IOException {
+        AnimatedGif gif = AnimatedGifReader.read(ImageSource.of(file));
+        return processGif(gif, type);
+    }
+
+    private static ImageMedia processGif(AnimatedGif gif, @Nullable Integer type) throws IOException {
+        ImageMediaBuilder builder = new ImageMediaBuilder();
         if (gif.getFrameCount() <= 0) {
             throw new IOException("Could not read any frames!");
         } else {

@@ -86,8 +86,8 @@ public class AwtFrame implements Frame {
         if (obj == this) {
             return true;
         } else if (obj instanceof AwtFrame other) {
-            return Objects.equals(image, other.image) &&
-                    Objects.equals(duration, other.duration);
+            return Objects.equals(image, other.image)
+                    && Objects.equals(duration, other.duration);
         } else {
             return false;
         }

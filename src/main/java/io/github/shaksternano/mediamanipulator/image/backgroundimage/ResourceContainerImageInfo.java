@@ -1,6 +1,7 @@
 package io.github.shaksternano.mediamanipulator.image.backgroundimage;
 
 import io.github.shaksternano.mediamanipulator.Main;
+import io.github.shaksternano.mediamanipulator.graphics.drawable.Drawable;
 import io.github.shaksternano.mediamanipulator.image.imagemedia.ImageMedia;
 import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
 import io.github.shaksternano.mediamanipulator.io.FileUtil;
@@ -9,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import java.awt.*;
 import java.io.IOException;
 import java.util.Optional;
+import java.util.function.Function;
 
 public enum ResourceContainerImageInfo implements ContainerImageInfo {
 
@@ -24,8 +26,8 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
             null,
             "Bitstream Vera Sans",
             Color.WHITE,
-            100
-    ),
+            100,
+            null),
 
     SOYJAK_POINTING(
             "image/containerimage/soyjak_pointing.png",
@@ -44,8 +46,8 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
             null,
             "Futura-CondensedExtraBold",
             Color.BLACK,
-            100
-    );
+            100,
+            null);
 
     private final String IMAGE_PATH_FROM_ROOT_PACKAGE;
     private final String RESULT_NAME;
@@ -62,6 +64,8 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
     private final Color FILL;
     private final Font FONT;
     private final Color TEXT_COLOR;
+    @Nullable
+    private final Function<String, Drawable> CUSTOM_TEXT_DRAWABLE_FACTORY;
 
     ResourceContainerImageInfo(
             String imagePathFromRootPackage,
@@ -80,7 +84,8 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
             @Nullable Color fill,
             String fontName,
             Color textColor,
-            int maxFontSize
+            int maxFontSize,
+            @Nullable Function<String, Drawable> customTextDrawableFactory
     ) {
         IMAGE_PATH_FROM_ROOT_PACKAGE = imagePathFromRootPackage;
         RESULT_NAME = resultName;
@@ -98,6 +103,7 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
         FILL = fill;
         FONT = new Font(fontName, Font.PLAIN, maxFontSize);
         TEXT_COLOR = textColor;
+        CUSTOM_TEXT_DRAWABLE_FACTORY = customTextDrawableFactory;
     }
 
     ResourceContainerImageInfo(
@@ -112,7 +118,8 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
             @Nullable Color fill,
             String fontName,
             Color textColor,
-            int maxFontSize
+            int maxFontSize,
+            @Nullable Function<String, Drawable> customTextDrawableFactory
     ) {
         this(
                 imagePathFromRootPackage,
@@ -131,7 +138,8 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
                 fill,
                 fontName,
                 textColor,
-                maxFontSize
+                maxFontSize,
+                customTextDrawableFactory
         );
     }
 
@@ -203,6 +211,11 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
     @Override
     public Color getTextColor() {
         return TEXT_COLOR;
+    }
+
+    @Override
+    public Optional<Function<String, Drawable>> getCustomTextDrawableFactory() {
+        return Optional.ofNullable(CUSTOM_TEXT_DRAWABLE_FACTORY);
     }
 
     public static void validateFilePaths() {

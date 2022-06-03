@@ -1,5 +1,6 @@
 package io.github.shaksternano.mediamanipulator.command;
 
+import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.exception.InvalidArgumentException;
 import io.github.shaksternano.mediamanipulator.exception.MissingArgumentException;
 import io.github.shaksternano.mediamanipulator.mediamanipulator.MediaManipulator;
@@ -7,6 +8,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Resizes an image by a certain amount.
@@ -31,24 +33,25 @@ public class ResizeCommand extends MediaCommand {
      * Resizes an image by the amount specified in the first argument.
      * Equivalent to stretching an image with the width and height multipliers set to the same amount.
      *
-     * @param media       The media file to apply the operation to.
-     * @param fileFormat  The file format of the media file.
-     * @param arguments   The arguments of the command.
-     * @param manipulator The {@link MediaManipulator} to use for the operation.
-     * @param event       The {@link MessageReceivedEvent} that triggered the command.
+     * @param media          The media file to apply the operation to.
+     * @param fileFormat     The file format of the media file.
+     * @param arguments      The arguments of the command.
+     * @param extraArguments A multimap mapping the additional parameter names to a list of the arguments.
+     * @param manipulator    The {@link MediaManipulator} to use for the operation.
+     * @param event          The {@link MessageReceivedEvent} that triggered the command.
      * @return The edited media file.
      * @throws IOException              If an error occurs while applying the operation.
      * @throws IllegalArgumentException If an argument is invalid.
      * @throws MissingArgumentException If the operation requires an argument but none was provided.
      */
     @Override
-    public File applyOperation(File media, String fileFormat, String[] arguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
-        if (arguments.length > 0) {
+    public File applyOperation(File media, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
+        if (arguments.size() > 0) {
             try {
-                float resizeMultiplier = Float.parseFloat(arguments[0]);
+                float resizeMultiplier = Float.parseFloat(arguments.get(0));
                 return manipulator.resize(media, fileFormat, resizeMultiplier, RAW, true);
             } catch (NumberFormatException e) {
-                throw new InvalidArgumentException("Scale multiplier \"" + arguments[0] + "\" is not a number!");
+                throw new InvalidArgumentException("Scale multiplier \"" + arguments.get(0) + "\" is not a number!");
             }
         } else {
             throw new MissingArgumentException("Please specify a scale multiplier!");

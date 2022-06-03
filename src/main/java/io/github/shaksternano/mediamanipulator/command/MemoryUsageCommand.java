@@ -1,7 +1,10 @@
 package io.github.shaksternano.mediamanipulator.command;
 
+import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.util.SystemUtil;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+
+import java.util.List;
 
 public class MemoryUsageCommand extends BotOwnerCommand {
 
@@ -17,7 +20,7 @@ public class MemoryUsageCommand extends BotOwnerCommand {
     }
 
     @Override
-    protected void botOwnerOperation(String[] arguments, MessageReceivedEvent event) {
+    protected void botOwnerOperation(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
         event.getMessage().reply(SystemUtil.getCurrentMemoryUsageMessage()).queue();
     }
 }

@@ -1,5 +1,7 @@
 package io.github.shaksternano.mediamanipulator.command;
 
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Multimap;
 import io.github.shaksternano.mediamanipulator.Main;
 import io.github.shaksternano.mediamanipulator.exception.InvalidMediaException;
 import io.github.shaksternano.mediamanipulator.exception.UnsupportedFileFormatException;
@@ -14,6 +16,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.List;
 import java.util.Optional;
 
 public abstract class OptionalFileInputMediaCommand extends BaseCommand {
@@ -31,10 +34,10 @@ public abstract class OptionalFileInputMediaCommand extends BaseCommand {
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
-    public void execute(String[] arguments, MessageReceivedEvent event) {
+    public void execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
         Message userMessage = event.getMessage();
 
-        File file = arguments.length == 0 ? MessageUtil.downloadImage(userMessage, FileUtil.getTempDir().toString()).orElse(null) : null;
+        File file = arguments.size() == 0 ? MessageUtil.downloadImage(userMessage, FileUtil.getTempDir().toString()).orElse(null) : null;
         String fileFormat = file == null ? null : FileUtil.getFileFormat(file);
         MediaManipulator manipulator = fileFormat == null ? null : MediaManipulatorRegistry.getManipulator(fileFormat).orElse(null);
 
@@ -42,9 +45,9 @@ public abstract class OptionalFileInputMediaCommand extends BaseCommand {
             File editedMedia;
 
             if (file == null) {
-                editedMedia = applyOperation(arguments, event);
+                editedMedia = applyOperation(arguments, extraArguments, event);
             } else {
-                editedMedia = applyOperation(file, fileFormat, arguments, manipulator, event);
+                editedMedia = applyOperation(file, fileFormat, arguments, extraArguments, manipulator, event);
             }
 
             String newFileFormat = FileUtil.getFileFormat(editedMedia);
@@ -99,7 +102,7 @@ public abstract class OptionalFileInputMediaCommand extends BaseCommand {
         }
     }
 
-    public abstract File applyOperation(File media, String fileFormat, String[] arguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException;
+    public abstract File applyOperation(File media, String fileFormat, List<String> arguments, Multimap<String, String> extraArguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException;
 
-    public abstract File applyOperation(String[] arguments, MessageReceivedEvent event) throws IOException;
+    public abstract File applyOperation(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException;
 }

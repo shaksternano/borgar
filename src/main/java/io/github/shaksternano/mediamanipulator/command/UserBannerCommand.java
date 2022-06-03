@@ -1,5 +1,6 @@
 package io.github.shaksternano.mediamanipulator.command;
 
+import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.util.MessageUtil;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
@@ -22,7 +23,7 @@ public class UserBannerCommand extends BaseCommand {
     }
 
     @Override
-    public void execute(String[] arguments, MessageReceivedEvent event) {
+    public void execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
         MessageUtil.processMessages(event.getMessage(), message -> {
             if (event.getMessage().equals(message)) {
                 List<Member> members = message.getMentions().getMembers();

@@ -1,7 +1,10 @@
 package io.github.shaksternano.mediamanipulator.command;
 
+import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.util.MessageUtil;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+
+import java.util.List;
 
 /**
  * Gets the image of an emoji.
@@ -22,11 +25,12 @@ public class EmojiImageCommand extends BaseCommand {
     /**
      * Sends the image URL of the first emoji found in the message, the message it's replying to, or a previously sent message.
      *
-     * @param arguments The arguments of the command.
-     * @param event     The {@link MessageReceivedEvent} that triggered the command.
+     * @param arguments      The arguments of the command.
+     * @param extraArguments A multimap mapping the additional parameter names to a list of the arguments.
+     * @param event          The {@link MessageReceivedEvent} that triggered the command.
      */
     @Override
-    public void execute(String[] arguments, MessageReceivedEvent event) {
+    public void execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
         MessageUtil.processMessages(event.getMessage(), MessageUtil::getFirstEmojiUrl).ifPresentOrElse(
                 url -> event.getMessage().reply(url).queue(),
                 () -> event.getMessage().reply("No emoji found!").queue()

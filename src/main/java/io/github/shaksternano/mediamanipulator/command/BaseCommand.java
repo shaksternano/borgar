@@ -1,6 +1,9 @@
 package io.github.shaksternano.mediamanipulator.command;
 
+import com.google.common.collect.ImmutableSet;
+
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * This class provides some default implementations for the {@code Command} interface.
@@ -28,6 +31,11 @@ public abstract class BaseCommand implements Command {
     public BaseCommand(String name, String description) {
         NAME = name;
         DESCRIPTION = description;
+    }
+
+    @Override
+    public Set<String> getAdditionalParameterNames() {
+        return ImmutableSet.of();
     }
 
     @Override

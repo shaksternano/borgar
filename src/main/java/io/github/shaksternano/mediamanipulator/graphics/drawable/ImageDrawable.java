@@ -96,8 +96,8 @@ public class ImageDrawable implements Drawable {
         if (obj == this) {
             return true;
         } else if (obj instanceof ImageDrawable other) {
-            return Objects.equals(images, other.images) &&
-                    Objects.equals(imageIndex, other.imageIndex);
+            return Objects.equals(images, other.images)
+                    && Objects.equals(imageIndex, other.imageIndex);
         } else {
             return false;
         }

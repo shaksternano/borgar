@@ -1,8 +1,11 @@
 package io.github.shaksternano.mediamanipulator.command;
 
+import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.Main;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+
+import java.util.List;
 
 public abstract class BotOwnerCommand extends BaseCommand {
 
@@ -18,16 +21,16 @@ public abstract class BotOwnerCommand extends BaseCommand {
     }
 
     @Override
-    public void execute(String[] arguments, MessageReceivedEvent event) {
+    public void execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
         Message userMessage = event.getMessage();
         long userId = userMessage.getAuthor().getIdLong();
 
         if (userId == Main.getOwnerId()) {
-            botOwnerOperation(arguments, event);
+            botOwnerOperation(arguments, extraArguments, event);
         } else {
             userMessage.reply("Only the owner of this bot can use this command!").queue();
         }
     }
 
-    protected abstract void botOwnerOperation(String[] arguments, MessageReceivedEvent event);
+    protected abstract void botOwnerOperation(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event);
 }

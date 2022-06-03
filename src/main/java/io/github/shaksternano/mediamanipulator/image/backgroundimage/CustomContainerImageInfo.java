@@ -1,10 +1,12 @@
 package io.github.shaksternano.mediamanipulator.image.backgroundimage;
 
+import io.github.shaksternano.mediamanipulator.graphics.drawable.Drawable;
 import io.github.shaksternano.mediamanipulator.image.imagemedia.ImageMedia;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.util.Optional;
+import java.util.function.Function;
 
 public class CustomContainerImageInfo implements ContainerImageInfo {
 
@@ -19,6 +21,8 @@ public class CustomContainerImageInfo implements ContainerImageInfo {
     private final Color FILL;
     private final Font FONT;
     private final Color TEXT_COLOR;
+    @Nullable
+    private final Function<String, Drawable> CUSTOM_TEXT_DRAWABLE_FACTORY;
 
     public CustomContainerImageInfo(
             ImageMedia image,
@@ -31,7 +35,8 @@ public class CustomContainerImageInfo implements ContainerImageInfo {
             boolean isBackground,
             @Nullable Color fill,
             Font font,
-            Color textColor
+            Color textColor,
+            @Nullable Function<String, Drawable> customTextDrawableFactory
     ) {
         IMAGE = image;
         RESULT_NAME = resultName;
@@ -44,6 +49,7 @@ public class CustomContainerImageInfo implements ContainerImageInfo {
         FILL = fill;
         FONT = font;
         TEXT_COLOR = textColor;
+        CUSTOM_TEXT_DRAWABLE_FACTORY = customTextDrawableFactory;
     }
 
     @Override
@@ -114,5 +120,10 @@ public class CustomContainerImageInfo implements ContainerImageInfo {
     @Override
     public Color getTextColor() {
         return TEXT_COLOR;
+    }
+
+    @Override
+    public Optional<Function<String, Drawable>> getCustomTextDrawableFactory() {
+        return Optional.ofNullable(CUSTOM_TEXT_DRAWABLE_FACTORY);
     }
 }

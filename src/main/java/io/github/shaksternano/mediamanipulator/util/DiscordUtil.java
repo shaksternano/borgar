@@ -1,6 +1,7 @@
 package io.github.shaksternano.mediamanipulator.util;
 
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.utils.MarkdownSanitizer;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.regex.Matcher;
@@ -20,7 +21,7 @@ public class DiscordUtil {
     }
 
     @SuppressWarnings("ConstantConditions")
-    public static String getContentDisplayKeepEmotes(Message message) {
+    public static String getContentStrippedKeepEmotes(Message message) {
         String displayMessage = message.getContentRaw();
         for (User user : message.getMentions().getUsers()) {
             String name;
@@ -38,6 +39,6 @@ public class DiscordUtil {
             displayMessage = displayMessage.replace(mentionedRole.getAsMention(), '@' + mentionedRole.getName());
         }
 
-        return displayMessage;
+        return MarkdownSanitizer.sanitize(displayMessage);
     }
 }

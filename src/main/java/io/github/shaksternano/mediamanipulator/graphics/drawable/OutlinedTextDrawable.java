@@ -5,42 +5,40 @@ import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
 import java.awt.*;
 import java.awt.font.FontRenderContext;
 import java.awt.font.GlyphVector;
-import java.awt.geom.AffineTransform;
 import java.util.Objects;
 
-public class OutlinedTextDrawable implements Drawable {
+public class OutlinedTextDrawable extends TextDrawable {
 
-    private final String TEXT;
     private final Color TEXT_FILL_COLOR;
     private final Color TEXT_OUTLINE_COLOR;
-    private final float TEXT_OUTLINE_WIDTH;
+    private final float TEXT_OUTLINE_WIDTH_RATIO;
 
-    public OutlinedTextDrawable(String text, Color textFillColor, Color textOutlineColor, float textOutlineWidth) {
-        TEXT = text;
+    public OutlinedTextDrawable(String text, Color textFillColor, Color textOutlineColor, float textOutlineWidthRatio) {
+        super(text);
         TEXT_FILL_COLOR = textFillColor;
         TEXT_OUTLINE_COLOR = textOutlineColor;
-        TEXT_OUTLINE_WIDTH = textOutlineWidth;
+        TEXT_OUTLINE_WIDTH_RATIO = textOutlineWidthRatio;
     }
 
     @Override
     public void draw(Graphics2D graphics, int x, int y) {
-        BasicStroke outlineStroke = new BasicStroke(TEXT_OUTLINE_WIDTH);
+        Font font = graphics.getFont();
+        float textOutlineWidth = font.getSize2D() * TEXT_OUTLINE_WIDTH_RATIO;
+        int actualX = (int) (x + textOutlineWidth);
+        int actualY = y + graphics.getFontMetrics().getAscent();
+        BasicStroke outlineStroke = new BasicStroke(textOutlineWidth);
 
         Color originalColor = graphics.getColor();
         Stroke originalStroke = graphics.getStroke();
         RenderingHints originalHints = graphics.getRenderingHints();
 
-        AffineTransform transform = graphics.getTransform();
-        double originalX = transform.getTranslateX();
-        double originalY = transform.getTranslateY();
-
-        Shape textShape = getTextShape(graphics);
+        Shape textShape = createTextShape(graphics);
 
         ImageUtil.configureTextDrawQuality(graphics);
 
         graphics.setColor(TEXT_OUTLINE_COLOR);
         graphics.setStroke(outlineStroke);
-        graphics.translate(x, y);
+        graphics.translate(actualX, actualY);
         graphics.draw(textShape);
 
         graphics.setColor(TEXT_FILL_COLOR);
@@ -49,23 +47,27 @@ public class OutlinedTextDrawable implements Drawable {
         graphics.setColor(originalColor);
         graphics.setStroke(originalStroke);
         graphics.setRenderingHints(originalHints);
-        graphics.translate(originalX, originalY);
+        graphics.translate(-actualX, -actualY);
     }
 
     @Override
     public int getWidth(Graphics2D graphicsContext) {
-        return (int) (getTextShape(graphicsContext).getBounds2D().getWidth() + TEXT_OUTLINE_WIDTH * 2);
+        Font font = graphicsContext.getFont();
+        float textOutlineWidth = font.getSize2D() * TEXT_OUTLINE_WIDTH_RATIO;
+        return (int) (createTextShape(graphicsContext).getBounds2D().getWidth() + textOutlineWidth * 2);
     }
 
     @Override
     public int getHeight(Graphics2D graphicsContext) {
-        return (int) (getTextShape(graphicsContext).getBounds2D().getHeight() + TEXT_OUTLINE_WIDTH * 2);
+        Font font = graphicsContext.getFont();
+        float textOutlineWidth = font.getSize2D() * TEXT_OUTLINE_WIDTH_RATIO;
+        return (int) (createTextShape(graphicsContext).getBounds2D().getHeight() + textOutlineWidth * 2);
     }
 
-    private Shape getTextShape(Graphics2D graphicsContext) {
+    private Shape createTextShape(Graphics2D graphicsContext) {
         Font font = graphicsContext.getFont();
         FontRenderContext fontRenderContext = graphicsContext.getFontRenderContext();
-        GlyphVector glyphVector = font.createGlyphVector(fontRenderContext, TEXT);
+        GlyphVector glyphVector = font.createGlyphVector(fontRenderContext, getText());
         return glyphVector.getOutline();
     }
 
@@ -91,7 +93,7 @@ public class OutlinedTextDrawable implements Drawable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(TEXT, TEXT_FILL_COLOR, TEXT_OUTLINE_COLOR, TEXT_OUTLINE_WIDTH);
+        return Objects.hash(getText(), TEXT_FILL_COLOR, TEXT_OUTLINE_COLOR, TEXT_OUTLINE_WIDTH_RATIO);
     }
 
     @Override
@@ -99,10 +101,10 @@ public class OutlinedTextDrawable implements Drawable {
         if (obj == this) {
             return true;
         } else if (obj instanceof OutlinedTextDrawable other) {
-            return Objects.equals(TEXT, other.TEXT) &&
-                    Objects.equals(TEXT_FILL_COLOR, other.TEXT_FILL_COLOR) &&
-                    Objects.equals(TEXT_OUTLINE_COLOR, other.TEXT_OUTLINE_COLOR) &&
-                    Objects.equals(TEXT_OUTLINE_WIDTH, other.TEXT_OUTLINE_WIDTH);
+            return Objects.equals(getText(), other.getText())
+                    && Objects.equals(TEXT_FILL_COLOR, other.TEXT_FILL_COLOR)
+                    && Objects.equals(TEXT_OUTLINE_COLOR, other.TEXT_OUTLINE_COLOR)
+                    && Objects.equals(TEXT_OUTLINE_WIDTH_RATIO, other.TEXT_OUTLINE_WIDTH_RATIO);
         } else {
             return false;
         }
@@ -110,6 +112,6 @@ public class OutlinedTextDrawable implements Drawable {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "[Text: " + TEXT + ", TextFillColor: " + TEXT_FILL_COLOR + ", TextOutlineColor: " + TEXT_OUTLINE_COLOR + ", TextOutlineWidth: " + TEXT_OUTLINE_WIDTH + "]";
+        return getClass().getSimpleName() + "[Text: " + getText() + ", TextFillColor: " + TEXT_FILL_COLOR + ", TextOutlineColor: " + TEXT_OUTLINE_COLOR + ", TextOutlineWidth: " + TEXT_OUTLINE_WIDTH_RATIO + "]";
     }
 }

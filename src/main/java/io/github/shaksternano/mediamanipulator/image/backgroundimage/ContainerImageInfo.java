@@ -1,10 +1,12 @@
 package io.github.shaksternano.mediamanipulator.image.backgroundimage;
 
+import io.github.shaksternano.mediamanipulator.graphics.drawable.Drawable;
 import io.github.shaksternano.mediamanipulator.image.imagemedia.ImageMedia;
 
 import java.awt.*;
 import java.io.IOException;
 import java.util.Optional;
+import java.util.function.Function;
 
 public interface ContainerImageInfo {
 
@@ -35,4 +37,6 @@ public interface ContainerImageInfo {
     Font getFont();
 
     Color getTextColor();
+
+    Optional<Function<String, Drawable>> getCustomTextDrawableFactory();
 }

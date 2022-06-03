@@ -167,9 +167,9 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
         if (obj == this) {
             return true;
         } else if (obj instanceof ParagraphCompositeDrawable other) {
-            return Objects.equals(getParts(), other.getParts()) &&
-                    Objects.equals(ALIGNMENT, other.ALIGNMENT) &&
-                    MAX_WIDTH == other.MAX_WIDTH;
+            return Objects.equals(getParts(), other.getParts())
+                    && Objects.equals(ALIGNMENT, other.ALIGNMENT)
+                    && MAX_WIDTH == other.MAX_WIDTH;
         } else {
             return false;
         }
@@ -189,11 +189,16 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
             NON_TEXT_PARTS.putAll(nonTextParts);
         }
 
-        public Builder addWords(@Nullable Function<String, Drawable> customTextDrawableFunction, String... words) {
+        public Builder addWords(@Nullable Function<String, Drawable> customTextDrawableFactory, Iterable<String> words) {
             for (String word : words) {
-                addCompositeWord(customTextDrawableFunction, word);
+                addWord(customTextDrawableFactory, word);
             }
 
+            return this;
+        }
+
+        public Builder addWord(@Nullable Function<String, Drawable> customTextDrawableFactory, String word) {
+            addCompositeWord(customTextDrawableFactory, word);
             return this;
         }
 
@@ -207,9 +212,12 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
             return paragraph;
         }
 
-        private void addCompositeWord(@Nullable Function<String, Drawable> customTextDrawableSupplier, String word) {
+        private void addCompositeWord(@Nullable Function<String, Drawable> customTextDrawableFactory, String word) {
             if (NON_TEXT_PARTS.isEmpty()) {
-                words.add(new TextDrawable(word));
+                Drawable textPart = customTextDrawableFactory == null ?
+                        new TextDrawable(word) :
+                        customTextDrawableFactory.apply(word);
+                words.add(textPart);
             } else {
                 CompositeDrawable compositeWord = new HorizontalCompositeDrawable();
                 StringBuilder actualWordBuilder = new StringBuilder();
@@ -226,9 +234,9 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
                         if (subWord.startsWith(key)) {
                             if (!actualWordBuilder.isEmpty()) {
                                 String text = actualWordBuilder.toString();
-                                Drawable textPart = customTextDrawableSupplier == null ?
+                                Drawable textPart = customTextDrawableFactory == null ?
                                         new TextDrawable(text) :
-                                        customTextDrawableSupplier.apply(text);
+                                        customTextDrawableFactory.apply(text);
                                 compositeWord.addPart(textPart);
                                 actualWordBuilder.setLength(0);
                             }
@@ -248,9 +256,9 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
 
                 if (!actualWordBuilder.isEmpty()) {
                     String text = actualWordBuilder.toString();
-                    Drawable textPart = customTextDrawableSupplier == null ?
+                    Drawable textPart = customTextDrawableFactory == null ?
                             new TextDrawable(text) :
-                            customTextDrawableSupplier.apply(text);
+                            customTextDrawableFactory.apply(text);
                     compositeWord.addPart(textPart);
                 }
 
@@ -268,8 +276,8 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
             if (obj == this) {
                 return true;
             } else if (obj instanceof Builder other) {
-                return Objects.equals(words, other.words) &&
-                        Objects.equals(NON_TEXT_PARTS, other.NON_TEXT_PARTS);
+                return Objects.equals(words, other.words)
+                        && Objects.equals(NON_TEXT_PARTS, other.NON_TEXT_PARTS);
             } else {
                 return false;
             }

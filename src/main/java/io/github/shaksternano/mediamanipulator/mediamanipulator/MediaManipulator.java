@@ -10,6 +10,7 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -29,11 +30,11 @@ public interface MediaManipulator {
      * @throws UncheckedIOException           If there is an error adding the caption.
      * @throws UnsupportedFileFormatException If the operation is not supported by this manipulator.
      */
-    File caption(File media, String fileFormat, String[] words, Map<String, Drawable> nonTextParts) throws IOException;
+    File caption(File media, String fileFormat, List<String> words, Map<String, Drawable> nonTextParts) throws IOException;
 
-    File impact(File media, String fileFormat, String[] words, Map<String, Drawable> nonTextParts) throws IOException;
+    File impact(File media, String fileFormat, List<String> topWords, List<String> bottomWords, Map<String, Drawable> nonTextParts) throws IOException;
 
-    File containerImageWithText(String[] words, Map<String, Drawable> nonTextParts, ContainerImageInfo containerImageInfo) throws IOException;
+    File containerImageWithText(List<String> words, Map<String, Drawable> nonTextParts, ContainerImageInfo containerImageInfo) throws IOException;
 
     File containerImageWithImage(File media, String fileFormat, ContainerImageInfo containerImageInfo) throws IOException;
 

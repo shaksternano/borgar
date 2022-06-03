@@ -11,10 +11,7 @@ import io.github.shaksternano.mediamanipulator.image.io.writer.Image4jIcoImageWr
 import io.github.shaksternano.mediamanipulator.image.io.writer.util.ImageWriterRegistry;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.List;
 
 public class ImageReaders {
@@ -27,23 +24,38 @@ public class ImageReaders {
     }
 
     public static ImageMedia read(File file, String imageFormat, @Nullable Integer imageType) throws IOException {
-        try (InputStream fileInputStream = new FileInputStream(file)) {
-            return read(fileInputStream, imageFormat, imageType);
-        }
-    }
-
-    public static ImageMedia read(InputStream inputStream, String imageFormat, @Nullable Integer imageType) throws UnreadableFileException {
         List<ImageReader> readers = ImageReaderRegistry.getReaders(imageFormat);
         if (readers.isEmpty()) {
             throw new UnreadableFileException("No image reader found for image type " + imageFormat + "!");
         } else {
             for (ImageReader reader : readers) {
                 try {
-                    return reader.read(inputStream, imageType);
+                    return reader.read(file, imageType);
                 } catch (IOException e) {
                     Main.getLogger().error("Error reading image with reader " + reader.getClass().getSimpleName() + "!", e);
                 }
             }
+
+            throw new UnreadableFileException("Could not read image with type " + imageFormat + "!");
+        }
+    }
+
+    public static ImageMedia read(InputStream inputStream, String imageFormat, @Nullable Integer imageType) throws IOException {
+        List<ImageReader> readers = ImageReaderRegistry.getReaders(imageFormat);
+        if (readers.isEmpty()) {
+            throw new UnreadableFileException("No image reader found for image type " + imageFormat + "!");
+        } else {
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            inputStream.transferTo(outputStream);
+            inputStream.close();
+            for (ImageReader reader : readers) {
+                try {
+                    return reader.read(new ByteArrayInputStream(outputStream.toByteArray()), imageType);
+                } catch (IOException e) {
+                    Main.getLogger().error("Error reading image with reader " + reader.getClass().getSimpleName() + "!", e);
+                }
+            }
+            outputStream.close();
 
             throw new UnreadableFileException("Could not read image with type " + imageFormat + "!");
         }

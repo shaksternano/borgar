@@ -1,5 +1,6 @@
 package io.github.shaksternano.mediamanipulator.command;
 
+import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.Main;
 import io.github.shaksternano.mediamanipulator.exception.InvalidMediaException;
 import io.github.shaksternano.mediamanipulator.exception.MissingArgumentException;
@@ -15,6 +16,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -35,22 +37,23 @@ public abstract class MediaCommand extends BaseCommand {
 
     /**
      * Gets a media file using {@link FileUtil#downloadFile(String, String)},
-     * edits it using {@link #applyOperation(File, String, String[], MediaManipulator, MessageReceivedEvent)},
+     * edits it using {@link #applyOperation(File, String, List, ListMultimap, MediaManipulator, MessageReceivedEvent)},
      * and then sends it to the channel where the command was triggered.
      *
-     * @param arguments The arguments of the command.
-     * @param event     The {@link MessageReceivedEvent} that triggered the command.
+     * @param arguments      The arguments of the command.
+     * @param extraArguments A multimap mapping the additional parameter names to a list of the arguments.
+     * @param event          The {@link MessageReceivedEvent} that triggered the command.
      */
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
-    public void execute(String[] arguments, MessageReceivedEvent event) {
+    public void execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
         Message userMessage = event.getMessage();
         MessageUtil.downloadImage(userMessage, FileUtil.getTempDir().toString()).ifPresentOrElse(file -> {
             String fileFormat = FileUtil.getFileFormat(file);
 
             MediaManipulatorRegistry.getManipulator(fileFormat).ifPresentOrElse(manipulator -> {
                 try {
-                    File editedMedia = applyOperation(file, fileFormat, arguments, manipulator, event);
+                    File editedMedia = applyOperation(file, fileFormat, arguments, extraArguments, manipulator, event);
                     String newFileFormat = FileUtil.getFileFormat(editedMedia);
                     File compressedMedia;
                     Optional<MediaManipulator> manipulatorOptional = MediaManipulatorRegistry.getManipulator(newFileFormat);
@@ -106,15 +109,16 @@ public abstract class MediaCommand extends BaseCommand {
     /**
      * Applies an operation to the media file specified by {@link FileUtil#downloadFile(String, String)}.
      *
-     * @param media       The media file to apply the operation to
-     * @param fileFormat  The type of the media file.
-     * @param arguments   The arguments of the command.
-     * @param manipulator The {@link MediaManipulator} to use for the operation.
-     * @param event       The {@link MessageReceivedEvent} that triggered the command.
+     * @param media          The media file to apply the operation to
+     * @param fileFormat     The type of the media file.
+     * @param arguments      The arguments of the command.
+     * @param extraArguments A multimap mapping the additional parameter names to a list of the arguments.
+     * @param manipulator    The {@link MediaManipulator} to use for the operation.
+     * @param event          The {@link MessageReceivedEvent} that triggered the command.
      * @return The edited media file.
      * @throws IOException              If an error occurs while applying the operation.
      * @throws IllegalArgumentException If an argument is invalid.
      * @throws MissingArgumentException If the operation requires an argument but none was provided.
      */
-    public abstract File applyOperation(File media, String fileFormat, String[] arguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException;
+    public abstract File applyOperation(File media, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException;
 }

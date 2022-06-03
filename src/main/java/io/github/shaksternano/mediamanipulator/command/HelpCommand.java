@@ -1,6 +1,7 @@
 package io.github.shaksternano.mediamanipulator.command;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.command.util.CommandRegistry;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
@@ -34,11 +35,12 @@ public class HelpCommand extends BaseCommand {
     /**
      * Sends the command list in the channel the command was triggered in.
      *
-     * @param arguments The arguments of the command.
-     * @param event     The {@link MessageReceivedEvent} that triggered the command.
+     * @param arguments      The arguments of the command.
+     * @param extraArguments A multimap mapping the additional parameter names to a list of the arguments.
+     * @param event          The {@link MessageReceivedEvent} that triggered the command.
      */
     @Override
-    public void execute(String[] arguments, MessageReceivedEvent event) {
+    public void execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
         Message userMessage = event.getMessage();
         List<Message> messages = getHelpMessages();
         for (int i = 0; i < messages.size(); i++) {

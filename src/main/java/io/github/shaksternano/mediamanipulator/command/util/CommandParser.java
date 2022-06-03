@@ -1,5 +1,8 @@
 package io.github.shaksternano.mediamanipulator.command.util;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableListMultimap;
+import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.Main;
 import io.github.shaksternano.mediamanipulator.command.Command;
 import io.github.shaksternano.mediamanipulator.exception.InvalidArgumentException;
@@ -11,7 +14,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.PermissionException;
 
 import java.text.DecimalFormat;
-import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
 
@@ -29,21 +32,22 @@ public class CommandParser {
      */
     public static void parseAndExecute(MessageReceivedEvent event) {
         Message userMessage = event.getMessage();
-        String stringMessage = DiscordUtil.getContentDisplayKeepEmotes(userMessage).trim();
-        String[] commandParts = parseCommandParts(stringMessage);
+        String stringMessage = DiscordUtil.getContentStrippedKeepEmotes(userMessage).trim();
+        List<String> commandParts = parseCommandParts(stringMessage);
 
         MessageChannel channel = event.getChannel();
 
-        if (commandParts.length > 0) {
-            Optional<Command> commandOptional = CommandRegistry.getCommand(commandParts[0]);
+        if (commandParts.size() > 0) {
+            Optional<Command> commandOptional = CommandRegistry.getCommand(commandParts.get(0));
 
             commandOptional.ifPresent(command -> {
                 try {
                     channel.sendTyping().complete();
-                    String[] arguments = parseArguments(commandParts);
+                    List<String> arguments = parseBaseArguments(commandParts, command);
+                    ListMultimap<String, String> extraArguments = parseExtraArguments(commandParts, command);
 
                     try {
-                        command.execute(arguments, event);
+                        command.execute(arguments, extraArguments, event);
                     } catch (PermissionException e) {
                         userMessage.reply("This bot doesn't have the required permissions to execute this command!").queue();
                         Main.getLogger().error("This bot doesn't have the required permissions needed to execute command " + command.getNameWithPrefix() + "!", e);
@@ -73,17 +77,17 @@ public class CommandParser {
      * @param message The message to split.
      * @return The split message.
      */
-    private static String[] parseCommandParts(String message) {
+    private static List<String> parseCommandParts(String message) {
         if (message.length() > 1) {
             if (message.startsWith(Command.PREFIX)) {
                 String[] commandParts = message.split("\\s+");
                 commandParts[0] = commandParts[0].substring(1).toLowerCase();
 
-                return commandParts;
+                return ImmutableList.copyOf(commandParts);
             }
         }
 
-        return new String[0];
+        return ImmutableList.of();
     }
 
     /**
@@ -92,21 +96,54 @@ public class CommandParser {
      * @param commandParts The command parts to remove the command word from.
      * @return The arguments of the command.
      */
-    private static String[] parseArguments(String[] commandParts) {
-        String[] arguments;
+    private static List<String> parseBaseArguments(List<String> commandParts, Command command) {
+        ImmutableList.Builder<String> argumentsBuilder = new ImmutableList.Builder<>();
 
-        if (commandParts.length > 1) {
-            arguments = Arrays.copyOfRange(commandParts, 1, commandParts.length);
-        } else {
-            arguments = new String[0];
+        boolean passedFirst = false;
+        for (String commandPart : commandParts) {
+            if (passedFirst) {
+                if (commandPart.startsWith(Command.PREFIX)) {
+                    String commandWord = commandPart.substring(1).toLowerCase();
+
+                    if (command.getAdditionalParameterNames().contains(commandWord)) {
+                        break;
+                    }
+                }
+
+                argumentsBuilder.add(commandPart);
+            } else {
+                passedFirst = true;
+            }
         }
 
-        return arguments;
+        return argumentsBuilder.build();
     }
 
-    public static int parseIntegerArgument(String[] arguments, int toParseIndex, int defaultValue, MessageChannel triggerChannel, BiFunction<String, String, String> errorMessage) {
-        if (arguments.length > toParseIndex) {
-            String argument = arguments[toParseIndex];
+    private static ListMultimap<String, String> parseExtraArguments(List<String> commandParts, Command command) {
+        ImmutableListMultimap.Builder<String, String> argumentsBuilder = new ImmutableListMultimap.Builder<>();
+
+        String currentExtraParameterName = null;
+        for (String commandPart : commandParts) {
+            if (commandPart.startsWith(Command.PREFIX)) {
+                String commandWord = commandPart.substring(1).toLowerCase();
+
+                if (command.getAdditionalParameterNames().contains(commandWord)) {
+                    currentExtraParameterName = commandWord;
+                    continue;
+                }
+            }
+
+            if (currentExtraParameterName != null) {
+                argumentsBuilder.put(currentExtraParameterName, commandPart);
+            }
+        }
+
+        return argumentsBuilder.build();
+    }
+
+    public static int parseIntegerArgument(List<String> arguments, int toParseIndex, int defaultValue, MessageChannel triggerChannel, BiFunction<String, String, String> errorMessage) {
+        if (arguments.size() > toParseIndex) {
+            String argument = arguments.get(toParseIndex);
 
             try {
                 return Integer.decode(argument);
@@ -119,9 +156,9 @@ public class CommandParser {
         return defaultValue;
     }
 
-    public static float parseFloatArgument(String[] arguments, int toParseIndex, float defaultValue, MessageChannel triggerChannel, BiFunction<String, String, String> errorMessage) {
-        if (arguments.length > toParseIndex) {
-            String argument = arguments[toParseIndex];
+    public static float parseFloatArgument(List<String> arguments, int toParseIndex, float defaultValue, MessageChannel triggerChannel, BiFunction<String, String, String> errorMessage) {
+        if (arguments.size() > toParseIndex) {
+            String argument = arguments.get(toParseIndex);
 
             try {
                 return Float.parseFloat(argument);

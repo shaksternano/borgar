@@ -1,10 +1,12 @@
 package io.github.shaksternano.mediamanipulator.command;
 
+import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.mediamanipulator.MediaManipulator;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 public class ToIcoCommand extends MediaCommand {
 
@@ -20,7 +22,7 @@ public class ToIcoCommand extends MediaCommand {
     }
 
     @Override
-    public File applyOperation(File media, String fileFormat, String[] arguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
+    public File applyOperation(File media, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
         return manipulator.makeIco(media, fileFormat);
     }
 }

@@ -1,6 +1,8 @@
 package io.github.shaksternano.mediamanipulator.command;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
+import io.github.shaksternano.mediamanipulator.exception.MissingArgumentException;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.Drawable;
 import io.github.shaksternano.mediamanipulator.mediamanipulator.MediaManipulator;
 import io.github.shaksternano.mediamanipulator.util.MessageUtil;
@@ -10,11 +12,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-/**
- * A command that adds a captions media.
- */
-public class CaptionCommand extends MediaCommand {
+public class ImpactCommand extends MediaCommand {
 
     /**
      * Creates a new command object.
@@ -23,13 +23,25 @@ public class CaptionCommand extends MediaCommand {
      *                    followed by this name, the command will be executed.
      * @param description The description of the command. This is displayed in the help command.
      */
-    public CaptionCommand(String name, String description) {
+    public ImpactCommand(String name, String description) {
         super(name, description);
     }
 
     @Override
     public File applyOperation(File media, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
         Map<String, Drawable> nonTextParts = MessageUtil.getNonTextParts(event.getMessage());
-        return manipulator.caption(media, fileFormat, arguments, nonTextParts);
+        List<String> bottomWords = extraArguments.get("bottom");
+        if (arguments.isEmpty() && bottomWords.isEmpty()) {
+            throw new MissingArgumentException("Please specify text!");
+        } else {
+            return manipulator.impact(media, fileFormat, arguments, bottomWords, nonTextParts);
+        }
+    }
+
+    @Override
+    public Set<String> getAdditionalParameterNames() {
+        return ImmutableSet.of(
+                "bottom"
+        );
     }
 }

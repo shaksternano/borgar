@@ -1,7 +1,10 @@
 package io.github.shaksternano.mediamanipulator.command;
 
+import com.google.common.collect.ListMultimap;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+
+import java.util.List;
 
 public class ServerIconCommand extends BaseCommand {
 
@@ -17,7 +20,7 @@ public class ServerIconCommand extends BaseCommand {
     }
 
     @Override
-    public void execute(String[] arguments, MessageReceivedEvent event) {
+    public void execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
         Message message = event.getMessage();
         String serverIconUrl = message.getGuild().getIconUrl();
         message.reply(serverIconUrl == null ? "No server icon set!" : serverIconUrl + "?size=1024").queue();
