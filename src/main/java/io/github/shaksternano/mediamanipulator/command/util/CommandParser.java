@@ -53,10 +53,8 @@ public class CommandParser {
                         Main.getLogger().error("This bot doesn't have the required permissions needed to execute command " + command.getNameWithPrefix() + "!", e);
                     } catch (InvalidArgumentException e) {
                         userMessage.reply(e.getMessage() == null ? "Invalid arguments!" : "Invalid arguments: " + e.getMessage()).queue();
-                        Main.getLogger().warn("Invalid arguments for command " + command.getNameWithPrefix() + "!", e);
                     } catch (MissingArgumentException e) {
                         userMessage.reply(e.getMessage() == null ? "Missing arguments!" : "Missing arguments: " + e.getMessage()).queue();
-                        Main.getLogger().warn("Missing arguments for command " + command.getNameWithPrefix() + "!", e);
                     } catch (OutOfMemoryError e) {
                         userMessage.reply("The server ran out of memory trying to execute this command! Try again later.").queue();
                         Main.getLogger().error("Ran out of memory trying to execute command " + command.getNameWithPrefix() + "!", e);

@@ -597,9 +597,10 @@ public class ImageManipulator implements MediaManipulator {
         Graphics2D graphics = imageWithText.createGraphics();
         ImageUtil.configureTextDrawQuality(graphics);
 
-        Color color = containerImageInfo.getFill().orElse(null);
-        graphics.setColor(color);
-        graphics.fillRect(0, 0, imageWithText.getWidth(), imageWithText.getHeight());
+        containerImageInfo.getFill().ifPresent(color -> {
+            graphics.setColor(color);
+            graphics.fillRect(0, 0, imageWithText.getWidth(), imageWithText.getHeight());
+        });
 
         if (containerImageInfo.isBackground()) {
             graphics.drawImage(image, 0, 0, null);
