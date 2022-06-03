@@ -6,6 +6,7 @@ import com.google.common.io.Files;
 import io.github.shaksternano.mediamanipulator.exception.InvalidArgumentException;
 import io.github.shaksternano.mediamanipulator.exception.InvalidMediaException;
 import io.github.shaksternano.mediamanipulator.exception.UnsupportedFileFormatException;
+import io.github.shaksternano.mediamanipulator.graphics.Position;
 import io.github.shaksternano.mediamanipulator.graphics.TextAlignment;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.CompositeDrawable;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.Drawable;
@@ -15,14 +16,14 @@ import io.github.shaksternano.mediamanipulator.graphics.drawable.util.DrawableUt
 import io.github.shaksternano.mediamanipulator.image.backgroundimage.ContainerImageInfo;
 import io.github.shaksternano.mediamanipulator.image.backgroundimage.CustomContainerImageInfo;
 import io.github.shaksternano.mediamanipulator.image.imagemedia.ImageMedia;
-import io.github.shaksternano.mediamanipulator.image.io.reader.util.ImageReaderRegistry;
-import io.github.shaksternano.mediamanipulator.image.io.reader.util.ImageReaders;
-import io.github.shaksternano.mediamanipulator.image.io.writer.util.ImageWriterRegistry;
-import io.github.shaksternano.mediamanipulator.image.io.writer.util.ImageWriters;
+import io.github.shaksternano.mediamanipulator.image.reader.util.ImageReaderRegistry;
+import io.github.shaksternano.mediamanipulator.image.reader.util.ImageReaders;
 import io.github.shaksternano.mediamanipulator.image.util.AwtFrame;
 import io.github.shaksternano.mediamanipulator.image.util.Frame;
 import io.github.shaksternano.mediamanipulator.image.util.ImageMediaBuilder;
 import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
+import io.github.shaksternano.mediamanipulator.image.writer.util.ImageWriterRegistry;
+import io.github.shaksternano.mediamanipulator.image.writer.util.ImageWriters;
 import io.github.shaksternano.mediamanipulator.io.FileUtil;
 import io.github.shaksternano.mediamanipulator.util.CollectionUtil;
 import io.github.shaksternano.mediamanipulator.util.DiscordUtil;
@@ -120,6 +121,7 @@ public class ImageManipulator implements MediaManipulator {
                 width,
                 fillHeight,
                 padding,
+                Position.TOP,
                 true,
                 null,
                 font,
@@ -175,6 +177,7 @@ public class ImageManipulator implements MediaManipulator {
                 width,
                 height,
                 padding,
+                Position.CENTRE,
                 true,
                 null,
                 new Font("Impact", Font.PLAIN, smallestDimension / 2),
@@ -192,6 +195,7 @@ public class ImageManipulator implements MediaManipulator {
                 width,
                 height,
                 padding,
+                topWordsContainerImageInfo.getTextContentPosition(),
                 topWordsContainerImageInfo.isBackground(),
                 topWordsContainerImageInfo.getFill().orElse(null),
                 topWordsContainerImageInfo.getFont(),
@@ -264,6 +268,11 @@ public class ImageManipulator implements MediaManipulator {
 
             int paragraphX = containerImageInfo.getTextContentX();
             int paragraphY = containerCentreY - (paragraphHeight / 2);
+            switch (containerImageInfo.getTextContentPosition()) {
+                case TOP -> paragraphY = containerImageInfo.getTextContentY();
+                case BOTTOM ->
+                        paragraphY = containerImageInfo.getTextContentY() + (containerImageInfo.getTextContentHeight() - paragraphHeight);
+            }
 
             ImageMediaBuilder builder = new ImageMediaBuilder();
 
@@ -328,6 +337,11 @@ public class ImageManipulator implements MediaManipulator {
 
         int imageX = containerImageInfo.getImageContentX() + ((containerImageInfo.getImageContentWidth() - resizedWidth) / 2);
         int imageY = containerImageInfo.getImageContentY() + ((containerImageInfo.getImageContentHeight() - resizedHeight) / 2);
+        switch (containerImageInfo.getImageContentPosition()) {
+            case TOP -> imageY = containerImageInfo.getImageContentY();
+            case BOTTOM ->
+                    imageY = containerImageInfo.getImageContentY() + (containerImageInfo.getImageContentHeight() - resizedHeight);
+        }
 
         Color fill = containerImageInfo.getFill().orElse(null);
         if (fill == null && !resizedContentImage.getFrame(0).getImage().getColorModel().hasAlpha()) {

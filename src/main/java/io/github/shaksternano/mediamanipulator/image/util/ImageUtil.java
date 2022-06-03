@@ -3,7 +3,7 @@ package io.github.shaksternano.mediamanipulator.image.util;
 import com.sksamuel.scrimage.ImmutableImage;
 import io.github.shaksternano.mediamanipulator.image.imagemedia.ImageMedia;
 import io.github.shaksternano.mediamanipulator.image.imagemedia.StaticImage;
-import io.github.shaksternano.mediamanipulator.image.io.reader.util.ImageReaders;
+import io.github.shaksternano.mediamanipulator.image.reader.util.ImageReaders;
 import io.github.shaksternano.mediamanipulator.io.FileUtil;
 import org.jetbrains.annotations.Nullable;
 

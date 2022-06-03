@@ -1,4 +1,4 @@
-package io.github.shaksternano.mediamanipulator.image.io.writer;
+package io.github.shaksternano.mediamanipulator.image.writer;
 
 import com.google.common.collect.ImmutableSet;
 import com.sksamuel.scrimage.DisposeMethod;

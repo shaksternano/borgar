@@ -1,6 +1,7 @@
 package io.github.shaksternano.mediamanipulator.image.backgroundimage;
 
 import io.github.shaksternano.mediamanipulator.Main;
+import io.github.shaksternano.mediamanipulator.graphics.Position;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.Drawable;
 import io.github.shaksternano.mediamanipulator.image.imagemedia.ImageMedia;
 import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
@@ -22,6 +23,7 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
             630,
             490,
             60,
+            Position.CENTRE,
             true,
             null,
             "Bitstream Vera Sans",
@@ -37,11 +39,13 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
             1024,
             810,
             0,
+            Position.CENTRE,
             250,
             150,
             500,
             300,
             0,
+            Position.CENTRE,
             false,
             null,
             "Futura-CondensedExtraBold",
@@ -55,10 +59,12 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
     private final int IMAGE_CONTENT_Y;
     private final int IMAGE_CONTENT_WIDTH;
     private final int IMAGE_CONTENT_HEIGHT;
+    private final Position IMAGE_CONTENT_POSITION;
     private final int TEXT_CONTENT_X;
     private final int TEXT_CONTENT_Y;
     private final int TEXT_CONTENT_WIDTH;
     private final int TEXT_CONTENT_HEIGHT;
+    private final Position TEXT_CONTENT_POSITION;
     private final boolean IS_BACKGROUND;
     @Nullable
     private final Color FILL;
@@ -75,11 +81,13 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
             int imageContainerWidth,
             int imageContainerHeight,
             int imageContainerPadding,
+            Position imageContentPosition,
             int textContainerX,
             int textContainerY,
             int textContainerWidth,
             int textContainerHeight,
             int textContainerPadding,
+            Position textContentPosition,
             boolean isBackground,
             @Nullable Color fill,
             String fontName,
@@ -97,8 +105,10 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
         int doubleTextPadding = textContainerPadding * 2;
         IMAGE_CONTENT_WIDTH = imageContainerWidth - doubleImagePadding;
         IMAGE_CONTENT_HEIGHT = imageContainerHeight - doubleImagePadding;
+        IMAGE_CONTENT_POSITION = imageContentPosition;
         TEXT_CONTENT_WIDTH = textContainerWidth - doubleTextPadding;
         TEXT_CONTENT_HEIGHT = textContainerHeight - doubleTextPadding;
+        TEXT_CONTENT_POSITION = textContentPosition;
         IS_BACKGROUND = isBackground;
         FILL = fill;
         FONT = new Font(fontName, Font.PLAIN, maxFontSize);
@@ -114,6 +124,7 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
             int contentContainerWidth,
             int contentContainerHeight,
             int contentContainerPadding,
+            Position contentPosition,
             boolean isBackground,
             @Nullable Color fill,
             String fontName,
@@ -129,11 +140,13 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
                 contentContainerWidth,
                 contentContainerHeight,
                 contentContainerPadding,
+                contentPosition,
                 contentContainerX,
                 contentContainerY,
                 contentContainerWidth,
                 contentContainerHeight,
                 contentContainerPadding,
+                contentPosition,
                 isBackground,
                 fill,
                 fontName,
@@ -174,6 +187,11 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
     }
 
     @Override
+    public Position getImageContentPosition() {
+        return IMAGE_CONTENT_POSITION;
+    }
+
+    @Override
     public int getTextContentX() {
         return TEXT_CONTENT_X;
     }
@@ -191,6 +209,11 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
     @Override
     public int getTextContentHeight() {
         return TEXT_CONTENT_HEIGHT;
+    }
+
+    @Override
+    public Position getTextContentPosition() {
+        return TEXT_CONTENT_POSITION;
     }
 
     @Override

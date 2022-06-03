@@ -1,8 +1,8 @@
-package io.github.shaksternano.mediamanipulator.image.io.reader.util;
+package io.github.shaksternano.mediamanipulator.image.reader.util;
 
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.MultimapBuilder;
-import io.github.shaksternano.mediamanipulator.image.io.reader.ImageReader;
+import io.github.shaksternano.mediamanipulator.image.reader.ImageReader;
 
 import java.util.Collections;
 import java.util.List;

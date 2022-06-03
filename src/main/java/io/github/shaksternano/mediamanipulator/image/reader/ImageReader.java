@@ -1,4 +1,4 @@
-package io.github.shaksternano.mediamanipulator.image.io.reader;
+package io.github.shaksternano.mediamanipulator.image.reader;
 
 import io.github.shaksternano.mediamanipulator.image.imagemedia.ImageMedia;
 import org.jetbrains.annotations.Nullable;

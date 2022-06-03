@@ -1,5 +1,6 @@
 package io.github.shaksternano.mediamanipulator.image.backgroundimage;
 
+import io.github.shaksternano.mediamanipulator.graphics.Position;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.Drawable;
 import io.github.shaksternano.mediamanipulator.image.imagemedia.ImageMedia;
 import org.jetbrains.annotations.Nullable;
@@ -16,6 +17,7 @@ public class CustomContainerImageInfo implements ContainerImageInfo {
     private final int CONTENT_Y;
     private final int CONTENT_WIDTH;
     private final int CONTENT_HEIGHT;
+    private final Position CONTENT_POSITION;
     private final boolean IS_BACKGROUND;
     @Nullable
     private final Color FILL;
@@ -32,7 +34,7 @@ public class CustomContainerImageInfo implements ContainerImageInfo {
             int contentContainerWidth,
             int contentContainerHeight,
             int contentContainerPadding,
-            boolean isBackground,
+            Position contentPosition, boolean isBackground,
             @Nullable Color fill,
             Font font,
             Color textColor,
@@ -45,6 +47,7 @@ public class CustomContainerImageInfo implements ContainerImageInfo {
         int doublePadding = contentContainerPadding * 2;
         CONTENT_WIDTH = contentContainerWidth - doublePadding;
         CONTENT_HEIGHT = contentContainerHeight - doublePadding;
+        CONTENT_POSITION = contentPosition;
         IS_BACKGROUND = isBackground;
         FILL = fill;
         FONT = font;
@@ -83,6 +86,11 @@ public class CustomContainerImageInfo implements ContainerImageInfo {
     }
 
     @Override
+    public Position getImageContentPosition() {
+        return CONTENT_POSITION;
+    }
+
+    @Override
     public int getTextContentX() {
         return CONTENT_X;
     }
@@ -100,6 +108,11 @@ public class CustomContainerImageInfo implements ContainerImageInfo {
     @Override
     public int getTextContentHeight() {
         return CONTENT_HEIGHT;
+    }
+
+    @Override
+    public Position getTextContentPosition() {
+        return CONTENT_POSITION;
     }
 
     @Override

@@ -1,14 +1,14 @@
-package io.github.shaksternano.mediamanipulator.image.io.reader.util;
+package io.github.shaksternano.mediamanipulator.image.reader.util;
 
 import io.github.shaksternano.mediamanipulator.Main;
 import io.github.shaksternano.mediamanipulator.exception.UnreadableFileException;
 import io.github.shaksternano.mediamanipulator.image.imagemedia.ImageMedia;
-import io.github.shaksternano.mediamanipulator.image.io.reader.ImageReader;
-import io.github.shaksternano.mediamanipulator.image.io.reader.JavaxImageReader;
-import io.github.shaksternano.mediamanipulator.image.io.reader.ScrimageAnimatedGifReader;
-import io.github.shaksternano.mediamanipulator.image.io.reader.ScrimageImageReader;
-import io.github.shaksternano.mediamanipulator.image.io.writer.Image4jIcoImageWriter;
-import io.github.shaksternano.mediamanipulator.image.io.writer.util.ImageWriterRegistry;
+import io.github.shaksternano.mediamanipulator.image.reader.ImageReader;
+import io.github.shaksternano.mediamanipulator.image.reader.JavaxImageReader;
+import io.github.shaksternano.mediamanipulator.image.reader.ScrimageAnimatedGifReader;
+import io.github.shaksternano.mediamanipulator.image.reader.ScrimageImageReader;
+import io.github.shaksternano.mediamanipulator.image.writer.Image4jIcoImageWriter;
+import io.github.shaksternano.mediamanipulator.image.writer.util.ImageWriterRegistry;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;

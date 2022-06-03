@@ -1,10 +1,10 @@
-package io.github.shaksternano.mediamanipulator.image.io.writer.util;
+package io.github.shaksternano.mediamanipulator.image.writer.util;
 
 import io.github.shaksternano.mediamanipulator.Main;
 import io.github.shaksternano.mediamanipulator.image.imagemedia.ImageMedia;
-import io.github.shaksternano.mediamanipulator.image.io.writer.ImageWriter;
-import io.github.shaksternano.mediamanipulator.image.io.writer.JavaxImageWriter;
-import io.github.shaksternano.mediamanipulator.image.io.writer.ScrimageAnimatedGifWriter;
+import io.github.shaksternano.mediamanipulator.image.writer.ImageWriter;
+import io.github.shaksternano.mediamanipulator.image.writer.JavaxImageWriter;
+import io.github.shaksternano.mediamanipulator.image.writer.ScrimageAnimatedGifWriter;
 
 import java.io.File;
 import java.io.IOException;

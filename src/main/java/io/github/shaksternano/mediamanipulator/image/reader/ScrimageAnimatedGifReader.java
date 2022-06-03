@@ -1,4 +1,4 @@
-package io.github.shaksternano.mediamanipulator.image.io.reader;
+package io.github.shaksternano.mediamanipulator.image.reader;
 
 import com.google.common.collect.ImmutableSet;
 import com.sksamuel.scrimage.nio.AnimatedGif;

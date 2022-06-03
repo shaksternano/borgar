@@ -1,5 +1,6 @@
 package io.github.shaksternano.mediamanipulator.image.backgroundimage;
 
+import io.github.shaksternano.mediamanipulator.graphics.Position;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.Drawable;
 import io.github.shaksternano.mediamanipulator.image.imagemedia.ImageMedia;
 
@@ -22,6 +23,8 @@ public interface ContainerImageInfo {
 
     int getImageContentHeight();
 
+    Position getImageContentPosition();
+
     int getTextContentX();
 
     int getTextContentY();
@@ -29,6 +32,8 @@ public interface ContainerImageInfo {
     int getTextContentWidth();
 
     int getTextContentHeight();
+
+    Position getTextContentPosition();
 
     boolean isBackground();
 
