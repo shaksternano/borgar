@@ -48,14 +48,16 @@ public abstract class MediaCommand extends BaseCommand {
     @Override
     public void execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
         Message userMessage = event.getMessage();
-        MessageUtil.downloadImage(userMessage, FileUtil.getTempDir().toString()).ifPresentOrElse(file -> {
+        MessageUtil.downloadFile(userMessage, FileUtil.getTempDir().toString()).ifPresentOrElse(file -> {
             String fileFormat = FileUtil.getFileFormat(file);
 
             MediaManipulatorRegistry.getManipulator(fileFormat).ifPresentOrElse(manipulator -> {
+                File editedMedia = null;
+                File compressedMedia = null;
+
                 try {
-                    File editedMedia = applyOperation(file, fileFormat, arguments, extraArguments, manipulator, event);
+                    editedMedia = applyOperation(file, fileFormat, arguments, extraArguments, manipulator, event);
                     String newFileFormat = FileUtil.getFileFormat(editedMedia);
-                    File compressedMedia;
                     Optional<MediaManipulator> manipulatorOptional = MediaManipulatorRegistry.getManipulator(newFileFormat);
                     if (manipulatorOptional.isPresent()) {
                         compressedMedia = manipulatorOptional.orElseThrow().compress(editedMedia, newFileFormat, event.getGuild());
@@ -63,15 +65,11 @@ public abstract class MediaCommand extends BaseCommand {
                         compressedMedia = editedMedia;
                     }
 
-                    file.delete();
-
                     long mediaFileSize = compressedMedia.length();
                     if (mediaFileSize > DiscordUtil.getMaxUploadSize(event.getGuild())) {
                         long mediaFileSizeInMb = mediaFileSize / (1024 * 1024);
                         userMessage.reply("The size of the edited media file, " + mediaFileSizeInMb + "MB, is too large to send!").queue();
                         Main.getLogger().error("File size of edited media was too large to send! (" + mediaFileSize + "MB)");
-                        editedMedia.delete();
-                        compressedMedia.delete();
                     } else {
                         try {
                             userMessage.reply(compressedMedia).complete();
@@ -80,9 +78,6 @@ public abstract class MediaCommand extends BaseCommand {
                             userMessage.reply(failSend).queue();
                             Main.getLogger().error(failSend, e);
                         }
-
-                        editedMedia.delete();
-                        compressedMedia.delete();
                     }
                 } catch (InvalidMediaException e) {
                     userMessage.reply(e.getMessage() == null ? "Invalid media!" : "Invalid media: " + e.getMessage()).queue();
@@ -101,6 +96,14 @@ public abstract class MediaCommand extends BaseCommand {
                 } catch (OutOfMemoryError e) {
                     userMessage.reply("The server ran out of memory! Try again later or use a smaller file.").queue();
                     Main.getLogger().error("Ran out of memory executing command " + getNameWithPrefix() + "!", e);
+                }
+
+                file.delete();
+                if (editedMedia != null) {
+                    editedMedia.delete();
+                }
+                if (compressedMedia != null) {
+                    compressedMedia.delete();
                 }
             }, () -> userMessage.reply("Unsupported file type!").queue());
         }, () -> userMessage.reply("No media found!").queue());

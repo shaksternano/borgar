@@ -155,16 +155,16 @@ public class FileUtil {
             String fileNameWithoutExtension = com.google.common.io.Files.getNameWithoutExtension(url);
             String extension = com.google.common.io.Files.getFileExtension(url);
 
-            if (extension.isEmpty()) {
-                extension = "png";
-            } else {
-                int index = extension.indexOf("?");
-                if (index != -1) {
-                    extension = extension.substring(0, index);
-                }
+            int index = extension.indexOf("?");
+            if (index != -1) {
+                extension = extension.substring(0, index);
             }
 
-            String fileName = fileNameWithoutExtension + "." + extension;
+            String fileName = fileNameWithoutExtension;
+            if (!extension.isBlank()) {
+                fileName += "." + extension;
+            }
+
             File imageFile = getUniqueFile(directory, fileName);
             downloadFile(url, imageFile);
             return Optional.of(imageFile);

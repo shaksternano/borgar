@@ -37,7 +37,7 @@ public abstract class OptionalFileInputMediaCommand extends BaseCommand {
     public void execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
         Message userMessage = event.getMessage();
 
-        File file = arguments.size() == 0 ? MessageUtil.downloadImage(userMessage, FileUtil.getTempDir().toString()).orElse(null) : null;
+        File file = arguments.size() == 0 ? MessageUtil.downloadFile(userMessage, FileUtil.getTempDir().toString()).orElse(null) : null;
         String fileFormat = file == null ? null : FileUtil.getFileFormat(file);
         MediaManipulator manipulator = fileFormat == null ? null : MediaManipulatorRegistry.getManipulator(fileFormat).orElse(null);
 

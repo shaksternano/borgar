@@ -2,7 +2,6 @@ package io.github.shaksternano.mediamanipulator.mediamanipulator;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.io.Files;
 import io.github.shaksternano.mediamanipulator.exception.InvalidArgumentException;
 import io.github.shaksternano.mediamanipulator.exception.InvalidMediaException;
 import io.github.shaksternano.mediamanipulator.exception.UnsupportedFileFormatException;
@@ -35,6 +34,8 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.*;
 import java.util.function.Function;
@@ -86,7 +87,7 @@ public class ImageManipulator implements MediaManipulator {
 
         CompositeDrawable paragraph = new ParagraphCompositeDrawable.Builder(nonTextParts)
                 .addWords(null, words)
-                .build(TextAlignment.CENTER, smallestDimension - (padding * 2));
+                .build(TextAlignment.CENTER, width - (padding * 2));
 
         int fillHeight = paragraph.getHeight(originalGraphics) + (padding * 2);
         originalGraphics.dispose();
@@ -137,7 +138,7 @@ public class ImageManipulator implements MediaManipulator {
             outputExtension = "." + outputFormat;
         } else {
             outputFormat = fileFormat;
-            outputExtension = Files.getFileExtension(media.getName());
+            outputExtension = com.google.common.io.Files.getFileExtension(media.getName());
 
             if (!outputExtension.isEmpty()) {
                 outputExtension = "." + outputExtension;
@@ -212,7 +213,7 @@ public class ImageManipulator implements MediaManipulator {
             outputExtension = "." + outputFormat;
         } else {
             outputFormat = fileFormat;
-            outputExtension = Files.getFileExtension(media.getName());
+            outputExtension = com.google.common.io.Files.getFileExtension(media.getName());
 
             if (!outputExtension.isEmpty()) {
                 outputExtension = "." + outputExtension;
@@ -350,7 +351,7 @@ public class ImageManipulator implements MediaManipulator {
 
         ImageMedia result = ImageUtil.overlayImage(containerImage, resizedContentImage, imageX, imageY, imageType, fill, false, !containerImageInfo.isBackground());
 
-        File output = FileUtil.getUniqueTempFile(containerImageInfo.getResultName() + "." + Files.getFileExtension(media.getName()));
+        File output = FileUtil.getUniqueTempFile(containerImageInfo.getResultName() + "." + com.google.common.io.Files.getFileExtension(media.getName()));
         ImageWriters.write(result, output, fileFormat);
 
         return output;
@@ -543,13 +544,13 @@ public class ImageManipulator implements MediaManipulator {
 
     @Override
     public File makeGif(File media, String fileFormat, boolean justRenameFile) throws IOException {
-        if (Files.getFileExtension(media.getName()).equalsIgnoreCase("gif")) {
+        if (com.google.common.io.Files.getFileExtension(media.getName()).equalsIgnoreCase("gif")) {
             throw new UnsupportedFileFormatException("This file is already a GIF file!");
         } else {
             File gifFile = FileUtil.getUniqueTempFile(FileUtil.changeExtension(media.getName(), "gif"));
 
             if (justRenameFile) {
-                Files.move(media, gifFile);
+                Files.move(media.toPath(), gifFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
             } else {
                 ImageMedia nonGifImage = ImageReaders.read(media, fileFormat, BufferedImage.TYPE_INT_ARGB);
                 ImageWriters.write(nonGifImage, gifFile, "gif");
