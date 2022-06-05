@@ -338,11 +338,15 @@ public class ImageUtil {
     }
 
     public static String getImageFormat(File file) throws IOException {
-        return getImageFormat(new FileInputStream(file));
+        try (InputStream inputStream = new FileInputStream(file)) {
+            return getImageFormat(inputStream);
+        }
     }
 
     public static String getImageFormat(URL url) throws IOException {
-        return getImageFormat(url.openStream());
+        try (InputStream inputStream = url.openStream()) {
+            return getImageFormat(inputStream);
+        }
     }
 
     public static BufferedImage convertType(BufferedImage image, int type) {

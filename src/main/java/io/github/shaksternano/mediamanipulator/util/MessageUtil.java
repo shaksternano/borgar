@@ -42,27 +42,27 @@ public class MessageUtil {
     private static final int MAX_PAST_MESSAGES_TO_CHECK = 50;
 
     /**
-     * Downloads an image.
+     * Downloads a file.
      *
-     * @param message   The message to download the image from.
-     * @param directory The directory to download the image to.
-     * @return An {@link Optional} describing the image file.
+     * @param message   The message to download the file from.
+     * @param directory The directory to download the file to.
+     * @return An {@link Optional} describing the file.
      */
-    public static Optional<File> downloadImage(Message message, String directory) {
+    public static Optional<File> downloadFile(Message message, String directory) {
         return processMessages(message, messageToProcess -> {
-            Optional<File> imageFileOptional = downloadAttachment(messageToProcess, directory);
-            if (imageFileOptional.isPresent()) {
-                return imageFileOptional;
+            Optional<File> fileOptional = downloadAttachment(messageToProcess, directory);
+            if (fileOptional.isPresent()) {
+                return fileOptional;
             } else {
                 List<String> urls = StringUtil.extractUrls(messageToProcess.getContentRaw());
                 if (!urls.isEmpty()) {
-                    imageFileOptional = FileUtil.downloadFile(urls.get(0), directory);
-                    if (imageFileOptional.isPresent()) {
-                        return imageFileOptional;
+                    fileOptional = FileUtil.downloadFile(urls.get(0), directory);
+                    if (fileOptional.isPresent()) {
+                        return fileOptional;
                     } else {
-                        imageFileOptional = downloadEmbedImage(messageToProcess, directory);
-                        if (imageFileOptional.isPresent()) {
-                            return imageFileOptional;
+                        fileOptional = downloadEmbedImage(messageToProcess, directory);
+                        if (fileOptional.isPresent()) {
+                            return fileOptional;
                         }
                     }
                 }
