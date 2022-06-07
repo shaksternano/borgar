@@ -2,6 +2,7 @@ package io.github.shaksternano.mediamanipulator.util;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 import io.github.shaksternano.mediamanipulator.Main;
 import io.github.shaksternano.mediamanipulator.emoji.EmojiUtil;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.Drawable;
@@ -283,14 +284,16 @@ public class MessageUtil {
         Map<String, String> imageUrls = MessageUtil.getEmojiUrls(message);
         return imageUrls.entrySet().parallelStream().map(imageUrlEntry -> {
             try {
-                URL url = new URL(imageUrlEntry.getValue());
+                String emojiCode = imageUrlEntry.getKey();
+                String emojiImageUrl = imageUrlEntry.getValue();
+                URL url = new URL(emojiImageUrl);
                 String imageType = ImageUtil.getImageFormat(url);
 
                 try (InputStream inputStream = url.openStream()) {
                     ImageMedia imageMedia = ImageReaders.read(inputStream, imageType, null);
                     List<BufferedImage> normalisedImages = imageMedia.toNormalisedImages();
                     Drawable drawable = new ImageDrawable(normalisedImages);
-                    return new AbstractMap.SimpleEntry<>(imageUrlEntry.getKey(), drawable);
+                    return Maps.immutableEntry(emojiCode, drawable);
                 }
             } catch (IOException e) {
                 throw new UncheckedIOException(e);

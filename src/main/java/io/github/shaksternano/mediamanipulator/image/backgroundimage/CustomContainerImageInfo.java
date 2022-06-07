@@ -21,7 +21,9 @@ public class CustomContainerImageInfo implements ContainerImageInfo {
     private final boolean IS_BACKGROUND;
     @Nullable
     private final Color FILL;
+    @Nullable
     private final Font FONT;
+    @Nullable
     private final Color TEXT_COLOR;
     @Nullable
     private final Function<String, Drawable> CUSTOM_TEXT_DRAWABLE_FACTORY;
@@ -36,8 +38,8 @@ public class CustomContainerImageInfo implements ContainerImageInfo {
             int contentContainerPadding,
             Position contentPosition, boolean isBackground,
             @Nullable Color fill,
-            Font font,
-            Color textColor,
+            @Nullable Font font,
+            @Nullable Color textColor,
             @Nullable Function<String, Drawable> customTextDrawableFactory
     ) {
         IMAGE = image;
@@ -127,12 +129,12 @@ public class CustomContainerImageInfo implements ContainerImageInfo {
 
     @Override
     public Font getFont() {
-        return FONT;
+        return FONT == null ? new Font("Arial", Font.PLAIN, 12) : FONT;
     }
 
     @Override
     public Color getTextColor() {
-        return TEXT_COLOR;
+        return TEXT_COLOR == null ? Color.BLACK : TEXT_COLOR;
     }
 
     @Override

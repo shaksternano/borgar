@@ -29,7 +29,8 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
             "Bitstream Vera Sans",
             Color.WHITE,
             100,
-            null),
+            null
+    ),
 
     SOYJAK_POINTING(
             "image/containerimage/soyjak_pointing.png",
@@ -51,7 +52,8 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
             "Futura-CondensedExtraBold",
             Color.BLACK,
             100,
-            null);
+            null
+    );
 
     private final String IMAGE_PATH_FROM_ROOT_PACKAGE;
     private final String RESULT_NAME;

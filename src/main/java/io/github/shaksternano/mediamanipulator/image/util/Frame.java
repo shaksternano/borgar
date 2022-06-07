@@ -23,7 +23,7 @@ public interface Frame {
      */
     int getDuration();
 
-    void flush();
+    void dispose();
 
     Frame copyWithDuration(int duration);
 }
