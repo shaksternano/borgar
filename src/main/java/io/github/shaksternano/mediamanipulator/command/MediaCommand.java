@@ -74,9 +74,8 @@ public abstract class MediaCommand extends BaseCommand {
                         try {
                             userMessage.reply(compressedMedia).complete();
                         } catch (RuntimeException e) {
-                            String failSend = "Failed to send edited media!";
-                            userMessage.reply(failSend).queue();
-                            Main.getLogger().error(failSend, e);
+                            userMessage.reply("Failed to send edited media, please try again!").queue();
+                            Main.getLogger().error("Failed to send edited media!", e);
                         }
                     }
                 } catch (InvalidMediaException e) {

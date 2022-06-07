@@ -32,6 +32,8 @@ public interface MediaManipulator {
      */
     File caption(File media, String fileFormat, List<String> words, Map<String, Drawable> nonTextParts) throws IOException;
 
+    File demotivate(File media, String fileFormat, List<String> words, Map<String, Drawable> nonTextParts) throws IOException;
+
     File impact(File media, String fileFormat, List<String> topWords, List<String> bottomWords, Map<String, Drawable> nonTextParts) throws IOException;
 
     File containerImageWithText(List<String> words, Map<String, Drawable> nonTextParts, ContainerImageInfo containerImageInfo) throws IOException;

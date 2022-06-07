@@ -22,7 +22,7 @@ public class AwtFrame implements Frame {
     private final int duration;
 
     /**
-     * Creates a new Frame.
+     * Creates a new {@code AwtFrame}.
      *
      * @param image    The image of the frame.
      * @param duration The amount of time the image is shown for in milliseconds.
@@ -62,7 +62,7 @@ public class AwtFrame implements Frame {
     }
 
     @Override
-    public void flush() {
+    public void dispose() {
         if (image == null) {
             throw new IllegalStateException();
         } else {

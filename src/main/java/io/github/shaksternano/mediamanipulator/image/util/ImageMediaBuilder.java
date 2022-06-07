@@ -48,6 +48,8 @@ public class ImageMediaBuilder {
     public ImageMediaBuilder increaseLastFrameDuration(int duration) {
         if (frames.isEmpty()) {
             throw new IllegalStateException("Builder is empty!");
+        } else if (duration < 0) {
+            throw new IllegalArgumentException("Duration must be positive or 0!");
         } else {
             int lastIndex = frames.size() - 1;
             Frame lastFrame = frames.get(lastIndex);

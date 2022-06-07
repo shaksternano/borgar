@@ -231,7 +231,8 @@ public class FileUtil {
     }
 
     public static void forEachResource(String directory, BiConsumer<String, InputStream> operation) {
-        String trimmedDirectory = directory.replaceAll("/$", "").trim();
+        // Remove trailing forward slashes
+        String trimmedDirectory = directory.trim().replaceAll("/$", "");
         String packageName = Main.getRootPackage() + "." + trimmedDirectory.replaceAll(Pattern.quote("/"), ".");
         Set<String> resourcePaths = getResourcePaths(packageName);
         for (String resourcePath : resourcePaths) {

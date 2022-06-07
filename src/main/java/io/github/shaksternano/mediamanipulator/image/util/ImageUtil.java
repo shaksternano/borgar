@@ -370,6 +370,6 @@ public class ImageUtil {
 
     public static int getType(BufferedImage image) {
         int type = image.getType();
-        return type <= 0 ? BufferedImage.TYPE_INT_ARGB : type;
+        return type < 1 || type > 13 ? BufferedImage.TYPE_INT_ARGB : type;
     }
 }

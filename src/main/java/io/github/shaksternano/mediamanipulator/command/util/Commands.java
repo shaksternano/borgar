@@ -24,6 +24,11 @@ public class Commands {
             "Captions a media file. Optional arguments: [Caption text]"
     ));
 
+    public static final Command DEMOTIVATE = addCommandToRegister(new DemotivateCommand(
+            "demotiv",
+            "Puts image in demotivate meme. Optional arguments: [Meme text]"
+    ));
+
     public static final Command IMPACT = addCommandToRegister(new ImpactCommand(
             "impact",
             "Adds Impact text to a media file. Required arguments: [The text to be drawn. By default, the text is drawn at the top. To specify text drawn at the bottom, add \"%bottom\" before the text. Top text and bottom text can be combined.]"

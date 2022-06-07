@@ -15,6 +15,7 @@ import io.github.shaksternano.mediamanipulator.graphics.drawable.util.DrawableUt
 import io.github.shaksternano.mediamanipulator.image.backgroundimage.ContainerImageInfo;
 import io.github.shaksternano.mediamanipulator.image.backgroundimage.CustomContainerImageInfo;
 import io.github.shaksternano.mediamanipulator.image.imagemedia.ImageMedia;
+import io.github.shaksternano.mediamanipulator.image.imagemedia.StaticImage;
 import io.github.shaksternano.mediamanipulator.image.reader.util.ImageReaderRegistry;
 import io.github.shaksternano.mediamanipulator.image.reader.util.ImageReaders;
 import io.github.shaksternano.mediamanipulator.image.util.AwtFrame;
@@ -108,7 +109,7 @@ public class ImageManipulator implements MediaManipulator {
             graphics.drawImage(originalImage, 0, fillHeight, null);
             graphics.dispose();
             int duration = frame.getDuration();
-            frame.flush();
+            frame.dispose();
             return new AwtFrame(withCaptionBoxImage, duration);
         }).collect(ImmutableList.toImmutableList()));
 
@@ -127,7 +128,8 @@ public class ImageManipulator implements MediaManipulator {
                 null,
                 font,
                 Color.BLACK,
-                null);
+                null
+        );
 
         ImageMedia result = drawTextOnImage(words, nonTextParts, containerImageInfo);
 
@@ -152,6 +154,100 @@ public class ImageManipulator implements MediaManipulator {
 
     @SuppressWarnings("UnusedAssignment")
     @Override
+    public File demotivate(File media, String fileFormat, List<String> words, Map<String, Drawable> nonTextParts) throws IOException {
+        ImageMedia imageMedia = ImageReaders.read(media, fileFormat, null);
+        BufferedImage firstImage = imageMedia.getFrame(0).getImage();
+
+        int contentWidth = firstImage.getWidth();
+        int contentHeight = firstImage.getHeight();
+        int contentSmallestDimension = Math.min(contentWidth, contentHeight);
+        int contentImageType = ImageUtil.getType(firstImage);
+
+        int demotivateImagePadding = (int) (contentSmallestDimension * 0.2F);
+
+        Graphics2D graphics = firstImage.createGraphics();
+
+        Font font = new Font("Times", Font.PLAIN, contentSmallestDimension / 6);
+        graphics.setFont(font);
+        ImageUtil.configureTextDrawQuality(graphics);
+
+        CompositeDrawable paragraph = new ParagraphCompositeDrawable.Builder(nonTextParts)
+                .addWords(null, words)
+                .build(TextAlignment.CENTER, contentWidth);
+        int paragraphHeight = paragraph.getHeight(graphics);
+
+        graphics.dispose();
+        firstImage = null;
+        imageMedia = null;
+
+        int textAreaExtraHeight = 0;
+        int demotivateWidth = contentWidth + (demotivateImagePadding * 2);
+        int demotivateHeight = contentHeight + (demotivateImagePadding * 2) + textAreaExtraHeight + paragraphHeight;
+        BufferedImage demotivateBackground = new BufferedImage(demotivateWidth, demotivateHeight, contentImageType);
+        Graphics2D demotivateBackgroundGraphics = demotivateBackground.createGraphics();
+        demotivateBackgroundGraphics.setColor(Color.BLACK);
+        demotivateBackgroundGraphics.fillRect(0, 0, demotivateWidth, demotivateHeight);
+
+        int lineDiameter = Math.max(Math.round(contentSmallestDimension * 0.005F), 1);
+        int lineImageSpacing = lineDiameter * 3;
+
+        demotivateBackgroundGraphics.setColor(Color.WHITE);
+
+        // Top border
+        demotivateBackgroundGraphics.fillRect(demotivateImagePadding - (lineDiameter + lineImageSpacing), demotivateImagePadding - (lineDiameter + lineImageSpacing), contentWidth + (lineDiameter * 2) + (lineImageSpacing * 2), lineDiameter);
+        // Bottom border
+        demotivateBackgroundGraphics.fillRect(demotivateImagePadding - (lineDiameter + lineImageSpacing), demotivateImagePadding + contentHeight + lineImageSpacing, contentWidth + (lineDiameter * 2) + (lineImageSpacing * 2), lineDiameter);
+        // Left border
+        demotivateBackgroundGraphics.fillRect(demotivateImagePadding - (lineDiameter + lineImageSpacing), demotivateImagePadding - (lineDiameter + lineImageSpacing), lineDiameter, contentHeight + (lineDiameter * 2) + (lineImageSpacing * 2));
+        // Right border
+        demotivateBackgroundGraphics.fillRect(demotivateImagePadding + contentWidth + lineImageSpacing, demotivateImagePadding - (lineDiameter + lineImageSpacing), lineDiameter, contentHeight + (lineDiameter * 2) + (lineImageSpacing * 2));
+
+        ImageMedia demotivateWithTextMedia;
+        if (words.isEmpty()) {
+            demotivateWithTextMedia = new StaticImage(demotivateBackground);
+        } else {
+            ImageMediaBuilder builder = new ImageMediaBuilder();
+            int paragraphFrames = paragraph.getFrameCount();
+            for (int i = 0; i < paragraphFrames; i++) {
+                BufferedImage demotivateWithText = new BufferedImage(demotivateWidth, demotivateHeight, contentImageType);
+                Graphics2D demotivateWithTextGraphics = demotivateWithText.createGraphics();
+                demotivateWithTextGraphics.drawImage(demotivateBackground, 0, 0, null);
+
+                demotivateWithTextGraphics.setColor(Color.WHITE);
+                demotivateWithTextGraphics.setFont(font);
+                ImageUtil.configureTextDrawQuality(demotivateWithTextGraphics);
+                paragraph.draw(
+                        demotivateWithTextGraphics,
+                        demotivateImagePadding,
+                        demotivateImagePadding + contentHeight + ((demotivateImagePadding + textAreaExtraHeight) / 2)
+                );
+
+                builder.add(new AwtFrame(demotivateWithText, Frame.GIF_MINIMUM_FRAME_DURATION));
+            }
+            demotivateWithTextMedia = builder.build();
+        }
+
+        ContainerImageInfo containerImageInfo = new CustomContainerImageInfo(
+                demotivateWithTextMedia,
+                "demotivated",
+                demotivateImagePadding,
+                demotivateImagePadding,
+                contentWidth,
+                contentHeight,
+                0,
+                Position.TOP,
+                true,
+                null,
+                null,
+                null,
+                null
+        );
+
+        return containerImageWithImage(media, fileFormat, containerImageInfo);
+    }
+
+    @SuppressWarnings("UnusedAssignment")
+    @Override
     public File impact(File media, String fileFormat, List<String> topWords, List<String> bottomWords, Map<String, Drawable> nonTextParts) throws IOException {
         ImageMedia imageMedia = ImageReaders.read(media, fileFormat, null);
         BufferedImage firstImage = imageMedia.getFrame(0).getImage();
@@ -160,7 +256,7 @@ public class ImageManipulator implements MediaManipulator {
         int height = firstImage.getHeight() / 5;
 
         int smallestDimension = Math.min(width, height);
-        int padding = (int) (smallestDimension * 0.04);
+        int padding = (int) (smallestDimension * 0.04F);
 
         int topY = 0;
         int bottomY = firstImage.getHeight() - height;
@@ -181,7 +277,7 @@ public class ImageManipulator implements MediaManipulator {
                 Position.CENTRE,
                 true,
                 null,
-                new Font("Impact", Font.PLAIN, smallestDimension / 2),
+                null,
                 Color.WHITE,
                 word -> new OutlinedTextDrawable(word, Color.WHITE, Color.BLACK, 0.15F)
         );
@@ -284,7 +380,7 @@ public class ImageManipulator implements MediaManipulator {
                     BufferedImage imageWithText = drawText(image, containerImageInfo, paragraph, paragraphX, paragraphY, fontSize);
                     int duration = frame.getDuration();
                     builder.add(new AwtFrame(imageWithText, duration));
-                    frame.flush();
+                    frame.dispose();
                 }
             } else {
                 List<BufferedImage> normalisedImages = imageMedia.toNormalisedImages();
@@ -321,13 +417,14 @@ public class ImageManipulator implements MediaManipulator {
         ImageMedia contentImage = ImageReaders.read(media, fileFormat, null);
 
         int imageType = ImageUtil.getType(contentImage.getFrame(0).getImage());
+        boolean contentIsAnimated = contentImage.isAnimated();
 
         ImageMedia resizedContentImage = ImageMediaBuilder.fromCollection(contentImage.parallelStream().map(frame -> {
             int width = containerImageInfo.getImageContentWidth();
             int height = containerImageInfo.getImageContentHeight();
             BufferedImage resizedImage = ImageUtil.fit(frame.getImage(), width, height);
             int duration = frame.getDuration();
-            frame.flush();
+            frame.dispose();
             return new AwtFrame(resizedImage, duration);
         }).collect(ImmutableList.toImmutableList()));
 
@@ -351,8 +448,22 @@ public class ImageManipulator implements MediaManipulator {
 
         ImageMedia result = ImageUtil.overlayImage(containerImage, resizedContentImage, imageX, imageY, imageType, fill, false, !containerImageInfo.isBackground());
 
-        File output = FileUtil.getUniqueTempFile(containerImageInfo.getResultName() + "." + com.google.common.io.Files.getFileExtension(media.getName()));
-        ImageWriters.write(result, output, fileFormat);
+        String outputFormat;
+        String outputExtension;
+        if (result.isAnimated() && !contentIsAnimated) {
+            outputFormat = "gif";
+            outputExtension = "." + outputFormat;
+        } else {
+            outputFormat = fileFormat;
+            outputExtension = com.google.common.io.Files.getFileExtension(media.getName());
+
+            if (!outputExtension.isBlank()) {
+                outputExtension = "." + outputExtension;
+            }
+        }
+
+        File output = FileUtil.getUniqueTempFile(containerImageInfo.getResultName() + "." + outputExtension);
+        ImageWriters.write(result, output, outputFormat);
 
         return output;
     }
@@ -530,7 +641,7 @@ public class ImageManipulator implements MediaManipulator {
 
             BufferedImage rotatedImage = ImageUtil.rotate(originalImage, angle, maxDimension, maxDimension, backgroundColor);
             Frame frame = new AwtFrame(rotatedImage, originalFrame.getDuration());
-            originalFrame.flush();
+            originalFrame.dispose();
             return frame;
         }).collect(ImmutableList.toImmutableList());
         ImageMedia rotatedImage = ImageMediaBuilder.fromCollection(rotatedFrames);
@@ -651,7 +762,7 @@ public class ImageManipulator implements MediaManipulator {
             BufferedImage unmodifiedImage = frame.getImage();
             BufferedImage modifiedImage = operation.apply(unmodifiedImage);
             int duration = frame.getDuration();
-            frame.flush();
+            frame.dispose();
             return new AwtFrame(modifiedImage, duration);
         }).collect(ImmutableList.toImmutableList()));
 

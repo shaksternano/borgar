@@ -18,20 +18,24 @@ public class ImageWriters {
     }
 
     public static void write(ImageMedia image, File file, String format) throws IOException {
-        List<ImageWriter> writers = ImageWriterRegistry.getWriters(format);
-        if (writers.isEmpty()) {
-            throw new IOException("No image writers found for format: " + format + "!");
+        if (image.isEmpty()) {
+            throw new IllegalArgumentException("ImageMedia is empty!");
         } else {
-            for (ImageWriter writer : writers) {
-                try {
-                    writer.write(image, file, format);
-                    return;
-                } catch (IOException e) {
-                    Main.getLogger().error("Error while writing image with format " + format + "!", e);
+            List<ImageWriter> writers = ImageWriterRegistry.getWriters(format);
+            if (writers.isEmpty()) {
+                throw new IOException("No image writers found for format: " + format + "!");
+            } else {
+                for (ImageWriter writer : writers) {
+                    try {
+                        writer.write(image, file, format);
+                        return;
+                    } catch (IOException e) {
+                        Main.getLogger().error("Error while writing image with format " + format + "!", e);
+                    }
                 }
-            }
 
-            throw new IOException("Could not write image with format " + format + "!");
+                throw new IOException("Could not write image with format " + format + "!");
+            }
         }
     }
 }
