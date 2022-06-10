@@ -49,10 +49,6 @@ public class CommandListener extends ListenerAdapter {
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
         if (!event.getAuthor().equals(event.getJDA().getSelfUser())) {
-            if (event.getAuthor().getIdLong() == 447820312185143299L) {
-                event.getMessage().reply("L + Ratio").queue();
-            }
-
             CommandParser.parseAndExecute(event);
         }
     }

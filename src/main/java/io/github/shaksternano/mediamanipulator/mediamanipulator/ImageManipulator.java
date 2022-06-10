@@ -418,6 +418,7 @@ public class ImageManipulator implements MediaManipulator {
             Font font = containerImageInfo.getFont();
             graphics.setFont(font);
 
+            GraphicsUtil.fontFitWidth(containerImageInfo.getTextContentWidth(), paragraph, graphics);
             int paragraphHeight = GraphicsUtil.fontFitHeight(containerImageInfo.getTextContentHeight(), paragraph, graphics);
             float fontSize = graphics.getFont().getSize2D();
 
