@@ -11,6 +11,8 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 import java.awt.*;
+import java.awt.geom.Area;
+import java.awt.geom.GeneralPath;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorConvertOp;
 import java.io.File;
@@ -27,11 +29,11 @@ import java.util.List;
  */
 public class ImageUtil {
 
-    public static ImageMedia getImageResourceInRootPackage(String resourcePath) throws IOException {
-        try (InputStream imageTypeInputStream = FileUtil.getResourceInRootPackage(resourcePath)) {
+    public static ImageMedia getImageResourceInRootPackage(String imageResourcePath) throws IOException {
+        try (InputStream imageTypeInputStream = FileUtil.getResourceInRootPackage(imageResourcePath)) {
             String imageFormat = getImageFormat(imageTypeInputStream);
 
-            try (InputStream loadImageInputStream = FileUtil.getResourceInRootPackage(resourcePath)) {
+            try (InputStream loadImageInputStream = FileUtil.getResourceInRootPackage(imageResourcePath)) {
                 return ImageReaders.read(loadImageInputStream, imageFormat, null);
             }
         }
@@ -117,128 +119,144 @@ public class ImageUtil {
     /**
      * Overlays an image on top of another image.
      *
-     * @param background      The image being overlaid on.
-     * @param overlay         The image to overlay.
-     * @param x               The x coordinate of the top left corner of the overlay in relation to the media file being overlaid on.
-     * @param y               The y coordinate of the top left corner of the overlay in relation to the media file being overlaid on.
-     * @param imageType       The type of the resulting image.
-     * @param fill            The background color.
-     * @param expand          Whether to expand the resulting image to fit the overlay image.
-     * @param invertDrawOrder Whether to draw the background image first.
+     * @param image1             The first image.
+     * @param image2             The second image.
+     * @param image1IsBackground Whether the first image is the background or not. If the first image is not the background, then the second image is.
+     * @param x2                 The x coordinate of the top left corner of the second image in relation to the top left corner of the first image.
+     * @param y2                 The y coordinate of the top left corner of the second image in relation to the top left corner of the first image.
+     * @param image2Clip         The clipping area of the second image.
+     * @param imageType          The type of the resulting image.
+     * @param fill               The background color.
+     * @param expand             Whether to expand the resulting image to fit the second image in the case that it oversteps the boundaries of the first image.
      * @return The overlaid image.
      */
-    public static BufferedImage overlayImage(BufferedImage background, BufferedImage overlay, int x, int y, @Nullable Integer imageType, @Nullable Color fill, boolean expand, boolean invertDrawOrder) {
-        ImageMedia backgroundImage = new StaticImage(background);
-        ImageMedia overlayImage = new StaticImage(overlay);
-        return overlayImage(backgroundImage, overlayImage, x, y, imageType, fill, expand, false).getFrame(0).getImage();
+    public static BufferedImage overlayImage(BufferedImage image1, BufferedImage image2, boolean image1IsBackground, int x2, int y2, @Nullable Shape image2Clip, @Nullable Integer imageType, @Nullable Color fill, boolean expand) {
+        ImageMedia imageMedia1 = new StaticImage(image1);
+        ImageMedia imageMedia2 = new StaticImage(image2);
+        return overlayImage(imageMedia1, imageMedia2, image1IsBackground, x2, y2, image2Clip, imageType, fill, expand).getFirstImage();
     }
 
     @SuppressWarnings("UnusedAssignment")
-    public static ImageMedia overlayImage(ImageMedia background, ImageMedia overlay, int x, int y, @Nullable Integer imageType, @Nullable Color fill, boolean expand, boolean invertDrawOrder) {
-        List<BufferedImage> normalisedBackgroundImages = new ArrayList<>(background.toNormalisedImages());
-        List<BufferedImage> normalisedOverlayImages = new ArrayList<>(overlay.toNormalisedImages());
+    public static ImageMedia overlayImage(ImageMedia imageMedia1, ImageMedia imageMedia2, boolean image1IsBackground, int x2, int y2, @Nullable Shape image2Clip, @Nullable Integer imageType, @Nullable Color fill, boolean expand) {
+        List<BufferedImage> normalisedImage1 = new ArrayList<>(imageMedia1.toNormalisedImages());
+        List<BufferedImage> normalisedImage2 = new ArrayList<>(imageMedia2.toNormalisedImages());
 
-        BufferedImage firstBackground = normalisedBackgroundImages.get(0);
-        BufferedImage firstOverlay = normalisedOverlayImages.get(0);
+        BufferedImage firstImage1 = imageMedia1.getFirstImage();
+        BufferedImage firstImage2 = imageMedia2.getFirstImage();
 
-        int backgroundWidth = firstBackground.getWidth();
-        int backgroundHeight = firstBackground.getHeight();
+        int image1Width = firstImage1.getWidth();
+        int image1Height = firstImage1.getHeight();
 
-        int overlayWidth = firstOverlay.getWidth();
-        int overlayHeight = firstOverlay.getHeight();
+        int image2Width = firstImage2.getWidth();
+        int image2Height = firstImage2.getHeight();
 
-        int type = imageType == null ? ImageUtil.getType(firstBackground) : imageType;
+        int type = imageType == null ? ImageUtil.getType(firstImage1) : imageType;
 
-        background = null;
-        overlay = null;
+        imageMedia1 = null;
+        imageMedia2 = null;
 
-        firstBackground.flush();
-        firstOverlay.flush();
-        firstBackground = null;
-        firstOverlay = null;
+        firstImage1.flush();
+        firstImage2.flush();
+        firstImage1 = null;
+        firstImage2 = null;
 
         int overlaidWidth;
         int overlaidHeight;
 
-        int backgroundX;
-        int backgroundY;
+        int image1X;
+        int image1Y;
 
-        int overlayX;
-        int overlayY;
+        int image2X;
+        int image2Y;
 
         if (expand) {
-            if (x < 0) {
-                overlaidWidth = Math.max(backgroundWidth - x, overlayWidth);
-                backgroundX = -x;
+            if (x2 < 0) {
+                overlaidWidth = Math.max(image1Width - x2, image2Width);
+                image1X = -x2;
             } else {
-                overlaidWidth = Math.max(backgroundWidth, overlayWidth + x);
-                backgroundX = 0;
+                overlaidWidth = Math.max(image1Width, image2Width + x2);
+                image1X = 0;
             }
 
-            if (y < 0) {
-                overlaidHeight = Math.max(backgroundHeight - y, overlayHeight);
-                backgroundY = -y;
+            if (y2 < 0) {
+                overlaidHeight = Math.max(image1Height - y2, image2Height);
+                image1Y = -y2;
             } else {
-                overlaidHeight = Math.max(backgroundHeight, overlayHeight + y);
-                backgroundY = 0;
+                overlaidHeight = Math.max(image1Height, image2Height + y2);
+                image1Y = 0;
             }
 
-            overlayX = Math.max(x, 0);
-            overlayY = Math.max(y, 0);
+            image2X = Math.max(x2, 0);
+            image2Y = Math.max(y2, 0);
         } else {
-            overlaidWidth = backgroundWidth;
-            overlaidHeight = backgroundHeight;
+            overlaidWidth = image1Width;
+            overlaidHeight = image1Height;
 
-            backgroundX = 0;
-            backgroundY = 0;
+            image1X = 0;
+            image1Y = 0;
 
-            overlayX = x;
-            overlayY = y;
+            image2X = x2;
+            image2Y = y2;
         }
 
         ImageMediaBuilder builder = new ImageMediaBuilder();
 
-        BufferedImage previousBackground = null;
-        BufferedImage previousOverlay = null;
+        BufferedImage previousImage1 = null;
+        BufferedImage previousImage2 = null;
 
-        int size = Math.max(normalisedBackgroundImages.size(), normalisedOverlayImages.size());
+        int size = Math.max(normalisedImage1.size(), normalisedImage2.size());
         for (int i = 0; i < size; i++) {
-            BufferedImage overlaidImage = new BufferedImage(overlaidWidth, overlaidHeight, type);
-            Graphics2D graphics = overlaidImage.createGraphics();
-
-            if (fill != null) {
-                graphics.setColor(fill);
-                graphics.fillRect(0, 0, overlaidWidth, overlaidHeight);
-            }
-
-            BufferedImage backgroundImage = normalisedBackgroundImages.get(i % normalisedBackgroundImages.size());
-            BufferedImage overlayImage = normalisedOverlayImages.get(i % normalisedOverlayImages.size());
+            BufferedImage image1 = normalisedImage1.get(i % normalisedImage1.size());
+            BufferedImage image2 = normalisedImage2.get(i % normalisedImage2.size());
 
             int remaining = size - i;
-            if (normalisedBackgroundImages.size() - remaining >= 0) {
-                normalisedBackgroundImages.set(i % normalisedBackgroundImages.size(), null);
+            if (normalisedImage1.size() - remaining >= 0) {
+                normalisedImage1.set(i % normalisedImage1.size(), null);
             }
-            if (normalisedOverlayImages.size() - remaining >= 0) {
-                normalisedOverlayImages.set(i % normalisedOverlayImages.size(), null);
+            if (normalisedImage2.size() - remaining >= 0) {
+                normalisedImage2.set(i % normalisedImage2.size(), null);
             }
 
-            if (backgroundImage.equals(previousBackground) && overlayImage.equals(previousOverlay)) {
+            if (image1.equals(previousImage1) && image2.equals(previousImage2)) {
                 builder.increaseLastFrameDuration(Frame.GIF_MINIMUM_FRAME_DURATION);
             } else {
-                if (invertDrawOrder) {
-                    graphics.drawImage(overlayImage, overlayX, overlayY, null);
-                    graphics.drawImage(backgroundImage, backgroundX, backgroundY, null);
+                BufferedImage overlaidImage = new BufferedImage(overlaidWidth, overlaidHeight, type);
+                Graphics2D graphics = overlaidImage.createGraphics();
+
+                if (fill != null) {
+                    graphics.setColor(fill);
+
+                    if (image2Clip == null) {
+                        graphics.fillRect(0, 0, overlaidWidth, overlaidHeight);
+                    } else {
+                        graphics.fill(image2Clip);
+                    }
+                }
+
+                if (!image1IsBackground) {
+                    if (image2Clip != null) {
+                        graphics.setClip(image2Clip);
+                    }
+                    graphics.drawImage(image2, image2X, image2Y, null);
+                    graphics.setClip(null);
+
+                    graphics.drawImage(image1, image1X, image1Y, null);
                 } else {
-                    graphics.drawImage(backgroundImage, backgroundX, backgroundY, null);
-                    graphics.drawImage(overlayImage, overlayX, overlayY, null);
+                    graphics.drawImage(image1, image1X, image1Y, null);
+
+                    if (image2Clip != null) {
+                        graphics.setClip(image2Clip);
+                    }
+                    graphics.drawImage(image2, image2X, image2Y, null);
+                    graphics.setClip(null);
                 }
 
                 graphics.dispose();
 
                 builder.add(new AwtFrame(overlaidImage, Frame.GIF_MINIMUM_FRAME_DURATION));
 
-                previousBackground = backgroundImage;
-                previousOverlay = overlayImage;
+                previousImage1 = image1;
+                previousImage2 = image2;
             }
         }
 
@@ -275,8 +293,8 @@ public class ImageUtil {
         }
     }
 
-    private static boolean isTransparent(int rgb) {
-        return (rgb >> 24) == 0x00;
+    public static boolean isTransparent(int rgb) {
+        return (rgb >> 24) == 0;
     }
 
     private static int get1dIndex(int x, int y, int width) {
@@ -371,5 +389,68 @@ public class ImageUtil {
     public static int getType(BufferedImage image) {
         int type = image.getType();
         return type < 1 || type > 13 ? BufferedImage.TYPE_INT_ARGB : type;
+    }
+
+    public static Area getArea(BufferedImage image) {
+        GeneralPath path = new GeneralPath();
+        boolean cont = false;
+        for (int x = 0; x < image.getWidth(); x++) {
+            for (int y = 0; y < image.getHeight(); y++) {
+                if (isTransparent(image.getRGB(x, y))) {
+                    cont = false;
+                } else {
+                    if (cont) {
+                        path.lineTo(x, y);
+                        path.lineTo(x, y + 1);
+                        path.lineTo(x + 1, y + 1);
+                        path.lineTo(x + 1, y);
+                        path.lineTo(x, y);
+                    } else {
+                        path.moveTo(x, y);
+                    }
+                    cont = true;
+                }
+            }
+            cont = false;
+        }
+        path.closePath();
+
+        return new Area(path);
+    }
+
+    public static BufferedImage floodFill(BufferedImage image, int startX, int startY, Color fill) {
+        return floodFill(image, startX, startY, fill.getRGB());
+    }
+
+    public static BufferedImage floodFill(BufferedImage image, int startX, int startY, int fillRgb) {
+        int currentRgb = image.getRGB(startX, startY);
+        if (currentRgb == fillRgb) {
+            return image;
+        } else {
+            BufferedImage filledImage = new BufferedImage(image.getWidth(), image.getHeight(), getType(image));
+            Graphics2D graphics = filledImage.createGraphics();
+            graphics.drawImage(image, 0, 0, null);
+            graphics.dispose();
+            floodFill(filledImage, startX, startY, currentRgb, fillRgb);
+            return filledImage;
+        }
+    }
+
+    private static void floodFill(BufferedImage image, int x, int y, int previousRgb, int newRgb) {
+        // Recursive cases
+        if (x >= 0
+                && x < image.getWidth()
+                && y >= 0
+                && y < image.getHeight()
+                && image.getRGB(x, y) == previousRgb
+        ) {
+            image.setRGB(x, y, newRgb);
+
+            // Recur for north, east, south and west
+            floodFill(image, x + 1, y, previousRgb, newRgb);
+            floodFill(image, x - 1, y, previousRgb, newRgb);
+            floodFill(image, x, y + 1, previousRgb, newRgb);
+            floodFill(image, x, y - 1, previousRgb, newRgb);
+        }
     }
 }

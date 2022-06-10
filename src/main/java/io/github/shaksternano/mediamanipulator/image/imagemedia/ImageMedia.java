@@ -16,6 +16,8 @@ public interface ImageMedia extends Iterable<Frame> {
      */
     Frame getFrame(int index);
 
+    BufferedImage getFirstImage();
+
     /**
      * Gets the number of frames in this ImageMedia.
      *
@@ -26,8 +28,6 @@ public interface ImageMedia extends Iterable<Frame> {
     boolean isEmpty();
 
     boolean isAnimated();
-
-    List<BufferedImage> toBufferedImages();
 
     List<BufferedImage> toNormalisedImages();
 

@@ -3,6 +3,7 @@ package io.github.shaksternano.mediamanipulator.image.imagemedia;
 import com.google.common.collect.ImmutableList;
 import io.github.shaksternano.mediamanipulator.image.util.Frame;
 
+import java.awt.image.BufferedImage;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -24,6 +25,28 @@ public class AnimatedImage extends BaseImageMedia {
     @Override
     public int getFrameCount() {
         return frames.size();
+    }
+
+    @Override
+    public List<BufferedImage> toNormalisedImages() {
+        ImmutableList.Builder<BufferedImage> builder = new ImmutableList.Builder<>();
+        int millisCount = 0;
+        for (Frame frame : this) {
+            if (frame.getDuration() > Frame.GIF_MINIMUM_FRAME_DURATION) {
+                for (int i = 0; i < frame.getDuration() / Frame.GIF_MINIMUM_FRAME_DURATION; i++) {
+                    builder.add(frame.getImage());
+                }
+            }
+
+            millisCount += frame.getDuration() % Frame.GIF_MINIMUM_FRAME_DURATION;
+            millisCount %= Frame.GIF_MINIMUM_FRAME_DURATION;
+
+            if (millisCount == 0) {
+                builder.add(frame.getImage());
+            }
+        }
+
+        return builder.build();
     }
 
     @Override

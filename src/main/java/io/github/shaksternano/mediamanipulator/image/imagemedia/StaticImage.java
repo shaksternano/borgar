@@ -1,14 +1,12 @@
 package io.github.shaksternano.mediamanipulator.image.imagemedia;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
 import io.github.shaksternano.mediamanipulator.image.util.AwtFrame;
 import io.github.shaksternano.mediamanipulator.image.util.Frame;
 
 import java.awt.image.BufferedImage;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Objects;
-import java.util.Spliterator;
+import java.util.*;
 
 public class StaticImage extends BaseImageMedia {
 
@@ -33,6 +31,11 @@ public class StaticImage extends BaseImageMedia {
     }
 
     @Override
+    public List<BufferedImage> toNormalisedImages() {
+        return ImmutableList.of(frame.getImage());
+    }
+
+    @Override
     public Iterator<Frame> iterator() {
         return Iterators.singletonIterator(frame);
     }
@@ -44,7 +47,7 @@ public class StaticImage extends BaseImageMedia {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(frame);
+        return Objects.hashCode(frame.getImage());
     }
 
     @Override
@@ -52,7 +55,7 @@ public class StaticImage extends BaseImageMedia {
         if (obj == this) {
             return true;
         } else if (obj instanceof StaticImage other) {
-            return Objects.equals(frame, other.frame);
+            return Objects.equals(frame.getImage(), other.frame.getImage());
         } else {
             return false;
         }
@@ -60,6 +63,6 @@ public class StaticImage extends BaseImageMedia {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "[Frame: " + frame + "]";
+        return getClass().getSimpleName() + "[Image: " + frame.getImage() + "]";
     }
 }

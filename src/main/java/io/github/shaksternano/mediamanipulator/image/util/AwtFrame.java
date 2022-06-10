@@ -30,7 +30,7 @@ public class AwtFrame implements Frame {
     @SuppressWarnings("NullableProblems")
     public AwtFrame(BufferedImage image, int duration) {
         this.image = image;
-        this.duration = duration;
+        this.duration = Math.max(duration, 1);
     }
 
     /**
@@ -62,7 +62,7 @@ public class AwtFrame implements Frame {
     }
 
     @Override
-    public void dispose() {
+    public void flush() {
         if (image == null) {
             throw new IllegalStateException();
         } else {

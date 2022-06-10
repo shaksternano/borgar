@@ -35,6 +35,8 @@ public interface ContainerImageInfo {
 
     Position getTextContentPosition();
 
+    Optional<Shape> getContentClip() throws IOException;
+
     boolean isBackground();
 
     Optional<Color> getFill();

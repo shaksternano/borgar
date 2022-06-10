@@ -28,16 +28,14 @@ public class TenorUtil {
             if (uri.getHost().contains("tenor.com") && uri.getPath().startsWith("/view/")) {
                 String mediaId = url.substring(url.lastIndexOf("-") + 1);
                 String requestUrl = "https://g.tenor.com/v1/gifs?key=" + apiKey + "&ids=" + mediaId;
-
                 JsonElement request = NetworkUtil.httpGet(requestUrl);
 
-                Optional<JsonElement> resultsArrayElementOptional = JsonUtil.getNestedElement(request, "results");
-                Optional<JsonElement> resultElementOptional = JsonUtil.getArrayElement(resultsArrayElementOptional.orElse(JsonUtil.EMPTY), 0);
-                Optional<JsonElement> mediaArrayElementOptional = JsonUtil.getNestedElement(resultElementOptional.orElse(JsonUtil.EMPTY), "media");
-                Optional<JsonElement> mediaElementOptional = JsonUtil.getArrayElement(mediaArrayElementOptional.orElse(JsonUtil.EMPTY), 0);
-                Optional<JsonElement> mediaUrlElementOptional = JsonUtil.getNestedElement(mediaElementOptional.orElse(JsonUtil.EMPTY), mediaType.getKey(), "url");
-
-                Optional<String> mediaUrlOptional = mediaUrlElementOptional.map(JsonUtil::getString);
+                Optional<String> mediaUrlOptional = JsonUtil.getNestedElement(request, "results")
+                        .flatMap(resultsArrayElement -> JsonUtil.getArrayElement(resultsArrayElement, 0))
+                        .flatMap(resultElement -> JsonUtil.getNestedElement(resultElement, "media"))
+                        .flatMap(mediaArrayElement -> JsonUtil.getArrayElement(mediaArrayElement, 0))
+                        .flatMap(mediaElement -> JsonUtil.getNestedElement(mediaElement, mediaType.getKey(), "url"))
+                        .flatMap(JsonUtil::getString);
                 if (mediaUrlOptional.isPresent()) {
                     return mediaUrlOptional;
                 } else {

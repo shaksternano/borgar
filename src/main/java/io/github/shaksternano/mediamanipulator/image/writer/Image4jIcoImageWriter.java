@@ -14,7 +14,7 @@ public class Image4jIcoImageWriter implements ImageWriter {
 
     @Override
     public void write(ImageMedia image, File file, String format) throws IOException {
-        BufferedImage original = image.getFrame(0).getImage();
+        BufferedImage original = image.getFirstImage();
         BufferedImage reduced = MediaCompression.reduceToSize(original, 256, 256);
         ICOEncoder.write(reduced, file);
     }

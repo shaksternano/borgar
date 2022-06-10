@@ -18,6 +18,8 @@ public class CustomContainerImageInfo implements ContainerImageInfo {
     private final int CONTENT_WIDTH;
     private final int CONTENT_HEIGHT;
     private final Position CONTENT_POSITION;
+    @Nullable
+    private final Shape CONTENT_CLIP;
     private final boolean IS_BACKGROUND;
     @Nullable
     private final Color FILL;
@@ -36,12 +38,13 @@ public class CustomContainerImageInfo implements ContainerImageInfo {
             int contentContainerWidth,
             int contentContainerHeight,
             int contentContainerPadding,
-            Position contentPosition, boolean isBackground,
+            Position contentPosition,
+            @Nullable Shape contentClip,
+            boolean isBackground,
             @Nullable Color fill,
             @Nullable Font font,
             @Nullable Color textColor,
-            @Nullable Function<String, Drawable> customTextDrawableFactory
-    ) {
+            @Nullable Function<String, Drawable> customTextDrawableFactory) {
         IMAGE = image;
         RESULT_NAME = resultName;
         CONTENT_X = contentContainerX + contentContainerPadding;
@@ -50,6 +53,7 @@ public class CustomContainerImageInfo implements ContainerImageInfo {
         CONTENT_WIDTH = contentContainerWidth - doublePadding;
         CONTENT_HEIGHT = contentContainerHeight - doublePadding;
         CONTENT_POSITION = contentPosition;
+        CONTENT_CLIP = contentClip;
         IS_BACKGROUND = isBackground;
         FILL = fill;
         FONT = font;
@@ -118,6 +122,11 @@ public class CustomContainerImageInfo implements ContainerImageInfo {
     }
 
     @Override
+    public Optional<Shape> getContentClip() {
+        return Optional.ofNullable(CONTENT_CLIP);
+    }
+
+    @Override
     public boolean isBackground() {
         return IS_BACKGROUND;
     }
@@ -129,7 +138,7 @@ public class CustomContainerImageInfo implements ContainerImageInfo {
 
     @Override
     public Font getFont() {
-        return FONT == null ? new Font("Arial", Font.PLAIN, 12) : FONT;
+        return FONT == null ? new Font("Dialog", Font.PLAIN, 12) : FONT;
     }
 
     @Override

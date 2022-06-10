@@ -121,6 +121,10 @@ public class FileUtil {
         return tempFile;
     }
 
+    public static String getResourcePathInRootPackage(String resourcePath) {
+        return ROOT_RESOURCE_DIRECTORY + resourcePath;
+    }
+
     /**
      * Gets a resource bundled with the program.
      *
@@ -129,7 +133,7 @@ public class FileUtil {
      * @throws FileNotFoundException If the resource could not be found.
      */
     public static InputStream getResourceInRootPackage(String resourcePath) throws FileNotFoundException {
-        return getResource(ROOT_RESOURCE_DIRECTORY + resourcePath);
+        return getResource(getResourcePathInRootPackage(resourcePath));
     }
 
     private static InputStream getResource(String resourcePath) throws FileNotFoundException {
@@ -207,20 +211,25 @@ public class FileUtil {
         return newFileName + "." + extension;
     }
 
-    public static String changeExtension(String fileName, String newExtension) {
-        return com.google.common.io.Files.getNameWithoutExtension(fileName) + "." + newExtension;
+    public static String changeExtension(String filePath, @Nullable String newExtension) {
+        String fileNameWithoutExtension = com.google.common.io.Files.getNameWithoutExtension(filePath);
+        if (newExtension == null || newExtension.isBlank()) {
+            return fileNameWithoutExtension;
+        } else {
+            return fileNameWithoutExtension + "." + newExtension;
+        }
     }
 
-    public static void validateResourcePathInRootPackage(String filePath) throws IOException {
-        if (filePath == null || filePath.isEmpty()) {
-            throw new IllegalArgumentException("File path cannot be null or empty!");
+    public static void validateResourcePathInRootPackage(String resourcePath) throws IOException {
+        if (resourcePath == null || resourcePath.isBlank()) {
+            throw new IllegalArgumentException("File path cannot be null or blank!");
         } else {
-            try (InputStream inputStream = ResourceContainerImageInfo.class.getClassLoader().getResourceAsStream(ROOT_RESOURCE_DIRECTORY + filePath)) {
+            try (InputStream inputStream = ResourceContainerImageInfo.class.getClassLoader().getResourceAsStream(getResourcePathInRootPackage(resourcePath))) {
                 if (inputStream == null) {
-                    throw new FileNotFoundException("File path not found: " + filePath);
+                    throw new FileNotFoundException("File path not found: " + resourcePath);
                 }
             } catch (IOException e) {
-                throw new IOException("Error loading file with path " + filePath, e);
+                throw new IOException("Error loading file with path " + resourcePath, e);
             }
         }
     }

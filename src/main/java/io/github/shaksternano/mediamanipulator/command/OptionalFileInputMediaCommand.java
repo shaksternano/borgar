@@ -1,7 +1,6 @@
 package io.github.shaksternano.mediamanipulator.command;
 
 import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Multimap;
 import io.github.shaksternano.mediamanipulator.Main;
 import io.github.shaksternano.mediamanipulator.exception.InvalidMediaException;
 import io.github.shaksternano.mediamanipulator.exception.UnsupportedFileFormatException;
@@ -88,7 +87,7 @@ public abstract class OptionalFileInputMediaCommand extends BaseCommand {
         } catch (UnsupportedFileFormatException e) {
             String unsupportedMessage = "This operation is not supported on files with type \"" + fileFormat + "\"!";
 
-            if (e.getMessage() != null && !e.getMessage().isEmpty()) {
+            if (e.getMessage() != null && !e.getMessage().isBlank()) {
                 unsupportedMessage = unsupportedMessage + " Reason: " + e.getMessage();
             }
 
@@ -102,7 +101,7 @@ public abstract class OptionalFileInputMediaCommand extends BaseCommand {
         }
     }
 
-    public abstract File applyOperation(File media, String fileFormat, List<String> arguments, Multimap<String, String> extraArguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException;
+    public abstract File applyOperation(File media, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException;
 
     public abstract File applyOperation(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException;
 }
