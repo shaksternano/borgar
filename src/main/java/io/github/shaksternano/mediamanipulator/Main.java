@@ -186,7 +186,7 @@ public class Main {
         Command helpCommand = Commands.HELP;
         jda.updateCommands()
                 .addCommands(net.dv8tion.jda.api.interactions.commands.build.Commands.slash(helpCommand.getName(), helpCommand.getDescription()))
-                .queue();
+                .queue(commands -> {}, throwable -> getLogger().error("Failed to add slash commands!", throwable));
         jda.addEventListener(CommandListener.INSTANCE);
     }
 

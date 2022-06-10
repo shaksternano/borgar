@@ -9,6 +9,19 @@ import java.io.ObjectInputStream;
 
 public class GraphicsUtil {
 
+    public static int fontFitWidth(int maxWidth, Drawable text, Graphics2D graphics) {
+        Font font = graphics.getFont();
+        int textWidth = text.getWidth(graphics);
+        while (textWidth > maxWidth) {
+            float sizeRatio = (float) textWidth / maxWidth;
+            font = font.deriveFont(font.getSize() - sizeRatio);
+            graphics.setFont(font);
+            textWidth = text.getWidth(graphics);
+        }
+
+        return textWidth;
+    }
+
     public static int fontFitHeight(int maxHeight, Drawable text, Graphics2D graphics) {
         Font font = graphics.getFont();
         int textHeight = text.getHeight(graphics);
