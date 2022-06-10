@@ -25,11 +25,13 @@ public class ScrimageAnimatedGifWriter implements ImageWriter {
                     ImmutableImage immutableImage = ImmutableImage.wrapAwt(frame.getImage());
                     gif.writeFrame(immutableImage, Duration.ofMillis(frame.getDuration()), DisposeMethod.RESTORE_TO_BACKGROUND_COLOR);
                 }
+            } catch (IOException e) {
+                throw e;
             } catch (Exception e) {
                 throw new IOException(e);
             }
         } else {
-            ImmutableImage immutableImage = ImmutableImage.wrapAwt(image.getFrame(0).getImage());
+            ImmutableImage immutableImage = ImmutableImage.wrapAwt(image.getFirstImage());
             immutableImage.output(GifWriter.Default, file);
         }
     }

@@ -1,0 +1,37 @@
+package io.github.shaksternano.mediamanipulator.graphics;
+
+import io.github.shaksternano.mediamanipulator.graphics.drawable.Drawable;
+import io.github.shaksternano.mediamanipulator.io.FileUtil;
+
+import java.awt.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+
+public class GraphicsUtil {
+
+    public static int fontFitHeight(int maxHeight, Drawable text, Graphics2D graphics) {
+        Font font = graphics.getFont();
+        int textHeight = text.getHeight(graphics);
+        while (textHeight > maxHeight) {
+            float sizeRatio = (float) textHeight / maxHeight;
+            font = font.deriveFont(font.getSize() - sizeRatio);
+            graphics.setFont(font);
+            textHeight = text.getHeight(graphics);
+        }
+
+        return textHeight;
+    }
+
+    public static Shape loadShape(String resourcePath) throws IOException {
+        try (ObjectInputStream input = new ObjectInputStream(FileUtil.getResourceInRootPackage(resourcePath))) {
+            Object parsedObject = input.readObject();
+            if (parsedObject instanceof Shape shape) {
+                return shape;
+            } else {
+                throw new IOException("Failed to load shape file under \"" + resourcePath + "\"! The parsed object is not a shape!");
+            }
+        } catch (ClassNotFoundException e) {
+            throw new IOException("Failed to load shape file under \"" + resourcePath + "\"!", e);
+        }
+    }
+}

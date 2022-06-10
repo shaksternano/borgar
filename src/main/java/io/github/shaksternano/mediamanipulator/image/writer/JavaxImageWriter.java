@@ -13,7 +13,7 @@ public class JavaxImageWriter implements ImageWriter {
 
     @Override
     public void write(ImageMedia image, File file, String format) throws IOException {
-        BufferedImage bufferedImage = image.getFrame(0).getImage();
+        BufferedImage bufferedImage = image.getFirstImage();
         ImageIO.write(bufferedImage, format, file);
     }
 

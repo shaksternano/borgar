@@ -46,6 +46,12 @@ public class Commands {
             ResourceContainerImageInfo.SOYJAK_POINTING
     ));
 
+    public static final Command THINKING_BUBBLE = addCommandToRegister(new ContainerImageCommand(
+            "think",
+            "Puts text or an image in a thinking bubble. Optional arguments: [Thinking bubble text]",
+            ResourceContainerImageInfo.THINKING_BUBBLE
+    ));
+
     public static final Command SPIN = addCommandToRegister(new SpinCommand(
             "spin",
             "Spins a media file. Optional arguments: [Spin speed, default value is " + FORMAT.format(SpinCommand.DEFAULT_SPIN_SPEED) + "], [Background RGB colour, by default it is transparent]"

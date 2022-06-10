@@ -1,7 +1,6 @@
 package io.github.shaksternano.mediamanipulator.command;
 
 import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Multimap;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.Drawable;
 import io.github.shaksternano.mediamanipulator.image.backgroundimage.ContainerImageInfo;
 import io.github.shaksternano.mediamanipulator.mediamanipulator.MediaManipulator;
@@ -31,7 +30,7 @@ public class ContainerImageCommand extends OptionalFileInputMediaCommand {
     }
 
     @Override
-    public File applyOperation(File media, String fileFormat, List<String> arguments, Multimap<String, String> extraArguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
+    public File applyOperation(File media, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
         return manipulator.containerImageWithImage(media, fileFormat, CONTAINER_IMAGE_INFO);
     }
 

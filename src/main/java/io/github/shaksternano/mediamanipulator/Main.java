@@ -12,6 +12,7 @@ import io.github.shaksternano.mediamanipulator.logging.DiscordLogger;
 import io.github.shaksternano.mediamanipulator.mediamanipulator.util.MediaManipulators;
 import io.github.shaksternano.mediamanipulator.util.Fonts;
 import io.github.shaksternano.mediamanipulator.util.ProgramArguments;
+import io.github.shaksternano.mediamanipulator.util.SystemUtil;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -19,7 +20,6 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.requests.RestAction;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.security.auth.login.LoginException;
 import java.util.Optional;
@@ -33,7 +33,7 @@ public class Main {
     /**
      * The program's {@link Logger}.
      */
-    private static final Logger LOGGER = initLogger();
+    private static final Logger LOGGER = SystemUtil.createLogger("Media Manipulator");
 
     @Nullable
     private static Logger discordLogger;
@@ -73,6 +73,11 @@ public class Main {
      * @param args The program arguments.
      */
     public static void main(String[] args) {
+        ImageReaders.registerImageReaders();
+        ImageWriters.registerImageWriters();
+        Fonts.registerFonts();
+        ResourceContainerImageInfo.validate();
+
         arguments = new ProgramArguments(args);
 
         initJda(initDiscordBotToken());
@@ -81,15 +86,10 @@ public class Main {
 
         getLogger().info("Starting!");
 
-        ImageReaders.registerImageReaders();
-        ImageWriters.registerImageWriters();
-
         initTenorApiKey();
 
-        Fonts.registerFonts();
         Commands.registerCommands();
         MediaManipulators.registerMediaManipulators();
-        ResourceContainerImageInfo.validateFilePaths();
 
         Thread commandThread = new Thread(new TerminalInputListener());
         commandThread.start();
@@ -98,11 +98,6 @@ public class Main {
         configureJda();
 
         getLogger().info("Initialised!");
-    }
-
-    private static Logger initLogger() {
-        System.setProperty("log4j2.contextSelector", "org.apache.logging.log4j.core.async.AsyncLoggerContextSelector");
-        return LoggerFactory.getLogger("Media Manipulator");
     }
 
     /**
@@ -201,15 +196,21 @@ public class Main {
     public static void shutdown(int exitCode) {
         try {
             TimeUnit.SECONDS.sleep(1);
+
+            if (jda != null) {
+                jda.shutdownNow();
+            }
         } catch (InterruptedException e) {
             LOGGER.error("Interrupted while waiting for the program to terminate!", e);
+        } catch (Throwable t) {
+            LOGGER.error("An error occurred while terminating the program!", t);
         }
 
-        if (jda != null) {
-            jda.shutdownNow();
+        try {
+            System.exit(exitCode);
+        } catch (Throwable t) {
+            LOGGER.error("Failed to terminate the program!", t);
         }
-
-        System.exit(exitCode);
     }
 
     public static Logger getLogger() {

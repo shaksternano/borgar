@@ -40,15 +40,15 @@ public class GithubUtil {
             if (path.isEmpty()) {
                 List<String> files = new ArrayList<>();
                 for (JsonElement fileElement : treeArray) {
-                    JsonUtil.getNestedElement(fileElement, "path").map(JsonUtil::getString).ifPresent(files::add);
+                    JsonUtil.getNestedElement(fileElement, "path").flatMap(JsonUtil::getString).ifPresent(files::add);
                 }
                 return files;
             } else {
                 String firstPath = path.remove(0);
                 for (JsonElement treeElement : treeArray) {
-                    Optional<String> pathOptional = JsonUtil.getNestedElement(treeElement, "path").map(JsonUtil::getString);
+                    Optional<String> pathOptional = JsonUtil.getNestedElement(treeElement, "path").flatMap(JsonUtil::getString);
                     if (Optional.of(firstPath).equals(pathOptional)) {
-                        Optional<String> shaOptional = JsonUtil.getNestedElement(treeElement, "sha").map(JsonUtil::getString);
+                        Optional<String> shaOptional = JsonUtil.getNestedElement(treeElement, "sha").flatMap(JsonUtil::getString);
                         if (shaOptional.isPresent()) {
                             return listFiles(user, repository, shaOptional.orElseThrow(), path);
                         }
@@ -67,9 +67,9 @@ public class GithubUtil {
             if (tags.isJsonArray()) {
                 JsonArray tagsArray = tags.getAsJsonArray();
                 for (JsonElement tagElement : tagsArray) {
-                    Optional<String> tag = JsonUtil.getNestedElement(tagElement, "name").map(JsonUtil::getString);
+                    Optional<String> tag = JsonUtil.getNestedElement(tagElement, "name").flatMap(JsonUtil::getString);
                     if (latestReleaseTagOptional.equals(tag)) {
-                        return JsonUtil.getNestedElement(tagElement, "commit", "sha").map(JsonUtil::getString);
+                        return JsonUtil.getNestedElement(tagElement, "commit", "sha").flatMap(JsonUtil::getString);
                     }
                 }
             }
@@ -81,7 +81,7 @@ public class GithubUtil {
     private static Optional<String> getLatestReleaseTag(String user, String repository) {
         String url = getRepositoryApiUrl(user, repository) + "/releases/latest";
         JsonElement latestRelease = NetworkUtil.httpGet(url);
-        return JsonUtil.getNestedElement(latestRelease, "tag_name").map(JsonUtil::getString);
+        return JsonUtil.getNestedElement(latestRelease, "tag_name").flatMap(JsonUtil::getString);
     }
 
     private static String getRepositoryApiUrl(String user, String repository) {

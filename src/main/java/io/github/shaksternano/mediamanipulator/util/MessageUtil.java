@@ -2,6 +2,7 @@ package io.github.shaksternano.mediamanipulator.util;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import io.github.shaksternano.mediamanipulator.Main;
 import io.github.shaksternano.mediamanipulator.emoji.EmojiUtil;
@@ -196,18 +197,34 @@ public class MessageUtil {
     }
 
     public static Map<String, String> getEmojiUrls(Message message, boolean onlyGetFirst) {
-        Map<String, String> emojiUrls = new HashMap<>();
-        List<Emote> emotes = message.getMentions().getEmotes();
+        ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
+        String messageContent = message.getContentRaw();
 
+        // Get custom emojis.
+        List<Emote> emotes = message.getMentions().getEmotes();
         for (Emote emote : emotes) {
+            builder.put(emote.getAsMention(), emote.getImageUrl());
             if (onlyGetFirst) {
-                return ImmutableMap.of(emote.getAsMention(), emote.getImageUrl());
-            } else {
-                emojiUrls.put(emote.getAsMention(), emote.getImageUrl());
+                return builder.build();
             }
         }
 
-        String messageContent = message.getContentRaw();
+        // Get emojis undetected by Discord.
+        Set<String> emoteNames = emotes.stream().map(Emote::getName).collect(ImmutableSet.toImmutableSet());
+        for (Emote emote : message.getGuild().getEmotes()) {
+            String emoteName = emote.getName();
+            if (!emoteNames.contains(emoteName)) {
+                String emoteColonName = ":" + emote.getName() + ":";
+                if (messageContent.contains(emoteColonName)) {
+                    builder.put(emoteColonName, emote.getImageUrl());
+                    if (onlyGetFirst) {
+                        return builder.build();
+                    }
+                }
+            }
+        }
+
+        // Get unicode emojis.
         int[] codePoints = messageContent.codePoints().toArray();
         for (int i = 0; i < codePoints.length; i++) {
             for (int j = Math.min(codePoints.length - 1, 10 + i); j >= i; j--) {
@@ -227,18 +244,19 @@ public class MessageUtil {
                         emojiCharactersBuilder.appendCodePoint(codePoint);
                     }
 
+                    builder.put(emojiCharactersBuilder.toString(), EmojiUtil.getEmojiUrl(compositeUnicodeBuilder.toString()));
+
                     if (onlyGetFirst) {
-                        return ImmutableMap.of(emojiCharactersBuilder.toString(), EmojiUtil.getEmojiUrl(compositeUnicodeBuilder.toString()));
-                    } else {
-                        emojiUrls.put(emojiCharactersBuilder.toString(), EmojiUtil.getEmojiUrl(compositeUnicodeBuilder.toString()));
-                        i += j - i;
-                        break;
+                        return builder.build();
                     }
+
+                    i += j - i;
+                    break;
                 }
             }
         }
 
-        return emojiUrls;
+        return builder.build();
     }
 
     /**

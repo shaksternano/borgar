@@ -84,7 +84,7 @@ public abstract class MediaCommand extends BaseCommand {
                 } catch (UnsupportedFileFormatException e) {
                     String unsupportedMessage = "This operation is not supported on files with type \"" + fileFormat + "\"!";
 
-                    if (e.getMessage() != null && !e.getMessage().isEmpty()) {
+                    if (e.getMessage() != null && !e.getMessage().isBlank()) {
                         unsupportedMessage = unsupportedMessage + " Reason: " + e.getMessage();
                     }
 
