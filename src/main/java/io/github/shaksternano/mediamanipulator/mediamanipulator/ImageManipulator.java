@@ -86,9 +86,13 @@ public class ImageManipulator implements MediaManipulator {
 
         originalGraphics.setFont(font);
 
+        int maxWidth = width - (padding * 2);
         CompositeDrawable paragraph = new ParagraphCompositeDrawable.Builder(nonTextParts)
                 .addWords(null, words)
-                .build(TextAlignment.CENTER, width - (padding * 2));
+                .build(TextAlignment.CENTER, maxWidth);
+
+        GraphicsUtil.fontFitWidth(maxWidth, paragraph, originalGraphics);
+        font = originalGraphics.getFont();
 
         int fillHeight = paragraph.getHeight(originalGraphics) + (padding * 2);
         originalGraphics.dispose();

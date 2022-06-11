@@ -39,7 +39,8 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
             } catch (UnsupportedOperationException ignored) {
             }
 
-            int newLineWidth = lineWidth + part.getWidth(graphics);
+            int partWidth = part.getWidth(graphics);
+            int newLineWidth = lineWidth + partWidth;
             if (lineWidth > 0) {
                 newLineWidth += SPACE.getWidth(graphics);
             }
@@ -62,7 +63,7 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
 
                 currentLine.clear();
                 currentLine.add(part);
-                lineWidth = part.getWidth(graphics);
+                lineWidth = partWidth;
                 lineY += lineHeight + lineSpace;
             }
         }
@@ -88,6 +89,7 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
         FontMetrics metrics = graphicsContext.getFontMetrics();
         int lineHeight = metrics.getAscent() + metrics.getDescent();
         int lineWidth = 0;
+        int maxLineWidth = 0;
 
         boolean currentLineIsEmpty = true;
         for (Drawable part : getParts()) {
@@ -96,7 +98,8 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
             } catch (UnsupportedOperationException ignored) {
             }
 
-            int newLineWidth = lineWidth + part.getWidth(graphicsContext);
+            int partWidth = part.getWidth(graphicsContext);
+            int newLineWidth = lineWidth + partWidth;
             if (lineWidth > 0) {
                 newLineWidth += SPACE.getWidth(graphicsContext);
             }
@@ -105,12 +108,14 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
                 lineWidth = newLineWidth;
                 currentLineIsEmpty = false;
             } else {
-                lineWidth = part.getWidth(graphicsContext);
+                lineWidth = partWidth;
                 currentLineIsEmpty = true;
             }
+
+            maxLineWidth = Math.max(maxLineWidth, lineWidth);
         }
 
-        return lineWidth;
+        return maxLineWidth;
     }
 
     @Override
@@ -128,7 +133,8 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
             } catch (UnsupportedOperationException ignored) {
             }
 
-            int newLineWidth = lineWidth + part.getWidth(graphicsContext);
+            int partWidth = part.getWidth(graphicsContext);
+            int newLineWidth = lineWidth + partWidth;
             if (lineWidth > 0) {
                 newLineWidth += SPACE.getWidth(graphicsContext);
             }
@@ -137,7 +143,7 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
                 lineWidth = newLineWidth;
                 currentLineIsEmpty = false;
             } else {
-                lineWidth = part.getWidth(graphicsContext);
+                lineWidth = partWidth;
                 lineY += lineHeight + lineSpace;
                 currentLineIsEmpty = true;
             }
