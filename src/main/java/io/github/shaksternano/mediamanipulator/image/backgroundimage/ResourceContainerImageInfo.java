@@ -67,6 +67,12 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
             81,
             10,
             Position.CENTRE,
+            12,
+            0,
+            116,
+            81,
+            20,
+            Position.CENTRE,
             "shape/thinking_bubble_edge_trimmed.javashape",
             false,
             Color.WHITE,
@@ -249,8 +255,11 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
 
     @Override
     public Optional<Shape> getContentClip() throws IOException {
-        Shape clip = GraphicsUtil.loadShape(CONTENT_CLIP_SHAPE_FILE_PATH);
-        return Optional.ofNullable(clip);
+        if (CONTENT_CLIP_SHAPE_FILE_PATH == null) {
+            return Optional.empty();
+        } else {
+            return Optional.of(GraphicsUtil.loadShape(CONTENT_CLIP_SHAPE_FILE_PATH));
+        }
     }
 
     @Override
