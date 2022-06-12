@@ -30,7 +30,6 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
         int lineY = y;
 
         List<Drawable> currentLine = new ArrayList<>();
-
         for (int i = 0; i < getParts().size(); i++) {
             Drawable part = getParts().get(i);
             try {
