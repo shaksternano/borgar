@@ -82,7 +82,7 @@ tasks.getByName<Test>("test") {
 publishing {
     publications {
         register("mavenJava", MavenPublication::class) {
-            artifact("imperishable-items-fabric")
+            artifact("media-manipulator-discord-bot")
             from(components["java"])
         }
     }

@@ -73,7 +73,7 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
             81,
             20,
             Position.CENTRE,
-            "shape/thinking_bubble_edge_trimmed.javashape",
+            "shape/thinking_bubble_edge_trimmed.javaobject",
             false,
             Color.WHITE,
             "Futura-CondensedExtraBold",

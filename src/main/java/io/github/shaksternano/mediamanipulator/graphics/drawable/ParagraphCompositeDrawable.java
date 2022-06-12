@@ -30,7 +30,6 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
         int lineY = y;
 
         List<Drawable> currentLine = new ArrayList<>();
-
         for (int i = 0; i < getParts().size(); i++) {
             Drawable part = getParts().get(i);
             try {
@@ -40,18 +39,18 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
             }
 
             int partWidth = part.getWidth(graphics);
+            int spaceWidth = SPACE.getWidth(graphics);
             int newLineWidth = lineWidth + partWidth;
-            if (lineWidth > 0) {
-                newLineWidth += SPACE.getWidth(graphics);
-            }
 
             if (newLineWidth <= MAX_WIDTH || currentLine.isEmpty()) {
                 currentLine.add(part);
+                if (lineWidth > 0) {
+                    newLineWidth += spaceWidth;
+                }
                 lineWidth = newLineWidth;
             } else {
                 lineX = calculateTextXPosition(ALIGNMENT, x, lineWidth, MAX_WIDTH);
 
-                int spaceWidth = SPACE.getWidth(graphics);
                 if (ALIGNMENT == TextAlignment.JUSTIFY) {
                     spaceWidth += (MAX_WIDTH - lineWidth) / (currentLine.size() - 1);
                 }
@@ -99,12 +98,13 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
             }
 
             int partWidth = part.getWidth(graphicsContext);
+            int spaceWidth = SPACE.getWidth(graphicsContext);
             int newLineWidth = lineWidth + partWidth;
-            if (lineWidth > 0) {
-                newLineWidth += SPACE.getWidth(graphicsContext);
-            }
 
             if (newLineWidth <= MAX_WIDTH || currentLineIsEmpty) {
+                if (lineWidth > 0) {
+                    newLineWidth += spaceWidth;
+                }
                 lineWidth = newLineWidth;
                 currentLineIsEmpty = false;
             } else {
@@ -134,12 +134,13 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
             }
 
             int partWidth = part.getWidth(graphicsContext);
+            int spaceWidth = SPACE.getWidth(graphicsContext);
             int newLineWidth = lineWidth + partWidth;
-            if (lineWidth > 0) {
-                newLineWidth += SPACE.getWidth(graphicsContext);
-            }
 
             if (newLineWidth <= MAX_WIDTH || currentLineIsEmpty) {
+                if (lineWidth > 0) {
+                    newLineWidth += spaceWidth;
+                }
                 lineWidth = newLineWidth;
                 currentLineIsEmpty = false;
             } else {
