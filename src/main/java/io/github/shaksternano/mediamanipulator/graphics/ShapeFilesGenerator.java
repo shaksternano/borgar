@@ -39,7 +39,7 @@ public class ShapeFilesGenerator {
                 image.flush();
                 Shape serializableShape = createSerializableShape(shape);
 
-                String shapeFileName = FileUtil.changeExtension(imageResourcePath, "javashape");
+                String shapeFileName = FileUtil.changeExtension(imageResourcePath, "javaobject");
                 File shapeFile = new File(directory, shapeFileName);
 
                 try (ObjectOutput output = new ObjectOutputStream(new FileOutputStream(shapeFile))) {
