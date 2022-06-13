@@ -205,21 +205,6 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
         }
 
         public Builder addWord(@Nullable Function<String, Drawable> customTextDrawableFactory, String word) {
-            addCompositeWord(customTextDrawableFactory, word);
-            return this;
-        }
-
-        public ParagraphCompositeDrawable build(TextAlignment alignment, int maxWidth) {
-            ParagraphCompositeDrawable paragraph = new ParagraphCompositeDrawable(alignment, maxWidth);
-
-            for (Drawable part : words) {
-                paragraph.addPart(part);
-            }
-
-            return paragraph;
-        }
-
-        private void addCompositeWord(@Nullable Function<String, Drawable> customTextDrawableFactory, String word) {
             if (NON_TEXT_PARTS.isEmpty()) {
                 Drawable textPart = customTextDrawableFactory == null ?
                         new TextDrawable(word) :
@@ -271,6 +256,18 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
 
                 words.add(compositeWord);
             }
+
+            return this;
+        }
+
+        public ParagraphCompositeDrawable build(TextAlignment alignment, int maxWidth) {
+            ParagraphCompositeDrawable paragraph = new ParagraphCompositeDrawable(alignment, maxWidth);
+
+            for (Drawable part : words) {
+                paragraph.addPart(part);
+            }
+
+            return paragraph;
         }
 
         @Override

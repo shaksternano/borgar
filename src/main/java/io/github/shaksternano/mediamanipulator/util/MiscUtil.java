@@ -3,7 +3,7 @@ package io.github.shaksternano.mediamanipulator.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SystemUtil {
+public class MiscUtil {
 
     private static final int TO_MB = 1024 * 1024;
 

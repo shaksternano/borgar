@@ -20,6 +20,12 @@ public class ServerCountCommand extends BaseCommand {
 
     @Override
     public void execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
-        event.getMessage().reply("I am in " + event.getJDA().getGuilds().size() + " servers.").queue();
+        long serverCount = event.getJDA().getGuildCache().size();
+        StringBuilder builder = new StringBuilder();
+        builder.append("This bot is in ").append(serverCount).append(" server.");
+        if (serverCount != 1) {
+            builder.insert(builder.length() - 1, "s");
+        }
+        event.getMessage().reply(builder).queue();
     }
 }

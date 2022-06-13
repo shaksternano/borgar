@@ -12,7 +12,7 @@ import io.github.shaksternano.mediamanipulator.logging.DiscordLogger;
 import io.github.shaksternano.mediamanipulator.mediamanipulator.util.MediaManipulators;
 import io.github.shaksternano.mediamanipulator.util.Fonts;
 import io.github.shaksternano.mediamanipulator.util.ProgramArguments;
-import io.github.shaksternano.mediamanipulator.util.SystemUtil;
+import io.github.shaksternano.mediamanipulator.util.MiscUtil;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -33,7 +33,7 @@ public class Main {
     /**
      * The program's {@link Logger}.
      */
-    private static final Logger LOGGER = SystemUtil.createLogger("Media Manipulator");
+    private static final Logger LOGGER = MiscUtil.createLogger("Media Manipulator");
 
     @Nullable
     private static Logger discordLogger;
@@ -176,7 +176,7 @@ public class Main {
     }
 
     private static void configureJda() {
-        jda.getPresence().setActivity(Activity.playing("gaming"));
+        jda.getPresence().setActivity(Activity.playing("Fortnite Battle Pass"));
 
         jda.retrieveApplicationInfo().queue(
                 applicationInfo -> ownerId = applicationInfo.getOwner().getIdLong(),
@@ -186,9 +186,8 @@ public class Main {
         Command helpCommand = Commands.HELP;
         jda.updateCommands()
                 .addCommands(net.dv8tion.jda.api.interactions.commands.build.Commands.slash(helpCommand.getName(), helpCommand.getDescription()))
-                .queue(commands -> {
-                }, throwable -> getLogger().error("Failed to add slash commands!", throwable));
-        jda.addEventListener(CommandListener.INSTANCE);
+                .queue(commands -> {}, throwable -> getLogger().error("Failed to add slash commands!", throwable));
+        jda.addEventListener(new CommandListener());
     }
 
     /**

@@ -1,5 +1,6 @@
 package io.github.shaksternano.mediamanipulator.command;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.Drawable;
 import io.github.shaksternano.mediamanipulator.mediamanipulator.MediaManipulator;
@@ -10,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class DemotivateCommand extends MediaCommand {
 
@@ -27,6 +29,13 @@ public class DemotivateCommand extends MediaCommand {
     @Override
     public File applyOperation(File media, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
         Map<String, Drawable> nonTextParts = MessageUtil.getNonTextParts(event.getMessage());
-        return manipulator.demotivate(media, fileFormat, arguments, nonTextParts);
+        return manipulator.demotivate(media, fileFormat, arguments, extraArguments.get("sub"), nonTextParts);
+    }
+
+    @Override
+    public Set<String> getAdditionalParameterNames() {
+        return ImmutableSet.of(
+                "sub"
+        );
     }
 }

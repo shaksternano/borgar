@@ -14,8 +14,10 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.PermissionException;
 
 import java.text.DecimalFormat;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.BiFunction;
 
 /**
@@ -80,7 +82,6 @@ public class CommandParser {
             if (message.startsWith(Command.PREFIX)) {
                 String[] commandParts = message.split("\\s+");
                 commandParts[0] = commandParts[0].substring(1).toLowerCase();
-
                 return ImmutableList.copyOf(commandParts);
             }
         }
@@ -119,14 +120,18 @@ public class CommandParser {
 
     private static ListMultimap<String, String> parseExtraArguments(List<String> commandParts, Command command) {
         ImmutableListMultimap.Builder<String, String> argumentsBuilder = new ImmutableListMultimap.Builder<>();
+        Set<String> passedExtraCommandWords = new HashSet<>();
 
         String currentExtraParameterName = null;
         for (String commandPart : commandParts) {
             if (commandPart.startsWith(Command.PREFIX)) {
                 String commandWord = commandPart.substring(1).toLowerCase();
 
-                if (command.getAdditionalParameterNames().contains(commandWord)) {
+                if (command.getAdditionalParameterNames().contains(commandWord)
+                        && !passedExtraCommandWords.contains(commandWord)
+                ) {
                     currentExtraParameterName = commandWord;
+                    passedExtraCommandWords.add(commandWord);
                     continue;
                 }
             }
