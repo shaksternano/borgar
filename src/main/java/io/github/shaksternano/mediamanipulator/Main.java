@@ -176,7 +176,7 @@ public class Main {
     }
 
     private static void configureJda() {
-        jda.getPresence().setActivity(Activity.playing("Fortnite Battle Pass"));
+        jda.getPresence().setActivity(Activity.playing("fortnite battle pass"));
 
         jda.retrieveApplicationInfo().queue(
                 applicationInfo -> ownerId = applicationInfo.getOwner().getIdLong(),
