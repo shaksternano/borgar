@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 
 public class MiscUtil {
 
-    private static final int TO_MB = 1024 * 1024;
+    public static final int TO_MB = 1024 * 1024;
 
     public static String getCurrentMemoryUsageMessage() {
         return "Current memory usage: " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / TO_MB + "/" + Runtime.getRuntime().maxMemory() / TO_MB + "MB";

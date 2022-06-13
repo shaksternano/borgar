@@ -9,6 +9,7 @@ import io.github.shaksternano.mediamanipulator.mediamanipulator.MediaManipulator
 import io.github.shaksternano.mediamanipulator.mediamanipulator.util.MediaManipulatorRegistry;
 import io.github.shaksternano.mediamanipulator.util.DiscordUtil;
 import io.github.shaksternano.mediamanipulator.util.MessageUtil;
+import io.github.shaksternano.mediamanipulator.util.MiscUtil;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -17,6 +18,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 public abstract class OptionalFileInputMediaCommand extends BaseCommand {
 
@@ -40,9 +42,10 @@ public abstract class OptionalFileInputMediaCommand extends BaseCommand {
         String fileFormat = file == null ? null : FileUtil.getFileFormat(file);
         MediaManipulator manipulator = fileFormat == null ? null : MediaManipulatorRegistry.getManipulator(fileFormat).orElse(null);
 
-        try {
-            File editedMedia;
+        File editedMedia = null;
+        File compressedMedia = null;
 
+        try {
             if (file == null) {
                 editedMedia = applyOperation(arguments, extraArguments, event);
             } else {
@@ -50,7 +53,6 @@ public abstract class OptionalFileInputMediaCommand extends BaseCommand {
             }
 
             String newFileFormat = FileUtil.getFileFormat(editedMedia);
-            File compressedMedia;
             Optional<MediaManipulator> manipulatorOptional = MediaManipulatorRegistry.getManipulator(newFileFormat);
             if (manipulatorOptional.isPresent()) {
                 compressedMedia = manipulatorOptional.orElseThrow().compress(editedMedia, newFileFormat, event.getGuild());
@@ -58,28 +60,36 @@ public abstract class OptionalFileInputMediaCommand extends BaseCommand {
                 compressedMedia = editedMedia;
             }
 
-            if (file != null) {
-                file.delete();
-            }
-
             long mediaFileSize = compressedMedia.length();
             if (mediaFileSize > DiscordUtil.getMaxUploadSize(event.getGuild())) {
-                long mediaFileSizeInMb = mediaFileSize / (1024 * 1024);
+                long mediaFileSizeInMb = mediaFileSize / MiscUtil.TO_MB;
                 userMessage.reply("The size of the edited media file, " + mediaFileSizeInMb + "MB, is too large to send!").queue();
                 Main.getLogger().error("File size of edited media was too large to send! (" + mediaFileSize + "MB)");
-                editedMedia.delete();
-                compressedMedia.delete();
             } else {
-                try {
-                    userMessage.reply(compressedMedia).complete();
-                } catch (RuntimeException e) {
-                    String failSend = "Failed to send edited media!";
-                    userMessage.reply(failSend).queue();
-                    Main.getLogger().error(failSend, e);
+                boolean success = false;
+                int maxAttempts = 3;
+                for (int attempts = 0; attempts < maxAttempts; attempts++) {
+                    try {
+                        userMessage.reply(compressedMedia).complete();
+                        success = true;
+                        break;
+                    } catch (RuntimeException e) {
+                        Main.getLogger().error((attempts + 1) + " failed attempt" + (attempts == 0 ? "" : "s") + " to send edited media!" , e);
+
+                        if (attempts < maxAttempts - 1) {
+                            try {
+                                TimeUnit.SECONDS.sleep(1);
+                            } catch (InterruptedException e2) {
+                                Main.getLogger().error("Interrupted while waiting to send again!!", e2);
+                            }
+                        }
+                    }
                 }
 
-                editedMedia.delete();
-                compressedMedia.delete();
+                if (!success) {
+                    userMessage.reply("Failed to send edited media, please try again!").queue();
+                    Main.getLogger().error("Failed to send edited media in " + maxAttempts + " attempts!");
+                }
             }
         } catch (InvalidMediaException e) {
             userMessage.reply(e.getMessage() == null ? "Invalid media!" : "Invalid media: " + e.getMessage()).queue();
@@ -98,6 +108,16 @@ public abstract class OptionalFileInputMediaCommand extends BaseCommand {
         } catch (OutOfMemoryError e) {
             userMessage.reply("The server ran out of memory! Try again later or use a smaller file.").queue();
             Main.getLogger().error("Ran out of memory executing command " + getNameWithPrefix() + "!", e);
+        } finally {
+            if (file != null) {
+                file.delete();
+            }
+            if (editedMedia != null) {
+                editedMedia.delete();
+            }
+            if (compressedMedia != null) {
+                compressedMedia.delete();
+            }
         }
     }
 

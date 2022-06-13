@@ -288,6 +288,8 @@ public class MessageUtil {
                         long messageId = Long.parseLong(parts[parts.length - 1]);
                         return Optional.of(channel.retrieveMessageById(messageId).complete());
                     } catch (NumberFormatException ignored) {
+                    } catch (RuntimeException e) {
+                        Main.getLogger().error("Error getting linked message!", e);
                     }
                 }
             }
