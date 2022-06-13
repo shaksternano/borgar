@@ -3,6 +3,7 @@ package io.github.shaksternano.mediamanipulator.image.backgroundimage;
 import io.github.shaksternano.mediamanipulator.Main;
 import io.github.shaksternano.mediamanipulator.graphics.GraphicsUtil;
 import io.github.shaksternano.mediamanipulator.graphics.Position;
+import io.github.shaksternano.mediamanipulator.graphics.TextAlignment;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.Drawable;
 import io.github.shaksternano.mediamanipulator.image.imagemedia.ImageMedia;
 import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
@@ -25,12 +26,13 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
             315,
             40,
             Position.CENTRE,
-            null,
-            true,
-            null,
+            TextAlignment.CENTER,
             "Bitstream Vera Sans",
             Color.WHITE,
             70,
+            null,
+            null,
+            true,
             null
     ),
 
@@ -49,12 +51,13 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
             300,
             0,
             Position.CENTRE,
-            null,
-            false,
-            null,
             "Futura-CondensedExtraBold",
             Color.BLACK,
             100,
+            null,
+            TextAlignment.CENTER,
+            null,
+            false,
             null
     ),
 
@@ -73,13 +76,14 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
             81,
             20,
             Position.CENTRE,
-            "shape/thinking_bubble_edge_trimmed.javaobject",
-            false,
-            Color.WHITE,
             "Futura-CondensedExtraBold",
             Color.BLACK,
             25,
-            null
+            null,
+            TextAlignment.CENTER,
+            "shape/thinking_bubble_edge_trimmed.javaobject",
+            false,
+            Color.WHITE
     );
 
     private final String IMAGE_PATH;
@@ -94,16 +98,17 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
     private final int TEXT_CONTENT_WIDTH;
     private final int TEXT_CONTENT_HEIGHT;
     private final Position TEXT_CONTENT_POSITION;
-    @Nullable
-    private final String CONTENT_CLIP_SHAPE_FILE_PATH;
-    private final boolean IS_BACKGROUND;
-    @Nullable
-    private final Color FILL;
+    private final TextAlignment TEXT_CONTENT_ALIGNMENT;
     private final String FONT_NAME;
     private final Font FONT;
     private final Color TEXT_COLOR;
     @Nullable
     private final Function<String, Drawable> CUSTOM_TEXT_DRAWABLE_FACTORY;
+    @Nullable
+    private final String CONTENT_CLIP_SHAPE_FILE_PATH;
+    private final boolean IS_BACKGROUND;
+    @Nullable
+    private final Color FILL;
 
     ResourceContainerImageInfo(
             String imagePath,
@@ -120,14 +125,14 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
             int textContainerHeight,
             int textContainerPadding,
             Position textContentPosition,
-            @Nullable String contentClipShapeFilePath,
-            boolean isBackground,
-            @Nullable Color fill,
             String fontName,
             Color textColor,
             int maxFontSize,
-            @Nullable Function<String, Drawable> customTextDrawableFactory
-    ) {
+            @Nullable Function<String, Drawable> customTextDrawableFactory,
+            TextAlignment textContentAlignment,
+            @Nullable String contentClipShapeFilePath,
+            boolean isBackground,
+            @Nullable Color fill) {
         IMAGE_PATH = imagePath;
         RESULT_NAME = resultName;
         IMAGE_CONTENT_X = imageContainerX + imageContainerPadding;
@@ -142,13 +147,14 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
         TEXT_CONTENT_WIDTH = textContainerWidth - doubleTextPadding;
         TEXT_CONTENT_HEIGHT = textContainerHeight - doubleTextPadding;
         TEXT_CONTENT_POSITION = textContentPosition;
-        CONTENT_CLIP_SHAPE_FILE_PATH = contentClipShapeFilePath;
-        IS_BACKGROUND = isBackground;
-        FILL = fill;
+        TEXT_CONTENT_ALIGNMENT = textContentAlignment;
         FONT_NAME = fontName;
         FONT = new Font(FONT_NAME, Font.PLAIN, maxFontSize);
         TEXT_COLOR = textColor;
         CUSTOM_TEXT_DRAWABLE_FACTORY = customTextDrawableFactory;
+        CONTENT_CLIP_SHAPE_FILE_PATH = contentClipShapeFilePath;
+        IS_BACKGROUND = isBackground;
+        FILL = fill;
     }
 
     ResourceContainerImageInfo(
@@ -160,14 +166,14 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
             int contentContainerHeight,
             int contentContainerPadding,
             Position contentPosition,
-            @Nullable String contentClipShapeFilePath,
-            boolean isBackground,
-            @Nullable Color fill,
+            TextAlignment textContentAlignment,
             String fontName,
             Color textColor,
             int maxFontSize,
-            @Nullable Function<String, Drawable> customTextDrawableFactory
-    ) {
+            @Nullable Function<String, Drawable> customTextDrawableFactory,
+            @Nullable String contentClipShapeFilePath,
+            boolean isBackground,
+            @Nullable Color fill) {
         this(
                 imagePath,
                 resultName,
@@ -183,13 +189,14 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
                 contentContainerHeight,
                 contentContainerPadding,
                 contentPosition,
-                contentClipShapeFilePath,
-                isBackground,
-                fill,
                 fontName,
                 textColor,
                 maxFontSize,
-                customTextDrawableFactory
+                customTextDrawableFactory,
+                textContentAlignment,
+                contentClipShapeFilePath,
+                isBackground,
+                fill
         );
     }
 
@@ -254,6 +261,26 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
     }
 
     @Override
+    public TextAlignment getTextContentAlignment() {
+        return TEXT_CONTENT_ALIGNMENT;
+    }
+
+    @Override
+    public Font getFont() {
+        return FONT;
+    }
+
+    @Override
+    public Color getTextColor() {
+        return TEXT_COLOR;
+    }
+
+    @Override
+    public Optional<Function<String, Drawable>> getCustomTextDrawableFactory() {
+        return Optional.ofNullable(CUSTOM_TEXT_DRAWABLE_FACTORY);
+    }
+
+    @Override
     public Optional<Shape> getContentClip() throws IOException {
         if (CONTENT_CLIP_SHAPE_FILE_PATH == null) {
             return Optional.empty();
@@ -270,21 +297,6 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
     @Override
     public Optional<Color> getFill() {
         return Optional.ofNullable(FILL);
-    }
-
-    @Override
-    public Font getFont() {
-        return FONT;
-    }
-
-    @Override
-    public Color getTextColor() {
-        return TEXT_COLOR;
-    }
-
-    @Override
-    public Optional<Function<String, Drawable>> getCustomTextDrawableFactory() {
-        return Optional.ofNullable(CUSTOM_TEXT_DRAWABLE_FACTORY);
     }
 
     public static void validate() {

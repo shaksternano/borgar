@@ -25,12 +25,13 @@ public interface MediaManipulator {
      * @param media        The media file to add a caption to.
      * @param words        The words of the caption.
      * @param nonTextParts The non text parts to use in the caption.
+     * @param caption2     Whether to put text on the bottom of the image instead of the top.
      * @return The media file with the caption added.
      * @throws IOException                    If there is an error adding the caption.
      * @throws UncheckedIOException           If there is an error adding the caption.
      * @throws UnsupportedFileFormatException If the operation is not supported by this manipulator.
      */
-    File caption(File media, String fileFormat, List<String> words, Map<String, Drawable> nonTextParts) throws IOException;
+    File caption(File media, String fileFormat, List<String> words, Map<String, Drawable> nonTextParts, boolean caption2) throws IOException;
 
     File demotivate(File media, String fileFormat, List<String> words, Map<String, Drawable> nonTextParts) throws IOException;
 
