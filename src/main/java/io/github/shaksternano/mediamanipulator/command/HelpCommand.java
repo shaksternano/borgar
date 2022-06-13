@@ -81,13 +81,12 @@ public class HelpCommand extends BaseCommand {
         commands.sort(Comparator.comparing(Command::getName));
 
         for (Command command : commands) {
-            String commandLine = command.getNameWithPrefix() + " - " + command.getDescription() + "\n\n";
+            String commandLine = "**" + command.getNameWithPrefix() + "** - " + command.getDescription() + "\n";
             int length = commandLine.length();
             totalLength += length;
 
             if (totalLength > maxLength) {
                 builder.deleteCharAt(builder.length() - 1);
-                builder.append("\u200B");
                 messages.add(builder.toString());
                 builder = new StringBuilder(commandLine);
                 totalLength = length;
