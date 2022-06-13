@@ -33,7 +33,7 @@ public interface MediaManipulator {
      */
     File caption(File media, String fileFormat, List<String> words, Map<String, Drawable> nonTextParts, boolean caption2) throws IOException;
 
-    File demotivate(File media, String fileFormat, List<String> words, Map<String, Drawable> nonTextParts) throws IOException;
+    File demotivate(File media, String fileFormat, List<String> words, List<String> subText, Map<String, Drawable> nonTextParts) throws IOException;
 
     File impact(File media, String fileFormat, List<String> topWords, List<String> bottomWords, Map<String, Drawable> nonTextParts) throws IOException;
 

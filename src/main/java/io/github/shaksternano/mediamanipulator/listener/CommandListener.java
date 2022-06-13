@@ -17,11 +17,6 @@ import java.util.List;
 public class CommandListener extends ListenerAdapter {
 
     /**
-     * The instance of this class.
-     */
-    public static final CommandListener INSTANCE = new CommandListener();
-
-    /**
      * Listens for slash commands.
      *
      * @param event the {@link SlashCommandInteractionEvent} that triggered the listener.

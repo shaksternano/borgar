@@ -8,7 +8,6 @@ import io.github.shaksternano.mediamanipulator.exception.UnsupportedFileFormatEx
 import io.github.shaksternano.mediamanipulator.graphics.GraphicsUtil;
 import io.github.shaksternano.mediamanipulator.graphics.Position;
 import io.github.shaksternano.mediamanipulator.graphics.TextAlignment;
-import io.github.shaksternano.mediamanipulator.graphics.drawable.CompositeDrawable;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.Drawable;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.OutlinedTextDrawable;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.ParagraphCompositeDrawable;
@@ -49,6 +48,8 @@ public class ImageManipulator implements MediaManipulator {
     private static final Set<String> ANIMATED_IMAGE_FORMATS = ImmutableSet.of(
             "gif"
     );
+
+    private static final Drawable EMPTY = new EmptyDrawable();
 
     private static File animatedOnlyOperation(File media, String fileFormat, Function<ImageMedia, ImageMedia> operation, String operationName, String staticImageErrorMessage) throws IOException {
         if (ANIMATED_IMAGE_FORMATS.contains(fileFormat.toLowerCase())) {
@@ -96,7 +97,7 @@ public class ImageManipulator implements MediaManipulator {
             textAlignment = TextAlignment.CENTER;
         }
 
-        CompositeDrawable paragraph = new ParagraphCompositeDrawable.Builder(nonTextParts)
+        Drawable paragraph = new ParagraphCompositeDrawable.Builder(nonTextParts)
                 .addWords(null, words)
                 .build(textAlignment, maxWidth);
 
@@ -177,7 +178,7 @@ public class ImageManipulator implements MediaManipulator {
 
     @SuppressWarnings("UnusedAssignment")
     @Override
-    public File demotivate(File media, String fileFormat, List<String> words, Map<String, Drawable> nonTextParts) throws IOException {
+    public File demotivate(File media, String fileFormat, List<String> words, List<String> subText, Map<String, Drawable> nonTextParts) throws IOException {
         ImageMedia imageMedia = ImageReaders.read(media, fileFormat, null);
         BufferedImage firstImage = imageMedia.getFirstImage();
 
@@ -191,22 +192,30 @@ public class ImageManipulator implements MediaManipulator {
         Graphics2D graphics = firstImage.createGraphics();
 
         Font font = new Font("Times", Font.PLAIN, contentSmallestDimension / 6);
+        Font subFont = font.deriveFont(font.getSize() / 3F);
         graphics.setFont(font);
         ImageUtil.configureTextDrawQuality(graphics);
 
         TextAlignment textAlignment = TextAlignment.CENTER;
-        CompositeDrawable paragraph = new ParagraphCompositeDrawable.Builder(nonTextParts)
+        Drawable paragraph = new ParagraphCompositeDrawable.Builder(nonTextParts)
                 .addWords(null, words)
                 .build(textAlignment, contentWidth);
+
         int paragraphHeight = paragraph.getHeight(graphics);
+
+        Drawable subParagraph = subText.isEmpty() ? EMPTY : new ParagraphCompositeDrawable.Builder(nonTextParts)
+                .addWords(null, subText)
+                .build(textAlignment, contentWidth);
+        graphics.setFont(subFont);
+        int subParagraphHeight = subParagraph.getHeight(graphics);
+        int mainSubSpacing = subParagraphHeight / 4;
 
         graphics.dispose();
         firstImage = null;
         imageMedia = null;
 
-        int textAreaExtraHeight = 0;
         int demotivateWidth = contentWidth + (demotivateImagePadding * 2);
-        int demotivateHeight = contentHeight + (demotivateImagePadding * 2) + textAreaExtraHeight + paragraphHeight;
+        int demotivateHeight = contentHeight + (demotivateImagePadding * 2) + paragraphHeight + mainSubSpacing + subParagraphHeight;
         BufferedImage demotivateBackground = new BufferedImage(demotivateWidth, demotivateHeight, contentImageType);
         Graphics2D demotivateBackgroundGraphics = demotivateBackground.createGraphics();
         demotivateBackgroundGraphics.setColor(Color.BLACK);
@@ -243,7 +252,13 @@ public class ImageManipulator implements MediaManipulator {
                 paragraph.draw(
                         demotivateWithTextGraphics,
                         demotivateImagePadding,
-                        demotivateImagePadding + contentHeight + ((demotivateImagePadding + textAreaExtraHeight) / 2)
+                        demotivateImagePadding + contentHeight + (demotivateImagePadding / 2)
+                );
+                demotivateWithTextGraphics.setFont(subFont);
+                subParagraph.draw(
+                        demotivateWithTextGraphics,
+                        demotivateImagePadding,
+                        demotivateImagePadding + contentHeight + (demotivateImagePadding / 2) + paragraphHeight + mainSubSpacing
                 );
 
                 builder.add(new AwtFrame(demotivateWithText, Frame.GIF_MINIMUM_FRAME_DURATION));
@@ -820,5 +835,43 @@ public class ImageManipulator implements MediaManipulator {
         ImageWriters.write(outputImage, output, imageFormat);
 
         return output;
+    }
+
+    private static class EmptyDrawable implements Drawable {
+
+        @Override
+        public void draw(Graphics2D graphics, int x, int y) {
+
+        }
+
+        @Override
+        public int getWidth(Graphics2D graphicsContext) {
+            return 0;
+        }
+
+        @Override
+        public int getHeight(Graphics2D graphicsContext) {
+            return 0;
+        }
+
+        @Override
+        public Drawable resizeToWidth(int width) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Drawable resizeToHeight(int height) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public int getFrameCount() {
+            return 0;
+        }
+
+        @Override
+        public boolean sameAsPreviousFrame() {
+            return false;
+        }
     }
 }

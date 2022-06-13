@@ -2,7 +2,7 @@ package io.github.shaksternano.mediamanipulator.graphics;
 
 import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
 import io.github.shaksternano.mediamanipulator.io.FileUtil;
-import io.github.shaksternano.mediamanipulator.util.SystemUtil;
+import io.github.shaksternano.mediamanipulator.util.MiscUtil;
 import org.slf4j.Logger;
 
 import javax.imageio.ImageIO;
@@ -13,7 +13,7 @@ import java.io.*;
 
 public class ShapeFilesGenerator {
 
-    private static final Logger LOGGER = SystemUtil.createLogger("Shape Files Generator");
+    private static final Logger LOGGER = MiscUtil.createLogger("Shape Files Generator");
 
     private static final String SHAPE_FILES_DIRECTORY = "src/main/resources/" + FileUtil.getResourcePathInRootPackage("shape");
 
