@@ -10,6 +10,7 @@ import io.github.shaksternano.mediamanipulator.mediamanipulator.MediaManipulator
 import io.github.shaksternano.mediamanipulator.mediamanipulator.util.MediaManipulatorRegistry;
 import io.github.shaksternano.mediamanipulator.util.DiscordUtil;
 import io.github.shaksternano.mediamanipulator.util.MessageUtil;
+import io.github.shaksternano.mediamanipulator.util.MiscUtil;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -18,6 +19,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 /**
  * A {@link Command} that manipulates media files.
@@ -67,15 +69,33 @@ public abstract class MediaCommand extends BaseCommand {
 
                     long mediaFileSize = compressedMedia.length();
                     if (mediaFileSize > DiscordUtil.getMaxUploadSize(event.getGuild())) {
-                        long mediaFileSizeInMb = mediaFileSize / (1024 * 1024);
+                        long mediaFileSizeInMb = mediaFileSize / MiscUtil.TO_MB;
                         userMessage.reply("The size of the edited media file, " + mediaFileSizeInMb + "MB, is too large to send!").queue();
                         Main.getLogger().error("File size of edited media was too large to send! (" + mediaFileSize + "MB)");
                     } else {
-                        try {
-                            userMessage.reply(compressedMedia).complete();
-                        } catch (RuntimeException e) {
+                        boolean success = false;
+                        int maxAttempts = 3;
+                        for (int attempts = 0; attempts < maxAttempts; attempts++) {
+                            try {
+                                userMessage.reply(compressedMedia).complete();
+                                success = true;
+                                break;
+                            } catch (RuntimeException e) {
+                                Main.getLogger().error((attempts + 1) + " failed attempt" + (attempts == 0 ? "" : "s") + " to send edited media!" , e);
+
+                                if (attempts < maxAttempts - 1) {
+                                    try {
+                                        TimeUnit.SECONDS.sleep(1);
+                                    } catch (InterruptedException e2) {
+                                        Main.getLogger().error("Interrupted while waiting to send again!!", e2);
+                                    }
+                                }
+                            }
+                        }
+
+                        if (!success) {
                             userMessage.reply("Failed to send edited media, please try again!").queue();
-                            Main.getLogger().error("Failed to send edited media!", e);
+                            Main.getLogger().error("Failed to send edited media in " + maxAttempts + " attempts!");
                         }
                     }
                 } catch (InvalidMediaException e) {
@@ -95,14 +115,14 @@ public abstract class MediaCommand extends BaseCommand {
                 } catch (OutOfMemoryError e) {
                     userMessage.reply("The server ran out of memory! Try again later or use a smaller file.").queue();
                     Main.getLogger().error("Ran out of memory executing command " + getNameWithPrefix() + "!", e);
-                }
-
-                file.delete();
-                if (editedMedia != null) {
-                    editedMedia.delete();
-                }
-                if (compressedMedia != null) {
-                    compressedMedia.delete();
+                } finally {
+                    file.delete();
+                    if (editedMedia != null) {
+                        editedMedia.delete();
+                    }
+                    if (compressedMedia != null) {
+                        compressedMedia.delete();
+                    }
                 }
             }, () -> userMessage.reply("Unsupported file type!").queue());
         }, () -> userMessage.reply("No media found!").queue());

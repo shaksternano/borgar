@@ -44,26 +44,27 @@ public class CommandParser {
 
             commandOptional.ifPresent(command -> {
                 try {
-                    channel.sendTyping().complete();
-                    List<String> arguments = parseBaseArguments(commandParts, command);
-                    ListMultimap<String, String> extraArguments = parseExtraArguments(commandParts, command);
+                    channel.sendTyping().queue(unused -> {
+                        List<String> arguments = parseBaseArguments(commandParts, command);
+                        ListMultimap<String, String> extraArguments = parseExtraArguments(commandParts, command);
 
-                    try {
-                        command.execute(arguments, extraArguments, event);
-                    } catch (PermissionException e) {
-                        userMessage.reply("This bot doesn't have the required permissions to execute this command!").queue();
-                        Main.getLogger().error("This bot doesn't have the required permissions needed to execute command " + command.getNameWithPrefix() + "!", e);
-                    } catch (InvalidArgumentException e) {
-                        userMessage.reply(e.getMessage() == null ? "Invalid arguments!" : "Invalid arguments: " + e.getMessage()).queue();
-                    } catch (MissingArgumentException e) {
-                        userMessage.reply(e.getMessage() == null ? "Missing arguments!" : "Missing arguments: " + e.getMessage()).queue();
-                    } catch (OutOfMemoryError e) {
-                        userMessage.reply("The server ran out of memory trying to execute this command! Try again later.").queue();
-                        Main.getLogger().error("Ran out of memory trying to execute command " + command.getNameWithPrefix() + "!", e);
-                    } catch (Throwable t) {
-                        userMessage.reply("Error executing command!").queue();
-                        Main.getLogger().error("Error executing command " + command.getNameWithPrefix() + "!", t);
-                    }
+                        try {
+                            command.execute(arguments, extraArguments, event);
+                        } catch (PermissionException e) {
+                            userMessage.reply("This bot doesn't have the required permissions to execute this command!").queue();
+                            Main.getLogger().error("This bot doesn't have the required permissions needed to execute command " + command.getNameWithPrefix() + "!", e);
+                        } catch (InvalidArgumentException e) {
+                            userMessage.reply(e.getMessage() == null ? "Invalid arguments!" : "Invalid arguments: " + e.getMessage()).queue();
+                        } catch (MissingArgumentException e) {
+                            userMessage.reply(e.getMessage() == null ? "Missing arguments!" : "Missing arguments: " + e.getMessage()).queue();
+                        } catch (OutOfMemoryError e) {
+                            userMessage.reply("The server ran out of memory trying to execute this command! Try again later.").queue();
+                            Main.getLogger().error("Ran out of memory trying to execute command " + command.getNameWithPrefix() + "!", e);
+                        } catch (Throwable t) {
+                            userMessage.reply("Error executing command!").queue();
+                            Main.getLogger().error("Error executing command " + command.getNameWithPrefix() + "!", t);
+                        }
+                    });
                 } catch (PermissionException e) {
                     Main.getLogger().error("Missing send message permission!", e);
                 }
@@ -151,8 +152,12 @@ public class CommandParser {
             try {
                 return Integer.decode(argument);
             } catch (NumberFormatException e) {
-                triggerChannel.sendMessage(errorMessage.apply(argument, String.valueOf(defaultValue))).complete();
-                triggerChannel.sendTyping().complete();
+                try {
+                    triggerChannel.sendMessage(errorMessage.apply(argument, String.valueOf(defaultValue))).complete();
+                    triggerChannel.sendTyping().complete();
+                } catch (RuntimeException e2) {
+                    Main.getLogger().error("Error sending error message!", e2);
+                }
             }
         }
 
@@ -166,8 +171,12 @@ public class CommandParser {
             try {
                 return Float.parseFloat(argument);
             } catch (NumberFormatException e) {
-                triggerChannel.sendMessage(errorMessage.apply(argument, FORMAT.format(defaultValue))).complete();
-                triggerChannel.sendTyping().complete();
+                try {
+                    triggerChannel.sendMessage(errorMessage.apply(argument, FORMAT.format(defaultValue))).complete();
+                    triggerChannel.sendTyping().complete();
+                } catch (RuntimeException e2) {
+                    Main.getLogger().error("Error sending error message!", e2);
+                }
             }
         }
 
