@@ -55,6 +55,18 @@ public abstract class ListCompositeDrawable implements CompositeDrawable {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        } else if (Objects.equals(getClass(), obj.getClass())) {
+            ListCompositeDrawable other = (ListCompositeDrawable) obj;
+            return Objects.equals(parts, other.parts);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
     public String toString() {
         return getClass().getSimpleName() + parts;
     }

@@ -41,12 +41,12 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
             int partWidth = part.getWidth(graphics);
             int spaceWidth = SPACE.getWidth(graphics);
             int newLineWidth = lineWidth + partWidth;
+            if (lineWidth > 0) {
+                newLineWidth += spaceWidth;
+            }
 
             if (newLineWidth <= MAX_WIDTH || currentLine.isEmpty()) {
                 currentLine.add(part);
-                if (lineWidth > 0) {
-                    newLineWidth += spaceWidth;
-                }
                 lineWidth = newLineWidth;
             } else {
                 lineX = calculateTextXPosition(ALIGNMENT, x, lineWidth, MAX_WIDTH);
@@ -100,11 +100,11 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
             int partWidth = part.getWidth(graphicsContext);
             int spaceWidth = SPACE.getWidth(graphicsContext);
             int newLineWidth = lineWidth + partWidth;
+            if (lineWidth > 0) {
+                newLineWidth += spaceWidth;
+            }
 
             if (newLineWidth <= MAX_WIDTH || currentLineIsEmpty) {
-                if (lineWidth > 0) {
-                    newLineWidth += spaceWidth;
-                }
                 lineWidth = newLineWidth;
                 currentLineIsEmpty = false;
             } else {
@@ -136,11 +136,11 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
             int partWidth = part.getWidth(graphicsContext);
             int spaceWidth = SPACE.getWidth(graphicsContext);
             int newLineWidth = lineWidth + partWidth;
+            if (lineWidth > 0) {
+                newLineWidth += spaceWidth;
+            }
 
             if (newLineWidth <= MAX_WIDTH || currentLineIsEmpty) {
-                if (lineWidth > 0) {
-                    newLineWidth += spaceWidth;
-                }
                 lineWidth = newLineWidth;
                 currentLineIsEmpty = false;
             } else {

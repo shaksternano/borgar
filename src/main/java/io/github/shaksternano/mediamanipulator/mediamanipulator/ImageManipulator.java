@@ -82,9 +82,8 @@ public class ImageManipulator implements MediaManipulator {
         int padding = (int) (smallestDimension * 0.04);
         Graphics2D originalGraphics = firstImage.createGraphics();
 
-        ImageUtil.configureTextDrawQuality(originalGraphics);
-
         originalGraphics.setFont(font);
+        ImageUtil.configureTextDrawQuality(originalGraphics);
 
         int maxWidth = width - (padding * 2);
         CompositeDrawable paragraph = new ParagraphCompositeDrawable.Builder(nonTextParts)
@@ -421,6 +420,7 @@ public class ImageManipulator implements MediaManipulator {
 
             Font font = containerImageInfo.getFont();
             graphics.setFont(font);
+            ImageUtil.configureTextDrawQuality(graphics);
 
             GraphicsUtil.fontFitWidth(containerImageInfo.getTextContentWidth(), paragraph, graphics);
             int paragraphHeight = GraphicsUtil.fontFitHeight(containerImageInfo.getTextContentHeight(), paragraph, graphics);
@@ -729,7 +729,6 @@ public class ImageManipulator implements MediaManipulator {
     private static BufferedImage drawOnImage(BufferedImage image, ContainerImageInfo containerImageInfo, Drawable drawable, int textX, int textY, float fontSize) throws IOException {
         BufferedImage imageWithText = new BufferedImage(image.getWidth(), image.getHeight(), ImageUtil.getType(image));
         Graphics2D graphics = imageWithText.createGraphics();
-        ImageUtil.configureTextDrawQuality(graphics);
 
         Optional<Shape> contentClipOptional = containerImageInfo.getContentClip();
         containerImageInfo.getFill().ifPresent(color -> {
@@ -746,6 +745,7 @@ public class ImageManipulator implements MediaManipulator {
 
         Font font = containerImageInfo.getFont().deriveFont(fontSize);
         graphics.setFont(font);
+        ImageUtil.configureTextDrawQuality(graphics);
         graphics.setColor(containerImageInfo.getTextColor());
 
         contentClipOptional.ifPresent(graphics::setClip);
