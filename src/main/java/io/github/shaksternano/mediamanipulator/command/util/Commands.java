@@ -186,6 +186,11 @@ public class Commands {
             "Gets the image of a sticker."
     ));
 
+    public static final Command SERVER_COUNT = addCommandToRegister(new ServerCountCommand(
+            "servers",
+            "Gets the number of servers that this bot is in."
+    ));
+
     public static final Command MEMORY_USAGE = addCommandToRegister(new MemoryUsageCommand(
             "memory",
             "Get the memory usage of the bot."

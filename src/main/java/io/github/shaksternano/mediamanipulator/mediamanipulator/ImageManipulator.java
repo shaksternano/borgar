@@ -81,7 +81,7 @@ public class ImageManipulator implements MediaManipulator {
         String fontName = caption2 ? "Helvetica Neue" : "Futura-CondensedExtraBold";
         float fontRatio = caption2 ? 9 : 7;
         Font font = new Font(fontName, Font.PLAIN, (int) (smallestDimension / fontRatio));
-        int padding = (int) (smallestDimension * 0.04);
+        int padding = (int) (smallestDimension * 0.04F);
         Graphics2D originalGraphics = firstImage.createGraphics();
 
         originalGraphics.setFont(font);
