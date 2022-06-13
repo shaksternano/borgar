@@ -1,6 +1,7 @@
 package io.github.shaksternano.mediamanipulator.image.backgroundimage;
 
 import io.github.shaksternano.mediamanipulator.graphics.Position;
+import io.github.shaksternano.mediamanipulator.graphics.TextAlignment;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.Drawable;
 import io.github.shaksternano.mediamanipulator.image.imagemedia.ImageMedia;
 
@@ -35,15 +36,17 @@ public interface ContainerImageInfo {
 
     Position getTextContentPosition();
 
-    Optional<Shape> getContentClip() throws IOException;
-
-    boolean isBackground();
-
-    Optional<Color> getFill();
+    TextAlignment getTextContentAlignment();
 
     Font getFont();
 
     Color getTextColor();
 
     Optional<Function<String, Drawable>> getCustomTextDrawableFactory();
+
+    Optional<Shape> getContentClip() throws IOException;
+
+    boolean isBackground();
+
+    Optional<Color> getFill();
 }

@@ -1,6 +1,7 @@
 package io.github.shaksternano.mediamanipulator.image.backgroundimage;
 
 import io.github.shaksternano.mediamanipulator.graphics.Position;
+import io.github.shaksternano.mediamanipulator.graphics.TextAlignment;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.Drawable;
 import io.github.shaksternano.mediamanipulator.image.imagemedia.ImageMedia;
 import org.jetbrains.annotations.Nullable;
@@ -18,17 +19,18 @@ public class CustomContainerImageInfo implements ContainerImageInfo {
     private final int CONTENT_WIDTH;
     private final int CONTENT_HEIGHT;
     private final Position CONTENT_POSITION;
-    @Nullable
-    private final Shape CONTENT_CLIP;
-    private final boolean IS_BACKGROUND;
-    @Nullable
-    private final Color FILL;
+    private final TextAlignment TEXT_CONTENT_ALIGNMENT;
     @Nullable
     private final Font FONT;
     @Nullable
     private final Color TEXT_COLOR;
     @Nullable
     private final Function<String, Drawable> CUSTOM_TEXT_DRAWABLE_FACTORY;
+    @Nullable
+    private final Shape CONTENT_CLIP;
+    private final boolean IS_BACKGROUND;
+    @Nullable
+    private final Color FILL;
 
     public CustomContainerImageInfo(
             ImageMedia image,
@@ -39,12 +41,13 @@ public class CustomContainerImageInfo implements ContainerImageInfo {
             int contentContainerHeight,
             int contentContainerPadding,
             Position contentPosition,
-            @Nullable Shape contentClip,
-            boolean isBackground,
-            @Nullable Color fill,
+            TextAlignment textContentAlignment,
             @Nullable Font font,
             @Nullable Color textColor,
-            @Nullable Function<String, Drawable> customTextDrawableFactory) {
+            @Nullable Function<String, Drawable> customTextDrawableFactory,
+            @Nullable Shape contentClip,
+            boolean isBackground,
+            @Nullable Color fill) {
         IMAGE = image;
         RESULT_NAME = resultName;
         CONTENT_X = contentContainerX + contentContainerPadding;
@@ -53,6 +56,7 @@ public class CustomContainerImageInfo implements ContainerImageInfo {
         CONTENT_WIDTH = contentContainerWidth - doublePadding;
         CONTENT_HEIGHT = contentContainerHeight - doublePadding;
         CONTENT_POSITION = contentPosition;
+        TEXT_CONTENT_ALIGNMENT = textContentAlignment;
         CONTENT_CLIP = contentClip;
         IS_BACKGROUND = isBackground;
         FILL = fill;
@@ -122,18 +126,8 @@ public class CustomContainerImageInfo implements ContainerImageInfo {
     }
 
     @Override
-    public Optional<Shape> getContentClip() {
-        return Optional.ofNullable(CONTENT_CLIP);
-    }
-
-    @Override
-    public boolean isBackground() {
-        return IS_BACKGROUND;
-    }
-
-    @Override
-    public Optional<Color> getFill() {
-        return Optional.ofNullable(FILL);
+    public TextAlignment getTextContentAlignment() {
+        return TEXT_CONTENT_ALIGNMENT;
     }
 
     @Override
@@ -149,5 +143,20 @@ public class CustomContainerImageInfo implements ContainerImageInfo {
     @Override
     public Optional<Function<String, Drawable>> getCustomTextDrawableFactory() {
         return Optional.ofNullable(CUSTOM_TEXT_DRAWABLE_FACTORY);
+    }
+
+    @Override
+    public Optional<Shape> getContentClip() {
+        return Optional.ofNullable(CONTENT_CLIP);
+    }
+
+    @Override
+    public boolean isBackground() {
+        return IS_BACKGROUND;
+    }
+
+    @Override
+    public Optional<Color> getFill() {
+        return Optional.ofNullable(FILL);
     }
 }

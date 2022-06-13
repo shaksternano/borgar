@@ -21,7 +21,14 @@ public class Commands {
      */
     public static final Command CAPTION = addCommandToRegister(new CaptionCommand(
             "caption",
-            "Captions a media file. Optional arguments: [Caption text]"
+            "Captions a media file. Optional arguments: [Caption text]",
+            false
+    ));
+
+    public static final Command CAPTION_2 = addCommandToRegister(new CaptionCommand(
+            "caption2",
+            "Captions a media file. Optional arguments: [Caption text]",
+            true
     ));
 
     public static final Command DEMOTIVATE = addCommandToRegister(new DemotivateCommand(

@@ -16,20 +16,24 @@ import java.util.Map;
  */
 public class CaptionCommand extends MediaCommand {
 
+    private final boolean CAPTION_2;
+
     /**
      * Creates a new command object.
      *
      * @param name        The name of the command. When a user sends a message starting with {@link Command#PREFIX}
      *                    followed by this name, the command will be executed.
      * @param description The description of the command. This is displayed in the help command.
+     * @param caption2    Whether to put text on the bottom of the image instead of the top.
      */
-    public CaptionCommand(String name, String description) {
+    public CaptionCommand(String name, String description, boolean caption2) {
         super(name, description);
+        CAPTION_2 = caption2;
     }
 
     @Override
     public File applyOperation(File media, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
         Map<String, Drawable> nonTextParts = MessageUtil.getNonTextParts(event.getMessage());
-        return manipulator.caption(media, fileFormat, arguments, nonTextParts);
+        return manipulator.caption(media, fileFormat, arguments, nonTextParts, CAPTION_2);
     }
 }

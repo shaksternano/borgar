@@ -69,7 +69,7 @@ public class ImageManipulator implements MediaManipulator {
 
     @SuppressWarnings("UnusedAssignment")
     @Override
-    public File caption(File media, String fileFormat, List<String> words, Map<String, Drawable> nonTextParts) throws IOException {
+    public File caption(File media, String fileFormat, List<String> words, Map<String, Drawable> nonTextParts, boolean caption2) throws IOException {
         ImageMedia imageMedia = ImageReaders.read(media, fileFormat, null);
         BufferedImage firstImage = imageMedia.getFirstImage();
 
@@ -78,7 +78,9 @@ public class ImageManipulator implements MediaManipulator {
 
         int smallestDimension = Math.min(width, height);
 
-        Font font = new Font("Futura-CondensedExtraBold", Font.PLAIN, smallestDimension / 7);
+        String fontName = caption2 ? "Helvetica Neue" : "Futura-CondensedExtraBold";
+        float fontRatio = caption2 ? 9 : 7;
+        Font font = new Font(fontName, Font.PLAIN, (int) (smallestDimension / fontRatio));
         int padding = (int) (smallestDimension * 0.04);
         Graphics2D originalGraphics = firstImage.createGraphics();
 
@@ -86,14 +88,26 @@ public class ImageManipulator implements MediaManipulator {
         ImageUtil.configureTextDrawQuality(originalGraphics);
 
         int maxWidth = width - (padding * 2);
+
+        TextAlignment textAlignment;
+        if (caption2) {
+            textAlignment = TextAlignment.LEFT;
+        } else {
+            textAlignment = TextAlignment.CENTER;
+        }
+
         CompositeDrawable paragraph = new ParagraphCompositeDrawable.Builder(nonTextParts)
                 .addWords(null, words)
-                .build(TextAlignment.CENTER, maxWidth);
+                .build(textAlignment, maxWidth);
 
         GraphicsUtil.fontFitWidth(maxWidth, paragraph, originalGraphics);
         font = originalGraphics.getFont();
 
         int fillHeight = paragraph.getHeight(originalGraphics) + (padding * 2);
+
+        int captionBoxX = 0;
+        int captionBoxY = caption2 ? firstImage.getHeight() : 0;
+
         originalGraphics.dispose();
 
         firstImage.flush();
@@ -108,8 +122,12 @@ public class ImageManipulator implements MediaManipulator {
             BufferedImage withCaptionBoxImage = new BufferedImage(originalImage.getWidth(), originalImage.getHeight() + fillHeight, ImageUtil.getType(originalImage));
             Graphics2D graphics = withCaptionBoxImage.createGraphics();
             graphics.setColor(Color.WHITE);
-            graphics.fillRect(0, 0, withCaptionBoxImage.getWidth(), fillHeight);
-            graphics.drawImage(originalImage, 0, fillHeight, null);
+
+            int imageX = 0;
+            int imageY = caption2 ? 0 : fillHeight;
+
+            graphics.fillRect(captionBoxX, captionBoxY, withCaptionBoxImage.getWidth(), fillHeight);
+            graphics.drawImage(originalImage, imageX, imageY, null);
             graphics.dispose();
             int duration = frame.getDuration();
             frame.flush();
@@ -121,17 +139,18 @@ public class ImageManipulator implements MediaManipulator {
         ContainerImageInfo containerImageInfo = new CustomContainerImageInfo(
                 withCaptionBox,
                 "captioned",
-                0,
-                0,
+                captionBoxX,
+                captionBoxY,
                 width,
                 fillHeight,
                 padding,
                 Position.TOP,
-                null,
-                true,
-                null,
+                textAlignment,
                 font,
                 Color.BLACK,
+                null,
+                null,
+                true,
                 null
         );
 
@@ -175,9 +194,10 @@ public class ImageManipulator implements MediaManipulator {
         graphics.setFont(font);
         ImageUtil.configureTextDrawQuality(graphics);
 
+        TextAlignment textAlignment = TextAlignment.CENTER;
         CompositeDrawable paragraph = new ParagraphCompositeDrawable.Builder(nonTextParts)
                 .addWords(null, words)
-                .build(TextAlignment.CENTER, contentWidth);
+                .build(textAlignment, contentWidth);
         int paragraphHeight = paragraph.getHeight(graphics);
 
         graphics.dispose();
@@ -240,11 +260,12 @@ public class ImageManipulator implements MediaManipulator {
                 contentHeight,
                 0,
                 Position.TOP,
+                textAlignment,
+                null,
+                null,
+                null,
                 null,
                 true,
-                null,
-                null,
-                null,
                 null
         );
 
@@ -280,12 +301,13 @@ public class ImageManipulator implements MediaManipulator {
                 height,
                 padding,
                 Position.CENTRE,
-                null,
-                true,
-                null,
+                TextAlignment.CENTER,
                 null,
                 Color.WHITE,
-                word -> new OutlinedTextDrawable(word, Color.WHITE, Color.BLACK, 0.15F)
+                word -> new OutlinedTextDrawable(word, Color.WHITE, Color.BLACK, 0.15F),
+                null,
+                true,
+                null
         );
 
         ImageMedia result = drawTextOnImage(topWords, nonTextParts, topWordsContainerImageInfo);
@@ -299,12 +321,13 @@ public class ImageManipulator implements MediaManipulator {
                 height,
                 padding,
                 topWordsContainerImageInfo.getTextContentPosition(),
-                null,
-                topWordsContainerImageInfo.isBackground(),
-                topWordsContainerImageInfo.getFill().orElse(null),
+                topWordsContainerImageInfo.getTextContentAlignment(),
                 topWordsContainerImageInfo.getFont(),
                 topWordsContainerImageInfo.getTextColor(),
-                topWordsContainerImageInfo.getCustomTextDrawableFactory().orElse(null)
+                topWordsContainerImageInfo.getCustomTextDrawableFactory().orElse(null),
+                null,
+                topWordsContainerImageInfo.isBackground(),
+                topWordsContainerImageInfo.getFill().orElse(null)
         );
 
         result = drawTextOnImage(bottomWords, nonTextParts, bottomWordsContainerImageInfo);
@@ -414,7 +437,7 @@ public class ImageManipulator implements MediaManipulator {
         } else {
             ParagraphCompositeDrawable paragraph = new ParagraphCompositeDrawable.Builder(nonTextParts)
                     .addWords(containerImageInfo.getCustomTextDrawableFactory().orElse(null), words)
-                    .build(TextAlignment.CENTER, containerImageInfo.getTextContentWidth());
+                    .build(containerImageInfo.getTextContentAlignment(), containerImageInfo.getTextContentWidth());
 
             Graphics2D graphics = imageMedia.getFirstImage().createGraphics();
 
