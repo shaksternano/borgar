@@ -33,12 +33,12 @@ public class Commands {
 
     public static final Command DEMOTIVATE = addCommandToRegister(new DemotivateCommand(
             "demotiv",
-            "Puts image in demotivate meme. Optional arguments: [Meme text]"
+            "Puts image in demotivate meme. Optional arguments: [Meme text. To specify sub text, add \"%sub\" before the text.]"
     ));
 
     public static final Command IMPACT = addCommandToRegister(new ImpactCommand(
             "impact",
-            "Adds Impact text to a media file. Required arguments: [The text to be drawn. By default, the text is drawn at the top. To specify text drawn at the bottom, add \"%bottom\" before the text. Top text and bottom text can be combined.]"
+            "Adds Impact text to a media file. Required arguments: [The text to be drawn. By default, the text is drawn at the top. To specify text drawn at the bottom, add \"%bottom\" before the text.]"
     ));
 
     public static final Command SONIC_SAYS = addCommandToRegister(new ContainerImageCommand(
@@ -62,6 +62,11 @@ public class Commands {
     public static final Command SPIN = addCommandToRegister(new SpinCommand(
             "spin",
             "Spins a media file. Optional arguments: [Spin speed, default value is " + FORMAT.format(SpinCommand.DEFAULT_SPIN_SPEED) + "], [Background RGB colour, by default it is transparent]"
+    ));
+
+    public static final Command UNCAPTION = addCommandToRegister(new UncaptionCommand(
+            "uncaption",
+            "Uncaptions media."
     ));
 
     /**
