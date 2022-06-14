@@ -515,158 +515,102 @@ public class ImageManipulator implements MediaManipulator {
         }
     }
 
+    @SuppressWarnings("UnusedAssignment")
     @Override
     public File uncaption(File media, String fileFormat) throws IOException {
-
         ImageMedia imageMedia = ImageReaders.read(media, fileFormat, null);
-        ImageMediaBuilder builder = new ImageMediaBuilder();
+        BufferedImage firstImage = imageMedia.getFirstImage();
 
-        Rectangle toKeep = null;
-        for (Frame frame : imageMedia) {
-            BufferedImage unmodifiedImage = frame.getImage();
-            int duration = frame.getDuration();
+        Rectangle toKeep = findNonCaptionArea(firstImage);
+        int width = firstImage.getWidth();
+        int height = firstImage.getHeight();
 
-            if (toKeep == null) {
-                toKeep = findNonCaptionArea(unmodifiedImage);
-                if (toKeep.getX() == 0
-                        && toKeep.getY() == 0
-                        && toKeep.getWidth() == unmodifiedImage.getWidth()
-                        && toKeep.getHeight() == unmodifiedImage.getHeight()) {
-                    return media;
-                }
-            }
+        firstImage.flush();
+        firstImage = null;
+        imageMedia = null;
 
-            BufferedImage result = unmodifiedImage.getSubimage((int) toKeep.getX(), (int) toKeep.getY(), (int) toKeep.getWidth(), (int) toKeep.getHeight());
-
-            frame.flush();
-            builder.add(new AwtFrame(result, duration));
+        if (toKeep.getX() == 0
+                && toKeep.getY() == 0
+                && toKeep.getWidth() == width
+                && toKeep.getHeight() == height) {
+            return media;
+        } else {
+            return applyToEachFrame(
+                    media,
+                    fileFormat,
+                    image -> image.getSubimage(
+                            (int) toKeep.getX(),
+                            (int) toKeep.getY(),
+                            (int) toKeep.getWidth(),
+                            (int) toKeep.getHeight()
+                    ),
+                    "uncaptioned"
+            );
         }
-
-        ImageMedia outputImage = builder.build();
-
-        String outputName = FileUtil.changeFileName(media.getName(), "uncaptioned");
-
-        File output = FileUtil.getUniqueTempFile(outputName);
-        ImageWriters.write(outputImage, output, fileFormat);
-
-        return output;
     }
 
     private Rectangle findNonCaptionArea(BufferedImage image) {
         Rectangle nonCaptionArea = new Rectangle(0, 0, image.getWidth(), image.getHeight());
         int colorDistanceThreshold = 20;
-        Optional<Rectangle> nonTopCaptionAreaOptional = findNonTopCaptionArea(image, colorDistanceThreshold);
-        if (nonTopCaptionAreaOptional.isPresent()) {
-            nonCaptionArea = nonCaptionArea.intersection(nonTopCaptionAreaOptional.orElseThrow());
-        }
-        Optional<Rectangle> nonBottomCaptionAreaOptional = findNonBottomCaptionArea(image, colorDistanceThreshold);
-        if (nonBottomCaptionAreaOptional.isPresent()) {
-            nonCaptionArea = nonCaptionArea.intersection(nonBottomCaptionAreaOptional.orElseThrow());
-        }
+
+        Rectangle nonTopCaptionArea = findNonCaptionArea(image, colorDistanceThreshold, true);
+        nonCaptionArea = nonCaptionArea.intersection(nonTopCaptionArea);
+
+        Rectangle nonBottomCaptionArea = findNonCaptionArea(image, colorDistanceThreshold, false);
+        nonCaptionArea = nonCaptionArea.intersection(nonBottomCaptionArea);
 
         return nonCaptionArea;
     }
 
-    private static Optional<Rectangle> findNonTopCaptionArea(BufferedImage image, int colorDistanceThreshold) {
-        boolean mightTopHaveCaption = true;
-        int topCaptionEnd = -1;
-        for (int y = 0; y < image.getHeight(); y++) {
+    private static Rectangle findNonCaptionArea(BufferedImage image, int colorDistanceThreshold, boolean topCaption) {
+        boolean continueLooking = true;
+        int captionEnd = -1;
+        int y = topCaption ? 0 : image.getHeight() - 1;
+        while (topCaption ? y < image.getHeight() : y >= 0) {
+            boolean rowIsCompletelyWhite = true;
             for (int x = 0; x < image.getWidth(); x++) {
-                if (y == 0) {
-                    /*
-                    Check first row of pixels are all white-ish.
-                    If at least one of them isn't, terminate search.
-                     */
-                    Color color = new Color(image.getRGB(x, y));
-                    double colorDistance = ImageUtil.colorDistance(color, Color.WHITE);
-                    if (colorDistance > colorDistanceThreshold) {
-                        mightTopHaveCaption = false;
+                Color color = new Color(image.getRGB(x, y));
+                double colorDistance = ImageUtil.colorDistance(color, Color.WHITE);
+                if (colorDistance > colorDistanceThreshold) {
+                    rowIsCompletelyWhite = false;
+                    if (
+                            (topCaption ? y == 0 : y == image.getHeight() - 1)
+                                    || x == 0
+                                    || x == image.getWidth() - 1
+                    ) {
+                        continueLooking = false;
                         break;
                     }
-                } else if (x == 0 || x == image.getWidth() - 1) {
-                    Color color = new Color(image.getRGB(x, y));
-                    double colorDistance = ImageUtil.colorDistance(color, Color.WHITE);
-                    if (colorDistance > colorDistanceThreshold) {
-                        int previousY = y - 1;
-                        for (int previousRowX = 0; previousRowX < image.getWidth(); previousRowX++) {
-                            Color previousRowColor = new Color(image.getRGB(previousRowX, previousY));
-                            double previousRowColorDistance = ImageUtil.colorDistance(previousRowColor, Color.WHITE);
-                            if (previousRowColorDistance > colorDistanceThreshold) {
-                                mightTopHaveCaption = false;
-                                break;
-                            }
-                        }
-
-                        if (mightTopHaveCaption) {
-                            topCaptionEnd = previousY;
-                        }
-
-                        break;
-                    }
+                } else if (rowIsCompletelyWhite && x == image.getWidth() - 1) {
+                    captionEnd = y;
                 }
             }
 
-            if (!mightTopHaveCaption || topCaptionEnd != -1) {
+            if (!continueLooking) {
                 break;
+            }
+
+            if (topCaption) {
+                y++;
+            } else {
+                y--;
             }
         }
 
-        if (topCaptionEnd != -1) {
-            return Optional.of(new Rectangle(0, topCaptionEnd + 1, image.getWidth(), image.getHeight() - topCaptionEnd - 1));
-        } else {
-            return Optional.empty();
-        }
-    }
+        if (captionEnd != -1) {
+            int width = image.getWidth();
+            int height = topCaption ? image.getHeight() - captionEnd - 1 : captionEnd;
 
-    private static Optional<Rectangle> findNonBottomCaptionArea(BufferedImage image, int colorDistanceThreshold) {
-        boolean mightBottomHaveCaption = true;
-        int bottomCaptionStart = -1;
-        for (int y = image.getHeight() - 1; y >= 0; y--) {
-            for (int x = 0; x < image.getWidth(); x++) {
-                if (y == image.getHeight() - 1) {
-                    /*
-                    Check last row of pixels are all white-ish.
-                    If at least one of them isn't, terminate search.
-                     */
-                    Color color = new Color(image.getRGB(x, y));
-                    double colorDistance = ImageUtil.colorDistance(color, Color.WHITE);
-                    if (colorDistance > colorDistanceThreshold) {
-                        mightBottomHaveCaption = false;
-                        break;
-                    }
-                } else if (x == 0 || x == image.getWidth() - 1) {
-                    Color color = new Color(image.getRGB(x, y));
-                    double colorDistance = ImageUtil.colorDistance(color, Color.WHITE);
-                    if (colorDistance > colorDistanceThreshold) {
-                        int previousY = y + 1;
-                        for (int previousRowX = 0; previousRowX < image.getWidth(); previousRowX++) {
-                            Color previousRowColor = new Color(image.getRGB(previousRowX, previousY));
-                            double previousRowColorDistance = ImageUtil.colorDistance(previousRowColor, Color.WHITE);
-                            if (previousRowColorDistance > colorDistanceThreshold) {
-                                mightBottomHaveCaption = false;
-                                break;
-                            }
-                        }
-
-                        if (mightBottomHaveCaption) {
-                            bottomCaptionStart = previousY;
-                        }
-
-                        break;
-                    }
+            if (width > 0 && height > 0) {
+                if (topCaption) {
+                    return new Rectangle(0, captionEnd + 1, width, height);
+                } else {
+                    return new Rectangle(0, 0, width, height);
                 }
             }
-
-            if (!mightBottomHaveCaption || bottomCaptionStart != -1) {
-                break;
-            }
         }
 
-        if (bottomCaptionStart != -1) {
-            return Optional.of(new Rectangle(0, 0, image.getWidth(), bottomCaptionStart));
-        } else {
-            return Optional.empty();
-        }
+        return new Rectangle(0, 0, image.getWidth(), image.getHeight());
     }
 
     @Override
