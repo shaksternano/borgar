@@ -453,4 +453,14 @@ public class ImageUtil {
             floodFill(image, x, y - 1, previousRgb, newRgb);
         }
     }
+
+    public static double colorDistance(Color color1, Color color2) {
+        int red1 = color1.getRed();
+        int red2 = color2.getRed();
+        int redMean = (red1 + red2) / 2;
+        int redDifference = red1 - red2;
+        int greenDifference = color1.getGreen() - color2.getGreen();
+        int blueDifference = color1.getBlue() - color2.getBlue();
+        return Math.sqrt((((512 + redMean) * redDifference * redDifference) >> 8) + 4 * greenDifference * greenDifference + (((767 - redMean) * blueDifference * blueDifference) >> 8));
+    }
 }
