@@ -2,6 +2,9 @@ package io.github.shaksternano.mediamanipulator.mediamanipulator;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.sksamuel.scrimage.AutocropOps;
+import com.sksamuel.scrimage.ImmutableImage;
+import com.sksamuel.scrimage.pixels.PixelsExtractor;
 import io.github.shaksternano.mediamanipulator.exception.InvalidArgumentException;
 import io.github.shaksternano.mediamanipulator.exception.InvalidMediaException;
 import io.github.shaksternano.mediamanipulator.exception.UnsupportedFileFormatException;
@@ -515,57 +518,14 @@ public class ImageManipulator implements MediaManipulator {
         }
     }
 
-    @SuppressWarnings("UnusedAssignment")
     @Override
     public File uncaption(File media, String fileFormat) throws IOException {
-        ImageMedia imageMedia = ImageReaders.read(media, fileFormat, null);
-        BufferedImage firstImage = imageMedia.getFirstImage();
-
-        Rectangle toKeep = null;
-        int width = firstImage.getWidth();
-        int height = firstImage.getHeight();
-
-        for (Frame frame : imageMedia) {
-            BufferedImage image = frame.getImage();
-            Rectangle nonCaptionArea = findNonCaptionArea(image);
-            if (nonCaptionArea.getX() != 0
-                    || nonCaptionArea.getY() != 0
-                    || nonCaptionArea.getWidth() != width
-                    || nonCaptionArea.getHeight() != height
-            ) {
-                if (toKeep == null) {
-                    toKeep = nonCaptionArea;
-                } else {
-                    toKeep = toKeep.union(nonCaptionArea);
-                }
-            }
-        }
-
-        firstImage.flush();
-        firstImage = null;
-        imageMedia = null;
-
-        if (toKeep == null || (
-                toKeep.getX() == 0
-                && toKeep.getY() == 0
-                && toKeep.getWidth() == width
-                && toKeep.getHeight() == height
-        )) {
-            return media;
-        } else {
-            final Rectangle finalToKeep = toKeep;
-            return applyToEachFrame(
-                    media,
-                    fileFormat,
-                    image -> image.getSubimage(
-                            (int) finalToKeep.getX(),
-                            (int) finalToKeep.getY(),
-                            (int) finalToKeep.getWidth(),
-                            (int) finalToKeep.getHeight()
-                    ),
-                    "uncaptioned"
-            );
-        }
+        return cropImage(
+                media,
+                fileFormat,
+                this::findNonCaptionArea,
+                "uncaptioned"
+        );
     }
 
     private Rectangle findNonCaptionArea(BufferedImage image) {
@@ -640,6 +600,115 @@ public class ImageManipulator implements MediaManipulator {
     @Override
     public File resize(File media, String fileFormat, float resizeMultiplier, boolean raw, boolean rename) throws IOException {
         return applyToEachFrame(media, fileFormat, image -> ImageUtil.resize(image, resizeMultiplier, raw), rename ? "resized" : null);
+    }
+
+    @Override
+    public File crop(File media, String fileFormat, float topRatio, float rightRatio, float bottomRatio, float leftRatio) throws IOException {
+        if (topRatio == 0 && rightRatio == 0 && bottomRatio == 0 && leftRatio == 0) {
+            return media;
+        } else if (topRatio < 0 || rightRatio < 0 || bottomRatio < 0 || leftRatio < 0) {
+            throw new InvalidArgumentException("Crop ratios must be positive");
+        } else if (topRatio > 1 || rightRatio > 1 || bottomRatio > 1 || leftRatio > 1) {
+            throw new InvalidArgumentException("Crop ratios must be less than 1");
+        } else {
+            ImageMedia imageMedia = ImageReaders.read(media, fileFormat, null);
+            BufferedImage firstImage = imageMedia.getFirstImage();
+
+            int width = firstImage.getWidth();
+            int height = firstImage.getHeight();
+
+            int x = Math.min((int) (width * leftRatio), width - 1);
+            int y = Math.min((int) (height * topRatio), height - 1);
+            int newWidth = Math.max((int) (width * (1 - leftRatio - rightRatio)), 1);
+            int newHeight = Math.max((int) (height * (1 - topRatio - bottomRatio)), 1);
+
+            return applyToEachFrame(media, fileFormat, image -> image.getSubimage(x, y, newWidth, newHeight), "cropped");
+        }
+    }
+
+    @Override
+    public File autoCrop(File media, String fileFormat, Color cropColor, int colorTolerance) throws IOException {
+        return cropImage(
+                media,
+                fileFormat,
+                image -> findAutoCropArea(image, cropColor, colorTolerance),
+                "cropped"
+        );
+    }
+
+    @SuppressWarnings("UnusedAssignment")
+    private static File cropImage(File media, String imageFormat, Function<BufferedImage, Rectangle> cropKeepAreaFinder, @Nullable String operationName) throws IOException {
+        ImageMedia imageMedia = ImageReaders.read(media, imageFormat, null);
+        BufferedImage firstImage = imageMedia.getFirstImage();
+
+        Rectangle toKeep = null;
+        int width = firstImage.getWidth();
+        int height = firstImage.getHeight();
+
+        for (Frame frame : imageMedia) {
+            BufferedImage image = frame.getImage();
+            Rectangle mayKeepArea = cropKeepAreaFinder.apply(image);
+            if ((mayKeepArea.getX() != 0
+                    || mayKeepArea.getY() != 0
+                    || mayKeepArea.getWidth() != width
+                    || mayKeepArea.getHeight() != height)
+                    && mayKeepArea.getWidth() > 0
+                    && mayKeepArea.getHeight() > 0
+            ) {
+                if (toKeep == null) {
+                    toKeep = mayKeepArea;
+                } else {
+                    toKeep = toKeep.union(mayKeepArea);
+                }
+            }
+        }
+
+        firstImage.flush();
+        firstImage = null;
+        imageMedia = null;
+
+        if (toKeep == null || (
+                toKeep.getX() == 0
+                        && toKeep.getY() == 0
+                        && toKeep.getWidth() == width
+                        && toKeep.getHeight() == height
+        )) {
+            return media;
+        } else {
+            final Rectangle finalToKeep = toKeep;
+            return applyToEachFrame(
+                    media,
+                    imageFormat,
+                    image -> image.getSubimage(
+                            (int) finalToKeep.getX(),
+                            (int) finalToKeep.getY(),
+                            (int) finalToKeep.getWidth(),
+                            (int) finalToKeep.getHeight()
+                    ),
+                    operationName
+            );
+        }
+    }
+    
+    private static Rectangle findAutoCropArea(BufferedImage image, Color cropColor, int colorTolerance) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+        PixelsExtractor extractor = rectangle -> ImmutableImage.wrapAwt(image).pixels(
+                (int) rectangle.getX(),
+                (int) rectangle.getY(),
+                (int) rectangle.getWidth(),
+                (int) rectangle.getHeight()
+        );
+
+        int x1 = AutocropOps.scanright(cropColor, height, width, 0, extractor, colorTolerance);
+        int x2 = AutocropOps.scanleft(cropColor, height, width - 1, extractor, colorTolerance);
+        int y1 = AutocropOps.scandown(cropColor, height, width, 0, extractor, colorTolerance);
+        int y2 = AutocropOps.scanup(cropColor, width, height - 1, extractor, colorTolerance);
+        if (x1 == 0 && y1 == 0 && x2 == width - 1 && y2 == height - 1) {
+            return new Rectangle(0, 0, width, height);
+        } else {
+            return new Rectangle(x1, y1, x2 - x1, y2 - y1);
+        }
     }
 
     @Override
@@ -930,7 +999,7 @@ public class ImageManipulator implements MediaManipulator {
      * @return The resulting file.
      * @throws IOException If an error occurs while applying the operation.
      */
-    private File applyToEachFrame(File media, String imageFormat, Function<BufferedImage, BufferedImage> operation, @Nullable String operationName) throws IOException {
+    private static File applyToEachFrame(File media, String imageFormat, Function<BufferedImage, BufferedImage> operation, @Nullable String operationName) throws IOException {
         ImageMedia imageMedia = ImageReaders.read(media, imageFormat, null);
 
         ImageMedia outputImage = ImageMediaBuilder.fromCollection(imageMedia.parallelStream().map(frame -> {

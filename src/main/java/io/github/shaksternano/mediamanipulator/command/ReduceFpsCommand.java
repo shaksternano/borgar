@@ -30,6 +30,7 @@ public class ReduceFpsCommand extends MediaCommand {
                 arguments,
                 0,
                 DEFAULT_FPS_REDUCTION_MULTIPLIER,
+                null,
                 event.getChannel(),
                 (argument, defaultValue) -> "FPS reduction multiplier \"" + argument + "\" is not a whole number! Using default value of " + defaultValue + "."
         );

@@ -59,6 +59,7 @@ public class StretchCommand extends MediaCommand {
                 arguments,
                 0,
                 DEFAULT_WIDTH_MULTIPLIER,
+                null,
                 event.getChannel(),
                 (argument, defaultValue) -> "Width multiplier \"" + argument + "\" is not a number. Using default value of " + defaultValue + "."
         );
@@ -66,6 +67,7 @@ public class StretchCommand extends MediaCommand {
                 arguments,
                 1,
                 DEFAULT_HEIGHT_MULTIPLIER,
+                null,
                 event.getChannel(),
                 (argument, defaultValue) -> "Height multiplier \"" + argument + "\" is not a number. Using default value of " + defaultValue + "."
         );
