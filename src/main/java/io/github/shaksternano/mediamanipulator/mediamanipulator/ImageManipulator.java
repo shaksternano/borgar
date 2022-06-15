@@ -521,28 +521,47 @@ public class ImageManipulator implements MediaManipulator {
         ImageMedia imageMedia = ImageReaders.read(media, fileFormat, null);
         BufferedImage firstImage = imageMedia.getFirstImage();
 
-        Rectangle toKeep = findNonCaptionArea(firstImage);
+        Rectangle toKeep = null;
         int width = firstImage.getWidth();
         int height = firstImage.getHeight();
+
+        for (Frame frame : imageMedia) {
+            BufferedImage image = frame.getImage();
+            Rectangle nonCaptionArea = findNonCaptionArea(image);
+            if (nonCaptionArea.getX() != 0
+                    || nonCaptionArea.getY() != 0
+                    || nonCaptionArea.getWidth() != width
+                    || nonCaptionArea.getHeight() != height
+            ) {
+                if (toKeep == null) {
+                    toKeep = nonCaptionArea;
+                } else {
+                    toKeep = toKeep.union(nonCaptionArea);
+                }
+            }
+        }
 
         firstImage.flush();
         firstImage = null;
         imageMedia = null;
 
-        if (toKeep.getX() == 0
+        if (toKeep == null || (
+                toKeep.getX() == 0
                 && toKeep.getY() == 0
                 && toKeep.getWidth() == width
-                && toKeep.getHeight() == height) {
+                && toKeep.getHeight() == height
+        )) {
             return media;
         } else {
+            final Rectangle finalToKeep = toKeep;
             return applyToEachFrame(
                     media,
                     fileFormat,
                     image -> image.getSubimage(
-                            (int) toKeep.getX(),
-                            (int) toKeep.getY(),
-                            (int) toKeep.getWidth(),
-                            (int) toKeep.getHeight()
+                            (int) finalToKeep.getX(),
+                            (int) finalToKeep.getY(),
+                            (int) finalToKeep.getWidth(),
+                            (int) finalToKeep.getHeight()
                     ),
                     "uncaptioned"
             );
