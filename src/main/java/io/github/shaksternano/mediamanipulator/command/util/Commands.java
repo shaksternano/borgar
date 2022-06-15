@@ -61,7 +61,7 @@ public class Commands {
 
     public static final Command SPIN = addCommandToRegister(new SpinCommand(
             "spin",
-            "Spins a media file. Optional arguments: [Spin speed, default value is " + FORMAT.format(SpinCommand.DEFAULT_SPIN_SPEED) + "], [Background RGB colour, by default it is transparent]"
+            "Spins a media file. Optional arguments: [Spin speed, default value is " + FORMAT.format(SpinCommand.DEFAULT_SPIN_SPEED) + "], [Background hex RGB colour, by default it is transparent]"
     ));
 
     public static final Command UNCAPTION = addCommandToRegister(new UncaptionCommand(
@@ -96,6 +96,16 @@ public class Commands {
             true
     ));
 
+    public static final Command CROP = addCommandToRegister(new CropCommand(
+            "crop",
+            "Crops media. Required arguments: [Crop ratio. To which side, add \"%top\", \"%right\", \"%bottom\" or \"%left\" before the crop ratio to specify which side to crop.]"
+    ));
+
+    public static final Command AUTO_CROP = addCommandToRegister(new AutoCropCommand(
+            "autocrop",
+            "Automatically crops out background color. Optional arguments: [Background crop hex RGB colour, by default it is transparent], [Background crop colour tolerance, default value is " + FORMAT.format(AutoCropCommand.DEFAULT_COLOR_TOLERANCE) + "]"
+    ));
+
     public static final Command SPEED = addCommandToRegister(new SpeedCommand(
             "speed",
             "Speeds up or slows down media. Optional arguments: [Speed multiplier, default value is " + FORMAT.format(SpeedCommand.DEFAULT_SPEED_MULTIPLIER) + "]"
@@ -128,7 +138,7 @@ public class Commands {
 
     public static final Command ROTATE = addCommandToRegister(new RotateCommand(
             "rotate",
-            "Rotates media. Optional arguments: [Rotation amount, default value is " + FORMAT.format(RotateCommand.DEFAULT_ROTATION) + "], [background RGB colour, by default it is transparent]."
+            "Rotates media. Optional arguments: [Rotation amount, default value is " + FORMAT.format(RotateCommand.DEFAULT_ROTATION) + "], [Background hex RGB colour, by default it is transparent]."
     ));
 
     /**

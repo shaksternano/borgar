@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.PermissionException;
+import org.jetbrains.annotations.Nullable;
 
 import java.text.DecimalFormat;
 import java.util.HashSet;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.function.Predicate;
 
 /**
  * Parses commands from messages.
@@ -44,7 +46,7 @@ public class CommandParser {
 
             commandOptional.ifPresent(command -> {
                 try {
-                    channel.sendTyping().complete();
+                    channel.sendTyping().queue();
                     List<String> arguments = parseBaseArguments(commandParts, command);
                     ListMultimap<String, String> extraArguments = parseExtraArguments(commandParts, command);
 
@@ -144,39 +146,58 @@ public class CommandParser {
         return argumentsBuilder.build();
     }
 
-    public static int parseIntegerArgument(List<String> arguments, int toParseIndex, int defaultValue, MessageChannel triggerChannel, BiFunction<String, String, String> errorMessage) {
+    public static int parseIntegerArgument(List<String> arguments, int toParseIndex, int defaultValue, @Nullable Predicate<Integer> constraint, MessageChannel triggerChannel, BiFunction<String, String, String> errorMessage) {
         if (arguments.size() > toParseIndex) {
             String argument = arguments.get(toParseIndex);
 
             try {
-                return Integer.decode(argument);
-            } catch (NumberFormatException e) {
-                try {
-                    triggerChannel.sendMessage(errorMessage.apply(argument, String.valueOf(defaultValue))).complete();
-                    triggerChannel.sendTyping().complete();
-                } catch (RuntimeException e2) {
-                    Main.getLogger().error("Error sending error message!", e2);
+                int result = Integer.decode(argument);
+                if (constraint == null || constraint.test(result)) {
+                    return result;
                 }
+            } catch (NumberFormatException ignored) {
             }
+
+            triggerChannel.sendMessage(errorMessage.apply(argument, String.valueOf(defaultValue))).queue();
+            triggerChannel.sendTyping().queue();
         }
 
         return defaultValue;
     }
 
-    public static float parseFloatArgument(List<String> arguments, int toParseIndex, float defaultValue, MessageChannel triggerChannel, BiFunction<String, String, String> errorMessage) {
+    public static float parseFloatArgument(List<String> arguments, int toParseIndex, float defaultValue, @Nullable Predicate<Float> constraint, MessageChannel triggerChannel, BiFunction<String, String, String> errorMessage) {
         if (arguments.size() > toParseIndex) {
             String argument = arguments.get(toParseIndex);
 
             try {
-                return Float.parseFloat(argument);
-            } catch (NumberFormatException e) {
-                try {
-                    triggerChannel.sendMessage(errorMessage.apply(argument, FORMAT.format(defaultValue))).complete();
-                    triggerChannel.sendTyping().complete();
-                } catch (RuntimeException e2) {
-                    Main.getLogger().error("Error sending error message!", e2);
+                float result = Float.parseFloat(argument);
+                if (constraint == null || constraint.test(result)) {
+                    return result;
                 }
+            } catch (NumberFormatException ignored) {
             }
+
+            triggerChannel.sendMessage(errorMessage.apply(argument, FORMAT.format(defaultValue))).queue();
+            triggerChannel.sendTyping().queue();
+        }
+
+        return defaultValue;
+    }
+
+    public static float parseFloatExtraArgument(ListMultimap<String, String> extraArguments, String parameterName, float defaultValue, @Nullable Predicate<Float> constraint, MessageChannel triggerChannel, BiFunction<String, String, String> errorMessage) {
+        if (extraArguments.containsKey(parameterName)) {
+            String argument = extraArguments.get(parameterName).get(0);
+
+            try {
+                float result = Float.parseFloat(argument);
+                if (constraint == null || constraint.test(result)) {
+                    return Float.parseFloat(argument);
+                }
+            } catch (NumberFormatException ignored) {
+            }
+
+            triggerChannel.sendMessage(errorMessage.apply(argument, FORMAT.format(defaultValue))).queue();
+            triggerChannel.sendTyping().queue();
         }
 
         return defaultValue;

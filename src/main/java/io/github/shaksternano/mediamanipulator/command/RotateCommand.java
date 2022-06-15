@@ -31,6 +31,7 @@ public class RotateCommand extends MediaCommand {
                 arguments,
                 0,
                 DEFAULT_ROTATION,
+                null,
                 event.getChannel(),
                 (argument, defaultValue) -> "Rotation \"" + argument + "\" is not a number. Using default value of " + defaultValue + "."
         );
@@ -38,6 +39,7 @@ public class RotateCommand extends MediaCommand {
                 arguments,
                 1,
                 -1,
+                null,
                 event.getChannel(),
                 (argument, defaultValue) -> "RGB value \"" + argument + "\" is not a whole number. Setting transparent background color."
         );

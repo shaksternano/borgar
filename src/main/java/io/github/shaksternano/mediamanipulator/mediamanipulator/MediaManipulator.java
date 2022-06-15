@@ -60,6 +60,10 @@ public interface MediaManipulator {
 
     File resize(File media, String fileFormat, float resizeMultiplier, boolean raw, boolean rename) throws IOException;
 
+    File crop(File media, String fileFormat, float topRatio, float rightRatio, float bottomRatio, float leftRatio) throws IOException;
+
+    File autoCrop(File media, String fileFormat, Color cropColor, int colorTolerance) throws IOException;
+
     File speed(File media, String fileFormat, float speedMultiplier) throws IOException;
 
     File pixelate(File media, String fileFormat, int pixelationMultiplier) throws IOException;

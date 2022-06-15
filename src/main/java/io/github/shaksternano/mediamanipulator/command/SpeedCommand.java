@@ -30,6 +30,7 @@ public class SpeedCommand extends MediaCommand {
                 arguments,
                 0,
                 DEFAULT_SPEED_MULTIPLIER,
+                null,
                 event.getChannel(),
                 (argument, defaultValue) -> "Speed multiplier \"" + argument + "\" is not a number. Using default value of " + defaultValue + "."
         );

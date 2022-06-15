@@ -97,13 +97,7 @@ public class ImageUtil {
     }
 
     public static BufferedImage fit(BufferedImage toFit, int width, int height) {
-        float widthToHeightRatio = (float) toFit.getWidth() / toFit.getHeight();
-        float targetWidthToHeightRatio = (float) width / height;
-        if (widthToHeightRatio > targetWidthToHeightRatio) {
-            return fitWidth(toFit, width);
-        } else {
-            return fitHeight(toFit, height);
-        }
+        return ImmutableImage.wrapAwt(toFit).max(width, height).awt();
     }
 
     public static BufferedImage fill(BufferedImage toFill, Color color) {

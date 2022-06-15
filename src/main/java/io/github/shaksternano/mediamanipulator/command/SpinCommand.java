@@ -30,6 +30,7 @@ public class SpinCommand extends MediaCommand {
         float spinSpeed = CommandParser.parseFloatArgument(arguments,
                 0,
                 DEFAULT_SPIN_SPEED,
+                null,
                 event.getChannel(),
                 (argument, defaultValue) -> "Spin speed \"" + argument + "\" is not a number. Using default value of " + defaultValue + "."
         );
@@ -37,6 +38,7 @@ public class SpinCommand extends MediaCommand {
                 arguments,
                 1,
                 -1,
+                null,
                 event.getChannel(),
                 (argument, defaultValue) -> "RGB value \"" + argument + "\" is not a whole number. Setting transparent background color."
         );
