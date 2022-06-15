@@ -530,18 +530,18 @@ public class ImageManipulator implements MediaManipulator {
 
     private Rectangle findNonCaptionArea(BufferedImage image) {
         Rectangle nonCaptionArea = new Rectangle(0, 0, image.getWidth(), image.getHeight());
-        int colorDistanceThreshold = 20;
+        int colorTolerance = 100;
 
-        Rectangle nonTopCaptionArea = findNonCaptionArea(image, colorDistanceThreshold, true);
+        Rectangle nonTopCaptionArea = findNonCaptionArea(image, colorTolerance, true);
         nonCaptionArea = nonCaptionArea.intersection(nonTopCaptionArea);
 
-        Rectangle nonBottomCaptionArea = findNonCaptionArea(image, colorDistanceThreshold, false);
+        Rectangle nonBottomCaptionArea = findNonCaptionArea(image, colorTolerance, false);
         nonCaptionArea = nonCaptionArea.intersection(nonBottomCaptionArea);
 
         return nonCaptionArea;
     }
 
-    private static Rectangle findNonCaptionArea(BufferedImage image, int colorDistanceThreshold, boolean topCaption) {
+    private static Rectangle findNonCaptionArea(BufferedImage image, int colorTolerance, boolean topCaption) {
         boolean continueLooking = true;
         int captionEnd = -1;
         int y = topCaption ? 0 : image.getHeight() - 1;
@@ -550,7 +550,7 @@ public class ImageManipulator implements MediaManipulator {
             for (int x = 0; x < image.getWidth(); x++) {
                 Color color = new Color(image.getRGB(x, y));
                 double colorDistance = ImageUtil.colorDistance(color, Color.WHITE);
-                if (colorDistance > colorDistanceThreshold) {
+                if (colorDistance > colorTolerance) {
                     rowIsCompletelyWhite = false;
                     if (
                             (topCaption ? y == 0 : y == image.getHeight() - 1)
