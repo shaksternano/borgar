@@ -2,10 +2,8 @@ package io.github.shaksternano.mediamanipulator.util;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Streams;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 /**
@@ -18,25 +16,20 @@ public class CollectionUtil {
      *
      * @param collection The collection to remove elements from.
      * @param n          The n value.
-     * @param cleanup    The code run on elements that are removed.
      * @param <E>        The type of the collection.
      * @return A new {@link List} with every Nth element removed.
      */
-    public static <E> List<E> keepEveryNthElement(Collection<E> collection, int n, @Nullable Consumer<E> cleanup) {
-        return keepEveryNthElement(collection.stream(), n, cleanup);
+    public static <E> List<E> keepEveryNthElement(Collection<E> collection, int n) {
+        return keepEveryNthElement(collection.stream(), n);
     }
 
-    public static <E> List<E> keepEveryNthElement(Stream<E> stream, int n, @Nullable Consumer<E> cleanup) {
+    public static <E> List<E> keepEveryNthElement(Stream<E> stream, int n) {
         return Streams
                 .mapWithIndex(stream, AbstractMap.SimpleImmutableEntry::new)
                 .filter(entry -> {
                     if (entry.getValue() % n == 0) {
                         return true;
                     } else {
-                        if (cleanup != null) {
-                            cleanup.accept(entry.getKey());
-                        }
-
                         return false;
                     }
                 })

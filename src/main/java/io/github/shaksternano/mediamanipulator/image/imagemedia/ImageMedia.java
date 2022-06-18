@@ -25,6 +25,8 @@ public interface ImageMedia extends Iterable<Frame> {
      */
     int getFrameCount();
 
+    int getDuration();
+
     boolean isEmpty();
 
     boolean isAnimated();
