@@ -18,6 +18,15 @@ public abstract class BaseImageMedia implements ImageMedia {
     }
 
     @Override
+    public int getDuration() {
+        int duration = 0;
+        for (Frame frame : this) {
+            duration += frame.getDuration();
+        }
+        return duration;
+    }
+
+    @Override
     public boolean isEmpty() {
         return getFrameCount() == 0;
     }

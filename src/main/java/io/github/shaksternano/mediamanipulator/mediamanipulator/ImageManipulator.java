@@ -788,17 +788,22 @@ public class ImageManipulator implements MediaManipulator {
                 ImageMediaBuilder builder = new ImageMediaBuilder();
 
                 for (Frame frame : imageMedia) {
-                    builder.add(new AwtFrame(frame.getImage(), (int) (frame.getDuration() / speedMultiplier)));
+                    builder.add(new AwtFrame(frame.getImage(), Math.round(frame.getDuration() / speedMultiplier)));
                 }
 
                 ImageMedia modifiedDurations = builder.build();
                 List<BufferedImage> keptFrames = modifiedDurations.toNormalisedImages();
 
-                ImageMedia newImageMedia = ImageMediaBuilder.fromBufferedImages(keptFrames);
                 ImageMediaBuilder resultBuilder = new ImageMediaBuilder();
 
-                for (Frame frame : newImageMedia) {
-                    resultBuilder.add(new AwtFrame(frame.getImage(), frame.getDuration() * Frame.GIF_MINIMUM_FRAME_DURATION));
+                for (BufferedImage image : keptFrames) {
+                    resultBuilder.add(new AwtFrame(image, Frame.GIF_MINIMUM_FRAME_DURATION));
+                }
+
+                int duration = resultBuilder.getDuration();
+                int expectedDuration = Math.round(imageMedia.getDuration() / speedMultiplier);
+                if (expectedDuration > duration) {
+                    resultBuilder.increaseLastFrameDuration(expectedDuration - duration);
                 }
 
                 ImageMedia result = resultBuilder.build();

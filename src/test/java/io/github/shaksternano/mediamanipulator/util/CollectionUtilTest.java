@@ -11,8 +11,8 @@ class CollectionUtilTest {
     @Test
     void keepEveryNthElement() {
         Assertions.assertAll(
-                () -> Assertions.assertEquals(List.of(1, 3, 5), CollectionUtil.keepEveryNthElement(List.of(1, 2, 3, 4, 5), 2, null)),
-                () -> Assertions.assertEquals(List.of(1), CollectionUtil.keepEveryNthElement(List.of(1, 2, 3, 4, 5), 10, null))
+                () -> Assertions.assertEquals(List.of(1, 3, 5), CollectionUtil.keepEveryNthElement(List.of(1, 2, 3, 4, 5), 2)),
+                () -> Assertions.assertEquals(List.of(1), CollectionUtil.keepEveryNthElement(List.of(1, 2, 3, 4, 5), 10))
         );
     }
 

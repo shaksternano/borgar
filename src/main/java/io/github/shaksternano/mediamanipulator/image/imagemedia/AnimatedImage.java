@@ -39,10 +39,9 @@ public class AnimatedImage extends BaseImageMedia {
             }
 
             millisCount += frame.getDuration() % Frame.GIF_MINIMUM_FRAME_DURATION;
-            millisCount %= Frame.GIF_MINIMUM_FRAME_DURATION;
-
-            if (millisCount == 0) {
+            if (millisCount >= Frame.GIF_MINIMUM_FRAME_DURATION) {
                 builder.add(frame.getImage());
+                millisCount -= Frame.GIF_MINIMUM_FRAME_DURATION;
             }
         }
 

@@ -45,12 +45,20 @@ public class ImageMediaBuilder {
         return frames.size();
     }
 
+    public int getDuration() {
+        int duration = 0;
+        for (Frame frame : frames) {
+            duration += frame.getDuration();
+        }
+        return duration;
+    }
+
     public ImageMediaBuilder increaseLastFrameDuration(int duration) {
         if (frames.isEmpty()) {
             throw new IllegalStateException("Builder is empty!");
         } else if (duration < 0) {
             throw new IllegalArgumentException("Duration must be positive or 0!");
-        } else {
+        } else if (duration > 0) {
             int lastIndex = frames.size() - 1;
             Frame lastFrame = frames.get(lastIndex);
             int newDuration = lastFrame.getDuration() + duration;
