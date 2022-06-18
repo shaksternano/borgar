@@ -32,7 +32,7 @@ public class AnimatedImage extends BaseImageMedia {
         ImmutableList.Builder<BufferedImage> builder = new ImmutableList.Builder<>();
         int millisCount = 0;
         for (Frame frame : this) {
-            if (frame.getDuration() > Frame.GIF_MINIMUM_FRAME_DURATION) {
+            if (frame.getDuration() >= Frame.GIF_MINIMUM_FRAME_DURATION) {
                 for (int i = 0; i < frame.getDuration() / Frame.GIF_MINIMUM_FRAME_DURATION; i++) {
                     builder.add(frame.getImage());
                 }
