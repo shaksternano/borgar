@@ -8,8 +8,6 @@ import org.junit.jupiter.api.Test;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class AnimatedImageTest {
 
     private final BufferedImage image1 = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
@@ -44,22 +42,20 @@ class AnimatedImageTest {
                 new AwtFrame(image5, 1)
         ));
 
-        Assertions.assertAll(
-                () -> assertEquals(List.of(
-                        image1,
-                        image2,
-                        image3,
-                        image4,
-                        image5
-                ), animatedImage1.toNormalisedImages()),
-                () -> assertEquals(List.of(
-                        image1,
-                        image2,
-                        image2,
-                        image3,
-                        image4
-                ), animatedImage2.toNormalisedImages()),
-                () -> assertEquals(List.of(), animatedImage3.toNormalisedImages())
-        );
+        Assertions.assertEquals(List.of(
+                image1,
+                image2,
+                image3,
+                image4,
+                image5
+        ), animatedImage1.toNormalisedImages());
+        Assertions.assertEquals(List.of(
+                image1,
+                image2,
+                image2,
+                image3,
+                image4
+        ), animatedImage2.toNormalisedImages());
+        Assertions.assertEquals(List.of(), animatedImage3.toNormalisedImages());
     }
 }
