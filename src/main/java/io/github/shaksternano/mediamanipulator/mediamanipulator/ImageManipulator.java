@@ -530,7 +530,7 @@ public class ImageManipulator implements MediaManipulator {
 
     private Rectangle findNonCaptionArea(BufferedImage image) {
         Rectangle nonCaptionArea = new Rectangle(0, 0, image.getWidth(), image.getHeight());
-        int colorTolerance = 100;
+        int colorTolerance = 150;
 
         Rectangle nonTopCaptionArea = findNonCaptionArea(image, colorTolerance, true);
         nonCaptionArea = nonCaptionArea.intersection(nonTopCaptionArea);
