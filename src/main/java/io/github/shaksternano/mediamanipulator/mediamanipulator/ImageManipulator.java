@@ -320,7 +320,7 @@ public class ImageManipulator implements MediaManipulator {
                 padding,
                 Position.CENTRE,
                 TextAlignment.CENTER,
-                null,
+                new Font("Impact", Font.BOLD, smallestDimension),
                 Color.WHITE,
                 word -> new OutlinedTextDrawable(word, Color.WHITE, Color.BLACK, 0.15F),
                 null,
