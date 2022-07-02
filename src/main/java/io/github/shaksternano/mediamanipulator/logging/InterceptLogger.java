@@ -7,371 +7,371 @@ import org.slf4j.event.Level;
 
 public abstract class InterceptLogger implements Logger {
 
-    private final Logger logger;
+    private final Logger delegate;
 
     public InterceptLogger(Logger logger) {
-        this.logger = logger;
+        delegate = logger;
     }
 
     protected abstract void intercept(Level level, String message, @Nullable Throwable t, Object... arguments);
 
     @Override
     public String getName() {
-        return logger.getName();
+        return delegate.getName();
     }
 
     @Override
     public boolean isTraceEnabled() {
-        return logger.isTraceEnabled();
+        return delegate.isTraceEnabled();
     }
 
     @Override
     public void trace(String msg) {
-        logger.trace(msg);
+        delegate.trace(msg);
         intercept(Level.TRACE, msg, null);
     }
 
     @Override
     public void trace(String format, Object arg) {
-        logger.trace(format, arg);
+        delegate.trace(format, arg);
         intercept(Level.TRACE, format, null, arg);
     }
 
     @Override
     public void trace(String format, Object arg1, Object arg2) {
-        logger.trace(format, arg1, arg2);
+        delegate.trace(format, arg1, arg2);
         intercept(Level.TRACE, format, null, arg1, arg2);
     }
 
     @Override
     public void trace(String format, Object... arguments) {
-        logger.trace(format, arguments);
+        delegate.trace(format, arguments);
         intercept(Level.TRACE, format, null, arguments);
     }
 
     @Override
     public void trace(String msg, Throwable t) {
-        logger.trace(msg, t);
+        delegate.trace(msg, t);
         intercept(Level.TRACE, msg, t);
     }
 
     @Override
     public boolean isTraceEnabled(Marker marker) {
-        return logger.isTraceEnabled(marker);
+        return delegate.isTraceEnabled(marker);
     }
 
     @Override
     public void trace(Marker marker, String msg) {
-        logger.trace(marker, msg);
+        delegate.trace(marker, msg);
         intercept(Level.TRACE, msg, null);
     }
 
     @Override
     public void trace(Marker marker, String format, Object arg) {
-        logger.trace(marker, format, arg);
+        delegate.trace(marker, format, arg);
         intercept(Level.TRACE, format, null, arg);
     }
 
     @Override
     public void trace(Marker marker, String format, Object arg1, Object arg2) {
-        logger.trace(marker, format, arg1, arg2);
+        delegate.trace(marker, format, arg1, arg2);
         intercept(Level.TRACE, format, null, arg1, arg2);
     }
 
     @Override
     public void trace(Marker marker, String format, Object... argArray) {
-        logger.trace(marker, format, argArray);
+        delegate.trace(marker, format, argArray);
         intercept(Level.TRACE, format, null, argArray);
     }
 
     @Override
     public void trace(Marker marker, String msg, Throwable t) {
-        logger.trace(marker, msg, t);
+        delegate.trace(marker, msg, t);
         intercept(Level.TRACE, msg, t);
     }
 
     @Override
     public boolean isDebugEnabled() {
-        return logger.isDebugEnabled();
+        return delegate.isDebugEnabled();
     }
 
     @Override
     public void debug(String msg) {
-        logger.debug(msg);
+        delegate.debug(msg);
         intercept(Level.DEBUG, msg, null);
     }
 
     @Override
     public void debug(String format, Object arg) {
-        logger.debug(format, arg);
+        delegate.debug(format, arg);
         intercept(Level.DEBUG, format, null, arg);
     }
 
     @Override
     public void debug(String format, Object arg1, Object arg2) {
-        logger.debug(format, arg1, arg2);
+        delegate.debug(format, arg1, arg2);
         intercept(Level.DEBUG, format, null, arg1, arg2);
     }
 
     @Override
     public void debug(String format, Object... arguments) {
-        logger.debug(format, arguments);
+        delegate.debug(format, arguments);
         intercept(Level.DEBUG, format, null, arguments);
     }
 
     @Override
     public void debug(String msg, Throwable t) {
-        logger.debug(msg, t);
+        delegate.debug(msg, t);
         intercept(Level.DEBUG, msg, t);
     }
 
     @Override
     public boolean isDebugEnabled(Marker marker) {
-        return logger.isDebugEnabled(marker);
+        return delegate.isDebugEnabled(marker);
     }
 
     @Override
     public void debug(Marker marker, String msg) {
-        logger.debug(marker, msg);
+        delegate.debug(marker, msg);
         intercept(Level.DEBUG, msg, null);
     }
 
     @Override
     public void debug(Marker marker, String format, Object arg) {
-        logger.debug(marker, format, arg);
+        delegate.debug(marker, format, arg);
         intercept(Level.DEBUG, format, null, arg);
     }
 
     @Override
     public void debug(Marker marker, String format, Object arg1, Object arg2) {
-        logger.debug(marker, format, arg1, arg2);
+        delegate.debug(marker, format, arg1, arg2);
         intercept(Level.DEBUG, format, null, arg1, arg2);
     }
 
     @Override
     public void debug(Marker marker, String format, Object... arguments) {
-        logger.debug(marker, format, arguments);
+        delegate.debug(marker, format, arguments);
         intercept(Level.DEBUG, format, null, arguments);
     }
 
     @Override
     public void debug(Marker marker, String msg, Throwable t) {
-        logger.debug(marker, msg, t);
+        delegate.debug(marker, msg, t);
         intercept(Level.DEBUG, msg, t);
     }
 
     @Override
     public boolean isInfoEnabled() {
-        return logger.isInfoEnabled();
+        return delegate.isInfoEnabled();
     }
 
     @Override
     public void info(String msg) {
-        logger.info(msg);
+        delegate.info(msg);
         intercept(Level.INFO, msg, null);
     }
 
     @Override
     public void info(String format, Object arg) {
-        logger.info(format, arg);
+        delegate.info(format, arg);
         intercept(Level.INFO, format, null, arg);
     }
 
     @Override
     public void info(String format, Object arg1, Object arg2) {
-        logger.info(format, arg1, arg2);
+        delegate.info(format, arg1, arg2);
         intercept(Level.INFO, format, null, arg1, arg2);
     }
 
     @Override
     public void info(String format, Object... arguments) {
-        logger.info(format, arguments);
+        delegate.info(format, arguments);
         intercept(Level.INFO, format, null, arguments);
     }
 
     @Override
     public void info(String msg, Throwable t) {
-        logger.info(msg, t);
+        delegate.info(msg, t);
         intercept(Level.INFO, msg, t);
     }
 
     @Override
     public boolean isInfoEnabled(Marker marker) {
-        return logger.isInfoEnabled(marker);
+        return delegate.isInfoEnabled(marker);
     }
 
     @Override
     public void info(Marker marker, String msg) {
-        logger.info(marker, msg);
+        delegate.info(marker, msg);
         intercept(Level.INFO, msg, null);
     }
 
     @Override
     public void info(Marker marker, String format, Object arg) {
-        logger.info(marker, format, arg);
+        delegate.info(marker, format, arg);
         intercept(Level.INFO, format, null, arg);
     }
 
     @Override
     public void info(Marker marker, String format, Object arg1, Object arg2) {
-        logger.info(marker, format, arg1, arg2);
+        delegate.info(marker, format, arg1, arg2);
         intercept(Level.INFO, format, null, arg1, arg2);
     }
 
     @Override
     public void info(Marker marker, String format, Object... arguments) {
-        logger.info(marker, format, arguments);
+        delegate.info(marker, format, arguments);
         intercept(Level.INFO, format, null, arguments);
     }
 
     @Override
     public void info(Marker marker, String msg, Throwable t) {
-        logger.info(marker, msg, t);
+        delegate.info(marker, msg, t);
         intercept(Level.INFO, msg, t);
     }
 
     @Override
     public boolean isWarnEnabled() {
-        return logger.isWarnEnabled();
+        return delegate.isWarnEnabled();
     }
 
     @Override
     public void warn(String msg) {
-        logger.warn(msg);
+        delegate.warn(msg);
         intercept(Level.WARN, msg, null);
     }
 
     @Override
     public void warn(String format, Object arg) {
-        logger.warn(format, arg);
+        delegate.warn(format, arg);
         intercept(Level.WARN, format, null, arg);
     }
 
     @Override
     public void warn(String format, Object... arguments) {
-        logger.warn(format, arguments);
+        delegate.warn(format, arguments);
         intercept(Level.WARN, format, null, arguments);
     }
 
     @Override
     public void warn(String format, Object arg1, Object arg2) {
-        logger.warn(format, arg1, arg2);
+        delegate.warn(format, arg1, arg2);
         intercept(Level.WARN, format, null, arg1, arg2);
     }
 
     @Override
     public void warn(String msg, Throwable t) {
-        logger.warn(msg, t);
+        delegate.warn(msg, t);
         intercept(Level.WARN, msg, t);
     }
 
     @Override
     public boolean isWarnEnabled(Marker marker) {
-        return logger.isWarnEnabled(marker);
+        return delegate.isWarnEnabled(marker);
     }
 
     @Override
     public void warn(Marker marker, String msg) {
-        logger.warn(marker, msg);
+        delegate.warn(marker, msg);
         intercept(Level.WARN, msg, null);
     }
 
     @Override
     public void warn(Marker marker, String format, Object arg) {
-        logger.warn(marker, format, arg);
+        delegate.warn(marker, format, arg);
         intercept(Level.WARN, format, null, arg);
     }
 
     @Override
     public void warn(Marker marker, String format, Object arg1, Object arg2) {
-        logger.warn(marker, format, arg1, arg2);
+        delegate.warn(marker, format, arg1, arg2);
         intercept(Level.WARN, format, null, arg1, arg2);
     }
 
     @Override
     public void warn(Marker marker, String format, Object... arguments) {
-        logger.warn(marker, format, arguments);
+        delegate.warn(marker, format, arguments);
         intercept(Level.WARN, format, null, arguments);
     }
 
     @Override
     public void warn(Marker marker, String msg, Throwable t) {
-        logger.warn(marker, msg, t);
+        delegate.warn(marker, msg, t);
         intercept(Level.WARN, msg, t);
     }
 
     @Override
     public boolean isErrorEnabled() {
-        return logger.isErrorEnabled();
+        return delegate.isErrorEnabled();
     }
 
     @Override
     public void error(String msg) {
-        logger.error(msg);
+        delegate.error(msg);
         intercept(Level.ERROR, msg, null);
     }
 
     @Override
     public void error(String format, Object arg) {
-        logger.error(format, arg);
+        delegate.error(format, arg);
         intercept(Level.ERROR, format, null, arg);
     }
 
     @Override
     public void error(String format, Object arg1, Object arg2) {
-        logger.error(format, arg1, arg2);
+        delegate.error(format, arg1, arg2);
         intercept(Level.ERROR, format, null, arg1, arg2);
     }
 
     @Override
     public void error(String format, Object... arguments) {
-        logger.error(format, arguments);
+        delegate.error(format, arguments);
         intercept(Level.ERROR, format, null, arguments);
     }
 
     @Override
     public void error(String msg, Throwable t) {
-        logger.error(msg, t);
+        delegate.error(msg, t);
         intercept(Level.ERROR, msg, t);
     }
 
     @Override
     public boolean isErrorEnabled(Marker marker) {
-        return logger.isErrorEnabled(marker);
+        return delegate.isErrorEnabled(marker);
     }
 
     @Override
     public void error(Marker marker, String msg) {
-        logger.error(marker, msg);
+        delegate.error(marker, msg);
         intercept(Level.ERROR, msg, null);
     }
 
     @Override
     public void error(Marker marker, String format, Object arg) {
-        logger.error(marker, format, arg);
+        delegate.error(marker, format, arg);
         intercept(Level.ERROR, format, null, arg);
     }
 
     @Override
     public void error(Marker marker, String format, Object arg1, Object arg2) {
-        logger.error(marker, format, arg1, arg2);
+        delegate.error(marker, format, arg1, arg2);
         intercept(Level.ERROR, format, null, arg1, arg2);
     }
 
     @Override
     public void error(Marker marker, String format, Object... arguments) {
-        logger.error(marker, format, arguments);
+        delegate.error(marker, format, arguments);
         intercept(Level.ERROR, format, null, arguments);
     }
 
     @Override
     public void error(Marker marker, String msg, Throwable t) {
-        logger.error(marker, msg, t);
+        delegate.error(marker, msg, t);
         intercept(Level.ERROR, msg, t);
     }
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "[" + logger + "]";
+        return getClass().getSimpleName() + "[" + delegate + "]";
     }
 }
