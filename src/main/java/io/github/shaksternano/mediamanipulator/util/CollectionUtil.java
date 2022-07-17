@@ -26,13 +26,7 @@ public class CollectionUtil {
     public static <E> List<E> keepEveryNthElement(Stream<E> stream, int n) {
         return Streams
                 .mapWithIndex(stream, AbstractMap.SimpleImmutableEntry::new)
-                .filter(entry -> {
-                    if (entry.getValue() % n == 0) {
-                        return true;
-                    } else {
-                        return false;
-                    }
-                })
+                .filter(entry -> entry.getValue() % n == 0)
                 .map(Map.Entry::getKey)
                 .toList();
     }

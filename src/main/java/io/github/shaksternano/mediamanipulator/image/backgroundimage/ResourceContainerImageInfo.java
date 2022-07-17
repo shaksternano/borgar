@@ -84,6 +84,25 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
             "shape/thinking_bubble_edge_trimmed.javaobject",
             false,
             Color.WHITE
+    ),
+
+    MUTA_SOY(
+            "image/containerimage/muta_soy.png",
+            "muta_soy",
+            400,
+            256,
+            400,
+            512,
+            0,
+            Position.CENTRE,
+            TextAlignment.CENTER,
+            "Futura-CondensedExtraBold",
+            Color.WHITE,
+            70,
+            null,
+            null,
+            false,
+            null
     );
 
     private final String IMAGE_PATH;

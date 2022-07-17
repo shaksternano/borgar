@@ -53,6 +53,12 @@ public class Commands {
             ResourceContainerImageInfo.SOYJAK_POINTING
     ));
 
+    public static final Command MUTA_SOY = addCommandToRegister(new ContainerImageCommand(
+            "mutasoy",
+            "Mutahar soyjak pointing. Optional arguments: [What is being pointed at]",
+            ResourceContainerImageInfo.MUTA_SOY
+    ));
+
     public static final Command THINKING_BUBBLE = addCommandToRegister(new ContainerImageCommand(
             "think",
             "Puts text or an image in a thinking bubble. Optional arguments: [Thinking bubble text]",
