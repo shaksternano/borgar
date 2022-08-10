@@ -29,23 +29,28 @@ public class AnimatedImage extends BaseImageMedia {
 
     @Override
     public List<BufferedImage> toNormalisedImages() {
-        ImmutableList.Builder<BufferedImage> builder = new ImmutableList.Builder<>();
-        int millisCount = 0;
-        for (Frame frame : this) {
-            if (frame.getDuration() >= Frame.GIF_MINIMUM_FRAME_DURATION) {
-                for (int i = 0; i < frame.getDuration() / Frame.GIF_MINIMUM_FRAME_DURATION; i++) {
+        if (isEmpty()) {
+            throw new IllegalStateException("ImageMedia is empty!");
+        } else if (getDuration() < Frame.GIF_MINIMUM_FRAME_DURATION) {
+            return ImmutableList.of(getFirstImage());
+        } else {
+            ImmutableList.Builder<BufferedImage> builder = new ImmutableList.Builder<>();
+            int millisCount = 0;
+            for (Frame frame : this) {
+                if (frame.getDuration() >= Frame.GIF_MINIMUM_FRAME_DURATION) {
+                    for (int i = 0; i < frame.getDuration() / Frame.GIF_MINIMUM_FRAME_DURATION; i++) {
+                        builder.add(frame.getImage());
+                    }
+                }
+
+                millisCount += frame.getDuration() % Frame.GIF_MINIMUM_FRAME_DURATION;
+                if (millisCount >= Frame.GIF_MINIMUM_FRAME_DURATION) {
                     builder.add(frame.getImage());
+                    millisCount -= Frame.GIF_MINIMUM_FRAME_DURATION;
                 }
             }
-
-            millisCount += frame.getDuration() % Frame.GIF_MINIMUM_FRAME_DURATION;
-            if (millisCount >= Frame.GIF_MINIMUM_FRAME_DURATION) {
-                builder.add(frame.getImage());
-                millisCount -= Frame.GIF_MINIMUM_FRAME_DURATION;
-            }
+            return builder.build();
         }
-
-        return builder.build();
     }
 
     @Override
