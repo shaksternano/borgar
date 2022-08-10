@@ -24,7 +24,7 @@ public interface Command {
      * @param extraArguments A multimap mapping the additional parameter names to a list of the arguments.
      * @param event          The event that triggered the command.
      */
-    void execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event);
+    void execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws Exception;
 
     Set<String> getAdditionalParameterNames();
 

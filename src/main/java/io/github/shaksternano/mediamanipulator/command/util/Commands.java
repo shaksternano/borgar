@@ -207,6 +207,11 @@ public class Commands {
             "Gets the image of a sticker."
     ));
 
+    public static final Command HAEMA = addCommandToRegister(new HaemaCommand(
+            "haema",
+            "Haema"
+    ));
+
     public static final Command SERVER_COUNT = addCommandToRegister(new ServerCountCommand(
             "servers",
             "Gets the number of servers that this bot is in."
