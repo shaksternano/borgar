@@ -56,6 +56,6 @@ class AnimatedImageTest {
                 image3,
                 image4
         ), animatedImage2.toNormalisedImages());
-        Assertions.assertEquals(List.of(), animatedImage3.toNormalisedImages());
+        Assertions.assertEquals(List.of(image1), animatedImage3.toNormalisedImages());
     }
 }
