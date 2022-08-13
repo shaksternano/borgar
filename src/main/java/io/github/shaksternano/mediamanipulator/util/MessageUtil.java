@@ -12,10 +12,11 @@ import io.github.shaksternano.mediamanipulator.image.imagemedia.ImageMedia;
 import io.github.shaksternano.mediamanipulator.image.reader.util.ImageReaders;
 import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
 import io.github.shaksternano.mediamanipulator.io.FileUtil;
-import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -201,22 +202,22 @@ public class MessageUtil {
         String messageContent = message.getContentRaw();
 
         // Get custom emojis.
-        List<Emote> emotes = message.getMentions().getEmotes();
-        for (Emote emote : emotes) {
-            builder.put(emote.getAsMention(), emote.getImageUrl());
+        List<CustomEmoji> customEmojis = message.getMentions().getCustomEmojis();
+        for (CustomEmoji customEmoji : customEmojis) {
+            builder.put(customEmoji.getAsMention(), customEmoji.getImageUrl());
             if (onlyGetFirst) {
                 return builder.build();
             }
         }
 
         // Get emojis undetected by Discord.
-        Set<String> emoteNames = emotes.stream().map(Emote::getName).collect(ImmutableSet.toImmutableSet());
-        for (Emote emote : message.getGuild().getEmotes()) {
-            String emoteName = emote.getName();
+        Set<String> emoteNames = customEmojis.stream().map(Emoji::getName).collect(ImmutableSet.toImmutableSet());
+        for (CustomEmoji customEmoji : message.getGuild().getEmojiCache()) {
+            String emoteName = customEmoji.getName();
             if (!emoteNames.contains(emoteName)) {
-                String emoteColonName = ":" + emote.getName() + ":";
+                String emoteColonName = ":" + customEmoji.getName() + ":";
                 if (messageContent.contains(emoteColonName)) {
-                    builder.put(emoteColonName, emote.getImageUrl());
+                    builder.put(emoteColonName, customEmoji.getImageUrl());
                     if (onlyGetFirst) {
                         return builder.build();
                     }
@@ -248,10 +249,10 @@ public class MessageUtil {
 
                     if (onlyGetFirst) {
                         return builder.build();
+                    } else {
+                        i += j - i;
+                        break;
                     }
-
-                    i += j - i;
-                    break;
                 }
             }
         }

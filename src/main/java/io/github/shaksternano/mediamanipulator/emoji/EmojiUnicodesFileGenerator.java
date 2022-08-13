@@ -23,12 +23,12 @@ public class EmojiUnicodesFileGenerator {
     private static final Logger LOGGER = MiscUtil.createLogger("Emoji Unicodes File Generator");
 
     /**
-     * The name of the owner of the Twemoji Github repository.
+     * The name of the owner of the Twemoji GitHub repository.
      */
     private static final String REPOSITORY_OWNER = "twitter";
 
     /**
-     * The name of the Twemoji Github repository.
+     * The name of the Twemoji GitHub repository.
      */
     private static final String REPOSITORY_NAME = "twemoji";
 

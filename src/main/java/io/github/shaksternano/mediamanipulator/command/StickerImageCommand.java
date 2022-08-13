@@ -2,7 +2,7 @@ package io.github.shaksternano.mediamanipulator.command;
 
 import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.util.MessageUtil;
-import net.dv8tion.jda.api.entities.MessageSticker;
+import net.dv8tion.jda.api.entities.sticker.StickerItem;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.List;
@@ -24,7 +24,7 @@ public class StickerImageCommand extends BaseCommand {
     @Override
     public void execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
         MessageUtil.processMessages(event.getMessage(), message -> {
-            List<MessageSticker> stickers = message.getStickers();
+            List<StickerItem> stickers = message.getStickers();
             if (stickers.isEmpty()) {
                 return Optional.empty();
             } else {

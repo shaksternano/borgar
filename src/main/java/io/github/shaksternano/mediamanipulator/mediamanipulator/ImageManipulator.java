@@ -80,12 +80,12 @@ public class ImageManipulator implements MediaManipulator {
         int width = firstImage.getWidth();
         int height = firstImage.getHeight();
 
-        int smallestDimension = Math.min(width, height);
+        int biggestDimension = Math.max(width, height);
 
         String fontName = caption2 ? "Helvetica Neue" : "Futura-CondensedExtraBold";
         float fontRatio = caption2 ? 9 : 7;
-        Font font = new Font(fontName, Font.PLAIN, (int) (smallestDimension / fontRatio));
-        int padding = (int) (smallestDimension * 0.04F);
+        Font font = new Font(fontName, Font.PLAIN, (int) (biggestDimension / fontRatio));
+        int padding = (int) (biggestDimension * 0.04F);
         Graphics2D originalGraphics = firstImage.createGraphics();
 
         originalGraphics.setFont(font);
@@ -187,14 +187,14 @@ public class ImageManipulator implements MediaManipulator {
 
         int contentWidth = firstImage.getWidth();
         int contentHeight = firstImage.getHeight();
-        int contentSmallestDimension = Math.min(contentWidth, contentHeight);
+        int contentLargestDimension = Math.max(contentWidth, contentHeight);
         int contentImageType = ImageUtil.getType(firstImage);
 
-        int demotivateImagePadding = (int) (contentSmallestDimension * 0.2F);
+        int demotivateImagePadding = (int) (contentLargestDimension * 0.2F);
 
         Graphics2D graphics = firstImage.createGraphics();
 
-        Font font = new Font("Times", Font.PLAIN, contentSmallestDimension / 6);
+        Font font = new Font("Times", Font.PLAIN, contentLargestDimension / 6);
         Font subFont = font.deriveFont(font.getSize() / 3F);
         graphics.setFont(font);
         ImageUtil.configureTextDrawQuality(graphics);
@@ -224,7 +224,7 @@ public class ImageManipulator implements MediaManipulator {
         demotivateBackgroundGraphics.setColor(Color.BLACK);
         demotivateBackgroundGraphics.fillRect(0, 0, demotivateWidth, demotivateHeight);
 
-        int lineDiameter = Math.max(Math.round(contentSmallestDimension * 0.005F), 1);
+        int lineDiameter = Math.max(Math.round(contentLargestDimension * 0.005F), 1);
         int lineImageSpacing = lineDiameter * 3;
 
         demotivateBackgroundGraphics.setColor(Color.WHITE);

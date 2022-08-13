@@ -44,7 +44,7 @@ public interface Command {
     String getNameWithPrefix();
 
     /**
-     * Gets the description of the command..
+     * Gets the description of the command.
      *
      * @return The description of the command.
      */
