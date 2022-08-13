@@ -299,8 +299,8 @@ public class ImageManipulator implements MediaManipulator {
         int width = firstImage.getWidth();
         int height = firstImage.getHeight() / 5;
 
-        int largestDimension = Math.max(width, height);
-        int padding = (int) (largestDimension * 0.04F);
+        int smallestDimension = Math.min(width, height);
+        int padding = (int) (smallestDimension * 0.04F);
 
         int topY = 0;
         int bottomY = firstImage.getHeight() - height;
@@ -320,7 +320,7 @@ public class ImageManipulator implements MediaManipulator {
                 padding,
                 Position.CENTRE,
                 TextAlignment.CENTER,
-                new Font("Impact", Font.BOLD, largestDimension),
+                new Font("Impact", Font.BOLD, smallestDimension),
                 Color.WHITE,
                 word -> new OutlinedTextDrawable(word, Color.WHITE, Color.BLACK, 0.15F),
                 null,
