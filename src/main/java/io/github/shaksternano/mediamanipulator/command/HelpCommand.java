@@ -3,9 +3,10 @@ package io.github.shaksternano.mediamanipulator.command;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.command.util.CommandRegistry;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -42,9 +43,9 @@ public class HelpCommand extends BaseCommand {
     @Override
     public void execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
         Message userMessage = event.getMessage();
-        List<Message> messages = getHelpMessages();
+        List<MessageCreateData> messages = getHelpMessages();
         for (int i = 0; i < messages.size(); i++) {
-            Message message = messages.get(i);
+            MessageCreateData message = messages.get(i);
 
             if (i == 0) {
                 userMessage.reply(message).queue();
@@ -59,14 +60,14 @@ public class HelpCommand extends BaseCommand {
      *
      * @return The messages to be displayed when this command is run.
      */
-    public static List<Message> getHelpMessages() {
+    public static List<MessageCreateData> getHelpMessages() {
         if (cachedHelpMessages == null) {
             cachedHelpMessages = createHelpMessages();
         }
 
         return cachedHelpMessages
                 .stream()
-                .map(message -> new MessageBuilder(message).build())
+                .map(message -> new MessageCreateBuilder().addContent(message).build())
                 .collect(ImmutableList.toImmutableList());
     }
 

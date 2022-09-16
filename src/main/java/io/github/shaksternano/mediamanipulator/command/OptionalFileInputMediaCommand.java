@@ -12,6 +12,7 @@ import io.github.shaksternano.mediamanipulator.util.MessageUtil;
 import io.github.shaksternano.mediamanipulator.util.MiscUtil;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.utils.FileUpload;
 
 import java.io.File;
 import java.io.IOException;
@@ -70,7 +71,7 @@ public abstract class OptionalFileInputMediaCommand extends BaseCommand {
                 int maxAttempts = 3;
                 for (int attempts = 0; attempts < maxAttempts; attempts++) {
                     try {
-                        userMessage.reply(compressedMedia).complete();
+                        userMessage.replyFiles(FileUpload.fromData(compressedMedia)).complete();
                         success = true;
                         break;
                     } catch (RuntimeException e) {

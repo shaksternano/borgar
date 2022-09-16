@@ -1,6 +1,7 @@
 package io.github.shaksternano.mediamanipulator.util;
 
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.utils.MarkdownSanitizer;
 import org.jetbrains.annotations.Nullable;
 

@@ -3,10 +3,10 @@ package io.github.shaksternano.mediamanipulator.listener;
 import io.github.shaksternano.mediamanipulator.command.HelpCommand;
 import io.github.shaksternano.mediamanipulator.command.util.CommandParser;
 import io.github.shaksternano.mediamanipulator.command.util.Commands;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -24,9 +24,9 @@ public class CommandListener extends ListenerAdapter {
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
         if (event.getName().equals(Commands.HELP.getName())) {
-            List<Message> messages = HelpCommand.getHelpMessages();
+            List<MessageCreateData> messages = HelpCommand.getHelpMessages();
             for (int i = 0; i < messages.size(); i++) {
-                Message message = messages.get(i);
+                MessageCreateData message = messages.get(i);
                 if (i == 0) {
                     event.reply(message).queue();
                 } else {
