@@ -72,7 +72,14 @@ public class Commands {
 
     public static final Command UNCAPTION = addCommandToRegister(new UncaptionCommand(
             "uncaption",
-            "Uncaptions media."
+            "Uncaptions media that doesn't have color in the caption, for example captions that don't contain emojis.",
+            false
+    ));
+
+    public static final Command UNCAPTION_COLOR = addCommandToRegister(new UncaptionCommand(
+            "uncaptioncolor",
+            "Uncaptions media that has color in the caption, for example captions that contain emojis.",
+            true
     ));
 
     /**

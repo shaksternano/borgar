@@ -41,7 +41,7 @@ public interface MediaManipulator {
 
     File containerImageWithText(List<String> words, Map<String, Drawable> nonTextParts, ContainerImageInfo containerImageInfo) throws IOException;
 
-    File uncaption(File media, String fileFormat) throws IOException;
+    File uncaption(File media, boolean coloredCaption, String fileFormat) throws IOException;
 
     /**
      * Stretches a media file.

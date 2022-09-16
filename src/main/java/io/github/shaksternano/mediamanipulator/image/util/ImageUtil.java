@@ -457,4 +457,12 @@ public class ImageUtil {
         int blueDifference = color1.getBlue() - color2.getBlue();
         return Math.sqrt((((512 + redMean) * redDifference * redDifference) >> 8) + 4 * greenDifference * greenDifference + (((767 - redMean) * blueDifference * blueDifference) >> 8));
     }
+
+    public static boolean isGreyScale(Color color) {
+        int tolerance = 10;
+        int red = color.getRed();
+        int green = color.getGreen();
+        int blue = color.getBlue();
+        return Math.abs(red - green) <= tolerance && Math.abs(red - blue) <= tolerance && Math.abs(green - blue) <= tolerance;
+    }
 }

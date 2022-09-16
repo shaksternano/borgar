@@ -33,7 +33,6 @@ public class TerminalInputListener implements Runnable {
             }
         } catch (NoSuchElementException e) {
             running = false;
-            Main.getLogger().error("Unable to get terminal input!", e);
         }
     }
 }
