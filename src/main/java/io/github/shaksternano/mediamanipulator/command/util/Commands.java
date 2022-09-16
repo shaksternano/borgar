@@ -59,6 +59,12 @@ public class Commands {
             ResourceContainerImageInfo.MUTA_SOY
     ));
 
+    public static final Command WALMART_WANTED = addCommandToRegister(new ContainerImageCommand(
+            "wanted",
+            "Walmart wanted. Optional arguments: [What is wanted]",
+            ResourceContainerImageInfo.WALMART_WANTED
+    ));
+
     public static final Command THINKING_BUBBLE = addCommandToRegister(new ContainerImageCommand(
             "think",
             "Puts text or an image in a thinking bubble. Optional arguments: [Thinking bubble text]",
