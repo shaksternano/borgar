@@ -151,7 +151,6 @@ public class Main {
                 getLogger().warn("Tenor API key provided is the same as the default, restricted, rate limited example key (" + getTenorApiKey() + ")!");
             } else {
                 Main.tenorApiKey = tenorApiKey;
-                getLogger().info("Using custom Tenor API key!");
             }
         }, () -> getLogger().warn("No Tenor API key provided, using default, restricted, rate limited example key (" + getTenorApiKey() + ")."));
     }
