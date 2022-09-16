@@ -421,7 +421,7 @@ public class ImageManipulator implements MediaManipulator {
             }
         }
 
-        File output = FileUtil.getUniqueTempFile(containerImageInfo.getResultName() + "." + outputExtension);
+        File output = FileUtil.getUniqueTempFile(containerImageInfo.getResultName() + outputExtension);
         ImageWriters.write(result, output, outputFormat);
 
         return output;
