@@ -94,6 +94,7 @@ public class Main {
         commandThread.start();
 
         EmojiUtil.initEmojiUnicodeSet();
+        EmojiUtil.initEmojiShortCodesToUrlsMap();
         configureJda();
         Runtime.getRuntime().addShutdownHook(new Thread(() -> getLogger().info("Shutting down!")));
 

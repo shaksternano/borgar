@@ -257,6 +257,31 @@ public class MessageUtil {
             }
         }
 
+        // Get unicode emojis from shortcodes.
+        StringBuilder emojiNameBuilder = new StringBuilder();
+        boolean emojiNameStartDetected = false;
+        for (int i = 0; i < messageContent.length(); i++) {
+            char character = messageContent.charAt(i);
+            if (emojiNameStartDetected) {
+                if (character == ':') {
+                    String emojiName = emojiNameBuilder.toString();
+                    Optional<String> emojiUrlOptional = EmojiUtil.getEmojiUrlFromShortcode(emojiName);
+                    if (emojiUrlOptional.isPresent()) {
+                        builder.put(':' + emojiName + ':', emojiUrlOptional.orElseThrow());
+                        if (onlyGetFirst) {
+                            return builder.buildKeepingLast();
+                        }
+                        emojiNameStartDetected = false;
+                    }
+                    emojiNameBuilder.setLength(0);
+                } else {
+                    emojiNameBuilder.append(character);
+                }
+            } else if (character == ':') {
+                emojiNameStartDetected = true;
+            }
+        }
+
         return builder.buildKeepingLast();
     }
 
