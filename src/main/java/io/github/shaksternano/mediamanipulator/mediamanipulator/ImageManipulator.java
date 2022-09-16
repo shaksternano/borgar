@@ -519,32 +519,65 @@ public class ImageManipulator implements MediaManipulator {
     }
 
     @Override
-    public File uncaption(File media, String fileFormat) throws IOException {
+    public File uncaption(File media, boolean coloredCaption, String fileFormat) throws IOException {
         return cropImage(
                 media,
                 fileFormat,
-                this::findNonCaptionArea,
+                image -> findNonCaptionAreaTopAndBottom(image, coloredCaption),
                 "uncaptioned"
         );
     }
 
-    private Rectangle findNonCaptionArea(BufferedImage image) {
+    private Rectangle findNonCaptionAreaTopAndBottom(BufferedImage image, boolean coloredCaption) {
         Rectangle nonCaptionArea = new Rectangle(0, 0, image.getWidth(), image.getHeight());
-        int colorTolerance = 150;
 
-        Rectangle nonTopCaptionArea = findNonCaptionArea(image, colorTolerance, true);
+        Rectangle nonTopCaptionArea = coloredCaption ?
+                findNonCaptionAreaColored(image, true) :
+                findNonCaptionArea(image, true);
         nonCaptionArea = nonCaptionArea.intersection(nonTopCaptionArea);
 
-        Rectangle nonBottomCaptionArea = findNonCaptionArea(image, colorTolerance, false);
+        Rectangle nonBottomCaptionArea = coloredCaption ?
+                findNonCaptionAreaColored(image, false) :
+                findNonCaptionArea(image, false);
         nonCaptionArea = nonCaptionArea.intersection(nonBottomCaptionArea);
 
         return nonCaptionArea;
     }
 
-    private static Rectangle findNonCaptionArea(BufferedImage image, int colorTolerance, boolean topCaption) {
+    private static Rectangle findNonCaptionArea(BufferedImage image, boolean topCaption) {
         boolean continueLooking = true;
         int captionEnd = -1;
         int y = topCaption ? 0 : image.getHeight() - 1;
+        while (topCaption ? y < image.getHeight() : y >= 0) {
+            for (int x = 0; x < image.getWidth(); x++) {
+                Color color = new Color(image.getRGB(x, y));
+                if (!ImageUtil.isGreyScale(color)) {
+                    continueLooking = false;
+                    break;
+                }
+            }
+
+            if (continueLooking) {
+                captionEnd = y;
+
+                if (topCaption) {
+                    y++;
+                } else {
+                    y--;
+                }
+            } else {
+                break;
+            }
+        }
+
+        return createNonCaptionArea(image, topCaption, captionEnd);
+    }
+
+    private static Rectangle findNonCaptionAreaColored(BufferedImage image, boolean topCaption) {
+        boolean continueLooking = true;
+        int captionEnd = -1;
+        int y = topCaption ? 0 : image.getHeight() - 1;
+        int colorTolerance = 150;
         while (topCaption ? y < image.getHeight() : y >= 0) {
             boolean rowIsCompletelyWhite = true;
             for (int x = 0; x < image.getWidth(); x++) {
@@ -552,10 +585,9 @@ public class ImageManipulator implements MediaManipulator {
                 double colorDistance = ImageUtil.colorDistance(color, Color.WHITE);
                 if (colorDistance > colorTolerance) {
                     rowIsCompletelyWhite = false;
-                    if (
-                            (topCaption ? y == 0 : y == image.getHeight() - 1)
-                                    || x == 0
-                                    || x == image.getWidth() - 1
+                    if ((topCaption ? y == 0 : y == image.getHeight() - 1)
+                            || x == 0
+                            || x == image.getWidth() - 1
                     ) {
                         continueLooking = false;
                         break;
@@ -565,17 +597,21 @@ public class ImageManipulator implements MediaManipulator {
                 }
             }
 
-            if (!continueLooking) {
-                break;
-            }
-
-            if (topCaption) {
-                y++;
+            if (continueLooking) {
+                if (topCaption) {
+                    y++;
+                } else {
+                    y--;
+                }
             } else {
-                y--;
+                break;
             }
         }
 
+        return createNonCaptionArea(image, topCaption, captionEnd);
+    }
+
+    private static Rectangle createNonCaptionArea(BufferedImage image, boolean topCaption, int captionEnd) {
         if (captionEnd != -1) {
             int width = image.getWidth();
             int height = topCaption ? image.getHeight() - captionEnd - 1 : captionEnd;
@@ -689,7 +725,7 @@ public class ImageManipulator implements MediaManipulator {
             );
         }
     }
-    
+
     private static Rectangle findAutoCropArea(BufferedImage image, Color cropColor, int colorTolerance) {
         int width = image.getWidth();
         int height = image.getHeight();

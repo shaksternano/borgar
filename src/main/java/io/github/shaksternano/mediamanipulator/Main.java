@@ -11,8 +11,8 @@ import io.github.shaksternano.mediamanipulator.listener.CommandListener;
 import io.github.shaksternano.mediamanipulator.logging.DiscordLogger;
 import io.github.shaksternano.mediamanipulator.mediamanipulator.util.MediaManipulators;
 import io.github.shaksternano.mediamanipulator.util.Fonts;
-import io.github.shaksternano.mediamanipulator.util.ProgramArguments;
 import io.github.shaksternano.mediamanipulator.util.MiscUtil;
+import io.github.shaksternano.mediamanipulator.util.ProgramArguments;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -189,7 +189,8 @@ public class Main {
         Command helpCommand = Commands.HELP;
         jda.updateCommands()
                 .addCommands(net.dv8tion.jda.api.interactions.commands.build.Commands.slash(helpCommand.getName(), helpCommand.getDescription()))
-                .queue(commands -> {}, throwable -> getLogger().error("Failed to add slash commands!", throwable));
+                .queue(commands -> {
+                }, throwable -> getLogger().error("Failed to add slash commands!", throwable));
         jda.addEventListener(new CommandListener());
     }
 

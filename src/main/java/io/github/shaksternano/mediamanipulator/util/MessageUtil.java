@@ -206,7 +206,7 @@ public class MessageUtil {
         for (CustomEmoji customEmoji : customEmojis) {
             builder.put(customEmoji.getAsMention(), customEmoji.getImageUrl());
             if (onlyGetFirst) {
-                return builder.build();
+                return builder.buildKeepingLast();
             }
         }
 
@@ -219,7 +219,7 @@ public class MessageUtil {
                 if (messageContent.contains(emoteColonName)) {
                     builder.put(emoteColonName, customEmoji.getImageUrl());
                     if (onlyGetFirst) {
-                        return builder.build();
+                        return builder.buildKeepingLast();
                     }
                 }
             }
@@ -248,7 +248,7 @@ public class MessageUtil {
                     builder.put(emojiCharactersBuilder.toString(), EmojiUtil.getEmojiUrl(compositeUnicodeBuilder.toString()));
 
                     if (onlyGetFirst) {
-                        return builder.build();
+                        return builder.buildKeepingLast();
                     } else {
                         i += j - i;
                         break;
@@ -257,7 +257,7 @@ public class MessageUtil {
             }
         }
 
-        return builder.build();
+        return builder.buildKeepingLast();
     }
 
     /**

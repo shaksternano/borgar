@@ -25,7 +25,7 @@ public class ProgramArguments {
             }
         }
 
-        return builder.build();
+        return builder.buildKeepingLast();
     }
 
     public Optional<String> getArgumentOrEnvironmentVariable(String key) {

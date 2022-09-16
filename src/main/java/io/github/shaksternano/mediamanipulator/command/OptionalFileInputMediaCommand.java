@@ -74,7 +74,7 @@ public abstract class OptionalFileInputMediaCommand extends BaseCommand {
                         success = true;
                         break;
                     } catch (RuntimeException e) {
-                        Main.getLogger().error((attempts + 1) + " failed attempt" + (attempts == 0 ? "" : "s") + " to send edited media!" , e);
+                        Main.getLogger().error((attempts + 1) + " failed attempt" + (attempts == 0 ? "" : "s") + " to send edited media!", e);
 
                         if (attempts < maxAttempts - 1) {
                             try {
