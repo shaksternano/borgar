@@ -16,13 +16,12 @@ import io.github.shaksternano.mediamanipulator.util.ProgramArguments;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.requests.RestAction;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
-import javax.security.auth.login.LoginException;
 import java.util.Optional;
 
 /**
@@ -95,6 +94,7 @@ public class Main {
         commandThread.start();
 
         EmojiUtil.initEmojiUnicodeSet();
+        EmojiUtil.initEmojiShortCodesToUrlsMap();
         configureJda();
         Runtime.getRuntime().addShutdownHook(new Thread(() -> getLogger().info("Shutting down!")));
 
@@ -168,8 +168,6 @@ public class Main {
             RestAction.setDefaultFailure(throwable -> LOGGER.error("An error occurred while executing a REST action.", throwable));
             jda.awaitReady();
             return;
-        } catch (LoginException e) {
-            getLogger().error("Invalid token!");
         } catch (InterruptedException e) {
             getLogger().error("Interrupted while waiting for JDA to be ready!", e);
         }

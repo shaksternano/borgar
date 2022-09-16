@@ -13,8 +13,8 @@ import io.github.shaksternano.mediamanipulator.image.reader.util.ImageReaders;
 import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
 import io.github.shaksternano.mediamanipulator.io.FileUtil;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 
@@ -254,6 +254,31 @@ public class MessageUtil {
                         break;
                     }
                 }
+            }
+        }
+
+        // Get unicode emojis from shortcodes.
+        StringBuilder emojiNameBuilder = new StringBuilder();
+        boolean emojiNameStartDetected = false;
+        for (int i = 0; i < messageContent.length(); i++) {
+            char character = messageContent.charAt(i);
+            if (emojiNameStartDetected) {
+                if (character == ':') {
+                    String emojiName = emojiNameBuilder.toString();
+                    Optional<String> emojiUrlOptional = EmojiUtil.getEmojiUrlFromShortcode(emojiName);
+                    if (emojiUrlOptional.isPresent()) {
+                        builder.put(':' + emojiName + ':', emojiUrlOptional.orElseThrow());
+                        if (onlyGetFirst) {
+                            return builder.buildKeepingLast();
+                        }
+                        emojiNameStartDetected = false;
+                    }
+                    emojiNameBuilder.setLength(0);
+                } else {
+                    emojiNameBuilder.append(character);
+                }
+            } else if (character == ':') {
+                emojiNameStartDetected = true;
             }
         }
 

@@ -1,6 +1,5 @@
 package io.github.shaksternano.mediamanipulator.emoji;
 
-import io.github.shaksternano.mediamanipulator.io.FileUtil;
 import io.github.shaksternano.mediamanipulator.util.MiscUtil;
 import io.github.shaksternano.mediamanipulator.util.github.GithubUtil;
 import org.slf4j.Logger;
@@ -32,8 +31,6 @@ public class EmojiUnicodesFileGenerator {
      */
     private static final String REPOSITORY_NAME = "twemoji";
 
-    private static final String EMOJI_UNICODES_FILE_DIRECTORY = "src/main/resources/" + FileUtil.getResourcePathInRootPackage("emoji");
-
     private static final String EMOJI_UNICODES_FILE_NAME = "emoji_unicodes.txt";
 
     /**
@@ -55,7 +52,7 @@ public class EmojiUnicodesFileGenerator {
         LOGGER.info("Starting!");
         long startTime = System.currentTimeMillis();
 
-        File directory = new File(EMOJI_UNICODES_FILE_DIRECTORY);
+        File directory = new File(EmojiUtil.EMOJI_FILES_DIRECTORY);
         directory.mkdirs();
         if (directory.isDirectory()) {
             Optional<String> shaOptional = GithubUtil.getLatestReleaseTagCommitSha(REPOSITORY_OWNER, REPOSITORY_NAME);

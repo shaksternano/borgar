@@ -2,7 +2,7 @@ package io.github.shaksternano.mediamanipulator.logging;
 
 import io.github.shaksternano.mediamanipulator.util.LimitedStringBuilder;
 import io.github.shaksternano.mediamanipulator.util.StringUtil;
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.event.Level;
