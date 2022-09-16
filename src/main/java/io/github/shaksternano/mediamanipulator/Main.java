@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 
 import javax.security.auth.login.LoginException;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 /**
  * The program's main class.
@@ -97,6 +96,7 @@ public class Main {
 
         EmojiUtil.initEmojiUnicodeSet();
         configureJda();
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> getLogger().info("Shutting down!")));
 
         getLogger().info("Initialised!");
     }
@@ -198,21 +198,9 @@ public class Main {
      */
     public static void shutdown(int exitCode) {
         try {
-            TimeUnit.SECONDS.sleep(1);
-
-            if (jda != null) {
-                jda.shutdownNow();
-            }
-        } catch (InterruptedException e) {
-            LOGGER.error("Interrupted while waiting for the program to terminate!", e);
-        } catch (Throwable t) {
-            LOGGER.error("An error occurred while terminating the program!", t);
-        }
-
-        try {
             System.exit(exitCode);
         } catch (Throwable t) {
-            LOGGER.error("Failed to terminate the program!", t);
+            getLogger().error("Failed to terminate the program!", t);
         }
     }
 
