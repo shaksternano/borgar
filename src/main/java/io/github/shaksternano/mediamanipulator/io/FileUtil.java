@@ -154,7 +154,7 @@ public class FileUtil {
      */
     public static Optional<File> downloadFile(String url, String directory) {
         try {
-            Optional<String> tenorMediaUrlOptional = TenorUtil.getTenorMediaUrl(url, TenorMediaType.GIF_SMALL, Main.getTenorApiKey());
+            Optional<String> tenorMediaUrlOptional = TenorUtil.getTenorMediaUrl(url, TenorMediaType.GIF_NORMAL, Main.getTenorApiKey());
             url = tenorMediaUrlOptional.orElse(url);
             String fileNameWithoutExtension = com.google.common.io.Files.getNameWithoutExtension(url);
             String extension = com.google.common.io.Files.getFileExtension(url);

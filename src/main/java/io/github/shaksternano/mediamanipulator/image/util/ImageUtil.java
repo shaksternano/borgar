@@ -15,6 +15,8 @@ import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorConvertOp;
+import java.awt.image.ColorModel;
+import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -291,15 +293,15 @@ public class ImageUtil {
         return (rgb >> 24) == 0;
     }
 
-    private static int get1dIndex(int x, int y, int width) {
+    public static int get1dIndex(int x, int y, int width) {
         return y * width + x;
     }
 
-    private static int getX(int index, int width) {
+    public static int getX(int index, int width) {
         return index % width;
     }
 
-    private static int getY(int index, int width) {
+    public static int getY(int index, int width) {
         return index / width;
     }
 
@@ -448,14 +450,25 @@ public class ImageUtil {
         }
     }
 
+    /**
+     * Gets the distance between two colors.
+     *
+     * @param color1 The first color.
+     * @param color2 The second color.
+     * @return A value between 0 and 765 representing the distance between the two colors.
+     */
     public static double colorDistance(Color color1, Color color2) {
-        int red1 = color1.getRed();
-        int red2 = color2.getRed();
-        int redMean = (red1 + red2) / 2;
-        int redDifference = red1 - red2;
-        int greenDifference = color1.getGreen() - color2.getGreen();
-        int blueDifference = color1.getBlue() - color2.getBlue();
-        return Math.sqrt((((512 + redMean) * redDifference * redDifference) >> 8) + 4 * greenDifference * greenDifference + (((767 - redMean) * blueDifference * blueDifference) >> 8));
+        if (color1.equals(color2)) {
+            return 0;
+        } else {
+            int red1 = color1.getRed();
+            int red2 = color2.getRed();
+            int redMean = (red1 + red2) / 2;
+            int redDifference = red1 - red2;
+            int greenDifference = color1.getGreen() - color2.getGreen();
+            int blueDifference = color1.getBlue() - color2.getBlue();
+            return Math.sqrt((((512 + redMean) * redDifference * redDifference) >> 8) + 4 * greenDifference * greenDifference + (((767 - redMean) * blueDifference * blueDifference) >> 8));
+        }
     }
 
     public static boolean isGreyScale(Color color) {
@@ -464,5 +477,12 @@ public class ImageUtil {
         int green = color.getGreen();
         int blue = color.getBlue();
         return Math.abs(red - green) <= tolerance && Math.abs(red - blue) <= tolerance && Math.abs(green - blue) <= tolerance;
+    }
+
+    public static BufferedImage copy(BufferedImage image) {
+        ColorModel model = image.getColorModel();
+        boolean isAlphaPremultiplied = model.isAlphaPremultiplied();
+        WritableRaster raster = image.copyData(null);
+        return new BufferedImage(model, raster, isAlphaPremultiplied, null);
     }
 }
