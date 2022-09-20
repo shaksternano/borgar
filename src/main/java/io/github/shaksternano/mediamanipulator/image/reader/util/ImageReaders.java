@@ -7,8 +7,6 @@ import io.github.shaksternano.mediamanipulator.image.reader.ImageReader;
 import io.github.shaksternano.mediamanipulator.image.reader.JavaxImageReader;
 import io.github.shaksternano.mediamanipulator.image.reader.ScrimageAnimatedGifReader;
 import io.github.shaksternano.mediamanipulator.image.reader.ScrimageImageReader;
-import io.github.shaksternano.mediamanipulator.image.writer.Image4jIcoImageWriter;
-import io.github.shaksternano.mediamanipulator.image.writer.util.ImageWriterRegistry;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
@@ -20,7 +18,6 @@ public class ImageReaders {
         ImageReaderRegistry.register(new ScrimageAnimatedGifReader());
         ImageReaderRegistry.register(new ScrimageImageReader());
         ImageReaderRegistry.register(new JavaxImageReader());
-        ImageWriterRegistry.register(new Image4jIcoImageWriter());
     }
 
     public static ImageMedia read(File file, String imageFormat, @Nullable Integer imageType) throws IOException {
