@@ -2,6 +2,7 @@ package io.github.shaksternano.mediamanipulator.image.writer.util;
 
 import io.github.shaksternano.mediamanipulator.Main;
 import io.github.shaksternano.mediamanipulator.image.imagemedia.ImageMedia;
+import io.github.shaksternano.mediamanipulator.image.writer.Image4jIcoImageWriter;
 import io.github.shaksternano.mediamanipulator.image.writer.ImageWriter;
 import io.github.shaksternano.mediamanipulator.image.writer.JavaxImageWriter;
 import io.github.shaksternano.mediamanipulator.image.writer.ScrimageAnimatedGifWriter;
@@ -15,6 +16,7 @@ public class ImageWriters {
     public static void registerImageWriters() {
         ImageWriterRegistry.register(new ScrimageAnimatedGifWriter());
         ImageWriterRegistry.register(new JavaxImageWriter());
+        ImageWriterRegistry.register(new Image4jIcoImageWriter());
     }
 
     public static void write(ImageMedia image, File file, String format) throws IOException {
