@@ -41,7 +41,7 @@ public class AwtFrame implements Frame {
     @Override
     public BufferedImage getImage() {
         if (image == null) {
-            throw new IllegalStateException();
+            throw new IllegalStateException("Image is null!");
         } else {
             return image;
         }

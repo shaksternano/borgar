@@ -3,7 +3,6 @@ package io.github.shaksternano.mediamanipulator.util;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
 import io.github.shaksternano.mediamanipulator.Main;
 import io.github.shaksternano.mediamanipulator.emoji.EmojiUtil;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.Drawable;
@@ -326,7 +325,7 @@ public class MessageUtil {
         return Optional.empty();
     }
 
-    public static Map<String, Drawable> getNonTextParts(Message message) {
+    public static Map<String, Drawable> getEmojiImages(Message message) {
         Map<String, String> imageUrls = MessageUtil.getEmojiUrls(message);
         return imageUrls.entrySet().parallelStream().map(imageUrlEntry -> {
             try {
@@ -339,7 +338,7 @@ public class MessageUtil {
                     ImageMedia imageMedia = ImageReaders.read(inputStream, imageType, null);
                     List<BufferedImage> normalisedImages = imageMedia.toNormalisedImages();
                     Drawable drawable = new ImageDrawable(normalisedImages);
-                    return Maps.immutableEntry(emojiCode, drawable);
+                    return Map.entry(emojiCode, drawable);
                 }
             } catch (IOException e) {
                 throw new UncheckedIOException(e);

@@ -29,7 +29,7 @@ public class ImpactCommand extends MediaCommand {
 
     @Override
     public File applyOperation(File media, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
-        Map<String, Drawable> nonTextParts = MessageUtil.getNonTextParts(event.getMessage());
+        Map<String, Drawable> nonTextParts = MessageUtil.getEmojiImages(event.getMessage());
         List<String> bottomWords = extraArguments.get("bottom");
         if (arguments.isEmpty() && bottomWords.isEmpty()) {
             throw new MissingArgumentException("Please specify text!");

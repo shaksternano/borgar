@@ -36,7 +36,7 @@ public class ContainerImageCommand extends OptionalFileInputMediaCommand {
 
     @Override
     public File applyOperation(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
-        Map<String, Drawable> nonTextParts = MessageUtil.getNonTextParts(event.getMessage());
+        Map<String, Drawable> nonTextParts = MessageUtil.getEmojiImages(event.getMessage());
         MediaManipulator manipulator = MediaManipulatorRegistry.getManipulator("png").orElseThrow();
         return manipulator.containerImageWithText(arguments, nonTextParts, CONTAINER_IMAGE_INFO);
     }
