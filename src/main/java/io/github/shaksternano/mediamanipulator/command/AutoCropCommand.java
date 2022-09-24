@@ -12,7 +12,7 @@ import java.util.List;
 
 public class AutoCropCommand extends MediaCommand {
 
-    public static final int DEFAULT_COLOR_TOLERANCE = 0;
+    public static final int DEFAULT_COLOR_TOLERANCE = 50;
 
     /**
      * Creates a new command object.

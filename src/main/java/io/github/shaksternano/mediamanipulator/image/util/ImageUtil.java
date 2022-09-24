@@ -17,10 +17,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ColorConvertOp;
 import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -337,7 +334,10 @@ public class ImageUtil {
     }
 
     public static String getImageFormat(InputStream inputStream) throws IOException {
-        try (ImageInputStream imageInputStream = ImageIO.createImageInputStream(inputStream)) {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        inputStream.transferTo(outputStream);
+        InputStream copy = new ByteArrayInputStream(outputStream.toByteArray());
+        try (ImageInputStream imageInputStream = ImageIO.createImageInputStream(copy)) {
             if (imageInputStream != null) {
                 Iterator<ImageReader> imageReaders = ImageIO.getImageReaders(imageInputStream);
 
@@ -347,7 +347,7 @@ public class ImageUtil {
                 }
             }
 
-            throw new IOException("Unable to determine image type");
+            throw new IllegalArgumentException("Unable to determine image type");
         }
     }
 

@@ -21,7 +21,7 @@ public class StaticImage extends BaseImageMedia {
         if (index == 0) {
             return frame;
         } else {
-            throw new IndexOutOfBoundsException();
+            throw new IndexOutOfBoundsException("Index " + index + " is out of bounds for a static image.");
         }
     }
 

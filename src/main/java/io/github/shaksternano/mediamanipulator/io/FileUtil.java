@@ -195,15 +195,11 @@ public class FileUtil {
     }
 
     public static String getFileFormat(File file) {
-        Optional<String> fileFormatOptional = Optional.empty();
-
         try {
-            fileFormatOptional = Optional.of(ImageUtil.getImageFormat(file));
-        } catch (IOException e) {
-            Main.getLogger().error("Error getting file type from file " + file + "!", e);
+            return ImageUtil.getImageFormat(file);
+        } catch (Exception ignored) {
+            return com.google.common.io.Files.getFileExtension(file.getName());
         }
-
-        return fileFormatOptional.orElse(com.google.common.io.Files.getFileExtension(file.getName()));
     }
 
     public static String changeFileName(String fileNameAndExtension, String newFileName) {

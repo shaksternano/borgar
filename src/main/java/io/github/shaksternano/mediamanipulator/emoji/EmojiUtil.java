@@ -10,7 +10,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.util.AbstractMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -53,7 +52,7 @@ public class EmojiUtil {
                             String emojiUnicode = emoji.codePoints()
                                     .mapToObj(Integer::toHexString)
                                     .collect(Collectors.joining("-"));
-                            return new AbstractMap.SimpleEntry<>(entry.getKey(), getEmojiUrl(emojiUnicode));
+                            return Map.entry(entry.getKey(), getEmojiUrl(emojiUnicode));
                         })
                         .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
             } else {
