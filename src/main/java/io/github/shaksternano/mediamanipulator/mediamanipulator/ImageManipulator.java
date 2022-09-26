@@ -41,6 +41,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
@@ -630,12 +631,12 @@ public class ImageManipulator implements MediaManipulator {
 
     @Override
     public File stretch(File media, String fileFormat, float widthMultiplier, float heightMultiplier, boolean raw) throws IOException {
-        return applyToEachFrame(media, fileFormat, image -> ImageUtil.stretch(image, (int) (image.getWidth() * widthMultiplier), (int) (image.getHeight() * heightMultiplier), raw), "stretched");
+        return applyToEachFrame(media, fileFormat, null, image -> ImageUtil.stretch(image, (int) (image.getWidth() * widthMultiplier), (int) (image.getHeight() * heightMultiplier), raw), "stretched");
     }
 
     @Override
     public File resize(File media, String fileFormat, float resizeMultiplier, boolean raw, boolean rename) throws IOException {
-        return applyToEachFrame(media, fileFormat, image -> ImageUtil.resize(image, resizeMultiplier, raw), rename ? "resized" : null);
+        return applyToEachFrame(media, fileFormat, null, image -> ImageUtil.resize(image, resizeMultiplier, raw), rename ? "resized" : null);
     }
 
     @Override
@@ -658,7 +659,7 @@ public class ImageManipulator implements MediaManipulator {
             int newWidth = Math.max((int) (width * (1 - leftRatio - rightRatio)), 1);
             int newHeight = Math.max((int) (height * (1 - topRatio - bottomRatio)), 1);
 
-            return applyToEachFrame(media, fileFormat, image -> image.getSubimage(x, y, newWidth, newHeight), "cropped");
+            return applyToEachFrame(media, fileFormat, null, image -> image.getSubimage(x, y, newWidth, newHeight), "cropped");
         }
     }
 
@@ -715,7 +716,7 @@ public class ImageManipulator implements MediaManipulator {
             return applyToEachFrame(
                     media,
                     imageFormat,
-                    image -> image.getSubimage(
+                    null, image -> image.getSubimage(
                             (int) finalToKeep.getX(),
                             (int) finalToKeep.getY(),
                             (int) finalToKeep.getWidth(),
@@ -752,7 +753,7 @@ public class ImageManipulator implements MediaManipulator {
         return applyToEachFrame(
                 media,
                 fileFormat,
-                image -> ImageUtil.stretch(
+                null, image -> ImageUtil.stretch(
                         ImageUtil.stretch(
                                 image,
                                 image.getWidth() / pixelationMultiplier,
@@ -806,14 +807,20 @@ public class ImageManipulator implements MediaManipulator {
         String operationName = "speech_bubbled";
         if (cutOut) {
             final BufferedImage finalResizedSpeechBubble = resizedSpeechBubble;
-            return applyToEachFrame(media, fileFormat, image -> ImageUtil.cutoutImage(image, finalResizedSpeechBubble, 0, 0, 0xFFFFFF), operationName);
+            return applyToEachFrame(
+                    media,
+                    fileFormat,
+                    ImageManipulator::convertToTransparentFormat,
+                    image -> ImageUtil.cutoutImage(image, finalResizedSpeechBubble, 0, 0, 0xFFFFFF),
+                    operationName
+            );
         } else {
             BufferedImage filledSpeechBubble = ImageUtil.fill(resizedSpeechBubble, Color.WHITE);
 
             resizedSpeechBubble.flush();
             resizedSpeechBubble = null;
 
-            return applyToEachFrame(media, fileFormat, image -> ImageUtil.overlayImage(image, filledSpeechBubble, false, 0, -filledSpeechBubble.getHeight(), null, null, null, true), operationName);
+            return applyToEachFrame(media, fileFormat, null, image -> ImageUtil.overlayImage(image, filledSpeechBubble, false, 0, -filledSpeechBubble.getHeight(), null, null, null, true), operationName);
         }
     }
 
@@ -868,7 +875,13 @@ public class ImageManipulator implements MediaManipulator {
 
     @Override
     public File rotate(File media, String fileFormat, float degrees, @Nullable Color backgroundColor) throws IOException {
-        return applyToEachFrame(media, fileFormat, image -> ImageUtil.rotate(image, degrees, null, null, backgroundColor), "rotated");
+        return applyToEachFrame(
+                media,
+                fileFormat,
+                ImageManipulator::convertToTransparentFormat,
+                image -> ImageUtil.rotate(image, degrees, null, null, backgroundColor),
+                "rotated"
+        );
     }
 
     @SuppressWarnings("UnusedAssignment")
@@ -1033,15 +1046,17 @@ public class ImageManipulator implements MediaManipulator {
     /**
      * Applies the given operation to the given image based file.
      *
-     * @param media         The image based file to apply the operation to.
-     * @param imageFormat   The image format of the file.
-     * @param operation     The operation to apply.
-     * @param operationName The name of the operation.
+     * @param media                The image based file to apply the operation to.
+     * @param inputFormat          The image format of the file being edited.
+     * @param outputFormatFunction A bi-function that takes the input format and the and image media and returns the output format.
+     *                             If null, the input format will be used as the output format.
+     * @param operation            The operation to apply.
+     * @param operationName        The name of the operation.
      * @return The resulting file.
      * @throws IOException If an error occurs while applying the operation.
      */
-    private static File applyToEachFrame(File media, String imageFormat, Function<BufferedImage, BufferedImage> operation, @Nullable String operationName) throws IOException {
-        ImageMedia imageMedia = ImageReaders.read(media, imageFormat, null);
+    private static File applyToEachFrame(File media, String inputFormat, @Nullable BiFunction<String, ImageMedia, String> outputFormatFunction, Function<BufferedImage, BufferedImage> operation, @Nullable String operationName) throws IOException {
+        ImageMedia imageMedia = ImageReaders.read(media, inputFormat, null);
 
         ImageMedia outputImage = ImageMediaBuilder.fromCollection(imageMedia.parallelStream().map(frame -> {
             BufferedImage unmodifiedImage = frame.getImage();
@@ -1051,17 +1066,26 @@ public class ImageManipulator implements MediaManipulator {
             return new AwtFrame(modifiedImage, duration);
         }).collect(ImmutableList.toImmutableList()));
 
+        String outputFormat = outputFormatFunction == null ? inputFormat : outputFormatFunction.apply(inputFormat, imageMedia);
         String outputName;
         if (operationName == null) {
-            outputName = media.getName();
+            outputName = FileUtil.changeExtension(media.getName(), outputFormat);
         } else {
-            outputName = FileUtil.changeFileName(media.getName(), operationName);
+            outputName = operationName + '.' + outputFormat;
         }
 
         File output = FileUtil.getUniqueTempFile(outputName);
-        ImageWriters.write(outputImage, output, imageFormat);
+        ImageWriters.write(outputImage, output, outputFormat);
 
         return output;
+    }
+
+    private static String convertToTransparentFormat(String originalFormat, ImageMedia image) {
+        if (image.isAnimated()) {
+            return originalFormat;
+        } else {
+            return "png";
+        }
     }
 
     private static class EmptyDrawable implements Drawable {
