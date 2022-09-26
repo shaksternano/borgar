@@ -258,6 +258,8 @@ public class ImageUtil {
         if (cutoutColor > 0xFFFFFF) {
             throw new IllegalArgumentException("Cutout color must be a 24-bit color!");
         } else {
+            imageToCut = ImageUtil.convertType(imageToCut, BufferedImage.TYPE_INT_ARGB);
+
             int toCutWidth = imageToCut.getWidth();
             int toCutHeight = imageToCut.getHeight();
 
@@ -315,7 +317,7 @@ public class ImageUtil {
             newHeight = (int) Math.floor(height * cos + width * sin);
         }
 
-        BufferedImage rotated = new BufferedImage(newWidth, newHeight, ImageUtil.getType(image));
+        BufferedImage rotated = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
         Graphics2D graphics = rotated.createGraphics();
 
         if (backgroundColor != null) {
@@ -470,7 +472,7 @@ public class ImageUtil {
     }
 
     public static boolean isGreyScale(Color color) {
-        int tolerance = 10;
+        int tolerance = 20;
         int red = color.getRed();
         int green = color.getGreen();
         int blue = color.getBlue();
