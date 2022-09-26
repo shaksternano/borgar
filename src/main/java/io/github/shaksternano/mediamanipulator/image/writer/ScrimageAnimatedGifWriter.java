@@ -26,7 +26,7 @@ public class ScrimageAnimatedGifWriter implements ImageWriter {
             StreamingGifWriter writer = new StreamingGifWriter();
             try (StreamingGifWriter.GifStream gif = writer.prepareStream(file, BufferedImage.TYPE_INT_ARGB)) {
                 BufferedImage previousImage = null;
-                boolean cannotBeOptimised = false;
+                boolean cannotOptimiseNext = false;
                 for (Frame frame : image) {
                     BufferedImage currentImage = ImageUtil.convertType(frame.getImage(), BufferedImage.TYPE_INT_ARGB);
                     BufferedImage toWrite;
@@ -34,9 +34,14 @@ public class ScrimageAnimatedGifWriter implements ImageWriter {
                     if (previousImage == null) {
                         toWrite = currentImage;
                         disposeMethod = DisposeMethod.NONE;
-                    } else if (cannotBeOptimised) {
+                    } else if (cannotOptimiseNext) {
                         toWrite = currentImage;
-                        disposeMethod = DisposeMethod.RESTORE_TO_BACKGROUND_COLOR;
+                        if (fullyOpaque(currentImage)) {
+                            disposeMethod = DisposeMethod.NONE;
+                            cannotOptimiseNext = false;
+                        } else {
+                            disposeMethod = DisposeMethod.RESTORE_TO_BACKGROUND_COLOR;
+                        }
                     } else {
                         try {
                             toWrite = optimiseTransparency(previousImage, currentImage);
@@ -44,7 +49,7 @@ public class ScrimageAnimatedGifWriter implements ImageWriter {
                         } catch (CannotBeOptimisedException ignored) {
                             toWrite = currentImage;
                             disposeMethod = DisposeMethod.RESTORE_TO_BACKGROUND_COLOR;
-                            cannotBeOptimised = true;
+                            cannotOptimiseNext = true;
                         }
                     }
                     ImmutableImage immutableImage = ImmutableImage.wrapAwt(toWrite);
@@ -95,6 +100,18 @@ public class ScrimageAnimatedGifWriter implements ImageWriter {
             newImage.setRGB(position.x(), position.y(), 0);
         }
         return newImage;
+    }
+
+    private static boolean fullyOpaque(BufferedImage image) {
+        for (int x = 0; x < image.getWidth(); x++) {
+            for (int y = 0; y < image.getHeight(); y++) {
+                Color pixelColor = new Color(image.getRGB(x, y), true);
+                if (pixelColor.getAlpha() < 255) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     private record Position(int x, int y) {
