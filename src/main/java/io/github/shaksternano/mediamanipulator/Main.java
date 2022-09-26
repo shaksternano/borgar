@@ -23,6 +23,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The program's main class.
@@ -195,6 +196,12 @@ public class Main {
      * Terminates the program.
      */
     public static void shutdown(int exitCode) {
+        try {
+            TimeUnit.SECONDS.sleep(1);
+        } catch (InterruptedException e) {
+            LOGGER.error("Interrupted while waiting for the program to terminate!", e);
+        }
+
         try {
             System.exit(exitCode);
         } catch (Throwable t) {
