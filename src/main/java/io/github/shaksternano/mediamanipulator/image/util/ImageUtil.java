@@ -15,8 +15,6 @@ import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorConvertOp;
-import java.awt.image.ColorModel;
-import java.awt.image.WritableRaster;
 import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
@@ -480,9 +478,10 @@ public class ImageUtil {
     }
 
     public static BufferedImage copy(BufferedImage image) {
-        ColorModel model = image.getColorModel();
-        boolean isAlphaPremultiplied = model.isAlphaPremultiplied();
-        WritableRaster raster = image.copyData(null);
-        return new BufferedImage(model, raster, isAlphaPremultiplied, null);
+        BufferedImage copy = new BufferedImage(image.getWidth(), image.getHeight(), getType(image));
+        Graphics2D graphics = copy.createGraphics();
+        graphics.drawImage(image, 0, 0, null);
+        graphics.dispose();
+        return copy;
     }
 }
