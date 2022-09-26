@@ -26,16 +26,29 @@ public class ScrimageAnimatedGifWriter implements ImageWriter {
             StreamingGifWriter writer = new StreamingGifWriter();
             try (StreamingGifWriter.GifStream gif = writer.prepareStream(file, BufferedImage.TYPE_INT_ARGB)) {
                 BufferedImage previousImage = null;
+                boolean cannotBeOptimised = false;
                 for (Frame frame : image) {
                     BufferedImage currentImage = ImageUtil.convertType(frame.getImage(), BufferedImage.TYPE_INT_ARGB);
+                    BufferedImage toWrite;
+                    DisposeMethod disposeMethod;
                     if (previousImage == null) {
-                        ImmutableImage immutableImage = ImmutableImage.wrapAwt(currentImage);
-                        gif.writeFrame(immutableImage, Duration.ofMillis(frame.getDuration()), DisposeMethod.NONE);
+                        toWrite = currentImage;
+                        disposeMethod = DisposeMethod.NONE;
+                    } else if (cannotBeOptimised) {
+                        toWrite = currentImage;
+                        disposeMethod = DisposeMethod.RESTORE_TO_BACKGROUND_COLOR;
                     } else {
-                        WriteFrameData writeFrameData = optimiseTransparency(previousImage, currentImage);
-                        ImmutableImage immutableImage = ImmutableImage.wrapAwt(writeFrameData.image());
-                        gif.writeFrame(immutableImage, Duration.ofMillis(frame.getDuration()), writeFrameData.disposeMethod());
+                        try {
+                            toWrite = optimiseTransparency(previousImage, currentImage);
+                            disposeMethod = DisposeMethod.DO_NOT_DISPOSE;
+                        } catch (CannotBeOptimisedException ignored) {
+                            toWrite = currentImage;
+                            disposeMethod = DisposeMethod.RESTORE_TO_BACKGROUND_COLOR;
+                            cannotBeOptimised = true;
+                        }
                     }
+                    ImmutableImage immutableImage = ImmutableImage.wrapAwt(toWrite);
+                    gif.writeFrame(immutableImage, Duration.ofMillis(frame.getDuration()), disposeMethod);
                     previousImage = currentImage;
                 }
             } catch (IOException e) {
@@ -56,7 +69,7 @@ public class ScrimageAnimatedGifWriter implements ImageWriter {
         );
     }
 
-    private static WriteFrameData optimiseTransparency(BufferedImage previousImage, BufferedImage currentImage) {
+    private static BufferedImage optimiseTransparency(BufferedImage previousImage, BufferedImage currentImage) throws CannotBeOptimisedException {
         int colorTolerance = 10;
         List<Position> similarPixels = new ArrayList<>();
         for (int x = 0; x < previousImage.getWidth(); x++) {
@@ -64,7 +77,7 @@ public class ScrimageAnimatedGifWriter implements ImageWriter {
                 Color previousPixelColor = new Color(previousImage.getRGB(x, y), true);
                 Color currentPixelColor = new Color(currentImage.getRGB(x, y), true);
                 if (currentPixelColor.getAlpha() == 0 && previousPixelColor.getAlpha() != 0) {
-                    return new WriteFrameData(currentImage, DisposeMethod.RESTORE_TO_BACKGROUND_COLOR);
+                    throw new CannotBeOptimisedException();
                 } else {
                     double colorDistance = ImageUtil.colorDistance(previousPixelColor, currentPixelColor);
                     if (colorDistance <= colorTolerance) {
@@ -73,8 +86,7 @@ public class ScrimageAnimatedGifWriter implements ImageWriter {
                 }
             }
         }
-        BufferedImage optimisedImage = removePixels(currentImage, similarPixels);
-        return new WriteFrameData(optimisedImage, DisposeMethod.DO_NOT_DISPOSE);
+        return removePixels(currentImage, similarPixels);
     }
 
     private static BufferedImage removePixels(BufferedImage image, Iterable<Position> toRemove) {
@@ -85,9 +97,9 @@ public class ScrimageAnimatedGifWriter implements ImageWriter {
         return newImage;
     }
 
-    private record WriteFrameData(BufferedImage image, DisposeMethod disposeMethod) {
+    private record Position(int x, int y) {
     }
 
-    private record Position(int x, int y) {
+    private static class CannotBeOptimisedException extends Exception {
     }
 }
