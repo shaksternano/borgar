@@ -472,7 +472,7 @@ public class ImageUtil {
     }
 
     public static boolean isGreyScale(Color color) {
-        int tolerance = 50;
+        int tolerance = 40;
         int red = color.getRed();
         int green = color.getGreen();
         int blue = color.getBlue();
