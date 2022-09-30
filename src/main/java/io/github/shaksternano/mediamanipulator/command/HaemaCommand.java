@@ -20,6 +20,6 @@ public class HaemaCommand extends BaseCommand {
 
     @Override
     public void execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
-        event.getMessage().reply("https://www.curseforge.com/minecraft/mc-mods/haema\n\nhttps://media.discordapp.net/attachments/811250178651717642/998714832851312641/impacted.gif").queue();
+        event.getMessage().reply("https://media.discordapp.net/attachments/811250178651717642/998714832851312641/impacted.gif\n\nhttps://www.curseforge.com/minecraft/mc-mods/haema").queue();
     }
 }
