@@ -65,6 +65,12 @@ public class Commands {
             ResourceContainerImageInfo.WALMART_WANTED
     ));
 
+    public static final Command OH_MY_GOODNESS_GRACIOUS = addCommandToRegister(new ContainerImageCommand(
+            "omgg",
+            "Oh my goodness gracious. Optional arguments: [What is wanted]",
+            ResourceContainerImageInfo.OH_MY_GOODNESS_GRACIOUS
+    ));
+
     public static final Command THINKING_BUBBLE = addCommandToRegister(new ContainerImageCommand(
             "think",
             "Puts text or an image in a thinking bubble. Optional arguments: [Thinking bubble text]",

@@ -126,6 +126,31 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
             null,
             true,
             null
+    ),
+
+    OH_MY_GOODNESS_GRACIOUS(
+            "image/containerimage/oh_my_goodness_gracious.gif",
+            "oh_my_goodness_gracious",
+            250,
+            350,
+            286,
+            290,
+            0,
+            Position.CENTRE,
+            250,
+            350,
+            286,
+            290,
+            10,
+            Position.CENTRE,
+            TextAlignment.CENTER,
+            "Futura-CondensedExtraBold",
+            Color.BLACK,
+            70,
+            null,
+            null,
+            true,
+            null
     );
 
     private final String IMAGE_PATH;
