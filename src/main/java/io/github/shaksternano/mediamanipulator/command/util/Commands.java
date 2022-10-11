@@ -77,6 +77,12 @@ public class Commands {
             ResourceContainerImageInfo.THINKING_BUBBLE
     ));
 
+    public static final Command LIVING_IN_1984 = addCommandToRegister(new ContainerImageCommand(
+            "1984",
+            "Puts image into the 'living in 1984' meme. Optional arguments: [Speech bubble text]",
+            ResourceContainerImageInfo.LIVING_IN_1984
+    ));
+
     public static final Command SPIN = addCommandToRegister(new SpinCommand(
             "spin",
             "Spins a media file. Optional arguments: [Spin speed, default value is " + FORMAT.format(SpinCommand.DEFAULT_SPIN_SPEED) + "], [Background hex RGB colour, by default it is transparent]"
