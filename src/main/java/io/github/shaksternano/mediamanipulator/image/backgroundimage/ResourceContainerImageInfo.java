@@ -151,7 +151,27 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
             null,
             true,
             null
-    );
+    ),
+
+    LIVING_IN_1984(
+            "image/containerimage/living_in_1984.png",
+            "living_in_1984",
+            45,
+            20,
+            270,
+            96,
+            0,
+            Position.CENTRE,
+            TextAlignment.CENTER,
+            "Futura-CondensedExtraBold",
+            Color.BLACK,
+            70,
+            null,
+            null,
+            true,
+            null
+    ),
+    ;
 
     private final String IMAGE_PATH;
     private final String RESULT_NAME;
