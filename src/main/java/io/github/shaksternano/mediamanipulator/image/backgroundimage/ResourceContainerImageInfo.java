@@ -22,8 +22,8 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
             "sonic_says",
             210,
             15,
-            410,
-            315,
+            620,
+            330,
             40,
             Position.CENTRE,
             TextAlignment.CENTER,
@@ -40,15 +40,15 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
             "image/containerimage/soyjak_pointing.png",
             "soyjak_pointing",
             0,
-            0,
+            100,
             1024,
-            810,
+            450,
             0,
             Position.CENTRE,
             250,
-            150,
-            500,
-            300,
+            100,
+            750,
+            450,
             0,
             Position.CENTRE,
             TextAlignment.CENTER, "Futura-CondensedExtraBold",
@@ -65,13 +65,13 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
             "thinking_bubble",
             12,
             0,
-            116,
+            128,
             81,
             10,
             Position.CENTRE,
             12,
             0,
-            116,
+            128,
             81,
             20,
             Position.CENTRE,
@@ -89,8 +89,8 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
             "muta_soy",
             400,
             256,
-            400,
-            512,
+            800,
+            768,
             0,
             Position.CENTRE,
             TextAlignment.CENTER,
@@ -108,14 +108,14 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
             "walmart_wanted",
             428,
             94,
-            190,
-            224,
+            618,
+            318,
             0,
             Position.CENTRE,
             428,
             94,
-            190,
-            224,
+            618,
+            318,
             10,
             Position.CENTRE,
             TextAlignment.CENTER,
@@ -133,14 +133,14 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
             "oh_my_goodness_gracious",
             250,
             350,
-            286,
-            290,
+            536,
+            640,
             0,
             Position.CENTRE,
             250,
             350,
-            286,
-            290,
+            536,
+            640,
             10,
             Position.CENTRE,
             TextAlignment.CENTER,
@@ -156,11 +156,11 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
     LIVING_IN_1984(
             "image/containerimage/living_in_1984.png",
             "living_in_1984",
-            45,
+            40,
+            6,
+            350,
+            120,
             20,
-            270,
-            96,
-            0,
             Position.CENTRE,
             TextAlignment.CENTER,
             "Futura-CondensedExtraBold",
@@ -200,16 +200,16 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
     ResourceContainerImageInfo(
             String imagePath,
             String resultName,
-            int imageContainerX,
-            int imageContainerY,
-            int imageContainerWidth,
-            int imageContainerHeight,
+            int imageContainerStartX,
+            int imageContainerStartY,
+            int imageContainerEndX,
+            int imageContainerEndY,
             int imageContainerPadding,
             Position imageContentPosition,
-            int textContainerX,
-            int textContainerY,
-            int textContainerWidth,
-            int textContainerHeight,
+            int textContainerStartX,
+            int textContainerStartY,
+            int textContainerEndX,
+            int textContainerEndY,
             int textContainerPadding,
             Position textContentPosition,
             TextAlignment textContentAlignment, String fontName,
@@ -221,17 +221,17 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
             @Nullable Color fill) {
         IMAGE_PATH = imagePath;
         RESULT_NAME = resultName;
-        IMAGE_CONTENT_X = imageContainerX + imageContainerPadding;
-        IMAGE_CONTENT_Y = imageContainerY + imageContainerPadding;
-        TEXT_CONTENT_X = textContainerX + textContainerPadding;
-        TEXT_CONTENT_Y = textContainerY + textContainerPadding;
+        IMAGE_CONTENT_X = imageContainerStartX + imageContainerPadding;
+        IMAGE_CONTENT_Y = imageContainerStartY + imageContainerPadding;
+        TEXT_CONTENT_X = textContainerStartX + textContainerPadding;
+        TEXT_CONTENT_Y = textContainerStartY + textContainerPadding;
         int doubleImagePadding = imageContainerPadding * 2;
         int doubleTextPadding = textContainerPadding * 2;
-        IMAGE_CONTENT_WIDTH = imageContainerWidth - doubleImagePadding;
-        IMAGE_CONTENT_HEIGHT = imageContainerHeight - doubleImagePadding;
+        IMAGE_CONTENT_WIDTH = imageContainerEndX - imageContainerStartX - doubleImagePadding;
+        IMAGE_CONTENT_HEIGHT = imageContainerEndY - imageContainerStartY - doubleImagePadding;
         IMAGE_CONTENT_POSITION = imageContentPosition;
-        TEXT_CONTENT_WIDTH = textContainerWidth - doubleTextPadding;
-        TEXT_CONTENT_HEIGHT = textContainerHeight - doubleTextPadding;
+        TEXT_CONTENT_WIDTH = textContainerEndX - textContainerStartX - doubleTextPadding;
+        TEXT_CONTENT_HEIGHT = textContainerEndY - imageContainerStartY - doubleTextPadding;
         TEXT_CONTENT_POSITION = textContentPosition;
         TEXT_CONTENT_ALIGNMENT = textContentAlignment;
         FONT_NAME = fontName;
@@ -246,10 +246,10 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
     ResourceContainerImageInfo(
             String imagePath,
             String resultName,
-            int contentContainerX,
-            int contentContainerY,
-            int contentContainerWidth,
-            int contentContainerHeight,
+            int contentContainerStartX,
+            int contentContainerStartY,
+            int contentContainerEndX,
+            int contentContainerEndY,
             int contentContainerPadding,
             Position contentPosition,
             TextAlignment textContentAlignment,
@@ -263,16 +263,16 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
         this(
                 imagePath,
                 resultName,
-                contentContainerX,
-                contentContainerY,
-                contentContainerWidth,
-                contentContainerHeight,
+                contentContainerStartX,
+                contentContainerStartY,
+                contentContainerEndX,
+                contentContainerEndY,
                 contentContainerPadding,
                 contentPosition,
-                contentContainerX,
-                contentContainerY,
-                contentContainerWidth,
-                contentContainerHeight,
+                contentContainerStartX,
+                contentContainerStartY,
+                contentContainerEndX,
+                contentContainerEndY,
                 contentContainerPadding,
                 contentPosition,
                 textContentAlignment, fontName,
