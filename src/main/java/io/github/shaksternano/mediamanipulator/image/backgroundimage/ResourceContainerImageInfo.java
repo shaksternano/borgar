@@ -160,7 +160,7 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
             6,
             350,
             120,
-            20,
+            10,
             Position.CENTRE,
             TextAlignment.CENTER,
             "Futura-CondensedExtraBold",
