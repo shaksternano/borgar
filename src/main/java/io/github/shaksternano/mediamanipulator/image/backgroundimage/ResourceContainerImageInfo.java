@@ -156,10 +156,10 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
     LIVING_IN_1984(
             "image/containerimage/living_in_1984.png",
             "living_in_1984",
-            45,
+            70,
             20,
-            270,
-            96,
+            250,
+            85,
             0,
             Position.CENTRE,
             TextAlignment.CENTER,
