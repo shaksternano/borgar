@@ -3,6 +3,9 @@ package io.github.shaksternano.mediamanipulator.listener;
 import io.github.shaksternano.mediamanipulator.command.HelpCommand;
 import io.github.shaksternano.mediamanipulator.command.util.CommandParser;
 import io.github.shaksternano.mediamanipulator.command.util.Commands;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -43,7 +46,15 @@ public class CommandListener extends ListenerAdapter {
      */
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
-        if (!event.getAuthor().equals(event.getJDA().getSelfUser())) {
+        User author = event.getAuthor();
+        if (!author.equals(event.getJDA().getSelfUser())) {
+            Message message = event.getMessage();
+            if (author.getName().equals("74") && message.getContentRaw().contains("timetable")) {
+                String emoji = "🤓";
+                message.addReaction(Emoji.fromUnicode(emoji)).queue();
+                message.reply(emoji).queue();
+            }
+
             CommandParser.parseAndExecute(event);
         }
     }
