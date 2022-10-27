@@ -827,11 +827,16 @@ public class ImageManipulator implements MediaManipulator {
     @Override
     public File speed(File media, String fileFormat, float speedMultiplier) throws IOException {
         return animatedOnlyOperation(media, fileFormat, imageMedia -> {
-            if (speedMultiplier != 1 && speedMultiplier > 0) {
+            if (speedMultiplier != 1) {
+                float absoluteSpeedMultiplier = Math.abs(speedMultiplier);
+                if (speedMultiplier < 0) {
+                    imageMedia = imageMedia.reverse();
+                }
+
                 ImageMediaBuilder builder = new ImageMediaBuilder();
 
                 for (Frame frame : imageMedia) {
-                    builder.add(new AwtFrame(frame.getImage(), Math.round(frame.getDuration() / speedMultiplier)));
+                    builder.add(new AwtFrame(frame.getImage(), Math.round(frame.getDuration() / absoluteSpeedMultiplier)));
                 }
 
                 ImageMedia modifiedDurations = builder.build();
@@ -844,7 +849,7 @@ public class ImageManipulator implements MediaManipulator {
                 }
 
                 int duration = resultBuilder.getDuration();
-                int expectedDuration = Math.round(imageMedia.getDuration() / speedMultiplier);
+                int expectedDuration = Math.round(imageMedia.getDuration() / absoluteSpeedMultiplier);
                 if (expectedDuration > duration) {
                     resultBuilder.increaseLastFrameDuration(expectedDuration - duration);
                 }

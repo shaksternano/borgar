@@ -139,7 +139,12 @@ public class Commands {
 
     public static final Command SPEED = addCommandToRegister(new SpeedCommand(
             "speed",
-            "Speeds up or slows down media. Optional arguments: [Speed multiplier, default value is " + FORMAT.format(SpeedCommand.DEFAULT_SPEED_MULTIPLIER) + "]"
+            "Speeds up or slows down animated media. Optional arguments: [Speed multiplier, default value is " + FORMAT.format(SpeedCommand.DEFAULT_SPEED_MULTIPLIER) + "]"
+    ));
+
+    public static final Command REVERSE = addCommandToRegister(new ReverseCommand(
+            "reverse",
+            "Reverses animate media."
     ));
 
     public static final Command PIXELATE = addCommandToRegister(new PixelateCommand(

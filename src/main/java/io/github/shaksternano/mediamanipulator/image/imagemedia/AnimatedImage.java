@@ -54,6 +54,15 @@ public class AnimatedImage extends BaseImageMedia {
     }
 
     @Override
+    public ImageMedia reverse() {
+        ImmutableList.Builder<Frame> builder = ImmutableList.builder();
+        for (int i = frames.size() - 1; i >= 0; i--) {
+            builder.add(frames.get(i));
+        }
+        return new AnimatedImage(builder.build());
+    }
+
+    @Override
     public Iterator<Frame> iterator() {
         return frames.iterator();
     }
