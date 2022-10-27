@@ -864,7 +864,7 @@ public class ImageManipulator implements MediaManipulator {
             } else {
                 throw new InvalidArgumentException("Speed multiplier " + speedMultiplier + " is not allowed!");
             }
-        }, "changed_speed", "Cannot change the speed of a static image.");
+        }, speedMultiplier == -1 ? "reversed" : "changed_speed", "Cannot change the speed of a static image.");
     }
 
     @Override
