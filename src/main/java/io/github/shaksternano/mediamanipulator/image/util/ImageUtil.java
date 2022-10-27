@@ -76,9 +76,9 @@ public class ImageUtil {
             graphics.drawImage(image, 0, 0, targetWidth, targetHeight, null);
             graphics.dispose();
             return stretchedImage;
+        } else {
+            return ImmutableImage.wrapAwt(image).scaleTo(targetWidth, targetHeight).awt();
         }
-
-        return ImmutableImage.wrapAwt(image).scaleTo(targetWidth, targetHeight).awt();
     }
 
     public static BufferedImage resize(BufferedImage image, float resizeMultiplier, boolean raw) {

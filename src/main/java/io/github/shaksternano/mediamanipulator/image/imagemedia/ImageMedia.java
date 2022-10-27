@@ -31,6 +31,8 @@ public interface ImageMedia extends Iterable<Frame> {
 
     boolean isAnimated();
 
+    ImageMedia reverse();
+
     List<BufferedImage> toNormalisedImages();
 
     Stream<Frame> stream();

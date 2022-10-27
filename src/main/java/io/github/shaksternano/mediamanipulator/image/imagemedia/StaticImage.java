@@ -36,6 +36,11 @@ public class StaticImage extends BaseImageMedia {
     }
 
     @Override
+    public ImageMedia reverse() {
+        return this;
+    }
+
+    @Override
     public Iterator<Frame> iterator() {
         return Iterators.singletonIterator(frame);
     }
