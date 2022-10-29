@@ -1071,14 +1071,15 @@ public class ImageManipulator implements MediaManipulator {
             return new AwtFrame(modifiedImage, duration);
         }).collect(ImmutableList.toImmutableList()));
 
-        String outputFormat = outputFormatFunction == null ? inputFormat : outputFormatFunction.apply(inputFormat, imageMedia);
+        String outputExtension = com.google.common.io.Files.getFileExtension(media.getName());
         String outputName;
         if (operationName == null) {
-            outputName = FileUtil.changeExtension(media.getName(), outputFormat);
+            outputName = FileUtil.changeExtension(media.getName(), outputExtension);
         } else {
-            outputName = operationName + '.' + outputFormat;
+            outputName = operationName + '.' + outputExtension;
         }
 
+        String outputFormat = outputFormatFunction == null ? inputFormat : outputFormatFunction.apply(inputFormat, imageMedia);
         File output = FileUtil.getUniqueTempFile(outputName);
         ImageWriters.write(outputImage, output, outputFormat);
 
