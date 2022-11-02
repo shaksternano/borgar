@@ -2,9 +2,16 @@ package io.github.shaksternano.mediamanipulator.command;
 
 import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.command.util.CommandParser;
-import io.github.shaksternano.mediamanipulator.mediamanipulator.MediaManipulator;
+import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
+import io.github.shaksternano.mediamanipulator.io.FileUtil;
+import io.github.shaksternano.mediamanipulator.util.JavaCVUtil;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import org.bytedeco.javacv.FFmpegFrameGrabber;
+import org.bytedeco.javacv.FFmpegFrameRecorder;
+import org.bytedeco.javacv.Frame;
+import org.bytedeco.javacv.Java2DFrameConverter;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -12,7 +19,7 @@ import java.util.List;
 /**
  * A command that stretches media.
  */
-public class StretchCommand extends MediaCommand {
+public class StretchCommand extends FileCommand {
 
     /**
      * The default stretch width multiplier.
@@ -38,23 +45,8 @@ public class StretchCommand extends MediaCommand {
         RAW = raw;
     }
 
-    /**
-     * Stretches media. The stretch width multiplier is specified by the first element of the arguments array,
-     * with a default value of {@link #DEFAULT_WIDTH_MULTIPLIER} if it is not specified or un-parsable,
-     * and the stretch height multiplier is specified by the second element of the arguments array,
-     * with a default value of {@link #DEFAULT_HEIGHT_MULTIPLIER} if it is not specified or un-parsable.
-     *
-     * @param media          The media file to apply the operation to.
-     * @param fileFormat     The file format of the media file.
-     * @param arguments      The arguments of the command.
-     * @param extraArguments A multimap mapping the additional parameter names to a list of the arguments.
-     * @param manipulator    The {@link MediaManipulator} to use for the operation.
-     * @param event          The {@link MessageReceivedEvent} that triggered the command.
-     * @return The edited media file.
-     * @throws IOException If an error occurs while applying the operation.
-     */
     @Override
-    public File applyOperation(File media, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
+    public File editFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
         float widthMultiplier = CommandParser.parseFloatArgument(
                 arguments,
                 0,
@@ -72,6 +64,59 @@ public class StretchCommand extends MediaCommand {
                 (argument, defaultValue) -> "Height multiplier \"" + argument + "\" is not a number. Using default value of " + defaultValue + "."
         );
 
-        return manipulator.stretch(media, fileFormat, widthMultiplier, heightMultiplier, RAW);
+        File output = FileUtil.getUniqueTempFile("stretched.mov");
+        FFmpegFrameRecorder recorder = null;
+        try (
+                FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(file);
+                Java2DFrameConverter converter = new Java2DFrameConverter()
+        ) {
+            grabber.start();
+            double fps = grabber.getFrameRate();
+            Frame imageFrame;
+            while ((imageFrame = grabber.grabImage()) != null) {
+                BufferedImage image = converter.convert(imageFrame);
+                BufferedImage stretched = ImageUtil.stretch(
+                        image,
+                        (int) (image.getWidth() * widthMultiplier),
+                        (int) (image.getHeight() * heightMultiplier),
+                        RAW
+                );
+
+                if (recorder == null) {
+                    recorder = JavaCVUtil.createFFmpegRecorder(
+                            output,
+                            "mp4",
+                            stretched.getWidth(),
+                            stretched.getHeight(),
+                            grabber.getAudioChannels(),
+                            fps
+                    );
+                    recorder.start();
+                }
+                recorder.record(converter.getFrame(stretched));
+            }
+
+            grabber.setTimestamp(0);
+            Frame audioFrame;
+            while ((audioFrame = grabber.grabSamples()) != null) {
+                if (recorder == null) {
+                    recorder = JavaCVUtil.createFFmpegRecorder(
+                            output,
+                            "mp4",
+                            grabber.getImageWidth(),
+                            grabber.getImageHeight(),
+                            grabber.getAudioChannels(),
+                            fps
+                    );
+                    recorder.start();
+                }
+                recorder.record(audioFrame);
+            }
+        } finally {
+            if (recorder != null) {
+                recorder.close();
+            }
+        }
+        return output;
     }
 }

@@ -26,6 +26,7 @@ dependencies {
     implementation("com.google.guava:guava:${project.property("google_guava_version")}-jre")
     implementation("com.google.code.gson:gson:${project.property("google_gson_version")}")
     implementation("commons-io:commons-io:${project.property("apache_commons_io_version")}")
+    implementation("org.bytedeco:javacv-platform:${project.property("javacv_version")}")
     implementation("com.sksamuel.scrimage:scrimage-core:${project.property("scrimage_version")}")
     implementation("net.ifok.image:image4j:${project.property("image4j_version")}")
     implementation("org.reflections:reflections:${project.property("reflections_version")}")
