@@ -10,6 +10,7 @@ import io.github.shaksternano.mediamanipulator.mediamanipulator.util.MediaManipu
 import io.github.shaksternano.mediamanipulator.util.DiscordUtil;
 import io.github.shaksternano.mediamanipulator.util.MessageUtil;
 import io.github.shaksternano.mediamanipulator.util.MiscUtil;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.utils.FileUpload;
@@ -55,14 +56,15 @@ public abstract class OptionalFileInputMediaCommand extends BaseCommand {
 
             String newFileFormat = FileUtil.getFileFormat(editedMedia);
             Optional<MediaManipulator> manipulatorOptional = MediaManipulatorRegistry.getManipulator(newFileFormat);
+            Guild guild = event.isFromGuild() ? event.getGuild() : null;
             if (manipulatorOptional.isPresent()) {
-                compressedMedia = manipulatorOptional.orElseThrow().compress(editedMedia, newFileFormat, event.getGuild());
+                compressedMedia = manipulatorOptional.orElseThrow().compress(editedMedia, newFileFormat, guild);
             } else {
                 compressedMedia = editedMedia;
             }
 
             long mediaFileSize = compressedMedia.length();
-            if (mediaFileSize > DiscordUtil.getMaxUploadSize(event.getGuild())) {
+            if (mediaFileSize > DiscordUtil.getMaxUploadSize(guild)) {
                 long mediaFileSizeInMb = mediaFileSize / MiscUtil.TO_MB;
                 userMessage.reply("The size of the edited media file, " + mediaFileSizeInMb + "MB, is too large to send!").queue();
                 Main.getLogger().error("File size of edited media was too large to send! (" + mediaFileSize + "MB)");
