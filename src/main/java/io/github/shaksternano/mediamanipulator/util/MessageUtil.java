@@ -210,15 +210,17 @@ public class MessageUtil {
         }
 
         // Get emojis undetected by Discord.
-        Set<String> emoteNames = customEmojis.stream().map(Emoji::getName).collect(ImmutableSet.toImmutableSet());
-        for (CustomEmoji customEmoji : message.getGuild().getEmojiCache()) {
-            String emoteName = customEmoji.getName();
-            if (!emoteNames.contains(emoteName)) {
-                String emoteColonName = ":" + customEmoji.getName() + ":";
-                if (messageContent.contains(emoteColonName)) {
-                    builder.put(emoteColonName, customEmoji.getImageUrl());
-                    if (onlyGetFirst) {
-                        return builder.buildKeepingLast();
+        if (message.isFromGuild()) {
+            Set<String> emoteNames = customEmojis.stream().map(Emoji::getName).collect(ImmutableSet.toImmutableSet());
+            for (CustomEmoji customEmoji : message.getGuild().getEmojiCache()) {
+                String emoteName = customEmoji.getName();
+                if (!emoteNames.contains(emoteName)) {
+                    String emoteColonName = ":" + customEmoji.getName() + ":";
+                    if (messageContent.contains(emoteColonName)) {
+                        builder.put(emoteColonName, customEmoji.getImageUrl());
+                        if (onlyGetFirst) {
+                            return builder.buildKeepingLast();
+                        }
                     }
                 }
             }
