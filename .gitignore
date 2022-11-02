@@ -28,5 +28,11 @@ bin/
 
 *.DS_Store
 
+# fleet
+
+.fleet/
+
+# other
+
 run/
 *.log
