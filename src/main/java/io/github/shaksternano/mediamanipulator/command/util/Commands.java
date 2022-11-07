@@ -83,6 +83,12 @@ public class Commands {
             ResourceContainerImageInfo.LIVING_IN_1984
     ));
 
+    public static final Command WHO_DID_THIS = addCommandToRegister(new ContainerImageCommand(
+            "wdt",
+            "Puts image into the 'who did this' meme. Optional arguments: [meme text]",
+            ResourceContainerImageInfo.WHO_DID_THIS
+    ));
+
     public static final Command SPIN = addCommandToRegister(new SpinCommand(
             "spin",
             "Spins a media file. Optional arguments: [Spin speed, default value is " + FORMAT.format(SpinCommand.DEFAULT_SPIN_SPEED) + "], [Background hex RGB colour, by default it is transparent]"
