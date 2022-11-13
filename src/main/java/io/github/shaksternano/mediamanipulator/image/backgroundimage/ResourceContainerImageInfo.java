@@ -171,6 +171,25 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
             true,
             null
     ),
+
+    WHO_DID_THIS(
+            "image/containerimage/who_did_this.png",
+            "wdt",
+            0,
+            104,
+            512,
+            403,
+            10,
+            Position.CENTRE,
+            TextAlignment.CENTER,
+            "Futura-CondensedExtraBold",
+            Color.BLACK,
+            100,
+            null,
+            null,
+            true,
+            Color.WHITE
+    ),
     ;
 
     private final String IMAGE_PATH;
