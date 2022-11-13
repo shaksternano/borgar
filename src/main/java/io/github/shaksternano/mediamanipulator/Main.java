@@ -2,7 +2,6 @@ package io.github.shaksternano.mediamanipulator;
 
 import io.github.shaksternano.mediamanipulator.command.Command;
 import io.github.shaksternano.mediamanipulator.command.util.Commands;
-import io.github.shaksternano.mediamanipulator.command.util.TerminalInputListener;
 import io.github.shaksternano.mediamanipulator.emoji.EmojiUtil;
 import io.github.shaksternano.mediamanipulator.image.backgroundimage.ResourceContainerImageInfo;
 import io.github.shaksternano.mediamanipulator.image.reader.util.ImageReaders;
@@ -90,9 +89,6 @@ public class Main {
 
         Commands.registerCommands();
         MediaManipulators.registerMediaManipulators();
-
-        Thread commandThread = new Thread(new TerminalInputListener());
-        commandThread.start();
 
         EmojiUtil.initEmojiUnicodeSet();
         EmojiUtil.initEmojiShortCodesToUrlsMap();
