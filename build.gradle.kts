@@ -21,7 +21,7 @@ repositories {
 
 dependencies {
     implementation("net.dv8tion:JDA:${project.property("java_discord_api_version")}")
-    implementation("org.apache.logging.log4j:log4j-slf4j18-impl:${project.property("apache_log4j_2_version")}")
+    implementation("org.apache.logging.log4j:log4j-slf4j-impl:${project.property("apache_log4j_2_version")}")
     implementation("com.lmax:disruptor:${project.property("lmax_disruptor_version")}")
     implementation("com.google.guava:guava:${project.property("google_guava_version")}-jre")
     implementation("com.google.code.gson:gson:${project.property("google_gson_version")}")
