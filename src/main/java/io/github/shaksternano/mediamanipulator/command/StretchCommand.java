@@ -3,13 +3,12 @@ package io.github.shaksternano.mediamanipulator.command;
 import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.command.util.CommandParser;
 import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
+import io.github.shaksternano.mediamanipulator.io.FFmpegAudioReader;
+import io.github.shaksternano.mediamanipulator.io.FFmpegImageReader;
+import io.github.shaksternano.mediamanipulator.io.FFmpegVideoWriter;
 import io.github.shaksternano.mediamanipulator.io.FileUtil;
-import io.github.shaksternano.mediamanipulator.util.JavaCVUtil;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import org.bytedeco.javacv.FFmpegFrameGrabber;
-import org.bytedeco.javacv.FFmpegFrameRecorder;
 import org.bytedeco.javacv.Frame;
-import org.bytedeco.javacv.Java2DFrameConverter;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -64,57 +63,28 @@ public class StretchCommand extends FileCommand {
                 (argument, defaultValue) -> "Height multiplier \"" + argument + "\" is not a number. Using default value of " + defaultValue + "."
         );
 
-        File output = FileUtil.getUniqueTempFile("stretched.mov");
-        FFmpegFrameRecorder recorder = null;
+        File output = FileUtil.getUniqueTempFile("stretched.mp4");
         try (
-                FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(file);
-                Java2DFrameConverter converter = new Java2DFrameConverter()
+                FFmpegImageReader imageReader = new FFmpegImageReader(file);
+                FFmpegAudioReader audioReader = new FFmpegAudioReader(file);
+                FFmpegVideoWriter videoWriter = new FFmpegVideoWriter(
+                        output,
+                        fileFormat,
+                        imageReader.getFrameRate(),
+                        audioReader.getAudioChannels()
+                )
         ) {
-            grabber.start();
-            double fps = grabber.getFrameRate();
-            Frame imageFrame;
-            while ((imageFrame = grabber.grabImage()) != null) {
-                BufferedImage image = converter.convert(imageFrame);
+            for (BufferedImage imageFrame : imageReader) {
                 BufferedImage stretched = ImageUtil.stretch(
-                        image,
-                        (int) (image.getWidth() * widthMultiplier),
-                        (int) (image.getHeight() * heightMultiplier),
+                        imageFrame,
+                        (int) (imageFrame.getWidth() * widthMultiplier),
+                        (int) (imageFrame.getHeight() * heightMultiplier),
                         RAW
                 );
-
-                if (recorder == null) {
-                    recorder = JavaCVUtil.createFFmpegRecorder(
-                            output,
-                            "mp4",
-                            stretched.getWidth(),
-                            stretched.getHeight(),
-                            grabber.getAudioChannels(),
-                            fps
-                    );
-                    recorder.start();
-                }
-                recorder.record(converter.getFrame(stretched));
+                videoWriter.recordImageFrame(stretched);
             }
-
-            grabber.setTimestamp(0);
-            Frame audioFrame;
-            while ((audioFrame = grabber.grabSamples()) != null) {
-                if (recorder == null) {
-                    recorder = JavaCVUtil.createFFmpegRecorder(
-                            output,
-                            "mp4",
-                            grabber.getImageWidth(),
-                            grabber.getImageHeight(),
-                            grabber.getAudioChannels(),
-                            fps
-                    );
-                    recorder.start();
-                }
-                recorder.record(audioFrame);
-            }
-        } finally {
-            if (recorder != null) {
-                recorder.close();
+            for (Frame audioFrame : audioReader) {
+                videoWriter.recordAudioFrame(audioFrame);
             }
         }
         return output;
