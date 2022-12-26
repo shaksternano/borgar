@@ -1,4 +1,4 @@
-package io.github.shaksternano.mediamanipulator.io;
+package io.github.shaksternano.mediamanipulator.io.mediawriter;
 
 import org.bytedeco.ffmpeg.global.avcodec;
 import org.bytedeco.javacv.FFmpegFrameRecorder;

@@ -1,4 +1,4 @@
-package io.github.shaksternano.mediamanipulator.io;
+package io.github.shaksternano.mediamanipulator.io.mediareader;
 
 import java.io.Closeable;
 import java.io.IOException;

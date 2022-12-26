@@ -3,10 +3,11 @@ package io.github.shaksternano.mediamanipulator.command;
 import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.command.util.CommandParser;
 import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
-import io.github.shaksternano.mediamanipulator.io.FFmpegAudioReader;
-import io.github.shaksternano.mediamanipulator.io.FFmpegImageReader;
-import io.github.shaksternano.mediamanipulator.io.FFmpegVideoWriter;
-import io.github.shaksternano.mediamanipulator.io.FileUtil;
+import io.github.shaksternano.mediamanipulator.io.*;
+import io.github.shaksternano.mediamanipulator.io.mediareader.FFmpegAudioReader;
+import io.github.shaksternano.mediamanipulator.io.mediareader.FFmpegImageReader;
+import io.github.shaksternano.mediamanipulator.io.mediareader.MediaReader;
+import io.github.shaksternano.mediamanipulator.io.mediawriter.MediaWriter;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.bytedeco.javacv.Frame;
 
@@ -63,11 +64,15 @@ public class StretchCommand extends FileCommand {
                 (argument, defaultValue) -> "Height multiplier \"" + argument + "\" is not a number. Using default value of " + defaultValue + "."
         );
 
-        File output = FileUtil.getUniqueTempFile("stretched.mp4");
+        String outputName = "stretched";
+        if (!fileFormat.isBlank()) {
+            outputName += "." + fileFormat;
+        }
+        File output = FileUtil.getUniqueTempFile(outputName);
         try (
-                FFmpegImageReader imageReader = new FFmpegImageReader(file);
-                FFmpegAudioReader audioReader = new FFmpegAudioReader(file);
-                FFmpegVideoWriter videoWriter = new FFmpegVideoWriter(
+                MediaReader<BufferedImage> imageReader = new FFmpegImageReader(file);
+                MediaReader<Frame> audioReader = new FFmpegAudioReader(file);
+                MediaWriter videoWriter = MediaWriters.createWriter(
                         output,
                         fileFormat,
                         imageReader.getFrameRate(),

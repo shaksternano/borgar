@@ -1,4 +1,4 @@
-package io.github.shaksternano.mediamanipulator.io;
+package io.github.shaksternano.mediamanipulator.io.mediareader;
 
 import org.bytedeco.javacv.Frame;
 import org.jetbrains.annotations.Nullable;

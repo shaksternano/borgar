@@ -1,4 +1,4 @@
-package io.github.shaksternano.mediamanipulator.io;
+package io.github.shaksternano.mediamanipulator.io.mediawriter;
 
 import org.bytedeco.javacv.Frame;
 
