@@ -1,6 +1,7 @@
 package io.github.shaksternano.mediamanipulator.io.mediareader;
 
 import org.bytedeco.javacv.FFmpegFrameGrabber;
+import org.bytedeco.javacv.Frame;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -18,11 +19,14 @@ public abstract class FFmpegMediaReader<T> implements MediaReader<T> {
         grabber = new FFmpegFrameGrabber(input);
         grabber.start();
         int frameCount = 0;
-        while (grabber.grab() != null) {
+        while (grabFrame() != null) {
             frameCount++;
         }
         this.frameCount = frameCount;
     }
+
+    @Nullable
+    protected abstract Frame grabFrame() throws IOException;
 
     @Nullable
     protected abstract T getNextFrame() throws IOException;

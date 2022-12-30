@@ -14,6 +14,12 @@ public class FFmpegAudioReader extends FFmpegMediaReader<Frame> {
 
     @Nullable
     @Override
+    protected Frame grabFrame() throws IOException {
+        return grabber.grabSamples();
+    }
+
+    @Nullable
+    @Override
     protected Frame getNextFrame() throws IOException {
         return grabber.grabSamples();
     }

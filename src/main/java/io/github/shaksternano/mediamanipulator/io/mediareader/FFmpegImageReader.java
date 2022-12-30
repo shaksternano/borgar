@@ -1,5 +1,6 @@
 package io.github.shaksternano.mediamanipulator.io.mediareader;
 
+import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.Java2DFrameConverter;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,6 +14,12 @@ public class FFmpegImageReader extends FFmpegMediaReader<BufferedImage> {
 
     public FFmpegImageReader(File input) throws IOException {
         super(input);
+    }
+
+    @Nullable
+    @Override
+    protected Frame grabFrame() throws IOException {
+        return grabber.grabImage();
     }
 
     @Nullable
