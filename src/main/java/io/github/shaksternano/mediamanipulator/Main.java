@@ -18,6 +18,7 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.requests.RestAction;
+import org.bytedeco.ffmpeg.global.avutil;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
@@ -94,6 +95,7 @@ public class Main {
         EmojiUtil.initEmojiShortCodesToUrlsMap();
         configureJda();
         Runtime.getRuntime().addShutdownHook(new Thread(() -> getLogger().info("Shutting down!")));
+        avutil.av_log_set_level(avutil.AV_LOG_PANIC);
 
         getLogger().info("Initialised!");
     }
