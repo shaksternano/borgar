@@ -3,15 +3,9 @@ package io.github.shaksternano.mediamanipulator.command;
 import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.command.util.CommandParser;
 import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
-import io.github.shaksternano.mediamanipulator.io.*;
-import io.github.shaksternano.mediamanipulator.io.mediareader.FFmpegAudioReader;
-import io.github.shaksternano.mediamanipulator.io.mediareader.FFmpegImageReader;
-import io.github.shaksternano.mediamanipulator.io.mediareader.MediaReader;
-import io.github.shaksternano.mediamanipulator.io.mediawriter.MediaWriter;
+import io.github.shaksternano.mediamanipulator.io.MediaUtil;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import org.bytedeco.javacv.Frame;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -63,35 +57,16 @@ public class StretchCommand extends FileCommand {
                 event.getChannel(),
                 (argument, defaultValue) -> "Height multiplier \"" + argument + "\" is not a number. Using default value of " + defaultValue + "."
         );
-
-        String outputName = "stretched";
-        if (!fileFormat.isBlank()) {
-            outputName += "." + fileFormat;
-        }
-        File output = FileUtil.getUniqueTempFile(outputName);
-        try (
-                MediaReader<BufferedImage> imageReader = new FFmpegImageReader(file);
-                MediaReader<Frame> audioReader = new FFmpegAudioReader(file);
-                MediaWriter videoWriter = MediaWriters.createWriter(
-                        output,
-                        fileFormat,
-                        imageReader.getFrameRate(),
-                        audioReader.getAudioChannels()
-                )
-        ) {
-            for (BufferedImage imageFrame : imageReader) {
-                BufferedImage stretched = ImageUtil.stretch(
-                        imageFrame,
-                        (int) (imageFrame.getWidth() * widthMultiplier),
-                        (int) (imageFrame.getHeight() * heightMultiplier),
+        return MediaUtil.processMedia(
+                file,
+                fileFormat,
+                "stretch",
+                image -> ImageUtil.stretch(
+                        image,
+                        (int) (image.getWidth() * widthMultiplier),
+                        (int) (image.getHeight() * heightMultiplier),
                         RAW
-                );
-                videoWriter.recordImageFrame(stretched);
-            }
-            for (Frame audioFrame : audioReader) {
-                videoWriter.recordAudioFrame(audioFrame);
-            }
-        }
-        return output;
+                )
+        );
     }
 }
