@@ -1,17 +1,22 @@
 package io.github.shaksternano.mediamanipulator.command;
 
 import com.google.common.collect.ListMultimap;
-import io.github.shaksternano.mediamanipulator.mediamanipulator.MediaManipulator;
+import io.github.shaksternano.mediamanipulator.exception.InvalidMediaException;
+import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
+import io.github.shaksternano.mediamanipulator.io.MediaUtil;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.List;
 
 /**
  * Adds a speech bubble on top of media.
  */
-public class SpeechBubbleCommand extends MediaCommand {
+public class SpeechBubbleCommand extends FileCommand {
 
     private final boolean CUT_OUT;
 
@@ -31,17 +36,66 @@ public class SpeechBubbleCommand extends MediaCommand {
     /**
      * Adds a speech bubble on top of media. The speech bubble is resized so that it's width is the same as the media's width.
      *
-     * @param media          The media file to apply the operation to.
+     * @param file           The media file to apply the operation to.
      * @param fileFormat     The file format of the media file.
      * @param arguments      The arguments of the command.
      * @param extraArguments A multimap mapping the additional parameter names to a list of the arguments.
-     * @param manipulator    The {@link MediaManipulator} to use for the operation.
      * @param event          The {@link MessageReceivedEvent} that triggered the command.
      * @return The edited media file.
      * @throws IOException If an error occurs while applying the operation.
      */
     @Override
-    public File applyOperation(File media, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
-        return manipulator.speechBubble(media, fileFormat, CUT_OUT);
+    public File modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
+        return MediaUtil.processMedia(
+            file,
+            fileFormat,
+            "speech_bubbled",
+            this::createSpeechBubbleImage,
+            this::applySpeechBubble
+        );
+    }
+
+    private BufferedImage createSpeechBubbleImage(BufferedImage toApplyTo) {
+        try {
+            String speechBubblePath = CUT_OUT ? "image/overlay/speech_bubble_2_partial.png"
+                                              : "image/overlay/speech_bubble_1_partial.png";
+
+            int width = toApplyTo.getWidth();
+            int height = toApplyTo.getHeight();
+
+            BufferedImage speechBubble = ImageUtil.getImageResourceInRootPackage(speechBubblePath).getFirstImage();
+
+            int minDimension = 3;
+            if (width < minDimension) {
+                throw new InvalidMediaException("Image width of " + width + " pixels is too small!");
+            } else {
+                if (speechBubble.getHeight() < speechBubble.getWidth()) {
+                    float scaleRatio = (float) width / speechBubble.getWidth();
+                    int newHeight = (int) (speechBubble.getHeight() * scaleRatio);
+
+                    if (newHeight < minDimension) {
+                        throw new InvalidMediaException("Image height of " + height + " pixels is too small!");
+                    }
+                }
+            }
+
+            BufferedImage resizedSpeechBubble = ImageUtil.fitWidth(speechBubble, width);
+
+            if (CUT_OUT) {
+                return resizedSpeechBubble;
+            } else {
+                return ImageUtil.fill(resizedSpeechBubble, Color.WHITE);
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    private BufferedImage applySpeechBubble(BufferedImage toApplyTo, BufferedImage speechBubble) {
+        if (CUT_OUT) {
+            return ImageUtil.cutoutImage(toApplyTo, speechBubble, 0, 0, 0xFFFFFF);
+        } else {
+            return ImageUtil.overlayImage(toApplyTo, speechBubble, false, 0, -speechBubble.getHeight(), null, null, null, true);
+        }
     }
 }

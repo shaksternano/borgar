@@ -39,8 +39,22 @@ public class StretchCommand extends FileCommand {
         RAW = raw;
     }
 
+    /**
+     * Stretches media. The stretch width multiplier is specified by the first element of the arguments array,
+     * with a default value of {@link #DEFAULT_WIDTH_MULTIPLIER} if it is not specified or un-parsable,
+     * and the stretch height multiplier is specified by the second element of the arguments array,
+     * with a default value of {@link #DEFAULT_HEIGHT_MULTIPLIER} if it is not specified or un-parsable.
+     *
+     * @param file          The media file to apply the operation to.
+     * @param fileFormat     The file format of the media file.
+     * @param arguments      The arguments of the command.
+     * @param extraArguments A multimap mapping the additional parameter names to a list of the arguments.
+     * @param event          The {@link MessageReceivedEvent} that triggered the command.
+     * @return The edited media file.
+     * @throws IOException If an error occurs while applying the operation.
+     */
     @Override
-    public File editFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
+    public File modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
         float widthMultiplier = CommandParser.parseFloatArgument(
                 arguments,
                 0,

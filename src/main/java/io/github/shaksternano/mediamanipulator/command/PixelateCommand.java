@@ -2,14 +2,16 @@ package io.github.shaksternano.mediamanipulator.command;
 
 import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.command.util.CommandParser;
-import io.github.shaksternano.mediamanipulator.mediamanipulator.MediaManipulator;
+import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
+import io.github.shaksternano.mediamanipulator.io.MediaUtil;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-public class PixelateCommand extends MediaCommand {
+public class PixelateCommand extends FileCommand {
 
     public static final int DEFAULT_PIXELATION_MULTIPLIER = 10;
 
@@ -25,15 +27,34 @@ public class PixelateCommand extends MediaCommand {
     }
 
     @Override
-    public File applyOperation(File media, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
+    public File modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
         int pixelationMultiplier = CommandParser.parseIntegerArgument(
-                arguments,
-                0,
-                DEFAULT_PIXELATION_MULTIPLIER,
-                null,
-                event.getChannel(),
-                (argument, defaultValue) -> "Pixelation multiplier \"" + argument + "\" is not a number. Using default value of " + defaultValue + "."
+            arguments,
+            0,
+            DEFAULT_PIXELATION_MULTIPLIER,
+            null,
+            event.getChannel(),
+            (argument, defaultValue) -> "Pixelation multiplier \"" + argument + "\" is not a number. Using default value of " + defaultValue + "."
         );
-        return manipulator.pixelate(media, fileFormat, pixelationMultiplier);
+        return MediaUtil.processMedia(
+            file,
+            fileFormat,
+            "pixelated",
+            image -> pixelate(image, pixelationMultiplier)
+        );
+    }
+
+    private static BufferedImage pixelate(BufferedImage image, int pixelationMultiplier) {
+        return ImageUtil.stretch(
+            ImageUtil.stretch(
+                image,
+                image.getWidth() / pixelationMultiplier,
+                image.getHeight() / pixelationMultiplier,
+                true
+            ),
+            image.getWidth(),
+            image.getHeight(),
+            true
+        );
     }
 }

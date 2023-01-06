@@ -4,16 +4,17 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.command.util.CommandParser;
 import io.github.shaksternano.mediamanipulator.exception.MissingArgumentException;
-import io.github.shaksternano.mediamanipulator.mediamanipulator.MediaManipulator;
+import io.github.shaksternano.mediamanipulator.io.MediaUtil;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
-public class CropCommand extends MediaCommand {
+public class CropCommand extends FileCommand {
 
     /**
      * Creates a new command object.
@@ -27,7 +28,7 @@ public class CropCommand extends MediaCommand {
     }
 
     @Override
-    public File applyOperation(File media, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
+    public File modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
         MessageChannel triggerChannel = event.getChannel();
         float topRatio = CommandParser.parseFloatExtraArgument(
                 extraArguments,
@@ -65,9 +66,32 @@ public class CropCommand extends MediaCommand {
         if (topRatio == 0 && rightRatio == 0 && bottomRatio == 0 && leftRatio == 0) {
             throw new MissingArgumentException("No valid crop ratios were specified! Please specify at least one valid crop ratio.");
         } else {
-            return manipulator.crop(media, fileFormat, topRatio, rightRatio, bottomRatio, leftRatio);
+            return MediaUtil.processMedia(
+                    file,
+                    fileFormat,
+                    "cropped",
+                    image -> getCropData(image, topRatio, rightRatio, bottomRatio, leftRatio),
+                    CropCommand::cropImage
+            );
         }
     }
+
+    private static CropData getCropData(BufferedImage image, float topRatio, float rightRatio, float bottomRatio, float leftRatio) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+
+        int x = Math.min((int) (width * leftRatio), width - 1);
+        int y = Math.min((int) (height * topRatio), height - 1);
+        int newWidth = Math.max((int) (width * (1 - leftRatio - rightRatio)), 1);
+        int newHeight = Math.max((int) (height * (1 - topRatio - bottomRatio)), 1);
+
+        return new CropData(x, y, newWidth, newHeight);
+    }
+
+    private static BufferedImage cropImage(BufferedImage image, CropData cropData) {
+        return image.getSubimage(cropData.x(), cropData.y(), cropData.width(), cropData.height());
+    }
+
 
     @Override
     public Set<String> getAdditionalParameterNames() {
@@ -78,4 +102,6 @@ public class CropCommand extends MediaCommand {
                 "left"
         );
     }
+
+    private record CropData(int x, int y, int width, int height) {}
 }

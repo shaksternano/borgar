@@ -41,38 +41,11 @@ public interface MediaManipulator {
 
     File containerImageWithText(List<String> words, Map<String, Drawable> nonTextParts, ContainerImageInfo containerImageInfo) throws IOException;
 
-    File uncaption(File media, boolean coloredCaption, String fileFormat) throws IOException;
-
-    /**
-     * Stretches a media file.
-     *
-     * @param media            The media file to stretch.
-     * @param widthMultiplier  The stretch width multiplier.
-     * @param heightMultiplier The stretch height multiplier.
-     * @param raw              If false, extra processing is done to smoothen the resulting image.
-     *                         If true, no extra processing is done.
-     * @return The stretched media file.
-     * @throws IOException                    If there is an error stretching the media file.
-     * @throws UncheckedIOException           If there is an error adding the caption.
-     * @throws UnsupportedFileFormatException If the operation is not supported by this manipulator.
-     */
-    File stretch(File media, String fileFormat, float widthMultiplier, float heightMultiplier, boolean raw) throws IOException;
-
     File resize(File media, String fileFormat, float resizeMultiplier, boolean raw, boolean rename) throws IOException;
-
-    File crop(File media, String fileFormat, float topRatio, float rightRatio, float bottomRatio, float leftRatio) throws IOException;
-
-    File autoCrop(File media, String fileFormat, Color cropColor, int colorTolerance) throws IOException;
 
     File speed(File media, String fileFormat, float speedMultiplier) throws IOException;
 
-    File pixelate(File media, String fileFormat, int pixelationMultiplier) throws IOException;
-
     File reduceFps(File media, String fileFormat, int fpsReductionRatio, boolean rename) throws IOException;
-
-    File speechBubble(File media, String fileFormat, boolean cutOut) throws IOException;
-
-    File rotate(File media, String fileFormat, float degrees, @Nullable Color backgroundColor) throws IOException;
 
     File spin(File media, String fileFormat, float speed, @Nullable Color backgroundColor) throws IOException;
 

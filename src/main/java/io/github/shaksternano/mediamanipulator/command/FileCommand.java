@@ -44,7 +44,7 @@ public abstract class FileCommand extends BaseCommand {
             File compressedMedia = null;
 
             try {
-                editedMedia = editFile(file, fileFormat, arguments, extraArguments, event);
+                editedMedia = modifyFile(file, fileFormat, arguments, extraArguments, event);
                 String newFileFormat = FileUtil.getFileFormat(editedMedia);
                 Optional<MediaManipulator> manipulatorOptional = MediaManipulatorRegistry.getManipulator(newFileFormat);
                 if (manipulatorOptional.isPresent()) {
@@ -113,5 +113,5 @@ public abstract class FileCommand extends BaseCommand {
         }, () -> userMessage.reply("No media found!").queue());
     }
 
-    public abstract File editFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException;
+    public abstract File modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException;
 }
