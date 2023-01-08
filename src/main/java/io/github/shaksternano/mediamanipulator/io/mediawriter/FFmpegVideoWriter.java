@@ -87,7 +87,6 @@ public class FFmpegVideoWriter implements MediaWriter {
         recorder.setVideoOption("preset", "ultrafast");
         // Constant Rate Factor (see: https://trac.ffmpeg.org/wiki/Encode/H.264)
         recorder.setVideoOption("crf", "28");
-        recorder.setOption("hwaccel", "nvenc");
         // 2000 kb/s, reasonable "sane" area for 720
         recorder.setVideoBitrate(2000000);
         recorder.setVideoCodec(avcodec.AV_CODEC_ID_H264);
