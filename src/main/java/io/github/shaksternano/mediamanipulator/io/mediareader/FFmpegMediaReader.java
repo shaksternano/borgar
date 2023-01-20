@@ -15,6 +15,7 @@ public abstract class FFmpegMediaReader<T> implements MediaReader<T> {
     protected final FFmpegFrameGrabber grabber;
     private final int frameCount;
 
+    @SuppressWarnings("resource")
     public FFmpegMediaReader(File input) throws IOException {
         grabber = new FFmpegFrameGrabber(input);
         grabber.start();
@@ -39,6 +40,16 @@ public abstract class FFmpegMediaReader<T> implements MediaReader<T> {
     @Override
     public int getFrameCount() {
         return frameCount;
+    }
+
+    @Override
+    public long getLength() {
+        return grabber.getLengthInTime();
+    }
+
+    @Override
+    public double getFrameLength() {
+        return 1_000_000 / getFrameRate();
     }
 
     @Override
