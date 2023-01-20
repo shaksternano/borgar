@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.command.util.CommandParser;
 import io.github.shaksternano.mediamanipulator.exception.MissingArgumentException;
+import io.github.shaksternano.mediamanipulator.io.ImageProcessor;
 import io.github.shaksternano.mediamanipulator.io.MediaUtil;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -70,28 +71,31 @@ public class CropCommand extends FileCommand {
                     file,
                     fileFormat,
                     "cropped",
-                    image -> getCropData(image, topRatio, rightRatio, bottomRatio, leftRatio),
-                    CropCommand::cropImage
+                    new CropProcessor(topRatio, rightRatio, bottomRatio, leftRatio)
             );
         }
     }
 
-    private static CropData getCropData(BufferedImage image, float topRatio, float rightRatio, float bottomRatio, float leftRatio) {
-        int width = image.getWidth();
-        int height = image.getHeight();
+    private record CropProcessor(float topRatio, float rightRatio, float bottomRatio, float leftRatio) implements ImageProcessor<CropData> {
 
-        int x = Math.min((int) (width * leftRatio), width - 1);
-        int y = Math.min((int) (height * topRatio), height - 1);
-        int newWidth = Math.max((int) (width * (1 - leftRatio - rightRatio)), 1);
-        int newHeight = Math.max((int) (height * (1 - topRatio - bottomRatio)), 1);
+        @Override
+        public BufferedImage transformImage(BufferedImage image, CropData extraData) {
+            return image.getSubimage(extraData.x(), extraData.y(), extraData.width(), extraData.height());
+        }
 
-        return new CropData(x, y, newWidth, newHeight);
+        @Override
+        public CropData globalData(BufferedImage image) {
+            int width = image.getWidth();
+            int height = image.getHeight();
+
+            int x = Math.min((int) (width * leftRatio), width - 1);
+            int y = Math.min((int) (height * topRatio), height - 1);
+            int newWidth = Math.max((int) (width * (1 - leftRatio - rightRatio)), 1);
+            int newHeight = Math.max((int) (height * (1 - topRatio - bottomRatio)), 1);
+
+            return new CropData(x, y, newWidth, newHeight);
+        }
     }
-
-    private static BufferedImage cropImage(BufferedImage image, CropData cropData) {
-        return image.getSubimage(cropData.x(), cropData.y(), cropData.width(), cropData.height());
-    }
-
 
     @Override
     public Set<String> getAdditionalParameterNames() {

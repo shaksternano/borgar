@@ -10,8 +10,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class MediaUtil {
@@ -26,8 +24,7 @@ public class MediaUtil {
             media,
             outputFormat,
             operationName,
-            image -> true,
-            (image, unused) -> imageMapper.apply(image)
+            new BasicImageProcessor(imageMapper)
         );
     }
 
@@ -35,8 +32,7 @@ public class MediaUtil {
         File media,
         String outputFormat,
         String operationName,
-        Function<BufferedImage, T> globalFrameData,
-        BiFunction<BufferedImage, T, BufferedImage> imageMapper
+        ImageProcessor<T> processor
     ) throws IOException {
         String outputName = operationName + "." + outputFormat;
         File output = FileUtil.getUniqueTempFile(outputName);
@@ -53,15 +49,13 @@ public class MediaUtil {
             T globalFrameDataValue = null;
             for (BufferedImage imageFrame : imageReader) {
                 if (globalFrameDataValue == null) {
-                    globalFrameDataValue = globalFrameData.apply(imageFrame);
+                    globalFrameDataValue = processor.globalData(imageFrame);
                 }
-                writer.recordImageFrame(imageMapper.apply(imageFrame, globalFrameDataValue));
+                writer.recordImageFrame(processor.transformImage(imageFrame, globalFrameDataValue));
             }
             for (Frame audioFrame : audioReader) {
                 writer.recordAudioFrame(audioFrame);
             }
-        } catch (UncheckedIOException e) {
-            throw e.getCause();
         }
         return output;
     }
@@ -128,6 +122,19 @@ public class MediaUtil {
             return "png";
         } else {
             return format;
+        }
+    }
+
+    private record BasicImageProcessor(Function<BufferedImage, BufferedImage> imageMapper) implements ImageProcessor<Boolean> {
+
+        @Override
+        public BufferedImage transformImage(BufferedImage image, Boolean extraData) {
+            return imageMapper.apply(image);
+        }
+
+        @Override
+        public Boolean globalData(BufferedImage image) {
+            return Boolean.TRUE;
         }
     }
 }

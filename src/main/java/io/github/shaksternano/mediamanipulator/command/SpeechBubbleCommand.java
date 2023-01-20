@@ -3,6 +3,7 @@ package io.github.shaksternano.mediamanipulator.command;
 import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.exception.InvalidMediaException;
 import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
+import io.github.shaksternano.mediamanipulator.io.ImageProcessor;
 import io.github.shaksternano.mediamanipulator.io.MediaUtil;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -10,7 +11,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.List;
 
 /**
@@ -50,18 +50,31 @@ public class SpeechBubbleCommand extends FileCommand {
             file,
             fileFormat,
             "speech_bubbled",
-            this::createSpeechBubbleImage,
-            this::applySpeechBubble
+            new SpeechBubbleProcessor(CUT_OUT)
         );
     }
 
-    private BufferedImage createSpeechBubbleImage(BufferedImage toApplyTo) {
-        try {
-            String speechBubblePath = CUT_OUT ? "image/overlay/speech_bubble_2_partial.png"
-                                              : "image/overlay/speech_bubble_1_partial.png";
+    private record SpeechBubbleProcessor(boolean cutOut) implements ImageProcessor<BufferedImage> {
 
-            int width = toApplyTo.getWidth();
-            int height = toApplyTo.getHeight();
+        @Override
+        public BufferedImage transformImage(BufferedImage image, BufferedImage extraData) {
+            if (cutOut) {
+                return ImageUtil.cutoutImage(image, extraData, 0, 0, 0xFFFFFF);
+            } else {
+                return ImageUtil.overlayImage(image, extraData, false, 0, -extraData.getHeight(), null, null, null, true);
+            }
+        }
+
+        /**
+         * Returns the speech bubble image.
+         */
+        @Override
+        public BufferedImage globalData(BufferedImage image) throws IOException {
+            String speechBubblePath = cutOut ? "image/overlay/speech_bubble_2_partial.png"
+                : "image/overlay/speech_bubble_1_partial.png";
+
+            int width = image.getWidth();
+            int height = image.getHeight();
 
             BufferedImage speechBubble = ImageUtil.getImageResourceInRootPackage(speechBubblePath).getFirstImage();
 
@@ -81,21 +94,11 @@ public class SpeechBubbleCommand extends FileCommand {
 
             BufferedImage resizedSpeechBubble = ImageUtil.fitWidth(speechBubble, width);
 
-            if (CUT_OUT) {
+            if (cutOut) {
                 return resizedSpeechBubble;
             } else {
                 return ImageUtil.fill(resizedSpeechBubble, Color.WHITE);
             }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    private BufferedImage applySpeechBubble(BufferedImage toApplyTo, BufferedImage speechBubble) {
-        if (CUT_OUT) {
-            return ImageUtil.cutoutImage(toApplyTo, speechBubble, 0, 0, 0xFFFFFF);
-        } else {
-            return ImageUtil.overlayImage(toApplyTo, speechBubble, false, 0, -speechBubble.getHeight(), null, null, null, true);
         }
     }
 }
