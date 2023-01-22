@@ -4,6 +4,7 @@ import io.github.shaksternano.mediamanipulator.graphics.TextAlignment;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
+import java.io.IOException;
 import java.util.List;
 import java.util.*;
 import java.util.function.Function;
@@ -21,7 +22,7 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
     }
 
     @Override
-    public void draw(Graphics2D graphics, int x, int y) {
+    public void draw(Graphics2D graphics, int x, int y, long timestamp) throws IOException {
         FontMetrics metrics = graphics.getFontMetrics();
         int lineHeight = metrics.getAscent() + metrics.getDescent();
         int lineSpace = metrics.getLeading();
@@ -56,7 +57,7 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
                 }
 
                 for (Drawable linePart : currentLine) {
-                    linePart.draw(graphics, lineX, lineY);
+                    linePart.draw(graphics, lineX, lineY, timestamp);
                     lineX += linePart.getWidth(graphics) + spaceWidth;
                 }
 
@@ -69,7 +70,7 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
 
         lineX = calculateTextXPosition(ALIGNMENT, x, lineWidth, MAX_WIDTH);
         for (Drawable linePart : currentLine) {
-            linePart.draw(graphics, lineX, lineY);
+            linePart.draw(graphics, lineX, lineY, timestamp);
             lineX += linePart.getWidth(graphics) + SPACE.getWidth(graphics);
         }
     }

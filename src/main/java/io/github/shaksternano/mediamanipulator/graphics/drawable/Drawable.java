@@ -1,20 +1,23 @@
 package io.github.shaksternano.mediamanipulator.graphics.drawable;
 
 import java.awt.*;
+import java.io.Closeable;
+import java.io.IOException;
 
 /**
  * Represents an object that can be drawn on a {@link Graphics2D} object.
  */
-public interface Drawable {
+public interface Drawable extends Closeable {
 
     /**
      * Draws the drawable.
      *
-     * @param graphics The graphics object to draw on.
-     * @param x        The x coordinate of the top left corner of the drawable.
-     * @param y        The y coordinate of the top left corner of the drawable.
+     * @param graphics  The graphics object to draw on.
+     * @param x         The x coordinate of the top left corner of the drawable.
+     * @param y         The y coordinate of the top left corner of the drawable.
+     * @param timestamp The timestamp of the frame in microseconds.
      */
-    void draw(Graphics2D graphics, int x, int y);
+    void draw(Graphics2D graphics, int x, int y, long timestamp) throws IOException;
 
     /**
      * Gets the width of the drawable.
@@ -52,5 +55,11 @@ public interface Drawable {
 
     int getFrameCount();
 
+    long getDuration();
+
     boolean sameAsPreviousFrame();
+
+    @Override
+    default void close() throws IOException {
+    }
 }

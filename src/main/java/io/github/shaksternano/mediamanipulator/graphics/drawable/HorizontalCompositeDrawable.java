@@ -1,14 +1,15 @@
 package io.github.shaksternano.mediamanipulator.graphics.drawable;
 
 import java.awt.*;
+import java.io.IOException;
 import java.util.Objects;
 
 public class HorizontalCompositeDrawable extends ListCompositeDrawable {
 
     @Override
-    public void draw(Graphics2D graphics, int x, int y) {
+    public void draw(Graphics2D graphics, int x, int y, long timestamp) throws IOException {
         for (Drawable part : getParts()) {
-            part.draw(graphics, x, y);
+            part.draw(graphics, x, y, timestamp);
             x += part.getWidth(graphics);
         }
     }

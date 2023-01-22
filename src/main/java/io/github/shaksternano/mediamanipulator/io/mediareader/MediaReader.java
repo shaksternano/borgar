@@ -1,5 +1,7 @@
 package io.github.shaksternano.mediamanipulator.io.mediareader;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.io.Closeable;
 import java.io.IOException;
 
@@ -14,18 +16,29 @@ public interface MediaReader<T> extends Closeable, Iterable<T> {
     int getFrameCount();
 
     /**
-     * Gets the length of time of the media.
-     * @return The length in microseconds.
+     * Gets the duration of time of the media.
+     * @return The duration in microseconds.
      */
-    long getLength();
+    long getDuration();
 
     /**
-     * Gets the length of time of each frame.
-     * @return The length of each frame in microseconds.
+     * Gets the duration of time of each frame.
+     * @return The duration of each frame in microseconds.
      */
-    double getFrameLength();
+    double getFrameDuration();
 
     int getAudioChannels();
 
+    int getWidth();
+
+    int getHeight();
+
     T getFrame(long timestamp) throws IOException;
+
+    @Nullable
+    T getNextFrame() throws IOException;
+
+    long getTimestamp();
+
+    void setTimestamp(long timestamp) throws IOException;
 }

@@ -47,11 +47,27 @@ public class MediaUtil {
             )
         ) {
             T globalFrameDataValue = null;
-            for (BufferedImage imageFrame : imageReader) {
+            BufferedImage imageFrame = imageReader.getNextFrame();
+            long totalTime = 0;
+            while (imageFrame != null) {
                 if (globalFrameDataValue == null) {
                     globalFrameDataValue = processor.globalData(imageFrame);
                 }
-                writer.recordImageFrame(processor.transformImage(imageFrame, globalFrameDataValue));
+                long timestamp = imageReader.getTimestamp();
+                FrameData data = new FrameData(timestamp + totalTime);
+                writer.recordImageFrame(processor.transformImage(imageFrame, data, globalFrameDataValue));
+                imageFrame = imageReader.getNextFrame();
+                boolean readAllFrames = imageFrame == null;
+                if (processor.isDone(readAllFrames, data, globalFrameDataValue)) {
+                    break;
+                } else if (readAllFrames) {
+                    if (timestamp <= 0) {
+                        timestamp = 100000 / 3;
+                    }
+                    totalTime += timestamp;
+                    imageReader.setTimestamp(0);
+                    imageFrame = imageReader.getNextFrame();
+                }
             }
             for (Frame audioFrame : audioReader) {
                 writer.recordAudioFrame(audioFrame);
@@ -128,7 +144,7 @@ public class MediaUtil {
     private record BasicImageProcessor(Function<BufferedImage, BufferedImage> imageMapper) implements ImageProcessor<Boolean> {
 
         @Override
-        public BufferedImage transformImage(BufferedImage image, Boolean extraData) {
+        public BufferedImage transformImage(BufferedImage image, FrameData frameData, Boolean globalData) {
             return imageMapper.apply(image);
         }
 

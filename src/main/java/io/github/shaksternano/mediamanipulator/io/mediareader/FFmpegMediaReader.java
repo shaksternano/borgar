@@ -6,6 +6,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -14,27 +15,38 @@ public abstract class FFmpegMediaReader<T> implements MediaReader<T> {
 
     protected final FFmpegFrameGrabber grabber;
     private final int frameCount;
+    private final long duration;
 
-    @SuppressWarnings("resource")
     public FFmpegMediaReader(File input) throws IOException {
-        grabber = new FFmpegFrameGrabber(input);
+        this(new FFmpegFrameGrabber(input));
+    }
+
+    public FFmpegMediaReader(InputStream input) throws IOException {
+        this(new FFmpegFrameGrabber(input));
+    }
+
+    private FFmpegMediaReader(FFmpegFrameGrabber grabber) throws IOException {
+        this.grabber = grabber;
         grabber.start();
         int frameCount = 0;
         while (grabFrame() != null) {
             frameCount++;
         }
         this.frameCount = frameCount;
+        duration = grabber.getTimestamp();
+        grabber.setTimestamp(0);
     }
 
     @Nullable
     protected abstract Frame grabFrame() throws IOException;
 
-    @Nullable
-    protected abstract T getNextFrame() throws IOException;
-
     @Override
     public double getFrameRate() {
-        return grabber.getFrameRate();
+        if (frameCount <= 1) {
+            return 30;
+        } else {
+            return grabber.getFrameRate();
+        }
     }
 
     @Override
@@ -43,12 +55,12 @@ public abstract class FFmpegMediaReader<T> implements MediaReader<T> {
     }
 
     @Override
-    public long getLength() {
-        return grabber.getLengthInTime();
+    public long getDuration() {
+        return duration;
     }
 
     @Override
-    public double getFrameLength() {
+    public double getFrameDuration() {
         return 1_000_000 / getFrameRate();
     }
 
@@ -58,12 +70,35 @@ public abstract class FFmpegMediaReader<T> implements MediaReader<T> {
     }
 
     @Override
+    public int getWidth() {
+        return grabber.getImageWidth();
+    }
+
+    @Override
+    public int getHeight() {
+        return grabber.getImageHeight();
+    }
+
+    @Override
     public T getFrame(long timestamp) throws IOException {
-        long timestampBefore = grabber.getTimestamp();
-        grabber.setTimestamp(timestamp);
+        long circularTimestamp = timestamp % Math.max(getDuration(), 1);
+        grabber.setTimestamp(circularTimestamp);
         T frame = getNextFrame();
-        grabber.setTimestamp(timestampBefore);
-        return frame;
+        if (frame == null) {
+            throw new NoSuchElementException("No frame at timestamp " + circularTimestamp);
+        } else {
+            return frame;
+        }
+    }
+
+    @Override
+    public long getTimestamp() {
+        return grabber.getTimestamp();
+    }
+
+    @Override
+    public void setTimestamp(long timestamp) throws IOException {
+        grabber.setTimestamp(timestamp);
     }
 
     @Override

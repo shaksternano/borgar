@@ -21,7 +21,7 @@ public class OutlinedTextDrawable extends TextDrawable {
     }
 
     @Override
-    public void draw(Graphics2D graphics, int x, int y) {
+    public void draw(Graphics2D graphics, int x, int y, long timestamp) {
         Font font = graphics.getFont();
         float textOutlineWidth = font.getSize2D() * TEXT_OUTLINE_WIDTH_RATIO;
         int actualX = (int) (x + textOutlineWidth);

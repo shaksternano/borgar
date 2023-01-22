@@ -1,6 +1,8 @@
 package io.github.shaksternano.mediamanipulator.graphics.drawable;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -22,6 +24,14 @@ public abstract class ListCompositeDrawable implements CompositeDrawable {
         }
 
         return maxFrameCount;
+    }
+
+    @Override
+    public long getDuration() {
+        return parts.stream()
+            .max(Comparator.comparingLong(Drawable::getDuration))
+            .map(Drawable::getDuration)
+            .orElse(0L);
     }
 
     @Override
@@ -69,5 +79,20 @@ public abstract class ListCompositeDrawable implements CompositeDrawable {
     @Override
     public String toString() {
         return getClass().getSimpleName() + parts;
+    }
+
+    @Override
+    public void close() throws IOException {
+        IOException exception = null;
+        for (Drawable part : parts) {
+            try {
+                part.close();
+            } catch (IOException e) {
+                exception = e;
+            }
+        }
+        if (exception != null) {
+            throw exception;
+        }
     }
 }

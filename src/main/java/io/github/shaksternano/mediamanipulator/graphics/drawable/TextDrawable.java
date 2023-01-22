@@ -12,7 +12,7 @@ public class TextDrawable implements Drawable {
     }
 
     @Override
-    public void draw(Graphics2D graphics, int x, int y) {
+    public void draw(Graphics2D graphics, int x, int y, long timestamp) {
         graphics.drawString(TEXT, x, y + graphics.getFontMetrics().getAscent());
     }
 
@@ -40,6 +40,11 @@ public class TextDrawable implements Drawable {
     @Override
     public int getFrameCount() {
         return 1;
+    }
+
+    @Override
+    public long getDuration() {
+        return 0;
     }
 
     @Override

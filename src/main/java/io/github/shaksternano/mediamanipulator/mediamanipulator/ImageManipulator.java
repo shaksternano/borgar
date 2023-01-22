@@ -252,14 +252,14 @@ public class ImageManipulator implements MediaManipulator {
                 paragraph.draw(
                         demotivateWithTextGraphics,
                         demotivateImagePadding,
-                        demotivateImagePadding + contentHeight + (demotivateImagePadding / 2)
-                );
+                        demotivateImagePadding + contentHeight + (demotivateImagePadding / 2),
+                    0);
                 demotivateWithTextGraphics.setFont(subFont);
                 subParagraph.draw(
                         demotivateWithTextGraphics,
                         demotivateImagePadding,
-                        demotivateImagePadding + contentHeight + (demotivateImagePadding / 2) + paragraphHeight + mainSubSpacing
-                );
+                        demotivateImagePadding + contentHeight + (demotivateImagePadding / 2) + paragraphHeight + mainSubSpacing,
+                    0);
 
                 builder.add(new AwtFrame(demotivateWithText, Frame.GIF_MINIMUM_FRAME_DURATION));
             }
@@ -718,7 +718,7 @@ public class ImageManipulator implements MediaManipulator {
 
         contentClipOptional.ifPresent(graphics::setClip);
 
-        drawable.draw(graphics, textX, textY);
+        drawable.draw(graphics, textX, textY, 0);
 
         if (contentClipOptional.isPresent()) {
             graphics.setClip(null);
@@ -774,7 +774,7 @@ public class ImageManipulator implements MediaManipulator {
     private static class EmptyDrawable implements Drawable {
 
         @Override
-        public void draw(Graphics2D graphics, int x, int y) {
+        public void draw(Graphics2D graphics, int x, int y, long timestamp) {
 
         }
 
@@ -800,6 +800,11 @@ public class ImageManipulator implements MediaManipulator {
 
         @Override
         public int getFrameCount() {
+            return 0;
+        }
+
+        @Override
+        public long getDuration() {
             return 0;
         }
 

@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.command.util.CommandParser;
 import io.github.shaksternano.mediamanipulator.exception.MissingArgumentException;
+import io.github.shaksternano.mediamanipulator.io.FrameData;
 import io.github.shaksternano.mediamanipulator.io.ImageProcessor;
 import io.github.shaksternano.mediamanipulator.io.MediaUtil;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
@@ -79,8 +80,8 @@ public class CropCommand extends FileCommand {
     private record CropProcessor(float topRatio, float rightRatio, float bottomRatio, float leftRatio) implements ImageProcessor<CropData> {
 
         @Override
-        public BufferedImage transformImage(BufferedImage image, CropData extraData) {
-            return image.getSubimage(extraData.x(), extraData.y(), extraData.width(), extraData.height());
+        public BufferedImage transformImage(BufferedImage image, FrameData frameData, CropData globalData) {
+            return image.getSubimage(globalData.x(), globalData.y(), globalData.width(), globalData.height());
         }
 
         @Override

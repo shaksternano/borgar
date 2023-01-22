@@ -3,6 +3,7 @@ package io.github.shaksternano.mediamanipulator.command;
 import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.exception.InvalidMediaException;
 import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
+import io.github.shaksternano.mediamanipulator.io.FrameData;
 import io.github.shaksternano.mediamanipulator.io.ImageProcessor;
 import io.github.shaksternano.mediamanipulator.io.MediaUtil;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -57,11 +58,11 @@ public class SpeechBubbleCommand extends FileCommand {
     private record SpeechBubbleProcessor(boolean cutOut) implements ImageProcessor<BufferedImage> {
 
         @Override
-        public BufferedImage transformImage(BufferedImage image, BufferedImage extraData) {
+        public BufferedImage transformImage(BufferedImage image, FrameData frameData, BufferedImage globalData) {
             if (cutOut) {
-                return ImageUtil.cutoutImage(image, extraData, 0, 0, 0xFFFFFF);
+                return ImageUtil.cutoutImage(image, globalData, 0, 0, 0xFFFFFF);
             } else {
-                return ImageUtil.overlayImage(image, extraData, false, 0, -extraData.getHeight(), null, null, null, true);
+                return ImageUtil.overlayImage(image, globalData, false, 0, -globalData.getHeight(), null, null, null, true);
             }
         }
 

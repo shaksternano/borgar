@@ -7,9 +7,6 @@ import io.github.shaksternano.mediamanipulator.Main;
 import io.github.shaksternano.mediamanipulator.emoji.EmojiUtil;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.Drawable;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.ImageDrawable;
-import io.github.shaksternano.mediamanipulator.image.imagemedia.ImageMedia;
-import io.github.shaksternano.mediamanipulator.image.reader.util.ImageReaders;
-import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
 import io.github.shaksternano.mediamanipulator.io.FileUtil;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -17,10 +14,8 @@ import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -334,14 +329,8 @@ public class MessageUtil {
                 String emojiCode = imageUrlEntry.getKey();
                 String emojiImageUrl = imageUrlEntry.getValue();
                 URL url = new URL(emojiImageUrl);
-                String imageType = ImageUtil.getImageFormat(url);
-
-                try (InputStream inputStream = url.openStream()) {
-                    ImageMedia imageMedia = ImageReaders.read(inputStream, imageType, null);
-                    List<BufferedImage> normalisedImages = imageMedia.toNormalisedImages();
-                    Drawable drawable = new ImageDrawable(normalisedImages);
-                    return Map.entry(emojiCode, drawable);
-                }
+                Drawable emoji = new ImageDrawable(url.openStream());
+                return Map.entry(emojiCode, emoji);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
