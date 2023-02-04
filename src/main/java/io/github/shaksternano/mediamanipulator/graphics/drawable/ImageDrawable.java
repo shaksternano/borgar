@@ -4,7 +4,6 @@ import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
 import io.github.shaksternano.mediamanipulator.io.mediareader.FFmpegImageReader;
 import io.github.shaksternano.mediamanipulator.io.mediareader.MediaReader;
 
-
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -14,13 +13,16 @@ import java.util.Objects;
 public class ImageDrawable implements Drawable {
 
     private final MediaReader<BufferedImage> reader;
-    private int width;
-    private int height;
+    private int targetWidth;
+    private int targetHeight;
+    private BufferedImage firstFrame;
 
     public ImageDrawable(InputStream inputStream) throws IOException {
         reader = new FFmpegImageReader(inputStream);
-        width = reader.getWidth();
-        height = reader.getHeight();
+        targetWidth = reader.getWidth();
+        targetHeight = reader.getHeight();
+        firstFrame = reader.getNextFrame();
+        reader.setTimestamp(0);
     }
 
     @Override
@@ -30,14 +32,14 @@ public class ImageDrawable implements Drawable {
     }
 
     private BufferedImage resizeImage(BufferedImage image) {
-        if (width != image.getWidth() && height != image.getHeight()) {
-            image = ImageUtil.fit(image, width, height);
+        if (targetWidth != image.getWidth() && targetHeight != image.getHeight()) {
+            image = ImageUtil.fit(image, targetWidth, targetHeight);
         } else {
-            if (width != image.getWidth()) {
-                image = ImageUtil.fitWidth(image, width);
+            if (targetWidth != image.getWidth()) {
+                image = ImageUtil.fitWidth(image, targetWidth);
             }
-            if (height != image.getHeight()) {
-                image = ImageUtil.fitHeight(image, height);
+            if (targetHeight != image.getHeight()) {
+                image = ImageUtil.fitHeight(image, targetHeight);
             }
         }
         return image;
@@ -45,23 +47,25 @@ public class ImageDrawable implements Drawable {
 
     @Override
     public int getWidth(Graphics2D graphicsContext) {
-        return width;
+        return firstFrame.getWidth();
     }
 
     @Override
     public int getHeight(Graphics2D graphicsContext) {
-        return height;
+        return firstFrame.getHeight();
     }
 
     @Override
     public Drawable resizeToWidth(int width) {
-        this.width = width;
+        this.targetWidth = width;
+        firstFrame = resizeImage(firstFrame);
         return this;
     }
 
     @Override
     public Drawable resizeToHeight(int height) {
-        this.height = height;
+        this.targetHeight = height;
+        firstFrame = resizeImage(firstFrame);
         return this;
     }
 
@@ -82,7 +86,7 @@ public class ImageDrawable implements Drawable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(reader, width, height);
+        return Objects.hash(reader, targetWidth, targetHeight);
     }
 
     @Override
@@ -91,8 +95,8 @@ public class ImageDrawable implements Drawable {
             return true;
         } else if (obj instanceof ImageDrawable other) {
             return Objects.equals(reader, other.reader)
-                && width == other.width
-                && height == other.height;
+                && targetWidth == other.targetWidth
+                && targetHeight == other.targetHeight;
         } else {
             return false;
         }
@@ -100,7 +104,7 @@ public class ImageDrawable implements Drawable {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "[reader=" + reader + ", width=" + width + ", height=" + height + "]";
+        return getClass().getSimpleName() + "[reader=" + reader + ", width=" + targetWidth + ", height=" + targetHeight + "]";
     }
 
     @Override
