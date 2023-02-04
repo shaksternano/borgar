@@ -91,11 +91,6 @@ public class CaptionCommand extends FileCommand {
         }
 
         @Override
-        public boolean isDone(boolean readAllFrames, FrameData frameData, CaptionData globalData) {
-            return readAllFrames && frameData.timestamp() >= globalData.paragraph.getDuration();
-        }
-
-        @Override
         public void close() throws IOException {
             IOException exception = null;
             for (Drawable drawable : nonTextParts.values()) {

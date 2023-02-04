@@ -47,27 +47,14 @@ public class MediaUtil {
             )
         ) {
             T globalFrameDataValue = null;
-            BufferedImage imageFrame = imageReader.getNextFrame();
-            long totalTime = 0;
-            while (imageFrame != null) {
+            FrameData data = new FrameData(0);
+            for (BufferedImage imageFrame : imageReader) {
                 if (globalFrameDataValue == null) {
                     globalFrameDataValue = processor.globalData(imageFrame);
                 }
-                long timestamp = imageReader.getTimestamp();
-                FrameData data = new FrameData(timestamp + totalTime);
                 writer.recordImageFrame(processor.transformImage(imageFrame, data, globalFrameDataValue));
-                imageFrame = imageReader.getNextFrame();
-                boolean readAllFrames = imageFrame == null;
-                if (processor.isDone(readAllFrames, data, globalFrameDataValue)) {
-                    break;
-                } else if (readAllFrames) {
-                    if (timestamp <= 0) {
-                        timestamp = 100000 / 3;
-                    }
-                    totalTime += timestamp;
-                    imageReader.setTimestamp(0);
-                    imageFrame = imageReader.getNextFrame();
-                }
+                long timestamp = imageReader.getTimestamp();
+                data = new FrameData(timestamp);
             }
             for (Frame audioFrame : audioReader) {
                 writer.recordAudioFrame(audioFrame);

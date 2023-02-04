@@ -10,10 +10,6 @@ public interface ImageProcessor<T> extends Closeable {
 
     T globalData(BufferedImage image) throws IOException;
 
-    default boolean isDone(boolean readAllFrames, FrameData frameData, T globalData) {
-        return readAllFrames;
-    }
-
     @Override
     default void close() throws IOException {
     }
