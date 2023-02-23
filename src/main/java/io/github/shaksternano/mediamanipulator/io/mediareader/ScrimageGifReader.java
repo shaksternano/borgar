@@ -30,16 +30,13 @@ public class ScrimageGifReader extends BaseMediaReader<BufferedImage> {
     }
 
     private ScrimageGifReader(AnimatedGif gif) throws IOException {
-        if (gif.getFrameCount() <= 0) {
+        frameCount = gif.getFrameCount();
+        if (frameCount <= 0) {
             throw new IOException("Could not read any frames!");
         }
         long shortestDuration = Long.MAX_VALUE;
         long totalDuration = 0;
-        Set<Long> timestamps = new HashSet<>();
-        for (int i = 0; i < gif.getFrameCount(); i++) {
-            if (!timestamps.add(totalDuration)) {
-                throw new IllegalStateException("Duplicate timestamp found: " + totalDuration);
-            }
+        for (int i = 0; i < frameCount; i++) {
             BufferedImage image = gif.getFrame(i).awt();
             frames.add(new Frame(image, totalDuration));
             long duration = gif.getDelay(i).toMillis() * 1000;
@@ -47,7 +44,6 @@ public class ScrimageGifReader extends BaseMediaReader<BufferedImage> {
             totalDuration += duration;
         }
         frameRate = 1000.0 / shortestDuration;
-        frameCount = gif.getFrameCount();
         duration = totalDuration;
         frameDuration = shortestDuration;
         Dimension dimension = gif.getDimensions();
