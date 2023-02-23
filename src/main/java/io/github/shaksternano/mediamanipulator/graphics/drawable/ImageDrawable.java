@@ -33,17 +33,8 @@ public class ImageDrawable implements Drawable {
     }
 
     private BufferedImage resizeImage(BufferedImage image) {
-        if (targetWidth != image.getWidth() && targetHeight != image.getHeight()) {
-            image = ImageUtil.fit(image, targetWidth, targetHeight);
-        } else {
-            if (targetWidth != image.getWidth()) {
-                image = ImageUtil.fitWidth(image, targetWidth);
-            }
-            if (targetHeight != image.getHeight()) {
-                image = ImageUtil.fitHeight(image, targetHeight);
-            }
-        }
-        return image;
+        image = ImageUtil.fitWidth(image, targetWidth);
+        return ImageUtil.fitHeight(image, targetHeight);
     }
 
     @Override

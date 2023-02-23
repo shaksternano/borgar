@@ -27,6 +27,9 @@ public class JavaxImageReader extends BaseMediaReader<ImageFrame> {
 
     private JavaxImageReader(BufferedImage image) {
         this.image = new ImageFrame(image, 0, 0);
+        frameCount = 1;
+        width = image.getWidth();
+        height = image.getHeight();
     }
 
     @Override
