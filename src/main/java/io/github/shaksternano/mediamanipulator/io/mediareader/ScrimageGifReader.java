@@ -22,14 +22,15 @@ public class ScrimageGifReader extends BaseMediaReader<BufferedImage> {
     private long currentTimestamp = 0;
 
     public ScrimageGifReader(File input) throws IOException {
-        this(AnimatedGifReader.read(ImageSource.of(input)));
+        this(ImageSource.of(input));
     }
 
     public ScrimageGifReader(InputStream input) throws IOException {
-        this(AnimatedGifReader.read(ImageSource.of(input)));
+        this(ImageSource.of(input));
     }
 
-    private ScrimageGifReader(AnimatedGif gif) throws IOException {
+    private ScrimageGifReader(ImageSource imageSource) throws IOException {
+        AnimatedGif gif = AnimatedGifReader.read(imageSource);
         frameCount = gif.getFrameCount();
         if (frameCount <= 0) {
             throw new IOException("Could not read any frames!");
