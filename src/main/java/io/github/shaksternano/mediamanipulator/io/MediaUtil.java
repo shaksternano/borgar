@@ -1,6 +1,5 @@
 package io.github.shaksternano.mediamanipulator.io;
 
-import io.github.shaksternano.mediamanipulator.io.mediareader.FFmpegImageReader;
 import io.github.shaksternano.mediamanipulator.io.mediareader.MediaReader;
 import io.github.shaksternano.mediamanipulator.io.mediawriter.MediaWriter;
 import org.bytedeco.javacv.Frame;
@@ -67,7 +66,7 @@ public class MediaUtil {
         String operationName,
         Function<BufferedImage, Rectangle> cropKeepAreaFinder
     ) throws IOException {
-        try (MediaReader<BufferedImage> reader = new FFmpegImageReader(media)) {
+        try (MediaReader<BufferedImage> reader = MediaReaders.createImageReader(media, outputFormat)) {
             Rectangle toKeep = null;
             int width = -1;
             int height = -1;

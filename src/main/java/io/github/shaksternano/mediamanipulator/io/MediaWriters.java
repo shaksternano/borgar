@@ -15,12 +15,8 @@ public class MediaWriters {
     private static final Map<String, MediaWriterFactory> writerFactories = new HashMap<>();
 
     public static MediaWriter createWriter(File output, String outputFormat, double fps, int audioChannels) throws IOException {
-        MediaWriterFactory factory = writerFactories.getOrDefault(outputFormat, MediaWriters::createDefaultWriter);
+        MediaWriterFactory factory = writerFactories.getOrDefault(outputFormat, FFmpegVideoWriter::new);
         return factory.createWriter(output, outputFormat, fps, audioChannels);
-    }
-
-    private static MediaWriter createDefaultWriter(File output, String outputFormat, double fps, int audioChannels) {
-        return new FFmpegVideoWriter(output, outputFormat, fps, audioChannels);
     }
 
     private static void registerWriterFactory(MediaWriterFactory factory, String... formats) {
@@ -46,8 +42,4 @@ public class MediaWriters {
         );
     }
 
-    @FunctionalInterface
-    private interface MediaWriterFactory {
-        MediaWriter createWriter(File output, String outputFormat, double fps, int audioChannels) throws IOException;
-    }
 }

@@ -1,5 +1,6 @@
 package io.github.shaksternano.mediamanipulator.io.mediareader;
 
+import io.github.shaksternano.mediamanipulator.io.MediaReaderFactory;
 import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.Java2DFrameConverter;
 import org.jetbrains.annotations.Nullable;
@@ -37,5 +38,20 @@ public class FFmpegImageReader extends FFmpegMediaReader<BufferedImage> {
     public void close() throws IOException {
         super.close();
         converter.close();
+    }
+
+    public enum Factory implements MediaReaderFactory<BufferedImage> {
+
+        INSTANCE;
+
+        @Override
+        public MediaReader<BufferedImage> createReader(File media) throws IOException {
+            return new FFmpegImageReader(media);
+        }
+
+        @Override
+        public MediaReader<BufferedImage> createReader(InputStream media) throws IOException {
+            return new FFmpegImageReader(media);
+        }
     }
 }

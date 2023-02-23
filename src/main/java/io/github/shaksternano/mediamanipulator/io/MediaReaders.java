@@ -6,6 +6,7 @@ import org.bytedeco.javacv.Frame;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,13 +16,32 @@ public class MediaReaders {
     private static final Map<String, MediaReaderFactory<Frame>> audioReaderFactories = new HashMap<>();
 
     public static MediaReader<BufferedImage> createImageReader(File media, String format) throws IOException {
-        MediaReaderFactory<BufferedImage> factory = imageReaderFactories.getOrDefault(format, MediaReaders::createDefaultImageReader);
+        MediaReaderFactory<BufferedImage> factory = getImageReaderFactory(format);
         return factory.createReader(media);
     }
 
-    public static MediaReader<Frame> createAudioReader(File media, String format) throws IOException {
-        MediaReaderFactory<Frame> factory = audioReaderFactories.getOrDefault(format, MediaReaders::createDefaultAudioReader);
+    public static MediaReader<BufferedImage> createImageReader(InputStream media, String format) throws IOException {
+        MediaReaderFactory<BufferedImage> factory = getImageReaderFactory(format);
         return factory.createReader(media);
+    }
+
+    private static MediaReaderFactory<BufferedImage> getImageReaderFactory(String format) {
+        return imageReaderFactories.getOrDefault(format, FFmpegImageReader.Factory.INSTANCE);
+    }
+
+    public static MediaReader<Frame> createAudioReader(File media, String format) throws IOException {
+        MediaReaderFactory<Frame> factory = getAudioReaderFactory(format);
+        return factory.createReader(media);
+    }
+
+    @SuppressWarnings("unused")
+    public static MediaReader<Frame> createAudioReader(InputStream media, String format) throws IOException {
+        MediaReaderFactory<Frame> factory = getAudioReaderFactory(format);
+        return factory.createReader(media);
+    }
+
+    private static MediaReaderFactory<Frame> getAudioReaderFactory(String format) {
+        return audioReaderFactories.getOrDefault(format, FFmpegAudioReader.Factory.INSTANCE);
     }
 
     private static void registerImageReaderFactory(MediaReaderFactory<BufferedImage> factory, String... formats) {
@@ -30,6 +50,7 @@ public class MediaReaders {
         }
     }
 
+    @SuppressWarnings("SameParameterValue")
     private static void registerAudioReaderFactory(MediaReaderFactory<Frame> factory, String... formats) {
         for (String format : formats) {
             audioReaderFactories.put(format, factory);
@@ -38,20 +59,12 @@ public class MediaReaders {
 
     private static void registerImageOnlyReaderFactory(MediaReaderFactory<BufferedImage> factory, String... formats) {
         registerImageReaderFactory(factory, formats);
-        registerAudioReaderFactory(media -> NoAudioReader.INSTANCE, formats);
-    }
-
-    private static MediaReader<BufferedImage> createDefaultImageReader(File media) throws IOException {
-        return new FFmpegImageReader(media);
-    }
-
-    private static MediaReader<Frame> createDefaultAudioReader(File media) throws IOException {
-        return new FFmpegAudioReader(media);
+        registerAudioReaderFactory(NoAudioReader.Factory.INSTANCE, formats);
     }
 
     static {
-        registerImageOnlyReaderFactory(ScrimageGifReader::new, "gif");
-        registerImageOnlyReaderFactory(JavaxImageReader::new,
+        registerImageOnlyReaderFactory(ScrimageGifReader.Factory.INSTANCE, "gif");
+        registerImageOnlyReaderFactory(JavaxImageReader.Factory.INSTANCE,
             "bmp",
             "jpeg",
             "jpg",
@@ -60,10 +73,5 @@ public class MediaReaders {
             "tif",
             "tiff"
         );
-    }
-
-    @FunctionalInterface
-    private interface MediaReaderFactory<T> {
-        MediaReader<T> createReader(File media) throws IOException;
     }
 }

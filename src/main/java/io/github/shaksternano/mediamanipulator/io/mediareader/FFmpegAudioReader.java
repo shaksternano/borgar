@@ -1,5 +1,6 @@
 package io.github.shaksternano.mediamanipulator.io.mediareader;
 
+import io.github.shaksternano.mediamanipulator.io.MediaReaderFactory;
 import org.bytedeco.javacv.Frame;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,5 +28,20 @@ public class FFmpegAudioReader extends FFmpegMediaReader<Frame> {
     @Override
     public Frame getNextFrame() throws IOException {
         return grabber.grabSamples();
+    }
+
+    public enum Factory implements MediaReaderFactory<Frame> {
+
+        INSTANCE;
+
+        @Override
+        public MediaReader<Frame> createReader(File media) throws IOException {
+            return new FFmpegAudioReader(media);
+        }
+
+        @Override
+        public MediaReader<Frame> createReader(InputStream media) throws IOException {
+            return new FFmpegAudioReader(media);
+        }
     }
 }

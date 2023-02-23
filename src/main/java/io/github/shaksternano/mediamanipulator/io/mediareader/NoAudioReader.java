@@ -1,10 +1,13 @@
 package io.github.shaksternano.mediamanipulator.io.mediareader;
 
+import io.github.shaksternano.mediamanipulator.io.MediaReaderFactory;
 import org.bytedeco.javacv.Frame;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.Iterator;
 
@@ -40,5 +43,20 @@ public class NoAudioReader extends BaseMediaReader<Frame> {
     @Override
     public Iterator<Frame> iterator() {
         return Collections.emptyIterator();
+    }
+
+    public enum Factory implements MediaReaderFactory<Frame> {
+
+        INSTANCE;
+
+        @Override
+        public MediaReader<Frame> createReader(File media) {
+            return NoAudioReader.INSTANCE;
+        }
+
+        @Override
+        public MediaReader<Frame> createReader(InputStream media) {
+            return NoAudioReader.INSTANCE;
+        }
     }
 }

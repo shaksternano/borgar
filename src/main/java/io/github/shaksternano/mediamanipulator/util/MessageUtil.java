@@ -7,6 +7,7 @@ import io.github.shaksternano.mediamanipulator.Main;
 import io.github.shaksternano.mediamanipulator.emoji.EmojiUtil;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.Drawable;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.ImageDrawable;
+import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
 import io.github.shaksternano.mediamanipulator.io.FileUtil;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -329,7 +330,8 @@ public class MessageUtil {
                 String emojiCode = imageUrlEntry.getKey();
                 String emojiImageUrl = imageUrlEntry.getValue();
                 URL url = new URL(emojiImageUrl);
-                Drawable emoji = new ImageDrawable(url.openStream());
+                String format = ImageUtil.getImageFormat(url.openStream());
+                Drawable emoji = new ImageDrawable(url.openStream(), format);
                 return Map.entry(emojiCode, emoji);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);

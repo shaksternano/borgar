@@ -3,6 +3,7 @@ package io.github.shaksternano.mediamanipulator.io.mediareader;
 import com.sksamuel.scrimage.nio.AnimatedGif;
 import com.sksamuel.scrimage.nio.AnimatedGifReader;
 import com.sksamuel.scrimage.nio.ImageSource;
+import io.github.shaksternano.mediamanipulator.io.MediaReaderFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -10,6 +11,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.*;
 
@@ -20,7 +22,14 @@ public class ScrimageGifReader extends BaseMediaReader<BufferedImage> {
     private long currentTimestamp = 0;
 
     public ScrimageGifReader(File input) throws IOException {
-        AnimatedGif gif = AnimatedGifReader.read(ImageSource.of(input));
+        this(AnimatedGifReader.read(ImageSource.of(input)));
+    }
+
+    public ScrimageGifReader(InputStream input) throws IOException {
+        this(AnimatedGifReader.read(ImageSource.of(input)));
+    }
+
+    private ScrimageGifReader(AnimatedGif gif) throws IOException {
         if (gif.getFrameCount() <= 0) {
             throw new IOException("Could not read any frames!");
         }
@@ -131,5 +140,20 @@ public class ScrimageGifReader extends BaseMediaReader<BufferedImage> {
     }
 
     private record Frame(BufferedImage image, long timestamp) {
+    }
+
+    public enum Factory implements MediaReaderFactory<BufferedImage> {
+
+        INSTANCE;
+
+        @Override
+        public MediaReader<BufferedImage> createReader(File media) throws IOException {
+            return new ScrimageGifReader(media);
+        }
+
+        @Override
+        public MediaReader<BufferedImage> createReader(InputStream media) throws IOException {
+            return new ScrimageGifReader(media);
+        }
     }
 }

@@ -1,7 +1,7 @@
 package io.github.shaksternano.mediamanipulator.graphics.drawable;
 
 import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
-import io.github.shaksternano.mediamanipulator.io.mediareader.FFmpegImageReader;
+import io.github.shaksternano.mediamanipulator.io.MediaReaders;
 import io.github.shaksternano.mediamanipulator.io.mediareader.MediaReader;
 
 import java.awt.*;
@@ -17,8 +17,8 @@ public class ImageDrawable implements Drawable {
     private int targetHeight;
     private BufferedImage firstFrame;
 
-    public ImageDrawable(InputStream inputStream) throws IOException {
-        reader = new FFmpegImageReader(inputStream);
+    public ImageDrawable(InputStream inputStream, String format) throws IOException {
+        reader = MediaReaders.createImageReader(inputStream, format);
         targetWidth = reader.getWidth();
         targetHeight = reader.getHeight();
         firstFrame = reader.getNextFrame();

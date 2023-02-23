@@ -16,7 +16,6 @@ import java.awt.geom.GeneralPath;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorConvertOp;
 import java.io.*;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -353,12 +352,6 @@ public class ImageUtil {
 
     public static String getImageFormat(File file) throws IOException {
         try (InputStream inputStream = new FileInputStream(file)) {
-            return getImageFormat(inputStream);
-        }
-    }
-
-    public static String getImageFormat(URL url) throws IOException {
-        try (InputStream inputStream = url.openStream()) {
             return getImageFormat(inputStream);
         }
     }
