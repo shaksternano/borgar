@@ -34,18 +34,16 @@ public class ScrimageGifReader extends BaseMediaReader<BufferedImage> {
         if (frameCount <= 0) {
             throw new IOException("Could not read any frames!");
         }
-        long shortestDuration = Long.MAX_VALUE;
         long totalDuration = 0;
         for (int i = 0; i < frameCount; i++) {
             BufferedImage image = gif.getFrame(i).awt();
             frames.add(new Frame(image, totalDuration));
             long duration = gif.getDelay(i).toMillis() * 1000;
-            shortestDuration = Math.min(shortestDuration, duration);
             totalDuration += duration;
         }
-        frameRate = 1000.0 / shortestDuration;
+        frameRate = 1_000_000 / ((double) totalDuration / frameCount);
         duration = totalDuration;
-        frameDuration = shortestDuration;
+        frameDuration = 1_000_000 / frameRate;
         Dimension dimension = gif.getDimensions();
         width = dimension.width;
         height = dimension.height;
