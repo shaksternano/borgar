@@ -51,6 +51,15 @@ public class MediaReaders {
 
     static {
         registerImageOnlyReaderFactory(ScrimageGifReader::new, "gif");
+        registerImageOnlyReaderFactory(JavaxImageReader::new,
+            "bmp",
+            "jpeg",
+            "jpg",
+            "wbmp",
+            "png",
+            "tif",
+            "tiff"
+        );
     }
 
     @FunctionalInterface
