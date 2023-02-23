@@ -137,23 +137,18 @@ public class ScrimageGifReader extends BaseMediaReader<BufferedImage> {
 
     private class GifIterator implements Iterator<BufferedImage> {
 
-        private int currentIndex = 0;
+        private final Iterator<Frame> delegate = frames.iterator();
 
         @Override
         public boolean hasNext() {
-            return currentIndex < frames.size();
+            return delegate.hasNext();
         }
 
         @Override
         public BufferedImage next() {
-            if (currentIndex >= frames.size()) {
-                throw new NoSuchElementException();
-            } else {
-                Frame frame = frames.get(currentIndex);
-                currentIndex++;
-                currentTimestamp = frame.timestamp();
-                return frame.image();
-            }
+            Frame frame = delegate.next();
+            currentTimestamp = frame.timestamp();
+            return frame.image();
         }
     }
 
