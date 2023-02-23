@@ -3,6 +3,7 @@ package io.github.shaksternano.mediamanipulator.io.mediareader;
 import com.sksamuel.scrimage.nio.AnimatedGif;
 import com.sksamuel.scrimage.nio.AnimatedGifReader;
 import com.sksamuel.scrimage.nio.ImageSource;
+import io.github.shaksternano.mediamanipulator.image.ImageFrame;
 import io.github.shaksternano.mediamanipulator.io.MediaReaderFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -12,12 +13,13 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
-import java.util.*;
 
-public class ScrimageGifReader extends BaseMediaReader<BufferedImage> {
+public class ScrimageGifReader extends BaseMediaReader<ImageFrame> {
 
-    private final List<Frame> frames = new ArrayList<>();
+    private final List<ImageFrame> frames = new ArrayList<>();
     private int currentIndex = 0;
     private long currentTimestamp = 0;
 
@@ -38,9 +40,9 @@ public class ScrimageGifReader extends BaseMediaReader<BufferedImage> {
         long totalDuration = 0;
         for (int i = 0; i < frameCount; i++) {
             BufferedImage image = gif.getFrame(i).awt();
-            frames.add(new Frame(image, totalDuration));
-            long duration = gif.getDelay(i).toMillis() * 1000;
-            totalDuration += duration;
+            long frameDuration = gif.getDelay(i).toMillis() * 1000;
+            frames.add(new ImageFrame(image, frameDuration, totalDuration));
+            totalDuration += frameDuration;
         }
         frameRate = 1_000_000 / ((double) totalDuration / frameCount);
         duration = totalDuration;
@@ -52,15 +54,14 @@ public class ScrimageGifReader extends BaseMediaReader<BufferedImage> {
 
     @Nullable
     @Override
-    public BufferedImage getNextFrame() {
+    public ImageFrame getNextFrame() {
         if (currentIndex >= frames.size()) {
             return null;
         } else {
-            Frame frame = frames.get(currentIndex);
-            BufferedImage image = frame.image();
+            ImageFrame frame = frames.get(currentIndex);
             currentIndex++;
             currentTimestamp = frame.timestamp();
-            return image;
+            return frame;
         }
     }
 
@@ -87,7 +88,7 @@ public class ScrimageGifReader extends BaseMediaReader<BufferedImage> {
      * @param frames    The frames.
      * @return The index of the frame with the given timestamp.
      */
-    private static int findIndex(long timeStamp, List<Frame> frames) {
+    private static int findIndex(long timeStamp, List<ImageFrame> frames) {
         if (frames.size() == 0) {
             throw new IllegalArgumentException("Frames list is empty");
         } else if (timeStamp < 0) {
@@ -104,7 +105,7 @@ public class ScrimageGifReader extends BaseMediaReader<BufferedImage> {
         }
     }
 
-    private static int findIndexBinarySearch(long timeStamp, List<Frame> frames) {
+    private static int findIndexBinarySearch(long timeStamp, List<ImageFrame> frames) {
         int low = 0;
         int high = frames.size() - 1;
         while (low <= high) {
@@ -128,16 +129,13 @@ public class ScrimageGifReader extends BaseMediaReader<BufferedImage> {
 
     @NotNull
     @Override
-    public Iterator<BufferedImage> iterator() {
+    public Iterator<ImageFrame> iterator() {
         return new GifIterator();
     }
 
-    private record Frame(BufferedImage image, long timestamp) {
-    }
+    private class GifIterator implements Iterator<ImageFrame> {
 
-    private class GifIterator implements Iterator<BufferedImage> {
-
-        private final Iterator<Frame> delegate = frames.iterator();
+        private final Iterator<ImageFrame> delegate = frames.iterator();
 
         @Override
         public boolean hasNext() {
@@ -145,24 +143,24 @@ public class ScrimageGifReader extends BaseMediaReader<BufferedImage> {
         }
 
         @Override
-        public BufferedImage next() {
-            Frame frame = delegate.next();
+        public ImageFrame next() {
+            ImageFrame frame = delegate.next();
             currentTimestamp = frame.timestamp();
-            return frame.image();
+            return frame;
         }
     }
 
-    public enum Factory implements MediaReaderFactory<BufferedImage> {
+    public enum Factory implements MediaReaderFactory<ImageFrame> {
 
         INSTANCE;
 
         @Override
-        public MediaReader<BufferedImage> createReader(File media) throws IOException {
+        public MediaReader<ImageFrame> createReader(File media) throws IOException {
             return new ScrimageGifReader(media);
         }
 
         @Override
-        public MediaReader<BufferedImage> createReader(InputStream media) throws IOException {
+        public MediaReader<ImageFrame> createReader(InputStream media) throws IOException {
             return new ScrimageGifReader(media);
         }
     }

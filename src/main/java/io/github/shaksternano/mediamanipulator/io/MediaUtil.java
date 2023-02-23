@@ -1,6 +1,6 @@
 package io.github.shaksternano.mediamanipulator.io;
 
-import io.github.shaksternano.mediamanipulator.image.FrameData;
+import io.github.shaksternano.mediamanipulator.image.ImageFrame;
 import io.github.shaksternano.mediamanipulator.image.ImageProcessor;
 import io.github.shaksternano.mediamanipulator.io.mediareader.MediaReader;
 import io.github.shaksternano.mediamanipulator.io.mediawriter.MediaWriter;
@@ -37,23 +37,25 @@ public class MediaUtil {
         String outputName = operationName + "." + outputFormat;
         File output = FileUtil.getUniqueTempFile(outputName);
         try (
-            MediaReader<BufferedImage> imageReader = MediaReaders.createImageReader(media, outputFormat);
+            MediaReader<ImageFrame> imageReader = MediaReaders.createImageReader(media, outputFormat);
             MediaReader<Frame> audioReader = MediaReaders.createAudioReader(media, outputFormat);
             MediaWriter writer = MediaWriters.createWriter(
                 output,
                 outputFormat,
-                imageReader.getFrameRate(),
                 audioReader.getAudioChannels()
             )
         ) {
             T globalFrameDataValue = null;
-            for (BufferedImage imageFrame : imageReader) {
-                long timestamp = imageReader.getTimestamp();
-                FrameData data = new FrameData(timestamp);
+            for (ImageFrame imageFrame : imageReader) {
+                long timestamp = imageFrame.timestamp();
                 if (globalFrameDataValue == null) {
-                    globalFrameDataValue = processor.globalData(imageFrame);
+                    globalFrameDataValue = processor.globalData(imageFrame.image());
                 }
-                writer.recordImageFrame(processor.transformImage(imageFrame, data, globalFrameDataValue));
+                writer.recordImageFrame(new ImageFrame(
+                    processor.transformImage(imageFrame, globalFrameDataValue),
+                    imageFrame.duration(),
+                    timestamp
+                ));
             }
             for (Frame audioFrame : audioReader) {
                 writer.recordAudioFrame(audioFrame);
@@ -68,18 +70,19 @@ public class MediaUtil {
         String operationName,
         Function<BufferedImage, Rectangle> cropKeepAreaFinder
     ) throws IOException {
-        try (MediaReader<BufferedImage> reader = MediaReaders.createImageReader(media, outputFormat)) {
+        try (MediaReader<ImageFrame> reader = MediaReaders.createImageReader(media, outputFormat)) {
             Rectangle toKeep = null;
             int width = -1;
             int height = -1;
 
-            for (BufferedImage frame : reader) {
+            for (ImageFrame frame : reader) {
+                BufferedImage image = frame.image();
                 if (width < 0) {
-                    width = frame.getWidth();
-                    height = frame.getHeight();
+                    width = image.getWidth();
+                    height = image.getHeight();
                 }
 
-                Rectangle mayKeepArea = cropKeepAreaFinder.apply(frame);
+                Rectangle mayKeepArea = cropKeepAreaFinder.apply(image);
                 if ((mayKeepArea.getX() != 0
                     || mayKeepArea.getY() != 0
                     || mayKeepArea.getWidth() != width
@@ -130,8 +133,8 @@ public class MediaUtil {
     private record BasicImageProcessor(Function<BufferedImage, BufferedImage> imageMapper) implements ImageProcessor<Boolean> {
 
         @Override
-        public BufferedImage transformImage(BufferedImage image, FrameData frameData, Boolean globalData) {
-            return imageMapper.apply(image);
+        public BufferedImage transformImage(ImageFrame frame, Boolean globalData) {
+            return imageMapper.apply(frame.image());
         }
 
         @Override

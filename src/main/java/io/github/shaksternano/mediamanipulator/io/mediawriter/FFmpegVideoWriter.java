@@ -1,5 +1,6 @@
 package io.github.shaksternano.mediamanipulator.io.mediawriter;
 
+import io.github.shaksternano.mediamanipulator.image.ImageFrame;
 import org.bytedeco.ffmpeg.global.avcodec;
 import org.bytedeco.javacv.FFmpegFrameRecorder;
 import org.bytedeco.javacv.Frame;
@@ -15,30 +16,30 @@ public class FFmpegVideoWriter implements MediaWriter {
     private final Java2DFrameConverter converter = new Java2DFrameConverter();
     private final File output;
     private final String outputFormat;
-    private final double fps;
     private final int audioChannels;
 
-    public FFmpegVideoWriter(File output, String outputFormat, double fps, int audioChannels) {
+    public FFmpegVideoWriter(File output, String outputFormat, int audioChannels) {
         this.output = output;
         this.outputFormat = outputFormat;
-        this.fps = fps;
         this.audioChannels = audioChannels;
     }
 
     @Override
-    public void recordImageFrame(BufferedImage frame) throws IOException {
+    public void recordImageFrame(ImageFrame frame) throws IOException {
+        BufferedImage image = frame.image();
         if (recorder == null) {
+            double fps = 1_000_000.0 / frame.duration();
             recorder = createFFmpegRecorder(
-                    output,
-                    outputFormat,
-                    frame.getWidth(),
-                    frame.getHeight(),
-                    audioChannels,
-                    fps
+                output,
+                outputFormat,
+                image.getWidth(),
+                image.getHeight(),
+                audioChannels,
+                fps
             );
             recorder.start();
         }
-        recorder.record(converter.convert(frame));
+        recorder.record(converter.convert(image));
     }
 
     @Override

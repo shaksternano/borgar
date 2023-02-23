@@ -5,9 +5,9 @@ import io.github.shaksternano.mediamanipulator.graphics.GraphicsUtil;
 import io.github.shaksternano.mediamanipulator.graphics.TextAlignment;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.Drawable;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.ParagraphCompositeDrawable;
-import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
-import io.github.shaksternano.mediamanipulator.image.FrameData;
+import io.github.shaksternano.mediamanipulator.image.ImageFrame;
 import io.github.shaksternano.mediamanipulator.image.ImageProcessor;
+import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
 import io.github.shaksternano.mediamanipulator.io.MediaUtil;
 import io.github.shaksternano.mediamanipulator.util.MessageUtil;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -47,11 +47,12 @@ public class CaptionCommand extends FileCommand {
         }
     }
 
-    private record CaptionProcessor(boolean caption2, List<String> words, Map<String, Drawable> nonTextParts) implements ImageProcessor<CaptionData> {
+    private record CaptionProcessor(boolean caption2, List<String> words,
+                                    Map<String, Drawable> nonTextParts) implements ImageProcessor<CaptionData> {
 
         @Override
-        public BufferedImage transformImage(BufferedImage image, FrameData frameData, CaptionData globalData) throws IOException {
-            return drawCaption(image, globalData, frameData.timestamp());
+        public BufferedImage transformImage(ImageFrame frame, CaptionData globalData) throws IOException {
+            return drawCaption(frame.image(), globalData, frame.timestamp());
         }
 
         @Override
@@ -126,5 +127,6 @@ public class CaptionCommand extends FileCommand {
     }
 
 
-    private record CaptionData(Font font, int fillHeight, int padding, Drawable paragraph) {}
+    private record CaptionData(Font font, int fillHeight, int padding, Drawable paragraph) {
+    }
 }

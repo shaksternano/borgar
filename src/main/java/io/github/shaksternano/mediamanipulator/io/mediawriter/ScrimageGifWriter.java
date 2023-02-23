@@ -3,6 +3,7 @@ package io.github.shaksternano.mediamanipulator.io.mediawriter;
 import com.sksamuel.scrimage.DisposeMethod;
 import com.sksamuel.scrimage.ImmutableImage;
 import com.sksamuel.scrimage.nio.StreamingGifWriter;
+import io.github.shaksternano.mediamanipulator.image.ImageFrame;
 import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
 import org.bytedeco.javacv.Frame;
 
@@ -17,19 +18,17 @@ import java.util.List;
 public class ScrimageGifWriter implements MediaWriter {
 
     private final StreamingGifWriter.GifStream gif;
-    private final Duration frameDuration;
     BufferedImage previousImage;
     boolean cannotOptimiseNext;
 
-    public ScrimageGifWriter(File output, double fps) throws IOException {
+    public ScrimageGifWriter(File output) throws IOException {
         StreamingGifWriter writer = new StreamingGifWriter();
         gif = writer.prepareStream(output, BufferedImage.TYPE_INT_ARGB);
-        frameDuration = Duration.ofMillis((long) (1000 / fps));
     }
 
     @Override
-    public void recordImageFrame(BufferedImage frame) throws IOException {
-        BufferedImage currentImage = ImageUtil.convertType(frame, BufferedImage.TYPE_INT_ARGB);
+    public void recordImageFrame(ImageFrame frame) throws IOException {
+        BufferedImage currentImage = ImageUtil.convertType(frame.image(), BufferedImage.TYPE_INT_ARGB);
         BufferedImage toWrite;
         DisposeMethod disposeMethod;
         if (previousImage == null) {
@@ -54,6 +53,7 @@ public class ScrimageGifWriter implements MediaWriter {
             }
         }
         ImmutableImage immutableImage = ImmutableImage.wrapAwt(toWrite);
+        Duration frameDuration = Duration.ofMillis(frame.duration() / 1000);
         gif.writeFrame(immutableImage, frameDuration, disposeMethod);
         previousImage = currentImage;
     }

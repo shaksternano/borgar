@@ -6,7 +6,7 @@ import java.io.IOException;
 
 public interface ImageProcessor<T> extends Closeable {
 
-    BufferedImage transformImage(BufferedImage image, FrameData frameData, T globalData) throws IOException;
+    BufferedImage transformImage(ImageFrame frame, T globalData) throws IOException;
 
     T globalData(BufferedImage image) throws IOException;
 

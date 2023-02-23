@@ -1,5 +1,6 @@
 package io.github.shaksternano.mediamanipulator.graphics.drawable;
 
+import io.github.shaksternano.mediamanipulator.image.ImageFrame;
 import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
 import io.github.shaksternano.mediamanipulator.io.MediaReaders;
 import io.github.shaksternano.mediamanipulator.io.mediareader.MediaReader;
@@ -12,7 +13,7 @@ import java.util.Objects;
 
 public class ImageDrawable implements Drawable {
 
-    private final MediaReader<BufferedImage> reader;
+    private final MediaReader<ImageFrame> reader;
     private int targetWidth;
     private int targetHeight;
     private BufferedImage firstFrame;
@@ -21,13 +22,13 @@ public class ImageDrawable implements Drawable {
         reader = MediaReaders.createImageReader(inputStream, format);
         targetWidth = reader.getWidth();
         targetHeight = reader.getHeight();
-        firstFrame = reader.getNextFrame();
+        firstFrame = reader.getFrame(0).image();
         reader.setTimestamp(0);
     }
 
     @Override
     public void draw(Graphics2D graphics, int x, int y, long timestamp) throws IOException {
-        BufferedImage image = resizeImage(reader.getFrame(timestamp));
+        BufferedImage image = resizeImage(reader.getFrame(timestamp).image());
         graphics.drawImage(image, x, y, null);
     }
 

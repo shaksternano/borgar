@@ -14,9 +14,9 @@ public class MediaWriters {
 
     private static final Map<String, MediaWriterFactory> writerFactories = new HashMap<>();
 
-    public static MediaWriter createWriter(File output, String outputFormat, double fps, int audioChannels) throws IOException {
+    public static MediaWriter createWriter(File output, String outputFormat, int audioChannels) throws IOException {
         MediaWriterFactory factory = writerFactories.getOrDefault(outputFormat, FFmpegVideoWriter::new);
-        return factory.createWriter(output, outputFormat, fps, audioChannels);
+        return factory.createWriter(output, outputFormat, audioChannels);
     }
 
     private static void registerWriterFactory(MediaWriterFactory factory, String... formats) {
@@ -27,18 +27,18 @@ public class MediaWriters {
 
     static {
         registerWriterFactory(
-                (output, outputFormat, fps, audioChannels) -> new ScrimageGifWriter(output, fps),
-                "gif"
+            (output, outputFormat, audioChannels) -> new ScrimageGifWriter(output),
+            "gif"
         );
         registerWriterFactory(
-                (output, outputFormat, fps, audioChannels) -> new JavaxImageWriter(output, outputFormat),
-                "bmp",
-                "jpeg",
-                "jpg",
-                "wbmp",
-                "png",
-                "tif",
-                "tiff"
+            (output, outputFormat, audioChannels) -> new JavaxImageWriter(output, outputFormat),
+            "bmp",
+            "jpeg",
+            "jpg",
+            "wbmp",
+            "png",
+            "tif",
+            "tiff"
         );
     }
 

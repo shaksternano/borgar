@@ -1,9 +1,9 @@
 package io.github.shaksternano.mediamanipulator.io;
 
+import io.github.shaksternano.mediamanipulator.image.ImageFrame;
 import io.github.shaksternano.mediamanipulator.io.mediareader.*;
 import org.bytedeco.javacv.Frame;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,20 +12,20 @@ import java.util.Map;
 
 public class MediaReaders {
 
-    private static final Map<String, MediaReaderFactory<BufferedImage>> imageReaderFactories = new HashMap<>();
+    private static final Map<String, MediaReaderFactory<ImageFrame>> imageReaderFactories = new HashMap<>();
     private static final Map<String, MediaReaderFactory<Frame>> audioReaderFactories = new HashMap<>();
 
-    public static MediaReader<BufferedImage> createImageReader(File media, String format) throws IOException {
-        MediaReaderFactory<BufferedImage> factory = getImageReaderFactory(format);
+    public static MediaReader<ImageFrame> createImageReader(File media, String format) throws IOException {
+        MediaReaderFactory<ImageFrame> factory = getImageReaderFactory(format);
         return factory.createReader(media);
     }
 
-    public static MediaReader<BufferedImage> createImageReader(InputStream media, String format) throws IOException {
-        MediaReaderFactory<BufferedImage> factory = getImageReaderFactory(format);
+    public static MediaReader<ImageFrame> createImageReader(InputStream media, String format) throws IOException {
+        MediaReaderFactory<ImageFrame> factory = getImageReaderFactory(format);
         return factory.createReader(media);
     }
 
-    private static MediaReaderFactory<BufferedImage> getImageReaderFactory(String format) {
+    private static MediaReaderFactory<ImageFrame> getImageReaderFactory(String format) {
         return imageReaderFactories.getOrDefault(format, FFmpegImageReader.Factory.INSTANCE);
     }
 
@@ -44,7 +44,7 @@ public class MediaReaders {
         return audioReaderFactories.getOrDefault(format, FFmpegAudioReader.Factory.INSTANCE);
     }
 
-    private static void registerImageReaderFactory(MediaReaderFactory<BufferedImage> factory, String... formats) {
+    private static void registerImageReaderFactory(MediaReaderFactory<ImageFrame> factory, String... formats) {
         for (String format : formats) {
             imageReaderFactories.put(format, factory);
         }
@@ -57,7 +57,7 @@ public class MediaReaders {
         }
     }
 
-    private static void registerImageOnlyReaderFactory(MediaReaderFactory<BufferedImage> factory, String... formats) {
+    private static void registerImageOnlyReaderFactory(MediaReaderFactory<ImageFrame> factory, String... formats) {
         registerImageReaderFactory(factory, formats);
         registerAudioReaderFactory(NoAudioReader.Factory.INSTANCE, formats);
     }

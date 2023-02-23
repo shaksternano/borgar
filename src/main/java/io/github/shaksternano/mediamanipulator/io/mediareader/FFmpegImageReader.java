@@ -1,16 +1,16 @@
 package io.github.shaksternano.mediamanipulator.io.mediareader;
 
+import io.github.shaksternano.mediamanipulator.image.ImageFrame;
 import io.github.shaksternano.mediamanipulator.io.MediaReaderFactory;
 import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.Java2DFrameConverter;
 import org.jetbrains.annotations.Nullable;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class FFmpegImageReader extends FFmpegMediaReader<BufferedImage> {
+public class FFmpegImageReader extends FFmpegMediaReader<ImageFrame> {
 
     private final Java2DFrameConverter converter = new Java2DFrameConverter();
 
@@ -30,8 +30,13 @@ public class FFmpegImageReader extends FFmpegMediaReader<BufferedImage> {
 
     @Nullable
     @Override
-    public BufferedImage getNextFrame() throws IOException {
-        return converter.convert(grabber.grabImage());
+    public ImageFrame getNextFrame() throws IOException {
+        Frame frame = grabber.grabImage();
+        if (frame == null) {
+            return null;
+        } else {
+            return new ImageFrame(converter.convert(frame), (long) getFrameDuration(), frame.timestamp);
+        }
     }
 
     @Override
@@ -40,17 +45,17 @@ public class FFmpegImageReader extends FFmpegMediaReader<BufferedImage> {
         converter.close();
     }
 
-    public enum Factory implements MediaReaderFactory<BufferedImage> {
+    public enum Factory implements MediaReaderFactory<ImageFrame> {
 
         INSTANCE;
 
         @Override
-        public MediaReader<BufferedImage> createReader(File media) throws IOException {
+        public MediaReader<ImageFrame> createReader(File media) throws IOException {
             return new FFmpegImageReader(media);
         }
 
         @Override
-        public MediaReader<BufferedImage> createReader(InputStream media) throws IOException {
+        public MediaReader<ImageFrame> createReader(InputStream media) throws IOException {
             return new FFmpegImageReader(media);
         }
     }

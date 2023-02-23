@@ -1,5 +1,6 @@
 package io.github.shaksternano.mediamanipulator.io.mediareader;
 
+import io.github.shaksternano.mediamanipulator.image.ImageFrame;
 import io.github.shaksternano.mediamanipulator.io.MediaReaderFactory;
 import org.apache.commons.collections4.iterators.SingletonIterator;
 import org.jetbrains.annotations.NotNull;
@@ -12,26 +13,30 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
 
-public class JavaxImageReader extends BaseMediaReader<BufferedImage> {
+public class JavaxImageReader extends BaseMediaReader<ImageFrame> {
 
-    private final BufferedImage image;
+    private final ImageFrame image;
 
     public JavaxImageReader(File input) throws IOException {
-        this.image = ImageIO.read(input);
+        this(ImageIO.read(input));
     }
 
     public JavaxImageReader(InputStream input) throws IOException {
-        this.image = ImageIO.read(input);
+        this(ImageIO.read(input));
+    }
+
+    private JavaxImageReader(BufferedImage image) {
+        this.image = new ImageFrame(image, 0, 0);
     }
 
     @Override
-    public BufferedImage getFrame(long timestamp) throws IOException {
+    public ImageFrame getFrame(long timestamp) throws IOException {
         return image;
     }
 
     @Nullable
     @Override
-    public BufferedImage getNextFrame() {
+    public ImageFrame getNextFrame() {
         return image;
     }
 
@@ -50,21 +55,21 @@ public class JavaxImageReader extends BaseMediaReader<BufferedImage> {
 
     @NotNull
     @Override
-    public Iterator<BufferedImage> iterator() {
+    public Iterator<ImageFrame> iterator() {
         return new SingletonIterator<>(image);
     }
 
-    public enum Factory implements MediaReaderFactory<BufferedImage> {
+    public enum Factory implements MediaReaderFactory<ImageFrame> {
 
         INSTANCE;
 
         @Override
-        public MediaReader<BufferedImage> createReader(File media) throws IOException {
+        public MediaReader<ImageFrame> createReader(File media) throws IOException {
             return new JavaxImageReader(media);
         }
 
         @Override
-        public MediaReader<BufferedImage> createReader(InputStream media) throws IOException {
+        public MediaReader<ImageFrame> createReader(InputStream media) throws IOException {
             return new JavaxImageReader(media);
         }
     }
