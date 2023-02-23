@@ -3,8 +3,8 @@ package io.github.shaksternano.mediamanipulator.command;
 import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.exception.InvalidMediaException;
 import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
-import io.github.shaksternano.mediamanipulator.io.FrameData;
-import io.github.shaksternano.mediamanipulator.io.ImageProcessor;
+import io.github.shaksternano.mediamanipulator.image.FrameData;
+import io.github.shaksternano.mediamanipulator.image.ImageProcessor;
 import io.github.shaksternano.mediamanipulator.io.MediaUtil;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 

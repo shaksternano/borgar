@@ -1,4 +1,4 @@
-package io.github.shaksternano.mediamanipulator.io;
+package io.github.shaksternano.mediamanipulator.image;
 
 import java.awt.image.BufferedImage;
 import java.io.Closeable;

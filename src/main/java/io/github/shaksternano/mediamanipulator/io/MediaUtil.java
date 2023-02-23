@@ -1,5 +1,7 @@
 package io.github.shaksternano.mediamanipulator.io;
 
+import io.github.shaksternano.mediamanipulator.image.FrameData;
+import io.github.shaksternano.mediamanipulator.image.ImageProcessor;
 import io.github.shaksternano.mediamanipulator.io.mediareader.MediaReader;
 import io.github.shaksternano.mediamanipulator.io.mediawriter.MediaWriter;
 import org.bytedeco.javacv.Frame;
