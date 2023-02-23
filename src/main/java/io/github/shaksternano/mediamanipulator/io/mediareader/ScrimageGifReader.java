@@ -134,12 +134,32 @@ public class ScrimageGifReader extends BaseMediaReader<BufferedImage> {
     @NotNull
     @Override
     public Iterator<BufferedImage> iterator() {
-        return frames.stream()
-            .map(Frame::image)
-            .iterator();
+        return new GifIterator();
     }
 
     private record Frame(BufferedImage image, long timestamp) {
+    }
+
+    private class GifIterator implements Iterator<BufferedImage> {
+
+        private int currentIndex = 0;
+
+        @Override
+        public boolean hasNext() {
+            return currentIndex < frames.size();
+        }
+
+        @Override
+        public BufferedImage next() {
+            if (currentIndex >= frames.size()) {
+                throw new NoSuchElementException();
+            } else {
+                Frame frame = frames.get(currentIndex);
+                currentIndex++;
+                currentTimestamp = frame.timestamp();
+                return frame.image();
+            }
+        }
     }
 
     public enum Factory implements MediaReaderFactory<BufferedImage> {
