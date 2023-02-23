@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.entities.emoji.Emoji;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -330,12 +331,15 @@ public class MessageUtil {
                 String emojiCode = imageUrlEntry.getKey();
                 String emojiImageUrl = imageUrlEntry.getValue();
                 URL url = new URL(emojiImageUrl);
-                String format = ImageUtil.getImageFormat(url.openStream());
-                Drawable emoji = new ImageDrawable(url.openStream(), format);
-                return Map.entry(emojiCode, emoji);
+                try (InputStream formatStream = url.openStream();
+                     InputStream imageStream = url.openStream()) {
+                    String format = ImageUtil.getImageFormat(formatStream);
+                    Drawable emoji = new ImageDrawable(imageStream, format);
+                    return Map.entry(emojiCode, emoji);
+                }
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
-        }).collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue));
+        }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 }
