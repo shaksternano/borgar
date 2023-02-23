@@ -66,6 +66,8 @@ public class ScrimageGifWriter implements MediaWriter {
     public void close() throws IOException {
         try {
             gif.close();
+        } catch (IOException e) {
+            throw e;
         } catch (Exception e) {
             throw new IOException(e);
         }
