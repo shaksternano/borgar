@@ -67,6 +67,9 @@ public class ScrimageGifReader extends BaseMediaReader<BufferedImage> {
 
     @Override
     public void setTimestamp(long timestamp) {
+        if (timestamp > duration) {
+            throw new IllegalArgumentException("Timestamp must not be greater than the duration");
+        }
         currentTimestamp = timestamp;
         currentIndex = findIndex(timestamp, frames);
     }
