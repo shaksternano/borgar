@@ -1,6 +1,5 @@
 package io.github.shaksternano.mediamanipulator.io;
 
-import io.github.shaksternano.mediamanipulator.io.mediareader.FFmpegAudioReader;
 import io.github.shaksternano.mediamanipulator.io.mediareader.FFmpegImageReader;
 import io.github.shaksternano.mediamanipulator.io.mediareader.MediaReader;
 import io.github.shaksternano.mediamanipulator.io.mediawriter.MediaWriter;
@@ -37,8 +36,8 @@ public class MediaUtil {
         String outputName = operationName + "." + outputFormat;
         File output = FileUtil.getUniqueTempFile(outputName);
         try (
-            MediaReader<BufferedImage> imageReader = new FFmpegImageReader(media);
-            MediaReader<Frame> audioReader = new FFmpegAudioReader(media);
+            MediaReader<BufferedImage> imageReader = MediaReaders.createImageReader(media, outputFormat);
+            MediaReader<Frame> audioReader = MediaReaders.createAudioReader(media, outputFormat);
             MediaWriter writer = MediaWriters.createWriter(
                 output,
                 outputFormat,
@@ -47,14 +46,13 @@ public class MediaUtil {
             )
         ) {
             T globalFrameDataValue = null;
-            FrameData data = new FrameData(0);
             for (BufferedImage imageFrame : imageReader) {
+                long timestamp = imageReader.getTimestamp();
+                FrameData data = new FrameData(timestamp);
                 if (globalFrameDataValue == null) {
                     globalFrameDataValue = processor.globalData(imageFrame);
                 }
                 writer.recordImageFrame(processor.transformImage(imageFrame, data, globalFrameDataValue));
-                long timestamp = imageReader.getTimestamp();
-                data = new FrameData(timestamp);
             }
             for (Frame audioFrame : audioReader) {
                 writer.recordAudioFrame(audioFrame);

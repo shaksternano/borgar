@@ -367,9 +367,9 @@ public class ImageUtil {
         if (image.getType() == type) {
             return image;
         } else {
-            BufferedImage imageWithAlpha = new BufferedImage(image.getWidth(), image.getHeight(), type);
+            BufferedImage newType = new BufferedImage(image.getWidth(), image.getHeight(), type);
             ColorConvertOp convertOp = new ColorConvertOp(null);
-            return convertOp.filter(image, imageWithAlpha);
+            return convertOp.filter(image, newType);
         }
     }
 

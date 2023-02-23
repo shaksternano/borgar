@@ -11,11 +11,9 @@ import java.io.UncheckedIOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public abstract class FFmpegMediaReader<T> implements MediaReader<T> {
+public abstract class FFmpegMediaReader<T> extends BaseMediaReader<T> {
 
     protected final FFmpegFrameGrabber grabber;
-    private final int frameCount;
-    private final long duration;
 
     public FFmpegMediaReader(File input) throws IOException {
         this(new FFmpegFrameGrabber(input));
@@ -32,8 +30,13 @@ public abstract class FFmpegMediaReader<T> implements MediaReader<T> {
         while (grabFrame() != null) {
             frameCount++;
         }
+        frameRate = grabber.getFrameRate();
         this.frameCount = frameCount;
         duration = grabber.getTimestamp();
+        frameDuration = 1_000_000 / frameRate;
+        audioChannels = grabber.getAudioChannels();
+        width = grabber.getImageWidth();
+        height = grabber.getImageHeight();
         grabber.setTimestamp(0);
     }
 
@@ -41,59 +44,8 @@ public abstract class FFmpegMediaReader<T> implements MediaReader<T> {
     protected abstract Frame grabFrame() throws IOException;
 
     @Override
-    public double getFrameRate() {
-        if (frameCount <= 1) {
-            return 30;
-        } else {
-            return grabber.getFrameRate();
-        }
-    }
-
-    @Override
-    public int getFrameCount() {
-        return frameCount;
-    }
-
-    @Override
-    public long getDuration() {
-        return duration;
-    }
-
-    @Override
-    public double getFrameDuration() {
-        return 1_000_000 / getFrameRate();
-    }
-
-    @Override
-    public int getAudioChannels() {
-        return grabber.getAudioChannels();
-    }
-
-    @Override
-    public int getWidth() {
-        return grabber.getImageWidth();
-    }
-
-    @Override
-    public int getHeight() {
-        return grabber.getImageHeight();
-    }
-
-    @Override
-    public T getFrame(long timestamp) throws IOException {
-        long circularTimestamp = timestamp % Math.max(getDuration(), 1);
-        grabber.setTimestamp(circularTimestamp);
-        T frame = getNextFrame();
-        if (frame == null) {
-            throw new NoSuchElementException("No frame at timestamp " + circularTimestamp);
-        } else {
-            return frame;
-        }
-    }
-
-    @Override
     public long getTimestamp() {
-        return grabber.getTimestamp();
+        return (long) Math.max(0, grabber.getTimestamp() - getFrameDuration());
     }
 
     @Override

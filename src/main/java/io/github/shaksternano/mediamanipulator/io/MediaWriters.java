@@ -46,8 +46,8 @@ public class MediaWriters {
         );
     }
 
+    @FunctionalInterface
     private interface MediaWriterFactory {
-
         MediaWriter createWriter(File output, String outputFormat, double fps, int audioChannels) throws IOException;
     }
 }
