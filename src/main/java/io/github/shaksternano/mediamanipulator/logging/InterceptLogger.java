@@ -7,7 +7,7 @@ import org.slf4j.event.Level;
 
 public abstract class InterceptLogger implements Logger {
 
-    private final Logger delegate;
+    protected final Logger delegate;
 
     public InterceptLogger(Logger logger) {
         delegate = logger;

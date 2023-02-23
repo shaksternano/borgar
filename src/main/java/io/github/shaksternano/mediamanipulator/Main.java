@@ -15,7 +15,6 @@ import io.github.shaksternano.mediamanipulator.util.ProgramArguments;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.requests.RestAction;
 import org.bytedeco.ffmpeg.global.avutil;
@@ -119,24 +118,12 @@ public class Main {
         arguments.getArgumentOrEnvironmentVariable(DISCORD_LOG_CHANNEL_ID_ARGUMENT_NAME).ifPresentOrElse(logChannelIdString -> {
             try {
                 long logChannelIdLong = Long.parseLong(logChannelIdString);
-                getLogChannel(logChannelIdLong).ifPresentOrElse(logChannel -> {
-                    discordLogger = new DiscordLogger(LOGGER, logChannel);
-                    LOGGER.info("Logging to Discord channel with ID!");
-                }, () -> getLogger().error("Could not find Discord channel with ID!"));
+                discordLogger = new DiscordLogger(LOGGER, logChannelIdLong, jda);
+                LOGGER.info("Logging to Discord channel with ID!");
             } catch (NumberFormatException e) {
                 getLogger().error("Provided Discord channel ID is not a number!");
             }
         }, () -> getLogger().info("No log channel ID provided."));
-    }
-
-    private static Optional<MessageChannel> getLogChannel(long channelId) {
-        Optional<MessageChannel> channelOptional = Optional.ofNullable(jda.getChannelById(MessageChannel.class, channelId));
-
-        if (channelOptional.isEmpty()) {
-            getLogger().error("Could not find channel with ID " + channelId);
-        }
-
-        return channelOptional;
     }
 
     /**
