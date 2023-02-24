@@ -18,8 +18,8 @@ import java.util.List;
 public class ScrimageGifWriter implements MediaWriter {
 
     private final StreamingGifWriter.GifStream gif;
-    BufferedImage previousImage;
-    boolean cannotOptimiseNext;
+    private BufferedImage previousImage;
+    private boolean cannotOptimiseNext;
 
     public ScrimageGifWriter(File output) throws IOException {
         StreamingGifWriter writer = new StreamingGifWriter();
