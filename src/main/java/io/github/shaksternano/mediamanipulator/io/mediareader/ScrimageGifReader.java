@@ -52,6 +52,13 @@ public class ScrimageGifReader extends BaseMediaReader<ImageFrame> {
         height = dimension.height;
     }
 
+    @Override
+    public ImageFrame getFrame(long timestamp) throws IOException {
+        long circularTimestamp = timestamp % Math.max(getDuration(), 1);
+        int index = findIndex(circularTimestamp, frames);
+        return frames.get(index);
+    }
+
     @Nullable
     @Override
     public ImageFrame getNextFrame() {
