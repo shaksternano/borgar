@@ -46,7 +46,7 @@ public class ScrimageGifWriter implements MediaWriter {
             try {
                 toWrite = optimiseTransparency(previousImage, currentImage);
                 disposeMethod = DisposeMethod.DO_NOT_DISPOSE;
-            } catch (IllegalArgumentException ignored) {
+            } catch (PreviousTransparentException ignored) {
                 toWrite = currentImage;
                 disposeMethod = DisposeMethod.RESTORE_TO_BACKGROUND_COLOR;
                 cannotOptimiseNext = true;
@@ -73,7 +73,10 @@ public class ScrimageGifWriter implements MediaWriter {
         }
     }
 
-    private static BufferedImage optimiseTransparency(BufferedImage previousImage, BufferedImage currentImage) {
+    private static BufferedImage optimiseTransparency(
+        BufferedImage previousImage,
+        BufferedImage currentImage
+    ) throws PreviousTransparentException {
         int colorTolerance = 10;
         List<Position> similarPixels = new ArrayList<>();
         for (int x = 0; x < previousImage.getWidth(); x++) {
@@ -81,7 +84,7 @@ public class ScrimageGifWriter implements MediaWriter {
                 Color previousPixelColor = new Color(previousImage.getRGB(x, y), true);
                 Color currentPixelColor = new Color(currentImage.getRGB(x, y), true);
                 if (currentPixelColor.getAlpha() == 0 && previousPixelColor.getAlpha() != 0) {
-                    throw new IllegalArgumentException();
+                    throw new PreviousTransparentException();
                 } else {
                     double colorDistance = ImageUtil.colorDistance(previousPixelColor, currentPixelColor);
                     if (colorDistance <= colorTolerance) {
@@ -114,5 +117,13 @@ public class ScrimageGifWriter implements MediaWriter {
     }
 
     private record Position(int x, int y) {
+    }
+
+    /**
+     * Indicates that the previous frame had a transparent pixel
+     * at a position where the current frame has an opaque pixel,
+     * which means that the current frame cannot be optimised.
+     */
+    private static class PreviousTransparentException extends Exception {
     }
 }
