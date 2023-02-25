@@ -6,6 +6,7 @@ import com.sksamuel.scrimage.nio.StreamingGifWriter;
 import io.github.shaksternano.mediamanipulator.image.ImageFrame;
 import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
 import org.bytedeco.javacv.Frame;
+import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -18,6 +19,7 @@ import java.util.List;
 public class ScrimageGifWriter implements MediaWriter {
 
     private final StreamingGifWriter.GifStream gif;
+    @Nullable
     private BufferedImage previousImage;
     private boolean cannotOptimiseNext;
 

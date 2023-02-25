@@ -5,6 +5,7 @@ import org.bytedeco.ffmpeg.global.avcodec;
 import org.bytedeco.javacv.FFmpegFrameRecorder;
 import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.Java2DFrameConverter;
+import org.jetbrains.annotations.Nullable;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -12,6 +13,7 @@ import java.io.IOException;
 
 public class FFmpegVideoWriter implements MediaWriter {
 
+    @Nullable
     private FFmpegFrameRecorder recorder;
     private final Java2DFrameConverter converter = new Java2DFrameConverter();
     private final File output;
@@ -45,7 +47,7 @@ public class FFmpegVideoWriter implements MediaWriter {
     @Override
     public void recordAudioFrame(Frame frame) throws IOException {
         if (recorder == null) {
-            throw new IllegalStateException("Cannot record audio frame before image frame.");
+            throw new IllegalStateException("Cannot record audio frame before image frame");
         }
         recorder.record(frame);
     }
