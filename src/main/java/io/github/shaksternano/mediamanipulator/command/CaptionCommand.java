@@ -52,7 +52,7 @@ public class CaptionCommand extends FileCommand {
 
         @Override
         public BufferedImage transformImage(ImageFrame frame, CaptionData globalData) throws IOException {
-            return drawCaption(frame.image(), globalData, frame.timestamp());
+            return drawCaption(frame.image(), globalData, frame.timestamp(), caption2);
         }
 
         @Override
@@ -107,19 +107,29 @@ public class CaptionCommand extends FileCommand {
         }
     }
 
-    private static BufferedImage drawCaption(BufferedImage image, CaptionData data, long timestamp) throws IOException {
+    private static BufferedImage drawCaption(BufferedImage image, CaptionData data, long timestamp, boolean caption2) throws IOException {
         BufferedImage captionedImage = new BufferedImage(image.getWidth(), image.getHeight() + data.fillHeight(), ImageUtil.getType(image));
         Graphics2D graphics = captionedImage.createGraphics();
         ImageUtil.configureTextDrawQuality(graphics);
 
-        graphics.drawImage(image, 0, data.fillHeight(), null);
+        int imageY;
+        int captionY;
+        if (caption2) {
+            imageY = 0;
+            captionY = image.getHeight();
+        } else {
+            imageY = data.fillHeight();
+            captionY = 0;
+        }
+
+        graphics.drawImage(image, 0, imageY, null);
 
         graphics.setColor(Color.WHITE);
-        graphics.fillRect(0, 0, captionedImage.getWidth(), data.fillHeight());
+        graphics.fillRect(0, captionY, captionedImage.getWidth(), data.fillHeight());
 
         graphics.setFont(data.font());
         graphics.setColor(Color.BLACK);
-        data.paragraph.draw(graphics, data.padding(), data.padding(), timestamp);
+        data.paragraph.draw(graphics, data.padding(), captionY + data.padding(), timestamp);
 
         graphics.dispose();
 
