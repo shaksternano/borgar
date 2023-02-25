@@ -11,6 +11,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 public class MediaUtil {
 
@@ -18,7 +19,7 @@ public class MediaUtil {
         File media,
         String outputFormat,
         String operationName,
-        Function<BufferedImage, BufferedImage> imageMapper
+        UnaryOperator<BufferedImage> imageMapper
     ) throws IOException {
         return processMedia(
             media,
@@ -130,7 +131,7 @@ public class MediaUtil {
         }
     }
 
-    private record BasicImageProcessor(Function<BufferedImage, BufferedImage> imageMapper) implements ImageProcessor<Boolean> {
+    private record BasicImageProcessor(UnaryOperator<BufferedImage> imageMapper) implements ImageProcessor<Boolean> {
 
         @Override
         public BufferedImage transformImage(ImageFrame frame, Boolean globalData) {
