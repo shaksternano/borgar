@@ -26,7 +26,7 @@ public class MediaReaders {
     }
 
     private static MediaReaderFactory<ImageFrame> getImageReaderFactory(String format) {
-        return imageReaderFactories.getOrDefault(format, FFmpegImageReader.Factory.INSTANCE);
+        return imageReaderFactories.getOrDefault(format.toLowerCase(), FFmpegImageReader.Factory.INSTANCE);
     }
 
     public static MediaReader<Frame> createAudioReader(File media, String format) throws IOException {
@@ -41,19 +41,19 @@ public class MediaReaders {
     }
 
     private static MediaReaderFactory<Frame> getAudioReaderFactory(String format) {
-        return audioReaderFactories.getOrDefault(format, FFmpegAudioReader.Factory.INSTANCE);
+        return audioReaderFactories.getOrDefault(format.toLowerCase(), FFmpegAudioReader.Factory.INSTANCE);
     }
 
     private static void registerImageReaderFactory(MediaReaderFactory<ImageFrame> factory, String... formats) {
         for (String format : formats) {
-            imageReaderFactories.put(format, factory);
+            imageReaderFactories.put(format.toLowerCase(), factory);
         }
     }
 
     @SuppressWarnings("SameParameterValue")
     private static void registerAudioReaderFactory(MediaReaderFactory<Frame> factory, String... formats) {
         for (String format : formats) {
-            audioReaderFactories.put(format, factory);
+            audioReaderFactories.put(format.toLowerCase(), factory);
         }
     }
 

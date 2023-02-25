@@ -15,13 +15,14 @@ public class MediaWriters {
     private static final Map<String, MediaWriterFactory> writerFactories = new HashMap<>();
 
     public static MediaWriter createWriter(File output, String outputFormat, int audioChannels) throws IOException {
+        outputFormat = outputFormat.toLowerCase();
         MediaWriterFactory factory = writerFactories.getOrDefault(outputFormat, FFmpegVideoWriter::new);
         return factory.createWriter(output, outputFormat, audioChannels);
     }
 
     private static void registerWriterFactory(MediaWriterFactory factory, String... formats) {
         for (String format : formats) {
-            writerFactories.put(format, factory);
+            writerFactories.put(format.toLowerCase(), factory);
         }
     }
 
@@ -41,5 +42,4 @@ public class MediaWriters {
             "tiff"
         );
     }
-
 }
