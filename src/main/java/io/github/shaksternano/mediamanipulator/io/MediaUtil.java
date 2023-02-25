@@ -48,14 +48,13 @@ public class MediaUtil {
         ) {
             T globalFrameDataValue = null;
             for (ImageFrame imageFrame : imageReader) {
-                long timestamp = imageFrame.timestamp();
                 if (globalFrameDataValue == null) {
                     globalFrameDataValue = processor.globalData(imageFrame.image());
                 }
                 writer.recordImageFrame(new ImageFrame(
                     processor.transformImage(imageFrame, globalFrameDataValue),
                     imageFrame.duration(),
-                    timestamp
+                    imageFrame.timestamp()
                 ));
             }
             for (Frame audioFrame : audioReader) {
