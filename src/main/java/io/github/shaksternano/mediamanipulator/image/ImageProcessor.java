@@ -8,6 +8,14 @@ public interface ImageProcessor<T> extends Closeable {
 
     BufferedImage transformImage(ImageFrame frame, T globalData) throws IOException;
 
+    /**
+     * Calculates data that remains constant for all frames,
+     * and so only needs to be calculated once.
+     *
+     * @param image The first frame of the media.
+     * @return The data.
+     * @throws IOException If an I/O error occurs.
+     */
     T globalData(BufferedImage image) throws IOException;
 
     @Override

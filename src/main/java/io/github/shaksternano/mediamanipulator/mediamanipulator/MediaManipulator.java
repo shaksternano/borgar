@@ -19,8 +19,6 @@ import java.util.Set;
  */
 public interface MediaManipulator {
 
-    File demotivate(File media, String fileFormat, List<String> words, List<String> subText, Map<String, Drawable> nonTextParts) throws IOException;
-
     File impact(File media, String fileFormat, List<String> topWords, List<String> bottomWords, Map<String, Drawable> nonTextParts) throws IOException;
 
     File containerImageWithImage(File media, String fileFormat, ContainerImageInfo containerImageInfo) throws IOException;

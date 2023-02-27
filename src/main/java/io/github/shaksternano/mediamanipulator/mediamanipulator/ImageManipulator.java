@@ -13,7 +13,6 @@ import io.github.shaksternano.mediamanipulator.graphics.drawable.ParagraphCompos
 import io.github.shaksternano.mediamanipulator.image.backgroundimage.ContainerImageInfo;
 import io.github.shaksternano.mediamanipulator.image.backgroundimage.CustomContainerImageInfo;
 import io.github.shaksternano.mediamanipulator.image.imagemedia.ImageMedia;
-import io.github.shaksternano.mediamanipulator.image.imagemedia.StaticImage;
 import io.github.shaksternano.mediamanipulator.image.reader.util.ImageReaderRegistry;
 import io.github.shaksternano.mediamanipulator.image.reader.util.ImageReaders;
 import io.github.shaksternano.mediamanipulator.image.util.AwtFrame;
@@ -49,8 +48,6 @@ public class ImageManipulator implements MediaManipulator {
             "gif"
     );
 
-    private static final Drawable EMPTY = new EmptyDrawable();
-
     private static File animatedOnlyOperation(File media, String fileFormat, Function<ImageMedia, ImageMedia> operation, String operationName, String staticImageErrorMessage) throws IOException {
         if (ANIMATED_IMAGE_FORMATS.contains(fileFormat.toLowerCase())) {
             ImageMedia imageMedia = ImageReaders.read(media, fileFormat, null);
@@ -66,117 +63,6 @@ public class ImageManipulator implements MediaManipulator {
         } else {
             throw new UnsupportedFileFormatException(staticImageErrorMessage);
         }
-    }
-
-    @SuppressWarnings("UnusedAssignment")
-    @Override
-    public File demotivate(File media, String fileFormat, List<String> words, List<String> subText, Map<String, Drawable> nonTextParts) throws IOException {
-        ImageMedia imageMedia = ImageReaders.read(media, fileFormat, null);
-        BufferedImage firstImage = imageMedia.getFirstImage();
-
-        int contentWidth = firstImage.getWidth();
-        int contentHeight = firstImage.getHeight();
-        int contentAverageDimension = (contentWidth + contentHeight) / 2;
-        int contentImageType = ImageUtil.getType(firstImage);
-
-        int demotivateImagePadding = (int) (contentAverageDimension * 0.2F);
-
-        Graphics2D graphics = firstImage.createGraphics();
-
-        Font font = new Font("Times", Font.PLAIN, contentAverageDimension / 6);
-        Font subFont = font.deriveFont(font.getSize() / 3F);
-        graphics.setFont(font);
-        ImageUtil.configureTextDrawQuality(graphics);
-
-        TextAlignment textAlignment = TextAlignment.CENTER;
-        Drawable paragraph = new ParagraphCompositeDrawable.Builder(nonTextParts)
-                .addWords(null, words)
-                .build(textAlignment, contentWidth);
-
-        int paragraphHeight = paragraph.getHeight(graphics);
-
-        Drawable subParagraph = subText.isEmpty() ? EMPTY : new ParagraphCompositeDrawable.Builder(nonTextParts)
-                .addWords(null, subText)
-                .build(textAlignment, contentWidth);
-        graphics.setFont(subFont);
-        int subParagraphHeight = subParagraph.getHeight(graphics);
-        int mainSubSpacing = subParagraphHeight / 4;
-
-        graphics.dispose();
-        firstImage = null;
-        imageMedia = null;
-
-        int demotivateWidth = contentWidth + (demotivateImagePadding * 2);
-        int demotivateHeight = contentHeight + (demotivateImagePadding * 2) + paragraphHeight + mainSubSpacing + subParagraphHeight;
-        BufferedImage demotivateBackground = new BufferedImage(demotivateWidth, demotivateHeight, contentImageType);
-        Graphics2D demotivateBackgroundGraphics = demotivateBackground.createGraphics();
-        demotivateBackgroundGraphics.setColor(Color.BLACK);
-        demotivateBackgroundGraphics.fillRect(0, 0, demotivateWidth, demotivateHeight);
-
-        int lineDiameter = Math.max(Math.round(contentAverageDimension * 0.005F), 1);
-        int lineImageSpacing = lineDiameter * 3;
-
-        demotivateBackgroundGraphics.setColor(Color.WHITE);
-
-        // Top border
-        demotivateBackgroundGraphics.fillRect(demotivateImagePadding - (lineDiameter + lineImageSpacing), demotivateImagePadding - (lineDiameter + lineImageSpacing), contentWidth + (lineDiameter * 2) + (lineImageSpacing * 2), lineDiameter);
-        // Bottom border
-        demotivateBackgroundGraphics.fillRect(demotivateImagePadding - (lineDiameter + lineImageSpacing), demotivateImagePadding + contentHeight + lineImageSpacing, contentWidth + (lineDiameter * 2) + (lineImageSpacing * 2), lineDiameter);
-        // Left border
-        demotivateBackgroundGraphics.fillRect(demotivateImagePadding - (lineDiameter + lineImageSpacing), demotivateImagePadding - (lineDiameter + lineImageSpacing), lineDiameter, contentHeight + (lineDiameter * 2) + (lineImageSpacing * 2));
-        // Right border
-        demotivateBackgroundGraphics.fillRect(demotivateImagePadding + contentWidth + lineImageSpacing, demotivateImagePadding - (lineDiameter + lineImageSpacing), lineDiameter, contentHeight + (lineDiameter * 2) + (lineImageSpacing * 2));
-
-        ImageMedia demotivateWithTextMedia;
-        if (words.isEmpty()) {
-            demotivateWithTextMedia = new StaticImage(demotivateBackground);
-        } else {
-            ImageMediaBuilder builder = new ImageMediaBuilder();
-            int paragraphFrames = paragraph.getFrameCount();
-            for (int i = 0; i < paragraphFrames; i++) {
-                BufferedImage demotivateWithText = new BufferedImage(demotivateWidth, demotivateHeight, contentImageType);
-                Graphics2D demotivateWithTextGraphics = demotivateWithText.createGraphics();
-                demotivateWithTextGraphics.drawImage(demotivateBackground, 0, 0, null);
-
-                demotivateWithTextGraphics.setColor(Color.WHITE);
-                demotivateWithTextGraphics.setFont(font);
-                ImageUtil.configureTextDrawQuality(demotivateWithTextGraphics);
-                paragraph.draw(
-                        demotivateWithTextGraphics,
-                        demotivateImagePadding,
-                        demotivateImagePadding + contentHeight + (demotivateImagePadding / 2),
-                    0);
-                demotivateWithTextGraphics.setFont(subFont);
-                subParagraph.draw(
-                        demotivateWithTextGraphics,
-                        demotivateImagePadding,
-                        demotivateImagePadding + contentHeight + (demotivateImagePadding / 2) + paragraphHeight + mainSubSpacing,
-                    0);
-
-                builder.add(new AwtFrame(demotivateWithText, Frame.GIF_MINIMUM_FRAME_DURATION));
-            }
-            demotivateWithTextMedia = builder.build();
-        }
-
-        ContainerImageInfo containerImageInfo = new CustomContainerImageInfo(
-                demotivateWithTextMedia,
-                "demotivated",
-                demotivateImagePadding,
-                demotivateImagePadding,
-                contentWidth,
-                contentHeight,
-                0,
-                Position.TOP,
-                textAlignment,
-                null,
-                null,
-                null,
-                null,
-                true,
-                null
-        );
-
-        return containerImageWithImage(media, fileFormat, containerImageInfo);
     }
 
     @SuppressWarnings("UnusedAssignment")
@@ -663,46 +549,4 @@ public class ImageManipulator implements MediaManipulator {
         return output;
     }
 
-    private static class EmptyDrawable implements Drawable {
-
-        @Override
-        public void draw(Graphics2D graphics, int x, int y, long timestamp) {
-
-        }
-
-        @Override
-        public int getWidth(Graphics2D graphicsContext) {
-            return 0;
-        }
-
-        @Override
-        public int getHeight(Graphics2D graphicsContext) {
-            return 0;
-        }
-
-        @Override
-        public Drawable resizeToWidth(int width) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public Drawable resizeToHeight(int height) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public int getFrameCount() {
-            return 0;
-        }
-
-        @Override
-        public long getDuration() {
-            return 0;
-        }
-
-        @Override
-        public boolean sameAsPreviousFrame() {
-            return false;
-        }
-    }
 }
