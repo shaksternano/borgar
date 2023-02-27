@@ -47,12 +47,41 @@ public class CaptionCommand extends FileCommand {
         }
     }
 
-    private record CaptionProcessor(boolean caption2, List<String> words,
-                                    Map<String, Drawable> nonTextParts) implements ImageProcessor<CaptionData> {
+    private record CaptionProcessor(
+        boolean caption2,
+        List<String> words,
+        Map<String, Drawable> nonTextParts
+    ) implements ImageProcessor<CaptionData> {
 
         @Override
         public BufferedImage transformImage(ImageFrame frame, CaptionData globalData) throws IOException {
-            return drawCaption(frame.image(), globalData, frame.timestamp(), caption2);
+            BufferedImage image = frame.image();
+            BufferedImage captionedImage = new BufferedImage(image.getWidth(), image.getHeight() + globalData.fillHeight(), ImageUtil.getType(image));
+            Graphics2D graphics = captionedImage.createGraphics();
+            ImageUtil.configureTextDrawQuality(graphics);
+
+            int imageY;
+            int captionY;
+            if (caption2) {
+                imageY = 0;
+                captionY = image.getHeight();
+            } else {
+                imageY = globalData.fillHeight();
+                captionY = 0;
+            }
+
+            graphics.drawImage(image, 0, imageY, null);
+
+            graphics.setColor(Color.WHITE);
+            graphics.fillRect(0, captionY, captionedImage.getWidth(), globalData.fillHeight());
+
+            graphics.setFont(globalData.font());
+            graphics.setColor(Color.BLACK);
+            globalData.paragraph.draw(graphics, globalData.padding(), captionY + globalData.padding(), frame.timestamp());
+
+            graphics.dispose();
+
+            return captionedImage;
         }
 
         @Override
@@ -106,36 +135,6 @@ public class CaptionCommand extends FileCommand {
             }
         }
     }
-
-    private static BufferedImage drawCaption(BufferedImage image, CaptionData data, long timestamp, boolean caption2) throws IOException {
-        BufferedImage captionedImage = new BufferedImage(image.getWidth(), image.getHeight() + data.fillHeight(), ImageUtil.getType(image));
-        Graphics2D graphics = captionedImage.createGraphics();
-        ImageUtil.configureTextDrawQuality(graphics);
-
-        int imageY;
-        int captionY;
-        if (caption2) {
-            imageY = 0;
-            captionY = image.getHeight();
-        } else {
-            imageY = data.fillHeight();
-            captionY = 0;
-        }
-
-        graphics.drawImage(image, 0, imageY, null);
-
-        graphics.setColor(Color.WHITE);
-        graphics.fillRect(0, captionY, captionedImage.getWidth(), data.fillHeight());
-
-        graphics.setFont(data.font());
-        graphics.setColor(Color.BLACK);
-        data.paragraph.draw(graphics, data.padding(), captionY + data.padding(), timestamp);
-
-        graphics.dispose();
-
-        return captionedImage;
-    }
-
 
     private record CaptionData(Font font, int fillHeight, int padding, Drawable paragraph) {
     }
