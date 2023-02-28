@@ -394,7 +394,7 @@ public class ImageManipulator implements MediaManipulator {
                 angle = -angle;
             }
 
-            BufferedImage rotatedImage = ImageUtil.rotate(originalImage, angle, maxDimension, maxDimension, backgroundColor);
+            BufferedImage rotatedImage = ImageUtil.rotate(originalImage, angle, maxDimension, maxDimension, backgroundColor, BufferedImage.TYPE_INT_ARGB);
             Frame frame = new AwtFrame(rotatedImage, originalFrame.getDuration());
             originalFrame.flush();
             return frame;

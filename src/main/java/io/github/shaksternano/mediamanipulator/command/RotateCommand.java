@@ -47,15 +47,17 @@ public class RotateCommand extends FileCommand {
             (argument, defaultValue) -> "RGB value \"" + argument + "\" is not a whole number. Setting transparent background color."
         );
         Color backgroundColor = rgb < 0 ? null : new Color(rgb);
+        String outputFormat = MediaUtil.equivalentTransparentFormat(fileFormat);
         return MediaUtil.processMedia(
             file,
-            MediaUtil.equivalentTransparentFormat(fileFormat),
+            outputFormat,
             "rotated",
-            image -> rotate(image, rotation, backgroundColor)
+            image -> rotate(image, rotation, backgroundColor, outputFormat)
         );
     }
 
-    private static BufferedImage rotate(BufferedImage image, float degrees, @Nullable Color backgroundColor) {
-        return ImageUtil.rotate(image, degrees, null, null, backgroundColor);
+    private static BufferedImage rotate(BufferedImage image, float degrees, @Nullable Color backgroundColor, String format) {
+        int resultType = MediaUtil.supportsTransparency(format) ? BufferedImage.TYPE_INT_ARGB : ImageUtil.getType(image);
+        return ImageUtil.rotate(image, degrees, null, null, backgroundColor, resultType);
     }
 }

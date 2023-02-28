@@ -301,7 +301,14 @@ public class ImageUtil {
         return index / width;
     }
 
-    public static BufferedImage rotate(BufferedImage image, float angle, @Nullable Integer newWidth, @Nullable Integer newHeight, @Nullable Color backgroundColor) {
+    public static BufferedImage rotate(
+        BufferedImage image,
+        float angle,
+        @Nullable Integer newWidth,
+        @Nullable Integer newHeight,
+        @Nullable Color backgroundColor,
+        int resultType
+    ) {
         double sin = Math.abs(Math.sin(Math.toRadians(angle)));
         double cos = Math.abs(Math.cos(Math.toRadians(angle)));
 
@@ -316,7 +323,7 @@ public class ImageUtil {
             newHeight = (int) Math.floor(height * cos + width * sin);
         }
 
-        BufferedImage rotated = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage rotated = new BufferedImage(newWidth, newHeight, resultType);
         Graphics2D graphics = rotated.createGraphics();
 
         if (backgroundColor != null) {
@@ -377,7 +384,9 @@ public class ImageUtil {
 
     public static int getType(BufferedImage image) {
         int type = image.getType();
-        return type < 1 || type > 13 ? BufferedImage.TYPE_INT_ARGB : type;
+        return type < BufferedImage.TYPE_INT_RGB || type > BufferedImage.TYPE_BYTE_INDEXED
+            ? BufferedImage.TYPE_INT_ARGB
+            : type;
     }
 
     public static Area getArea(BufferedImage image) {

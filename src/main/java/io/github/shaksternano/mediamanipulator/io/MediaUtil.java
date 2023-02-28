@@ -123,11 +123,19 @@ public class MediaUtil {
     }
 
     public static String equivalentTransparentFormat(String format) {
-        if (format.equalsIgnoreCase("jpg") || format.equalsIgnoreCase("jpeg")) {
+        if (isJpg(format)) {
             return "png";
         } else {
             return format;
         }
+    }
+
+    private static boolean isJpg(String format) {
+        return format.equalsIgnoreCase("jpg") || format.equalsIgnoreCase("jpeg");
+    }
+
+    public static boolean supportsTransparency(String format) {
+        return format.equalsIgnoreCase("png") || format.equalsIgnoreCase("gif");
     }
 
     private record BasicImageProcessor(UnaryOperator<BufferedImage> imageMapper) implements ImageProcessor<Boolean> {
