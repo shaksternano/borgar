@@ -97,7 +97,7 @@ public class ImpactCommand extends FileCommand {
             var padding = smallestDimension * 0.04F;
 
             var textWidth = (int) (imageWidth - (padding * 2));
-            var textHeight = imageHeight / 5F;
+            var textHeight = (imageHeight / 5F) - (padding * 2);
 
             var bottomParagraphY = (int) (image.getHeight() - textHeight - padding);
 
