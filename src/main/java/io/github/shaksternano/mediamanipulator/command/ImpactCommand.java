@@ -44,9 +44,8 @@ public class ImpactCommand extends FileCommand {
         if (arguments.isEmpty() && bottomWords.isEmpty()) {
             throw new MissingArgumentException("Please specify text!");
         }
-        try (var processor = new ImpactProcessor(arguments, bottomWords, nonTextParts)) {
-            return MediaUtil.processMedia(file, fileFormat, "impacted", processor);
-        }
+        var processor = new ImpactProcessor(arguments, bottomWords, nonTextParts);
+        return MediaUtil.processMedia(file, fileFormat, "impacted", processor);
     }
 
     @Override

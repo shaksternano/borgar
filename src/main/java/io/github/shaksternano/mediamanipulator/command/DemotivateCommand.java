@@ -35,10 +35,9 @@ public class DemotivateCommand extends FileCommand {
 
     @Override
     public File modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
-        Map<String, Drawable> nonTextParts = MessageUtil.getEmojiImages(event.getMessage());
-        try (ImageProcessor<?> processor = new DemotivateProcessor(arguments, extraArguments.get("sub"), nonTextParts)) {
-            return MediaUtil.processMedia(file, fileFormat, "demotivated", processor);
-        }
+        var nonTextParts = MessageUtil.getEmojiImages(event.getMessage());
+        var processor = new DemotivateProcessor(arguments, extraArguments.get("sub"), nonTextParts);
+        return MediaUtil.processMedia(file, fileFormat, "demotivated", processor);
     }
 
     @Override

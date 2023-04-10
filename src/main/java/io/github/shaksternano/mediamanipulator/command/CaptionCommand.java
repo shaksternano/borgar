@@ -42,10 +42,9 @@ public class CaptionCommand extends FileCommand {
 
     @Override
     public File modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
-        Map<String, Drawable> nonTextParts = MessageUtil.getEmojiImages(event.getMessage());
-        try (ImageProcessor<?> processor = new CaptionProcessor(CAPTION_2, arguments, nonTextParts)) {
-            return MediaUtil.processMedia(file, fileFormat, "captioned", processor);
-        }
+        var nonTextParts = MessageUtil.getEmojiImages(event.getMessage());
+        var processor = new CaptionProcessor(CAPTION_2, arguments, nonTextParts);
+        return MediaUtil.processMedia(file, fileFormat, "captioned", processor);
     }
 
     private record CaptionProcessor(

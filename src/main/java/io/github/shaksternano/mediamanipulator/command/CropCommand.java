@@ -77,8 +77,12 @@ public class CropCommand extends FileCommand {
         }
     }
 
-    private record CropProcessor(float topRatio, float rightRatio, float bottomRatio,
-                                 float leftRatio) implements ImageProcessor<CropData> {
+    private record CropProcessor(
+        float topRatio,
+        float rightRatio,
+        float bottomRatio,
+        float leftRatio
+    ) implements ImageProcessor<CropData> {
 
         @Override
         public BufferedImage transformImage(ImageFrame frame, CropData constantData) {

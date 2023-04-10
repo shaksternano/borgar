@@ -3,8 +3,6 @@ package io.github.shaksternano.mediamanipulator.io;
 import io.github.shaksternano.mediamanipulator.image.ImageFrame;
 import io.github.shaksternano.mediamanipulator.image.ImageProcessor;
 import io.github.shaksternano.mediamanipulator.io.mediareader.MediaReader;
-import io.github.shaksternano.mediamanipulator.io.mediawriter.MediaWriter;
-import org.bytedeco.javacv.Frame;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -35,33 +33,35 @@ public class MediaUtil {
         String operationName,
         ImageProcessor<T> processor
     ) throws IOException {
-        String outputName = operationName + "." + outputFormat;
-        File output = FileUtil.getUniqueTempFile(outputName);
-        try (
-            MediaReader<ImageFrame> imageReader = MediaReaders.createImageReader(media, outputFormat);
-            MediaReader<Frame> audioReader = MediaReaders.createAudioReader(media, outputFormat);
-            MediaWriter writer = MediaWriters.createWriter(
-                output,
-                outputFormat,
-                audioReader.getAudioChannels()
-            )
-        ) {
-            T constantFrameDataValue = null;
-            for (ImageFrame imageFrame : imageReader) {
-                if (constantFrameDataValue == null) {
-                    constantFrameDataValue = processor.constantData(imageFrame.image());
+        try (processor) {
+            var outputName = operationName + "." + outputFormat;
+            var output = FileUtil.getUniqueTempFile(outputName);
+            try (
+                var imageReader = MediaReaders.createImageReader(media, outputFormat);
+                var audioReader = MediaReaders.createAudioReader(media, outputFormat);
+                var writer = MediaWriters.createWriter(
+                    output,
+                    outputFormat,
+                    audioReader.getAudioChannels()
+                )
+            ) {
+                T constantFrameDataValue = null;
+                for (var imageFrame : imageReader) {
+                    if (constantFrameDataValue == null) {
+                        constantFrameDataValue = processor.constantData(imageFrame.image());
+                    }
+                    writer.recordImageFrame(new ImageFrame(
+                        processor.transformImage(imageFrame, constantFrameDataValue),
+                        imageFrame.duration(),
+                        imageFrame.timestamp()
+                    ));
                 }
-                writer.recordImageFrame(new ImageFrame(
-                    processor.transformImage(imageFrame, constantFrameDataValue),
-                    imageFrame.duration(),
-                    imageFrame.timestamp()
-                ));
+                for (var audioFrame : audioReader) {
+                    writer.recordAudioFrame(audioFrame);
+                }
             }
-            for (Frame audioFrame : audioReader) {
-                writer.recordAudioFrame(audioFrame);
-            }
+            return output;
         }
-        return output;
     }
 
     public static File cropMedia(
@@ -145,6 +145,7 @@ public class MediaUtil {
             return imageMapper.apply(frame.image());
         }
 
+        // Unused
         @Override
         public Boolean constantData(BufferedImage image) {
             return Boolean.TRUE;
