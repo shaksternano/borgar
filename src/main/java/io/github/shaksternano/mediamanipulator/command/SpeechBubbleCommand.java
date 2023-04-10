@@ -58,12 +58,12 @@ public class SpeechBubbleCommand extends FileCommand {
     private record SpeechBubbleProcessor(boolean cutOut) implements ImageProcessor<BufferedImage> {
 
         @Override
-        public BufferedImage transformImage(ImageFrame frame, BufferedImage globalData) {
+        public BufferedImage transformImage(ImageFrame frame, BufferedImage constantData) {
             BufferedImage image = frame.image();
             if (cutOut) {
-                return ImageUtil.cutoutImage(image, globalData, 0, 0, 0xFFFFFF);
+                return ImageUtil.cutoutImage(image, constantData, 0, 0, 0xFFFFFF);
             } else {
-                return ImageUtil.overlayImage(image, globalData, false, 0, -globalData.getHeight(), null, null, null, true);
+                return ImageUtil.overlayImage(image, constantData, false, 0, -constantData.getHeight(), null, null, null, true);
             }
         }
 
@@ -71,7 +71,7 @@ public class SpeechBubbleCommand extends FileCommand {
          * Returns the speech bubble image.
          */
         @Override
-        public BufferedImage globalData(BufferedImage image) throws IOException {
+        public BufferedImage constantData(BufferedImage image) throws IOException {
             String speechBubblePath = cutOut ? "image/overlay/speech_bubble_2_partial.png"
                 : "image/overlay/speech_bubble_1_partial.png";
 

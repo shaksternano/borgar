@@ -55,31 +55,31 @@ public class DemotivateCommand extends FileCommand {
     ) implements ImageProcessor<DemotivateData> {
 
         @Override
-        public BufferedImage transformImage(ImageFrame frame, DemotivateData globalData) throws IOException {
+        public BufferedImage transformImage(ImageFrame frame, DemotivateData constantData) throws IOException {
             BufferedImage image = frame.image();
-            BufferedImage result = new BufferedImage(globalData.width(), globalData.height(), ImageUtil.getType(image));
+            BufferedImage result = new BufferedImage(constantData.width(), constantData.height(), ImageUtil.getType(image));
             Graphics2D graphics = result.createGraphics();
 
             // Draw background
             graphics.setColor(Color.BLACK);
-            graphics.fillRect(0, 0, globalData.width(), globalData.height());
+            graphics.fillRect(0, 0, constantData.width(), constantData.height());
 
             // Draw image
-            graphics.drawImage(image, globalData.imagePadding(), globalData.imagePadding(), null);
+            graphics.drawImage(image, constantData.imagePadding(), constantData.imagePadding(), null);
 
             // Draw border
             graphics.setColor(Color.WHITE);
-            fillRect(graphics, globalData.topBorder());
-            fillRect(graphics, globalData.bottomBorder());
-            fillRect(graphics, globalData.leftBorder());
-            fillRect(graphics, globalData.rightBorder());
+            fillRect(graphics, constantData.topBorder());
+            fillRect(graphics, constantData.bottomBorder());
+            fillRect(graphics, constantData.leftBorder());
+            fillRect(graphics, constantData.rightBorder());
 
             // Draw text
-            graphics.setFont(globalData.font());
+            graphics.setFont(constantData.font());
             ImageUtil.configureTextDrawQuality(graphics);
-            draw(graphics, globalData.paragraph, globalData.paragraphPosition(), frame.timestamp());
-            graphics.setFont(globalData.subFont());
-            draw(graphics, globalData.subParagraph, globalData.subParagraphPosition(), frame.timestamp());
+            draw(graphics, constantData.paragraph, constantData.paragraphPosition(), frame.timestamp());
+            graphics.setFont(constantData.subFont());
+            draw(graphics, constantData.subParagraph, constantData.subParagraphPosition(), frame.timestamp());
 
             graphics.dispose();
             return result;
@@ -94,7 +94,7 @@ public class DemotivateCommand extends FileCommand {
         }
 
         @Override
-        public DemotivateData globalData(BufferedImage image) {
+        public DemotivateData constantData(BufferedImage image) {
             int imageWidth = image.getWidth();
             int imageHeight = image.getHeight();
             int contentAverageDimension = (imageWidth + imageHeight) / 2;

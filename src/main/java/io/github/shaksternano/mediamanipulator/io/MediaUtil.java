@@ -46,13 +46,13 @@ public class MediaUtil {
                 audioReader.getAudioChannels()
             )
         ) {
-            T globalFrameDataValue = null;
+            T constantFrameDataValue = null;
             for (ImageFrame imageFrame : imageReader) {
-                if (globalFrameDataValue == null) {
-                    globalFrameDataValue = processor.globalData(imageFrame.image());
+                if (constantFrameDataValue == null) {
+                    constantFrameDataValue = processor.constantData(imageFrame.image());
                 }
                 writer.recordImageFrame(new ImageFrame(
-                    processor.transformImage(imageFrame, globalFrameDataValue),
+                    processor.transformImage(imageFrame, constantFrameDataValue),
                     imageFrame.duration(),
                     imageFrame.timestamp()
                 ));
@@ -141,12 +141,12 @@ public class MediaUtil {
     private record BasicImageProcessor(UnaryOperator<BufferedImage> imageMapper) implements ImageProcessor<Boolean> {
 
         @Override
-        public BufferedImage transformImage(ImageFrame frame, Boolean globalData) {
+        public BufferedImage transformImage(ImageFrame frame, Boolean constantData) {
             return imageMapper.apply(frame.image());
         }
 
         @Override
-        public Boolean globalData(BufferedImage image) {
+        public Boolean constantData(BufferedImage image) {
             return Boolean.TRUE;
         }
     }

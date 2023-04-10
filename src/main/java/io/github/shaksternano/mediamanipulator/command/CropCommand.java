@@ -80,12 +80,12 @@ public class CropCommand extends FileCommand {
     private record CropProcessor(float topRatio, float rightRatio, float bottomRatio, float leftRatio) implements ImageProcessor<CropData> {
 
         @Override
-        public BufferedImage transformImage(ImageFrame frame, CropData globalData) {
-            return frame.image().getSubimage(globalData.x(), globalData.y(), globalData.width(), globalData.height());
+        public BufferedImage transformImage(ImageFrame frame, CropData constantData) {
+            return frame.image().getSubimage(constantData.x(), constantData.y(), constantData.width(), constantData.height());
         }
 
         @Override
-        public CropData globalData(BufferedImage image) {
+        public CropData constantData(BufferedImage image) {
             int width = image.getWidth();
             int height = image.getHeight();
 

@@ -6,7 +6,7 @@ import java.io.IOException;
 
 public interface ImageProcessor<T> extends Closeable {
 
-    BufferedImage transformImage(ImageFrame frame, T globalData) throws IOException;
+    BufferedImage transformImage(ImageFrame frame, T constantData) throws IOException;
 
     /**
      * Calculates data that remains constant for all frames,
@@ -16,7 +16,7 @@ public interface ImageProcessor<T> extends Closeable {
      * @return The data.
      * @throws IOException If an I/O error occurs.
      */
-    T globalData(BufferedImage image) throws IOException;
+    T constantData(BufferedImage image) throws IOException;
 
     @Override
     default void close() throws IOException {

@@ -54,9 +54,9 @@ public class CaptionCommand extends FileCommand {
     ) implements ImageProcessor<CaptionData> {
 
         @Override
-        public BufferedImage transformImage(ImageFrame frame, CaptionData globalData) throws IOException {
+        public BufferedImage transformImage(ImageFrame frame, CaptionData constantData) throws IOException {
             BufferedImage image = frame.image();
-            BufferedImage captionedImage = new BufferedImage(image.getWidth(), image.getHeight() + globalData.fillHeight(), ImageUtil.getType(image));
+            BufferedImage captionedImage = new BufferedImage(image.getWidth(), image.getHeight() + constantData.fillHeight(), ImageUtil.getType(image));
             Graphics2D graphics = captionedImage.createGraphics();
             ImageUtil.configureTextDrawQuality(graphics);
 
@@ -66,18 +66,18 @@ public class CaptionCommand extends FileCommand {
                 imageY = 0;
                 captionY = image.getHeight();
             } else {
-                imageY = globalData.fillHeight();
+                imageY = constantData.fillHeight();
                 captionY = 0;
             }
 
             graphics.drawImage(image, 0, imageY, null);
 
             graphics.setColor(Color.WHITE);
-            graphics.fillRect(0, captionY, captionedImage.getWidth(), globalData.fillHeight());
+            graphics.fillRect(0, captionY, captionedImage.getWidth(), constantData.fillHeight());
 
-            graphics.setFont(globalData.font());
+            graphics.setFont(constantData.font());
             graphics.setColor(Color.BLACK);
-            globalData.paragraph.draw(graphics, globalData.padding(), captionY + globalData.padding(), frame.timestamp());
+            constantData.paragraph.draw(graphics, constantData.padding(), captionY + constantData.padding(), frame.timestamp());
 
             graphics.dispose();
 
@@ -85,7 +85,7 @@ public class CaptionCommand extends FileCommand {
         }
 
         @Override
-        public CaptionData globalData(BufferedImage image) {
+        public CaptionData constantData(BufferedImage image) {
             int width = image.getWidth();
             int height = image.getHeight();
 
