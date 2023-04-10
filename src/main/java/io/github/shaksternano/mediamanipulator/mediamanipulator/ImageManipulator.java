@@ -41,7 +41,7 @@ import java.util.function.Function;
 public class ImageManipulator implements MediaManipulator {
 
     private static final Set<String> ANIMATED_IMAGE_FORMATS = ImmutableSet.of(
-            "gif"
+        "gif"
     );
 
     private static File animatedOnlyOperation(File media, String fileFormat, Function<ImageMedia, ImageMedia> operation, String operationName, String staticImageErrorMessage) throws IOException {
@@ -89,7 +89,7 @@ public class ImageManipulator implements MediaManipulator {
         switch (containerImageInfo.getImageContentPosition()) {
             case TOP -> imageY = containerImageInfo.getImageContentY();
             case BOTTOM ->
-                    imageY = containerImageInfo.getImageContentY() + (containerImageInfo.getImageContentHeight() - resizedHeight);
+                imageY = containerImageInfo.getImageContentY() + (containerImageInfo.getImageContentHeight() - resizedHeight);
         }
 
         Color fill = containerImageInfo.getFill().orElse(null);
@@ -146,8 +146,8 @@ public class ImageManipulator implements MediaManipulator {
             return imageMedia;
         } else {
             ParagraphCompositeDrawable paragraph = new ParagraphCompositeDrawable.Builder(nonTextParts)
-                    .addWords(containerImageInfo.getCustomTextDrawableFactory().orElse(null), words)
-                    .build(containerImageInfo.getTextContentAlignment(), containerImageInfo.getTextContentWidth());
+                .addWords(containerImageInfo.getCustomTextDrawableFactory().orElse(null), words)
+                .build(containerImageInfo.getTextContentAlignment(), containerImageInfo.getTextContentWidth());
 
             Graphics2D graphics = imageMedia.getFirstImage().createGraphics();
 
@@ -168,7 +168,7 @@ public class ImageManipulator implements MediaManipulator {
             switch (containerImageInfo.getTextContentPosition()) {
                 case TOP -> paragraphY = containerImageInfo.getTextContentY();
                 case BOTTOM ->
-                        paragraphY = containerImageInfo.getTextContentY() + (containerImageInfo.getTextContentHeight() - paragraphHeight);
+                    paragraphY = containerImageInfo.getTextContentY() + (containerImageInfo.getTextContentHeight() - paragraphHeight);
             }
 
             ImageMediaBuilder builder = new ImageMediaBuilder();
@@ -261,11 +261,11 @@ public class ImageManipulator implements MediaManipulator {
     @Override
     public File reduceFps(File media, String fileFormat, int fpsReductionRatio, boolean rename) throws IOException {
         return animatedOnlyOperation(
-                media,
-                fileFormat,
-                imageMedia -> MediaCompression.removeFrames(imageMedia, fpsReductionRatio),
-                rename ? "reduced_fps" : null,
-                "Cannot reduce the FPS of a static image."
+            media,
+            fileFormat,
+            imageMedia -> MediaCompression.removeFrames(imageMedia, fpsReductionRatio),
+            rename ? "reduced_fps" : null,
+            "Cannot reduce the FPS of a static image."
         );
     }
 
@@ -397,8 +397,8 @@ public class ImageManipulator implements MediaManipulator {
         containerImageInfo.getFill().ifPresent(color -> {
             graphics.setColor(color);
             contentClipOptional.ifPresentOrElse(
-                    graphics::fill,
-                    () -> graphics.fillRect(0, 0, imageWithText.getWidth(), imageWithText.getHeight())
+                graphics::fill,
+                () -> graphics.fillRect(0, 0, imageWithText.getWidth(), imageWithText.getHeight())
             );
         });
 

@@ -102,9 +102,9 @@ public class OutlinedTextDrawable extends TextDrawable {
             return true;
         } else if (obj instanceof OutlinedTextDrawable other) {
             return Objects.equals(getText(), other.getText())
-                    && Objects.equals(TEXT_FILL_COLOR, other.TEXT_FILL_COLOR)
-                    && Objects.equals(TEXT_OUTLINE_COLOR, other.TEXT_OUTLINE_COLOR)
-                    && Objects.equals(TEXT_OUTLINE_WIDTH_RATIO, other.TEXT_OUTLINE_WIDTH_RATIO);
+                && Objects.equals(TEXT_FILL_COLOR, other.TEXT_FILL_COLOR)
+                && Objects.equals(TEXT_OUTLINE_COLOR, other.TEXT_OUTLINE_COLOR)
+                && Objects.equals(TEXT_OUTLINE_WIDTH_RATIO, other.TEXT_OUTLINE_WIDTH_RATIO);
         } else {
             return false;
         }

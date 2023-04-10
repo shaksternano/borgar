@@ -31,11 +31,11 @@ public class TenorUtil {
                 JsonElement request = NetworkUtil.httpGet(requestUrl);
 
                 Optional<String> mediaUrlOptional = JsonUtil.getNestedElement(request, "results")
-                        .flatMap(resultsArrayElement -> JsonUtil.getArrayElement(resultsArrayElement, 0))
-                        .flatMap(resultElement -> JsonUtil.getNestedElement(resultElement, "media"))
-                        .flatMap(mediaArrayElement -> JsonUtil.getArrayElement(mediaArrayElement, 0))
-                        .flatMap(mediaElement -> JsonUtil.getNestedElement(mediaElement, mediaType.getKey(), "url"))
-                        .flatMap(JsonUtil::getString);
+                    .flatMap(resultsArrayElement -> JsonUtil.getArrayElement(resultsArrayElement, 0))
+                    .flatMap(resultElement -> JsonUtil.getNestedElement(resultElement, "media"))
+                    .flatMap(mediaArrayElement -> JsonUtil.getArrayElement(mediaArrayElement, 0))
+                    .flatMap(mediaElement -> JsonUtil.getNestedElement(mediaElement, mediaType.getKey(), "url"))
+                    .flatMap(JsonUtil::getString);
                 if (mediaUrlOptional.isPresent()) {
                     return mediaUrlOptional;
                 } else {

@@ -176,8 +176,8 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
             return true;
         } else if (obj instanceof ParagraphCompositeDrawable other) {
             return Objects.equals(getParts(), other.getParts())
-                    && Objects.equals(ALIGNMENT, other.ALIGNMENT)
-                    && MAX_WIDTH == other.MAX_WIDTH;
+                && Objects.equals(ALIGNMENT, other.ALIGNMENT)
+                && MAX_WIDTH == other.MAX_WIDTH;
         } else {
             return false;
         }
@@ -188,9 +188,9 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
         private final List<Drawable> words = new ArrayList<>();
 
         private final Map<String, Drawable> NON_TEXT_PARTS = new TreeMap<>(Comparator
-                .comparingInt(String::length)
-                .reversed()
-                .thenComparing(Comparator.naturalOrder())
+            .comparingInt(String::length)
+            .reversed()
+            .thenComparing(Comparator.naturalOrder())
         );
 
         public Builder(Map<String, Drawable> nonTextParts) {
@@ -208,8 +208,8 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
         public Builder addWord(@Nullable Function<String, Drawable> customTextDrawableFactory, String word) {
             if (NON_TEXT_PARTS.isEmpty()) {
                 Drawable textPart = customTextDrawableFactory == null ?
-                        new TextDrawable(word) :
-                        customTextDrawableFactory.apply(word);
+                    new TextDrawable(word) :
+                    customTextDrawableFactory.apply(word);
                 words.add(textPart);
             } else {
                 CompositeDrawable compositeWord = new HorizontalCompositeDrawable();
@@ -228,8 +228,8 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
                             if (!actualWordBuilder.isEmpty()) {
                                 String text = actualWordBuilder.toString();
                                 Drawable textPart = customTextDrawableFactory == null ?
-                                        new TextDrawable(text) :
-                                        customTextDrawableFactory.apply(text);
+                                    new TextDrawable(text) :
+                                    customTextDrawableFactory.apply(text);
                                 compositeWord.addPart(textPart);
                                 actualWordBuilder.setLength(0);
                             }
@@ -250,8 +250,8 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
                 if (!actualWordBuilder.isEmpty()) {
                     String text = actualWordBuilder.toString();
                     Drawable textPart = customTextDrawableFactory == null ?
-                            new TextDrawable(text) :
-                            customTextDrawableFactory.apply(text);
+                        new TextDrawable(text) :
+                        customTextDrawableFactory.apply(text);
                     compositeWord.addPart(textPart);
                 }
 
@@ -282,7 +282,7 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
                 return true;
             } else if (obj instanceof Builder other) {
                 return Objects.equals(words, other.words)
-                        && Objects.equals(NON_TEXT_PARTS, other.NON_TEXT_PARTS);
+                    && Objects.equals(NON_TEXT_PARTS, other.NON_TEXT_PARTS);
             } else {
                 return false;
             }

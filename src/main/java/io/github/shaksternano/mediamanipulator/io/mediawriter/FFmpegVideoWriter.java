@@ -61,18 +61,18 @@ public class FFmpegVideoWriter implements MediaWriter {
     }
 
     private static FFmpegFrameRecorder createFFmpegRecorder(
-            File file,
-            String format,
-            int imageWidth,
-            int imageHeight,
-            int audioChannels,
-            double fps
+        File file,
+        String format,
+        int imageWidth,
+        int imageHeight,
+        int audioChannels,
+        double fps
     ) {
         FFmpegFrameRecorder recorder = new FFmpegFrameRecorder(
-                file,
-                imageWidth,
-                imageHeight,
-                audioChannels
+            file,
+            imageWidth,
+            imageHeight,
+            audioChannels
         );
         recorder.setInterleaved(true);
 

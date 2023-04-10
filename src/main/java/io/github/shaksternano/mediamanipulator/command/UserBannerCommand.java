@@ -33,8 +33,8 @@ public class UserBannerCommand extends BaseCommand {
                 return Optional.ofNullable(message.getAuthor().retrieveProfile().complete().getBannerUrl());
             }
         }).ifPresentOrElse(
-                url -> event.getMessage().reply(url + "?size=1024").queue(),
-                () -> event.getMessage().reply("Could not find a user with a banner image!").queue()
+            url -> event.getMessage().reply(url + "?size=1024").queue(),
+            () -> event.getMessage().reply("Could not find a user with a banner image!").queue()
         );
     }
 }

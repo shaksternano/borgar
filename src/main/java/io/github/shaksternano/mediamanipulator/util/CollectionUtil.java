@@ -25,10 +25,10 @@ public class CollectionUtil {
 
     public static <E> List<E> keepEveryNthElement(Stream<E> stream, int n) {
         return Streams
-                .mapWithIndex(stream, Map::entry)
-                .filter(entry -> entry.getValue() % n == 0)
-                .map(Map.Entry::getKey)
-                .toList();
+            .mapWithIndex(stream, Map::entry)
+            .filter(entry -> entry.getValue() % n == 0)
+            .map(Map.Entry::getKey)
+            .toList();
     }
 
     public static <E> Set<E> intersection(Collection<E> collection1, Collection<E> collection2) {

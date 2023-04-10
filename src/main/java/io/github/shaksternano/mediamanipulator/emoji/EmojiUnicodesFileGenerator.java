@@ -57,27 +57,27 @@ public class EmojiUnicodesFileGenerator {
         if (directory.isDirectory()) {
             Optional<String> shaOptional = GithubUtil.getLatestReleaseTagCommitSha(REPOSITORY_OWNER, REPOSITORY_NAME);
             shaOptional.ifPresentOrElse(
-                    sha -> {
-                        List<String> fileNames = GithubUtil.listFiles(REPOSITORY_OWNER, REPOSITORY_NAME, sha, "assets", "72x72");
-                        if (fileNames.isEmpty()) {
-                            LOGGER.error("Failed to load emoji unicodes, could not retrieve any file names!");
-                        } else {
-                            Stream<String> emojiUnicodeStream = fileNames.stream()
-                                    .map(com.google.common.io.Files::getNameWithoutExtension)
-                                    .map(String::toLowerCase);
-                            Iterable<String> emojiUnicodeIterable = emojiUnicodeStream::iterator;
-                            File emojiUnicodesFile = new File(directory, EMOJI_UNICODES_FILE_NAME);
-                            try {
-                                Files.write(emojiUnicodesFile.toPath(), emojiUnicodeIterable);
+                sha -> {
+                    List<String> fileNames = GithubUtil.listFiles(REPOSITORY_OWNER, REPOSITORY_NAME, sha, "assets", "72x72");
+                    if (fileNames.isEmpty()) {
+                        LOGGER.error("Failed to load emoji unicodes, could not retrieve any file names!");
+                    } else {
+                        Stream<String> emojiUnicodeStream = fileNames.stream()
+                            .map(com.google.common.io.Files::getNameWithoutExtension)
+                            .map(String::toLowerCase);
+                        Iterable<String> emojiUnicodeIterable = emojiUnicodeStream::iterator;
+                        File emojiUnicodesFile = new File(directory, EMOJI_UNICODES_FILE_NAME);
+                        try {
+                            Files.write(emojiUnicodesFile.toPath(), emojiUnicodeIterable);
 
-                                long totalTime = System.currentTimeMillis() - startTime;
-                                LOGGER.info("Created emoji unicodes file \"" + emojiUnicodesFile + "\" in " + totalTime + "ms!");
-                            } catch (IOException e) {
-                                LOGGER.error("Failed to create emoji unicodes file under \"" + emojiUnicodesFile + "\"!", e);
-                            }
+                            long totalTime = System.currentTimeMillis() - startTime;
+                            LOGGER.info("Created emoji unicodes file \"" + emojiUnicodesFile + "\" in " + totalTime + "ms!");
+                        } catch (IOException e) {
+                            LOGGER.error("Failed to create emoji unicodes file under \"" + emojiUnicodesFile + "\"!", e);
                         }
-                    },
-                    () -> LOGGER.error("Failed to load emoji unicodes, could not get the latest release tag commit SHA!")
+                    }
+                },
+                () -> LOGGER.error("Failed to load emoji unicodes, could not get the latest release tag commit SHA!")
             );
         } else if (directory.isFile()) {
             LOGGER.error("Failed to create emoji unicodes file! The directory path \"" + directory + "\" already exists as a file!");

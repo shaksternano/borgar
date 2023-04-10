@@ -39,22 +39,22 @@ public class EmojiUtil {
             JsonElement emojiNamesElement = JsonParser.parseReader(reader);
             if (emojiNamesElement instanceof JsonObject emojiNamesObject) {
                 emojiShortcodesToUrls = emojiNamesObject.entrySet()
-                        .stream()
-                        .filter(entry -> {
-                            boolean isString = entry.getValue() instanceof JsonPrimitive primitive && primitive.isString();
-                            if (!isString) {
-                                Main.getLogger().error("Error parsing shortcodes file! The value {} of the entry with key {} is not a string!", entry.getValue(), entry.getKey());
-                            }
-                            return isString;
-                        })
-                        .map(entry -> {
-                            String emoji = entry.getValue().getAsString();
-                            String emojiUnicode = emoji.codePoints()
-                                    .mapToObj(Integer::toHexString)
-                                    .collect(Collectors.joining("-"));
-                            return Map.entry(entry.getKey(), getEmojiUrl(emojiUnicode));
-                        })
-                        .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
+                    .stream()
+                    .filter(entry -> {
+                        boolean isString = entry.getValue() instanceof JsonPrimitive primitive && primitive.isString();
+                        if (!isString) {
+                            Main.getLogger().error("Error parsing shortcodes file! The value {} of the entry with key {} is not a string!", entry.getValue(), entry.getKey());
+                        }
+                        return isString;
+                    })
+                    .map(entry -> {
+                        String emoji = entry.getValue().getAsString();
+                        String emojiUnicode = emoji.codePoints()
+                            .mapToObj(Integer::toHexString)
+                            .collect(Collectors.joining("-"));
+                        return Map.entry(entry.getKey(), getEmojiUrl(emojiUnicode));
+                    })
+                    .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
             } else {
                 Main.getLogger().error("Invalid emoji shortcodes JSON:\n{}", emojiNamesElement);
             }

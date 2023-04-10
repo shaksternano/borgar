@@ -20,14 +20,14 @@ public class JavaxImageWriter implements ImageWriter {
     @Override
     public Set<String> getSupportedFormats() {
         return ImmutableSet.of(
-                "bmp",
-                "jpeg",
-                "jpg",
-                "wbmp",
-                "png",
-                "gif",
-                "tif",
-                "tiff"
+            "bmp",
+            "jpeg",
+            "jpg",
+            "wbmp",
+            "png",
+            "gif",
+            "tif",
+            "tiff"
         );
     }
 }

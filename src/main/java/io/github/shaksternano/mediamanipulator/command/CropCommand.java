@@ -33,51 +33,52 @@ public class CropCommand extends FileCommand {
     public File modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
         MessageChannel triggerChannel = event.getChannel();
         float topRatio = CommandParser.parseFloatExtraArgument(
-                extraArguments,
-                "top",
-                0,
-                result -> result >= 0 && result < 1,
-                triggerChannel,
-                (argument, defaultValue) -> "Top crop ratio \"" + argument + "\" is not a positive number between 0 inclusive and 1 exclusive, ignoring value!"
+            extraArguments,
+            "top",
+            0,
+            result -> result >= 0 && result < 1,
+            triggerChannel,
+            (argument, defaultValue) -> "Top crop ratio \"" + argument + "\" is not a positive number between 0 inclusive and 1 exclusive, ignoring value!"
         );
         float rightRatio = CommandParser.parseFloatExtraArgument(
-                extraArguments,
-                "right",
-                0,
-                result -> result >= 0 && result < 1,
-                triggerChannel,
-                (argument, defaultValue) -> "Right crop ratio \"" + argument + "\" is not a positive number between 0 inclusive and 1 exclusive, ignoring value!"
+            extraArguments,
+            "right",
+            0,
+            result -> result >= 0 && result < 1,
+            triggerChannel,
+            (argument, defaultValue) -> "Right crop ratio \"" + argument + "\" is not a positive number between 0 inclusive and 1 exclusive, ignoring value!"
         );
         float bottomRatio = CommandParser.parseFloatExtraArgument(
-                extraArguments,
-                "bottom",
-                0,
-                result -> result >= 0 && result < 1,
-                triggerChannel,
-                (argument, defaultValue) -> "Bottom crop ratio \"" + argument + "\" is not a positive number between 0 inclusive and 1 exclusive, ignoring value!"
+            extraArguments,
+            "bottom",
+            0,
+            result -> result >= 0 && result < 1,
+            triggerChannel,
+            (argument, defaultValue) -> "Bottom crop ratio \"" + argument + "\" is not a positive number between 0 inclusive and 1 exclusive, ignoring value!"
         );
         float leftRatio = CommandParser.parseFloatExtraArgument(
-                extraArguments,
-                "left",
-                0,
-                result -> result >= 0 && result < 1,
-                triggerChannel,
-                (argument, defaultValue) -> "Left crop ratio \"" + argument + "\" is not a positive number between 0 inclusive and 1 exclusive, ignoring value!"
+            extraArguments,
+            "left",
+            0,
+            result -> result >= 0 && result < 1,
+            triggerChannel,
+            (argument, defaultValue) -> "Left crop ratio \"" + argument + "\" is not a positive number between 0 inclusive and 1 exclusive, ignoring value!"
         );
 
         if (topRatio == 0 && rightRatio == 0 && bottomRatio == 0 && leftRatio == 0) {
             throw new MissingArgumentException("No valid crop ratios were specified! Please specify at least one valid crop ratio.");
         } else {
             return MediaUtil.processMedia(
-                    file,
-                    fileFormat,
-                    "cropped",
-                    new CropProcessor(topRatio, rightRatio, bottomRatio, leftRatio)
+                file,
+                fileFormat,
+                "cropped",
+                new CropProcessor(topRatio, rightRatio, bottomRatio, leftRatio)
             );
         }
     }
 
-    private record CropProcessor(float topRatio, float rightRatio, float bottomRatio, float leftRatio) implements ImageProcessor<CropData> {
+    private record CropProcessor(float topRatio, float rightRatio, float bottomRatio,
+                                 float leftRatio) implements ImageProcessor<CropData> {
 
         @Override
         public BufferedImage transformImage(ImageFrame frame, CropData constantData) {
@@ -101,12 +102,13 @@ public class CropCommand extends FileCommand {
     @Override
     public Set<String> getAdditionalParameterNames() {
         return ImmutableSet.of(
-                "top",
-                "right",
-                "bottom",
-                "left"
+            "top",
+            "right",
+            "bottom",
+            "left"
         );
     }
 
-    private record CropData(int x, int y, int width, int height) {}
+    private record CropData(int x, int y, int width, int height) {
+    }
 }

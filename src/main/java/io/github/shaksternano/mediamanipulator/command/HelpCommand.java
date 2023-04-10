@@ -66,9 +66,9 @@ public class HelpCommand extends BaseCommand {
         }
 
         return cachedHelpMessages
-                .stream()
-                .map(message -> new MessageCreateBuilder().addContent(message).build())
-                .collect(ImmutableList.toImmutableList());
+            .stream()
+            .map(message -> new MessageCreateBuilder().addContent(message).build())
+            .collect(ImmutableList.toImmutableList());
     }
 
     private static List<String> createHelpMessages() {

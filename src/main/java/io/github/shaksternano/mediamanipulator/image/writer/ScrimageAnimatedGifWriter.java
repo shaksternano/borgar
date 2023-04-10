@@ -70,7 +70,7 @@ public class ScrimageAnimatedGifWriter implements ImageWriter {
     @Override
     public Set<String> getSupportedFormats() {
         return ImmutableSet.of(
-                "gif"
+            "gif"
         );
     }
 

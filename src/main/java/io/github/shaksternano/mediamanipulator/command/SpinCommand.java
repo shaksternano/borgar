@@ -28,19 +28,19 @@ public class SpinCommand extends MediaCommand {
     @Override
     public File applyOperation(File media, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
         float spinSpeed = CommandParser.parseFloatArgument(arguments,
-                0,
-                DEFAULT_SPIN_SPEED,
-                null,
-                event.getChannel(),
-                (argument, defaultValue) -> "Spin speed \"" + argument + "\" is not a number. Using default value of " + defaultValue + "."
+            0,
+            DEFAULT_SPIN_SPEED,
+            null,
+            event.getChannel(),
+            (argument, defaultValue) -> "Spin speed \"" + argument + "\" is not a number. Using default value of " + defaultValue + "."
         );
         int rgb = CommandParser.parseIntegerArgument(
-                arguments,
-                1,
-                -1,
-                null,
-                event.getChannel(),
-                (argument, defaultValue) -> "RGB value \"" + argument + "\" is not a whole number. Setting transparent background color."
+            arguments,
+            1,
+            -1,
+            null,
+            event.getChannel(),
+            (argument, defaultValue) -> "RGB value \"" + argument + "\" is not a whole number. Setting transparent background color."
         );
         return manipulator.spin(media, fileFormat, spinSpeed, rgb < 0 ? null : new Color(rgb));
     }

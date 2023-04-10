@@ -31,8 +31,8 @@ public class StickerImageCommand extends BaseCommand {
                 return Optional.of(stickers.get(0).getIconUrl());
             }
         }).ifPresentOrElse(
-                url -> event.getMessage().reply(url).queue(),
-                () -> event.getMessage().reply("No sticker found!").queue()
+            url -> event.getMessage().reply(url).queue(),
+            () -> event.getMessage().reply("No sticker found!").queue()
         );
     }
 }

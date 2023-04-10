@@ -53,7 +53,7 @@ public class ScrimageAnimatedGifReader implements ImageReader {
     @Override
     public Set<String> getSupportedFormats() {
         return ImmutableSet.of(
-                "gif"
+            "gif"
         );
     }
 }

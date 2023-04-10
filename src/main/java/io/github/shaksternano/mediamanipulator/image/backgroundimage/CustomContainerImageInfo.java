@@ -33,21 +33,21 @@ public class CustomContainerImageInfo implements ContainerImageInfo {
     private final Color FILL;
 
     public CustomContainerImageInfo(
-            ImageMedia image,
-            String resultName,
-            int contentContainerX,
-            int contentContainerY,
-            int contentContainerWidth,
-            int contentContainerHeight,
-            int contentContainerPadding,
-            Position contentPosition,
-            TextAlignment textContentAlignment,
-            @Nullable Font font,
-            @Nullable Color textColor,
-            @Nullable Function<String, Drawable> customTextDrawableFactory,
-            @Nullable Shape contentClip,
-            boolean isBackground,
-            @Nullable Color fill) {
+        ImageMedia image,
+        String resultName,
+        int contentContainerX,
+        int contentContainerY,
+        int contentContainerWidth,
+        int contentContainerHeight,
+        int contentContainerPadding,
+        Position contentPosition,
+        TextAlignment textContentAlignment,
+        @Nullable Font font,
+        @Nullable Color textColor,
+        @Nullable Function<String, Drawable> customTextDrawableFactory,
+        @Nullable Shape contentClip,
+        boolean isBackground,
+        @Nullable Color fill) {
         IMAGE = image;
         RESULT_NAME = resultName;
         CONTENT_X = contentContainerX + contentContainerPadding;

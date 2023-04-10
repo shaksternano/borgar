@@ -22,7 +22,7 @@ public class Image4jIcoImageWriter implements ImageWriter {
     @Override
     public Set<String> getSupportedFormats() {
         return ImmutableSet.of(
-                "ico"
+            "ico"
         );
     }
 }

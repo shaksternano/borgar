@@ -27,12 +27,12 @@ public class SpeedCommand extends MediaCommand {
     @Override
     public File applyOperation(File media, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
         float speedMultiplier = CommandParser.parseFloatArgument(
-                arguments,
-                0,
-                DEFAULT_SPEED_MULTIPLIER,
-                null,
-                event.getChannel(),
-                (argument, defaultValue) -> "Speed multiplier \"" + argument + "\" is not a number. Using default value of " + defaultValue + "."
+            arguments,
+            0,
+            DEFAULT_SPEED_MULTIPLIER,
+            null,
+            event.getChannel(),
+            (argument, defaultValue) -> "Speed multiplier \"" + argument + "\" is not a number. Using default value of " + defaultValue + "."
         );
         return manipulator.speed(media, fileFormat, speedMultiplier);
     }

@@ -187,8 +187,8 @@ public class FileUtil {
      */
     public static void downloadFile(String url, File file) throws IOException {
         try (
-                FileOutputStream outputStream = new FileOutputStream(file);
-                ReadableByteChannel readableByteChannel = Channels.newChannel(new URL(url).openStream())
+            FileOutputStream outputStream = new FileOutputStream(file);
+            ReadableByteChannel readableByteChannel = Channels.newChannel(new URL(url).openStream())
         ) {
             outputStream.getChannel().transferFrom(readableByteChannel, 0, MAXIMUM_FILE_SIZE_TO_DOWNLOAD);
         }

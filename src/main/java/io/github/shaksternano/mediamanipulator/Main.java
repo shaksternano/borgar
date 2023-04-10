@@ -149,8 +149,8 @@ public class Main {
     private static void initJda(String token) {
         try {
             jda = JDABuilder.createDefault(token)
-                    .enableIntents(GatewayIntent.MESSAGE_CONTENT)
-                    .build();
+                .enableIntents(GatewayIntent.MESSAGE_CONTENT)
+                .build();
             RestAction.setDefaultFailure(throwable -> LOGGER.error("An error occurred while executing a REST action.", throwable));
             jda.awaitReady();
             return;
@@ -165,15 +165,15 @@ public class Main {
         jda.getPresence().setActivity(Activity.playing("fortnite battle pass"));
 
         jda.retrieveApplicationInfo().queue(
-                applicationInfo -> ownerId = applicationInfo.getOwner().getIdLong(),
-                throwable -> getLogger().error("Failed to get the owner ID of this bot, owner exclusive functionality won't available!", throwable)
+            applicationInfo -> ownerId = applicationInfo.getOwner().getIdLong(),
+            throwable -> getLogger().error("Failed to get the owner ID of this bot, owner exclusive functionality won't available!", throwable)
         );
 
         Command helpCommand = Commands.HELP;
         jda.updateCommands()
-                .addCommands(net.dv8tion.jda.api.interactions.commands.build.Commands.slash(helpCommand.getName(), helpCommand.getDescription()))
-                .queue(commands -> {
-                }, throwable -> getLogger().error("Failed to add slash commands!", throwable));
+            .addCommands(net.dv8tion.jda.api.interactions.commands.build.Commands.slash(helpCommand.getName(), helpCommand.getDescription()))
+            .queue(commands -> {
+            }, throwable -> getLogger().error("Failed to add slash commands!", throwable));
         jda.addEventListener(new CommandListener());
     }
 

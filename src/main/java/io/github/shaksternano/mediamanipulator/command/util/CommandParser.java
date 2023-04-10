@@ -130,7 +130,7 @@ public class CommandParser {
                 String commandWord = commandPart.substring(1).toLowerCase();
 
                 if (command.getAdditionalParameterNames().contains(commandWord)
-                        && !passedExtraCommandWords.contains(commandWord)
+                    && !passedExtraCommandWords.contains(commandWord)
                 ) {
                     currentExtraParameterName = commandWord;
                     passedExtraCommandWords.add(commandWord);

@@ -37,24 +37,24 @@ public class ImageUtil {
 
     public static void configureTextDrawQuality(Graphics2D graphics) {
         graphics.setRenderingHint(
-                RenderingHints.KEY_FRACTIONALMETRICS,
-                RenderingHints.VALUE_FRACTIONALMETRICS_ON
+            RenderingHints.KEY_FRACTIONALMETRICS,
+            RenderingHints.VALUE_FRACTIONALMETRICS_ON
         );
 
         graphics.setRenderingHint(
-                RenderingHints.KEY_TEXT_ANTIALIASING,
-                RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB
+            RenderingHints.KEY_TEXT_ANTIALIASING,
+            RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB
         );
 
         graphics.setRenderingHint(
-                RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON
+            RenderingHints.KEY_ANTIALIASING,
+            RenderingHints.VALUE_ANTIALIAS_ON
 
         );
 
         graphics.setRenderingHint(
-                RenderingHints.KEY_RENDERING,
-                RenderingHints.VALUE_RENDER_QUALITY
+            RenderingHints.KEY_RENDERING,
+            RenderingHints.VALUE_RENDER_QUALITY
         );
     }
 
@@ -375,11 +375,11 @@ public class ImageUtil {
 
     public static String imageToString(BufferedImage image) {
         return image.getClass().getSimpleName() +
-                "[" +
-                image.getWidth() +
-                "x" +
-                image.getHeight() +
-                "]";
+            "[" +
+            image.getWidth() +
+            "x" +
+            image.getHeight() +
+            "]";
     }
 
     public static int getType(BufferedImage image) {
@@ -437,10 +437,10 @@ public class ImageUtil {
     private static void floodFill(BufferedImage image, int x, int y, int previousRgb, int newRgb) {
         // Recursive cases
         if (x >= 0
-                && x < image.getWidth()
-                && y >= 0
-                && y < image.getHeight()
-                && image.getRGB(x, y) == previousRgb
+            && x < image.getWidth()
+            && y >= 0
+            && y < image.getHeight()
+            && image.getRGB(x, y) == previousRgb
         ) {
             image.setRGB(x, y, newRgb);
 

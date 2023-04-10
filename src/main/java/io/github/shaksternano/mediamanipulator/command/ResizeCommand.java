@@ -50,10 +50,10 @@ public class ResizeCommand extends FileCommand {
             try {
                 float resizeMultiplier = Float.parseFloat(arguments.get(0));
                 return MediaUtil.processMedia(
-                        file,
-                        fileFormat,
-                        "resize",
-                        image -> ImageUtil.resize(image, resizeMultiplier, RAW)
+                    file,
+                    fileFormat,
+                    "resize",
+                    image -> ImageUtil.resize(image, resizeMultiplier, RAW)
                 );
             } catch (NumberFormatException e) {
                 throw new InvalidArgumentException("Scale multiplier \"" + arguments.get(0) + "\" is not a number!");

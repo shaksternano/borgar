@@ -87,7 +87,7 @@ public class AwtFrame implements Frame {
             return true;
         } else if (obj instanceof AwtFrame other) {
             return Objects.equals(image, other.image)
-                    && Objects.equals(duration, other.duration);
+                && Objects.equals(duration, other.duration);
         } else {
             return false;
         }
@@ -101,9 +101,9 @@ public class AwtFrame implements Frame {
             builder.append("Flushed");
         } else {
             builder.append("Image: ")
-                    .append(ImageUtil.imageToString(image))
-                    .append(", Duration:")
-                    .append(duration);
+                .append(ImageUtil.imageToString(image))
+                .append(", Duration:")
+                .append(duration);
         }
 
         builder.append("]");

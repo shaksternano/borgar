@@ -42,14 +42,14 @@ public class JavaxImageReader implements ImageReader {
     @Override
     public Set<String> getSupportedFormats() {
         return ImmutableSet.of(
-                "bmp",
-                "jpeg",
-                "jpg",
-                "wbmp",
-                "png",
-                "gif",
-                "tif",
-                "tiff"
+            "bmp",
+            "jpeg",
+            "jpg",
+            "wbmp",
+            "png",
+            "gif",
+            "tif",
+            "tiff"
         );
     }
 }

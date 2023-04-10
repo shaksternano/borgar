@@ -45,7 +45,7 @@ public class StretchCommand extends FileCommand {
      * and the stretch height multiplier is specified by the second element of the arguments array,
      * with a default value of {@link #DEFAULT_HEIGHT_MULTIPLIER} if it is not specified or un-parsable.
      *
-     * @param file          The media file to apply the operation to.
+     * @param file           The media file to apply the operation to.
      * @param fileFormat     The file format of the media file.
      * @param arguments      The arguments of the command.
      * @param extraArguments A multimap mapping the additional parameter names to a list of the arguments.
@@ -56,31 +56,31 @@ public class StretchCommand extends FileCommand {
     @Override
     public File modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
         float widthMultiplier = CommandParser.parseFloatArgument(
-                arguments,
-                0,
-                DEFAULT_WIDTH_MULTIPLIER,
-                null,
-                event.getChannel(),
-                (argument, defaultValue) -> "Width multiplier \"" + argument + "\" is not a number. Using default value of " + defaultValue + "."
+            arguments,
+            0,
+            DEFAULT_WIDTH_MULTIPLIER,
+            null,
+            event.getChannel(),
+            (argument, defaultValue) -> "Width multiplier \"" + argument + "\" is not a number. Using default value of " + defaultValue + "."
         );
         float heightMultiplier = CommandParser.parseFloatArgument(
-                arguments,
-                1,
-                DEFAULT_HEIGHT_MULTIPLIER,
-                null,
-                event.getChannel(),
-                (argument, defaultValue) -> "Height multiplier \"" + argument + "\" is not a number. Using default value of " + defaultValue + "."
+            arguments,
+            1,
+            DEFAULT_HEIGHT_MULTIPLIER,
+            null,
+            event.getChannel(),
+            (argument, defaultValue) -> "Height multiplier \"" + argument + "\" is not a number. Using default value of " + defaultValue + "."
         );
         return MediaUtil.processMedia(
-                file,
-                fileFormat,
-                "stretch",
-                image -> ImageUtil.stretch(
-                        image,
-                        (int) (image.getWidth() * widthMultiplier),
-                        (int) (image.getHeight() * heightMultiplier),
-                        RAW
-                )
+            file,
+            fileFormat,
+            "stretch",
+            image -> ImageUtil.stretch(
+                image,
+                (int) (image.getWidth() * widthMultiplier),
+                (int) (image.getHeight() * heightMultiplier),
+                RAW
+            )
         );
     }
 }

@@ -58,7 +58,7 @@ public class LimitedStringBuilder {
             return true;
         } else if (obj instanceof LimitedStringBuilder other) {
             return Objects.equals(MAX_LENGTH, other.MAX_LENGTH)
-                    && Objects.equals(parts, other.parts);
+                && Objects.equals(parts, other.parts);
         } else {
             return false;
         }

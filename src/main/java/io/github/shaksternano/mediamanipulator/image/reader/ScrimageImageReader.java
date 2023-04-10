@@ -38,13 +38,13 @@ public class ScrimageImageReader implements ImageReader {
     @Override
     public Set<String> getSupportedFormats() {
         return ImmutableSet.of(
-                "jpeg",
-                "jpg",
-                "png",
-                "gif",
-                "tif",
-                "tiff",
-                "webp"
+            "jpeg",
+            "jpg",
+            "png",
+            "gif",
+            "tif",
+            "tiff",
+            "webp"
         );
     }
 }
