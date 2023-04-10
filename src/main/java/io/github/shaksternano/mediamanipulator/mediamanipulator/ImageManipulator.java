@@ -5,13 +5,9 @@ import com.google.common.collect.ImmutableSet;
 import io.github.shaksternano.mediamanipulator.exception.InvalidArgumentException;
 import io.github.shaksternano.mediamanipulator.exception.UnsupportedFileFormatException;
 import io.github.shaksternano.mediamanipulator.graphics.GraphicsUtil;
-import io.github.shaksternano.mediamanipulator.graphics.Position;
-import io.github.shaksternano.mediamanipulator.graphics.TextAlignment;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.Drawable;
-import io.github.shaksternano.mediamanipulator.graphics.drawable.OutlinedTextDrawable;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.ParagraphCompositeDrawable;
 import io.github.shaksternano.mediamanipulator.image.backgroundimage.ContainerImageInfo;
-import io.github.shaksternano.mediamanipulator.image.backgroundimage.CustomContainerImageInfo;
 import io.github.shaksternano.mediamanipulator.image.imagemedia.ImageMedia;
 import io.github.shaksternano.mediamanipulator.image.reader.util.ImageReaderRegistry;
 import io.github.shaksternano.mediamanipulator.image.reader.util.ImageReaders;
@@ -63,85 +59,6 @@ public class ImageManipulator implements MediaManipulator {
         } else {
             throw new UnsupportedFileFormatException(staticImageErrorMessage);
         }
-    }
-
-    @SuppressWarnings("UnusedAssignment")
-    @Override
-    public File impact(File media, String fileFormat, List<String> topWords, List<String> bottomWords, Map<String, Drawable> nonTextParts) throws IOException {
-        ImageMedia imageMedia = ImageReaders.read(media, fileFormat, null);
-        BufferedImage firstImage = imageMedia.getFirstImage();
-
-        int width = firstImage.getWidth();
-        int height = firstImage.getHeight() / 5;
-
-        int smallestDimension = Math.min(width, height);
-        int padding = (int) (smallestDimension * 0.04F);
-
-        int topY = 0;
-        int bottomY = firstImage.getHeight() - height;
-
-        firstImage.flush();
-        firstImage = null;
-
-        boolean originalIsAnimated = imageMedia.isAnimated();
-
-        ContainerImageInfo topWordsContainerImageInfo = new CustomContainerImageInfo(
-                imageMedia,
-                "impacted",
-                0,
-                topY,
-                width,
-                height,
-                padding,
-                Position.CENTRE,
-                TextAlignment.CENTER,
-                new Font("Impact", Font.BOLD, smallestDimension),
-                Color.WHITE,
-                word -> new OutlinedTextDrawable(word, Color.WHITE, Color.BLACK, 0.15F),
-                null,
-                true,
-                null
-        );
-
-        ImageMedia result = drawTextOnImage(topWords, nonTextParts, topWordsContainerImageInfo);
-
-        ContainerImageInfo bottomWordsContainerImageInfo = new CustomContainerImageInfo(
-                result,
-                topWordsContainerImageInfo.getResultName(),
-                0,
-                bottomY,
-                width,
-                height,
-                padding,
-                topWordsContainerImageInfo.getTextContentPosition(),
-                topWordsContainerImageInfo.getTextContentAlignment(),
-                topWordsContainerImageInfo.getFont(),
-                topWordsContainerImageInfo.getTextColor(),
-                topWordsContainerImageInfo.getCustomTextDrawableFactory().orElse(null),
-                null,
-                topWordsContainerImageInfo.isBackground(),
-                topWordsContainerImageInfo.getFill().orElse(null)
-        );
-
-        result = drawTextOnImage(bottomWords, nonTextParts, bottomWordsContainerImageInfo);
-
-        String outputFormat;
-        String outputExtension;
-        if (result.isAnimated() && !originalIsAnimated) {
-            outputFormat = "gif";
-            outputExtension = "." + outputFormat;
-        } else {
-            outputFormat = fileFormat;
-            outputExtension = com.google.common.io.Files.getFileExtension(media.getName());
-
-            if (!outputExtension.isBlank()) {
-                outputExtension = "." + outputExtension;
-            }
-        }
-
-        File outputFile = FileUtil.getUniqueTempFile(topWordsContainerImageInfo.getResultName() + outputExtension);
-        ImageWriters.write(result, outputFile, outputFormat);
-        return outputFile;
     }
 
     @SuppressWarnings("UnusedAssignment")
@@ -548,5 +465,4 @@ public class ImageManipulator implements MediaManipulator {
 
         return output;
     }
-
 }

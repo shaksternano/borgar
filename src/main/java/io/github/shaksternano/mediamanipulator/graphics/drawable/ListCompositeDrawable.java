@@ -1,5 +1,7 @@
 package io.github.shaksternano.mediamanipulator.graphics.drawable;
 
+import io.github.shaksternano.mediamanipulator.util.MiscUtil;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -83,16 +85,6 @@ public abstract class ListCompositeDrawable implements CompositeDrawable {
 
     @Override
     public void close() throws IOException {
-        IOException exception = null;
-        for (Drawable part : parts) {
-            try {
-                part.close();
-            } catch (IOException e) {
-                exception = e;
-            }
-        }
-        if (exception != null) {
-            throw exception;
-        }
+        MiscUtil.closeAll(parts);
     }
 }

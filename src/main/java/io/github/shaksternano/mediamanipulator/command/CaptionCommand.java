@@ -10,6 +10,7 @@ import io.github.shaksternano.mediamanipulator.image.ImageProcessor;
 import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
 import io.github.shaksternano.mediamanipulator.io.MediaUtil;
 import io.github.shaksternano.mediamanipulator.util.MessageUtil;
+import io.github.shaksternano.mediamanipulator.util.MiscUtil;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.*;
@@ -77,7 +78,12 @@ public class CaptionCommand extends FileCommand {
 
             graphics.setFont(constantData.font());
             graphics.setColor(Color.BLACK);
-            constantData.paragraph.draw(graphics, constantData.padding(), captionY + constantData.padding(), frame.timestamp());
+            constantData.paragraph().draw(
+                graphics,
+                constantData.padding(),
+                captionY + constantData.padding(),
+                frame.timestamp()
+            );
 
             graphics.dispose();
 
@@ -122,20 +128,15 @@ public class CaptionCommand extends FileCommand {
 
         @Override
         public void close() throws IOException {
-            IOException exception = null;
-            for (Drawable drawable : nonTextParts.values()) {
-                try {
-                    drawable.close();
-                } catch (IOException e) {
-                    exception = e;
-                }
-            }
-            if (exception != null) {
-                throw exception;
-            }
+            MiscUtil.closeAll(nonTextParts.values());
         }
     }
 
-    private record CaptionData(Font font, int fillHeight, int padding, Drawable paragraph) {
+    private record CaptionData(
+        Font font,
+        int fillHeight,
+        int padding,
+        Drawable paragraph
+    ) {
     }
 }

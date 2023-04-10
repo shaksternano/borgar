@@ -14,6 +14,7 @@ import java.util.NoSuchElementException;
 public abstract class FFmpegMediaReader<T> extends BaseMediaReader<T> {
 
     protected final FFmpegFrameGrabber grabber;
+    protected boolean closed = false;
 
     public FFmpegMediaReader(File input) throws IOException {
         this(new FFmpegFrameGrabber(input));
@@ -55,6 +56,10 @@ public abstract class FFmpegMediaReader<T> extends BaseMediaReader<T> {
 
     @Override
     public void close() throws IOException {
+        if (closed) {
+            return;
+        }
+        closed = true;
         grabber.close();
     }
 

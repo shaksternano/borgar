@@ -39,7 +39,7 @@ public interface MediaReader<T> extends Closeable, Iterable<T> {
     /**
      * Gets the frame at the given timestamp.
      * If the timestamp is larger than the duration of the media,
-     * the reader with wrap around to the beginning.
+     * the reader will wrap around to the beginning.
      *
      * @param timestamp The timestamp in microseconds.
      * @return The frame at the given timestamp.

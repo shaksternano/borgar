@@ -41,6 +41,9 @@ public class FFmpegImageReader extends FFmpegMediaReader<ImageFrame> {
 
     @Override
     public void close() throws IOException {
+        if (closed) {
+            return;
+        }
         super.close();
         converter.close();
     }
