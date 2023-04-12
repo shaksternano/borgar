@@ -93,7 +93,6 @@ public class Main {
         EmojiUtil.initEmojiUnicodeSet();
         EmojiUtil.initEmojiShortCodesToUrlsMap();
         configureJda();
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> getLogger().info("Shutting down!")));
         avutil.av_log_set_level(avutil.AV_LOG_PANIC);
 
         getLogger().info("Initialised!");
