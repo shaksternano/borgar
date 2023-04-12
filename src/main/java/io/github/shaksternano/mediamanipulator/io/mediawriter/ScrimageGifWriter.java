@@ -5,7 +5,6 @@ import com.sksamuel.scrimage.ImmutableImage;
 import com.sksamuel.scrimage.nio.StreamingGifWriter;
 import io.github.shaksternano.mediamanipulator.image.ImageFrame;
 import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
-import org.bytedeco.javacv.Frame;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
@@ -16,7 +15,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ScrimageGifWriter implements MediaWriter {
+public class ScrimageGifWriter extends NoAudioWriter {
 
     private final StreamingGifWriter.GifStream gif;
     @Nullable
@@ -58,10 +57,6 @@ public class ScrimageGifWriter implements MediaWriter {
         Duration frameDuration = Duration.ofMillis(frame.duration() / 1000);
         gif.writeFrame(immutableImage, frameDuration, disposeMethod);
         previousImage = currentImage;
-    }
-
-    @Override
-    public void recordAudioFrame(Frame frame) {
     }
 
     @Override

@@ -1,13 +1,12 @@
 package io.github.shaksternano.mediamanipulator.io.mediawriter;
 
 import io.github.shaksternano.mediamanipulator.image.ImageFrame;
-import org.bytedeco.javacv.Frame;
 
 import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
 
-public class JavaxImageWriter implements MediaWriter {
+public class JavaxImageWriter extends NoAudioWriter {
 
     private final File output;
     private final String outputFormat;
@@ -24,10 +23,6 @@ public class JavaxImageWriter implements MediaWriter {
             ImageIO.write(frame.image(), outputFormat, output);
             written = true;
         }
-    }
-
-    @Override
-    public void recordAudioFrame(Frame frame) {
     }
 
     @Override
