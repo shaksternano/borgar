@@ -5,11 +5,11 @@ import io.github.shaksternano.mediamanipulator.Main;
 import io.github.shaksternano.mediamanipulator.exception.InvalidMediaException;
 import io.github.shaksternano.mediamanipulator.exception.UnsupportedFileFormatException;
 import io.github.shaksternano.mediamanipulator.io.FileUtil;
-import io.github.shaksternano.mediamanipulator.mediamanipulator.MediaManipulator;
 import io.github.shaksternano.mediamanipulator.mediamanipulator.util.MediaManipulatorRegistry;
 import io.github.shaksternano.mediamanipulator.util.DiscordUtil;
 import io.github.shaksternano.mediamanipulator.util.MessageUtil;
 import io.github.shaksternano.mediamanipulator.util.MiscUtil;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.utils.FileUpload;
@@ -18,8 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.CompletableFuture;
 
 public abstract class FileCommand extends BaseCommand {
 
@@ -34,83 +33,103 @@ public abstract class FileCommand extends BaseCommand {
         super(name, description);
     }
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
     public void execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws Exception {
-        Message userMessage = event.getMessage();
-        MessageUtil.downloadFile(userMessage, FileUtil.getTempDir().toString()).ifPresentOrElse(file -> {
-            String fileFormat = FileUtil.getFileFormat(file);
+        var triggerMessage = event.getMessage();
+        MessageUtil.downloadFile(triggerMessage, FileUtil.getTempDir().toString()).ifPresentOrElse(file -> {
+            var fileFormat = FileUtil.getFileFormat(file);
             File editedMedia = null;
             File compressedMedia = null;
-
             try {
                 editedMedia = modifyFile(file, fileFormat, arguments, extraArguments, event);
-                String newFileFormat = FileUtil.getFileFormat(editedMedia);
-                Optional<MediaManipulator> manipulatorOptional = MediaManipulatorRegistry.getManipulator(newFileFormat);
-                if (manipulatorOptional.isPresent()) {
-                    compressedMedia = manipulatorOptional.orElseThrow().compress(editedMedia, newFileFormat, event.getGuild());
-                } else {
-                    compressedMedia = editedMedia;
-                }
-
-                long mediaFileSize = compressedMedia.length();
+                var newFileFormat = FileUtil.getFileFormat(editedMedia);
+                compressedMedia = compress(editedMedia, newFileFormat, event.getGuild());
+                var mediaFileSize = compressedMedia.length();
                 if (mediaFileSize > DiscordUtil.getMaxUploadSize(event.getGuild())) {
-                    long mediaFileSizeInMb = mediaFileSize / MiscUtil.TO_MB;
-                    userMessage.reply("The size of the edited media file, " + mediaFileSizeInMb + "MB, is too large to send!").queue();
-                    Main.getLogger().error("File size of edited media was too large to send! (" + mediaFileSize + "MB)");
+                    handleTooLargeFile(mediaFileSize, triggerMessage);
                 } else {
-                    boolean success = false;
-                    int maxAttempts = 3;
-                    for (int attempts = 0; attempts < maxAttempts; attempts++) {
-                        try {
-                            userMessage.replyFiles(FileUpload.fromData(compressedMedia)).complete();
-                            success = true;
-                            break;
-                        } catch (RuntimeException e) {
-                            Main.getLogger().error((attempts + 1) + " failed attempt" + (attempts == 0 ? "" : "s") + " to send edited media!", e);
-
-                            if (attempts < maxAttempts - 1) {
-                                try {
-                                    TimeUnit.SECONDS.sleep(1);
-                                } catch (InterruptedException e2) {
-                                    Main.getLogger().error("Interrupted while waiting to send again!!", e2);
-                                }
-                            }
-                        }
-                    }
-
-                    if (!success) {
-                        userMessage.reply("Failed to send edited media, please try again!").queue();
-                        Main.getLogger().error("Failed to send edited media in " + maxAttempts + " attempts!");
-                    }
+                    tryReply(triggerMessage, compressedMedia);
                 }
-            } catch (InvalidMediaException e) {
-                userMessage.reply(e.getMessage() == null ? "Invalid media!" : "Invalid media: " + e.getMessage()).queue();
-                Main.getLogger().error("Invalid media!", e);
-            } catch (UnsupportedFileFormatException e) {
-                String unsupportedMessage = "This operation is not supported on files with type \"" + fileFormat + "\"!";
-
-                if (e.getMessage() != null && !e.getMessage().isBlank()) {
-                    unsupportedMessage = unsupportedMessage + " Reason: " + e.getMessage();
-                }
-
-                userMessage.reply(unsupportedMessage).queue();
-                Main.getLogger().warn("Unsupported operation!", e);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            } catch (OutOfMemoryError e) {
-                userMessage.reply("The server ran out of memory! Try again later or use a smaller file.").queue();
-                Main.getLogger().error("Ran out of memory executing command " + getNameWithPrefix() + "!", e);
+            } catch (Throwable t) {
+                handleError(t, triggerMessage, fileFormat);
             } finally {
-                file.delete();
-                if (editedMedia != null) {
-                    editedMedia.delete();
-                }
-                if (compressedMedia != null) {
-                    compressedMedia.delete();
-                }
+                deleteAll(file, editedMedia, compressedMedia);
             }
-        }, () -> userMessage.reply("No media found!").queue());
+        }, () -> triggerMessage.reply("No media found!").queue());
+    }
+
+    private static File compress(File file, String fileFormat, Guild guild) {
+        return MediaManipulatorRegistry.getManipulator(fileFormat)
+            .map(manipulator -> {
+                try {
+                    return manipulator.compress(file, fileFormat, guild);
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
+            })
+            .orElse(file);
+    }
+
+    private static void handleTooLargeFile(long fileSize, Message triggerMessage) {
+        var mediaFileSizeInMb = fileSize / MiscUtil.TO_MB;
+        triggerMessage.reply("The size of the edited media file, " + mediaFileSizeInMb + "MB, is too large to send!").queue();
+        Main.getLogger().error("File size of edited media was too large to send! (" + fileSize + "MB)");
+    }
+
+    private static void tryReply(Message triggerMessage, File file) {
+        MiscUtil.repeatTry(
+            () -> reply(triggerMessage, file),
+            3,
+            5,
+            FileCommand::handleReplyAttemptFailure,
+            maxAttempts -> handleReplyFailure(maxAttempts, triggerMessage)
+        );
+    }
+
+    private static CompletableFuture<?> reply(Message triggerMessage, File file) {
+        return triggerMessage.replyFiles(FileUpload.fromData(file)).submit();
+    }
+
+    private static void handleReplyAttemptFailure(int attempts, Throwable error) {
+        Main.getLogger().error(attempts + " failed attempt" + (attempts == 1 ? "" : "s") + " to send edited media!", error);
+    }
+
+    private static void handleReplyFailure(int totalAttempts, Message triggerMessage) {
+        triggerMessage.reply("Failed to send edited media, please try again!").queue();
+        Main.getLogger().error("Failed to send edited media in " + totalAttempts + " attempts!");
+    }
+
+    private void handleError(Throwable error, Message triggerMessage, String fileFormat) {
+        if (error instanceof InvalidMediaException) {
+            triggerMessage.reply(error.getMessage() == null ? "Invalid media!" : "Invalid media: " + error.getMessage()).queue();
+            Main.getLogger().error("Invalid media!", error);
+        } else if (error instanceof UnsupportedFileFormatException) {
+            var unsupportedMessage = "This operation is not supported on files with type \"" + fileFormat + "\"!";
+            if (error.getMessage() != null && !error.getMessage().isBlank()) {
+                unsupportedMessage = unsupportedMessage + " Reason: " + error.getMessage();
+            }
+            triggerMessage.reply(unsupportedMessage).queue();
+        } else if (error instanceof IOException e) {
+            throw new UncheckedIOException(e);
+        } else if (error instanceof OutOfMemoryError) {
+            triggerMessage.reply("The server ran out of memory! Try again later or use a smaller file.").queue();
+            Main.getLogger().error("Ran out of memory executing command " + getNameWithPrefix() + "!", error);
+        } else if (error instanceof RuntimeException e) {
+            throw e;
+        } else if (error instanceof Error e) {
+            throw e;
+        } else {
+            throw new RuntimeException(error);
+        }
+    }
+
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    private static void deleteAll(File... files) {
+        for (var file : files) {
+            if (file != null) {
+                file.delete();
+            }
+        }
     }
 
     public abstract File modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException;
