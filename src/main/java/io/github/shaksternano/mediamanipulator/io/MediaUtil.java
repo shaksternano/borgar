@@ -33,32 +33,31 @@ public class MediaUtil {
         String operationName,
         ImageProcessor<T> processor
     ) throws IOException {
-        try (processor) {
-            var outputName = operationName + "." + outputFormat;
-            var output = FileUtil.getUniqueTempFile(outputName);
-            try (
-                var imageReader = MediaReaders.createImageReader(media, outputFormat);
-                var audioReader = MediaReaders.createAudioReader(media, outputFormat);
-                var writer = MediaWriters.createWriter(
-                    output,
-                    outputFormat,
-                    audioReader.getAudioChannels()
-                )
-            ) {
-                T constantFrameDataValue = null;
-                for (var imageFrame : imageReader) {
-                    if (constantFrameDataValue == null) {
-                        constantFrameDataValue = processor.constantData(imageFrame.image());
-                    }
-                    writer.recordImageFrame(new ImageFrame(
-                        processor.transformImage(imageFrame, constantFrameDataValue),
-                        imageFrame.duration(),
-                        imageFrame.timestamp()
-                    ));
+        var outputName = operationName + "." + outputFormat;
+        var output = FileUtil.getUniqueTempFile(outputName);
+        try (
+            processor;
+            var imageReader = MediaReaders.createImageReader(media, outputFormat);
+            var audioReader = MediaReaders.createAudioReader(media, outputFormat);
+            var writer = MediaWriters.createWriter(
+                output,
+                outputFormat,
+                audioReader.getAudioChannels()
+            )
+        ) {
+            T constantFrameDataValue = null;
+            for (var imageFrame : imageReader) {
+                if (constantFrameDataValue == null) {
+                    constantFrameDataValue = processor.constantData(imageFrame.image());
                 }
-                for (var audioFrame : audioReader) {
-                    writer.recordAudioFrame(audioFrame);
-                }
+                writer.recordImageFrame(new ImageFrame(
+                    processor.transformImage(imageFrame, constantFrameDataValue),
+                    imageFrame.duration(),
+                    imageFrame.timestamp()
+                ));
+            }
+            for (var audioFrame : audioReader) {
+                writer.recordAudioFrame(audioFrame);
             }
             return output;
         }
