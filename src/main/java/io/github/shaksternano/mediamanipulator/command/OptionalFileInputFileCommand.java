@@ -7,7 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-public abstract non-sealed class FileCommand extends BaseFileCommand {
+public abstract non-sealed class OptionalFileInputFileCommand extends BaseFileCommand {
 
     /**
      * Creates a new command object.
@@ -16,15 +16,13 @@ public abstract non-sealed class FileCommand extends BaseFileCommand {
      *                    followed by this name, the command will be executed.
      * @param description The description of the command. This is displayed in the help command.
      */
-    public FileCommand(String name, String description) {
-        super(name, description, true);
+    public OptionalFileInputFileCommand(String name, String description) {
+        super(name, description, false);
     }
 
     @Override
     protected abstract File modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException;
 
     @Override
-    protected final File createFile(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
-        throw new IllegalStateException("This method should never be called");
-    }
+    protected abstract File createFile(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException;
 }

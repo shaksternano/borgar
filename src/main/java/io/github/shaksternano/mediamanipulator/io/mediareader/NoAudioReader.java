@@ -1,38 +1,25 @@
 package io.github.shaksternano.mediamanipulator.io.mediareader;
 
+import io.github.shaksternano.mediamanipulator.image.AudioFrame;
 import io.github.shaksternano.mediamanipulator.io.MediaReaderFactory;
-import org.bytedeco.javacv.Frame;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.Iterator;
 
-public class NoAudioReader extends BaseMediaReader<Frame> {
+public class NoAudioReader extends BaseMediaReader<AudioFrame> {
 
     public static final NoAudioReader INSTANCE = new NoAudioReader();
 
+    public NoAudioReader() {
+        super("N/A");
+    }
+
     @Override
-    public Frame getFrame(long timestamp) throws IOException {
+    public AudioFrame frame(long timestamp) {
         throw new UnsupportedOperationException("No audio available");
-    }
-
-    @Nullable
-    @Override
-    public Frame getNextFrame() {
-        return null;
-    }
-
-    @Override
-    public long getTimestamp() {
-        return 0;
-    }
-
-    @Override
-    public void setTimestamp(long timestamp) {
     }
 
     @Override
@@ -41,21 +28,21 @@ public class NoAudioReader extends BaseMediaReader<Frame> {
 
     @NotNull
     @Override
-    public Iterator<Frame> iterator() {
+    public Iterator<AudioFrame> iterator() {
         return Collections.emptyIterator();
     }
 
-    public enum Factory implements MediaReaderFactory<Frame> {
+    public enum Factory implements MediaReaderFactory<AudioFrame> {
 
         INSTANCE;
 
         @Override
-        public MediaReader<Frame> createReader(File media) {
+        public MediaReader<AudioFrame> createReader(File media, String format) {
             return NoAudioReader.INSTANCE;
         }
 
         @Override
-        public MediaReader<Frame> createReader(InputStream media) {
+        public MediaReader<AudioFrame> createReader(InputStream media, String format) {
             return NoAudioReader.INSTANCE;
         }
     }

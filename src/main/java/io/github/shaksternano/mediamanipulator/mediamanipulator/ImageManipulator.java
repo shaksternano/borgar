@@ -4,17 +4,13 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.github.shaksternano.mediamanipulator.exception.InvalidArgumentException;
 import io.github.shaksternano.mediamanipulator.exception.UnsupportedFileFormatException;
-import io.github.shaksternano.mediamanipulator.graphics.GraphicsUtil;
-import io.github.shaksternano.mediamanipulator.graphics.drawable.Drawable;
-import io.github.shaksternano.mediamanipulator.graphics.drawable.ParagraphCompositeDrawable;
-import io.github.shaksternano.mediamanipulator.image.backgroundimage.ContainerImageInfo;
+import io.github.shaksternano.mediamanipulator.image.ImageUtil;
 import io.github.shaksternano.mediamanipulator.image.imagemedia.ImageMedia;
 import io.github.shaksternano.mediamanipulator.image.reader.util.ImageReaderRegistry;
 import io.github.shaksternano.mediamanipulator.image.reader.util.ImageReaders;
 import io.github.shaksternano.mediamanipulator.image.util.AwtFrame;
 import io.github.shaksternano.mediamanipulator.image.util.Frame;
 import io.github.shaksternano.mediamanipulator.image.util.ImageMediaBuilder;
-import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
 import io.github.shaksternano.mediamanipulator.image.writer.util.ImageWriterRegistry;
 import io.github.shaksternano.mediamanipulator.image.writer.util.ImageWriters;
 import io.github.shaksternano.mediamanipulator.io.FileUtil;
@@ -30,8 +26,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -58,155 +56,6 @@ public class ImageManipulator implements MediaManipulator {
             }
         } else {
             throw new UnsupportedFileFormatException(staticImageErrorMessage);
-        }
-    }
-
-    @SuppressWarnings("UnusedAssignment")
-    @Override
-    public File containerImageWithImage(File media, String fileFormat, ContainerImageInfo containerImageInfo) throws IOException {
-        ImageMedia containerImage = containerImageInfo.getImage();
-        ImageMedia contentImage = ImageReaders.read(media, fileFormat, null);
-
-        int imageType = ImageUtil.getType(contentImage.getFirstImage());
-        boolean contentIsAnimated = contentImage.isAnimated();
-
-        ImageMedia resizedContentImage = ImageMediaBuilder.fromCollection(contentImage.parallelStream().map(frame -> {
-            int width = containerImageInfo.getImageContentWidth();
-            int height = containerImageInfo.getImageContentHeight();
-            BufferedImage resizedImage = ImageUtil.fit(frame.getImage(), width, height);
-            int duration = frame.getDuration();
-            frame.flush();
-            return new AwtFrame(resizedImage, duration);
-        }).collect(ImmutableList.toImmutableList()));
-
-        contentImage = null;
-
-        int resizedWidth = resizedContentImage.getFirstImage().getWidth();
-        int resizedHeight = resizedContentImage.getFirstImage().getHeight();
-
-        int imageX = containerImageInfo.getImageContentX() + ((containerImageInfo.getImageContentWidth() - resizedWidth) / 2);
-        int imageY = containerImageInfo.getImageContentY() + ((containerImageInfo.getImageContentHeight() - resizedHeight) / 2);
-        switch (containerImageInfo.getImageContentPosition()) {
-            case TOP -> imageY = containerImageInfo.getImageContentY();
-            case BOTTOM ->
-                imageY = containerImageInfo.getImageContentY() + (containerImageInfo.getImageContentHeight() - resizedHeight);
-        }
-
-        Color fill = containerImageInfo.getFill().orElse(null);
-        if (fill == null && !resizedContentImage.getFirstImage().getColorModel().hasAlpha()) {
-            fill = Color.WHITE;
-        }
-
-        ImageMedia result = ImageUtil.overlayImage(containerImage, resizedContentImage, containerImageInfo.isBackground(), imageX, imageY, containerImageInfo.getContentClip().orElse(null), imageType, fill, false);
-
-        String outputFormat;
-        String outputExtension;
-        if (result.isAnimated() && !contentIsAnimated) {
-            outputFormat = "gif";
-            outputExtension = "." + outputFormat;
-        } else {
-            outputFormat = fileFormat;
-            outputExtension = com.google.common.io.Files.getFileExtension(media.getName());
-
-            if (!outputExtension.isBlank()) {
-                outputExtension = "." + outputExtension;
-            }
-        }
-
-        File output = FileUtil.getUniqueTempFile(containerImageInfo.getResultName() + outputExtension);
-        ImageWriters.write(result, output, outputFormat);
-
-        return output;
-    }
-
-    @Override
-    public File containerImageWithText(List<String> words, Map<String, Drawable> nonTextParts, ContainerImageInfo containerImageInfo) throws IOException {
-        ImageMedia result = drawTextOnImage(words, nonTextParts, containerImageInfo);
-
-        String outputFileName = containerImageInfo.getResultName() + ".";
-        String outputFormat;
-        if (result.isAnimated()) {
-            outputFormat = "gif";
-        } else {
-            outputFormat = "png";
-        }
-        outputFileName += outputFormat;
-
-        File outputFile = FileUtil.getUniqueTempFile(outputFileName);
-        ImageWriters.write(result, outputFile, outputFormat);
-
-        return outputFile;
-    }
-
-    @SuppressWarnings("UnusedAssignment")
-    private static ImageMedia drawTextOnImage(List<String> words, Map<String, Drawable> nonTextParts, ContainerImageInfo containerImageInfo) throws IOException {
-        ImageMedia imageMedia = containerImageInfo.getImage();
-
-        if (words.isEmpty()) {
-            return imageMedia;
-        } else {
-            ParagraphCompositeDrawable paragraph = new ParagraphCompositeDrawable.Builder(nonTextParts)
-                .addWords(containerImageInfo.getCustomTextDrawableFactory().orElse(null), words)
-                .build(containerImageInfo.getTextContentAlignment(), containerImageInfo.getTextContentWidth());
-
-            Graphics2D graphics = imageMedia.getFirstImage().createGraphics();
-
-            Font font = containerImageInfo.getFont();
-            graphics.setFont(font);
-            ImageUtil.configureTextDrawQuality(graphics);
-
-            GraphicsUtil.fontFitWidth(containerImageInfo.getTextContentWidth(), paragraph, graphics);
-            int paragraphHeight = GraphicsUtil.fontFitHeight(containerImageInfo.getTextContentHeight(), paragraph, graphics);
-            float fontSize = graphics.getFont().getSize2D();
-
-            graphics.dispose();
-
-            int containerCentreY = containerImageInfo.getTextContentY() + (containerImageInfo.getTextContentHeight() / 2);
-
-            int paragraphX = containerImageInfo.getTextContentX();
-            int paragraphY = containerCentreY - (paragraphHeight / 2);
-            switch (containerImageInfo.getTextContentPosition()) {
-                case TOP -> paragraphY = containerImageInfo.getTextContentY();
-                case BOTTOM ->
-                    paragraphY = containerImageInfo.getTextContentY() + (containerImageInfo.getTextContentHeight() - paragraphHeight);
-            }
-
-            ImageMediaBuilder builder = new ImageMediaBuilder();
-
-            int paragraphFrameCount = paragraph.getFrameCount();
-            if (paragraphFrameCount == 1) {
-                for (Frame frame : imageMedia) {
-                    BufferedImage image = frame.getImage();
-                    BufferedImage imageWithText = drawOnImage(image, containerImageInfo, paragraph, paragraphX, paragraphY, fontSize);
-                    int duration = frame.getDuration();
-                    builder.add(new AwtFrame(imageWithText, duration));
-                    frame.flush();
-                }
-            } else {
-                List<BufferedImage> normalisedImages = imageMedia.toNormalisedImages();
-                List<BufferedImage> extendedImages = CollectionUtil.extendLoop(normalisedImages, paragraphFrameCount);
-
-                normalisedImages = null;
-
-                BufferedImage previousImage = null;
-
-                Iterator<BufferedImage> imageIterator = extendedImages.iterator();
-                while (imageIterator.hasNext()) {
-                    BufferedImage image = imageIterator.next();
-
-                    if (image.equals(previousImage) && paragraph.sameAsPreviousFrame()) {
-                        builder.increaseLastFrameDuration(Frame.GIF_MINIMUM_FRAME_DURATION);
-                    } else {
-                        BufferedImage imageWithText = drawOnImage(image, containerImageInfo, paragraph, paragraphX, paragraphY, fontSize);
-                        builder.add(new AwtFrame(imageWithText, Frame.GIF_MINIMUM_FRAME_DURATION));
-                        previousImage = imageWithText;
-                    }
-
-                    imageIterator.remove();
-                }
-            }
-
-            return builder.build();
         }
     }
 
@@ -387,45 +236,6 @@ public class ImageManipulator implements MediaManipulator {
         Set<String> readerFormats = ImageReaderRegistry.getSupportedFormats();
         Set<String> writerFormats = ImageWriterRegistry.getSupportedFormats();
         return CollectionUtil.intersection(readerFormats, writerFormats);
-    }
-
-    private static BufferedImage drawOnImage(BufferedImage image, ContainerImageInfo containerImageInfo, Drawable drawable, int textX, int textY, float fontSize) throws IOException {
-        BufferedImage imageWithText = new BufferedImage(image.getWidth(), image.getHeight(), ImageUtil.getType(image));
-        Graphics2D graphics = imageWithText.createGraphics();
-
-        Optional<Shape> contentClipOptional = containerImageInfo.getContentClip();
-        containerImageInfo.getFill().ifPresent(color -> {
-            graphics.setColor(color);
-            contentClipOptional.ifPresentOrElse(
-                graphics::fill,
-                () -> graphics.fillRect(0, 0, imageWithText.getWidth(), imageWithText.getHeight())
-            );
-        });
-
-        if (containerImageInfo.isBackground()) {
-            graphics.drawImage(image, 0, 0, null);
-        }
-
-        Font font = containerImageInfo.getFont().deriveFont(fontSize);
-        graphics.setFont(font);
-        ImageUtil.configureTextDrawQuality(graphics);
-        graphics.setColor(containerImageInfo.getTextColor());
-
-        contentClipOptional.ifPresent(graphics::setClip);
-
-        drawable.draw(graphics, textX, textY, 0);
-
-        if (contentClipOptional.isPresent()) {
-            graphics.setClip(null);
-        }
-
-        if (!containerImageInfo.isBackground()) {
-            graphics.drawImage(image, 0, 0, null);
-        }
-
-        graphics.dispose();
-
-        return imageWithText;
     }
 
     /**

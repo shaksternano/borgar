@@ -30,7 +30,7 @@ public class AutoCropCommand extends FileCommand {
     }
 
     @Override
-    public File modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
+    protected File modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
         int rgb = CommandParser.parseIntegerArgument(
             arguments,
             0,

@@ -1,8 +1,6 @@
 package io.github.shaksternano.mediamanipulator.mediamanipulator;
 
 import io.github.shaksternano.mediamanipulator.exception.UnsupportedFileFormatException;
-import io.github.shaksternano.mediamanipulator.graphics.drawable.Drawable;
-import io.github.shaksternano.mediamanipulator.image.backgroundimage.ContainerImageInfo;
 import net.dv8tion.jda.api.entities.Guild;
 import org.jetbrains.annotations.Nullable;
 
@@ -10,18 +8,12 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
  * Manipulates media files such as images.
  */
 public interface MediaManipulator {
-
-    File containerImageWithImage(File media, String fileFormat, ContainerImageInfo containerImageInfo) throws IOException;
-
-    File containerImageWithText(List<String> words, Map<String, Drawable> nonTextParts, ContainerImageInfo containerImageInfo) throws IOException;
 
     File resize(File media, String fileFormat, float resizeMultiplier, boolean raw, boolean rename) throws IOException;
 

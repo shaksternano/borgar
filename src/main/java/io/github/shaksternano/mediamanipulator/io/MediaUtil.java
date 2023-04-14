@@ -1,8 +1,11 @@
 package io.github.shaksternano.mediamanipulator.io;
 
+import io.github.shaksternano.mediamanipulator.image.AudioFrame;
+import io.github.shaksternano.mediamanipulator.image.DualImageProcessor;
 import io.github.shaksternano.mediamanipulator.image.ImageFrame;
 import io.github.shaksternano.mediamanipulator.image.ImageProcessor;
 import io.github.shaksternano.mediamanipulator.io.mediareader.MediaReader;
+import io.github.shaksternano.mediamanipulator.io.mediareader.ZippedMediaReader;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -35,20 +38,32 @@ public class MediaUtil {
     ) throws IOException {
         var outputName = operationName + "." + outputFormat;
         var output = FileUtil.getUniqueTempFile(outputName);
+        var imageReader = MediaReaders.createImageReader(media, outputFormat);
+        var audioReader = MediaReaders.createAudioReader(media, outputFormat);
+        return processMedia(imageReader, audioReader, output, outputFormat, processor);
+    }
+
+    public static <T> File processMedia(
+        MediaReader<ImageFrame> imageReader,
+        MediaReader<AudioFrame> audioReader,
+        File output,
+        String outputFormat,
+        ImageProcessor<T> processor
+    ) throws IOException {
         try (
+            imageReader;
+            audioReader;
             processor;
-            var imageReader = MediaReaders.createImageReader(media, outputFormat);
-            var audioReader = MediaReaders.createAudioReader(media, outputFormat);
             var writer = MediaWriters.createWriter(
                 output,
                 outputFormat,
-                audioReader.getAudioChannels()
+                audioReader.audioChannels()
             )
         ) {
             T constantFrameDataValue = null;
             for (var imageFrame : imageReader) {
                 if (constantFrameDataValue == null) {
-                    constantFrameDataValue = processor.constantData(imageFrame.image());
+                    constantFrameDataValue = processor.constantData(imageFrame.content());
                 }
                 writer.recordImageFrame(new ImageFrame(
                     processor.transformImage(imageFrame, constantFrameDataValue),
@@ -57,6 +72,50 @@ public class MediaUtil {
                 ));
             }
             for (var audioFrame : audioReader) {
+                writer.recordAudioFrame(audioFrame);
+            }
+            return output;
+        }
+    }
+
+    public static <T> File processMedia(
+        MediaReader<ImageFrame> imageReader1,
+        MediaReader<AudioFrame> audioReader1,
+        MediaReader<ImageFrame> imageReader2,
+        String outputFormat,
+        String operationName,
+        DualImageProcessor<T> processor
+    ) throws IOException {
+        var outputName = operationName + "." + outputFormat;
+        var output = FileUtil.getUniqueTempFile(outputName);
+        try (
+            processor;
+            var zippedImageReader = new ZippedMediaReader<>(imageReader1, imageReader2);
+            var zippedAudioReader = new ZippedMediaReader<>(audioReader1, imageReader2, true);
+            var writer = MediaWriters.createWriter(
+                output,
+                outputFormat,
+                audioReader1.audioChannels()
+            )
+        ) {
+            T constantFrameDataValue = null;
+            for (var framePair : zippedImageReader) {
+                var firstFrame = framePair.first();
+                var secondFrame = framePair.second();
+                if (constantFrameDataValue == null) {
+                    constantFrameDataValue = processor.constantData(firstFrame.content(), secondFrame.content());
+                }
+                var duration = zippedImageReader.isFirstControlling()
+                    ? firstFrame.duration()
+                    : secondFrame.duration();
+                writer.recordImageFrame(new ImageFrame(
+                    processor.transformImage(firstFrame, secondFrame, constantFrameDataValue),
+                    duration,
+                    firstFrame.timestamp()
+                ));
+            }
+            for (var framePair : zippedAudioReader) {
+                var audioFrame = framePair.first();
                 writer.recordAudioFrame(audioFrame);
             }
             return output;
@@ -75,7 +134,7 @@ public class MediaUtil {
             int height = -1;
 
             for (ImageFrame frame : reader) {
-                BufferedImage image = frame.image();
+                BufferedImage image = frame.content();
                 if (width < 0) {
                     width = image.getWidth();
                     height = image.getHeight();
@@ -141,7 +200,7 @@ public class MediaUtil {
 
         @Override
         public BufferedImage transformImage(ImageFrame frame, Boolean constantData) {
-            return imageMapper.apply(frame.image());
+            return imageMapper.apply(frame.content());
         }
 
         // Unused

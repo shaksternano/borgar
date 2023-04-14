@@ -15,16 +15,19 @@ public abstract class FFmpegMediaReader<T> extends BaseMediaReader<T> {
 
     protected final FFmpegFrameGrabber grabber;
     protected boolean closed = false;
+    private InputStream inputStream;
 
-    public FFmpegMediaReader(File input) throws IOException {
-        this(new FFmpegFrameGrabber(input));
+    public FFmpegMediaReader(File input, String format) throws IOException {
+        this(new FFmpegFrameGrabber(input), format);
     }
 
-    public FFmpegMediaReader(InputStream input) throws IOException {
-        this(new FFmpegFrameGrabber(input));
+    public FFmpegMediaReader(InputStream input, String format) throws IOException {
+        this(new FFmpegFrameGrabber(input), format);
+        inputStream = input;
     }
 
-    private FFmpegMediaReader(FFmpegFrameGrabber grabber) throws IOException {
+    private FFmpegMediaReader(FFmpegFrameGrabber grabber, String format) throws IOException {
+        super(format);
         this.grabber = grabber;
         grabber.start();
         int frameCount = 0;
@@ -44,14 +47,19 @@ public abstract class FFmpegMediaReader<T> extends BaseMediaReader<T> {
     @Nullable
     protected abstract Frame grabFrame() throws IOException;
 
-    @Override
-    public long getTimestamp() {
-        return (long) Math.max(0, grabber.getTimestamp() - getFrameDuration());
-    }
+    @Nullable
+    protected abstract T getNextFrame() throws IOException;
 
     @Override
-    public void setTimestamp(long timestamp) throws IOException {
-        grabber.setTimestamp(timestamp);
+    public T frame(long timestamp) throws IOException {
+        long circularTimestamp = timestamp % Math.max(duration(), 1);
+        grabber.setTimestamp(circularTimestamp);
+        T frame = getNextFrame();
+        if (frame == null) {
+            throw new NoSuchElementException("No frame at timestamp " + circularTimestamp);
+        } else {
+            return frame;
+        }
     }
 
     @Override
@@ -61,6 +69,9 @@ public abstract class FFmpegMediaReader<T> extends BaseMediaReader<T> {
         }
         closed = true;
         grabber.close();
+        if (inputStream != null) {
+            inputStream.close();
+        }
     }
 
     @Override

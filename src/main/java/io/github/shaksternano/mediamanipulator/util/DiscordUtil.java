@@ -21,7 +21,6 @@ public class DiscordUtil {
         }
     }
 
-    @SuppressWarnings("ConstantConditions")
     public static String getContentStrippedKeepEmotes(Message message) {
         String displayMessage = message.getContentRaw();
         for (User user : message.getMentions().getUsers()) {

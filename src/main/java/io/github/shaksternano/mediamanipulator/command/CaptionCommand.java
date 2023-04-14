@@ -7,7 +7,7 @@ import io.github.shaksternano.mediamanipulator.graphics.drawable.Drawable;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.ParagraphCompositeDrawable;
 import io.github.shaksternano.mediamanipulator.image.ImageFrame;
 import io.github.shaksternano.mediamanipulator.image.ImageProcessor;
-import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
+import io.github.shaksternano.mediamanipulator.image.ImageUtil;
 import io.github.shaksternano.mediamanipulator.io.MediaUtil;
 import io.github.shaksternano.mediamanipulator.util.MessageUtil;
 import io.github.shaksternano.mediamanipulator.util.MiscUtil;
@@ -41,7 +41,7 @@ public class CaptionCommand extends FileCommand {
     }
 
     @Override
-    public File modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
+    protected File modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
         var nonTextParts = MessageUtil.getEmojiImages(event.getMessage());
         var processor = new CaptionProcessor(CAPTION_2, arguments, nonTextParts);
         return MediaUtil.processMedia(file, fileFormat, "captioned", processor);
@@ -55,7 +55,7 @@ public class CaptionCommand extends FileCommand {
 
         @Override
         public BufferedImage transformImage(ImageFrame frame, CaptionData constantData) throws IOException {
-            BufferedImage image = frame.image();
+            BufferedImage image = frame.content();
             BufferedImage captionedImage = new BufferedImage(image.getWidth(), image.getHeight() + constantData.fillHeight(), ImageUtil.getType(image));
             Graphics2D graphics = captionedImage.createGraphics();
             ImageUtil.configureTextDrawQuality(graphics);

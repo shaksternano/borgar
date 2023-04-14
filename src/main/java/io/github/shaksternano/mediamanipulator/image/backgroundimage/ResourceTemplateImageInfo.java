@@ -5,9 +5,13 @@ import io.github.shaksternano.mediamanipulator.graphics.GraphicsUtil;
 import io.github.shaksternano.mediamanipulator.graphics.Position;
 import io.github.shaksternano.mediamanipulator.graphics.TextAlignment;
 import io.github.shaksternano.mediamanipulator.graphics.drawable.Drawable;
+import io.github.shaksternano.mediamanipulator.image.AudioFrame;
+import io.github.shaksternano.mediamanipulator.image.ImageFrame;
+import io.github.shaksternano.mediamanipulator.image.ImageUtil;
 import io.github.shaksternano.mediamanipulator.image.imagemedia.ImageMedia;
-import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
 import io.github.shaksternano.mediamanipulator.io.FileUtil;
+import io.github.shaksternano.mediamanipulator.io.MediaReaders;
+import io.github.shaksternano.mediamanipulator.io.mediareader.MediaReader;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
@@ -15,7 +19,7 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.function.Function;
 
-public enum ResourceContainerImageInfo implements ContainerImageInfo {
+public enum ResourceTemplateImageInfo implements TemplateImageInfo {
 
     SONIC_SAYS(
         "image/containerimage/sonic_says.png",
@@ -192,31 +196,31 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
     ),
     ;
 
-    private final String IMAGE_PATH;
-    private final String RESULT_NAME;
-    private final int IMAGE_CONTENT_X;
-    private final int IMAGE_CONTENT_Y;
-    private final int IMAGE_CONTENT_WIDTH;
-    private final int IMAGE_CONTENT_HEIGHT;
-    private final Position IMAGE_CONTENT_POSITION;
-    private final int TEXT_CONTENT_X;
-    private final int TEXT_CONTENT_Y;
-    private final int TEXT_CONTENT_WIDTH;
-    private final int TEXT_CONTENT_HEIGHT;
-    private final Position TEXT_CONTENT_POSITION;
-    private final TextAlignment TEXT_CONTENT_ALIGNMENT;
-    private final String FONT_NAME;
-    private final Font FONT;
-    private final Color TEXT_COLOR;
+    private final String imagePath;
+    private final String resultName;
+    private final int imageContentX;
+    private final int imageContentY;
+    private final int imageContentWidth;
+    private final int imageContentHeight;
+    private final Position imageContentPosition;
+    private final int textContentX;
+    private final int textContentY;
+    private final int textContentWidth;
+    private final int textContentHeight;
+    private final Position textContentPosition;
+    private final TextAlignment textContentAlignment;
+    private final String fontName;
+    private final Font font;
+    private final Color textColor;
     @Nullable
-    private final Function<String, Drawable> CUSTOM_TEXT_DRAWABLE_FACTORY;
+    private final Function<String, Drawable> customTextDrawableFactory;
     @Nullable
-    private final String CONTENT_CLIP_SHAPE_FILE_PATH;
-    private final boolean IS_BACKGROUND;
+    private final String contentClipShapeFilePath;
+    private final boolean isBackground;
     @Nullable
-    private final Color FILL;
+    private final Color fill;
 
-    ResourceContainerImageInfo(
+    ResourceTemplateImageInfo(
         String imagePath,
         String resultName,
         int imageContainerStartX,
@@ -237,32 +241,33 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
         @Nullable Function<String, Drawable> customTextDrawableFactory,
         @Nullable String contentClipShapeFilePath,
         boolean isBackground,
-        @Nullable Color fill) {
-        IMAGE_PATH = imagePath;
-        RESULT_NAME = resultName;
-        IMAGE_CONTENT_X = imageContainerStartX + imageContainerPadding;
-        IMAGE_CONTENT_Y = imageContainerStartY + imageContainerPadding;
-        TEXT_CONTENT_X = textContainerStartX + textContainerPadding;
-        TEXT_CONTENT_Y = textContainerStartY + textContainerPadding;
-        int doubleImagePadding = imageContainerPadding * 2;
-        int doubleTextPadding = textContainerPadding * 2;
-        IMAGE_CONTENT_WIDTH = imageContainerEndX - imageContainerStartX - doubleImagePadding;
-        IMAGE_CONTENT_HEIGHT = imageContainerEndY - imageContainerStartY - doubleImagePadding;
-        IMAGE_CONTENT_POSITION = imageContentPosition;
-        TEXT_CONTENT_WIDTH = textContainerEndX - textContainerStartX - doubleTextPadding;
-        TEXT_CONTENT_HEIGHT = textContainerEndY - imageContainerStartY - doubleTextPadding;
-        TEXT_CONTENT_POSITION = textContentPosition;
-        TEXT_CONTENT_ALIGNMENT = textContentAlignment;
-        FONT_NAME = fontName;
-        FONT = new Font(FONT_NAME, Font.PLAIN, maxFontSize);
-        TEXT_COLOR = textColor;
-        CUSTOM_TEXT_DRAWABLE_FACTORY = customTextDrawableFactory;
-        CONTENT_CLIP_SHAPE_FILE_PATH = contentClipShapeFilePath;
-        IS_BACKGROUND = isBackground;
-        FILL = fill;
+        @Nullable Color fill
+    ) {
+        this.imagePath = imagePath;
+        this.resultName = resultName;
+        imageContentX = imageContainerStartX + imageContainerPadding;
+        imageContentY = imageContainerStartY + imageContainerPadding;
+        textContentX = textContainerStartX + textContainerPadding;
+        textContentY = textContainerStartY + textContainerPadding;
+        var doubleImagePadding = imageContainerPadding * 2;
+        var doubleTextPadding = textContainerPadding * 2;
+        imageContentWidth = imageContainerEndX - imageContainerStartX - doubleImagePadding;
+        imageContentHeight = imageContainerEndY - imageContainerStartY - doubleImagePadding;
+        this.imageContentPosition = imageContentPosition;
+        textContentWidth = textContainerEndX - textContainerStartX - doubleTextPadding;
+        textContentHeight = textContainerEndY - imageContainerStartY - doubleTextPadding;
+        this.textContentPosition = textContentPosition;
+        this.textContentAlignment = textContentAlignment;
+        this.fontName = fontName;
+        font = new Font(this.fontName, Font.PLAIN, maxFontSize);
+        this.textColor = textColor;
+        this.customTextDrawableFactory = customTextDrawableFactory;
+        this.contentClipShapeFilePath = contentClipShapeFilePath;
+        this.isBackground = isBackground;
+        this.fill = fill;
     }
 
-    ResourceContainerImageInfo(
+    ResourceTemplateImageInfo(
         String imagePath,
         String resultName,
         int contentContainerStartX,
@@ -278,7 +283,8 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
         @Nullable Function<String, Drawable> customTextDrawableFactory,
         @Nullable String contentClipShapeFilePath,
         boolean isBackground,
-        @Nullable Color fill) {
+        @Nullable Color fill
+    ) {
         this(
             imagePath,
             resultName,
@@ -306,160 +312,178 @@ public enum ResourceContainerImageInfo implements ContainerImageInfo {
 
     @Override
     public ImageMedia getImage() throws IOException {
-        return ImageUtil.getImageResourceInRootPackage(IMAGE_PATH);
+        return ImageUtil.getImageResourceInRootPackage(imagePath);
+    }
+
+    @Override
+    public MediaReader<ImageFrame> getImageReader() throws IOException {
+        try (var formatStream = FileUtil.getResourceInRootPackage(imagePath)) {
+            var format = ImageUtil.getImageFormat(formatStream);
+            var inputStream = FileUtil.getResourceInRootPackage(imagePath);
+            return MediaReaders.createImageReader(inputStream, format);
+        }
+    }
+
+    @Override
+    public MediaReader<AudioFrame> getAudioReader() throws IOException {
+        try (var formatStream = FileUtil.getResourceInRootPackage(imagePath)) {
+            var format = ImageUtil.getImageFormat(formatStream);
+            var inputStream = FileUtil.getResourceInRootPackage(imagePath);
+            return MediaReaders.createAudioReader(inputStream, format);
+        }
     }
 
     @Override
     public String getResultName() {
-        return RESULT_NAME;
+        return resultName;
     }
 
     @Override
     public int getImageContentX() {
-        return IMAGE_CONTENT_X;
+        return imageContentX;
     }
 
     @Override
     public int getImageContentY() {
-        return IMAGE_CONTENT_Y;
+        return imageContentY;
     }
 
     @Override
     public int getImageContentWidth() {
-        return IMAGE_CONTENT_WIDTH;
+        return imageContentWidth;
     }
 
     @Override
     public int getImageContentHeight() {
-        return IMAGE_CONTENT_HEIGHT;
+        return imageContentHeight;
     }
 
     @Override
     public Position getImageContentPosition() {
-        return IMAGE_CONTENT_POSITION;
+        return imageContentPosition;
     }
 
     @Override
     public int getTextContentX() {
-        return TEXT_CONTENT_X;
+        return textContentX;
     }
 
     @Override
     public int getTextContentY() {
-        return TEXT_CONTENT_Y;
+        return textContentY;
     }
 
     @Override
     public int getTextContentWidth() {
-        return TEXT_CONTENT_WIDTH;
+        return textContentWidth;
     }
 
     @Override
     public int getTextContentHeight() {
-        return TEXT_CONTENT_HEIGHT;
+        return textContentHeight;
     }
 
     @Override
     public Position getTextContentPosition() {
-        return TEXT_CONTENT_POSITION;
+        return textContentPosition;
     }
 
     @Override
     public TextAlignment getTextContentAlignment() {
-        return TEXT_CONTENT_ALIGNMENT;
+        return textContentAlignment;
     }
 
     @Override
     public Font getFont() {
-        return FONT;
+        return font;
     }
 
     @Override
     public Color getTextColor() {
-        return TEXT_COLOR;
+        return textColor;
     }
 
     @Override
     public Optional<Function<String, Drawable>> getCustomTextDrawableFactory() {
-        return Optional.ofNullable(CUSTOM_TEXT_DRAWABLE_FACTORY);
+        return Optional.ofNullable(customTextDrawableFactory);
     }
 
     @Override
     public Optional<Shape> getContentClip() throws IOException {
-        if (CONTENT_CLIP_SHAPE_FILE_PATH == null) {
+        if (contentClipShapeFilePath == null) {
             return Optional.empty();
         } else {
-            return Optional.of(GraphicsUtil.loadShape(CONTENT_CLIP_SHAPE_FILE_PATH));
+            return Optional.of(GraphicsUtil.loadShape(contentClipShapeFilePath));
         }
     }
 
     @Override
     public boolean isBackground() {
-        return IS_BACKGROUND;
+        return isBackground;
     }
 
     @Override
     public Optional<Color> getFill() {
-        return Optional.ofNullable(FILL);
+        return Optional.ofNullable(fill);
     }
 
     public static void validate() {
-        for (ResourceContainerImageInfo containerImageInfo : ResourceContainerImageInfo.values()) {
+        for (var containerImageInfo : ResourceTemplateImageInfo.values()) {
             validateImage(containerImageInfo);
             validateFont(containerImageInfo);
             validateContentClip(containerImageInfo);
         }
     }
 
-    private static void validateImage(ResourceContainerImageInfo containerImageInfo) {
-        if (containerImageInfo.IMAGE_PATH == null) {
+    private static void validateImage(ResourceTemplateImageInfo containerImageInfo) {
+        if (containerImageInfo.imagePath == null) {
             Main.getLogger().error("Image resource path in " + containerImageInfo.getClass().getSimpleName() + " \"" + containerImageInfo + "\" is null!");
         } else {
             try {
-                FileUtil.validateResourcePathInRootPackage(containerImageInfo.IMAGE_PATH);
+                FileUtil.validateResourcePathInRootPackage(containerImageInfo.imagePath);
 
                 try {
-                    ImageUtil.getImageResourceInRootPackage(containerImageInfo.IMAGE_PATH);
+                    ImageUtil.getImageResourceInRootPackage(containerImageInfo.imagePath);
                     return;
                 } catch (Throwable t) {
-                    Main.getLogger().error("Error loading image with path \"" + containerImageInfo.IMAGE_PATH + "\" in " + containerImageInfo.getClass().getSimpleName() + " \"" + containerImageInfo + "\"!", t);
+                    Main.getLogger().error("Error loading image with path \"" + containerImageInfo.imagePath + "\" in " + containerImageInfo.getClass().getSimpleName() + " \"" + containerImageInfo + "\"!", t);
                 }
             } catch (Throwable t) {
-                Main.getLogger().error("Image resource path \"" + containerImageInfo.IMAGE_PATH + "\" in " + containerImageInfo.getClass().getSimpleName() + " \"" + containerImageInfo + "\" is invalid!", t);
+                Main.getLogger().error("Image resource path \"" + containerImageInfo.imagePath + "\" in " + containerImageInfo.getClass().getSimpleName() + " \"" + containerImageInfo + "\" is invalid!", t);
             }
         }
 
         Main.shutdown(1);
     }
 
-    private static void validateFont(ResourceContainerImageInfo containerImageInfo) {
-        if (containerImageInfo.FONT_NAME == null) {
+    private static void validateFont(ResourceTemplateImageInfo containerImageInfo) {
+        if (containerImageInfo.fontName == null) {
             Main.getLogger().error("Font name in " + containerImageInfo.getClass().getSimpleName() + " \"" + containerImageInfo + "\" is null!");
         } else {
-            Font font = new Font(containerImageInfo.FONT_NAME, Font.PLAIN, 1);
-            if (font.getFontName().equals(containerImageInfo.FONT_NAME)) {
+            var font = new Font(containerImageInfo.fontName, Font.PLAIN, 1);
+            if (font.getFontName().equals(containerImageInfo.fontName)) {
                 return;
             } else {
-                Main.getLogger().error("Font \"" + containerImageInfo.FONT_NAME + "\" in " + containerImageInfo.getClass().getSimpleName() + " \"" + containerImageInfo + "\" is not a registered font!");
+                Main.getLogger().error("Font \"" + containerImageInfo.fontName + "\" in " + containerImageInfo.getClass().getSimpleName() + " \"" + containerImageInfo + "\" is not a registered font!");
             }
         }
 
         Main.shutdown(1);
     }
 
-    private static void validateContentClip(ResourceContainerImageInfo containerImageInfo) {
-        if (containerImageInfo.CONTENT_CLIP_SHAPE_FILE_PATH != null) {
+    private static void validateContentClip(ResourceTemplateImageInfo containerImageInfo) {
+        if (containerImageInfo.contentClipShapeFilePath != null) {
             try {
-                FileUtil.validateResourcePathInRootPackage(containerImageInfo.CONTENT_CLIP_SHAPE_FILE_PATH);
+                FileUtil.validateResourcePathInRootPackage(containerImageInfo.contentClipShapeFilePath);
 
                 try {
-                    GraphicsUtil.loadShape(containerImageInfo.CONTENT_CLIP_SHAPE_FILE_PATH);
+                    GraphicsUtil.loadShape(containerImageInfo.contentClipShapeFilePath);
                     return;
                 } catch (Throwable t) {
-                    Main.getLogger().error("Error loading shape with path \"" + containerImageInfo.CONTENT_CLIP_SHAPE_FILE_PATH + "\" in " + containerImageInfo.getClass().getSimpleName() + " \"" + containerImageInfo + "\"!", t);
+                    Main.getLogger().error("Error loading shape with path \"" + containerImageInfo.contentClipShapeFilePath + "\" in " + containerImageInfo.getClass().getSimpleName() + " \"" + containerImageInfo + "\"!", t);
                 }
             } catch (Throwable t) {
-                Main.getLogger().error("Shape resource path \"" + containerImageInfo.CONTENT_CLIP_SHAPE_FILE_PATH + "\" in " + containerImageInfo.getClass().getSimpleName() + " \"" + containerImageInfo + "\" is invalid!", t);
+                Main.getLogger().error("Shape resource path \"" + containerImageInfo.contentClipShapeFilePath + "\" in " + containerImageInfo.getClass().getSimpleName() + " \"" + containerImageInfo + "\" is invalid!", t);
             }
 
             Main.shutdown(1);

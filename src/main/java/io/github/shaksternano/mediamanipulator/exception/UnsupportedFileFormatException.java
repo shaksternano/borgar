@@ -1,8 +1,6 @@
 package io.github.shaksternano.mediamanipulator.exception;
 
-import java.io.IOException;
-
-public class UnsupportedFileFormatException extends IOException {
+public class UnsupportedFileFormatException extends RuntimeException {
 
     public UnsupportedFileFormatException(String message) {
         super(message);

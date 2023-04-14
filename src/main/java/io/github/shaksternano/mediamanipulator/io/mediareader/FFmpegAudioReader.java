@@ -1,5 +1,6 @@
 package io.github.shaksternano.mediamanipulator.io.mediareader;
 
+import io.github.shaksternano.mediamanipulator.image.AudioFrame;
 import io.github.shaksternano.mediamanipulator.io.MediaReaderFactory;
 import org.bytedeco.javacv.Frame;
 import org.jetbrains.annotations.Nullable;
@@ -8,14 +9,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class FFmpegAudioReader extends FFmpegMediaReader<Frame> {
+public class FFmpegAudioReader extends FFmpegMediaReader<AudioFrame> {
 
-    public FFmpegAudioReader(File input) throws IOException {
-        super(input);
+    public FFmpegAudioReader(File input, String format) throws IOException {
+        super(input, format);
     }
 
-    public FFmpegAudioReader(InputStream input) throws IOException {
-        super(input);
+    public FFmpegAudioReader(InputStream input, String format) throws IOException {
+        super(input, format);
     }
 
     @Nullable
@@ -26,22 +27,27 @@ public class FFmpegAudioReader extends FFmpegMediaReader<Frame> {
 
     @Nullable
     @Override
-    public Frame getNextFrame() throws IOException {
-        return grabber.grabSamples();
+    protected AudioFrame getNextFrame() throws IOException {
+        Frame frame = grabber.grabSamples();
+        if (frame == null) {
+            return null;
+        } else {
+            return new AudioFrame(frame, (long) frameDuration(), frame.timestamp);
+        }
     }
 
-    public enum Factory implements MediaReaderFactory<Frame> {
+    public enum Factory implements MediaReaderFactory<AudioFrame> {
 
         INSTANCE;
 
         @Override
-        public MediaReader<Frame> createReader(File media) throws IOException {
-            return new FFmpegAudioReader(media);
+        public MediaReader<AudioFrame> createReader(File media, String format) throws IOException {
+            return new FFmpegAudioReader(media, format);
         }
 
         @Override
-        public MediaReader<Frame> createReader(InputStream media) throws IOException {
-            return new FFmpegAudioReader(media);
+        public MediaReader<AudioFrame> createReader(InputStream media, String format) throws IOException {
+            return new FFmpegAudioReader(media, format);
         }
     }
 }

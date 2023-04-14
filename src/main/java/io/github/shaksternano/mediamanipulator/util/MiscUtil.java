@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
@@ -33,6 +34,10 @@ public class MiscUtil {
                 closer.register(closable);
             }
         }
+    }
+
+    public static void closeAll(Closeable... closeables) throws IOException {
+        closeAll(Arrays.asList(closeables));
     }
 
     public static void repeatTry(

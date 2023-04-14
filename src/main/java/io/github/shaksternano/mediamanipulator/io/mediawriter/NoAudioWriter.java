@@ -1,10 +1,10 @@
 package io.github.shaksternano.mediamanipulator.io.mediawriter;
 
-import org.bytedeco.javacv.Frame;
+import io.github.shaksternano.mediamanipulator.image.AudioFrame;
 
 public abstract class NoAudioWriter implements MediaWriter {
 
     @Override
-    public void recordAudioFrame(Frame frame) {
+    public void recordAudioFrame(AudioFrame frame) {
     }
 }

@@ -4,7 +4,7 @@ import com.sksamuel.scrimage.DisposeMethod;
 import com.sksamuel.scrimage.ImmutableImage;
 import com.sksamuel.scrimage.nio.StreamingGifWriter;
 import io.github.shaksternano.mediamanipulator.image.ImageFrame;
-import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
+import io.github.shaksternano.mediamanipulator.image.ImageUtil;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
@@ -21,6 +21,7 @@ public class ScrimageGifWriter extends NoAudioWriter {
     @Nullable
     private BufferedImage previousImage;
     private boolean cannotOptimiseNext;
+    private boolean closed;
 
     public ScrimageGifWriter(File output) throws IOException {
         StreamingGifWriter writer = new StreamingGifWriter();
@@ -29,7 +30,7 @@ public class ScrimageGifWriter extends NoAudioWriter {
 
     @Override
     public void recordImageFrame(ImageFrame frame) throws IOException {
-        BufferedImage currentImage = ImageUtil.convertType(frame.image(), BufferedImage.TYPE_INT_ARGB);
+        BufferedImage currentImage = ImageUtil.convertType(frame.content(), BufferedImage.TYPE_INT_ARGB);
         BufferedImage toWrite;
         DisposeMethod disposeMethod;
         if (previousImage == null) {
@@ -54,13 +55,17 @@ public class ScrimageGifWriter extends NoAudioWriter {
             }
         }
         ImmutableImage immutableImage = ImmutableImage.wrapAwt(toWrite);
-        Duration frameDuration = Duration.ofMillis(frame.duration() / 1000);
+        Duration frameDuration = Duration.ofMillis((long) (frame.duration() / 1000));
         gif.writeFrame(immutableImage, frameDuration, disposeMethod);
         previousImage = currentImage;
     }
 
     @Override
     public void close() throws IOException {
+        if (closed) {
+            return;
+        }
+        closed = true;
         try {
             gif.close();
         } catch (IOException e) {

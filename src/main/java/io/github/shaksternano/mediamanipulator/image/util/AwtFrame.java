@@ -1,5 +1,6 @@
 package io.github.shaksternano.mediamanipulator.image.util;
 
+import io.github.shaksternano.mediamanipulator.image.ImageUtil;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.image.BufferedImage;

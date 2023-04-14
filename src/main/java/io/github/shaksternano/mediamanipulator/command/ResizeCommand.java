@@ -3,7 +3,7 @@ package io.github.shaksternano.mediamanipulator.command;
 import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.exception.InvalidArgumentException;
 import io.github.shaksternano.mediamanipulator.exception.MissingArgumentException;
-import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
+import io.github.shaksternano.mediamanipulator.image.ImageUtil;
 import io.github.shaksternano.mediamanipulator.io.MediaUtil;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -45,7 +45,7 @@ public class ResizeCommand extends FileCommand {
      * @throws MissingArgumentException If the operation requires an argument but none was provided.
      */
     @Override
-    public File modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
+    protected File modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
         if (arguments.size() > 0) {
             try {
                 float resizeMultiplier = Float.parseFloat(arguments.get(0));

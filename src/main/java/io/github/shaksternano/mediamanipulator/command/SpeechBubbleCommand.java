@@ -4,7 +4,8 @@ import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.exception.InvalidMediaException;
 import io.github.shaksternano.mediamanipulator.image.ImageFrame;
 import io.github.shaksternano.mediamanipulator.image.ImageProcessor;
-import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
+import io.github.shaksternano.mediamanipulator.image.ImageUtil;
+import io.github.shaksternano.mediamanipulator.image.OverlayData;
 import io.github.shaksternano.mediamanipulator.io.MediaUtil;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -19,7 +20,7 @@ import java.util.List;
  */
 public class SpeechBubbleCommand extends FileCommand {
 
-    private final boolean CUT_OUT;
+    private final boolean cutOut;
 
     /**
      * Creates a new command object.
@@ -31,7 +32,7 @@ public class SpeechBubbleCommand extends FileCommand {
      */
     public SpeechBubbleCommand(String name, String description, boolean cutOut) {
         super(name, description);
-        CUT_OUT = cutOut;
+        this.cutOut = cutOut;
     }
 
     /**
@@ -46,24 +47,32 @@ public class SpeechBubbleCommand extends FileCommand {
      * @throws IOException If an error occurs while applying the operation.
      */
     @Override
-    public File modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
+    protected File modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
         return MediaUtil.processMedia(
             file,
             fileFormat,
             "speech_bubbled",
-            new SpeechBubbleProcessor(CUT_OUT)
+            new SpeechBubbleProcessor(cutOut)
         );
     }
 
-    private record SpeechBubbleProcessor(boolean cutOut) implements ImageProcessor<BufferedImage> {
+    private record SpeechBubbleProcessor(boolean cutOut) implements ImageProcessor<SpeechBubbleData> {
 
         @Override
-        public BufferedImage transformImage(ImageFrame frame, BufferedImage constantData) {
-            BufferedImage image = frame.image();
+        public BufferedImage transformImage(ImageFrame frame, SpeechBubbleData constantData) {
+            var image = frame.content();
+            var speechBubble = constantData.speechBubble();
             if (cutOut) {
-                return ImageUtil.cutoutImage(image, constantData, 0, 0, 0xFFFFFF);
+                return ImageUtil.cutoutImage(image, speechBubble, 0, 0, 0xFFFFFF);
             } else {
-                return ImageUtil.overlayImage(image, constantData, false, 0, -constantData.getHeight(), null, null, null, true);
+                return ImageUtil.overlayImage(
+                    image,
+                    speechBubble,
+                    constantData.overlayData(),
+                    false,
+                    null,
+                    null
+                );
             }
         }
 
@@ -71,22 +80,23 @@ public class SpeechBubbleCommand extends FileCommand {
          * Returns the speech bubble image.
          */
         @Override
-        public BufferedImage constantData(BufferedImage image) throws IOException {
-            String speechBubblePath = cutOut ? "image/overlay/speech_bubble_2_partial.png"
+        public SpeechBubbleData constantData(BufferedImage image) throws IOException {
+            var speechBubblePath = cutOut
+                ? "image/overlay/speech_bubble_2_partial.png"
                 : "image/overlay/speech_bubble_1_partial.png";
 
-            int width = image.getWidth();
-            int height = image.getHeight();
+            var width = image.getWidth();
+            var height = image.getHeight();
 
-            BufferedImage speechBubble = ImageUtil.getImageResourceInRootPackage(speechBubblePath).getFirstImage();
+            var speechBubble = ImageUtil.getImageResourceInRootPackage(speechBubblePath).getFirstImage();
 
-            int minDimension = 3;
+            var minDimension = 3;
             if (width < minDimension) {
                 throw new InvalidMediaException("Image width of " + width + " pixels is too small!");
             } else {
                 if (speechBubble.getHeight() < speechBubble.getWidth()) {
-                    float scaleRatio = (float) width / speechBubble.getWidth();
-                    int newHeight = (int) (speechBubble.getHeight() * scaleRatio);
+                    var scaleRatio = (float) width / speechBubble.getWidth();
+                    var newHeight = (int) (speechBubble.getHeight() * scaleRatio);
 
                     if (newHeight < minDimension) {
                         throw new InvalidMediaException("Image height of " + height + " pixels is too small!");
@@ -95,12 +105,17 @@ public class SpeechBubbleCommand extends FileCommand {
             }
 
             BufferedImage resizedSpeechBubble = ImageUtil.fitWidth(speechBubble, width);
-
-            if (cutOut) {
-                return resizedSpeechBubble;
-            } else {
-                return ImageUtil.fill(resizedSpeechBubble, Color.WHITE);
-            }
+            var result = cutOut
+                ? resizedSpeechBubble
+                : ImageUtil.fill(resizedSpeechBubble, Color.WHITE);
+            var overlayData = ImageUtil.getOverlayData(image, result, 0, -result.getHeight(), true, null);
+            return new SpeechBubbleData(result, overlayData);
         }
+    }
+
+    private record SpeechBubbleData(
+        BufferedImage speechBubble,
+        OverlayData overlayData
+    ) {
     }
 }

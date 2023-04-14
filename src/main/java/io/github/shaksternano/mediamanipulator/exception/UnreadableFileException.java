@@ -1,8 +1,6 @@
 package io.github.shaksternano.mediamanipulator.exception;
 
-import java.io.IOException;
-
-public class UnreadableFileException extends IOException {
+public class UnreadableFileException extends RuntimeException {
 
     public UnreadableFileException(String message) {
         super(message);

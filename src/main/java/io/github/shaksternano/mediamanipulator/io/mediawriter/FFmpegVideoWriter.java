@@ -1,9 +1,9 @@
 package io.github.shaksternano.mediamanipulator.io.mediawriter;
 
+import io.github.shaksternano.mediamanipulator.image.AudioFrame;
 import io.github.shaksternano.mediamanipulator.image.ImageFrame;
 import org.bytedeco.ffmpeg.global.avcodec;
 import org.bytedeco.javacv.FFmpegFrameRecorder;
-import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.Java2DFrameConverter;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,6 +19,7 @@ public class FFmpegVideoWriter implements MediaWriter {
     private final File output;
     private final String outputFormat;
     private final int audioChannels;
+    private boolean closed = false;
 
     public FFmpegVideoWriter(File output, String outputFormat, int audioChannels) {
         this.output = output;
@@ -28,7 +29,7 @@ public class FFmpegVideoWriter implements MediaWriter {
 
     @Override
     public void recordImageFrame(ImageFrame frame) throws IOException {
-        BufferedImage image = frame.image();
+        BufferedImage image = frame.content();
         if (recorder == null) {
             double fps = 1_000_000.0 / frame.duration();
             recorder = createFFmpegRecorder(
@@ -45,15 +46,19 @@ public class FFmpegVideoWriter implements MediaWriter {
     }
 
     @Override
-    public void recordAudioFrame(Frame frame) throws IOException {
+    public void recordAudioFrame(AudioFrame frame) throws IOException {
         if (recorder == null) {
             throw new IllegalStateException("Cannot record audio frame before image frame");
         }
-        recorder.record(frame);
+        recorder.record(frame.content());
     }
 
     @Override
     public void close() throws IOException {
+        if (closed) {
+            return;
+        }
+        closed = true;
         if (recorder != null) {
             recorder.close();
         }

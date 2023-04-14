@@ -1,7 +1,7 @@
 package io.github.shaksternano.mediamanipulator.command.util;
 
 import io.github.shaksternano.mediamanipulator.command.*;
-import io.github.shaksternano.mediamanipulator.image.backgroundimage.ResourceContainerImageInfo;
+import io.github.shaksternano.mediamanipulator.image.backgroundimage.ResourceTemplateImageInfo;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -41,52 +41,52 @@ public class Commands {
         "Adds Impact text to a media file. Required arguments: [The text to be drawn. By default, the text is drawn at the top. To specify text drawn at the bottom, add \"%bottom\" before the text.]"
     ));
 
-    public static final Command SONIC_SAYS = addCommandToRegister(new ContainerImageCommand(
+    public static final Command SONIC_SAYS = addCommandToRegister(new TemplateImageCommand(
         "sonic",
         "Sonic says. Optional arguments: [What sonic says]",
-        ResourceContainerImageInfo.SONIC_SAYS
+        ResourceTemplateImageInfo.SONIC_SAYS
     ));
 
-    public static final Command SOYJAK_POINTING = addCommandToRegister(new ContainerImageCommand(
+    public static final Command SOYJAK_POINTING = addCommandToRegister(new TemplateImageCommand(
         "soy",
         "Soyjak pointing. Optional arguments: [What is being pointed at]",
-        ResourceContainerImageInfo.SOYJAK_POINTING
+        ResourceTemplateImageInfo.SOYJAK_POINTING
     ));
 
-    public static final Command MUTA_SOY = addCommandToRegister(new ContainerImageCommand(
+    public static final Command MUTA_SOY = addCommandToRegister(new TemplateImageCommand(
         "mutasoy",
         "Mutahar soyjak pointing. Optional arguments: [What is being pointed at]",
-        ResourceContainerImageInfo.MUTA_SOY
+        ResourceTemplateImageInfo.MUTA_SOY
     ));
 
-    public static final Command WALMART_WANTED = addCommandToRegister(new ContainerImageCommand(
+    public static final Command WALMART_WANTED = addCommandToRegister(new TemplateImageCommand(
         "wanted",
         "Walmart wanted. Optional arguments: [What is wanted]",
-        ResourceContainerImageInfo.WALMART_WANTED
+        ResourceTemplateImageInfo.WALMART_WANTED
     ));
 
-    public static final Command OH_MY_GOODNESS_GRACIOUS = addCommandToRegister(new ContainerImageCommand(
+    public static final Command OH_MY_GOODNESS_GRACIOUS = addCommandToRegister(new TemplateImageCommand(
         "omgg",
         "Oh my goodness gracious. Optional arguments: [What is wanted]",
-        ResourceContainerImageInfo.OH_MY_GOODNESS_GRACIOUS
+        ResourceTemplateImageInfo.OH_MY_GOODNESS_GRACIOUS
     ));
 
-    public static final Command THINKING_BUBBLE = addCommandToRegister(new ContainerImageCommand(
+    public static final Command THINKING_BUBBLE = addCommandToRegister(new TemplateImageCommand(
         "think",
         "Puts text or an image in a thinking bubble. Optional arguments: [Thinking bubble text]",
-        ResourceContainerImageInfo.THINKING_BUBBLE
+        ResourceTemplateImageInfo.THINKING_BUBBLE
     ));
 
-    public static final Command LIVING_IN_1984 = addCommandToRegister(new ContainerImageCommand(
+    public static final Command LIVING_IN_1984 = addCommandToRegister(new TemplateImageCommand(
         "1984",
         "Puts image into the 'living in 1984' meme. Optional arguments: [Speech bubble text]",
-        ResourceContainerImageInfo.LIVING_IN_1984
+        ResourceTemplateImageInfo.LIVING_IN_1984
     ));
 
-    public static final Command WHO_DID_THIS = addCommandToRegister(new ContainerImageCommand(
+    public static final Command WHO_DID_THIS = addCommandToRegister(new TemplateImageCommand(
         "wdt",
         "Puts image into the 'who did this' meme. Optional arguments: [meme text]",
-        ResourceContainerImageInfo.WHO_DID_THIS
+        ResourceTemplateImageInfo.WHO_DID_THIS
     ));
 
     public static final Command SPIN = addCommandToRegister(new SpinCommand(

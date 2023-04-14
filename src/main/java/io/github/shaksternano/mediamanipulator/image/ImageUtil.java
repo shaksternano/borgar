@@ -1,8 +1,11 @@
-package io.github.shaksternano.mediamanipulator.image.util;
+package io.github.shaksternano.mediamanipulator.image;
 
 import com.sksamuel.scrimage.ImmutableImage;
+import io.github.shaksternano.mediamanipulator.graphics.GraphicsUtil;
+import io.github.shaksternano.mediamanipulator.graphics.drawable.Drawable;
+import io.github.shaksternano.mediamanipulator.graphics.drawable.ParagraphCompositeDrawable;
+import io.github.shaksternano.mediamanipulator.image.backgroundimage.TemplateImageInfo;
 import io.github.shaksternano.mediamanipulator.image.imagemedia.ImageMedia;
-import io.github.shaksternano.mediamanipulator.image.imagemedia.StaticImage;
 import io.github.shaksternano.mediamanipulator.image.reader.util.ImageReaders;
 import io.github.shaksternano.mediamanipulator.io.FileUtil;
 import org.jetbrains.annotations.Nullable;
@@ -16,9 +19,10 @@ import java.awt.geom.GeneralPath;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorConvertOp;
 import java.io.*;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Contains static methods for dealing with images.
@@ -107,48 +111,31 @@ public class ImageUtil {
     }
 
     /**
-     * Overlays an image on top of another image.
+     * Calculates information used for overlaying an image on top of another image.
      *
-     * @param image1             The first image.
-     * @param image2             The second image.
-     * @param image1IsBackground Whether the first image is the background or not. If the first image is not the background, then the second image is.
-     * @param x2                 The x coordinate of the top left corner of the second image in relation to the top left corner of the first image.
-     * @param y2                 The y coordinate of the top left corner of the second image in relation to the top left corner of the first image.
-     * @param image2Clip         The clipping area of the second image.
-     * @param imageType          The type of the resulting image.
-     * @param fill               The background color.
-     * @param expand             Whether to expand the resulting image to fit the second image in the case that it oversteps the boundaries of the first image.
-     * @return The overlaid image.
+     * @param image1    The first image.
+     * @param image2    The second image.
+     * @param x2        The x coordinate of the top left corner of the second image in relation to the top left corner of the first image.
+     * @param y2        The y coordinate of the top left corner of the second image in relation to the top left corner of the first image.
+     * @param expand    Whether to expand the resulting image to fit the second image in the case that it oversteps the boundaries of the first image.
+     * @param imageType The type of the resulting image.
+     * @return The overlay information.
      */
-    public static BufferedImage overlayImage(BufferedImage image1, BufferedImage image2, boolean image1IsBackground, int x2, int y2, @Nullable Shape image2Clip, @Nullable Integer imageType, @Nullable Color fill, boolean expand) {
-        ImageMedia imageMedia1 = new StaticImage(image1);
-        ImageMedia imageMedia2 = new StaticImage(image2);
-        return overlayImage(imageMedia1, imageMedia2, image1IsBackground, x2, y2, image2Clip, imageType, fill, expand).getFirstImage();
-    }
+    public static OverlayData getOverlayData(
+        BufferedImage image1,
+        BufferedImage image2,
+        int x2,
+        int y2,
+        boolean expand,
+        @Nullable Integer imageType
+    ) {
+        var image1Width = image1.getWidth();
+        var image1Height = image1.getHeight();
 
-    @SuppressWarnings("UnusedAssignment")
-    public static ImageMedia overlayImage(ImageMedia imageMedia1, ImageMedia imageMedia2, boolean image1IsBackground, int x2, int y2, @Nullable Shape image2Clip, @Nullable Integer imageType, @Nullable Color fill, boolean expand) {
-        List<BufferedImage> normalisedImage1 = new ArrayList<>(imageMedia1.toNormalisedImages());
-        List<BufferedImage> normalisedImage2 = new ArrayList<>(imageMedia2.toNormalisedImages());
+        var image2Width = image2.getWidth();
+        var image2Height = image2.getHeight();
 
-        BufferedImage firstImage1 = imageMedia1.getFirstImage();
-        BufferedImage firstImage2 = imageMedia2.getFirstImage();
-
-        int image1Width = firstImage1.getWidth();
-        int image1Height = firstImage1.getHeight();
-
-        int image2Width = firstImage2.getWidth();
-        int image2Height = firstImage2.getHeight();
-
-        int type = imageType == null ? ImageUtil.getType(firstImage1) : imageType;
-
-        imageMedia1 = null;
-        imageMedia2 = null;
-
-        firstImage1.flush();
-        firstImage2.flush();
-        firstImage1 = null;
-        firstImage2 = null;
+        var type = imageType == null ? ImageUtil.getType(image1) : imageType;
 
         int overlaidWidth;
         int overlaidHeight;
@@ -189,68 +176,180 @@ public class ImageUtil {
             image2Y = y2;
         }
 
-        ImageMediaBuilder builder = new ImageMediaBuilder();
+        return new OverlayData(
+            overlaidWidth,
+            overlaidHeight,
+            image1X,
+            image1Y,
+            image2X,
+            image2Y,
+            type
+        );
+    }
 
-        BufferedImage previousImage1 = null;
-        BufferedImage previousImage2 = null;
+    /**
+     * Overlays an image on top of another image.
+     *
+     * @param image1             The first image.
+     * @param image2             The second image.
+     * @param overlayData        Additional information used for overlaying the images.
+     * @param image1IsBackground Whether the first image is the background or not. If the first image is not the background, then the second image is.
+     * @param image2Clip         The clipping area of the second image.
+     * @param fill               The background color.
+     * @return The overlaid image.
+     */
+    public static BufferedImage overlayImage(
+        BufferedImage image1,
+        BufferedImage image2,
+        OverlayData overlayData,
+        boolean image1IsBackground,
+        @Nullable Shape image2Clip,
+        @Nullable Color fill
+    ) {
+        var overlaidImage = new BufferedImage(
+            overlayData.overlaidWidth(),
+            overlayData.overlaidHeight(),
+            overlayData.overlaidImageType()
+        );
+        var graphics = overlaidImage.createGraphics();
 
-        int size = Math.max(normalisedImage1.size(), normalisedImage2.size());
-        for (int i = 0; i < size; i++) {
-            BufferedImage image1 = normalisedImage1.get(i % normalisedImage1.size());
-            BufferedImage image2 = normalisedImage2.get(i % normalisedImage2.size());
-
-            int remaining = size - i;
-            if (normalisedImage1.size() - remaining >= 0) {
-                normalisedImage1.set(i % normalisedImage1.size(), null);
-            }
-            if (normalisedImage2.size() - remaining >= 0) {
-                normalisedImage2.set(i % normalisedImage2.size(), null);
-            }
-
-            if (image1.equals(previousImage1) && image2.equals(previousImage2)) {
-                builder.increaseLastFrameDuration(Frame.GIF_MINIMUM_FRAME_DURATION);
+        if (fill != null) {
+            graphics.setColor(fill);
+            if (image2Clip == null) {
+                graphics.fillRect(
+                    0,
+                    0,
+                    overlayData.overlaidWidth(),
+                    overlayData.overlaidHeight()
+                );
             } else {
-                BufferedImage overlaidImage = new BufferedImage(overlaidWidth, overlaidHeight, type);
-                Graphics2D graphics = overlaidImage.createGraphics();
-
-                if (fill != null) {
-                    graphics.setColor(fill);
-
-                    if (image2Clip == null) {
-                        graphics.fillRect(0, 0, overlaidWidth, overlaidHeight);
-                    } else {
-                        graphics.fill(image2Clip);
-                    }
-                }
-
-                if (!image1IsBackground) {
-                    if (image2Clip != null) {
-                        graphics.setClip(image2Clip);
-                    }
-                    graphics.drawImage(image2, image2X, image2Y, null);
-                    graphics.setClip(null);
-
-                    graphics.drawImage(image1, image1X, image1Y, null);
-                } else {
-                    graphics.drawImage(image1, image1X, image1Y, null);
-
-                    if (image2Clip != null) {
-                        graphics.setClip(image2Clip);
-                    }
-                    graphics.drawImage(image2, image2X, image2Y, null);
-                    graphics.setClip(null);
-                }
-
-                graphics.dispose();
-
-                builder.add(new AwtFrame(overlaidImage, Frame.GIF_MINIMUM_FRAME_DURATION));
-
-                previousImage1 = image1;
-                previousImage2 = image2;
+                graphics.fill(image2Clip);
             }
         }
 
-        return builder.build();
+        if (image1IsBackground) {
+            graphics.drawImage(
+                image1,
+                overlayData.image1X(),
+                overlayData.image1Y(),
+                null
+            );
+            if (image2Clip != null) {
+                graphics.setClip(image2Clip);
+            }
+            graphics.drawImage(
+                image2,
+                overlayData.image2X(),
+                overlayData.image2Y(),
+                null
+            );
+        } else {
+            if (image2Clip != null) {
+                graphics.setClip(image2Clip);
+            }
+            graphics.drawImage(
+                image2,
+                overlayData.image2X(),
+                overlayData.image2Y(),
+                null
+            );
+            graphics.setClip(null);
+            graphics.drawImage(
+                image1,
+                overlayData.image1X(),
+                overlayData.image1Y(),
+                null
+            );
+        }
+
+        graphics.dispose();
+        return overlaidImage;
+    }
+
+    public static Optional<TextDrawData> getTextDrawData(
+        BufferedImage image,
+        List<String> words,
+        Map<String, Drawable> nonTextParts,
+        TemplateImageInfo templateInfo
+    ) {
+        if (words.isEmpty()) {
+            return Optional.empty();
+        }
+
+        var paragraph = new ParagraphCompositeDrawable.Builder(nonTextParts)
+            .addWords(templateInfo.getCustomTextDrawableFactory().orElse(null), words)
+            .build(templateInfo.getTextContentAlignment(), templateInfo.getTextContentWidth());
+
+        var graphics = image.createGraphics();
+
+        var font = templateInfo.getFont();
+        graphics.setFont(font);
+        configureTextDrawQuality(graphics);
+
+        GraphicsUtil.fontFitWidth(templateInfo.getTextContentWidth(), paragraph, graphics);
+        var paragraphHeight = GraphicsUtil.fontFitHeight(templateInfo.getTextContentHeight(), paragraph, graphics);
+        var fontSize = graphics.getFont().getSize2D();
+
+        graphics.dispose();
+
+        var resizedFont = font.deriveFont(fontSize);
+
+        var containerCentreY = templateInfo.getTextContentY() + (templateInfo.getTextContentHeight() / 2);
+
+        var paragraphX = templateInfo.getTextContentX();
+        var paragraphY = switch (templateInfo.getTextContentPosition()) {
+            case TOP -> templateInfo.getTextContentY();
+            case BOTTOM -> templateInfo.getTextContentY() + (templateInfo.getTextContentHeight() - paragraphHeight);
+            default -> containerCentreY - (paragraphHeight / 2);
+        };
+
+        return Optional.of(new TextDrawData(paragraph, paragraphX, paragraphY, resizedFont));
+    }
+
+    public static BufferedImage drawText(
+        BufferedImage image,
+        TextDrawData textDrawData,
+        long timestamp,
+        TemplateImageInfo templateInfo
+    ) throws IOException {
+        var imageWithText = copySize(image);
+        var graphics = imageWithText.createGraphics();
+
+        var contentClipOptional = templateInfo.getContentClip();
+        templateInfo.getFill().ifPresent(color -> {
+            graphics.setColor(color);
+            contentClipOptional.ifPresentOrElse(
+                graphics::fill,
+                () -> graphics.fillRect(0, 0, imageWithText.getWidth(), imageWithText.getHeight())
+            );
+        });
+
+        if (templateInfo.isBackground()) {
+            graphics.drawImage(image, 0, 0, null);
+        }
+
+        var font = textDrawData.font();
+        graphics.setFont(font);
+        ImageUtil.configureTextDrawQuality(graphics);
+        graphics.setColor(templateInfo.getTextColor());
+
+        contentClipOptional.ifPresent(graphics::setClip);
+
+        var textX = textDrawData.textX();
+        var textY = textDrawData.textY();
+        var text = textDrawData.text();
+        text.draw(graphics, textX, textY, timestamp);
+
+        if (contentClipOptional.isPresent()) {
+            graphics.setClip(null);
+        }
+
+        if (!templateInfo.isBackground()) {
+            graphics.drawImage(image, 0, 0, null);
+        }
+
+        graphics.dispose();
+        return imageWithText;
     }
 
     public static BufferedImage cutoutImage(BufferedImage imageToCut, BufferedImage imageToCutout, int x, int y, int cutoutColor) {
@@ -391,13 +490,13 @@ public class ImageUtil {
 
     public static Area getArea(BufferedImage image) {
         GeneralPath path = new GeneralPath();
-        boolean cont = false;
+        boolean continue_ = false;
         for (int x = 0; x < image.getWidth(); x++) {
             for (int y = 0; y < image.getHeight(); y++) {
                 if (isTransparent(image.getRGB(x, y))) {
-                    cont = false;
+                    continue_ = false;
                 } else {
-                    if (cont) {
+                    if (continue_) {
                         path.lineTo(x, y);
                         path.lineTo(x, y + 1);
                         path.lineTo(x + 1, y + 1);
@@ -406,10 +505,10 @@ public class ImageUtil {
                     } else {
                         path.moveTo(x, y);
                     }
-                    cont = true;
+                    continue_ = true;
                 }
             }
-            cont = false;
+            continue_ = false;
         }
         path.closePath();
 
@@ -482,10 +581,14 @@ public class ImageUtil {
     }
 
     public static BufferedImage copy(BufferedImage image) {
-        BufferedImage copy = new BufferedImage(image.getWidth(), image.getHeight(), getType(image));
-        Graphics2D graphics = copy.createGraphics();
+        var copy = copySize(image);
+        var graphics = copy.createGraphics();
         graphics.drawImage(image, 0, 0, null);
         graphics.dispose();
         return copy;
+    }
+
+    public static BufferedImage copySize(BufferedImage image) {
+        return new BufferedImage(image.getWidth(), image.getHeight(), getType(image));
     }
 }

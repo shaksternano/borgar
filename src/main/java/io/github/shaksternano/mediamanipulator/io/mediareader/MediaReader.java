@@ -1,7 +1,5 @@
 package io.github.shaksternano.mediamanipulator.io.mediareader;
 
-import org.jetbrains.annotations.Nullable;
-
 import java.io.Closeable;
 import java.io.IOException;
 
@@ -12,29 +10,35 @@ public interface MediaReader<T> extends Closeable, Iterable<T> {
      *
      * @return The frame rate in frames per second.
      */
-    double getFrameRate();
+    double frameRate();
 
-    int getFrameCount();
+    int frameCount();
+
+    boolean animated();
+
+    boolean empty();
 
     /**
      * Gets the duration of time of the media.
      *
      * @return The duration in microseconds.
      */
-    long getDuration();
+    long duration();
 
     /**
      * Gets the duration of time of each frame.
      *
      * @return The duration of each frame in microseconds.
      */
-    double getFrameDuration();
+    double frameDuration();
 
-    int getAudioChannels();
+    int audioChannels();
 
-    int getWidth();
+    int width();
 
-    int getHeight();
+    int height();
+
+    String format();
 
     /**
      * Gets the frame at the given timestamp.
@@ -45,24 +49,5 @@ public interface MediaReader<T> extends Closeable, Iterable<T> {
      * @return The frame at the given timestamp.
      * @throws IOException If an I/O error occurs.
      */
-    T getFrame(long timestamp) throws IOException;
-
-    @Nullable
-    T getNextFrame() throws IOException;
-
-    /**
-     * Gets the timestamp the last read frame.
-     *
-     * @return The timestamp in microseconds.
-     */
-    long getTimestamp();
-
-    /**
-     * Sets the timestamp of the reader.
-     * This is used to read a frame at a specific timestamp.
-     *
-     * @param timestamp The timestamp in microseconds.
-     * @throws IOException If an I/O error occurs.
-     */
-    void setTimestamp(long timestamp) throws IOException;
+    T frame(long timestamp) throws IOException;
 }

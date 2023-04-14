@@ -1,8 +1,8 @@
 package io.github.shaksternano.mediamanipulator.io;
 
 import io.github.shaksternano.mediamanipulator.Main;
-import io.github.shaksternano.mediamanipulator.image.backgroundimage.ResourceContainerImageInfo;
-import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
+import io.github.shaksternano.mediamanipulator.image.ImageUtil;
+import io.github.shaksternano.mediamanipulator.image.backgroundimage.ResourceTemplateImageInfo;
 import io.github.shaksternano.mediamanipulator.util.tenor.TenorMediaType;
 import io.github.shaksternano.mediamanipulator.util.tenor.TenorUtil;
 import org.apache.commons.io.FileUtils;
@@ -220,7 +220,7 @@ public class FileUtil {
         if (resourcePath == null || resourcePath.isBlank()) {
             throw new IllegalArgumentException("File path cannot be null or blank!");
         } else {
-            try (InputStream inputStream = ResourceContainerImageInfo.class.getClassLoader().getResourceAsStream(getResourcePathInRootPackage(resourcePath))) {
+            try (InputStream inputStream = ResourceTemplateImageInfo.class.getClassLoader().getResourceAsStream(getResourcePathInRootPackage(resourcePath))) {
                 if (inputStream == null) {
                     throw new FileNotFoundException("File path not found: " + resourcePath);
                 }

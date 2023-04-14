@@ -14,12 +14,12 @@ public class FFmpegImageReader extends FFmpegMediaReader<ImageFrame> {
 
     private final Java2DFrameConverter converter = new Java2DFrameConverter();
 
-    public FFmpegImageReader(File input) throws IOException {
-        super(input);
+    public FFmpegImageReader(File input, String format) throws IOException {
+        super(input, format);
     }
 
-    public FFmpegImageReader(InputStream input) throws IOException {
-        super(input);
+    public FFmpegImageReader(InputStream input, String format) throws IOException {
+        super(input, format);
     }
 
     @Nullable
@@ -30,12 +30,12 @@ public class FFmpegImageReader extends FFmpegMediaReader<ImageFrame> {
 
     @Nullable
     @Override
-    public ImageFrame getNextFrame() throws IOException {
+    protected ImageFrame getNextFrame() throws IOException {
         Frame frame = grabber.grabImage();
         if (frame == null) {
             return null;
         } else {
-            return new ImageFrame(converter.convert(frame), (long) getFrameDuration(), frame.timestamp);
+            return new ImageFrame(converter.convert(frame), frameDuration(), frame.timestamp);
         }
     }
 
@@ -53,13 +53,13 @@ public class FFmpegImageReader extends FFmpegMediaReader<ImageFrame> {
         INSTANCE;
 
         @Override
-        public MediaReader<ImageFrame> createReader(File media) throws IOException {
-            return new FFmpegImageReader(media);
+        public MediaReader<ImageFrame> createReader(File media, String format) throws IOException {
+            return new FFmpegImageReader(media, format);
         }
 
         @Override
-        public MediaReader<ImageFrame> createReader(InputStream media) throws IOException {
-            return new FFmpegImageReader(media);
+        public MediaReader<ImageFrame> createReader(InputStream media, String format) throws IOException {
+            return new FFmpegImageReader(media, format);
         }
     }
 }

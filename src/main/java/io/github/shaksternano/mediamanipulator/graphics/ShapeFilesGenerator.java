@@ -1,6 +1,6 @@
 package io.github.shaksternano.mediamanipulator.graphics;
 
-import io.github.shaksternano.mediamanipulator.image.util.ImageUtil;
+import io.github.shaksternano.mediamanipulator.image.ImageUtil;
 import io.github.shaksternano.mediamanipulator.io.FileUtil;
 import io.github.shaksternano.mediamanipulator.util.MiscUtil;
 import org.slf4j.Logger;

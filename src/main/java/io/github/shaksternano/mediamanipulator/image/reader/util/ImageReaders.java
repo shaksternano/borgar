@@ -20,7 +20,7 @@ public class ImageReaders {
         ImageReaderRegistry.register(new JavaxImageReader());
     }
 
-    public static ImageMedia read(File file, String imageFormat, @Nullable Integer imageType) throws IOException {
+    public static ImageMedia read(File file, String imageFormat, @Nullable Integer imageType) {
         List<ImageReader> readers = ImageReaderRegistry.getReaders(imageFormat);
         if (readers.isEmpty()) {
             throw new UnreadableFileException("No image reader found for image type " + imageFormat + "!");

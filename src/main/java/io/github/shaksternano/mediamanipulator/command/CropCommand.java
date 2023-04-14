@@ -30,7 +30,7 @@ public class CropCommand extends FileCommand {
     }
 
     @Override
-    public File modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
+    protected File modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
         MessageChannel triggerChannel = event.getChannel();
         float topRatio = CommandParser.parseFloatExtraArgument(
             extraArguments,
@@ -86,7 +86,7 @@ public class CropCommand extends FileCommand {
 
         @Override
         public BufferedImage transformImage(ImageFrame frame, CropData constantData) {
-            return frame.image().getSubimage(constantData.x(), constantData.y(), constantData.width(), constantData.height());
+            return frame.content().getSubimage(constantData.x(), constantData.y(), constantData.width(), constantData.height());
         }
 
         @Override

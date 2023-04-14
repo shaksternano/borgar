@@ -3,7 +3,7 @@ package io.github.shaksternano.mediamanipulator;
 import io.github.shaksternano.mediamanipulator.command.Command;
 import io.github.shaksternano.mediamanipulator.command.util.Commands;
 import io.github.shaksternano.mediamanipulator.emoji.EmojiUtil;
-import io.github.shaksternano.mediamanipulator.image.backgroundimage.ResourceContainerImageInfo;
+import io.github.shaksternano.mediamanipulator.image.backgroundimage.ResourceTemplateImageInfo;
 import io.github.shaksternano.mediamanipulator.image.reader.util.ImageReaders;
 import io.github.shaksternano.mediamanipulator.image.writer.util.ImageWriters;
 import io.github.shaksternano.mediamanipulator.listener.CommandListener;
@@ -75,7 +75,7 @@ public class Main {
         ImageReaders.registerImageReaders();
         ImageWriters.registerImageWriters();
         Fonts.registerFonts();
-        ResourceContainerImageInfo.validate();
+        ResourceTemplateImageInfo.validate();
 
         arguments = new ProgramArguments(args);
 

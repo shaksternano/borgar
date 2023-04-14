@@ -1,8 +1,8 @@
 package io.github.shaksternano.mediamanipulator.io;
 
+import io.github.shaksternano.mediamanipulator.image.AudioFrame;
 import io.github.shaksternano.mediamanipulator.image.ImageFrame;
 import io.github.shaksternano.mediamanipulator.io.mediareader.*;
-import org.bytedeco.javacv.Frame;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,34 +13,34 @@ import java.util.Map;
 public class MediaReaders {
 
     private static final Map<String, MediaReaderFactory<ImageFrame>> imageReaderFactories = new HashMap<>();
-    private static final Map<String, MediaReaderFactory<Frame>> audioReaderFactories = new HashMap<>();
+    private static final Map<String, MediaReaderFactory<AudioFrame>> audioReaderFactories = new HashMap<>();
 
     public static MediaReader<ImageFrame> createImageReader(File media, String format) throws IOException {
         MediaReaderFactory<ImageFrame> factory = getImageReaderFactory(format);
-        return factory.createReader(media);
+        return factory.createReader(media, format);
     }
 
     public static MediaReader<ImageFrame> createImageReader(InputStream media, String format) throws IOException {
         MediaReaderFactory<ImageFrame> factory = getImageReaderFactory(format);
-        return factory.createReader(media);
+        return factory.createReader(media, format);
     }
 
     private static MediaReaderFactory<ImageFrame> getImageReaderFactory(String format) {
         return imageReaderFactories.getOrDefault(format.toLowerCase(), FFmpegImageReader.Factory.INSTANCE);
     }
 
-    public static MediaReader<Frame> createAudioReader(File media, String format) throws IOException {
-        MediaReaderFactory<Frame> factory = getAudioReaderFactory(format);
-        return factory.createReader(media);
+    public static MediaReader<AudioFrame> createAudioReader(File media, String format) throws IOException {
+        MediaReaderFactory<AudioFrame> factory = getAudioReaderFactory(format);
+        return factory.createReader(media, format);
     }
 
     @SuppressWarnings("unused")
-    public static MediaReader<Frame> createAudioReader(InputStream media, String format) throws IOException {
-        MediaReaderFactory<Frame> factory = getAudioReaderFactory(format);
-        return factory.createReader(media);
+    public static MediaReader<AudioFrame> createAudioReader(InputStream media, String format) throws IOException {
+        MediaReaderFactory<AudioFrame> factory = getAudioReaderFactory(format);
+        return factory.createReader(media, format);
     }
 
-    private static MediaReaderFactory<Frame> getAudioReaderFactory(String format) {
+    private static MediaReaderFactory<AudioFrame> getAudioReaderFactory(String format) {
         return audioReaderFactories.getOrDefault(format.toLowerCase(), FFmpegAudioReader.Factory.INSTANCE);
     }
 
@@ -51,7 +51,7 @@ public class MediaReaders {
     }
 
     @SuppressWarnings("SameParameterValue")
-    private static void registerAudioReaderFactory(MediaReaderFactory<Frame> factory, String... formats) {
+    private static void registerAudioReaderFactory(MediaReaderFactory<AudioFrame> factory, String... formats) {
         for (String format : formats) {
             audioReaderFactories.put(format.toLowerCase(), factory);
         }
