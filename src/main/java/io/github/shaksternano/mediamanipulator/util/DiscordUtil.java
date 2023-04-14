@@ -1,9 +1,6 @@
 package io.github.shaksternano.mediamanipulator.util;
 
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.utils.MarkdownSanitizer;
 import org.jetbrains.annotations.Nullable;
@@ -28,12 +25,12 @@ public class DiscordUtil {
     public static String getContentStrippedKeepEmotes(Message message) {
         String displayMessage = message.getContentRaw();
         for (User user : message.getMentions().getUsers()) {
-            String name;
-            if (message.isFromGuild() && message.getGuild().isMember(user)) {
-                name = message.getGuild().getMember(user).getEffectiveName();
-            } else {
-                name = user.getName();
-            }
+            String name = message.getGuild()
+                .retrieveMember(user)
+                .submit()
+                .thenApply(Member::getEffectiveName)
+                .exceptionally(throwable -> user.getName())
+                .join();
             displayMessage = displayMessage.replaceAll("<@!?" + Pattern.quote(user.getId()) + '>', '@' + Matcher.quoteReplacement(name));
         }
         for (GuildChannel mentionedChannel : message.getMentions().getChannels()) {
