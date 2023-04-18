@@ -1,24 +1,22 @@
 package io.github.shaksternano.mediamanipulator.io.mediareader;
 
-import com.sksamuel.scrimage.nio.AnimatedGif;
 import com.sksamuel.scrimage.nio.AnimatedGifReader;
 import com.sksamuel.scrimage.nio.ImageSource;
 import io.github.shaksternano.mediamanipulator.image.ImageFrame;
 import io.github.shaksternano.mediamanipulator.io.MediaReaderFactory;
 import org.jetbrains.annotations.NotNull;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 public class ScrimageGifReader extends BaseMediaReader<ImageFrame> {
 
-    private final List<ImageFrame> frames = new ArrayList<>();
+    private final List<ImageFrame> frames;
 
     public ScrimageGifReader(File input, String format) throws IOException {
         this(ImageSource.of(input), format);
@@ -31,30 +29,32 @@ public class ScrimageGifReader extends BaseMediaReader<ImageFrame> {
 
     private ScrimageGifReader(ImageSource imageSource, String format) throws IOException {
         super(format);
-        AnimatedGif gif = AnimatedGifReader.read(imageSource);
+        var gif = AnimatedGifReader.read(imageSource);
         frameCount = gif.getFrameCount();
         if (frameCount <= 0) {
             throw new IOException("Could not read any frames!");
         }
-        long totalDuration = 0;
-        for (int i = 0; i < frameCount; i++) {
-            BufferedImage image = gif.getFrame(i).awt();
-            long frameDuration = gif.getDelay(i).toMillis() * 1000;
-            frames.add(new ImageFrame(image, frameDuration, totalDuration));
+        List<ImageFrame> framesBuilder = new ArrayList<>();
+        var totalDuration = 0;
+        for (var i = 0; i < frameCount; i++) {
+            var image = gif.getFrame(i).awt();
+            var frameDuration = gif.getDelay(i).toMillis() * 1000;
+            framesBuilder.add(new ImageFrame(image, frameDuration, totalDuration));
             totalDuration += frameDuration;
         }
+        frames = Collections.unmodifiableList(framesBuilder);
         duration = totalDuration;
         frameRate = (1_000_000.0 * frameCount) / duration;
         frameDuration = 1_000_000 / frameRate;
-        Dimension dimension = gif.getDimensions();
+        var dimension = gif.getDimensions();
         width = dimension.width;
         height = dimension.height;
     }
 
     @Override
     public ImageFrame frame(long timestamp) {
-        long circularTimestamp = timestamp % Math.max(duration(), 1);
-        int index = findIndex(circularTimestamp, frames);
+        var circularTimestamp = timestamp % Math.max(duration(), 1);
+        var index = findIndex(circularTimestamp, frames);
         return frames.get(index);
     }
 
@@ -85,10 +85,10 @@ public class ScrimageGifReader extends BaseMediaReader<ImageFrame> {
     }
 
     private static int findIndexBinarySearch(long timeStamp, List<ImageFrame> frames) {
-        int low = 0;
-        int high = frames.size() - 1;
+        var low = 0;
+        var high = frames.size() - 1;
         while (low <= high) {
-            int mid = low + ((high - low) / 2);
+            var mid = low + ((high - low) / 2);
             if (frames.get(mid).timestamp() == timeStamp
                 || (frames.get(mid).timestamp() < timeStamp
                 && frames.get(mid + 1).timestamp() > timeStamp)) {
@@ -99,7 +99,7 @@ public class ScrimageGifReader extends BaseMediaReader<ImageFrame> {
                 high = mid - 1;
             }
         }
-        throw new IllegalStateException("This should never be reached");
+        throw new IllegalStateException("This should never be reached. Timestamp: " + timeStamp + ", Frames: " + frames);
     }
 
     @Override
