@@ -13,11 +13,10 @@ public class ZippedMediaReader<A extends VideoFrame<?>, B extends VideoFrame<?>>
 
     private final MediaReader<A> firstReader;
     private final MediaReader<B> secondReader;
-    private boolean firstControlling;
+    private final boolean firstControlling;
 
     public ZippedMediaReader(MediaReader<A> firstReader, MediaReader<B> secondReader) {
-        this(firstReader, secondReader, true);
-        firstControlling = decideIsFirstControlling();
+        this(firstReader, secondReader, decideIsFirstControlling(firstReader, secondReader));
     }
 
     public ZippedMediaReader(MediaReader<A> firstReader, MediaReader<B> secondReader, boolean firstControlling) {
@@ -56,7 +55,7 @@ public class ZippedMediaReader<A extends VideoFrame<?>, B extends VideoFrame<?>>
         return firstControlling;
     }
 
-    private boolean decideIsFirstControlling() {
+    private static boolean decideIsFirstControlling(MediaReader<?> firstReader, MediaReader<?> secondReader) {
         return firstReader.animated() &&
             (!secondReader.animated() || firstReader.frameDuration() <= secondReader.frameDuration());
     }
