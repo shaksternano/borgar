@@ -2,7 +2,6 @@ package io.github.shaksternano.mediamanipulator.io.mediareader;
 
 import io.github.shaksternano.mediamanipulator.image.ImageFrame;
 import io.github.shaksternano.mediamanipulator.io.MediaReaderFactory;
-import org.apache.commons.collections4.iterators.SingletonIterator;
 import org.jetbrains.annotations.NotNull;
 
 import javax.imageio.ImageIO;
@@ -11,6 +10,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Spliterator;
+import java.util.function.Consumer;
 
 public class JavaxImageReader extends BaseMediaReader<ImageFrame> {
 
@@ -48,7 +50,17 @@ public class JavaxImageReader extends BaseMediaReader<ImageFrame> {
     @NotNull
     @Override
     public Iterator<ImageFrame> iterator() {
-        return new SingletonIterator<>(image);
+        return List.of(image).iterator();
+    }
+
+    @Override
+    public void forEach(Consumer<? super ImageFrame> action) {
+        action.accept(image);
+    }
+
+    @Override
+    public Spliterator<ImageFrame> spliterator() {
+        return List.of(image).spliterator();
     }
 
     public enum Factory implements MediaReaderFactory<ImageFrame> {

@@ -9,10 +9,8 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
+import java.util.function.Consumer;
 
 public class ScrimageGifReader extends BaseMediaReader<ImageFrame> {
 
@@ -110,6 +108,16 @@ public class ScrimageGifReader extends BaseMediaReader<ImageFrame> {
     @Override
     public Iterator<ImageFrame> iterator() {
         return frames.iterator();
+    }
+
+    @Override
+    public void forEach(Consumer<? super ImageFrame> action) {
+        frames.forEach(action);
+    }
+
+    @Override
+    public Spliterator<ImageFrame> spliterator() {
+        return frames.spliterator();
     }
 
     public enum Factory implements MediaReaderFactory<ImageFrame> {

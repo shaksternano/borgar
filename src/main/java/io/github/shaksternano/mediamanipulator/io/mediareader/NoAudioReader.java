@@ -8,6 +8,9 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.function.Consumer;
 
 public class NoAudioReader extends BaseMediaReader<AudioFrame> {
 
@@ -30,6 +33,15 @@ public class NoAudioReader extends BaseMediaReader<AudioFrame> {
     @Override
     public Iterator<AudioFrame> iterator() {
         return Collections.emptyIterator();
+    }
+
+    @Override
+    public void forEach(Consumer<? super AudioFrame> action) {
+    }
+
+    @Override
+    public Spliterator<AudioFrame> spliterator() {
+        return Spliterators.emptySpliterator();
     }
 
     public enum Factory implements MediaReaderFactory<AudioFrame> {

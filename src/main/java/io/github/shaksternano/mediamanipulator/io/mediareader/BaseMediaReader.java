@@ -1,6 +1,11 @@
 package io.github.shaksternano.mediamanipulator.io.mediareader;
 
+import java.util.Spliterator;
+import java.util.Spliterators;
+
 public abstract class BaseMediaReader<T> implements MediaReader<T> {
+
+    private static final int SPLITERATOR_CHARACTERISTICS = Spliterator.ORDERED | Spliterator.NONNULL | Spliterator.IMMUTABLE;
 
     private final String format;
     protected double frameRate;
@@ -63,5 +68,10 @@ public abstract class BaseMediaReader<T> implements MediaReader<T> {
     @Override
     public String format() {
         return format;
+    }
+
+    @Override
+    public Spliterator<T> spliterator() {
+        return Spliterators.spliterator(iterator(), frameCount(), SPLITERATOR_CHARACTERISTICS);
     }
 }
