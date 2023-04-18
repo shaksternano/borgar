@@ -16,6 +16,7 @@ public interface Drawable extends Closeable {
      * @param x         The x coordinate of the top left corner of the drawable.
      * @param y         The y coordinate of the top left corner of the drawable.
      * @param timestamp The timestamp of the frame in microseconds.
+     * @throws IOException If an I/O error occurs.
      */
     void draw(Graphics2D graphics, int x, int y, long timestamp) throws IOException;
 
