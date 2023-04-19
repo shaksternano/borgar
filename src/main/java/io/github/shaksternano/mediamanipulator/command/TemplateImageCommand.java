@@ -158,7 +158,6 @@ public class TemplateImageCommand extends OptionalFileInputFileCommand {
         List<String> words,
         Map<String, Drawable> nonTextParts,
         TemplateImageInfo templateInfo
-
     ) implements ImageProcessor<TextDrawData> {
 
         @Override

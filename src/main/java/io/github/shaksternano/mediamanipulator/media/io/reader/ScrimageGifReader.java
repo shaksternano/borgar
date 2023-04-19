@@ -58,6 +58,11 @@ public class ScrimageGifReader extends BaseMediaReader<ImageFrame> {
         return frames.get(index);
     }
 
+    @Override
+    public ImageFrame first() {
+        return frames.get(0);
+    }
+
     /**
      * Finds the index of the frame with the given timestamp.
      * If there is no frame with the given timestamp, the index of the frame

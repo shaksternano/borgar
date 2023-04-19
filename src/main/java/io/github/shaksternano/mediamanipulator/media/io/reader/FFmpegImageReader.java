@@ -31,7 +31,7 @@ public class FFmpegImageReader extends FFmpegMediaReader<ImageFrame> {
     @Nullable
     @Override
     protected ImageFrame getNextFrame() throws IOException {
-        Frame frame = grabber.grabImage();
+        var frame = grabFrame();
         if (frame == null) {
             return null;
         } else {

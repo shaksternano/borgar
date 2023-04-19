@@ -31,8 +31,10 @@ public abstract class FFmpegMediaReader<E> extends BaseMediaReader<E> {
         this.grabber = grabber;
         grabber.start();
         int frameCount = 0;
-        while (grabFrame() != null) {
+        Frame frame;
+        while ((frame = grabFrame()) != null) {
             frameCount++;
+            frame.close();
         }
         frameRate = grabber.getFrameRate();
         this.frameCount = frameCount;
@@ -53,10 +55,19 @@ public abstract class FFmpegMediaReader<E> extends BaseMediaReader<E> {
     @Override
     public E frame(long timestamp) throws IOException {
         long circularTimestamp = timestamp % Math.max(duration(), 1);
-        grabber.setTimestamp(circularTimestamp);
+        return frameNonCircular(circularTimestamp);
+    }
+
+    @Override
+    public E first() throws IOException {
+        return frameNonCircular(0);
+    }
+
+    private E frameNonCircular(long timestamp) throws IOException {
+        grabber.setTimestamp(timestamp);
         E frame = getNextFrame();
         if (frame == null) {
-            throw new NoSuchElementException("No frame at timestamp " + circularTimestamp);
+            throw new NoSuchElementException("No frame at timestamp " + timestamp);
         } else {
             return frame;
         }

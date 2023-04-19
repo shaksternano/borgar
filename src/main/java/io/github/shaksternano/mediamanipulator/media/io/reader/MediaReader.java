@@ -47,4 +47,6 @@ public interface MediaReader<E> extends Collection<E>, Closeable {
      * @throws IOException If an I/O error occurs.
      */
     E frame(long timestamp) throws IOException;
+
+    E first() throws IOException;
 }

@@ -28,11 +28,11 @@ public class FFmpegAudioReader extends FFmpegMediaReader<AudioFrame> {
     @Nullable
     @Override
     protected AudioFrame getNextFrame() throws IOException {
-        Frame frame = grabber.grabSamples();
+        var frame = grabFrame();
         if (frame == null) {
             return null;
         } else {
-            return new AudioFrame(frame, (long) frameDuration(), frame.timestamp);
+            return new AudioFrame(frame, frameDuration(), frame.timestamp);
         }
     }
 

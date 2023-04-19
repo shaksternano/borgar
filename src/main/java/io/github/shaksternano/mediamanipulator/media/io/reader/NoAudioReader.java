@@ -29,6 +29,11 @@ public class NoAudioReader extends BaseMediaReader<AudioFrame> {
     }
 
     @Override
+    public AudioFrame first() {
+        throw new UnsupportedOperationException("No audio available");
+    }
+
+    @Override
     public boolean contains(Object o) {
         return false;
     }

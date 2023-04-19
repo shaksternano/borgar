@@ -48,6 +48,11 @@ public class JavaxImageReader extends BaseMediaReader<ImageFrame> {
     }
 
     @Override
+    public ImageFrame first() {
+        return image;
+    }
+
+    @Override
     public boolean contains(Object o) {
         return image.equals(o);
     }

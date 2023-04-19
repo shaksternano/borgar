@@ -22,7 +22,7 @@ public class ImageDrawable implements Drawable {
         reader = MediaReaders.createImageReader(inputStream, format);
         targetWidth = reader.width();
         targetHeight = reader.height();
-        firstFrame = reader.frame(0).content();
+        firstFrame = reader.first().content();
     }
 
     @Override

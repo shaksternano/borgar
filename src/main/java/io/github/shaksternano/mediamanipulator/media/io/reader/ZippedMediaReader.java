@@ -51,6 +51,13 @@ public class ZippedMediaReader<A extends VideoFrame<?>, B extends VideoFrame<?>>
         return new Pair<>(firstFrame, secondFrame);
     }
 
+    @Override
+    public Pair<A, B> first() throws IOException {
+        var firstFrame = firstReader.first();
+        var secondFrame = secondReader.first();
+        return new Pair<>(firstFrame, secondFrame);
+    }
+
     public boolean isFirstControlling() {
         return firstControlling;
     }

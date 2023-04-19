@@ -2,11 +2,13 @@ package io.github.shaksternano.mediamanipulator.command;
 
 import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.exception.InvalidMediaException;
+import io.github.shaksternano.mediamanipulator.io.FileUtil;
 import io.github.shaksternano.mediamanipulator.media.ImageFrame;
 import io.github.shaksternano.mediamanipulator.media.ImageProcessor;
 import io.github.shaksternano.mediamanipulator.media.ImageUtil;
 import io.github.shaksternano.mediamanipulator.media.MediaUtil;
 import io.github.shaksternano.mediamanipulator.media.graphics.OverlayData;
+import io.github.shaksternano.mediamanipulator.media.io.MediaReaders;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.*;
@@ -88,7 +90,13 @@ public class SpeechBubbleCommand extends FileCommand {
             var width = image.getWidth();
             var height = image.getHeight();
 
-            var speechBubble = ImageUtil.getImageResourceInRootPackage(speechBubblePath).getFirstImage();
+            BufferedImage speechBubble;
+            try (
+                var inputStream = FileUtil.getResourceInRootPackage(speechBubblePath);
+                var reader = MediaReaders.createImageReader(inputStream, "png")
+            ) {
+                speechBubble = reader.first().content();
+            }
 
             var minDimension = 3;
             if (width < minDimension) {

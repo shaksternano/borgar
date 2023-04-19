@@ -4,6 +4,7 @@ import com.google.common.collect.Iterables;
 import io.github.shaksternano.mediamanipulator.util.IterableUtil;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -63,6 +64,11 @@ public abstract class BaseMediaReader<E> extends AbstractCollection<E> implement
     @Override
     public String format() {
         return format;
+    }
+
+    @Override
+    public E first() throws IOException {
+        return frame(0);
     }
 
     @Override
