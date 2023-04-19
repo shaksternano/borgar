@@ -14,21 +14,22 @@ import java.util.NoSuchElementException;
 public abstract class FFmpegMediaReader<E> extends BaseMediaReader<E> {
 
     protected final FFmpegFrameGrabber grabber;
+    @Nullable
+    private final InputStream input;
     protected boolean closed = false;
-    private InputStream inputStream;
 
     public FFmpegMediaReader(File input, String format) throws IOException {
-        this(new FFmpegFrameGrabber(input), format);
+        this(new FFmpegFrameGrabber(input), format, null);
     }
 
     public FFmpegMediaReader(InputStream input, String format) throws IOException {
-        this(new FFmpegFrameGrabber(input), format);
-        inputStream = input;
+        this(new FFmpegFrameGrabber(input), format, input);
     }
 
-    private FFmpegMediaReader(FFmpegFrameGrabber grabber, String format) throws IOException {
+    private FFmpegMediaReader(FFmpegFrameGrabber grabber, String format, @Nullable InputStream input) throws IOException {
         super(format);
         this.grabber = grabber;
+        this.input = input;
         grabber.start();
         int frameCount = 0;
         Frame frame;
@@ -89,8 +90,8 @@ public abstract class FFmpegMediaReader<E> extends BaseMediaReader<E> {
         }
         closed = true;
         grabber.close();
-        if (inputStream != null) {
-            inputStream.close();
+        if (input != null) {
+            input.close();
         }
     }
 
