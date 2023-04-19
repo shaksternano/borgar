@@ -1,7 +1,9 @@
 package io.github.shaksternano.mediamanipulator.media.io.reader;
 
+import com.google.common.collect.Iterators;
 import io.github.shaksternano.mediamanipulator.media.ImageFrame;
 import io.github.shaksternano.mediamanipulator.media.io.MediaReaderFactory;
+import io.github.shaksternano.mediamanipulator.util.ArrayUtil;
 import org.jetbrains.annotations.NotNull;
 
 import javax.imageio.ImageIO;
@@ -9,7 +11,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Array;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Spliterator;
@@ -32,7 +33,7 @@ public class JavaxImageReader extends BaseMediaReader<ImageFrame> {
 
     private JavaxImageReader(BufferedImage image, String format) {
         super(format);
-        this.image = new ImageFrame(image, 0, 0);
+        this.image = new ImageFrame(image, 1, 0);
         frameCount = 1;
         duration = 1;
         frameRate = 1;
@@ -61,10 +62,7 @@ public class JavaxImageReader extends BaseMediaReader<ImageFrame> {
     @NotNull
     @Override
     public <T> T[] toArray(@NotNull T[] a) {
-        int size = 1;
-        var result = a.length == size
-            ? a
-            : (T[]) Array.newInstance(a.getClass().getComponentType(), size);
+        var result = ArrayUtil.createNewOrReuse(a, 1);
         result[0] = (T) image;
         return result;
     }
@@ -79,7 +77,7 @@ public class JavaxImageReader extends BaseMediaReader<ImageFrame> {
 
     @Override
     public Iterator<ImageFrame> iterator() {
-        return List.of(image).iterator();
+        return Iterators.singletonIterator(image);
     }
 
     @Override

@@ -2,11 +2,11 @@ package io.github.shaksternano.mediamanipulator.media.io.reader;
 
 import io.github.shaksternano.mediamanipulator.media.AudioFrame;
 import io.github.shaksternano.mediamanipulator.media.io.MediaReaderFactory;
+import io.github.shaksternano.mediamanipulator.util.ArrayUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.InputStream;
-import java.lang.reflect.Array;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Spliterator;
@@ -39,13 +39,10 @@ public class NoAudioReader extends BaseMediaReader<AudioFrame> {
         return new Object[0];
     }
 
-    @SuppressWarnings("unchecked")
     @NotNull
     @Override
     public <T> T[] toArray(@NotNull T[] a) {
-        return a.length == 0
-            ? a
-            : (T[]) Array.newInstance(a.getClass().getComponentType(), 0);
+        return ArrayUtil.createNewOrReuse(a, 0);
     }
 
     @Override
