@@ -1,6 +1,5 @@
 package io.github.shaksternano.mediamanipulator.util;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import io.github.shaksternano.mediamanipulator.Main;
@@ -23,9 +22,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -45,30 +43,28 @@ public class MessageUtil {
      *
      * @param message   The message to download the file from.
      * @param directory The directory to download the file to.
-     * @return An {@link Optional} describing the file.
+     * @return A {@code CompletableFuture} that will complete with an {@link Optional} describing the file.
      */
-    public static Optional<File> downloadFile(Message message, String directory) {
-        return processMessages(message, messageToProcess -> {
-            Optional<File> fileOptional = downloadAttachment(messageToProcess, directory);
-            if (fileOptional.isPresent()) {
-                return fileOptional;
-            } else {
-                List<String> urls = StringUtil.extractUrls(messageToProcess.getContentRaw());
+    public static CompletableFuture<Optional<File>> downloadFile(Message message, String directory) {
+        return processMessagesAsync(message, messageToProcess -> downloadAttachment(messageToProcess, directory)
+            .thenApply(fileOptional -> {
+                if (fileOptional.isPresent()) {
+                    return fileOptional;
+                }
+                var urls = StringUtil.extractUrls(messageToProcess.getContentRaw());
                 if (!urls.isEmpty()) {
                     fileOptional = FileUtil.downloadFile(urls.get(0), directory);
                     if (fileOptional.isPresent()) {
                         return fileOptional;
-                    } else {
-                        fileOptional = downloadEmbedImage(messageToProcess, directory);
-                        if (fileOptional.isPresent()) {
-                            return fileOptional;
-                        }
+                    }
+                    fileOptional = downloadEmbedImage(messageToProcess, directory);
+                    if (fileOptional.isPresent()) {
+                        return fileOptional;
                     }
                 }
-            }
-
-            return Optional.empty();
-        });
+                return Optional.empty();
+            })
+        );
     }
 
     /**
@@ -80,83 +76,95 @@ public class MessageUtil {
      *                  the initial message itself,and then if that is also empty, it will be applied
      *                  to previous messages.
      * @param <T>       The type of the result of the operation.
-     * @return An {@link Optional} describing the result of the operation.
+     * @return A {@link CompletableFuture} that will complete with an {@link Optional} describing the result of the operation.
      */
-    public static <T> Optional<T> processMessages(Message message, Function<Message, Optional<T>> operation) {
-        Optional<T> result;
+    public static <T> CompletableFuture<Optional<T>> processMessages(
+        Message message,
+        Function<Message, Optional<T>> operation
+    ) {
+        return processMessagesAsync(message, operation.andThen(CompletableFuture::completedFuture));
+    }
 
-        Message referencedMessage = message.getReferencedMessage();
+    public static <T> CompletableFuture<Optional<T>> processMessagesAsync(
+        Message message,
+        Function<Message, CompletableFuture<Optional<T>>> operation
+    ) {
+        return processMessages(
+            message,
+            operation,
+            MessageUtil::processReferencedMessage,
+            MessageUtil::processEmbedLinkedMessage,
+            MessageUtil::processMessage,
+            MessageUtil::processPreviousMessages
+        );
+    }
+
+    @SafeVarargs
+    private static <T> CompletableFuture<Optional<T>> processMessages(
+        Message message,
+        Function<Message, CompletableFuture<Optional<T>>> operation,
+        BiFunction<Message, Function<Message, CompletableFuture<Optional<T>>>, CompletableFuture<Optional<T>>>... messageProcessors
+    ) {
+        CompletableFuture<Optional<T>> resultFuture = CompletableFuture.completedFuture(Optional.empty());
+        for (var messageProcessor : messageProcessors) {
+            resultFuture = resultFuture.thenCompose(result -> {
+                if (result.isPresent()) {
+                    return CompletableFuture.completedFuture(result);
+                } else {
+                    return messageProcessor.apply(message, operation);
+                }
+            });
+        }
+        return resultFuture;
+    }
+
+    private static <T> CompletableFuture<Optional<T>> processReferencedMessage(Message message, Function<Message, CompletableFuture<Optional<T>>> operation) {
+        var referencedMessage = message.getReferencedMessage();
         if (referencedMessage != null) {
-            result = operation.apply(referencedMessage);
-            if (result.isPresent()) {
-                return result;
-            }
+            return operation.apply(referencedMessage);
         }
-
-        Optional<Message> linkedMessage = getEmbedLinkedMessage(message);
-        if (linkedMessage.isPresent()) {
-            result = operation.apply(linkedMessage.orElseThrow());
-            if (result.isPresent()) {
-                return result;
-            }
-        }
-
-        result = operation.apply(message);
-        if (result.isPresent()) {
-            return result;
-        }
-
-        List<Message> previousMessages = getPreviousMessages(message.getChannel(), MAX_PAST_MESSAGES_TO_CHECK);
-        for (Message previousMessage : previousMessages) {
-            result = operation.apply(previousMessage);
-            if (result.isPresent()) {
-                return result;
-            }
-        }
-
-        return Optional.empty();
+        return CompletableFuture.completedFuture(Optional.empty());
     }
 
-    /**
-     * Gets the previous messages in the channel.
-     *
-     * @param channel The channel to get the previous messages from.
-     * @param amount  The amount of messages to get.
-     * @return A list of messages. If an error occurred, an empty list is returned.
-     */
-    public static List<Message> getPreviousMessages(MessageChannel channel, int amount) {
-        try {
-            return channel.getHistory().retrievePast(amount).complete();
-        } catch (RuntimeException e) {
-            Main.getLogger().error("Error while retrieving previous messages", e);
-        }
-
-        return ImmutableList.of();
+    private static <T> CompletableFuture<Optional<T>> processEmbedLinkedMessage(Message message, Function<Message, CompletableFuture<Optional<T>>> operation) {
+        return getEmbedLinkedMessage(message).thenCompose(linkedMessage -> {
+            if (linkedMessage.isPresent()) {
+                return operation.apply(linkedMessage.orElseThrow());
+            }
+            return CompletableFuture.completedFuture(Optional.empty());
+        });
     }
 
-    /**
-     * Downloads an image from an attachment.
-     *
-     * @param message   The message to download the image from.
-     * @param directory The directory to download the image to.
-     * @return An {@link Optional} describing the image file.
-     */
-    private static Optional<File> downloadAttachment(Message message, String directory) {
-        List<Message.Attachment> attachments = message.getAttachments();
+    private static <T> CompletableFuture<Optional<T>> processMessage(Message message, Function<Message, CompletableFuture<Optional<T>>> operation) {
+        return operation.apply(message);
+    }
 
-        for (Message.Attachment attachment : attachments) {
-            File imageFile = FileUtil.getUniqueFile(directory, attachment.getFileName());
+    private static <T> CompletableFuture<Optional<T>> processPreviousMessages(Message message, Function<Message, CompletableFuture<Optional<T>>> operation) {
+        return message.getChannel()
+            .getHistory()
+            .retrievePast(MAX_PAST_MESSAGES_TO_CHECK)
+            .submit()
+            .thenCompose(previousMessages -> CompletableFutureUtil.all(previousMessages.stream()
+                .map(operation)
+                .toList()
+            ))
+            .thenApply(results -> results.stream()
+                .filter(Optional::isPresent)
+                .findFirst()
+                .flatMap(Function.identity())
+            );
+    }
 
-            try {
-                return Optional.of(attachment.getProxy().downloadToFile(imageFile).get(10, TimeUnit.SECONDS));
-            } catch (ExecutionException | InterruptedException e) {
-                Main.getLogger().error("Error downloading image!", e);
-            } catch (TimeoutException e) {
-                Main.getLogger().error("Image took too long to download!", e);
-            }
+    private static CompletableFuture<Optional<File>> downloadAttachment(Message message, String directory) {
+        var attachments = message.getAttachments();
+        if (attachments.isEmpty()) {
+            return CompletableFuture.completedFuture(Optional.empty());
         }
-
-        return Optional.empty();
+        var attachment = attachments.get(0);
+        var file = FileUtil.getUniqueFile(directory, attachment.getFileName());
+        return attachment.getProxy()
+            .downloadToFile(file)
+            .thenApply(Optional::of);
     }
 
     /**
@@ -289,28 +297,25 @@ public class MessageUtil {
      * @param message The message that contains the embed to get the message link from.
      * @return The linked message.
      */
-    private static Optional<Message> getEmbedLinkedMessage(Message message) {
-        List<MessageEmbed> embeds = message.getEmbeds();
-
-        for (MessageEmbed embed : embeds) {
-            Optional<String> authorUrl = Optional.ofNullable(embed.getAuthor()).map(MessageEmbed.AuthorInfo::getUrl);
-            return getLinkedMessage(authorUrl.orElse(""), message.getChannel());
+    private static CompletableFuture<Optional<Message>> getEmbedLinkedMessage(Message message) {
+        var embeds = message.getEmbeds();
+        if (embeds.isEmpty()) {
+            return CompletableFuture.completedFuture(Optional.empty());
         }
-
-        return Optional.empty();
+        Optional<String> authorUrl = Optional.ofNullable(embeds.get(0).getAuthor())
+            .map(MessageEmbed.AuthorInfo::getUrl);
+        return getLinkedMessage(authorUrl.orElse(""), message.getChannel());
     }
 
-    private static Optional<Message> getLinkedMessage(String url, MessageChannel channel) {
+    private static CompletableFuture<Optional<Message>> getLinkedMessage(String url, MessageChannel channel) {
         try {
-            URI uri = new URI(url);
-
+            var uri = new URI(url);
             if (uri.getHost().contains("discord.com")) {
-                String[] parts = url.split(Pattern.quote("/"));
-
+                var parts = url.split(Pattern.quote("/"));
                 if (parts.length >= 1) {
                     try {
-                        long messageId = Long.parseLong(parts[parts.length - 1]);
-                        return Optional.of(channel.retrieveMessageById(messageId).complete());
+                        var messageId = Long.parseLong(parts[parts.length - 1]);
+                        return channel.retrieveMessageById(messageId).submit().thenApply(Optional::of);
                     } catch (NumberFormatException ignored) {
                     } catch (RuntimeException e) {
                         Main.getLogger().error("Error getting linked message!", e);
@@ -320,8 +325,7 @@ public class MessageUtil {
         } catch (URISyntaxException e) {
             Main.getLogger().error("Failed to parse URL " + url + "!", e);
         }
-
-        return Optional.empty();
+        return CompletableFuture.completedFuture(Optional.empty());
     }
 
     public static Map<String, Drawable> getEmojiImages(Message message) {

@@ -30,9 +30,9 @@ public class StickerImageCommand extends BaseCommand {
             } else {
                 return Optional.of(stickers.get(0).getIconUrl());
             }
-        }).ifPresentOrElse(
+        }).thenAccept(result -> result.ifPresentOrElse(
             url -> event.getMessage().reply(url).queue(),
             () -> event.getMessage().reply("No sticker found!").queue()
-        );
+        ));
     }
 }

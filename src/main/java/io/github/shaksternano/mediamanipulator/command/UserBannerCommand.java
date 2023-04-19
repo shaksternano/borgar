@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 public class UserBannerCommand extends BaseCommand {
 
@@ -24,17 +25,21 @@ public class UserBannerCommand extends BaseCommand {
 
     @Override
     public void execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
-        MessageUtil.processMessages(event.getMessage(), message -> {
+        MessageUtil.processMessagesAsync(event.getMessage(), message -> {
+            CompletableFuture<User.Profile> profileFuture;
             if (event.getMessage().equals(message)) {
                 List<Member> members = message.getMentions().getMembers();
                 User user = members.isEmpty() ? message.getAuthor() : members.get(0).getUser();
-                return Optional.ofNullable(user.retrieveProfile().complete().getBannerUrl());
+                profileFuture = user.retrieveProfile().submit();
             } else {
-                return Optional.ofNullable(message.getAuthor().retrieveProfile().complete().getBannerUrl());
+                profileFuture = message.getAuthor().retrieveProfile().submit();
             }
-        }).ifPresentOrElse(
+            return profileFuture
+                .thenApply(User.Profile::getBannerUrl)
+                .thenApply(Optional::ofNullable);
+        }).thenAccept(result -> result.ifPresentOrElse(
             url -> event.getMessage().reply(url + "?size=1024").queue(),
             () -> event.getMessage().reply("Could not find a user with a banner image!").queue()
-        );
+        ));
     }
 }

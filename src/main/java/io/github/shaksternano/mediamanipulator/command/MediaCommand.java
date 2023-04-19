@@ -52,7 +52,7 @@ public abstract class MediaCommand extends BaseCommand {
     @Override
     public void execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
         Message userMessage = event.getMessage();
-        MessageUtil.downloadFile(userMessage, FileUtil.getTempDir().toString()).ifPresentOrElse(file -> {
+        MessageUtil.downloadFile(userMessage, FileUtil.getTempDir().toString()).join().ifPresentOrElse(file -> {
             String fileFormat = FileUtil.getFileFormat(file);
 
             MediaManipulatorRegistry.getManipulator(fileFormat).ifPresentOrElse(manipulator -> {

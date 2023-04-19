@@ -44,58 +44,60 @@ public abstract sealed class BaseFileCommand extends BaseCommand permits FileCom
 
     @Override
     public void execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
-        File input = null;
-        File edited = null;
-        File compressed = null;
-        var fileFormat = "N/A";
         var triggerMessage = event.getMessage();
-        try {
-            Optional<File> fileOptional = requireFileInput || arguments.isEmpty()
-                ? MessageUtil.downloadFile(triggerMessage, FileUtil.getTempDir().toString())
-                : Optional.empty();
-            if (requireFileInput && fileOptional.isEmpty()) {
-                triggerMessage.reply("No media found!").queue();
-            } else {
-                input = fileOptional.orElse(null);
-                fileFormat = fileOptional.map(FileUtil::getFileFormat).orElse(fileFormat);
-                var finalFileFormat = fileFormat;
-                edited = fileOptional.map(file -> {
-                    try {
-                        return modifyFile(file, finalFileFormat, arguments, extraArguments, event);
-                    } catch (IOException e) {
-                        throw new UncheckedIOException(e);
-                    }
-                }).orElseGet(() -> {
-                    try {
-                        return createFile(arguments, extraArguments, event);
-                    } catch (IOException e) {
-                        throw new UncheckedIOException(e);
-                    }
-                });
-                var newFileFormat = FileUtil.getFileFormat(edited);
-                compressed = compress(edited, newFileFormat, event.getGuild());
-                var resultSize = compressed.length();
-                if (resultSize > DiscordUtil.getMaxUploadSize(event.getGuild())) {
-                    handleTooLargeFile(resultSize, triggerMessage);
+        CompletableFuture<Optional<File>> fileOptionalFuture = requireFileInput || arguments.isEmpty()
+            ? MessageUtil.downloadFile(triggerMessage, FileUtil.getTempDir().toString())
+            : CompletableFuture.completedFuture(Optional.empty());
+        fileOptionalFuture.thenAccept(fileOptional -> {
+            File input = null;
+            File edited = null;
+            File compressed = null;
+            var fileFormat = "N/A";
+            try {
+                if (requireFileInput && fileOptional.isEmpty()) {
+                    triggerMessage.reply("No media found!").queue();
                 } else {
-                    tryReply(triggerMessage, compressed);
+                    input = fileOptional.orElse(null);
+                    fileFormat = fileOptional.map(FileUtil::getFileFormat).orElse(fileFormat);
+                    var finalFileFormat = fileFormat;
+                    edited = fileOptional.map(file -> {
+                        try {
+                            return modifyFile(file, finalFileFormat, arguments, extraArguments, event);
+                        } catch (IOException e) {
+                            throw new UncheckedIOException(e);
+                        }
+                    }).orElseGet(() -> {
+                        try {
+                            return createFile(arguments, extraArguments, event);
+                        } catch (IOException e) {
+                            throw new UncheckedIOException(e);
+                        }
+                    });
+                    var newFileFormat = FileUtil.getFileFormat(edited);
+                    compressed = compress(edited, newFileFormat, event.getGuild());
+                    var resultSize = compressed.length();
+                    if (resultSize > DiscordUtil.getMaxUploadSize(event.getGuild())) {
+                        handleTooLargeFile(resultSize, triggerMessage);
+                    } else {
+                        tryReply(triggerMessage, compressed);
+                    }
                 }
+            } catch (InvalidMediaException e) {
+                triggerMessage.reply(e.getMessage() == null ? "Invalid media!" : "Invalid media: " + e.getMessage()).queue();
+                Main.getLogger().error("Invalid media!", e);
+            } catch (UnsupportedFileFormatException e) {
+                var unsupportedMessage = "This operation is not supported on files with type \"" + fileFormat + "\"!";
+                if (e.getMessage() != null && !e.getMessage().isBlank()) {
+                    unsupportedMessage = unsupportedMessage + " Reason: " + e.getMessage();
+                }
+                triggerMessage.reply(unsupportedMessage).queue();
+            } catch (OutOfMemoryError e) {
+                triggerMessage.reply("The server ran out of memory! Try again later or use a smaller file.").queue();
+                Main.getLogger().error("Ran out of memory executing command " + getNameWithPrefix() + "!", e);
+            } finally {
+                deleteAll(input, edited, compressed);
             }
-        } catch (InvalidMediaException e) {
-            triggerMessage.reply(e.getMessage() == null ? "Invalid media!" : "Invalid media: " + e.getMessage()).queue();
-            Main.getLogger().error("Invalid media!", e);
-        } catch (UnsupportedFileFormatException e) {
-            var unsupportedMessage = "This operation is not supported on files with type \"" + fileFormat + "\"!";
-            if (e.getMessage() != null && !e.getMessage().isBlank()) {
-                unsupportedMessage = unsupportedMessage + " Reason: " + e.getMessage();
-            }
-            triggerMessage.reply(unsupportedMessage).queue();
-        } catch (OutOfMemoryError e) {
-            triggerMessage.reply("The server ran out of memory! Try again later or use a smaller file.").queue();
-            Main.getLogger().error("Ran out of memory executing command " + getNameWithPrefix() + "!", e);
-        } finally {
-            deleteAll(input, edited, compressed);
-        }
+        });
     }
 
     private static File compress(File file, String fileFormat, Guild guild) {

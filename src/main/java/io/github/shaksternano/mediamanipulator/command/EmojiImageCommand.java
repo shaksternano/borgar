@@ -31,9 +31,9 @@ public class EmojiImageCommand extends BaseCommand {
      */
     @Override
     public void execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
-        MessageUtil.processMessages(event.getMessage(), MessageUtil::getFirstEmojiUrl).ifPresentOrElse(
+        MessageUtil.processMessages(event.getMessage(), MessageUtil::getFirstEmojiUrl).thenAccept(result -> result.ifPresentOrElse(
             url -> event.getMessage().reply(url).queue(),
             () -> event.getMessage().reply("No emoji found!").queue()
-        );
+        ));
     }
 }

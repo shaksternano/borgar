@@ -35,12 +35,12 @@ public class UserAvatarCommand extends BaseCommand {
             } else {
                 return Optional.of(message.getAuthor().getEffectiveAvatarUrl());
             }
-        }).ifPresentOrElse(
+        }).thenAccept(result -> result.ifPresentOrElse(
             url -> event.getMessage().reply(url + "?size=1024").queue(),
             () -> {
                 event.getMessage().reply("Could not find a user to get the profile picture of!").queue();
                 Main.getLogger().error("Could not find a user to get the profile picture of, this shouldn't happen!", new IllegalStateException());
             }
-        );
+        ));
     }
 }
