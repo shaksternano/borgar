@@ -50,7 +50,7 @@ public abstract sealed class BaseFileCommand extends BaseCommand permits FileCom
         var fileFormat = "N/A";
         var triggerMessage = event.getMessage();
         try {
-            Optional<File> fileOptional = arguments.isEmpty()
+            Optional<File> fileOptional = requireFileInput || arguments.isEmpty()
                 ? MessageUtil.downloadFile(triggerMessage, FileUtil.getTempDir().toString())
                 : Optional.empty();
             if (requireFileInput && fileOptional.isEmpty()) {
