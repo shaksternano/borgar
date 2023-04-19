@@ -73,19 +73,19 @@ public class CommandParser {
         return throwable;
     }
 
-    private static void handleError(Throwable error, Message userMessage, Command command) {
+    private static void handleError(Throwable error, Message triggerMessage, Command command) {
         if (error instanceof PermissionException) {
-            userMessage.reply("This bot doesn't have the required permissions to execute this command!").queue();
+            triggerMessage.reply("This bot doesn't have the required permissions to execute this command!").queue();
             Main.getLogger().error("This bot doesn't have the required permissions needed to execute command " + command.getNameWithPrefix() + "!", error);
         } else if (error instanceof InvalidArgumentException) {
-            userMessage.reply(error.getMessage() == null ? "Invalid arguments!" : "Invalid arguments: " + error.getMessage()).queue();
+            triggerMessage.reply(error.getMessage() == null ? "Invalid arguments!" : "Invalid arguments: " + error.getMessage()).queue();
         } else if (error instanceof MissingArgumentException) {
-            userMessage.reply(error.getMessage() == null ? "Missing arguments!" : "Missing arguments: " + error.getMessage()).queue();
+            triggerMessage.reply(error.getMessage() == null ? "Missing arguments!" : "Missing arguments: " + error.getMessage()).queue();
         } else if (error instanceof OutOfMemoryError) {
-            userMessage.reply("The server ran out of memory trying to execute this command! Try again later.").queue();
+            triggerMessage.reply("The server ran out of memory trying to execute this command! Try again later.").queue();
             Main.getLogger().error("Ran out of memory trying to execute command " + command.getNameWithPrefix() + "!", error);
         } else {
-            userMessage.reply("Error executing command!").queue();
+            triggerMessage.reply("Error executing command!").queue();
             Main.getLogger().error("Error executing command " + command.getNameWithPrefix() + "!", error);
         }
     }
