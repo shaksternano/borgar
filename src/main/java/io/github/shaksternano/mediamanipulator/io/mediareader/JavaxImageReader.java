@@ -9,10 +9,13 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Spliterator;
 import java.util.function.Consumer;
+import java.util.function.IntFunction;
+import java.util.stream.Stream;
 
 public class JavaxImageReader extends BaseMediaReader<ImageFrame> {
 
@@ -44,10 +47,36 @@ public class JavaxImageReader extends BaseMediaReader<ImageFrame> {
     }
 
     @Override
-    public void close() {
+    public boolean contains(Object o) {
+        return image.equals(o);
     }
 
     @NotNull
+    @Override
+    public Object[] toArray() {
+        return new Object[]{image};
+    }
+
+    @SuppressWarnings("unchecked")
+    @NotNull
+    @Override
+    public <T> T[] toArray(@NotNull T[] a) {
+        int size = 1;
+        var result = a.length == size
+            ? a
+            : (T[]) Array.newInstance(a.getClass().getComponentType(), size);
+        result[0] = (T) image;
+        return result;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T[] toArray(IntFunction<T[]> generator) {
+        var result = generator.apply(1);
+        result[0] = (T) image;
+        return result;
+    }
+
     @Override
     public Iterator<ImageFrame> iterator() {
         return List.of(image).iterator();
@@ -61,6 +90,15 @@ public class JavaxImageReader extends BaseMediaReader<ImageFrame> {
     @Override
     public Spliterator<ImageFrame> spliterator() {
         return List.of(image).spliterator();
+    }
+
+    @Override
+    public Stream<ImageFrame> stream() {
+        return Stream.of(image);
+    }
+
+    @Override
+    public void close() {
     }
 
     public enum Factory implements MediaReaderFactory<ImageFrame> {

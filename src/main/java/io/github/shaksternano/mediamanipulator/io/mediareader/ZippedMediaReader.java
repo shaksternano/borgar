@@ -24,7 +24,7 @@ public class ZippedMediaReader<A extends VideoFrame<?>, B extends VideoFrame<?>>
         this.firstReader = firstReader;
         this.secondReader = secondReader;
         this.firstControlling = firstControlling;
-        if (firstReader.empty() || secondReader.empty()) {
+        if (firstReader.isEmpty() || secondReader.isEmpty()) {
             frameDuration = 0;
             duration = 0;
             frameRate = 0;
@@ -61,13 +61,13 @@ public class ZippedMediaReader<A extends VideoFrame<?>, B extends VideoFrame<?>>
     }
 
     @Override
-    public void close() throws IOException {
-        MiscUtil.closeAll(firstReader, secondReader);
+    public Iterator<Pair<A, B>> iterator() {
+        return new ZippedMediaReaderIterator();
     }
 
     @Override
-    public Iterator<Pair<A, B>> iterator() {
-        return new ZippedMediaReaderIterator();
+    public void close() throws IOException {
+        MiscUtil.closeAll(firstReader, secondReader);
     }
 
     private class ZippedMediaReaderIterator implements Iterator<Pair<A, B>> {
@@ -79,7 +79,7 @@ public class ZippedMediaReader<A extends VideoFrame<?>, B extends VideoFrame<?>>
         private int loops = 0;
 
         public ZippedMediaReaderIterator() {
-            if (!firstReader.empty() && !secondReader.empty()) {
+            if (!firstReader.isEmpty() && !secondReader.isEmpty()) {
                 if (firstControlling) {
                     firstIterator = firstReader.iterator();
                 } else {

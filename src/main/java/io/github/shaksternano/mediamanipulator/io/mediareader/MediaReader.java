@@ -2,8 +2,9 @@ package io.github.shaksternano.mediamanipulator.io.mediareader;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.Collection;
 
-public interface MediaReader<T> extends Closeable, Iterable<T> {
+public interface MediaReader<E> extends Collection<E>, Closeable {
 
     /**
      * Gets the frame rate of the media.
@@ -12,11 +13,7 @@ public interface MediaReader<T> extends Closeable, Iterable<T> {
      */
     double frameRate();
 
-    int frameCount();
-
     boolean animated();
-
-    boolean empty();
 
     /**
      * Gets the duration of time of the media.
@@ -49,5 +46,5 @@ public interface MediaReader<T> extends Closeable, Iterable<T> {
      * @return The frame at the given timestamp.
      * @throws IOException If an I/O error occurs.
      */
-    T frame(long timestamp) throws IOException;
+    E frame(long timestamp) throws IOException;
 }

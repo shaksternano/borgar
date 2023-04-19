@@ -1,9 +1,14 @@
 package io.github.shaksternano.mediamanipulator.io.mediareader;
 
-import java.util.Spliterator;
-import java.util.Spliterators;
+import com.google.common.collect.Iterables;
+import io.github.shaksternano.mediamanipulator.util.IterableUtil;
+import org.jetbrains.annotations.NotNull;
 
-public abstract class BaseMediaReader<T> implements MediaReader<T> {
+import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
+
+public abstract class BaseMediaReader<E> extends AbstractCollection<E> implements MediaReader<E> {
 
     private static final int SPLITERATOR_CHARACTERISTICS = Spliterator.ORDERED | Spliterator.NONNULL | Spliterator.IMMUTABLE;
 
@@ -26,18 +31,8 @@ public abstract class BaseMediaReader<T> implements MediaReader<T> {
     }
 
     @Override
-    public int frameCount() {
-        return frameCount;
-    }
-
-    @Override
     public boolean animated() {
-        return frameCount() > 1;
-    }
-
-    @Override
-    public boolean empty() {
-        return frameCount() < 1;
+        return this.size() > 1;
     }
 
     @Override
@@ -71,7 +66,67 @@ public abstract class BaseMediaReader<T> implements MediaReader<T> {
     }
 
     @Override
-    public Spliterator<T> spliterator() {
-        return Spliterators.spliterator(iterator(), frameCount(), SPLITERATOR_CHARACTERISTICS);
+    public int size() {
+        return frameCount;
+    }
+
+    @Override
+    public boolean remove(Object o) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean addAll(@NotNull Collection<? extends E> c) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean removeAll(@NotNull Collection<?> c) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean removeIf(Predicate<? super E> filter) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean retainAll(@NotNull Collection<?> c) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void clear() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Spliterator<E> spliterator() {
+        return Spliterators.spliterator(this, SPLITERATOR_CHARACTERISTICS);
+    }
+
+    @Override
+    public Stream<E> parallelStream() {
+        return stream().parallel();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(
+            IterableUtil.hashElements(this),
+            format()
+        );
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        } else if (obj instanceof MediaReader<?> other) {
+            return Iterables.elementsEqual(this, other)
+                && Objects.equals(format(), other.format());
+        } else {
+            return false;
+        }
     }
 }

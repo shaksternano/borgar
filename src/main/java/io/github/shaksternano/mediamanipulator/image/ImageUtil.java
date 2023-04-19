@@ -19,10 +19,8 @@ import java.awt.geom.GeneralPath;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorConvertOp;
 import java.io.*;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Contains static methods for dealing with images.
@@ -590,5 +588,41 @@ public class ImageUtil {
 
     public static BufferedImage copySize(BufferedImage image) {
         return new BufferedImage(image.getWidth(), image.getHeight(), getType(image));
+    }
+
+    public static int hashImage(BufferedImage image) {
+        if (image == null) {
+            return 0;
+        }
+        var hash = 1;
+        for (var x = 0; x < image.getWidth(); x++) {
+            for (var y = 0; y < image.getHeight(); y++) {
+                hash = 31 * hash + image.getRGB(x, y);
+            }
+        }
+        return hash;
+    }
+
+    public static boolean imageEquals(BufferedImage image1, BufferedImage image2) {
+        if (Objects.equals(image1, image2)) {
+            return true;
+        }
+        if (image1 == null || image2 == null) {
+            return false;
+        }
+        if (image1.getWidth() != image2.getWidth()) {
+            return false;
+        }
+        if (image1.getHeight() != image2.getHeight()) {
+            return false;
+        }
+        for (var x = 0; x < image1.getWidth(); x++) {
+            for (var y = 0; y < image1.getHeight(); y++) {
+                if (image1.getRGB(x, y) != image2.getRGB(x, y)) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }

@@ -11,7 +11,7 @@ import java.io.UncheckedIOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public abstract class FFmpegMediaReader<T> extends BaseMediaReader<T> {
+public abstract class FFmpegMediaReader<E> extends BaseMediaReader<E> {
 
     protected final FFmpegFrameGrabber grabber;
     protected boolean closed = false;
@@ -48,17 +48,26 @@ public abstract class FFmpegMediaReader<T> extends BaseMediaReader<T> {
     protected abstract Frame grabFrame() throws IOException;
 
     @Nullable
-    protected abstract T getNextFrame() throws IOException;
+    protected abstract E getNextFrame() throws IOException;
 
     @Override
-    public T frame(long timestamp) throws IOException {
+    public E frame(long timestamp) throws IOException {
         long circularTimestamp = timestamp % Math.max(duration(), 1);
         grabber.setTimestamp(circularTimestamp);
-        T frame = getNextFrame();
+        E frame = getNextFrame();
         if (frame == null) {
             throw new NoSuchElementException("No frame at timestamp " + circularTimestamp);
         } else {
             return frame;
+        }
+    }
+
+    @Override
+    public Iterator<E> iterator() {
+        try {
+            return new FFmpegMediaIterator();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -74,19 +83,10 @@ public abstract class FFmpegMediaReader<T> extends BaseMediaReader<T> {
         }
     }
 
-    @Override
-    public Iterator<T> iterator() {
-        try {
-            return new FFmpegMediaIterator();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    private class FFmpegMediaIterator implements Iterator<T> {
+    private class FFmpegMediaIterator implements Iterator<E> {
 
         @Nullable
-        T nextFrame;
+        E nextFrame;
 
         public FFmpegMediaIterator() throws IOException {
             grabber.setTimestamp(0);
@@ -99,11 +99,11 @@ public abstract class FFmpegMediaReader<T> extends BaseMediaReader<T> {
         }
 
         @Override
-        public T next() {
+        public E next() {
             if (nextFrame == null) {
                 throw new NoSuchElementException();
             }
-            T frame = nextFrame;
+            E frame = nextFrame;
             try {
                 nextFrame = getNextFrame();
             } catch (IOException e) {

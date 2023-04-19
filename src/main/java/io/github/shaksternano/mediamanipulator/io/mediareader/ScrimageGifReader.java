@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.IntFunction;
+import java.util.stream.Stream;
 
 public class ScrimageGifReader extends BaseMediaReader<ImageFrame> {
 
@@ -101,10 +103,32 @@ public class ScrimageGifReader extends BaseMediaReader<ImageFrame> {
     }
 
     @Override
-    public void close() {
+    public boolean contains(Object o) {
+        return frames.contains(o);
     }
 
     @NotNull
+    @Override
+    public Object[] toArray() {
+        return frames.toArray();
+    }
+
+    @NotNull
+    @Override
+    public <T> T[] toArray(@NotNull T[] a) {
+        return frames.toArray(a);
+    }
+
+    @Override
+    public <T> T[] toArray(IntFunction<T[]> generator) {
+        return frames.toArray(generator);
+    }
+
+    @Override
+    public boolean containsAll(@NotNull Collection<?> c) {
+        return new HashSet<>(frames).containsAll(c);
+    }
+
     @Override
     public Iterator<ImageFrame> iterator() {
         return frames.iterator();
@@ -118,6 +142,20 @@ public class ScrimageGifReader extends BaseMediaReader<ImageFrame> {
     @Override
     public Spliterator<ImageFrame> spliterator() {
         return frames.spliterator();
+    }
+
+    @Override
+    public Stream<ImageFrame> stream() {
+        return frames.stream();
+    }
+
+    @Override
+    public Stream<ImageFrame> parallelStream() {
+        return frames.parallelStream();
+    }
+
+    @Override
+    public void close() {
     }
 
     public enum Factory implements MediaReaderFactory<ImageFrame> {
