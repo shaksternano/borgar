@@ -10,6 +10,7 @@ import io.github.shaksternano.mediamanipulator.media.graphics.TextAlignment;
 import io.github.shaksternano.mediamanipulator.media.graphics.drawable.Drawable;
 import io.github.shaksternano.mediamanipulator.media.graphics.drawable.ParagraphCompositeDrawable;
 import io.github.shaksternano.mediamanipulator.util.MessageUtil;
+import io.github.shaksternano.mediamanipulator.util.MiscUtil;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.*;
@@ -55,9 +56,9 @@ public class DemotivateCommand extends FileCommand {
 
         @Override
         public BufferedImage transformImage(ImageFrame frame, DemotivateData constantData) throws IOException {
-            BufferedImage image = frame.content();
-            BufferedImage result = new BufferedImage(constantData.width(), constantData.height(), ImageUtil.getType(image));
-            Graphics2D graphics = result.createGraphics();
+            var image = frame.content();
+            var result = new BufferedImage(constantData.width(), constantData.height(), ImageUtil.getType(image));
+            var graphics = result.createGraphics();
 
             // Draw background
             graphics.setColor(Color.BLACK);
@@ -94,69 +95,69 @@ public class DemotivateCommand extends FileCommand {
 
         @Override
         public DemotivateData constantData(BufferedImage image) {
-            int imageWidth = image.getWidth();
-            int imageHeight = image.getHeight();
-            int contentAverageDimension = (imageWidth + imageHeight) / 2;
+            var imageWidth = image.getWidth();
+            var imageHeight = image.getHeight();
+            var contentAverageDimension = (imageWidth + imageHeight) / 2;
 
-            int demotivateImagePadding = (int) (contentAverageDimension * 0.2F);
+            var demotivateImagePadding = (int) (contentAverageDimension * 0.2F);
 
-            Graphics2D graphics = image.createGraphics();
+            var graphics = image.createGraphics();
 
-            Font font = new Font("Times", Font.PLAIN, contentAverageDimension / 6);
-            Font subFont = font.deriveFont(font.getSize() / 3F);
+            var font = new Font("Times", Font.PLAIN, contentAverageDimension / 6);
+            var subFont = font.deriveFont(font.getSize() / 3F);
             graphics.setFont(font);
             ImageUtil.configureTextDrawQuality(graphics);
 
-            TextAlignment textAlignment = TextAlignment.CENTER;
-            Drawable paragraph = new ParagraphCompositeDrawable.Builder(nonTextParts)
+            var textAlignment = TextAlignment.CENTER;
+            var paragraph = new ParagraphCompositeDrawable.Builder(nonTextParts)
                 .addWords(null, words)
                 .build(textAlignment, imageWidth);
 
             int paragraphHeight = paragraph.getHeight(graphics);
 
-            Drawable subParagraph = new ParagraphCompositeDrawable.Builder(nonTextParts)
+            var subParagraph = new ParagraphCompositeDrawable.Builder(nonTextParts)
                 .addWords(null, subText)
                 .build(textAlignment, imageWidth);
             graphics.setFont(subFont);
-            int subParagraphHeight = subParagraph.getHeight(graphics);
-            int mainToSubParagraphSpacing = subParagraphHeight / 4;
+            var subParagraphHeight = subParagraph.getHeight(graphics);
+            var mainToSubParagraphSpacing = subParagraphHeight / 4;
 
             graphics.dispose();
 
-            int demotivateWidth = imageWidth + (demotivateImagePadding * 2);
-            int demotivateHeight = imageHeight + (demotivateImagePadding * 2) + paragraphHeight + mainToSubParagraphSpacing + subParagraphHeight;
+            var demotivateWidth = imageWidth + (demotivateImagePadding * 2);
+            var demotivateHeight = imageHeight + (demotivateImagePadding * 2) + paragraphHeight + mainToSubParagraphSpacing + subParagraphHeight;
 
-            int lineDiameter = Math.max(Math.round(contentAverageDimension * 0.005F), 1);
-            int lineImageSpacing = lineDiameter * 3;
+            var lineDiameter = Math.max(Math.round(contentAverageDimension * 0.005F), 1);
+            var lineImageSpacing = lineDiameter * 3;
 
-            Position paragraphPosition = new Position(
+            var paragraphPosition = new Position(
                 demotivateImagePadding,
                 demotivateImagePadding + imageHeight + (demotivateImagePadding / 2)
             );
-            Position subParagraphPosition = new Position(
+            var subParagraphPosition = new Position(
                 demotivateImagePadding,
                 demotivateImagePadding + imageHeight + (demotivateImagePadding / 2) + paragraphHeight + mainToSubParagraphSpacing
             );
 
-            Rectangle topBorder = new Rectangle(
+            var topBorder = new Rectangle(
                 demotivateImagePadding - (lineDiameter + lineImageSpacing),
                 demotivateImagePadding - (lineDiameter + lineImageSpacing),
                 imageWidth + (lineDiameter * 2) + (lineImageSpacing * 2),
                 lineDiameter
             );
-            Rectangle bottomBorder = new Rectangle(
+            var bottomBorder = new Rectangle(
                 demotivateImagePadding - (lineDiameter + lineImageSpacing),
                 demotivateImagePadding + imageHeight + lineImageSpacing,
                 imageWidth + (lineDiameter * 2) + (lineImageSpacing * 2),
                 lineDiameter
             );
-            Rectangle leftBorder = new Rectangle(
+            var leftBorder = new Rectangle(
                 demotivateImagePadding - (lineDiameter + lineImageSpacing),
                 demotivateImagePadding - (lineDiameter + lineImageSpacing),
                 lineDiameter,
                 imageHeight + (lineDiameter * 2) + (lineImageSpacing * 2)
             );
-            Rectangle rightBorder = new Rectangle(
+            var rightBorder = new Rectangle(
                 demotivateImagePadding + imageWidth + lineImageSpacing,
                 demotivateImagePadding - (lineDiameter + lineImageSpacing),
                 lineDiameter,
@@ -182,17 +183,7 @@ public class DemotivateCommand extends FileCommand {
 
         @Override
         public void close() throws IOException {
-            IOException exception = null;
-            for (Drawable drawable : nonTextParts.values()) {
-                try {
-                    drawable.close();
-                } catch (IOException e) {
-                    exception = e;
-                }
-            }
-            if (exception != null) {
-                throw exception;
-            }
+            MiscUtil.closeAll(nonTextParts.values());
         }
     }
 

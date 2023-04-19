@@ -1,22 +1,21 @@
 package io.github.shaksternano.mediamanipulator.media.io.reader;
 
+import io.github.shaksternano.mediamanipulator.util.MiscUtil;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.Frame;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
+import java.io.*;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 public abstract class FFmpegMediaReader<E> extends BaseMediaReader<E> {
 
     protected final FFmpegFrameGrabber grabber;
-    @Nullable
-    private final InputStream input;
-    protected boolean closed = false;
+    protected List<Closeable> toClose = new ArrayList<>();
+    private boolean closed = false;
 
     public FFmpegMediaReader(File input, String format) throws IOException {
         this(new FFmpegFrameGrabber(input), format, null);
@@ -29,7 +28,8 @@ public abstract class FFmpegMediaReader<E> extends BaseMediaReader<E> {
     private FFmpegMediaReader(FFmpegFrameGrabber grabber, String format, @Nullable InputStream input) throws IOException {
         super(format);
         this.grabber = grabber;
-        this.input = input;
+        toClose.add(grabber);
+        toClose.add(input);
         grabber.start();
         int frameCount = 0;
         Frame frame;
@@ -89,10 +89,7 @@ public abstract class FFmpegMediaReader<E> extends BaseMediaReader<E> {
             return;
         }
         closed = true;
-        grabber.close();
-        if (input != null) {
-            input.close();
-        }
+        MiscUtil.closeAll(toClose);
     }
 
     private class FFmpegMediaIterator implements Iterator<E> {

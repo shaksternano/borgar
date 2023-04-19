@@ -2,6 +2,7 @@ package io.github.shaksternano.mediamanipulator.media.io.reader;
 
 import io.github.shaksternano.mediamanipulator.media.ImageFrame;
 import io.github.shaksternano.mediamanipulator.media.io.MediaReaderFactory;
+import io.github.shaksternano.mediamanipulator.util.AutoCloseableClosable;
 import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.Java2DFrameConverter;
 import org.jetbrains.annotations.Nullable;
@@ -20,6 +21,7 @@ public class FFmpegImageReader extends FFmpegMediaReader<ImageFrame> {
 
     public FFmpegImageReader(InputStream input, String format) throws IOException {
         super(input, format);
+        toClose.add(new AutoCloseableClosable(converter));
     }
 
     @Nullable
@@ -37,15 +39,6 @@ public class FFmpegImageReader extends FFmpegMediaReader<ImageFrame> {
         } else {
             return new ImageFrame(converter.convert(frame), frameDuration(), frame.timestamp);
         }
-    }
-
-    @Override
-    public void close() throws IOException {
-        if (closed) {
-            return;
-        }
-        super.close();
-        converter.close();
     }
 
     public enum Factory implements MediaReaderFactory<ImageFrame> {
