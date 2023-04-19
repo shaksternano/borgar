@@ -205,7 +205,7 @@ public class MediaUtil {
         // Unused
         @Override
         public Boolean constantData(BufferedImage image) {
-            return Boolean.TRUE;
+            return true;
         }
     }
 }
