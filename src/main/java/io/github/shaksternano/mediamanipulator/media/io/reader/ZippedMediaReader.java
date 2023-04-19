@@ -20,7 +20,7 @@ public class ZippedMediaReader<A extends VideoFrame<?>, B extends VideoFrame<?>>
     }
 
     public ZippedMediaReader(MediaReader<A> firstReader, MediaReader<B> secondReader, boolean firstControlling) {
-        super(firstReader.format());
+        super(firstControlling ? firstReader.format() : secondReader.format());
         this.firstReader = firstReader;
         this.secondReader = secondReader;
         this.firstControlling = firstControlling;
