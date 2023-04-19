@@ -38,9 +38,7 @@ public class CommandParser {
         var triggerMessage = event.getMessage();
         var stringMessage = DiscordUtil.getContentStrippedKeepEmotes(triggerMessage).trim();
         var commandParts = parseCommandParts(stringMessage);
-
         var channel = event.getChannel();
-
         if (commandParts.size() > 0) {
             CommandRegistry.getCommand(commandParts.get(0)).ifPresent(command -> {
                 try {
@@ -127,13 +125,11 @@ public class CommandParser {
                         break;
                     }
                 }
-
                 argumentsBuilder.add(commandPart);
             } else {
                 passedFirst = true;
             }
         }
-
         return argumentsBuilder.build();
     }
 
@@ -156,7 +152,6 @@ public class CommandParser {
                 argumentsBuilder.put(currentExtraParameterName, commandPart);
             }
         }
-
         return argumentsBuilder.build();
     }
 
