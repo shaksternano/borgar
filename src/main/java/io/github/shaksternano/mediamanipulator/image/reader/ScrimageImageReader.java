@@ -2,9 +2,9 @@ package io.github.shaksternano.mediamanipulator.image.reader;
 
 import com.google.common.collect.ImmutableSet;
 import com.sksamuel.scrimage.ImmutableImage;
-import io.github.shaksternano.mediamanipulator.image.ImageUtil;
 import io.github.shaksternano.mediamanipulator.image.imagemedia.ImageMedia;
 import io.github.shaksternano.mediamanipulator.image.imagemedia.StaticImage;
+import io.github.shaksternano.mediamanipulator.media.ImageUtil;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.image.BufferedImage;

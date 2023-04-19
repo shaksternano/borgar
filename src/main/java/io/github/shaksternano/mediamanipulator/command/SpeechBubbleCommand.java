@@ -2,11 +2,11 @@ package io.github.shaksternano.mediamanipulator.command;
 
 import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.exception.InvalidMediaException;
-import io.github.shaksternano.mediamanipulator.image.ImageFrame;
-import io.github.shaksternano.mediamanipulator.image.ImageProcessor;
-import io.github.shaksternano.mediamanipulator.image.ImageUtil;
-import io.github.shaksternano.mediamanipulator.image.OverlayData;
-import io.github.shaksternano.mediamanipulator.io.MediaUtil;
+import io.github.shaksternano.mediamanipulator.media.ImageFrame;
+import io.github.shaksternano.mediamanipulator.media.ImageProcessor;
+import io.github.shaksternano.mediamanipulator.media.ImageUtil;
+import io.github.shaksternano.mediamanipulator.media.MediaUtil;
+import io.github.shaksternano.mediamanipulator.media.graphics.OverlayData;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.*;

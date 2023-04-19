@@ -1,7 +1,7 @@
 package io.github.shaksternano.mediamanipulator.command.util;
 
 import io.github.shaksternano.mediamanipulator.command.*;
-import io.github.shaksternano.mediamanipulator.image.backgroundimage.ResourceTemplateImageInfo;
+import io.github.shaksternano.mediamanipulator.media.template.ResourceTemplateImageInfo;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;

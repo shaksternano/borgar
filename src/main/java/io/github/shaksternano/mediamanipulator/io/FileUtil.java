@@ -1,8 +1,8 @@
 package io.github.shaksternano.mediamanipulator.io;
 
 import io.github.shaksternano.mediamanipulator.Main;
-import io.github.shaksternano.mediamanipulator.image.ImageUtil;
-import io.github.shaksternano.mediamanipulator.image.backgroundimage.ResourceTemplateImageInfo;
+import io.github.shaksternano.mediamanipulator.media.ImageUtil;
+import io.github.shaksternano.mediamanipulator.media.template.ResourceTemplateImageInfo;
 import io.github.shaksternano.mediamanipulator.util.tenor.TenorMediaType;
 import io.github.shaksternano.mediamanipulator.util.tenor.TenorUtil;
 import org.apache.commons.io.FileUtils;

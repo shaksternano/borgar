@@ -5,7 +5,7 @@ import com.sksamuel.scrimage.AutocropOps;
 import com.sksamuel.scrimage.ImmutableImage;
 import com.sksamuel.scrimage.pixels.PixelsExtractor;
 import io.github.shaksternano.mediamanipulator.command.util.CommandParser;
-import io.github.shaksternano.mediamanipulator.io.MediaUtil;
+import io.github.shaksternano.mediamanipulator.media.MediaUtil;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.*;

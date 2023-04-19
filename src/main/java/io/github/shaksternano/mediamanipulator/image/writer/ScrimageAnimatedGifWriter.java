@@ -5,9 +5,9 @@ import com.sksamuel.scrimage.DisposeMethod;
 import com.sksamuel.scrimage.ImmutableImage;
 import com.sksamuel.scrimage.nio.GifWriter;
 import com.sksamuel.scrimage.nio.StreamingGifWriter;
-import io.github.shaksternano.mediamanipulator.image.ImageUtil;
 import io.github.shaksternano.mediamanipulator.image.imagemedia.ImageMedia;
 import io.github.shaksternano.mediamanipulator.image.util.Frame;
+import io.github.shaksternano.mediamanipulator.media.ImageUtil;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;

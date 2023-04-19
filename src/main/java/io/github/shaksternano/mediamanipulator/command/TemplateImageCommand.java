@@ -1,12 +1,13 @@
 package io.github.shaksternano.mediamanipulator.command;
 
 import com.google.common.collect.ListMultimap;
-import io.github.shaksternano.mediamanipulator.graphics.drawable.Drawable;
-import io.github.shaksternano.mediamanipulator.image.*;
-import io.github.shaksternano.mediamanipulator.image.backgroundimage.TemplateImageInfo;
 import io.github.shaksternano.mediamanipulator.io.FileUtil;
-import io.github.shaksternano.mediamanipulator.io.MediaReaders;
-import io.github.shaksternano.mediamanipulator.io.MediaUtil;
+import io.github.shaksternano.mediamanipulator.media.*;
+import io.github.shaksternano.mediamanipulator.media.graphics.OverlayData;
+import io.github.shaksternano.mediamanipulator.media.graphics.TextDrawData;
+import io.github.shaksternano.mediamanipulator.media.graphics.drawable.Drawable;
+import io.github.shaksternano.mediamanipulator.media.io.MediaReaders;
+import io.github.shaksternano.mediamanipulator.media.template.TemplateImageInfo;
 import io.github.shaksternano.mediamanipulator.util.MessageUtil;
 import io.github.shaksternano.mediamanipulator.util.MiscUtil;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;

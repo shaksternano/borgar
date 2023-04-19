@@ -2,8 +2,8 @@ package io.github.shaksternano.mediamanipulator.command;
 
 import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.command.util.CommandParser;
-import io.github.shaksternano.mediamanipulator.image.ImageUtil;
-import io.github.shaksternano.mediamanipulator.io.MediaUtil;
+import io.github.shaksternano.mediamanipulator.media.ImageUtil;
+import io.github.shaksternano.mediamanipulator.media.MediaUtil;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.io.File;

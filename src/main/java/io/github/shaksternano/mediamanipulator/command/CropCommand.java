@@ -4,9 +4,9 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.command.util.CommandParser;
 import io.github.shaksternano.mediamanipulator.exception.MissingArgumentException;
-import io.github.shaksternano.mediamanipulator.image.ImageFrame;
-import io.github.shaksternano.mediamanipulator.image.ImageProcessor;
-import io.github.shaksternano.mediamanipulator.io.MediaUtil;
+import io.github.shaksternano.mediamanipulator.media.ImageFrame;
+import io.github.shaksternano.mediamanipulator.media.ImageProcessor;
+import io.github.shaksternano.mediamanipulator.media.MediaUtil;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 

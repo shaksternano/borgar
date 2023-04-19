@@ -1,7 +1,7 @@
 package io.github.shaksternano.mediamanipulator.emoji;
 
+import io.github.shaksternano.mediamanipulator.util.GithubUtil;
 import io.github.shaksternano.mediamanipulator.util.MiscUtil;
-import io.github.shaksternano.mediamanipulator.util.github.GithubUtil;
 import org.slf4j.Logger;
 
 import java.io.File;
