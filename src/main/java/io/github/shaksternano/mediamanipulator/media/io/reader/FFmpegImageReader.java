@@ -21,7 +21,7 @@ public class FFmpegImageReader extends FFmpegMediaReader<ImageFrame> {
 
     public FFmpegImageReader(InputStream input, String format) throws IOException {
         super(input, format);
-        toClose.add(new AutoCloseableClosable(converter));
+        toClose.add(AutoCloseableClosable.wrap(converter));
     }
 
     @Nullable

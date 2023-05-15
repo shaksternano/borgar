@@ -32,7 +32,11 @@ public class FFmpegAudioReader extends FFmpegMediaReader<AudioFrame> {
         if (frame == null) {
             return null;
         } else {
-            return new AudioFrame(frame, frameDuration(), frame.timestamp);
+            return new AudioFrame(
+                frame,
+                frameDuration(),
+                frame.timestamp
+            );
         }
     }
 

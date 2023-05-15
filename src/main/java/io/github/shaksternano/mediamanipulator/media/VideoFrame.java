@@ -22,4 +22,8 @@ public sealed interface VideoFrame<T> permits ImageFrame, AudioFrame {
      * @return The timestamp of the frame in microseconds.
      */
     long timestamp();
+
+    VideoFrame<T> transform(float speedMultiplier);
+
+    VideoFrame<T> transform(T newContent, float speedMultiplier);
 }

@@ -5,8 +5,8 @@ import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.command.util.CommandParser;
 import io.github.shaksternano.mediamanipulator.exception.MissingArgumentException;
 import io.github.shaksternano.mediamanipulator.media.ImageFrame;
-import io.github.shaksternano.mediamanipulator.media.ImageProcessor;
 import io.github.shaksternano.mediamanipulator.media.MediaUtil;
+import io.github.shaksternano.mediamanipulator.media.io.Imageprocessor.SingleImageProcessor;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -82,7 +82,7 @@ public class CropCommand extends FileCommand {
         float rightRatio,
         float bottomRatio,
         float leftRatio
-    ) implements ImageProcessor<CropData> {
+    ) implements SingleImageProcessor<CropData> {
 
         @Override
         public BufferedImage transformImage(ImageFrame frame, CropData constantData) {

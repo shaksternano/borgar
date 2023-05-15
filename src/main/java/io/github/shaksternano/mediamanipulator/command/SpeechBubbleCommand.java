@@ -4,10 +4,10 @@ import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.exception.InvalidMediaException;
 import io.github.shaksternano.mediamanipulator.io.FileUtil;
 import io.github.shaksternano.mediamanipulator.media.ImageFrame;
-import io.github.shaksternano.mediamanipulator.media.ImageProcessor;
 import io.github.shaksternano.mediamanipulator.media.ImageUtil;
 import io.github.shaksternano.mediamanipulator.media.MediaUtil;
 import io.github.shaksternano.mediamanipulator.media.graphics.OverlayData;
+import io.github.shaksternano.mediamanipulator.media.io.Imageprocessor.SingleImageProcessor;
 import io.github.shaksternano.mediamanipulator.media.io.MediaReaders;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -58,7 +58,7 @@ public class SpeechBubbleCommand extends FileCommand {
         );
     }
 
-    private record SpeechBubbleProcessor(boolean cutOut) implements ImageProcessor<SpeechBubbleData> {
+    private record SpeechBubbleProcessor(boolean cutOut) implements SingleImageProcessor<SpeechBubbleData> {
 
         @Override
         public BufferedImage transformImage(ImageFrame frame, SpeechBubbleData constantData) {

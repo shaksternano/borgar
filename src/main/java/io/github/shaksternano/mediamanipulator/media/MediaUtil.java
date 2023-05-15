@@ -1,6 +1,9 @@
 package io.github.shaksternano.mediamanipulator.media;
 
 import io.github.shaksternano.mediamanipulator.io.FileUtil;
+import io.github.shaksternano.mediamanipulator.media.io.Imageprocessor.BasicImageProcessor;
+import io.github.shaksternano.mediamanipulator.media.io.Imageprocessor.DualImageProcessor;
+import io.github.shaksternano.mediamanipulator.media.io.Imageprocessor.SingleImageProcessor;
 import io.github.shaksternano.mediamanipulator.media.io.MediaReaders;
 import io.github.shaksternano.mediamanipulator.media.io.MediaWriters;
 import io.github.shaksternano.mediamanipulator.media.io.reader.MediaReader;
@@ -33,7 +36,7 @@ public class MediaUtil {
         File media,
         String outputFormat,
         String operationName,
-        ImageProcessor<T> processor
+        SingleImageProcessor<T> processor
     ) throws IOException {
         var outputName = operationName + "." + outputFormat;
         var output = FileUtil.getUniqueTempFile(outputName);
@@ -47,7 +50,7 @@ public class MediaUtil {
         MediaReader<AudioFrame> audioReader,
         File output,
         String outputFormat,
-        ImageProcessor<T> processor
+        SingleImageProcessor<T> processor
     ) throws IOException {
         try (
             imageReader;
@@ -64,14 +67,13 @@ public class MediaUtil {
                 if (constantFrameDataValue == null) {
                     constantFrameDataValue = processor.constantData(imageFrame.content());
                 }
-                writer.recordImageFrame(new ImageFrame(
+                writer.recordImageFrame(imageFrame.transform(
                     processor.transformImage(imageFrame, constantFrameDataValue),
-                    imageFrame.duration(),
-                    imageFrame.timestamp()
+                    processor.speed()
                 ));
             }
             for (var audioFrame : audioReader) {
-                writer.recordAudioFrame(audioFrame);
+                writer.recordAudioFrame(audioFrame.transform(processor.speed()));
             }
             return output;
         }
@@ -104,18 +106,17 @@ public class MediaUtil {
                 if (constantFrameDataValue == null) {
                     constantFrameDataValue = processor.constantData(firstFrame.content(), secondFrame.content());
                 }
-                var duration = zippedImageReader.isFirstControlling()
-                    ? firstFrame.duration()
-                    : secondFrame.duration();
-                writer.recordImageFrame(new ImageFrame(
+                var toTransform = zippedImageReader.isFirstControlling()
+                    ? firstFrame
+                    : secondFrame;
+                writer.recordImageFrame(toTransform.transform(
                     processor.transformImage(firstFrame, secondFrame, constantFrameDataValue),
-                    duration,
-                    firstFrame.timestamp()
+                    processor.speed()
                 ));
             }
             for (var framePair : zippedAudioReader) {
                 var audioFrame = framePair.first();
-                writer.recordAudioFrame(audioFrame);
+                writer.recordAudioFrame(audioFrame.transform(processor.speed()));
             }
             return output;
         }
@@ -195,17 +196,4 @@ public class MediaUtil {
         return format.equalsIgnoreCase("png") || format.equalsIgnoreCase("gif");
     }
 
-    private record BasicImageProcessor(UnaryOperator<BufferedImage> imageMapper) implements ImageProcessor<Boolean> {
-
-        @Override
-        public BufferedImage transformImage(ImageFrame frame, Boolean constantData) {
-            return imageMapper.apply(frame.content());
-        }
-
-        // Unused
-        @Override
-        public Boolean constantData(BufferedImage image) {
-            return true;
-        }
-    }
 }

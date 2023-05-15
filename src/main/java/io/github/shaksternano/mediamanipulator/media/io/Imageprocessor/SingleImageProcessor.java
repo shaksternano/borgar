@@ -1,10 +1,11 @@
-package io.github.shaksternano.mediamanipulator.media;
+package io.github.shaksternano.mediamanipulator.media.io.Imageprocessor;
+
+import io.github.shaksternano.mediamanipulator.media.ImageFrame;
 
 import java.awt.image.BufferedImage;
-import java.io.Closeable;
 import java.io.IOException;
 
-public interface ImageProcessor<T> extends Closeable {
+public interface SingleImageProcessor<T> extends ImageProcessor {
 
     BufferedImage transformImage(ImageFrame frame, T constantData) throws IOException;
 
@@ -17,8 +18,4 @@ public interface ImageProcessor<T> extends Closeable {
      * @throws IOException If an I/O error occurs.
      */
     T constantData(BufferedImage image) throws IOException;
-
-    @Override
-    default void close() throws IOException {
-    }
 }

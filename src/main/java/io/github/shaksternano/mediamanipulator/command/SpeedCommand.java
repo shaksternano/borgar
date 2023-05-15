@@ -2,14 +2,17 @@ package io.github.shaksternano.mediamanipulator.command;
 
 import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.command.util.CommandParser;
-import io.github.shaksternano.mediamanipulator.mediamanipulator.MediaManipulator;
+import io.github.shaksternano.mediamanipulator.media.ImageFrame;
+import io.github.shaksternano.mediamanipulator.media.MediaUtil;
+import io.github.shaksternano.mediamanipulator.media.io.Imageprocessor.SingleImageProcessor;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-public class SpeedCommand extends MediaCommand {
+public class SpeedCommand extends FileCommand {
 
     public static final float DEFAULT_SPEED_MULTIPLIER = 2;
 
@@ -25,8 +28,8 @@ public class SpeedCommand extends MediaCommand {
     }
 
     @Override
-    public File applyOperation(File media, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
-        float speedMultiplier = CommandParser.parseFloatArgument(
+    protected File modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
+        var speedMultiplier = CommandParser.parseFloatArgument(
             arguments,
             0,
             DEFAULT_SPEED_MULTIPLIER,
@@ -34,6 +37,25 @@ public class SpeedCommand extends MediaCommand {
             event.getChannel(),
             (argument, defaultValue) -> "Speed multiplier \"" + argument + "\" is not a number. Using default value of " + defaultValue + "."
         );
-        return manipulator.speed(media, fileFormat, speedMultiplier);
+        var processor = new SpeedProcessor(speedMultiplier);
+        return MediaUtil.processMedia(file, fileFormat, "changed_speed", processor);
+    }
+
+    private record SpeedProcessor(float speed) implements SingleImageProcessor<Boolean> {
+
+        @Override
+        public BufferedImage transformImage(ImageFrame frame, Boolean constantData) {
+            return frame.content();
+        }
+
+        @Override
+        public Boolean constantData(BufferedImage image) {
+            return true;
+        }
+
+        @Override
+        public float speed() {
+            return speed;
+        }
     }
 }

@@ -12,11 +12,26 @@ public record AudioFrame(
 ) implements VideoFrame<Frame> {
 
     @Override
+    public AudioFrame transform(float speedMultiplier) {
+        return transform(content, speedMultiplier);
+    }
+
+    @Override
+    public AudioFrame transform(Frame newContent, float speedMultiplier) {
+        newContent.sampleRate *= speedMultiplier;
+        return new AudioFrame(
+            newContent,
+            duration / speedMultiplier,
+            timestamp
+        );
+    }
+
+    @Override
     public int hashCode() {
         return Objects.hash(
-            JavaCVUtil.hashFrame(content),
             duration,
-            timestamp
+            timestamp,
+            JavaCVUtil.hashFrame(content)
         );
     }
 
@@ -25,8 +40,8 @@ public record AudioFrame(
         if (this == obj) {
             return true;
         } else if (obj instanceof AudioFrame other) {
-            return duration == other.duration()
-                && timestamp == other.timestamp()
+            return Double.compare(other.duration, duration) == 0
+                && timestamp == other.timestamp
                 && JavaCVUtil.frameEquals(content, other.content());
         } else {
             return false;

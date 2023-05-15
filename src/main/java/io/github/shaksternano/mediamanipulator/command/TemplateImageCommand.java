@@ -2,10 +2,14 @@ package io.github.shaksternano.mediamanipulator.command;
 
 import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.io.FileUtil;
-import io.github.shaksternano.mediamanipulator.media.*;
+import io.github.shaksternano.mediamanipulator.media.ImageFrame;
+import io.github.shaksternano.mediamanipulator.media.ImageUtil;
+import io.github.shaksternano.mediamanipulator.media.MediaUtil;
 import io.github.shaksternano.mediamanipulator.media.graphics.OverlayData;
 import io.github.shaksternano.mediamanipulator.media.graphics.TextDrawData;
 import io.github.shaksternano.mediamanipulator.media.graphics.drawable.Drawable;
+import io.github.shaksternano.mediamanipulator.media.io.Imageprocessor.DualImageProcessor;
+import io.github.shaksternano.mediamanipulator.media.io.Imageprocessor.SingleImageProcessor;
 import io.github.shaksternano.mediamanipulator.media.io.MediaReaders;
 import io.github.shaksternano.mediamanipulator.media.template.TemplateImageInfo;
 import io.github.shaksternano.mediamanipulator.util.MessageUtil;
@@ -158,7 +162,7 @@ public class TemplateImageCommand extends OptionalFileInputFileCommand {
         List<String> words,
         Map<String, Drawable> nonTextParts,
         TemplateImageInfo templateInfo
-    ) implements ImageProcessor<TextDrawData> {
+    ) implements SingleImageProcessor<TextDrawData> {
 
         @Override
         public BufferedImage transformImage(ImageFrame frame, @Nullable TextDrawData constantData) throws IOException {

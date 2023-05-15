@@ -10,11 +10,25 @@ public record ImageFrame(
 ) implements VideoFrame<BufferedImage> {
 
     @Override
+    public ImageFrame transform(float speedMultiplier) {
+        return transform(content, speedMultiplier);
+    }
+
+    @Override
+    public ImageFrame transform(BufferedImage newContent, float speedMultiplier) {
+        return new ImageFrame(
+            newContent,
+            duration / speedMultiplier,
+            timestamp
+        );
+    }
+
+    @Override
     public int hashCode() {
         return Objects.hash(
-            ImageUtil.hashImage(content),
             duration,
-            timestamp
+            timestamp,
+            ImageUtil.hashImage(content)
         );
     }
 
@@ -23,8 +37,8 @@ public record ImageFrame(
         if (this == obj) {
             return true;
         } else if (obj instanceof ImageFrame other) {
-            return duration == other.duration()
-                && timestamp == other.timestamp()
+            return Double.compare(other.duration, duration) == 0
+                && timestamp == other.timestamp
                 && ImageUtil.imageEquals(content, other.content());
         } else {
             return false;

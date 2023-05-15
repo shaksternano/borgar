@@ -13,6 +13,8 @@ import java.io.IOException;
 
 public class FFmpegVideoWriter implements MediaWriter {
 
+    private static final int MAX_AUDIO_FRAME_RATE = 1000;
+
     @Nullable
     private FFmpegFrameRecorder recorder;
     private final Java2DFrameConverter converter = new Java2DFrameConverter();
@@ -48,9 +50,12 @@ public class FFmpegVideoWriter implements MediaWriter {
     @Override
     public void recordAudioFrame(AudioFrame frame) throws IOException {
         if (recorder == null) {
-            throw new IllegalStateException("Cannot record audio frame before image frame");
+            throw new IllegalStateException("Cannot record an audio frame before an image frame");
         }
-        recorder.record(frame.content());
+        // Prevent errors from occurring when the frame rate is too high.
+        if (recorder.getFrameRate() <= MAX_AUDIO_FRAME_RATE) {
+            recorder.record(frame.content());
+        }
     }
 
     @Override

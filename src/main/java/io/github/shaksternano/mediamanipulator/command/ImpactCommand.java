@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.exception.MissingArgumentException;
 import io.github.shaksternano.mediamanipulator.media.ImageFrame;
-import io.github.shaksternano.mediamanipulator.media.ImageProcessor;
 import io.github.shaksternano.mediamanipulator.media.ImageUtil;
 import io.github.shaksternano.mediamanipulator.media.MediaUtil;
 import io.github.shaksternano.mediamanipulator.media.graphics.GraphicsUtil;
@@ -12,6 +11,7 @@ import io.github.shaksternano.mediamanipulator.media.graphics.TextAlignment;
 import io.github.shaksternano.mediamanipulator.media.graphics.drawable.Drawable;
 import io.github.shaksternano.mediamanipulator.media.graphics.drawable.OutlinedTextDrawable;
 import io.github.shaksternano.mediamanipulator.media.graphics.drawable.ParagraphCompositeDrawable;
+import io.github.shaksternano.mediamanipulator.media.io.Imageprocessor.SingleImageProcessor;
 import io.github.shaksternano.mediamanipulator.util.MessageUtil;
 import io.github.shaksternano.mediamanipulator.util.MiscUtil;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -59,7 +59,7 @@ public class ImpactCommand extends FileCommand {
         List<String> topWords,
         List<String> bottomWords,
         Map<String, Drawable> nonTextParts
-    ) implements ImageProcessor<ImpactData> {
+    ) implements SingleImageProcessor<ImpactData> {
 
         @Override
         public BufferedImage transformImage(ImageFrame frame, ImpactData constantData) throws IOException {
