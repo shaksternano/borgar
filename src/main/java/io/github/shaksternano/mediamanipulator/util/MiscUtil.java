@@ -5,7 +5,6 @@ import io.github.shaksternano.mediamanipulator.Main;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
@@ -28,15 +27,15 @@ public class MiscUtil {
     }
 
     @SuppressWarnings("UnstableApiUsage")
-    public static void closeAll(Iterable<? extends Closeable> closeables) throws IOException {
+    public static void closeAll(Iterable<? extends AutoCloseable> closeables) throws IOException {
         try (var closer = Closer.create()) {
             for (var closable : closeables) {
-                closer.register(closable);
+                closer.register(AutoCloseableClosable.wrap(closable));
             }
         }
     }
 
-    public static void closeAll(Closeable... closeables) throws IOException {
+    public static void closeAll(AutoCloseable... closeables) throws IOException {
         closeAll(Arrays.asList(closeables));
     }
 

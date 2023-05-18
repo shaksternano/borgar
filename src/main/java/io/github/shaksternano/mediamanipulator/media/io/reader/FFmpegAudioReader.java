@@ -2,6 +2,7 @@ package io.github.shaksternano.mediamanipulator.media.io.reader;
 
 import io.github.shaksternano.mediamanipulator.media.AudioFrame;
 import io.github.shaksternano.mediamanipulator.media.io.MediaReaderFactory;
+import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.Frame;
 import org.jetbrains.annotations.Nullable;
 
@@ -9,7 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class FFmpegAudioReader extends FFmpegMediaReader<AudioFrame> {
+public final class FFmpegAudioReader extends FFmpegMediaReader<AudioFrame> {
 
     public FFmpegAudioReader(File input, String format) throws IOException {
         super(input, format);
@@ -21,14 +22,20 @@ public class FFmpegAudioReader extends FFmpegMediaReader<AudioFrame> {
 
     @Nullable
     @Override
-    protected Frame grabFrame() throws IOException {
+    protected Frame grabFrame(FFmpegFrameGrabber grabber) throws IOException {
         return grabber.grabSamples();
     }
 
     @Nullable
     @Override
-    protected AudioFrame getNextFrame() throws IOException {
-        var frame = grabFrame();
+    protected Frame grabFrame() throws IOException {
+        return grabFrame(grabber);
+    }
+
+    @Nullable
+    @Override
+    protected AudioFrame getNextFrame(FFmpegFrameGrabber grabber) throws IOException {
+        var frame = grabFrame(grabber);
         if (frame == null) {
             return null;
         } else {
@@ -38,6 +45,17 @@ public class FFmpegAudioReader extends FFmpegMediaReader<AudioFrame> {
                 frame.timestamp
             );
         }
+    }
+
+    @Nullable
+    @Override
+    protected AudioFrame getNextFrame() throws IOException {
+        return getNextFrame(grabber);
+    }
+
+    @Override
+    protected void setTimestamp(long timestamp) throws IOException {
+        grabber.setAudioTimestamp(timestamp);
     }
 
     public enum Factory implements MediaReaderFactory<AudioFrame> {
