@@ -5,6 +5,7 @@ import com.sksamuel.scrimage.AutocropOps;
 import com.sksamuel.scrimage.ImmutableImage;
 import com.sksamuel.scrimage.pixels.PixelsExtractor;
 import io.github.shaksternano.mediamanipulator.command.util.CommandParser;
+import io.github.shaksternano.mediamanipulator.io.NamedFile;
 import io.github.shaksternano.mediamanipulator.media.MediaUtil;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -30,7 +31,7 @@ public class AutoCropCommand extends FileCommand {
     }
 
     @Override
-    protected File modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
+    protected NamedFile modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
         int rgb = CommandParser.parseIntegerArgument(
             arguments,
             0,
@@ -48,11 +49,15 @@ public class AutoCropCommand extends FileCommand {
             (argument, defaultValue) -> "Color tolerance \"" + argument + "\" is not a whole number, choosing default value of " + defaultValue + "."
         );
         Color cropColor = rgb < 0 ? new Color(0, 0, 0, 0) : new Color(rgb);
-        return MediaUtil.cropMedia(
-            file,
-            fileFormat,
+        return new NamedFile(
+            MediaUtil.cropMedia(
+                file,
+                fileFormat,
+                "cropped",
+                image -> findAutoCropArea(image, cropColor, colorTolerance)
+            ),
             "cropped",
-            image -> findAutoCropArea(image, cropColor, colorTolerance)
+            fileFormat
         );
     }
 

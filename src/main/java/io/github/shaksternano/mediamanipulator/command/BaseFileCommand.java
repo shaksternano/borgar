@@ -5,6 +5,7 @@ import io.github.shaksternano.mediamanipulator.Main;
 import io.github.shaksternano.mediamanipulator.exception.InvalidMediaException;
 import io.github.shaksternano.mediamanipulator.exception.UnsupportedFileFormatException;
 import io.github.shaksternano.mediamanipulator.io.FileUtil;
+import io.github.shaksternano.mediamanipulator.io.NamedFile;
 import io.github.shaksternano.mediamanipulator.mediamanipulator.util.MediaManipulatorRegistry;
 import io.github.shaksternano.mediamanipulator.util.DiscordUtil;
 import io.github.shaksternano.mediamanipulator.util.MessageUtil;
@@ -38,29 +39,30 @@ public abstract sealed class BaseFileCommand extends BaseCommand permits FileCom
         this.requireFileInput = requireFileInput;
     }
 
-    protected abstract File modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException;
+    protected abstract NamedFile modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException;
 
-    protected abstract File createFile(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException;
+    protected abstract NamedFile createFile(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException;
 
     @Override
     public void execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
         var triggerMessage = event.getMessage();
-        CompletableFuture<Optional<File>> fileOptionalFuture = requireFileInput || arguments.isEmpty()
-            ? MessageUtil.downloadFile(triggerMessage, FileUtil.getTempDir().toString())
+        CompletableFuture<Optional<NamedFile>> fileOptionalFuture = requireFileInput || arguments.isEmpty()
+            ? MessageUtil.downloadFile(triggerMessage)
             : CompletableFuture.completedFuture(Optional.empty());
-        fileOptionalFuture.thenAccept(fileOptional -> {
+        fileOptionalFuture.thenAccept(namedFileOptional -> {
             File input = null;
             File edited = null;
             File compressed = null;
             var fileFormat = "N/A";
             try {
-                if (requireFileInput && fileOptional.isEmpty()) {
+                if (requireFileInput && namedFileOptional.isEmpty()) {
                     triggerMessage.reply("No media found!").queue();
                 } else {
+                    var fileOptional = namedFileOptional.map(NamedFile::file);
                     input = fileOptional.orElse(null);
                     fileFormat = fileOptional.map(FileUtil::getFileFormat).orElse(fileFormat);
                     var finalFileFormat = fileFormat;
-                    edited = fileOptional.map(file -> {
+                    var namedEdited = fileOptional.map(file -> {
                         try {
                             return modifyFile(file, finalFileFormat, arguments, extraArguments, event);
                         } catch (IOException e) {
@@ -73,13 +75,14 @@ public abstract sealed class BaseFileCommand extends BaseCommand permits FileCom
                             throw new UncheckedIOException(e);
                         }
                     });
+                    edited = namedEdited.file();
                     var newFileFormat = FileUtil.getFileFormat(edited);
                     compressed = compress(edited, newFileFormat, event.getGuild());
                     var resultSize = compressed.length();
                     if (resultSize > DiscordUtil.getMaxUploadSize(event.getGuild())) {
                         handleTooLargeFile(resultSize, triggerMessage);
                     } else {
-                        tryReply(triggerMessage, compressed);
+                        tryReply(triggerMessage, compressed, namedEdited.name());
                     }
                 }
             } catch (InvalidMediaException e) {
@@ -122,9 +125,9 @@ public abstract sealed class BaseFileCommand extends BaseCommand permits FileCom
         Main.getLogger().error("File size of edited media was too large to send! (" + fileSize + "MB)");
     }
 
-    private static void tryReply(Message triggerMessage, File file) {
+    private static void tryReply(Message triggerMessage, File file, String filename) {
         MiscUtil.repeatTry(
-            () -> reply(triggerMessage, file),
+            () -> reply(triggerMessage, file, filename),
             3,
             5,
             BaseFileCommand::handleReplyAttemptFailure,
@@ -132,8 +135,8 @@ public abstract sealed class BaseFileCommand extends BaseCommand permits FileCom
         );
     }
 
-    private static CompletableFuture<?> reply(Message triggerMessage, File file) {
-        return triggerMessage.replyFiles(FileUpload.fromData(file)).submit();
+    private static CompletableFuture<?> reply(Message triggerMessage, File file, String filename) {
+        return triggerMessage.replyFiles(FileUpload.fromData(file, filename)).submit();
     }
 
     private static void handleReplyAttemptFailure(int attempts, Throwable error) {

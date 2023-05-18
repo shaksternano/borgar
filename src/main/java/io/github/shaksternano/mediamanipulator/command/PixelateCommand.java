@@ -2,6 +2,7 @@ package io.github.shaksternano.mediamanipulator.command;
 
 import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.command.util.CommandParser;
+import io.github.shaksternano.mediamanipulator.io.NamedFile;
 import io.github.shaksternano.mediamanipulator.media.ImageUtil;
 import io.github.shaksternano.mediamanipulator.media.MediaUtil;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -27,7 +28,7 @@ public class PixelateCommand extends FileCommand {
     }
 
     @Override
-    protected File modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
+    protected NamedFile modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
         int pixelationMultiplier = CommandParser.parseIntegerArgument(
             arguments,
             0,
@@ -36,11 +37,15 @@ public class PixelateCommand extends FileCommand {
             event.getChannel(),
             (argument, defaultValue) -> "Pixelation multiplier \"" + argument + "\" is not a number. Using default value of " + defaultValue + "."
         );
-        return MediaUtil.processMedia(
-            file,
-            fileFormat,
+        return new NamedFile(
+            MediaUtil.processMedia(
+                file,
+                fileFormat,
+                "pixelated",
+                image -> pixelate(image, pixelationMultiplier)
+            ),
             "pixelated",
-            image -> pixelate(image, pixelationMultiplier)
+            fileFormat
         );
     }
 

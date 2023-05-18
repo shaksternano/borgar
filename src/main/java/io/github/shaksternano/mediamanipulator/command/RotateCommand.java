@@ -2,6 +2,7 @@ package io.github.shaksternano.mediamanipulator.command;
 
 import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.command.util.CommandParser;
+import io.github.shaksternano.mediamanipulator.io.NamedFile;
 import io.github.shaksternano.mediamanipulator.media.ImageUtil;
 import io.github.shaksternano.mediamanipulator.media.MediaUtil;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -29,7 +30,7 @@ public class RotateCommand extends FileCommand {
     }
 
     @Override
-    protected File modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
+    protected NamedFile modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
         float rotation = CommandParser.parseFloatArgument(
             arguments,
             0,
@@ -48,11 +49,15 @@ public class RotateCommand extends FileCommand {
         );
         Color backgroundColor = rgb < 0 ? null : new Color(rgb);
         String outputFormat = MediaUtil.equivalentTransparentFormat(fileFormat);
-        return MediaUtil.processMedia(
-            file,
-            outputFormat,
+        return new NamedFile(
+            MediaUtil.processMedia(
+                file,
+                outputFormat,
+                "rotated",
+                image -> rotate(image, rotation, backgroundColor, outputFormat)
+            ),
             "rotated",
-            image -> rotate(image, rotation, backgroundColor, outputFormat)
+            outputFormat
         );
     }
 

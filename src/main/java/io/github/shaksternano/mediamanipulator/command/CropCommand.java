@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.command.util.CommandParser;
 import io.github.shaksternano.mediamanipulator.exception.MissingArgumentException;
+import io.github.shaksternano.mediamanipulator.io.NamedFile;
 import io.github.shaksternano.mediamanipulator.media.ImageFrame;
 import io.github.shaksternano.mediamanipulator.media.MediaUtil;
 import io.github.shaksternano.mediamanipulator.media.io.Imageprocessor.SingleImageProcessor;
@@ -30,7 +31,7 @@ public class CropCommand extends FileCommand {
     }
 
     @Override
-    protected File modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
+    protected NamedFile modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
         MessageChannel triggerChannel = event.getChannel();
         float topRatio = CommandParser.parseFloatExtraArgument(
             extraArguments,
@@ -68,11 +69,15 @@ public class CropCommand extends FileCommand {
         if (topRatio == 0 && rightRatio == 0 && bottomRatio == 0 && leftRatio == 0) {
             throw new MissingArgumentException("No valid crop ratios were specified! Please specify at least one valid crop ratio.");
         } else {
-            return MediaUtil.processMedia(
-                file,
-                fileFormat,
+            return new NamedFile(
+                MediaUtil.processMedia(
+                    file,
+                    fileFormat,
+                    "cropped",
+                    new CropProcessor(topRatio, rightRatio, bottomRatio, leftRatio)
+                ),
                 "cropped",
-                new CropProcessor(topRatio, rightRatio, bottomRatio, leftRatio)
+                fileFormat
             );
         }
     }

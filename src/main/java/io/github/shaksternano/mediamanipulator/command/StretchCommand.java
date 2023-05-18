@@ -2,6 +2,7 @@ package io.github.shaksternano.mediamanipulator.command;
 
 import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.command.util.CommandParser;
+import io.github.shaksternano.mediamanipulator.io.NamedFile;
 import io.github.shaksternano.mediamanipulator.media.ImageUtil;
 import io.github.shaksternano.mediamanipulator.media.MediaUtil;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -54,7 +55,7 @@ public class StretchCommand extends FileCommand {
      * @throws IOException If an error occurs while applying the operation.
      */
     @Override
-    protected File modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
+    protected NamedFile modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
         float widthMultiplier = CommandParser.parseFloatArgument(
             arguments,
             0,
@@ -71,16 +72,20 @@ public class StretchCommand extends FileCommand {
             event.getChannel(),
             (argument, defaultValue) -> "Height multiplier \"" + argument + "\" is not a number. Using default value of " + defaultValue + "."
         );
-        return MediaUtil.processMedia(
-            file,
-            fileFormat,
-            "stretch",
-            image -> ImageUtil.stretch(
-                image,
-                (int) (image.getWidth() * widthMultiplier),
-                (int) (image.getHeight() * heightMultiplier),
-                RAW
-            )
+        return new NamedFile(
+            MediaUtil.processMedia(
+                file,
+                fileFormat,
+                "stretch",
+                image -> ImageUtil.stretch(
+                    image,
+                    (int) (image.getWidth() * widthMultiplier),
+                    (int) (image.getHeight() * heightMultiplier),
+                    RAW
+                )
+            ),
+            "stretched",
+            fileFormat
         );
     }
 }

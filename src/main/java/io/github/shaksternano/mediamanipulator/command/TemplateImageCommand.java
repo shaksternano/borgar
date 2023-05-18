@@ -1,7 +1,7 @@
 package io.github.shaksternano.mediamanipulator.command;
 
 import com.google.common.collect.ListMultimap;
-import io.github.shaksternano.mediamanipulator.io.FileUtil;
+import io.github.shaksternano.mediamanipulator.io.NamedFile;
 import io.github.shaksternano.mediamanipulator.media.ImageFrame;
 import io.github.shaksternano.mediamanipulator.media.ImageUtil;
 import io.github.shaksternano.mediamanipulator.media.MediaUtil;
@@ -41,7 +41,7 @@ public class TemplateImageCommand extends OptionalFileInputFileCommand {
     }
 
     @Override
-    protected File modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
+    protected NamedFile modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
         var contentImageReader = MediaReaders.createImageReader(file, fileFormat);
         var contentAudioReader = MediaReaders.createAudioReader(file, fileFormat);
         var templateImageReader = templateInfo.getImageReader();
@@ -52,31 +52,38 @@ public class TemplateImageCommand extends OptionalFileInputFileCommand {
         } else {
             outputFormat = templateImageReader.format();
         }
-        return MediaUtil.processMedia(
-            contentImageReader,
-            contentAudioReader,
-            templateImageReader,
-            outputFormat,
+        return new NamedFile(
+            MediaUtil.processMedia(
+                contentImageReader,
+                contentAudioReader,
+                templateImageReader,
+                outputFormat,
+                templateInfo.getResultName(),
+                processor
+            ),
             templateInfo.getResultName(),
-            processor
+            outputFormat
         );
     }
 
     @Override
-    protected File createFile(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
+    protected NamedFile createFile(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
         var imageReader = templateInfo.getImageReader();
         var audioReader = templateInfo.getAudioReader();
         var nonTextParts = MessageUtil.getEmojiImages(event.getMessage());
         var processor = new TextContentProcessor(arguments, nonTextParts, templateInfo);
         var outputFormat = imageReader.format();
-        var outputName = templateInfo.getResultName() + "." + outputFormat;
-        var output = FileUtil.getUniqueTempFile(outputName);
-        return MediaUtil.processMedia(
-            imageReader,
-            audioReader,
-            output,
-            outputFormat,
-            processor
+        var resultName = templateInfo.getResultName();
+        return new NamedFile(
+            MediaUtil.processMedia(
+                imageReader,
+                audioReader,
+                outputFormat,
+                resultName,
+                processor
+            ),
+            templateInfo.getResultName(),
+            outputFormat
         );
     }
 

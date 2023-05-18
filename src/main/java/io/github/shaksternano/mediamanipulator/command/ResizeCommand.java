@@ -3,6 +3,7 @@ package io.github.shaksternano.mediamanipulator.command;
 import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.exception.InvalidArgumentException;
 import io.github.shaksternano.mediamanipulator.exception.MissingArgumentException;
+import io.github.shaksternano.mediamanipulator.io.NamedFile;
 import io.github.shaksternano.mediamanipulator.media.ImageUtil;
 import io.github.shaksternano.mediamanipulator.media.MediaUtil;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -45,15 +46,19 @@ public class ResizeCommand extends FileCommand {
      * @throws MissingArgumentException If the operation requires an argument but none was provided.
      */
     @Override
-    protected File modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
+    protected NamedFile modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
         if (arguments.size() > 0) {
             try {
                 float resizeMultiplier = Float.parseFloat(arguments.get(0));
-                return MediaUtil.processMedia(
-                    file,
-                    fileFormat,
-                    "resize",
-                    image -> ImageUtil.resize(image, resizeMultiplier, RAW)
+                return new NamedFile(
+                    MediaUtil.processMedia(
+                        file,
+                        fileFormat,
+                        "resize",
+                        image -> ImageUtil.resize(image, resizeMultiplier, RAW)
+                    ),
+                    "resized",
+                    fileFormat
                 );
             } catch (NumberFormatException e) {
                 throw new InvalidArgumentException("Scale multiplier \"" + arguments.get(0) + "\" is not a number!");

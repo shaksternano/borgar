@@ -2,6 +2,7 @@ package io.github.shaksternano.mediamanipulator.command;
 
 import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.command.util.CommandParser;
+import io.github.shaksternano.mediamanipulator.io.NamedFile;
 import io.github.shaksternano.mediamanipulator.media.ImageFrame;
 import io.github.shaksternano.mediamanipulator.media.MediaUtil;
 import io.github.shaksternano.mediamanipulator.media.io.Imageprocessor.SingleImageProcessor;
@@ -28,7 +29,7 @@ public class SpeedCommand extends FileCommand {
     }
 
     @Override
-    protected File modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
+    protected NamedFile modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
         var speedMultiplier = CommandParser.parseFloatArgument(
             arguments,
             0,
@@ -38,7 +39,11 @@ public class SpeedCommand extends FileCommand {
             (argument, defaultValue) -> "Speed multiplier \"" + argument + "\" is not a number. Using default value of " + defaultValue + "."
         );
         var processor = new SpeedProcessor(speedMultiplier);
-        return MediaUtil.processMedia(file, fileFormat, "changed_speed", processor);
+        return new NamedFile(
+            MediaUtil.processMedia(file, fileFormat, "changed_speed", processor),
+            "changed_speed",
+            fileFormat
+        );
     }
 
     private record SpeedProcessor(float speed) implements SingleImageProcessor<Boolean> {

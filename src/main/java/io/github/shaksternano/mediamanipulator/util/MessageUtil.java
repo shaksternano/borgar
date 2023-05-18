@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableSet;
 import io.github.shaksternano.mediamanipulator.Main;
 import io.github.shaksternano.mediamanipulator.emoji.EmojiUtil;
 import io.github.shaksternano.mediamanipulator.io.FileUtil;
+import io.github.shaksternano.mediamanipulator.io.NamedFile;
 import io.github.shaksternano.mediamanipulator.media.ImageUtil;
 import io.github.shaksternano.mediamanipulator.media.graphics.drawable.Drawable;
 import io.github.shaksternano.mediamanipulator.media.graphics.drawable.ImageDrawable;
@@ -58,6 +59,34 @@ public class MessageUtil {
                         return fileOptional;
                     }
                     fileOptional = downloadEmbedImage(messageToProcess, directory);
+                    if (fileOptional.isPresent()) {
+                        return fileOptional;
+                    }
+                }
+                return Optional.empty();
+            })
+        );
+    }
+
+    /**
+     * Downloads a file.
+     *
+     * @param message The message to download the file from.
+     * @return A {@code CompletableFuture} that will complete with an {@link Optional} describing the file.
+     */
+    public static CompletableFuture<Optional<NamedFile>> downloadFile(Message message) {
+        return processMessagesAsync(message, messageToProcess -> downloadAttachment(messageToProcess)
+            .thenApply(fileOptional -> {
+                if (fileOptional.isPresent()) {
+                    return fileOptional;
+                }
+                var urls = StringUtil.extractUrls(messageToProcess.getContentRaw());
+                if (!urls.isEmpty()) {
+                    fileOptional = FileUtil.downloadFile(urls.get(0));
+                    if (fileOptional.isPresent()) {
+                        return fileOptional;
+                    }
+                    fileOptional = downloadEmbedImage(messageToProcess);
                     if (fileOptional.isPresent()) {
                         return fileOptional;
                     }
@@ -167,6 +196,25 @@ public class MessageUtil {
             .thenApply(Optional::of);
     }
 
+    private static CompletableFuture<Optional<NamedFile>> downloadAttachment(Message message) {
+        var attachments = message.getAttachments();
+        if (attachments.isEmpty()) {
+            return CompletableFuture.completedFuture(Optional.empty());
+        }
+        var attachment = attachments.get(0);
+        var fileName = attachment.getFileName();
+        var fileNameWithoutExtension = com.google.common.io.Files.getNameWithoutExtension(fileName);
+        var fileExtension = com.google.common.io.Files.getFileExtension(fileName);
+        return CompletableFuture.supplyAsync(() -> {
+                try {
+                    return FileUtil.createTempFile(fileNameWithoutExtension, fileExtension);
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
+            }).thenCompose(file1 -> attachment.getProxy().downloadToFile(file1))
+            .thenApply(file1 -> Optional.of(new NamedFile(file1, fileName)));
+    }
+
     /**
      * Downloads an image file from an embed.
      *
@@ -185,6 +233,23 @@ public class MessageUtil {
             }
         }
 
+        return Optional.empty();
+    }
+
+    /**
+     * Downloads an image file from an embed.
+     *
+     * @param message The message containing the embed to download the image from.
+     * @return An {@link Optional} describing the image file.
+     */
+    private static Optional<NamedFile> downloadEmbedImage(Message message) {
+        var embeds = message.getEmbeds();
+        for (var embed : embeds) {
+            var imageInfo = embed.getImage();
+            if (imageInfo != null) {
+                return FileUtil.downloadFile(imageInfo.getUrl());
+            }
+        }
         return Optional.empty();
     }
 

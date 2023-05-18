@@ -3,6 +3,7 @@ package io.github.shaksternano.mediamanipulator.command;
 import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.exception.InvalidMediaException;
 import io.github.shaksternano.mediamanipulator.io.FileUtil;
+import io.github.shaksternano.mediamanipulator.io.NamedFile;
 import io.github.shaksternano.mediamanipulator.media.ImageFrame;
 import io.github.shaksternano.mediamanipulator.media.ImageUtil;
 import io.github.shaksternano.mediamanipulator.media.MediaUtil;
@@ -49,12 +50,16 @@ public class SpeechBubbleCommand extends FileCommand {
      * @throws IOException If an error occurs while applying the operation.
      */
     @Override
-    protected File modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
-        return MediaUtil.processMedia(
-            file,
-            fileFormat,
+    protected NamedFile modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
+        return new NamedFile(
+            MediaUtil.processMedia(
+                file,
+                fileFormat,
+                "speech_bubbled",
+                new SpeechBubbleProcessor(cutOut)
+            ),
             "speech_bubbled",
-            new SpeechBubbleProcessor(cutOut)
+            fileFormat
         );
     }
 

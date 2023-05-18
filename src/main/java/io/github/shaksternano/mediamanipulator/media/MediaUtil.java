@@ -21,13 +21,13 @@ public class MediaUtil {
     public static File processMedia(
         File media,
         String outputFormat,
-        String operationName,
+        String resultName,
         UnaryOperator<BufferedImage> imageMapper
     ) throws IOException {
         return processMedia(
             media,
             outputFormat,
-            operationName,
+            resultName,
             new BasicImageProcessor(imageMapper)
         );
     }
@@ -35,13 +35,32 @@ public class MediaUtil {
     public static <T> File processMedia(
         File media,
         String outputFormat,
-        String operationName,
+        String resultName,
         SingleImageProcessor<T> processor
     ) throws IOException {
-        var outputName = operationName + "." + outputFormat;
-        var output = FileUtil.getUniqueTempFile(outputName);
+        var output = FileUtil.createTempFile(resultName, outputFormat);
+        return processMedia(media, outputFormat, output, processor);
+    }
+
+    public static <T> File processMedia(
+        File media,
+        String outputFormat,
+        File output,
+        SingleImageProcessor<T> processor
+    ) throws IOException {
         var imageReader = MediaReaders.createImageReader(media, outputFormat);
         var audioReader = MediaReaders.createAudioReader(media, outputFormat);
+        return processMedia(imageReader, audioReader, output, outputFormat, processor);
+    }
+
+    public static <T> File processMedia(
+        MediaReader<ImageFrame> imageReader,
+        MediaReader<AudioFrame> audioReader,
+        String outputFormat,
+        String resultName,
+        SingleImageProcessor<T> processor
+    ) throws IOException {
+        var output = FileUtil.createTempFile(resultName, outputFormat);
         return processMedia(imageReader, audioReader, output, outputFormat, processor);
     }
 
@@ -84,11 +103,10 @@ public class MediaUtil {
         MediaReader<AudioFrame> audioReader1,
         MediaReader<ImageFrame> imageReader2,
         String outputFormat,
-        String operationName,
+        String resultName,
         DualImageProcessor<T> processor
     ) throws IOException {
-        var outputName = operationName + "." + outputFormat;
-        var output = FileUtil.getUniqueTempFile(outputName);
+        var output = FileUtil.createTempFile(resultName, outputFormat);
         try (
             processor;
             var zippedImageReader = new ZippedMediaReader<>(imageReader1, imageReader2);
@@ -125,22 +143,22 @@ public class MediaUtil {
     public static File cropMedia(
         File media,
         String outputFormat,
-        String operationName,
+        String resultName,
         Function<BufferedImage, Rectangle> cropKeepAreaFinder
     ) throws IOException {
-        try (MediaReader<ImageFrame> reader = MediaReaders.createImageReader(media, outputFormat)) {
+        try (var reader = MediaReaders.createImageReader(media, outputFormat)) {
             Rectangle toKeep = null;
-            int width = -1;
-            int height = -1;
+            var width = -1;
+            var height = -1;
 
-            for (ImageFrame frame : reader) {
-                BufferedImage image = frame.content();
+            for (var frame : reader) {
+                var image = frame.content();
                 if (width < 0) {
                     width = image.getWidth();
                     height = image.getHeight();
                 }
 
-                Rectangle mayKeepArea = cropKeepAreaFinder.apply(image);
+                var mayKeepArea = cropKeepAreaFinder.apply(image);
                 if ((mayKeepArea.getX() != 0
                     || mayKeepArea.getY() != 0
                     || mayKeepArea.getWidth() != width
@@ -168,7 +186,7 @@ public class MediaUtil {
                 return processMedia(
                     media,
                     outputFormat,
-                    operationName,
+                    resultName,
                     image -> image.getSubimage(
                         finalToKeep.x,
                         finalToKeep.y,
@@ -195,5 +213,4 @@ public class MediaUtil {
     public static boolean supportsTransparency(String format) {
         return format.equalsIgnoreCase("png") || format.equalsIgnoreCase("gif");
     }
-
 }

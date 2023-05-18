@@ -1,6 +1,7 @@
 package io.github.shaksternano.mediamanipulator.command;
 
 import com.google.common.collect.ListMultimap;
+import io.github.shaksternano.mediamanipulator.io.NamedFile;
 import io.github.shaksternano.mediamanipulator.media.ImageUtil;
 import io.github.shaksternano.mediamanipulator.media.MediaUtil;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -29,12 +30,16 @@ public class UncaptionCommand extends FileCommand {
     }
 
     @Override
-    protected File modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
-        return MediaUtil.cropMedia(
-            file,
-            fileFormat,
+    protected NamedFile modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
+        return new NamedFile(
+            MediaUtil.cropMedia(
+                file,
+                fileFormat,
+                "uncaptioned",
+                this::findNonCaptionAreaTopAndBottom
+            ),
             "uncaptioned",
-            this::findNonCaptionAreaTopAndBottom
+            fileFormat
         );
     }
 

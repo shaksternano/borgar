@@ -13,7 +13,6 @@ import org.reflections.scanners.Scanners;
 import java.io.*;
 import java.net.URL;
 import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.util.Optional;
 import java.util.Set;
@@ -32,6 +31,13 @@ public class FileUtil {
      * The maximum file size that is allowed to be downloaded, 100MB.
      */
     private static final long MAXIMUM_FILE_SIZE_TO_DOWNLOAD = 104857600;
+
+    public static File createTempFile(String nameWithoutExtension, String extension) throws IOException {
+        var extensionWithDot = extension.isBlank() ? "" : "." + extension;
+        var file = Files.createTempFile(nameWithoutExtension, extensionWithDot).toFile();
+        file.deleteOnExit();
+        return file;
+    }
 
     private static File createTempDir() throws IOException {
         File tempDir = Files.createTempDirectory("mediamanipulator").toFile();
@@ -179,6 +185,32 @@ public class FileUtil {
     }
 
     /**
+     * Downloads a file from a URL.
+     *
+     * @param url The text to download the image from.
+     * @return An {@link Optional} describing the image file.
+     */
+    public static Optional<NamedFile> downloadFile(String url) {
+        try {
+            var tenorMediaUrlOptional = TenorUtil.getTenorMediaUrl(url, TenorMediaType.GIF_NORMAL, Main.getTenorApiKey());
+            url = tenorMediaUrlOptional.orElse(url);
+            var fileNameWithoutExtension = com.google.common.io.Files.getNameWithoutExtension(url);
+            var extension = com.google.common.io.Files.getFileExtension(url);
+            int index = extension.indexOf("?");
+            if (index != -1) {
+                extension = extension.substring(0, index);
+            }
+            var extensionWithDot = extension.isBlank() ? "" : "." + extension;
+            var fileName = fileNameWithoutExtension + extensionWithDot;
+            var file = createTempFile(fileNameWithoutExtension, extension);
+            downloadFile(url, file);
+            return Optional.of(new NamedFile(file, fileName));
+        } catch (IOException ignored) {
+            return Optional.empty();
+        }
+    }
+
+    /**
      * Downloads a file from a web URL.
      *
      * @param url  The URL to download the file from.
@@ -187,8 +219,8 @@ public class FileUtil {
      */
     public static void downloadFile(String url, File file) throws IOException {
         try (
-            FileOutputStream outputStream = new FileOutputStream(file);
-            ReadableByteChannel readableByteChannel = Channels.newChannel(new URL(url).openStream())
+            var outputStream = new FileOutputStream(file);
+            var readableByteChannel = Channels.newChannel(new URL(url).openStream())
         ) {
             outputStream.getChannel().transferFrom(readableByteChannel, 0, MAXIMUM_FILE_SIZE_TO_DOWNLOAD);
         }
@@ -200,11 +232,6 @@ public class FileUtil {
         } catch (Exception ignored) {
             return com.google.common.io.Files.getFileExtension(file.getName());
         }
-    }
-
-    public static String changeFileName(String fileNameAndExtension, String newFileName) {
-        String extension = com.google.common.io.Files.getFileExtension(fileNameAndExtension);
-        return newFileName + "." + extension;
     }
 
     public static String changeExtension(String filePath, @Nullable String newExtension) {

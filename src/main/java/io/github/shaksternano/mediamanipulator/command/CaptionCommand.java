@@ -1,6 +1,7 @@
 package io.github.shaksternano.mediamanipulator.command;
 
 import com.google.common.collect.ListMultimap;
+import io.github.shaksternano.mediamanipulator.io.NamedFile;
 import io.github.shaksternano.mediamanipulator.media.ImageFrame;
 import io.github.shaksternano.mediamanipulator.media.ImageUtil;
 import io.github.shaksternano.mediamanipulator.media.MediaUtil;
@@ -41,10 +42,14 @@ public class CaptionCommand extends FileCommand {
     }
 
     @Override
-    protected File modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
+    protected NamedFile modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
         var nonTextParts = MessageUtil.getEmojiImages(event.getMessage());
         var processor = new CaptionProcessor(CAPTION_2, arguments, nonTextParts);
-        return MediaUtil.processMedia(file, fileFormat, "captioned", processor);
+        return new NamedFile(
+            MediaUtil.processMedia(file, fileFormat, "captioned", processor),
+            "captioned",
+            fileFormat
+        );
     }
 
     private record CaptionProcessor(
