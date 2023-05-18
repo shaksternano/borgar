@@ -97,6 +97,10 @@ public abstract sealed class BaseFileCommand extends BaseCommand permits FileCom
             } finally {
                 deleteAll(input, edited, compressed);
             }
+        }).whenComplete((unused, throwable) -> {
+            if (throwable != null) {
+                Main.getLogger().error("Error executing command " + getNameWithPrefix(), throwable);
+            }
         });
     }
 
