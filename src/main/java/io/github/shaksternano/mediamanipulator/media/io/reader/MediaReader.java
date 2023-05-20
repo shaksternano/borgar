@@ -1,5 +1,7 @@
 package io.github.shaksternano.mediamanipulator.media.io.reader;
 
+import io.github.shaksternano.mediamanipulator.util.ClosableIterator;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Collection;
@@ -46,7 +48,12 @@ public interface MediaReader<E> extends Collection<E>, Closeable {
      * @return The frame at the given timestamp.
      * @throws IOException If an I/O error occurs.
      */
-    E frame(long timestamp) throws IOException;
+    E frameAtTime(long timestamp) throws IOException;
 
     E first() throws IOException;
+
+    MediaReader<E> reversed() throws IOException;
+
+    @Override
+    ClosableIterator<E> iterator();
 }

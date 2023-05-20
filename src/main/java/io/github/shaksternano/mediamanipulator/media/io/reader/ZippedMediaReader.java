@@ -1,19 +1,21 @@
 package io.github.shaksternano.mediamanipulator.media.io.reader;
 
 import io.github.shaksternano.mediamanipulator.media.VideoFrame;
+import io.github.shaksternano.mediamanipulator.util.ClosableIterator;
 import io.github.shaksternano.mediamanipulator.util.MiscUtil;
 import io.github.shaksternano.mediamanipulator.util.Pair;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.util.Iterator;
 
 public class ZippedMediaReader<A extends VideoFrame<?>, B extends VideoFrame<?>> extends BaseMediaReader<Pair<A, B>> {
 
     private final MediaReader<A> firstReader;
     private final MediaReader<B> secondReader;
     private final boolean firstControlling;
+    @Nullable
+    private ZippedMediaReader<A, B> reversed;
 
     public ZippedMediaReader(MediaReader<A> firstReader, MediaReader<B> secondReader) {
         this(firstReader, secondReader, decideIsFirstControlling(firstReader, secondReader));
@@ -45,9 +47,9 @@ public class ZippedMediaReader<A extends VideoFrame<?>, B extends VideoFrame<?>>
     }
 
     @Override
-    public Pair<A, B> frame(long timestamp) throws IOException {
-        var firstFrame = firstReader.frame(timestamp);
-        var secondFrame = secondReader.frame(timestamp);
+    public Pair<A, B> frameAtTime(long timestamp) throws IOException {
+        var firstFrame = firstReader.frameAtTime(timestamp);
+        var secondFrame = secondReader.frameAtTime(timestamp);
         return new Pair<>(firstFrame, secondFrame);
     }
 
@@ -56,6 +58,25 @@ public class ZippedMediaReader<A extends VideoFrame<?>, B extends VideoFrame<?>>
         var firstFrame = firstReader.first();
         var secondFrame = secondReader.first();
         return new Pair<>(firstFrame, secondFrame);
+    }
+
+    @Override
+    public ZippedMediaReader<A, B> reversed() throws IOException {
+        if (reversed == null) {
+            reversed = new ZippedMediaReader<>(firstReader.reversed(), secondReader.reversed(), firstControlling);
+            reversed.reversed = this;
+        }
+        return reversed;
+    }
+
+    @Override
+    public ClosableIterator<Pair<A, B>> iterator() {
+        return new ZippedMediaReaderIterator();
+    }
+
+    @Override
+    public void close() throws IOException {
+        MiscUtil.closeAll(firstReader, secondReader);
     }
 
     public boolean isFirstControlling() {
@@ -67,22 +88,12 @@ public class ZippedMediaReader<A extends VideoFrame<?>, B extends VideoFrame<?>>
             (!secondReader.animated() || firstReader.frameDuration() <= secondReader.frameDuration());
     }
 
-    @Override
-    public Iterator<Pair<A, B>> iterator() {
-        return new ZippedMediaReaderIterator();
-    }
-
-    @Override
-    public void close() throws IOException {
-        MiscUtil.closeAll(firstReader, secondReader);
-    }
-
-    private class ZippedMediaReaderIterator implements Iterator<Pair<A, B>> {
+    private class ZippedMediaReaderIterator implements ClosableIterator<Pair<A, B>> {
 
         @Nullable
-        private Iterator<A> firstIterator;
+        private ClosableIterator<A> firstIterator;
         @Nullable
-        private Iterator<B> secondIterator;
+        private ClosableIterator<B> secondIterator;
         private int loops = 0;
 
         public ZippedMediaReaderIterator() {
@@ -112,8 +123,9 @@ public class ZippedMediaReader<A extends VideoFrame<?>, B extends VideoFrame<?>>
                 if (firstIterator != null) {
                     var first = firstIterator.next();
                     var timestamp = first.timestamp() + (loops * firstReader.duration());
-                    var second = secondReader.frame(timestamp);
+                    var second = secondReader.frameAtTime(timestamp);
                     if (!firstIterator.hasNext() && (timestamp + first.duration()) < secondReader.duration()) {
+                        firstIterator.close();
                         firstIterator = firstReader.iterator();
                         loops++;
                     }
@@ -121,8 +133,9 @@ public class ZippedMediaReader<A extends VideoFrame<?>, B extends VideoFrame<?>>
                 } else if (secondIterator != null) {
                     var second = secondIterator.next();
                     var timestamp = second.timestamp() + (loops * secondReader.duration());
-                    var first = firstReader.frame(timestamp);
+                    var first = firstReader.frameAtTime(timestamp);
                     if (!secondIterator.hasNext() && (timestamp + second.duration()) < firstReader.duration()) {
+                        secondIterator.close();
                         secondIterator = secondReader.iterator();
                         loops++;
                     }
@@ -133,6 +146,11 @@ public class ZippedMediaReader<A extends VideoFrame<?>, B extends VideoFrame<?>>
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
+        }
+
+        @Override
+        public void close() throws IOException {
+            MiscUtil.closeAll(firstIterator, secondIterator);
         }
     }
 }

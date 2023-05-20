@@ -9,6 +9,10 @@ public interface ImageProcessor extends Closeable {
         return 1;
     }
 
+    default float absoluteSpeed() {
+        return Math.abs(speed());
+    }
+
     @Override
     default void close() throws IOException {
     }

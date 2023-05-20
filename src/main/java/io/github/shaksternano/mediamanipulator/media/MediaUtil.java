@@ -13,6 +13,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
@@ -71,28 +72,38 @@ public class MediaUtil {
         String outputFormat,
         SingleImageProcessor<T> processor
     ) throws IOException {
+        if (processor.speed() < 0) {
+            imageReader = imageReader.reversed();
+            audioReader = audioReader.reversed();
+        }
+        var finalImageReader = imageReader;
+        var finalAudioReader = audioReader;
         try (
-            imageReader;
-            audioReader;
+            finalImageReader;
+            finalAudioReader;
             processor;
             var writer = MediaWriters.createWriter(
                 output,
                 outputFormat,
-                audioReader.audioChannels()
-            )
+                finalAudioReader.audioChannels()
+            );
+            var imageIterator = finalImageReader.iterator();
+            var audioIterator = finalAudioReader.iterator()
         ) {
             T constantFrameDataValue = null;
-            for (var imageFrame : imageReader) {
+            while (imageIterator.hasNext()) {
+                var imageFrame = imageIterator.next();
                 if (constantFrameDataValue == null) {
                     constantFrameDataValue = processor.constantData(imageFrame.content());
                 }
                 writer.recordImageFrame(imageFrame.transform(
                     processor.transformImage(imageFrame, constantFrameDataValue),
-                    processor.speed()
+                    processor.absoluteSpeed()
                 ));
             }
-            for (var audioFrame : audioReader) {
-                writer.recordAudioFrame(audioFrame.transform(processor.speed()));
+            while (audioIterator.hasNext()) {
+                var audioFrame = audioIterator.next();
+                writer.recordAudioFrame(audioFrame.transform(processor.absoluteSpeed()));
             }
             return output;
         }
@@ -107,34 +118,44 @@ public class MediaUtil {
         DualImageProcessor<T> processor
     ) throws IOException {
         var output = FileUtil.createTempFile(resultName, outputFormat);
+        var zippedImageReader = new ZippedMediaReader<>(imageReader1, imageReader2);
+        var zippedAudioReader = new ZippedMediaReader<>(audioReader1, imageReader2, true);
+        if (processor.speed() < 0) {
+            zippedImageReader = zippedImageReader.reversed();
+            zippedAudioReader = zippedAudioReader.reversed();
+        }
         try (
             processor;
-            var zippedImageReader = new ZippedMediaReader<>(imageReader1, imageReader2);
-            var zippedAudioReader = new ZippedMediaReader<>(audioReader1, imageReader2, true);
+            var finalZippedImageReader = zippedImageReader;
+            var finalZippedAudioReader = zippedAudioReader;
             var writer = MediaWriters.createWriter(
                 output,
                 outputFormat,
                 audioReader1.audioChannels()
-            )
+            );
+            var zippedImageIterator = finalZippedImageReader.iterator();
+            var zippedAudioIterator = finalZippedAudioReader.iterator()
         ) {
             T constantFrameDataValue = null;
-            for (var framePair : zippedImageReader) {
+            while (zippedImageIterator.hasNext()) {
+                var framePair = zippedImageIterator.next();
                 var firstFrame = framePair.first();
                 var secondFrame = framePair.second();
                 if (constantFrameDataValue == null) {
                     constantFrameDataValue = processor.constantData(firstFrame.content(), secondFrame.content());
                 }
-                var toTransform = zippedImageReader.isFirstControlling()
+                var toTransform = finalZippedImageReader.isFirstControlling()
                     ? firstFrame
                     : secondFrame;
                 writer.recordImageFrame(toTransform.transform(
                     processor.transformImage(firstFrame, secondFrame, constantFrameDataValue),
-                    processor.speed()
+                    processor.absoluteSpeed()
                 ));
             }
-            for (var framePair : zippedAudioReader) {
+            while (zippedAudioIterator.hasNext()) {
+                var framePair = zippedAudioIterator.next();
                 var audioFrame = framePair.first();
-                writer.recordAudioFrame(audioFrame.transform(processor.speed()));
+                writer.recordAudioFrame(audioFrame.transform(processor.absoluteSpeed()));
             }
             return output;
         }
@@ -146,12 +167,16 @@ public class MediaUtil {
         String resultName,
         Function<BufferedImage, Rectangle> cropKeepAreaFinder
     ) throws IOException {
-        try (var reader = MediaReaders.createImageReader(media, outputFormat)) {
+        try (
+            var reader = MediaReaders.createImageReader(media, outputFormat);
+            var iterator = reader.iterator()
+        ) {
             Rectangle toKeep = null;
             var width = -1;
             var height = -1;
 
-            for (var frame : reader) {
+            while (iterator.hasNext()) {
+                var frame = iterator.next();
                 var image = frame.content();
                 if (width < 0) {
                     width = image.getWidth();
@@ -182,7 +207,7 @@ public class MediaUtil {
             )) {
                 return media;
             } else {
-                final Rectangle finalToKeep = toKeep;
+                var finalToKeep = toKeep;
                 return processMedia(
                     media,
                     outputFormat,
@@ -212,5 +237,55 @@ public class MediaUtil {
 
     public static boolean supportsTransparency(String format) {
         return format.equalsIgnoreCase("png") || format.equalsIgnoreCase("gif");
+    }
+
+    public static <E extends VideoFrame<?>> E frameAtTime(long timestamp, List<E> frames, long duration) {
+        var circularTimestamp = timestamp % Math.max(duration, 1);
+        var index = findIndex(circularTimestamp, frames);
+        return frames.get(index);
+    }
+
+    /**
+     * Finds the index of the frame with the given timestamp.
+     * If there is no frame with the given timestamp, the index of the frame
+     * with the highest timestamp smaller than the given timestamp is returned.
+     *
+     * @param timeStamp The timestamp in microseconds.
+     * @param frames    The frames.
+     * @return The index of the frame with the given timestamp.
+     */
+    private static int findIndex(long timeStamp, List<? extends VideoFrame<?>> frames) {
+        if (frames.size() == 0) {
+            throw new IllegalArgumentException("Frames list is empty");
+        } else if (timeStamp < 0) {
+            throw new IllegalArgumentException("Timestamp must not be negative");
+        } else if (timeStamp < frames.get(0).timestamp()) {
+            throw new IllegalArgumentException("Timestamp must not be smaller than the first timestamp");
+        } else if (timeStamp == frames.get(0).timestamp()) {
+            return 0;
+        } else if (timeStamp < frames.get(frames.size() - 1).timestamp()) {
+            return findIndexBinarySearch(timeStamp, frames);
+        } else {
+            // If the timestamp is equal to or greater than the last timestamp.
+            return frames.size() - 1;
+        }
+    }
+
+    private static int findIndexBinarySearch(long timeStamp, List<? extends VideoFrame<?>> frames) {
+        var low = 0;
+        var high = frames.size() - 1;
+        while (low <= high) {
+            var mid = low + ((high - low) / 2);
+            if (frames.get(mid).timestamp() == timeStamp
+                || (frames.get(mid).timestamp() < timeStamp
+                && frames.get(mid + 1).timestamp() > timeStamp)) {
+                return mid;
+            } else if (frames.get(mid).timestamp() < timeStamp) {
+                low = mid + 1;
+            } else {
+                high = mid - 1;
+            }
+        }
+        throw new IllegalStateException("This should never be reached. Timestamp: " + timeStamp + ", Frames: " + frames);
     }
 }

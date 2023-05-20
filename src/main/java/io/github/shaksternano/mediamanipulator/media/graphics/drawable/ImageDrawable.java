@@ -27,7 +27,7 @@ public class ImageDrawable implements Drawable {
 
     @Override
     public void draw(Graphics2D graphics, int x, int y, long timestamp) throws IOException {
-        BufferedImage image = resizeImage(reader.frame(timestamp).content());
+        BufferedImage image = resizeImage(reader.frameAtTime(timestamp).content());
         graphics.drawImage(image, x, y, null);
     }
 

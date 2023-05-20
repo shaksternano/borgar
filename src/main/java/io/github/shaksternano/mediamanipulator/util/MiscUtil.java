@@ -2,6 +2,7 @@ package io.github.shaksternano.mediamanipulator.util;
 
 import com.google.common.io.Closer;
 import io.github.shaksternano.mediamanipulator.Main;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +30,7 @@ public class MiscUtil {
     @SuppressWarnings("UnstableApiUsage")
     public static void closeAll(Iterable<? extends AutoCloseable> closeables) throws IOException {
         try (var closer = Closer.create()) {
-            for (var closable : closeables) {
+            for (@Nullable var closable : closeables) {
                 closer.register(AutoCloseableClosable.wrap(closable));
             }
         }

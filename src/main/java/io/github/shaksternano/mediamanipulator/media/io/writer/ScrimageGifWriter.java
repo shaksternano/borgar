@@ -30,7 +30,7 @@ public class ScrimageGifWriter extends NoAudioWriter {
     private BufferedImage previousImage;
     private boolean cannotOptimiseNext;
 
-    // For optimising duplicate sequential frames, and dealing with the minimum frame duration.
+    // For combining duplicate sequential frames, and dealing with the minimum frame duration.
     /**
      * The {@link #previousImage} after transparency optimisation.
      */

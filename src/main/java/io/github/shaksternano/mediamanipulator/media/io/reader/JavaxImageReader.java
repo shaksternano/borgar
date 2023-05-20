@@ -4,6 +4,7 @@ import com.google.common.collect.Iterators;
 import io.github.shaksternano.mediamanipulator.media.ImageFrame;
 import io.github.shaksternano.mediamanipulator.media.io.MediaReaderFactory;
 import io.github.shaksternano.mediamanipulator.util.ArrayUtil;
+import io.github.shaksternano.mediamanipulator.util.ClosableIterator;
 import org.jetbrains.annotations.NotNull;
 
 import javax.imageio.ImageIO;
@@ -11,7 +12,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Spliterator;
 import java.util.function.Consumer;
@@ -43,13 +43,18 @@ public class JavaxImageReader extends BaseMediaReader<ImageFrame> {
     }
 
     @Override
-    public ImageFrame frame(long timestamp) {
+    public ImageFrame frameAtTime(long timestamp) {
         return image;
     }
 
     @Override
     public ImageFrame first() {
         return image;
+    }
+
+    @Override
+    public MediaReader<ImageFrame> reversed() {
+        return this;
     }
 
     @Override
@@ -81,8 +86,8 @@ public class JavaxImageReader extends BaseMediaReader<ImageFrame> {
     }
 
     @Override
-    public Iterator<ImageFrame> iterator() {
-        return Iterators.singletonIterator(image);
+    public ClosableIterator<ImageFrame> iterator() {
+        return ClosableIterator.wrap(Iterators.singletonIterator(image));
     }
 
     @Override

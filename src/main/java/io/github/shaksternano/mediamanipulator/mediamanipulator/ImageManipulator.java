@@ -2,7 +2,6 @@ package io.github.shaksternano.mediamanipulator.mediamanipulator;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import io.github.shaksternano.mediamanipulator.exception.InvalidArgumentException;
 import io.github.shaksternano.mediamanipulator.exception.UnsupportedFileFormatException;
 import io.github.shaksternano.mediamanipulator.image.imagemedia.ImageMedia;
 import io.github.shaksternano.mediamanipulator.image.reader.util.ImageReaderRegistry;
@@ -62,49 +61,6 @@ public class ImageManipulator implements MediaManipulator {
     @Override
     public File resize(File media, String fileFormat, float resizeMultiplier, boolean raw, boolean rename) throws IOException {
         return applyToEachFrame(media, fileFormat, null, image -> ImageUtil.resize(image, resizeMultiplier, raw), rename ? "resized" : null);
-    }
-
-    @Override
-    public File speed(File media, String fileFormat, float speedMultiplier) throws IOException {
-        return animatedOnlyOperation(media, fileFormat, imageMedia -> {
-            if (speedMultiplier != 1) {
-                float absoluteSpeedMultiplier = Math.abs(speedMultiplier);
-                if (speedMultiplier < 0) {
-                    imageMedia = imageMedia.reverse();
-                }
-
-                ImageMediaBuilder builder = new ImageMediaBuilder();
-
-                for (Frame frame : imageMedia) {
-                    builder.add(new AwtFrame(frame.getImage(), Math.round(frame.getDuration() / absoluteSpeedMultiplier)));
-                }
-
-                ImageMedia modifiedDurations = builder.build();
-                List<BufferedImage> keptFrames = modifiedDurations.toNormalisedImages();
-
-                ImageMediaBuilder resultBuilder = new ImageMediaBuilder();
-
-                for (BufferedImage image : keptFrames) {
-                    resultBuilder.add(new AwtFrame(image, Frame.GIF_MINIMUM_FRAME_DURATION));
-                }
-
-                int duration = resultBuilder.getDuration();
-                int expectedDuration = Math.round(imageMedia.getDuration() / absoluteSpeedMultiplier);
-                if (expectedDuration > duration) {
-                    resultBuilder.increaseLastFrameDuration(expectedDuration - duration);
-                }
-
-                ImageMedia result = resultBuilder.build();
-
-                if (result.isEmpty()) {
-                    result = new ImageMediaBuilder().add(imageMedia.getFrame(0)).build();
-                }
-
-                return result;
-            } else {
-                throw new InvalidArgumentException("Speed multiplier " + speedMultiplier + " is not allowed!");
-            }
-        }, speedMultiplier == -1 ? "reversed" : "changed_speed", "Cannot change the speed of a static image.");
     }
 
     @Override

@@ -1,7 +1,10 @@
 package io.github.shaksternano.mediamanipulator.media.io.reader;
 
 import io.github.shaksternano.mediamanipulator.media.AudioFrame;
+import io.github.shaksternano.mediamanipulator.media.MediaUtil;
 import io.github.shaksternano.mediamanipulator.media.io.MediaReaderFactory;
+import io.github.shaksternano.mediamanipulator.util.ClosableIterator;
+import org.bytedeco.javacv.FFmpegFrameFilter;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.Frame;
 import org.jetbrains.annotations.Nullable;
@@ -9,6 +12,9 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public final class FFmpegAudioReader extends FFmpegMediaReader<AudioFrame> {
 
@@ -20,42 +26,29 @@ public final class FFmpegAudioReader extends FFmpegMediaReader<AudioFrame> {
         super(input, format);
     }
 
+    @Override
+    protected void setTimestamp(long timestamp, FFmpegFrameGrabber grabber) throws IOException {
+        grabber.setAudioTimestamp(timestamp);
+    }
+
     @Nullable
     @Override
     protected Frame grabFrame(FFmpegFrameGrabber grabber) throws IOException {
         return grabber.grabSamples();
     }
 
-    @Nullable
     @Override
-    protected Frame grabFrame() throws IOException {
-        return grabFrame(grabber);
-    }
-
-    @Nullable
-    @Override
-    protected AudioFrame getNextFrame(FFmpegFrameGrabber grabber) throws IOException {
-        var frame = grabFrame(grabber);
-        if (frame == null) {
-            return null;
-        } else {
-            return new AudioFrame(
-                frame,
-                frameDuration(),
-                frame.timestamp
-            );
-        }
-    }
-
-    @Nullable
-    @Override
-    protected AudioFrame getNextFrame() throws IOException {
-        return getNextFrame(grabber);
+    protected AudioFrame convertFrame(Frame frame) {
+        return new AudioFrame(
+            frame,
+            frameDuration(),
+            frame.timestamp
+        );
     }
 
     @Override
-    protected void setTimestamp(long timestamp) throws IOException {
-        grabber.setAudioTimestamp(timestamp);
+    public MediaReader<AudioFrame> reversed() throws IOException {
+        return new Reversed();
     }
 
     public enum Factory implements MediaReaderFactory<AudioFrame> {
@@ -70,6 +63,68 @@ public final class FFmpegAudioReader extends FFmpegMediaReader<AudioFrame> {
         @Override
         public MediaReader<AudioFrame> createReader(InputStream media, String format) throws IOException {
             return new FFmpegAudioReader(media, format);
+        }
+    }
+
+    private class Reversed extends BaseMediaReader<AudioFrame> {
+
+        private final List<AudioFrame> reversedFrames;
+
+        private Reversed() throws IOException {
+            super(FFmpegAudioReader.this.format());
+            frameRate = FFmpegAudioReader.this.frameRate;
+            frameCount = FFmpegAudioReader.this.frameCount;
+            duration = FFmpegAudioReader.this.duration;
+            frameDuration = FFmpegAudioReader.this.frameDuration;
+            audioChannels = FFmpegAudioReader.this.audioChannels;
+            width = FFmpegAudioReader.this.width;
+            height = FFmpegAudioReader.this.height;
+            reversedFrames = reverseFrames();
+        }
+
+        private List<AudioFrame> reverseFrames() throws IOException {
+            try (
+                var iterator = FFmpegAudioReader.this.iterator();
+                var reverseFilter = new FFmpegFrameFilter("areverse", FFmpegAudioReader.this.audioChannels())
+            ) {
+                reverseFilter.start();
+                var sampleRate = -1;
+                while (iterator.hasNext()) {
+                    var frame = iterator.next();
+                    reverseFilter.push(frame.content());
+                    if (sampleRate < 0) {
+                        sampleRate = frame.content().sampleRate;
+                    }
+                }
+                List<AudioFrame> reversedFrames = new ArrayList<>(frameCount);
+                Frame reversedFrame;
+                while ((reversedFrame = reverseFilter.pullSamples()) != null) {
+                    // The sample rate gets messed up by the filter, so we reset it.
+                    reversedFrame.sampleRate = sampleRate;
+                    reversedFrames.add(new AudioFrame(reversedFrame.clone(), frameDuration(), reversedFrame.timestamp));
+                }
+                return Collections.unmodifiableList(reversedFrames);
+            }
+        }
+
+        @Override
+        public AudioFrame frameAtTime(long timestamp) {
+            return MediaUtil.frameAtTime(timestamp, reversedFrames, duration);
+        }
+
+        @Override
+        public MediaReader<AudioFrame> reversed() {
+            return FFmpegAudioReader.this;
+        }
+
+        @Override
+        public void close() throws IOException {
+            FFmpegAudioReader.this.close();
+        }
+
+        @Override
+        public ClosableIterator<AudioFrame> iterator() {
+            return ClosableIterator.wrap(reversedFrames.iterator());
         }
     }
 }

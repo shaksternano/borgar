@@ -17,8 +17,6 @@ public interface MediaManipulator {
 
     File resize(File media, String fileFormat, float resizeMultiplier, boolean raw, boolean rename) throws IOException;
 
-    File speed(File media, String fileFormat, float speedMultiplier) throws IOException;
-
     File reduceFps(File media, String fileFormat, int fpsReductionRatio, boolean rename) throws IOException;
 
     File spin(File media, String fileFormat, float speed, @Nullable Color backgroundColor) throws IOException;

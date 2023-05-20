@@ -1,5 +1,7 @@
 package io.github.shaksternano.mediamanipulator.media.io.reader;
 
+import io.github.shaksternano.mediamanipulator.media.VideoFrame;
+import io.github.shaksternano.mediamanipulator.util.ClosableIterator;
 import io.github.shaksternano.mediamanipulator.util.Either;
 import io.github.shaksternano.mediamanipulator.util.MiscUtil;
 import org.apache.commons.io.IOUtils;
@@ -9,15 +11,14 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-public abstract sealed class FFmpegMediaReader<E> extends BaseMediaReader<E> permits FFmpegImageReader, FFmpegAudioReader {
+public abstract sealed class FFmpegMediaReader<E extends VideoFrame<?>> extends BaseMediaReader<E> permits FFmpegImageReader, FFmpegAudioReader {
 
     private final Either<File, byte[]> input;
     protected final FFmpegFrameGrabber grabber;
-    protected final List<Closeable> toClose = new ArrayList<>();
+    protected final List<AutoCloseable> toClose = new ArrayList<>();
     private boolean closed = false;
 
     public FFmpegMediaReader(File input, String format) throws IOException {
@@ -42,7 +43,7 @@ public abstract sealed class FFmpegMediaReader<E> extends BaseMediaReader<E> per
         grabber.start();
         int frameCount = 0;
         Frame frame;
-        while ((frame = grabFrame()) != null) {
+        while ((frame = grabFrame(grabber)) != null) {
             frameCount++;
             frame.close();
         }
@@ -56,52 +57,73 @@ public abstract sealed class FFmpegMediaReader<E> extends BaseMediaReader<E> per
         grabber.setTimestamp(0);
     }
 
-    private FFmpegFrameGrabber createGrabber() {
+    protected FFmpegFrameGrabber createGrabber() {
         return input.mapRight(ByteArrayInputStream::new)
             .map(FFmpegFrameGrabber::new, FFmpegFrameGrabber::new);
     }
+
+    @Override
+    public E frameAtTime(long timestamp) throws IOException {
+        long circularTimestamp = timestamp % Math.max(duration(), 1);
+        return frameNonCircular(circularTimestamp, grabber);
+    }
+
+    protected E frameAtTime(long timestamp, FFmpegFrameGrabber grabber) throws IOException {
+        long circularTimestamp = timestamp % Math.max(duration() + 1, 1);
+        return frameNonCircular(circularTimestamp, grabber);
+    }
+
+    @Override
+    public E first() throws IOException {
+        return frameNonCircular(0, grabber);
+    }
+
+    private E frameNonCircular(long timestamp, FFmpegFrameGrabber grabber) throws IOException {
+        var frame = findFrame(timestamp, grabber);
+        return convertFrame(frame);
+    }
+
+    private Frame findFrame(long timestamp, FFmpegFrameGrabber grabber) throws IOException {
+        setTimestamp(timestamp, grabber);
+        var frame = grabFrame(grabber);
+        if (frame == null) {
+            throw new NoSuchElementException("No frame at timestamp " + timestamp);
+        }
+        // The next call to grabFrame() will overwrite the current frame object, so we need to clone it
+        var correctFrame = frame.clone();
+        // The frame grabbed might not have the exact timestamp, even if there is a frame with that timestamp.
+        // We keep grabbing frames, until we find one with a timestamp greater or equal to the requested timestamp.
+        while (correctFrame.timestamp < timestamp) {
+            var newFrame = grabFrame(grabber);
+            if (newFrame == null || newFrame.timestamp > timestamp) {
+                return correctFrame;
+            }
+            correctFrame.close();
+            correctFrame = newFrame;
+        }
+        return correctFrame;
+    }
+
+    protected abstract void setTimestamp(long timestamp, FFmpegFrameGrabber grabber) throws IOException;
 
     @Nullable
     protected abstract Frame grabFrame(FFmpegFrameGrabber grabber) throws IOException;
 
     @Nullable
-    protected abstract Frame grabFrame() throws IOException;
-
-    @Nullable
-    protected abstract E getNextFrame(FFmpegFrameGrabber grabber) throws IOException;
-
-    @Nullable
-    protected abstract E getNextFrame() throws IOException;
-
-    @Override
-    public E frame(long timestamp) throws IOException {
-        long circularTimestamp = timestamp % Math.max(duration(), 1);
-        return frameNonCircular(circularTimestamp);
-    }
-
-    @Override
-    public E first() throws IOException {
-        return frameNonCircular(0);
-    }
-
-    private E frameNonCircular(long timestamp) throws IOException {
-        setTimestamp(timestamp);
-        E frame = getNextFrame();
+    protected E grabConvertedFrame(FFmpegFrameGrabber grabber) throws IOException {
+        var frame = grabFrame(grabber);
         if (frame == null) {
-            throw new NoSuchElementException("No frame at timestamp " + timestamp);
-        } else {
-            return frame;
+            return null;
         }
+        return convertFrame(frame);
     }
 
-    protected abstract void setTimestamp(long timestamp) throws IOException;
+    protected abstract E convertFrame(Frame frame);
 
     @Override
-    public Iterator<E> iterator() {
+    public ClosableIterator<E> iterator() {
         try {
-            var iterator = new FFmpegMediaIterator();
-            toClose.add(iterator);
-            return iterator;
+            return new FFmpegMediaIterator();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -116,16 +138,17 @@ public abstract sealed class FFmpegMediaReader<E> extends BaseMediaReader<E> per
         MiscUtil.closeAll(toClose);
     }
 
-    private class FFmpegMediaIterator implements Iterator<E>, Closeable {
+    private class FFmpegMediaIterator implements ClosableIterator<E> {
 
         private final FFmpegFrameGrabber grabber;
         @Nullable
         private E nextFrame;
+        private boolean closed = false;
 
         private FFmpegMediaIterator() throws IOException {
             grabber = createGrabber();
             grabber.start();
-            nextFrame = getNextFrame(grabber);
+            nextFrame = grabConvertedFrame(grabber);
         }
 
         @Override
@@ -140,7 +163,7 @@ public abstract sealed class FFmpegMediaReader<E> extends BaseMediaReader<E> per
             }
             E frame = nextFrame;
             try {
-                nextFrame = getNextFrame(grabber);
+                nextFrame = grabConvertedFrame(grabber);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
@@ -149,7 +172,10 @@ public abstract sealed class FFmpegMediaReader<E> extends BaseMediaReader<E> per
 
         @Override
         public void close() throws IOException {
-            grabber.close();
+            if (!closed) {
+                closed = true;
+                grabber.close();
+            }
         }
     }
 }

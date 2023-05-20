@@ -1,14 +1,16 @@
 package io.github.shaksternano.mediamanipulator.command;
 
 import com.google.common.collect.ListMultimap;
-import io.github.shaksternano.mediamanipulator.mediamanipulator.MediaManipulator;
+import io.github.shaksternano.mediamanipulator.io.NamedFile;
+import io.github.shaksternano.mediamanipulator.media.MediaUtil;
+import io.github.shaksternano.mediamanipulator.media.io.Imageprocessor.SpeedProcessor;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-public class ReverseCommand extends MediaCommand {
+public class ReverseCommand extends FileCommand {
 
     /**
      * Creates a new command object.
@@ -22,7 +24,16 @@ public class ReverseCommand extends MediaCommand {
     }
 
     @Override
-    public File applyOperation(File media, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MediaManipulator manipulator, MessageReceivedEvent event) throws IOException {
-        return manipulator.speed(media, fileFormat, -1);
+    protected NamedFile modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
+        return new NamedFile(
+            MediaUtil.processMedia(
+                file,
+                fileFormat,
+                "reversed",
+                new SpeedProcessor(-1)
+            ),
+            "reversed",
+            fileFormat
+        );
     }
 }

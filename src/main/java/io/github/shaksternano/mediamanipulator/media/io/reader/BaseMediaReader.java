@@ -5,9 +5,10 @@ import io.github.shaksternano.mediamanipulator.util.IterableUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
 
 public abstract class BaseMediaReader<E> extends AbstractCollection<E> implements MediaReader<E> {
 
@@ -68,7 +69,7 @@ public abstract class BaseMediaReader<E> extends AbstractCollection<E> implement
 
     @Override
     public E first() throws IOException {
-        return frame(0);
+        return frameAtTime(0);
     }
 
     @Override
@@ -107,13 +108,20 @@ public abstract class BaseMediaReader<E> extends AbstractCollection<E> implement
     }
 
     @Override
-    public Spliterator<E> spliterator() {
-        return Spliterators.spliterator(this, SPLITERATOR_CHARACTERISTICS);
+    public void forEach(Consumer<? super E> action) {
+        Objects.requireNonNull(action);
+        try (var iterator = iterator()) {
+            while (iterator.hasNext()) {
+                action.accept(iterator.next());
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     @Override
-    public Stream<E> parallelStream() {
-        return stream().parallel();
+    public Spliterator<E> spliterator() {
+        return Spliterators.spliterator(this, SPLITERATOR_CHARACTERISTICS);
     }
 
     @Override

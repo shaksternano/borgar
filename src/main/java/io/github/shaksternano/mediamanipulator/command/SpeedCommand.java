@@ -3,12 +3,10 @@ package io.github.shaksternano.mediamanipulator.command;
 import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.command.util.CommandParser;
 import io.github.shaksternano.mediamanipulator.io.NamedFile;
-import io.github.shaksternano.mediamanipulator.media.ImageFrame;
 import io.github.shaksternano.mediamanipulator.media.MediaUtil;
-import io.github.shaksternano.mediamanipulator.media.io.Imageprocessor.SingleImageProcessor;
+import io.github.shaksternano.mediamanipulator.media.io.Imageprocessor.SpeedProcessor;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -38,29 +36,15 @@ public class SpeedCommand extends FileCommand {
             event.getChannel(),
             (argument, defaultValue) -> "Speed multiplier \"" + argument + "\" is not a number. Using default value of " + defaultValue + "."
         );
-        var processor = new SpeedProcessor(speedMultiplier);
         return new NamedFile(
-            MediaUtil.processMedia(file, fileFormat, "changed_speed", processor),
+            MediaUtil.processMedia(
+                file,
+                fileFormat,
+                "changed_speed",
+                new SpeedProcessor(speedMultiplier)
+            ),
             "changed_speed",
             fileFormat
         );
-    }
-
-    private record SpeedProcessor(float speed) implements SingleImageProcessor<Boolean> {
-
-        @Override
-        public BufferedImage transformImage(ImageFrame frame, Boolean constantData) {
-            return frame.content();
-        }
-
-        @Override
-        public Boolean constantData(BufferedImage image) {
-            return true;
-        }
-
-        @Override
-        public float speed() {
-            return speed;
-        }
     }
 }
