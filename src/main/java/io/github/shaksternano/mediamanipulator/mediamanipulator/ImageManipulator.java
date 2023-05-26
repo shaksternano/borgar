@@ -7,7 +7,6 @@ import io.github.shaksternano.mediamanipulator.image.imagemedia.ImageMedia;
 import io.github.shaksternano.mediamanipulator.image.reader.util.ImageReaderRegistry;
 import io.github.shaksternano.mediamanipulator.image.reader.util.ImageReaders;
 import io.github.shaksternano.mediamanipulator.image.util.AwtFrame;
-import io.github.shaksternano.mediamanipulator.image.util.Frame;
 import io.github.shaksternano.mediamanipulator.image.util.ImageMediaBuilder;
 import io.github.shaksternano.mediamanipulator.image.writer.util.ImageWriterRegistry;
 import io.github.shaksternano.mediamanipulator.image.writer.util.ImageWriters;
@@ -19,15 +18,11 @@ import io.github.shaksternano.mediamanipulator.util.MediaCompression;
 import net.dv8tion.jda.api.entities.Guild;
 import org.jetbrains.annotations.Nullable;
 
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -72,62 +67,6 @@ public class ImageManipulator implements MediaManipulator {
             rename ? "reduced_fps" : null,
             "Cannot reduce the FPS of a static image."
         );
-    }
-
-    @SuppressWarnings("UnusedAssignment")
-    @Override
-    public File spin(File media, String fileFormat, float speed, @Nullable Color backgroundColor) throws IOException {
-        ImageMedia image = ImageReaders.read(media, fileFormat, BufferedImage.TYPE_INT_ARGB);
-        List<BufferedImage> keptImages = image.toNormalisedImages();
-
-        image = null;
-
-        BufferedImage firstFrame = keptImages.get(0);
-
-        int maxDimension = Math.max(firstFrame.getWidth(), firstFrame.getHeight());
-        float absoluteSpeed = Math.abs(speed);
-
-        int framesPerRotation = 150;
-        if (absoluteSpeed >= 1) {
-            framesPerRotation = Math.max((int) (framesPerRotation / absoluteSpeed), 1);
-        }
-
-        int size = framesPerRotation * ((keptImages.size() + (framesPerRotation - 1)) / framesPerRotation);
-        Map<Integer, Frame> indexedFrames = new LinkedHashMap<>(size);
-        for (int i = 0; i < size; i++) {
-            int duration = Frame.GIF_MINIMUM_FRAME_DURATION;
-            if (absoluteSpeed < 1) {
-                duration /= absoluteSpeed;
-            }
-
-            indexedFrames.put(i, new AwtFrame(keptImages.get(i % keptImages.size()), duration));
-        }
-
-        keptImages = null;
-
-        final int finalFramesPerRotation = framesPerRotation;
-        List<Frame> rotatedFrames = indexedFrames.entrySet().parallelStream().map(frameEntry -> {
-            float index = frameEntry.getKey();
-            Frame originalFrame = frameEntry.getValue();
-            BufferedImage originalImage = originalFrame.getImage();
-            float angle = 360 * (index / finalFramesPerRotation);
-
-            if (speed < 0) {
-                angle = -angle;
-            }
-
-            BufferedImage rotatedImage = ImageUtil.rotate(originalImage, angle, maxDimension, maxDimension, backgroundColor, BufferedImage.TYPE_INT_ARGB);
-            Frame frame = new AwtFrame(rotatedImage, originalFrame.getDuration());
-            originalFrame.flush();
-            return frame;
-        }).collect(ImmutableList.toImmutableList());
-        ImageMedia rotatedImage = ImageMediaBuilder.fromCollection(rotatedFrames);
-
-        File outputFile = FileUtil.getUniqueTempFile("spun.gif");
-
-        ImageWriters.write(rotatedImage, outputFile, "gif");
-
-        return outputFile;
     }
 
     @Override

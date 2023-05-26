@@ -231,12 +231,29 @@ public class MediaUtil {
         }
     }
 
-    private static boolean isJpg(String format) {
-        return format.equalsIgnoreCase("jpg") || format.equalsIgnoreCase("jpeg");
+    public static int supportedTransparentImageType(BufferedImage image, String format) {
+        return supportsTransparency(format) ? BufferedImage.TYPE_INT_ARGB : ImageUtil.getType(image);
     }
 
-    public static boolean supportsTransparency(String format) {
-        return format.equalsIgnoreCase("png") || format.equalsIgnoreCase("gif");
+    private static boolean supportsTransparency(String format) {
+        return equalsIgnoreCaseAny(format, "png", "gif");
+    }
+
+    private static boolean isJpg(String format) {
+        return equalsIgnoreCaseAny(format, "jpg", "jpeg");
+    }
+
+    public static boolean isStaticOnly(String format) {
+        return equalsIgnoreCaseAny(format, "jpg", "jpeg", "png");
+    }
+
+    private static boolean equalsIgnoreCaseAny(String string, String... toCompare) {
+        for (var compare : toCompare) {
+            if (string.equalsIgnoreCase(compare)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static <E extends VideoFrame<?>> E frameAtTime(long timestamp, List<E> frames, long duration) {

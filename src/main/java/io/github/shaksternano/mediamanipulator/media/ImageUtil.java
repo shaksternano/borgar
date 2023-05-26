@@ -402,17 +402,17 @@ public class ImageUtil {
 
     public static BufferedImage rotate(
         BufferedImage image,
-        float angle,
+        double radians,
         @Nullable Integer newWidth,
         @Nullable Integer newHeight,
         @Nullable Color backgroundColor,
         int resultType
     ) {
-        double sin = Math.abs(Math.sin(Math.toRadians(angle)));
-        double cos = Math.abs(Math.cos(Math.toRadians(angle)));
+        var sin = Math.abs(Math.sin(radians));
+        var cos = Math.abs(Math.cos(radians));
 
-        int width = image.getWidth();
-        int height = image.getHeight();
+        var width = image.getWidth();
+        var height = image.getHeight();
 
         if (newWidth == null) {
             newWidth = (int) Math.floor(width * cos + height * sin);
@@ -422,8 +422,8 @@ public class ImageUtil {
             newHeight = (int) Math.floor(height * cos + width * sin);
         }
 
-        BufferedImage rotated = new BufferedImage(newWidth, newHeight, resultType);
-        Graphics2D graphics = rotated.createGraphics();
+        var rotated = new BufferedImage(newWidth, newHeight, resultType);
+        var graphics = rotated.createGraphics();
 
         if (backgroundColor != null) {
             graphics.setColor(backgroundColor);
@@ -431,7 +431,7 @@ public class ImageUtil {
         }
 
         graphics.translate((newWidth - width) / 2, (newHeight - height) / 2);
-        graphics.rotate(Math.toRadians(angle), width / 2F, height / 2F);
+        graphics.rotate(radians, width / 2F, height / 2F);
         graphics.drawRenderedImage(image, null);
         graphics.dispose();
 

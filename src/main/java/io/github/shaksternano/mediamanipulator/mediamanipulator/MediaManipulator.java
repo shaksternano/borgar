@@ -4,7 +4,6 @@ import io.github.shaksternano.mediamanipulator.exception.UnsupportedFileFormatEx
 import net.dv8tion.jda.api.entities.Guild;
 import org.jetbrains.annotations.Nullable;
 
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -18,8 +17,6 @@ public interface MediaManipulator {
     File resize(File media, String fileFormat, float resizeMultiplier, boolean raw, boolean rename) throws IOException;
 
     File reduceFps(File media, String fileFormat, int fpsReductionRatio, boolean rename) throws IOException;
-
-    File spin(File media, String fileFormat, float speed, @Nullable Color backgroundColor) throws IOException;
 
     File compress(File media, String fileFormat, @Nullable Guild guild) throws IOException;
 

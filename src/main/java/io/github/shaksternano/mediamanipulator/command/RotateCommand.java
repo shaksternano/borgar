@@ -31,7 +31,7 @@ public class RotateCommand extends FileCommand {
 
     @Override
     protected NamedFile modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
-        float rotation = CommandParser.parseFloatArgument(
+        var rotationDegrees = CommandParser.parseFloatArgument(
             arguments,
             0,
             DEFAULT_ROTATION,
@@ -39,7 +39,7 @@ public class RotateCommand extends FileCommand {
             event.getChannel(),
             (argument, defaultValue) -> "Rotation \"" + argument + "\" is not a number. Using default value of " + defaultValue + "."
         );
-        int rgb = CommandParser.parseIntegerArgument(
+        var rgb = CommandParser.parseIntegerArgument(
             arguments,
             1,
             -1,
@@ -47,22 +47,23 @@ public class RotateCommand extends FileCommand {
             event.getChannel(),
             (argument, defaultValue) -> "RGB value \"" + argument + "\" is not a whole number. Setting transparent background color."
         );
-        Color backgroundColor = rgb < 0 ? null : new Color(rgb);
-        String outputFormat = MediaUtil.equivalentTransparentFormat(fileFormat);
+        var backgroundColor = rgb < 0 ? null : new Color(rgb);
+        var outputFormat = MediaUtil.equivalentTransparentFormat(fileFormat);
         return new NamedFile(
             MediaUtil.processMedia(
                 file,
                 outputFormat,
                 "rotated",
-                image -> rotate(image, rotation, backgroundColor, outputFormat)
+                image -> rotate(image, rotationDegrees, backgroundColor, outputFormat)
             ),
             "rotated",
             outputFormat
         );
     }
 
-    private static BufferedImage rotate(BufferedImage image, float degrees, @Nullable Color backgroundColor, String format) {
-        int resultType = MediaUtil.supportsTransparency(format) ? BufferedImage.TYPE_INT_ARGB : ImageUtil.getType(image);
-        return ImageUtil.rotate(image, degrees, null, null, backgroundColor, resultType);
+    private static BufferedImage rotate(BufferedImage image, double degrees, @Nullable Color backgroundColor, String format) {
+        var resultType = MediaUtil.supportedTransparentImageType(image, format);
+        var radians = Math.toRadians(degrees);
+        return ImageUtil.rotate(image, radians, null, null, backgroundColor, resultType);
     }
 }
