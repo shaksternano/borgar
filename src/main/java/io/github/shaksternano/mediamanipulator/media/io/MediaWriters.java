@@ -22,24 +22,25 @@ public class MediaWriters {
 
     private static void registerWriterFactory(MediaWriterFactory factory, String... formats) {
         for (String format : formats) {
-            writerFactories.put(format.toLowerCase(), factory);
+            writerFactories.putIfAbsent(format.toLowerCase(), factory);
         }
     }
 
     static {
         registerWriterFactory(
-            (output, outputFormat, audioChannels) -> new ScrimageGifWriter(output),
-            "gif"
+                (output, outputFormat, audioChannels) -> new ScrimageGifWriter(output),
+                "gif"
         );
         registerWriterFactory(
-            (output, outputFormat, audioChannels) -> new JavaxImageWriter(output, outputFormat),
-            "bmp",
-            "jpeg",
-            "jpg",
-            "wbmp",
-            "png",
-            "tif",
-            "tiff"
+                (output, outputFormat, audioChannels) -> new JavaxImageWriter(output, outputFormat),
+                "bmp",
+                "jpeg",
+                "jpg",
+                "wbmp",
+                "png",
+                "gif",
+                "tif",
+                "tiff"
         );
     }
 }

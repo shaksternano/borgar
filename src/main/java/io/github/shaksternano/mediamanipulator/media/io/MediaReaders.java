@@ -46,14 +46,14 @@ public class MediaReaders {
 
     private static void registerImageReaderFactory(MediaReaderFactory<ImageFrame> factory, String... formats) {
         for (String format : formats) {
-            imageReaderFactories.put(format.toLowerCase(), factory);
+            imageReaderFactories.putIfAbsent(format.toLowerCase(), factory);
         }
     }
 
     @SuppressWarnings("SameParameterValue")
     private static void registerAudioReaderFactory(MediaReaderFactory<AudioFrame> factory, String... formats) {
         for (String format : formats) {
-            audioReaderFactories.put(format.toLowerCase(), factory);
+            audioReaderFactories.putIfAbsent(format.toLowerCase(), factory);
         }
     }
 
@@ -63,15 +63,18 @@ public class MediaReaders {
     }
 
     static {
-        registerImageOnlyReaderFactory(ScrimageGifReader.Factory.INSTANCE, "gif");
+        registerImageOnlyReaderFactory(ScrimageGifReader.Factory.INSTANCE,
+                "gif"
+        );
         registerImageOnlyReaderFactory(JavaxImageReader.Factory.INSTANCE,
-            "bmp",
-            "jpeg",
-            "jpg",
-            "wbmp",
-            "png",
-            "tif",
-            "tiff"
+                "bmp",
+                "jpeg",
+                "jpg",
+                "wbmp",
+                "png",
+                "gif",
+                "tif",
+                "tiff"
         );
     }
 }
