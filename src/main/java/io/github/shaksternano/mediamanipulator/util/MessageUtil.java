@@ -167,10 +167,10 @@ public class MessageUtil {
 
     private static <T> CompletableFuture<Optional<T>> processPreviousMessages(Message message, Function<Message, CompletableFuture<Optional<T>>> operation) {
         return message.getChannel()
-            .getHistory()
-            .retrievePast(MAX_PAST_MESSAGES_TO_CHECK)
+            .getHistoryBefore(message, MAX_PAST_MESSAGES_TO_CHECK)
             .submit()
-            .thenCompose(previousMessages -> CompletableFutureUtil.all(previousMessages.stream()
+            .thenCompose(history -> CompletableFutureUtil.all(history.getRetrievedHistory()
+                .stream()
                 .map(operation)
                 .toList()
             ))
