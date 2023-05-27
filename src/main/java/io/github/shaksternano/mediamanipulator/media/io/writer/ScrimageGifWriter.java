@@ -84,25 +84,26 @@ public class ScrimageGifWriter extends NoAudioWriter {
                 }
             }
 
+            var frameDuration = frame.duration();
             if (pendingWrite == null) {
                 previousImage = currentImage;
 
                 pendingWrite = toWrite;
-                pendingDuration = frame.duration();
+                pendingDuration = frameDuration;
                 pendingDisposeMethod = disposeMethod;
             } else {
                 // Handle the minimum frame duration.
                 var remainingDuration = GIF_MINIMUM_FRAME_DURATION - pendingDuration;
-                if (remainingDuration < frame.duration()) {
-                    writeFrameMinimumDuration();
+                if (remainingDuration < frameDuration) {
+                    writeFrame();
 
                     previousImage = currentImage;
 
                     pendingWrite = toWrite;
-                    pendingDuration = frame.duration() - remainingDuration;
+                    pendingDuration = frameDuration - remainingDuration;
                     pendingDisposeMethod = disposeMethod;
                 } else {
-                    pendingDuration += frame.duration();
+                    pendingDuration += frameDuration;
                 }
             }
         }
@@ -114,7 +115,7 @@ public class ScrimageGifWriter extends NoAudioWriter {
             closed = true;
             try {
                 if (pendingWrite != null) {
-                    writeFrameMinimumDuration();
+                    writeFrame();
                 }
                 gif.close();
             } catch (IOException e) {
@@ -171,11 +172,6 @@ public class ScrimageGifWriter extends NoAudioWriter {
     private void writeFrame() throws IOException {
         checkPendingFrame();
         writeFrame(gif, pendingWrite, pendingDuration, pendingDisposeMethod);
-    }
-
-    private void writeFrameMinimumDuration() throws IOException {
-        checkPendingFrame();
-        writeFrame(gif, pendingWrite, GIF_MINIMUM_FRAME_DURATION, pendingDisposeMethod);
     }
 
     private void checkPendingFrame() {
