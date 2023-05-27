@@ -1,9 +1,9 @@
 package io.github.shaksternano.mediamanipulator.media;
 
 import io.github.shaksternano.mediamanipulator.io.FileUtil;
-import io.github.shaksternano.mediamanipulator.media.io.Imageprocessor.BasicImageProcessor;
-import io.github.shaksternano.mediamanipulator.media.io.Imageprocessor.DualImageProcessor;
-import io.github.shaksternano.mediamanipulator.media.io.Imageprocessor.SingleImageProcessor;
+import io.github.shaksternano.mediamanipulator.media.io.imageprocessor.BasicImageProcessor;
+import io.github.shaksternano.mediamanipulator.media.io.imageprocessor.DualImageProcessor;
+import io.github.shaksternano.mediamanipulator.media.io.imageprocessor.SingleImageProcessor;
 import io.github.shaksternano.mediamanipulator.media.io.MediaReaders;
 import io.github.shaksternano.mediamanipulator.media.io.MediaWriters;
 import io.github.shaksternano.mediamanipulator.media.io.reader.MediaReader;

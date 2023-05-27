@@ -9,7 +9,7 @@ import io.github.shaksternano.mediamanipulator.media.MediaUtil;
 import io.github.shaksternano.mediamanipulator.media.graphics.TextAlignment;
 import io.github.shaksternano.mediamanipulator.media.graphics.drawable.Drawable;
 import io.github.shaksternano.mediamanipulator.media.graphics.drawable.ParagraphCompositeDrawable;
-import io.github.shaksternano.mediamanipulator.media.io.Imageprocessor.SingleImageProcessor;
+import io.github.shaksternano.mediamanipulator.media.io.imageprocessor.SingleImageProcessor;
 import io.github.shaksternano.mediamanipulator.util.MessageUtil;
 import io.github.shaksternano.mediamanipulator.util.MiscUtil;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;

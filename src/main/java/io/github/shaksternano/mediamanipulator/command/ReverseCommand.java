@@ -3,7 +3,7 @@ package io.github.shaksternano.mediamanipulator.command;
 import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.io.NamedFile;
 import io.github.shaksternano.mediamanipulator.media.MediaUtil;
-import io.github.shaksternano.mediamanipulator.media.io.Imageprocessor.SpeedProcessor;
+import io.github.shaksternano.mediamanipulator.media.io.imageprocessor.SpeedProcessor;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.io.File;

@@ -7,7 +7,7 @@ import io.github.shaksternano.mediamanipulator.exception.MissingArgumentExceptio
 import io.github.shaksternano.mediamanipulator.io.NamedFile;
 import io.github.shaksternano.mediamanipulator.media.ImageFrame;
 import io.github.shaksternano.mediamanipulator.media.MediaUtil;
-import io.github.shaksternano.mediamanipulator.media.io.Imageprocessor.SingleImageProcessor;
+import io.github.shaksternano.mediamanipulator.media.io.imageprocessor.SingleImageProcessor;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 

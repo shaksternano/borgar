@@ -1,4 +1,4 @@
-package io.github.shaksternano.mediamanipulator.media.io.Imageprocessor;
+package io.github.shaksternano.mediamanipulator.media.io.imageprocessor;
 
 import io.github.shaksternano.mediamanipulator.media.ImageFrame;
 
