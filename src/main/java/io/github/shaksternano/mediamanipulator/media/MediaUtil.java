@@ -119,22 +119,21 @@ public class MediaUtil {
     ) throws IOException {
         var output = FileUtil.createTempFile(resultName, outputFormat);
         var zippedImageReader = new ZippedMediaReader<>(imageReader1, imageReader2);
-        var zippedAudioReader = new ZippedMediaReader<>(audioReader1, imageReader2, true);
         if (processor.speed() < 0) {
             zippedImageReader = zippedImageReader.reversed();
-            zippedAudioReader = zippedAudioReader.reversed();
+            audioReader1 = audioReader1.reversed();
         }
         try (
             processor;
             var finalZippedImageReader = zippedImageReader;
-            var finalZippedAudioReader = zippedAudioReader;
+            var finalAudioReader = audioReader1;
             var writer = MediaWriters.createWriter(
                 output,
                 outputFormat,
-                audioReader1.audioChannels()
+                finalAudioReader.audioChannels()
             );
             var zippedImageIterator = finalZippedImageReader.iterator();
-            var zippedAudioIterator = finalZippedAudioReader.iterator()
+            var audioIterator = finalAudioReader.iterator()
         ) {
             T constantFrameDataValue = null;
             while (zippedImageIterator.hasNext()) {
@@ -152,9 +151,8 @@ public class MediaUtil {
                     processor.absoluteSpeed()
                 ));
             }
-            while (zippedAudioIterator.hasNext()) {
-                var framePair = zippedAudioIterator.next();
-                var audioFrame = framePair.first();
+            while (audioIterator.hasNext()) {
+                var audioFrame = audioIterator.next();
                 writer.recordAudioFrame(audioFrame.transform(processor.absoluteSpeed()));
             }
             return output;
