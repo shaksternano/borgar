@@ -1,11 +1,11 @@
 package io.github.shaksternano.mediamanipulator.media;
 
 import io.github.shaksternano.mediamanipulator.io.FileUtil;
+import io.github.shaksternano.mediamanipulator.media.io.MediaReaders;
+import io.github.shaksternano.mediamanipulator.media.io.MediaWriters;
 import io.github.shaksternano.mediamanipulator.media.io.imageprocessor.BasicImageProcessor;
 import io.github.shaksternano.mediamanipulator.media.io.imageprocessor.DualImageProcessor;
 import io.github.shaksternano.mediamanipulator.media.io.imageprocessor.SingleImageProcessor;
-import io.github.shaksternano.mediamanipulator.media.io.MediaReaders;
-import io.github.shaksternano.mediamanipulator.media.io.MediaWriters;
 import io.github.shaksternano.mediamanipulator.media.io.reader.MediaReader;
 import io.github.shaksternano.mediamanipulator.media.io.reader.ZippedMediaReader;
 
@@ -234,15 +234,29 @@ public class MediaUtil {
     }
 
     private static boolean supportsTransparency(String format) {
-        return equalsIgnoreCaseAny(format, "png", "gif");
+        return equalsIgnoreCaseAny(format,
+            "png",
+            "gif"
+        );
     }
 
     private static boolean isJpg(String format) {
-        return equalsIgnoreCaseAny(format, "jpg", "jpeg");
+        return equalsIgnoreCaseAny(format,
+            "jpg",
+            "jpeg"
+        );
     }
 
     public static boolean isStaticOnly(String format) {
-        return equalsIgnoreCaseAny(format, "jpg", "jpeg", "png");
+        return equalsIgnoreCaseAny(format,
+            "bmp",
+            "jpeg",
+            "jpg",
+            "wbmp",
+            "png",
+            "tif",
+            "tiff"
+        );
     }
 
     private static boolean equalsIgnoreCaseAny(String string, String... toCompare) {
