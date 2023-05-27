@@ -8,6 +8,7 @@ import io.github.shaksternano.mediamanipulator.command.Command;
 import io.github.shaksternano.mediamanipulator.exception.InvalidArgumentException;
 import io.github.shaksternano.mediamanipulator.exception.MissingArgumentException;
 import io.github.shaksternano.mediamanipulator.util.DiscordUtil;
+import io.github.shaksternano.mediamanipulator.util.FloatPredicate;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
+import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 
 /**
@@ -155,11 +157,11 @@ public class CommandParser {
         return argumentsBuilder.build();
     }
 
-    public static int parseIntegerArgument(List<String> arguments, int toParseIndex, int defaultValue, @Nullable Predicate<Integer> constraint, MessageChannel triggerChannel, BiFunction<String, String, String> errorMessage) {
+    public static int parseIntegerArgument(List<String> arguments, int toParseIndex, int defaultValue, @Nullable IntPredicate constraint, MessageChannel triggerChannel, BiFunction<String, String, String> errorMessage) {
         if (arguments.size() > toParseIndex) {
             var argument = arguments.get(toParseIndex);
             try {
-                var result = Integer.decode(argument);
+                int result = Integer.decode(argument);
                 if (constraint == null || constraint.test(result)) {
                     return result;
                 }
@@ -171,7 +173,7 @@ public class CommandParser {
         return defaultValue;
     }
 
-    public static float parseFloatArgument(List<String> arguments, int toParseIndex, float defaultValue, @Nullable Predicate<Float> constraint, MessageChannel triggerChannel, BiFunction<String, String, String> errorMessage) {
+    public static float parseFloatArgument(List<String> arguments, int toParseIndex, float defaultValue, @Nullable FloatPredicate constraint, MessageChannel triggerChannel, BiFunction<String, String, String> errorMessage) {
         if (arguments.size() > toParseIndex) {
             var argument = arguments.get(toParseIndex);
             try {
