@@ -156,12 +156,9 @@ public class MessageUtil {
     }
 
     private static <T> CompletableFuture<Optional<T>> processEmbedLinkedMessage(Message message, Function<Message, CompletableFuture<Optional<T>>> operation) {
-        return getEmbedLinkedMessage(message).thenCompose(linkedMessage -> {
-            if (linkedMessage.isPresent()) {
-                return operation.apply(linkedMessage.orElseThrow());
-            }
-            return CompletableFuture.completedFuture(Optional.empty());
-        });
+        return getEmbedLinkedMessage(message).thenCompose(linkedMessage -> linkedMessage.map(operation)
+            .orElseGet(() -> CompletableFuture.completedFuture(Optional.empty()))
+        );
     }
 
     private static <T> CompletableFuture<Optional<T>> processMessage(Message message, Function<Message, CompletableFuture<Optional<T>>> operation) {
