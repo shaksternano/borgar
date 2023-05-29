@@ -180,12 +180,15 @@ public class Main {
      * Terminates the program.
      */
     public static void shutdown(int exitCode) {
+        shutdown(exitCode, 1);
+    }
+
+    public static void shutdown(int exitCode, long waitSeconds) {
         try {
-            TimeUnit.SECONDS.sleep(1);
+            TimeUnit.SECONDS.sleep(waitSeconds);
         } catch (InterruptedException e) {
             LOGGER.error("Interrupted while waiting for the program to terminate!", e);
         }
-
         try {
             System.exit(exitCode);
         } catch (Throwable t) {

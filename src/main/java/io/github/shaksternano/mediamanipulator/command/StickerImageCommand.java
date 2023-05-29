@@ -2,11 +2,14 @@ package io.github.shaksternano.mediamanipulator.command;
 
 import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.util.MessageUtil;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.sticker.StickerItem;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 public class StickerImageCommand extends BaseCommand {
 
@@ -22,17 +25,17 @@ public class StickerImageCommand extends BaseCommand {
     }
 
     @Override
-    public void execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
-        MessageUtil.processMessages(event.getMessage(), message -> {
-            List<StickerItem> stickers = message.getStickers();
-            if (stickers.isEmpty()) {
-                return Optional.empty();
-            } else {
-                return Optional.of(stickers.get(0).getIconUrl());
-            }
-        }).thenAccept(result -> result.ifPresentOrElse(
-            url -> event.getMessage().reply(url).queue(),
-            () -> event.getMessage().reply("No sticker found!").queue()
-        ));
+    public CompletableFuture<List<MessageCreateData>> execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
+        return MessageUtil.processMessages(event.getMessage(), StickerImageCommand::getFirstStickerUrl)
+            .thenApply(urlOptional ->
+                MessageUtil.createResponse(urlOptional.orElse("No sticker found!"))
+            );
+    }
+
+    private static Optional<String> getFirstStickerUrl(Message message) {
+        return message.getStickers()
+            .stream()
+            .map(StickerItem::getIconUrl)
+            .findFirst();
     }
 }

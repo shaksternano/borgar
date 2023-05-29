@@ -20,7 +20,7 @@ public class MemoryUsageCommand extends BotOwnerCommand {
     }
 
     @Override
-    protected void botOwnerOperation(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
-        event.getMessage().reply(MiscUtil.getCurrentMemoryUsageMessage()).queue();
+    protected String botOwnerOperation(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
+        return MiscUtil.getCurrentMemoryUsageMessage();
     }
 }

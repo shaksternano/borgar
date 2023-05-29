@@ -8,8 +8,8 @@ import io.github.shaksternano.mediamanipulator.media.ImageFrame;
 import io.github.shaksternano.mediamanipulator.media.ImageUtil;
 import io.github.shaksternano.mediamanipulator.media.MediaUtil;
 import io.github.shaksternano.mediamanipulator.media.graphics.OverlayData;
-import io.github.shaksternano.mediamanipulator.media.io.imageprocessor.SingleImageProcessor;
 import io.github.shaksternano.mediamanipulator.media.io.MediaReaders;
+import io.github.shaksternano.mediamanipulator.media.io.imageprocessor.SingleImageProcessor;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.*;

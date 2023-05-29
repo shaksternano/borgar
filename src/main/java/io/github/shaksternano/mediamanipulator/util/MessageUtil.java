@@ -14,6 +14,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 import java.io.File;
 import java.io.IOException;
@@ -263,7 +264,7 @@ public class MessageUtil {
         return getEmojiUrls(message, false);
     }
 
-    public static Map<String, String> getEmojiUrls(Message message, boolean onlyGetFirst) {
+    private static Map<String, String> getEmojiUrls(Message message, boolean onlyGetFirst) {
         ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
         String messageContent = message.getContentRaw();
 
@@ -406,5 +407,13 @@ public class MessageUtil {
                 throw new UncheckedIOException(e);
             }
         }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
+    public static String enlargeImageUrl(String url) {
+        return url + "?size=1024";
+    }
+
+    public static List<MessageCreateData> createResponse(String content) {
+        return List.of(MessageCreateData.fromContent(content));
     }
 }

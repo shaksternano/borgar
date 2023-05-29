@@ -64,17 +64,17 @@ public class MediaReaders {
 
     static {
         registerImageOnlyReaderFactory(ScrimageGifReader.Factory.INSTANCE,
-                "gif"
+            "gif"
         );
         registerImageOnlyReaderFactory(JavaxImageReader.Factory.INSTANCE,
-                "bmp",
-                "jpeg",
-                "jpg",
-                "wbmp",
-                "png",
-                "gif",
-                "tif",
-                "tiff"
+            "bmp",
+            "jpeg",
+            "jpg",
+            "wbmp",
+            "png",
+            "gif",
+            "tif",
+            "tiff"
         );
     }
 }

@@ -15,12 +15,14 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.utils.FileUpload;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -47,10 +49,11 @@ public abstract class MediaCommand extends BaseCommand {
      * @param arguments      The arguments of the command.
      * @param extraArguments A multimap mapping the additional parameter names to a list of the arguments.
      * @param event          The {@link MessageReceivedEvent} that triggered the command.
+     * @return A {@code CompletableFuture} that completes with a list of {@code MessageCreateData} that will be sent to the channel where the command was triggered.
      */
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
-    public void execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
+    public CompletableFuture<List<MessageCreateData>> execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
         Message userMessage = event.getMessage();
         MessageUtil.downloadFile(userMessage, FileUtil.getTempDir().toString()).join().ifPresentOrElse(file -> {
             String fileFormat = FileUtil.getFileFormat(file);
@@ -129,6 +132,7 @@ public abstract class MediaCommand extends BaseCommand {
                 }
             }, () -> userMessage.reply("Unsupported file type!").queue());
         }, () -> userMessage.reply("No media found!").queue());
+        return CompletableFuture.completedFuture(List.of());
     }
 
     /**

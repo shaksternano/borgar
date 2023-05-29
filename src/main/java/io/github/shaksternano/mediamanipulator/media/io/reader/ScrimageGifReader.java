@@ -7,7 +7,7 @@ import io.github.shaksternano.mediamanipulator.media.MediaUtil;
 import io.github.shaksternano.mediamanipulator.media.VideoFrame;
 import io.github.shaksternano.mediamanipulator.media.io.MediaReaderFactory;
 import io.github.shaksternano.mediamanipulator.util.ClosableIterator;
-import io.github.shaksternano.mediamanipulator.util.TriFunction;
+import io.github.shaksternano.mediamanipulator.util.function.TriFunction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

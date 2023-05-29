@@ -28,19 +28,19 @@ public class MediaWriters {
 
     static {
         registerWriterFactory(
-                (output, outputFormat, audioChannels) -> new ScrimageGifWriter(output),
-                "gif"
+            (output, outputFormat, audioChannels) -> new ScrimageGifWriter(output),
+            "gif"
         );
         registerWriterFactory(
-                (output, outputFormat, audioChannels) -> new JavaxImageWriter(output, outputFormat),
-                "bmp",
-                "jpeg",
-                "jpg",
-                "wbmp",
-                "png",
-                "gif",
-                "tif",
-                "tiff"
+            (output, outputFormat, audioChannels) -> new JavaxImageWriter(output, outputFormat),
+            "bmp",
+            "jpeg",
+            "jpg",
+            "wbmp",
+            "png",
+            "gif",
+            "tif",
+            "tiff"
         );
     }
 }

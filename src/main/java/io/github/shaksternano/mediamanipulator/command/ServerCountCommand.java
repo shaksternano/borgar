@@ -5,7 +5,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.List;
 
-public class ServerCountCommand extends BaseCommand {
+public class ServerCountCommand extends SimpleCommand {
 
     /**
      * Creates a new command object.
@@ -19,13 +19,12 @@ public class ServerCountCommand extends BaseCommand {
     }
 
     @Override
-    public void execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
-        long serverCount = event.getJDA().getGuildCache().size();
-        StringBuilder builder = new StringBuilder();
-        builder.append("This bot is in ").append(serverCount).append(" server.");
+    protected String response(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
+        var serverCount = event.getJDA().getGuildCache().size();
+        var message = "This bot is in " + serverCount + " server";
         if (serverCount != 1) {
-            builder.insert(builder.length() - 1, "s");
+            message += "s";
         }
-        event.getMessage().reply(builder).queue();
+        return message + ".";
     }
 }

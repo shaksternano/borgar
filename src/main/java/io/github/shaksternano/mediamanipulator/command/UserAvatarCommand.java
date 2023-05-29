@@ -3,11 +3,13 @@ package io.github.shaksternano.mediamanipulator.command;
 import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.Main;
 import io.github.shaksternano.mediamanipulator.util.MessageUtil;
-import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 public class UserAvatarCommand extends BaseCommand {
 
@@ -23,24 +25,31 @@ public class UserAvatarCommand extends BaseCommand {
     }
 
     @Override
-    public void execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
-        MessageUtil.processMessages(event.getMessage(), message -> {
-            if (event.getMessage().equals(message)) {
-                List<Member> members = message.getMentions().getMembers();
-                if (members.isEmpty()) {
-                    return Optional.of(message.getAuthor().getEffectiveAvatarUrl());
-                } else {
-                    return Optional.of(members.get(0).getEffectiveAvatarUrl());
-                }
+    public CompletableFuture<List<MessageCreateData>> execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
+        var triggerMessage = event.getMessage();
+        return MessageUtil.processMessages(triggerMessage, message -> getUserAvatarUrl(triggerMessage, message))
+            .thenApply(urlOptional ->
+                MessageUtil.createResponse(urlOptional.map(MessageUtil::enlargeImageUrl)
+                    .orElseGet(() -> {
+                        Main.getLogger().error("Could not find a user to get the profile picture of, this shouldn't happen");
+                        return "Could not find a user to get the profile picture of!";
+                    })
+                )
+            );
+    }
+
+    private static Optional<String> getUserAvatarUrl(Message triggerMessage, Message message) {
+        String avatarUrl;
+        if (triggerMessage.equals(message)) {
+            var members = message.getMentions().getMembers();
+            if (members.isEmpty()) {
+                avatarUrl = message.getAuthor().getEffectiveAvatarUrl();
             } else {
-                return Optional.of(message.getAuthor().getEffectiveAvatarUrl());
+                avatarUrl = members.get(0).getEffectiveAvatarUrl();
             }
-        }).thenAccept(result -> result.ifPresentOrElse(
-            url -> event.getMessage().reply(url + "?size=1024").queue(),
-            () -> {
-                event.getMessage().reply("Could not find a user to get the profile picture of!").queue();
-                Main.getLogger().error("Could not find a user to get the profile picture of, this shouldn't happen!", new IllegalStateException());
-            }
-        ));
+        } else {
+            avatarUrl = message.getAuthor().getEffectiveAvatarUrl();
+        }
+        return Optional.of(avatarUrl);
     }
 }

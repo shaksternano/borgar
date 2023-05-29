@@ -1,7 +1,5 @@
 package io.github.shaksternano.mediamanipulator.command;
 
-import com.google.common.collect.ImmutableSet;
-
 import java.util.Objects;
 import java.util.Set;
 
@@ -14,12 +12,12 @@ public abstract class BaseCommand implements Command {
      * The unique name of the command. When a user sends a message starting with {@link Command#PREFIX}
      * followed by this name, the command will be executed.
      */
-    private final String NAME;
+    private final String name;
 
     /**
      * The description of the command. This is displayed in the help command.
      */
-    private final String DESCRIPTION;
+    private final String description;
 
     /**
      * Creates a new command object.
@@ -29,33 +27,38 @@ public abstract class BaseCommand implements Command {
      * @param description The description of the command. This is displayed in the help command.
      */
     public BaseCommand(String name, String description) {
-        NAME = name;
-        DESCRIPTION = description;
+        this.name = name;
+        this.description = description;
     }
 
     @Override
     public Set<String> getAdditionalParameterNames() {
-        return ImmutableSet.of();
+        return Set.of();
     }
 
     @Override
     public String getName() {
-        return NAME;
+        return name;
     }
 
     @Override
     public String getNameWithPrefix() {
-        return Command.PREFIX + NAME;
+        return Command.PREFIX + name;
     }
 
     @Override
     public String getDescription() {
-        return DESCRIPTION;
+        return description;
+    }
+
+    @Override
+    public int compareTo(Command o) {
+        return name.compareTo(o.getName());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(NAME, DESCRIPTION);
+        return name.hashCode();
     }
 
     @Override
@@ -63,7 +66,7 @@ public abstract class BaseCommand implements Command {
         if (obj == this) {
             return true;
         } else if (obj instanceof BaseCommand other) {
-            return Objects.equals(NAME, other.NAME);
+            return Objects.equals(name, other.name);
         } else {
             return false;
         }

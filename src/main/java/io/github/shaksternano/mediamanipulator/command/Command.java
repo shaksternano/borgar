@@ -3,14 +3,16 @@ package io.github.shaksternano.mediamanipulator.command;
 import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.command.util.Commands;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * A command that is executed when a user sends a certain message. Commands are registered in {@link Commands}.
  */
-public interface Command {
+public interface Command extends Comparable<Command> {
 
     /**
      * The command prefix.
@@ -23,8 +25,9 @@ public interface Command {
      * @param arguments      The arguments of the command.
      * @param extraArguments A multimap mapping the additional parameter names to a list of the arguments.
      * @param event          The event that triggered the command.
+     * @return A {@code CompletableFuture} that completes with a list of {@code MessageCreateData} that will be sent to the channel where the command was triggered.
      */
-    void execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws Exception;
+    CompletableFuture<List<MessageCreateData>> execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event);
 
     Set<String> getAdditionalParameterNames();
 

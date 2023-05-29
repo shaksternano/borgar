@@ -2,9 +2,10 @@ package io.github.shaksternano.mediamanipulator.command;
 
 import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.util.MessageUtil;
-import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,22 +25,28 @@ public class UserBannerCommand extends BaseCommand {
     }
 
     @Override
-    public void execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
-        MessageUtil.processMessagesAsync(event.getMessage(), message -> {
-            CompletableFuture<User.Profile> profileFuture;
-            if (event.getMessage().equals(message)) {
-                List<Member> members = message.getMentions().getMembers();
-                User user = members.isEmpty() ? message.getAuthor() : members.get(0).getUser();
-                profileFuture = user.retrieveProfile().submit();
-            } else {
-                profileFuture = message.getAuthor().retrieveProfile().submit();
-            }
-            return profileFuture
-                .thenApply(User.Profile::getBannerUrl)
-                .thenApply(Optional::ofNullable);
-        }).thenAccept(result -> result.ifPresentOrElse(
-            url -> event.getMessage().reply(url + "?size=1024").queue(),
-            () -> event.getMessage().reply("Could not find a user with a banner image!").queue()
-        ));
+    public CompletableFuture<List<MessageCreateData>> execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
+        var triggerMessage = event.getMessage();
+        return MessageUtil.processMessagesAsync(triggerMessage, message -> getUserBannerUrl(triggerMessage, message))
+            .thenApply(urlOptional ->
+                MessageUtil.createResponse(urlOptional.map(MessageUtil::enlargeImageUrl)
+                    .orElse("Could not find a user with a banner image!")
+                )
+            );
+    }
+
+    private static CompletableFuture<Optional<String>> getUserBannerUrl(Message triggerMessage, Message message) {
+        User toRetrieveFrom;
+        if (triggerMessage.equals(message)) {
+            var members = message.getMentions().getMembers();
+            toRetrieveFrom = members.isEmpty() ? message.getAuthor() : members.get(0).getUser();
+        } else {
+            toRetrieveFrom = message.getAuthor();
+        }
+        return toRetrieveFrom.retrieveProfile()
+            .useCache(false)
+            .submit()
+            .thenApply(User.Profile::getBannerUrl)
+            .thenApply(Optional::ofNullable);
     }
 }

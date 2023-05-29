@@ -8,11 +8,13 @@ import io.github.shaksternano.mediamanipulator.command.Command;
 import io.github.shaksternano.mediamanipulator.exception.InvalidArgumentException;
 import io.github.shaksternano.mediamanipulator.exception.MissingArgumentException;
 import io.github.shaksternano.mediamanipulator.util.DiscordUtil;
-import io.github.shaksternano.mediamanipulator.util.FloatPredicate;
-import net.dv8tion.jda.api.entities.Message;
+import io.github.shaksternano.mediamanipulator.util.MessageUtil;
+import io.github.shaksternano.mediamanipulator.util.MiscUtil;
+import io.github.shaksternano.mediamanipulator.util.function.FloatPredicate;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.PermissionException;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.jetbrains.annotations.Nullable;
 
 import java.text.DecimalFormat;
@@ -20,6 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.function.BiFunction;
 import java.util.function.IntPredicate;
 import java.util.function.Predicate;
@@ -47,51 +50,60 @@ public class CommandParser {
                     channel.sendTyping().queue();
                     var arguments = parseBaseArguments(commandParts, command);
                     var extraArguments = parseExtraArguments(commandParts, command);
-                    CompletableFuture.runAsync(() -> {
-                        try {
-                            command.execute(arguments, extraArguments, event);
-                        } catch (Throwable t) {
-                            throw new UncheckedException(t);
-                        }
-                    }).whenComplete((unused, throwable) -> {
-                        if (throwable != null) {
-                            handleError(getCause(throwable), triggerMessage, command);
-                        }
-                    });
+                    command.execute(arguments, extraArguments, event)
+                        .exceptionally(throwable -> handleError(throwable, command))
+                        .thenAccept(responses -> {
+                            CompletableFuture<?> future = CompletableFuture.completedFuture(null);
+                            for (var i = 0; i < responses.size(); i++) {
+                                var response = responses.get(i);
+                                var isFirst = i == 0;
+                                future = future.thenCompose(unused -> {
+                                    var reply = channel.sendMessage(response);
+                                    if (isFirst) {
+                                        reply.setMessageReference(triggerMessage);
+                                    }
+                                    return MiscUtil.repeatTry(
+                                        reply::submit,
+                                        3,
+                                        5,
+                                        CommandParser::handleReplyAttemptFailure
+                                    );
+                                });
+                            }
+                        });
                 } catch (PermissionException e) {
-                    Main.getLogger().error("Missing send message permission!", e);
+                    Main.getLogger().error("Missing send message permission", e);
                 }
             });
         }
     }
 
-    private static Throwable getCause(Throwable throwable) {
-        if (throwable instanceof UncheckedException) {
-            var cause = throwable.getCause();
-            if (cause != null) {
-                return cause;
-            }
+    private static List<MessageCreateData> handleError(Throwable error, Command command) {
+        if (error instanceof CompletionException && error.getCause() != null) {
+            error = error.getCause();
         }
-        return throwable;
-    }
-
-    private static void handleError(Throwable error, Message triggerMessage, Command command) {
+        var throwableMessage = error.getMessage();
+        String errorMessage;
         if (error instanceof PermissionException) {
-            triggerMessage.reply("This bot doesn't have the required permissions to execute this command!").queue();
-            Main.getLogger().error("This bot doesn't have the required permissions needed to execute command " + command.getNameWithPrefix() + "!", error);
+            Main.getLogger().error("This bot doesn't have the required permissions needed to execute command " + command.getNameWithPrefix(), error);
+            errorMessage = "This bot doesn't have the required permissions to execute this command!";
         } else if (error instanceof InvalidArgumentException) {
-            triggerMessage.reply(error.getMessage() == null ? "Invalid arguments!" : "Invalid arguments: " + error.getMessage()).queue();
+            errorMessage = MiscUtil.nullOrBlank(throwableMessage) ? "Invalid arguments!" : "Invalid arguments: " + throwableMessage;
         } else if (error instanceof MissingArgumentException) {
-            triggerMessage.reply(error.getMessage() == null ? "Missing arguments!" : "Missing arguments: " + error.getMessage()).queue();
+            errorMessage = MiscUtil.nullOrBlank(throwableMessage) ? "Missing arguments!" : "Missing arguments: " + throwableMessage;
         } else if (error instanceof OutOfMemoryError) {
-            triggerMessage.reply("The server ran out of memory trying to execute this command! Try again later.").queue();
-            Main.getLogger().error("Ran out of memory trying to execute command " + command.getNameWithPrefix() + "!", error);
+            Main.getLogger().error("Ran out of memory trying to execute command " + command.getNameWithPrefix(), error);
+            errorMessage = "The server ran out of memory trying to execute this command!";
         } else {
-            triggerMessage.reply("Error executing command!").queue();
-            Main.getLogger().error("Error executing command " + command.getNameWithPrefix() + "!", error);
+            Main.getLogger().error("Error executing command " + command.getNameWithPrefix(), error);
+            errorMessage = "Error executing command!";
         }
+        return MessageUtil.createResponse(errorMessage);
     }
 
+    private static void handleReplyAttemptFailure(int attempts, Throwable error) {
+        Main.getLogger().error(attempts + " failed attempt" + (attempts == 1 ? "" : "s") + " to reply", error);
+    }
 
     /**
      * Splits a message into a string array, splitting on spaces.
@@ -203,12 +215,5 @@ public class CommandParser {
             triggerChannel.sendTyping().queue();
         }
         return defaultValue;
-    }
-
-    private static class UncheckedException extends RuntimeException {
-
-        public UncheckedException(Throwable cause) {
-            super(cause);
-        }
     }
 }

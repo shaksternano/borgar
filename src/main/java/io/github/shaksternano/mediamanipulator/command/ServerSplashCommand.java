@@ -1,12 +1,11 @@
 package io.github.shaksternano.mediamanipulator.command;
 
 import com.google.common.collect.ListMultimap;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.List;
 
-public class ServerSplashCommand extends BaseCommand {
+public class ServerSplashCommand extends SimpleCommand {
 
     /**
      * Creates a new command object.
@@ -20,9 +19,9 @@ public class ServerSplashCommand extends BaseCommand {
     }
 
     @Override
-    public void execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
-        Message message = event.getMessage();
-        String serverSplashUrl = message.getGuild().getSplashUrl();
-        message.reply(serverSplashUrl == null ? "No server invite background image set!" : serverSplashUrl).queue();
+    protected String response(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
+        var message = event.getMessage();
+        var serverSplashUrl = message.getGuild().getSplashUrl();
+        return serverSplashUrl == null ? "No server invite background image set!" : serverSplashUrl;
     }
 }

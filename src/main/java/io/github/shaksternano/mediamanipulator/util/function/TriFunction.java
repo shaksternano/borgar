@@ -1,4 +1,4 @@
-package io.github.shaksternano.mediamanipulator.util;
+package io.github.shaksternano.mediamanipulator.util.function;
 
 import java.util.Objects;
 import java.util.function.Function;

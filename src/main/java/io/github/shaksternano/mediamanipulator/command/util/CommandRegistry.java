@@ -2,7 +2,10 @@ package io.github.shaksternano.mediamanipulator.command.util;
 
 import io.github.shaksternano.mediamanipulator.command.Command;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Where {@link Command}s are registered.
@@ -10,12 +13,12 @@ import java.util.*;
 public class CommandRegistry {
 
     /**
-     * Stores the registered {@link Command}s.
+     * Stores the registered {@code Command}s.
      */
     private static final Map<String, Command> registry = new HashMap<>();
 
     /**
-     * Registers {@link Command}s.
+     * Registers {@code Command}s.
      *
      * @param commands The commands to register.
      */
@@ -26,11 +29,11 @@ public class CommandRegistry {
     }
 
     /**
-     * Gets a {@link Command} by its name.
+     * Gets a {@code Command} by its name.
      *
      * @param name The name of the command.
-     * @return An {@link Optional} describing the command.
-     * The {@link Optional} will be empty if and only if
+     * @return An {@code Optional} describing the command.
+     * The {@code Optional} will be empty if and only if
      * no command was registered with the given name.
      */
     public static Optional<Command> getCommand(String name) {
@@ -38,11 +41,11 @@ public class CommandRegistry {
     }
 
     /**
-     * Gets an unmodifiable view of all registered {@link Command}s.
+     * Gets a set of all registered {@code Command}s.
      *
-     * @return An unmodifiable view of all registered {@link Command}s.
+     * @return A set of all registered {@code Command}s.
      */
-    public static Collection<Command> getCommands() {
-        return Collections.unmodifiableCollection(registry.values());
+    public static Set<Command> getCommands() {
+        return Set.copyOf(registry.values());
     }
 }

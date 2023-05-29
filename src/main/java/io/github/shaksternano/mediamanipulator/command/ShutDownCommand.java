@@ -2,7 +2,6 @@ package io.github.shaksternano.mediamanipulator.command;
 
 import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.Main;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.List;
@@ -31,11 +30,9 @@ public class ShutDownCommand extends BotOwnerCommand {
      * @param event          The {@link MessageReceivedEvent} that triggered the command.
      */
     @Override
-    protected void botOwnerOperation(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
-        Message userMessage = event.getMessage();
-        long userId = userMessage.getAuthor().getIdLong();
-        userMessage.reply("Shutting down!").queue();
-        Main.getLogger().info("Shut down request received from user " + userId);
+    protected String botOwnerOperation(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
+        Main.getLogger().info("Shut down request received");
         Main.shutdown(0);
+        return "Shutting down!";
     }
 }

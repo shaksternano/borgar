@@ -6,7 +6,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.List;
 
-public class ServerBannerCommand extends BaseCommand {
+public class ServerBannerCommand extends SimpleCommand {
 
     /**
      * Creates a new command object.
@@ -20,9 +20,9 @@ public class ServerBannerCommand extends BaseCommand {
     }
 
     @Override
-    public void execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
+    protected String response(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
         Message message = event.getMessage();
         String serverBannerUrl = message.getGuild().getBannerUrl();
-        message.reply(serverBannerUrl == null ? "No server banner image set!" : serverBannerUrl).queue();
+        return serverBannerUrl == null ? "No server banner image set!" : serverBannerUrl;
     }
 }

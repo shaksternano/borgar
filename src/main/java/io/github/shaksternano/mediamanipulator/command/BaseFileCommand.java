@@ -9,11 +9,10 @@ import io.github.shaksternano.mediamanipulator.io.NamedFile;
 import io.github.shaksternano.mediamanipulator.mediamanipulator.util.MediaManipulatorRegistry;
 import io.github.shaksternano.mediamanipulator.util.DiscordUtil;
 import io.github.shaksternano.mediamanipulator.util.MessageUtil;
-import io.github.shaksternano.mediamanipulator.util.MiscUtil;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.utils.FileUpload;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,19 +43,19 @@ public abstract sealed class BaseFileCommand extends BaseCommand permits FileCom
     protected abstract NamedFile createFile(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException;
 
     @Override
-    public void execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
+    public CompletableFuture<List<MessageCreateData>> execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
         var triggerMessage = event.getMessage();
         CompletableFuture<Optional<NamedFile>> fileOptionalFuture = requireFileInput || arguments.isEmpty()
             ? MessageUtil.downloadFile(triggerMessage)
             : CompletableFuture.completedFuture(Optional.empty());
-        fileOptionalFuture.thenAccept(namedFileOptional -> {
+        return fileOptionalFuture.thenApply(namedFileOptional -> {
             File input = null;
             File edited = null;
             File compressed = null;
             var fileFormat = "N/A";
             try {
                 if (requireFileInput && namedFileOptional.isEmpty()) {
-                    triggerMessage.reply("No media found!").queue();
+                    return MessageUtil.createResponse("No media found!");
                 } else {
                     var fileOptional = namedFileOptional.map(NamedFile::file);
                     input = fileOptional.orElse(null);
@@ -80,29 +79,32 @@ public abstract sealed class BaseFileCommand extends BaseCommand permits FileCom
                     compressed = compress(edited, newFileFormat, event.getGuild());
                     var resultSize = compressed.length();
                     if (resultSize > DiscordUtil.getMaxUploadSize(event.getGuild())) {
-                        handleTooLargeFile(resultSize, triggerMessage);
+                        return MessageUtil.createResponse(
+                            "The size of the edited media file, " + resultSize + "MB, is too large to send!"
+                        );
                     } else {
-                        tryReply(triggerMessage, compressed, namedEdited.name());
+                        return List.of(MessageCreateData.fromFiles(
+                            FileUpload.fromData(compressed, namedEdited.name())
+                        ));
                     }
                 }
             } catch (InvalidMediaException e) {
-                triggerMessage.reply(e.getMessage() == null ? "Invalid media!" : "Invalid media: " + e.getMessage()).queue();
-                Main.getLogger().error("Invalid media!", e);
+                return MessageUtil.createResponse(
+                    e.getMessage() == null ? "Invalid media!" : "Invalid media: " + e.getMessage()
+                );
             } catch (UnsupportedFileFormatException e) {
                 var unsupportedMessage = "This operation is not supported on files with type \"" + fileFormat + "\"!";
                 if (e.getMessage() != null && !e.getMessage().isBlank()) {
                     unsupportedMessage = unsupportedMessage + " Reason: " + e.getMessage();
                 }
-                triggerMessage.reply(unsupportedMessage).queue();
+                return MessageUtil.createResponse(unsupportedMessage);
             } catch (OutOfMemoryError e) {
-                triggerMessage.reply("The server ran out of memory! Try again later or use a smaller file.").queue();
                 Main.getLogger().error("Ran out of memory executing command " + getNameWithPrefix() + "!", e);
+                return MessageUtil.createResponse(
+                    "The server ran out of memory! Try again later or use a smaller file."
+                );
             } finally {
                 deleteAll(input, edited, compressed);
-            }
-        }).whenComplete((unused, throwable) -> {
-            if (throwable != null) {
-                Main.getLogger().error("Error executing command " + getNameWithPrefix(), throwable);
             }
         });
     }
@@ -117,35 +119,6 @@ public abstract sealed class BaseFileCommand extends BaseCommand permits FileCom
                 }
             })
             .orElse(file);
-    }
-
-    private static void handleTooLargeFile(long fileSize, Message triggerMessage) {
-        var mediaFileSizeInMb = fileSize / MiscUtil.TO_MB;
-        triggerMessage.reply("The size of the edited media file, " + mediaFileSizeInMb + "MB, is too large to send!").queue();
-        Main.getLogger().error("File size of edited media was too large to send! (" + fileSize + "MB)");
-    }
-
-    private static void tryReply(Message triggerMessage, File file, String filename) {
-        MiscUtil.repeatTry(
-            () -> reply(triggerMessage, file, filename),
-            3,
-            5,
-            BaseFileCommand::handleReplyAttemptFailure,
-            maxAttempts -> handleReplyFailure(maxAttempts, triggerMessage)
-        );
-    }
-
-    private static CompletableFuture<?> reply(Message triggerMessage, File file, String filename) {
-        return triggerMessage.replyFiles(FileUpload.fromData(file, filename)).submit();
-    }
-
-    private static void handleReplyAttemptFailure(int attempts, Throwable error) {
-        Main.getLogger().error(attempts + " failed attempt" + (attempts == 1 ? "" : "s") + " to send edited media!", error);
-    }
-
-    private static void handleReplyFailure(int totalAttempts, Message triggerMessage) {
-        triggerMessage.reply("Failed to send edited media, please try again!").queue();
-        Main.getLogger().error("Failed to send edited media in " + totalAttempts + " attempts!");
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")

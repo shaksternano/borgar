@@ -11,7 +11,6 @@ import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
-import java.util.function.IntConsumer;
 import java.util.function.Supplier;
 
 public class MiscUtil {
@@ -40,47 +39,45 @@ public class MiscUtil {
         closeAll(Arrays.asList(closeables));
     }
 
-    public static void repeatTry(
-        Supplier<CompletableFuture<?>> toAttempt,
+    public static <T> CompletableFuture<T> repeatTry(
+        Supplier<CompletableFuture<T>> toAttempt,
         int maxAttempts,
-        int timeBetweenAttempts,
-        BiConsumer<Integer, Throwable> onAttemptFailure,
-        IntConsumer onAllAttemptsFailed
+        int secondsBetweenAttempts,
+        BiConsumer<Integer, Throwable> onAttemptFailure
     ) {
-        repeatTry(
+        return repeatTry(
             toAttempt,
             maxAttempts,
-            timeBetweenAttempts,
+            secondsBetweenAttempts,
             onAttemptFailure,
             0
-        ).thenAccept(success -> {
-            if (!success) {
-                onAllAttemptsFailed.accept(maxAttempts);
-            }
-        });
+        );
     }
 
-    private static CompletableFuture<Boolean> repeatTry(
-        Supplier<CompletableFuture<?>> toAttempt,
+    private static <T> CompletableFuture<T> repeatTry(
+        Supplier<CompletableFuture<T>> toAttempt,
         int maxAttempts,
-        int timeBetweenAttempts,
+        int secondsBetweenAttempts,
         BiConsumer<Integer, Throwable> onAttemptFailure,
         int attempts
     ) {
-        if (attempts >= maxAttempts) {
-            return CompletableFuture.completedFuture(false);
-        }
         return toAttempt.get()
-            .thenApply(ignored -> true)
             .exceptionallyCompose(throwable -> {
                 var newAttempts = attempts + 1;
                 onAttemptFailure.accept(newAttempts, throwable);
+                if (newAttempts >= maxAttempts) {
+                    return CompletableFuture.failedFuture(throwable);
+                }
                 try {
-                    TimeUnit.SECONDS.sleep(timeBetweenAttempts);
+                    TimeUnit.SECONDS.sleep(secondsBetweenAttempts);
                 } catch (InterruptedException e) {
                     Main.getLogger().error("Interrupted while waiting", e);
                 }
-                return repeatTry(toAttempt, maxAttempts, timeBetweenAttempts, onAttemptFailure, newAttempts);
+                return repeatTry(toAttempt, maxAttempts, secondsBetweenAttempts, onAttemptFailure, newAttempts);
             });
+    }
+
+    public static boolean nullOrBlank(@Nullable String string) {
+        return string == null || string.isBlank();
     }
 }

@@ -2,12 +2,11 @@ package io.github.shaksternano.mediamanipulator.command;
 
 import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.mediamanipulator.Main;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.List;
 
-public abstract class BotOwnerCommand extends BaseCommand {
+public abstract class BotOwnerCommand extends SimpleCommand {
 
     /**
      * Creates a new command object.
@@ -21,16 +20,15 @@ public abstract class BotOwnerCommand extends BaseCommand {
     }
 
     @Override
-    public void execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
-        Message userMessage = event.getMessage();
-        long userId = userMessage.getAuthor().getIdLong();
-
+    protected final String response(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
+        var userMessage = event.getMessage();
+        var userId = userMessage.getAuthor().getIdLong();
         if (userId == Main.getOwnerId()) {
-            botOwnerOperation(arguments, extraArguments, event);
+            return botOwnerOperation(arguments, extraArguments, event);
         } else {
-            userMessage.reply("Only the owner of this bot can use this command!").queue();
+            return "Only the owner of this bot can use this command!";
         }
     }
 
-    protected abstract void botOwnerOperation(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event);
+    protected abstract String botOwnerOperation(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event);
 }
