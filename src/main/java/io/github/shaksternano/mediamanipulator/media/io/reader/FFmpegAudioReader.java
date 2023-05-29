@@ -108,7 +108,7 @@ public final class FFmpegAudioReader extends FFmpegMediaReader<AudioFrame> {
         }
 
         @Override
-        public AudioFrame frameAtTime(long timestamp) {
+        public AudioFrame readFrame(long timestamp) {
             return MediaUtil.frameAtTime(timestamp, reversedFrames, duration);
         }
 

@@ -18,7 +18,7 @@ public class JavaxImageWriter extends NoAudioWriter {
     }
 
     @Override
-    public void recordImageFrame(ImageFrame frame) throws IOException {
+    public void writeImageFrame(ImageFrame frame) throws IOException {
         if (!written) {
             ImageIO.write(frame.content(), outputFormat, output);
             written = true;

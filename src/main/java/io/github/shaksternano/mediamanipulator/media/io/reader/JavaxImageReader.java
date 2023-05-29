@@ -43,7 +43,7 @@ public class JavaxImageReader extends BaseMediaReader<ImageFrame> {
     }
 
     @Override
-    public ImageFrame frameAtTime(long timestamp) {
+    public ImageFrame readFrame(long timestamp) {
         return image;
     }
 

@@ -57,15 +57,15 @@ public class ReduceFpsCommand extends FileCommand {
             var frameInterval = imageReader.frameDuration() * fpsReductionRatio;
             var timestamp = 0L;
             while (timestamp < imageReader.duration()) {
-                var image = imageReader.frameAtTime(timestamp).content();
+                var image = imageReader.readFrame(timestamp).content();
                 var timeRemaining = imageReader.duration() - timestamp;
                 var frameDuration = Math.min(frameInterval, timeRemaining);
-                writer.recordImageFrame(new ImageFrame(image, frameDuration, timestamp));
+                writer.writeImageFrame(new ImageFrame(image, frameDuration, timestamp));
                 timestamp += frameDuration;
             }
             while (audioIterator.hasNext()) {
                 var audioFrame = audioIterator.next();
-                writer.recordAudioFrame(audioFrame);
+                writer.writeAudioFrame(audioFrame);
             }
             return new NamedFile(output, nameWithoutExtension, format);
         }

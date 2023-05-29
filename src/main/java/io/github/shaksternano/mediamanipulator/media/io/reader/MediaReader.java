@@ -48,7 +48,7 @@ public interface MediaReader<E> extends Collection<E>, Closeable {
      * @return The frame at the given timestamp.
      * @throws IOException If an I/O error occurs.
      */
-    E frameAtTime(long timestamp) throws IOException;
+    E readFrame(long timestamp) throws IOException;
 
     E first() throws IOException;
 

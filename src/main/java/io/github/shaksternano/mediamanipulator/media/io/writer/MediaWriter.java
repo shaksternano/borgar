@@ -8,7 +8,7 @@ import java.io.IOException;
 
 public interface MediaWriter extends Closeable {
 
-    void recordImageFrame(ImageFrame frame) throws IOException;
+    void writeImageFrame(ImageFrame frame) throws IOException;
 
-    void recordAudioFrame(AudioFrame frame) throws IOException;
+    void writeAudioFrame(AudioFrame frame) throws IOException;
 }

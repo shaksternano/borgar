@@ -69,7 +69,7 @@ public abstract class BaseMediaReader<E> extends AbstractCollection<E> implement
 
     @Override
     public E first() throws IOException {
-        return frameAtTime(0);
+        return readFrame(0);
     }
 
     @Override

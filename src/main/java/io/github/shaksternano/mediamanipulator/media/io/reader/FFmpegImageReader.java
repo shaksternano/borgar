@@ -105,9 +105,9 @@ public final class FFmpegImageReader extends FFmpegMediaReader<ImageFrame> {
         }
 
         @Override
-        public ImageFrame frameAtTime(long timestamp) throws IOException {
+        public ImageFrame readFrame(long timestamp) throws IOException {
             var reversedTimestamp = duration - (timestamp % duration);
-            var frame = FFmpegImageReader.this.frameAtTime(reversedTimestamp);
+            var frame = FFmpegImageReader.this.readFrame(reversedTimestamp);
             return new ImageFrame(frame.content(), frame.duration(), timestamp);
         }
 

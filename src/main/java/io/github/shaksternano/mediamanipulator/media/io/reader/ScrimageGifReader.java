@@ -59,7 +59,7 @@ public class ScrimageGifReader extends BaseMediaReader<ImageFrame> {
     }
 
     @Override
-    public ImageFrame frameAtTime(long timestamp) {
+    public ImageFrame readFrame(long timestamp) {
         return MediaUtil.frameAtTime(timestamp, frames, duration);
     }
 
@@ -174,7 +174,7 @@ public class ScrimageGifReader extends BaseMediaReader<ImageFrame> {
         }
 
         @Override
-        public ImageFrame frameAtTime(long timestamp) {
+        public ImageFrame readFrame(long timestamp) {
             return MediaUtil.frameAtTime(timestamp, reversedFrames, duration);
         }
 

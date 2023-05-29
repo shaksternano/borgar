@@ -63,7 +63,7 @@ public abstract sealed class FFmpegMediaReader<E extends VideoFrame<?>> extends 
     }
 
     @Override
-    public E frameAtTime(long timestamp) throws IOException {
+    public E readFrame(long timestamp) throws IOException {
         long circularTimestamp = timestamp % Math.max(duration(), 1);
         return frameNonCircular(circularTimestamp, grabber);
     }

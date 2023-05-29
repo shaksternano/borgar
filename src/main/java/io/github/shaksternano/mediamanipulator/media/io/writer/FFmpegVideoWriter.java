@@ -30,7 +30,7 @@ public class FFmpegVideoWriter implements MediaWriter {
     }
 
     @Override
-    public void recordImageFrame(ImageFrame frame) throws IOException {
+    public void writeImageFrame(ImageFrame frame) throws IOException {
         BufferedImage image = frame.content();
         if (recorder == null) {
             double fps = 1_000_000.0 / frame.duration();
@@ -48,7 +48,7 @@ public class FFmpegVideoWriter implements MediaWriter {
     }
 
     @Override
-    public void recordAudioFrame(AudioFrame frame) throws IOException {
+    public void writeAudioFrame(AudioFrame frame) throws IOException {
         if (recorder == null) {
             throw new IllegalStateException("Cannot record an audio frame before an image frame");
         }

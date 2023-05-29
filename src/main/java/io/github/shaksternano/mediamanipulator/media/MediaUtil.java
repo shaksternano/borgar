@@ -96,14 +96,14 @@ public class MediaUtil {
                 if (constantFrameDataValue == null) {
                     constantFrameDataValue = processor.constantData(imageFrame.content());
                 }
-                writer.recordImageFrame(imageFrame.transform(
+                writer.writeImageFrame(imageFrame.transform(
                     processor.transformImage(imageFrame, constantFrameDataValue),
                     processor.absoluteSpeed()
                 ));
             }
             while (audioIterator.hasNext()) {
                 var audioFrame = audioIterator.next();
-                writer.recordAudioFrame(audioFrame.transform(processor.absoluteSpeed()));
+                writer.writeAudioFrame(audioFrame.transform(processor.absoluteSpeed()));
             }
             return output;
         }
@@ -146,14 +146,14 @@ public class MediaUtil {
                 var toTransform = finalZippedImageReader.isFirstControlling()
                     ? firstFrame
                     : secondFrame;
-                writer.recordImageFrame(toTransform.transform(
+                writer.writeImageFrame(toTransform.transform(
                     processor.transformImage(firstFrame, secondFrame, constantFrameDataValue),
                     processor.absoluteSpeed()
                 ));
             }
             while (audioIterator.hasNext()) {
                 var audioFrame = audioIterator.next();
-                writer.recordAudioFrame(audioFrame.transform(processor.absoluteSpeed()));
+                writer.writeAudioFrame(audioFrame.transform(processor.absoluteSpeed()));
             }
             return output;
         }

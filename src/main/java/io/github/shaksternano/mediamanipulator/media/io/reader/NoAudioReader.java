@@ -24,7 +24,7 @@ public class NoAudioReader extends BaseMediaReader<AudioFrame> {
     }
 
     @Override
-    public AudioFrame frameAtTime(long timestamp) {
+    public AudioFrame readFrame(long timestamp) {
         throw new UnsupportedOperationException("No audio available");
     }
 

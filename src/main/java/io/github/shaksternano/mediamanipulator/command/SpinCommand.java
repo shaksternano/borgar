@@ -74,7 +74,7 @@ public class SpinCommand extends FileCommand {
             var maxDimension = Math.max(imageReader.width(), imageReader.height());
             var imageType = -1;
             for (var timestamp = 0L; timestamp < totalDuration; timestamp += frameDuration) {
-                var image = imageReader.frameAtTime(timestamp).content();
+                var image = imageReader.readFrame(timestamp).content();
                 if (imageType < 0) {
                     imageType = MediaUtil.supportedTransparentImageType(image, imageReader.format());
                 }
@@ -90,11 +90,11 @@ public class SpinCommand extends FileCommand {
                     backgroundColor,
                     imageType
                 );
-                writer.recordImageFrame(new ImageFrame(rotatedImage, frameDuration, timestamp));
+                writer.writeImageFrame(new ImageFrame(rotatedImage, frameDuration, timestamp));
             }
             while (audioIterator.hasNext()) {
                 var audioFrame = audioIterator.next();
-                writer.recordAudioFrame(audioFrame);
+                writer.writeAudioFrame(audioFrame);
             }
             return new NamedFile(output, "spun", outputFormat);
         }

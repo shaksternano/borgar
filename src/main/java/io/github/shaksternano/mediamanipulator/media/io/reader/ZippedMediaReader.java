@@ -47,9 +47,9 @@ public class ZippedMediaReader<A extends VideoFrame<?>, B extends VideoFrame<?>>
     }
 
     @Override
-    public Pair<A, B> frameAtTime(long timestamp) throws IOException {
-        var firstFrame = firstReader.frameAtTime(timestamp);
-        var secondFrame = secondReader.frameAtTime(timestamp);
+    public Pair<A, B> readFrame(long timestamp) throws IOException {
+        var firstFrame = firstReader.readFrame(timestamp);
+        var secondFrame = secondReader.readFrame(timestamp);
         return new Pair<>(firstFrame, secondFrame);
     }
 
@@ -123,7 +123,7 @@ public class ZippedMediaReader<A extends VideoFrame<?>, B extends VideoFrame<?>>
                 if (firstIterator != null) {
                     var first = firstIterator.next();
                     var timestamp = first.timestamp() + (loops * firstReader.duration());
-                    var second = secondReader.frameAtTime(timestamp);
+                    var second = secondReader.readFrame(timestamp);
                     if (!firstIterator.hasNext() && (timestamp + first.duration()) < secondReader.duration()) {
                         firstIterator.close();
                         firstIterator = firstReader.iterator();
@@ -133,7 +133,7 @@ public class ZippedMediaReader<A extends VideoFrame<?>, B extends VideoFrame<?>>
                 } else if (secondIterator != null) {
                     var second = secondIterator.next();
                     var timestamp = second.timestamp() + (loops * secondReader.duration());
-                    var first = firstReader.frameAtTime(timestamp);
+                    var first = firstReader.readFrame(timestamp);
                     if (!secondIterator.hasNext() && (timestamp + second.duration()) < firstReader.duration()) {
                         secondIterator.close();
                         secondIterator = secondReader.iterator();

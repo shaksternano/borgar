@@ -47,7 +47,7 @@ public class ScrimageGifWriter extends NoAudioWriter {
     }
 
     @Override
-    public void recordImageFrame(ImageFrame frame) throws IOException {
+    public void writeImageFrame(ImageFrame frame) throws IOException {
         var currentImage = ImageUtil.convertType(frame.content(), BufferedImage.TYPE_INT_ARGB);
         if (ImageUtil.imageEquals(previousImage, currentImage)) {
             // Merge duplicate sequential frames into one.
