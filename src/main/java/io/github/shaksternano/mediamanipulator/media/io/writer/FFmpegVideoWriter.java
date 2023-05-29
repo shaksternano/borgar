@@ -117,7 +117,6 @@ public class FFmpegVideoWriter implements MediaWriter {
         // 192 Kbps
         recorder.setAudioBitrate(192000);
         recorder.setSampleRate(44100);
-        recorder.setAudioChannels(2);
         recorder.setAudioCodec(avcodec.AV_CODEC_ID_AAC);
         return recorder;
     }
