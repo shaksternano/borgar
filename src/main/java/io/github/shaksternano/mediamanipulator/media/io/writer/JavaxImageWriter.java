@@ -20,8 +20,11 @@ public class JavaxImageWriter extends NoAudioWriter {
     @Override
     public void writeImageFrame(ImageFrame frame) throws IOException {
         if (!written) {
-            ImageIO.write(frame.content(), outputFormat, output);
             written = true;
+            var supportedFormat = ImageIO.write(frame.content(), outputFormat, output);
+            if (!supportedFormat) {
+                throw new IOException("Unsupported image format: " + outputFormat);
+            }
         }
     }
 
