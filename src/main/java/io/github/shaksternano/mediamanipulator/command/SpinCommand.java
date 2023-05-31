@@ -58,7 +58,12 @@ public class SpinCommand extends FileCommand {
         try (
             var imageReader = MediaReaders.createImageReader(media, format);
             var audioReader = MediaReaders.createAudioReader(media, format);
-            var writer = MediaWriters.createWriter(output, outputFormat, audioReader.audioChannels());
+            var writer = MediaWriters.createWriter(
+                output,
+                outputFormat,
+                audioReader.audioChannels(),
+                audioReader.audioSampleRate(),
+                audioReader.audioBitrate());
             var audioIterator = audioReader.iterator()
         ) {
             var mediaDuration = imageReader.duration();

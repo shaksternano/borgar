@@ -8,5 +8,5 @@ import java.io.IOException;
 @FunctionalInterface
 public interface MediaWriterFactory {
 
-    MediaWriter createWriter(File output, String outputFormat, int audioChannels) throws IOException;
+    MediaWriter createWriter(File output, String outputFormat, int audioChannels, int audioSampleRate, int audioBitrate) throws IOException;
 }

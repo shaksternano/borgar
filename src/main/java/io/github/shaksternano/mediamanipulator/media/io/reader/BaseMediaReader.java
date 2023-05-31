@@ -20,6 +20,8 @@ public abstract class BaseMediaReader<E> extends AbstractCollection<E> implement
     protected long duration;
     protected double frameDuration;
     protected int audioChannels;
+    protected int audioSampleRate;
+    protected int audioBitrate;
     protected int width;
     protected int height;
 
@@ -50,6 +52,16 @@ public abstract class BaseMediaReader<E> extends AbstractCollection<E> implement
     @Override
     public int audioChannels() {
         return audioChannels;
+    }
+
+    @Override
+    public int audioSampleRate() {
+        return audioSampleRate;
+    }
+
+    @Override
+    public int audioBitrate() {
+        return audioBitrate;
     }
 
     @Override

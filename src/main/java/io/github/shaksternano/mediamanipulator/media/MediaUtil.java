@@ -85,8 +85,9 @@ public class MediaUtil {
             var writer = MediaWriters.createWriter(
                 output,
                 outputFormat,
-                finalAudioReader.audioChannels()
-            );
+                finalAudioReader.audioChannels(),
+                finalAudioReader.audioSampleRate(),
+                finalAudioReader.audioBitrate());
             var imageIterator = finalImageReader.iterator();
             var audioIterator = finalAudioReader.iterator()
         ) {
@@ -130,8 +131,9 @@ public class MediaUtil {
             var writer = MediaWriters.createWriter(
                 output,
                 outputFormat,
-                finalAudioReader.audioChannels()
-            );
+                finalAudioReader.audioChannels(),
+                finalAudioReader.audioSampleRate(),
+                finalAudioReader.audioBitrate());
             var zippedImageIterator = finalZippedImageReader.iterator();
             var audioIterator = finalAudioReader.iterator()
         ) {

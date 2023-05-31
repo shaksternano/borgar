@@ -33,6 +33,10 @@ public interface MediaReader<E> extends Collection<E>, Closeable {
 
     int audioChannels();
 
+    int audioSampleRate();
+
+    int audioBitrate();
+
     int width();
 
     int height();

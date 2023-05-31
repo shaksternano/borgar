@@ -50,8 +50,9 @@ public class ReduceFpsCommand extends FileCommand {
             var writer = MediaWriters.createWriter(
                 output,
                 format,
-                audioReader.audioChannels()
-            );
+                audioReader.audioChannels(),
+                audioReader.audioSampleRate(),
+                audioReader.audioBitrate());
             var audioIterator = audioReader.iterator()
         ) {
             var frameInterval = imageReader.frameDuration() * fpsReductionRatio;

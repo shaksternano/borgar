@@ -52,9 +52,10 @@ public abstract sealed class FFmpegMediaReader<E extends VideoFrame<?>> extends 
         duration = grabber.getTimestamp();
         frameDuration = 1_000_000 / frameRate;
         audioChannels = grabber.getAudioChannels();
+        audioSampleRate = grabber.getSampleRate();
+        audioBitrate = grabber.getAudioBitrate();
         width = grabber.getImageWidth();
         height = grabber.getImageHeight();
-        grabber.setTimestamp(0);
     }
 
     protected FFmpegFrameGrabber createGrabber() {

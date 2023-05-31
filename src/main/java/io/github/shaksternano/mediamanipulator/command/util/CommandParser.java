@@ -79,8 +79,11 @@ public class CommandParser {
     }
 
     private static List<MessageCreateData> handleError(Throwable error, Command command) {
-        if (error instanceof CompletionException && error.getCause() != null) {
-            error = error.getCause();
+        if (error instanceof CompletionException) {
+            var cause = error.getCause();
+            if (cause != null) {
+                error = cause;
+            }
         }
         var throwableMessage = error.getMessage();
         String errorMessage;
