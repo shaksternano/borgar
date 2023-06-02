@@ -7,6 +7,7 @@ import io.github.shaksternano.mediamanipulator.media.MediaUtil;
 import io.github.shaksternano.mediamanipulator.media.VideoFrame;
 import io.github.shaksternano.mediamanipulator.media.io.MediaReaderFactory;
 import io.github.shaksternano.mediamanipulator.util.ClosableIterator;
+import io.github.shaksternano.mediamanipulator.util.ClosableSpliterator;
 import io.github.shaksternano.mediamanipulator.util.function.TriFunction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -14,16 +15,15 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.IntFunction;
-import java.util.stream.Stream;
 
 public class ScrimageGifReader extends BaseMediaReader<ImageFrame> {
 
-    private final List<ImageFrame> frames;
+    private final List<ImageFrame> frames = new ArrayList<>();
     @Nullable
-    private MediaReader<ImageFrame> reversed;
+    private Reversed reversed;
 
     public ScrimageGifReader(File input, String format) throws IOException {
         this(ImageSource.of(input), format);
@@ -41,15 +41,13 @@ public class ScrimageGifReader extends BaseMediaReader<ImageFrame> {
         if (frameCount <= 0) {
             throw new IOException("Could not read any frames!");
         }
-        List<ImageFrame> framesBuilder = new ArrayList<>();
         var totalDuration = 0;
         for (var i = 0; i < frameCount; i++) {
             var image = gif.getFrame(i).awt();
             var frameDuration = gif.getDelay(i).toMillis() * 1000;
-            framesBuilder.add(new ImageFrame(image, frameDuration, totalDuration));
+            frames.add(new ImageFrame(image, frameDuration, totalDuration));
             totalDuration += frameDuration;
         }
-        frames = Collections.unmodifiableList(framesBuilder);
         duration = totalDuration;
         frameRate = (1_000_000.0 * frameCount) / duration;
         frameDuration = 1_000_000 / frameRate;
@@ -77,33 +75,6 @@ public class ScrimageGifReader extends BaseMediaReader<ImageFrame> {
     }
 
     @Override
-    public boolean contains(Object o) {
-        return frames.contains(o);
-    }
-
-    @NotNull
-    @Override
-    public Object[] toArray() {
-        return frames.toArray();
-    }
-
-    @NotNull
-    @Override
-    public <T> T[] toArray(@NotNull T[] a) {
-        return frames.toArray(a);
-    }
-
-    @Override
-    public <T> T[] toArray(IntFunction<T[]> generator) {
-        return frames.toArray(generator);
-    }
-
-    @Override
-    public boolean containsAll(@NotNull Collection<?> c) {
-        return new HashSet<>(frames).containsAll(c);
-    }
-
-    @Override
     public ClosableIterator<ImageFrame> iterator() {
         return ClosableIterator.wrap(frames.iterator());
     }
@@ -114,22 +85,16 @@ public class ScrimageGifReader extends BaseMediaReader<ImageFrame> {
     }
 
     @Override
-    public Spliterator<ImageFrame> spliterator() {
-        return frames.spliterator();
-    }
-
-    @Override
-    public Stream<ImageFrame> stream() {
-        return frames.stream();
-    }
-
-    @Override
-    public Stream<ImageFrame> parallelStream() {
-        return frames.parallelStream();
+    public ClosableSpliterator<ImageFrame> spliterator() {
+        return ClosableSpliterator.wrap(frames.spliterator());
     }
 
     @Override
     public void close() {
+        frames.clear();
+        if (reversed != null) {
+            reversed.reversedFrames.clear();
+        }
     }
 
     public enum Factory implements MediaReaderFactory<ImageFrame> {
@@ -162,7 +127,7 @@ public class ScrimageGifReader extends BaseMediaReader<ImageFrame> {
             reversedFrames = reverseFrames(frames, ImageFrame::new);
         }
 
-        private static <E extends VideoFrame<T>, T> List<E> reverseFrames(List<E> frames, TriFunction<T, Double, Long, E> frameGenerator) {
+        private static <E extends VideoFrame<T, E>, T> List<E> reverseFrames(List<E> frames, TriFunction<T, Double, Long, E> frameGenerator) {
             List<E> reversed = new ArrayList<>(frames.size());
             double timestamp = 0;
             for (var i = frames.size() - 1; i >= 0; i--) {
@@ -170,7 +135,7 @@ public class ScrimageGifReader extends BaseMediaReader<ImageFrame> {
                 reversed.add(frameGenerator.apply(frame.content(), frame.duration(), (long) timestamp));
                 timestamp += frame.duration();
             }
-            return Collections.unmodifiableList(reversed);
+            return reversed;
         }
 
         @Override
@@ -185,6 +150,7 @@ public class ScrimageGifReader extends BaseMediaReader<ImageFrame> {
 
         @Override
         public void close() {
+            ScrimageGifReader.this.close();
         }
 
         @NotNull

@@ -1,6 +1,6 @@
 package io.github.shaksternano.mediamanipulator.media;
 
-public sealed interface VideoFrame<T> permits ImageFrame, AudioFrame {
+public sealed interface VideoFrame<T, V extends VideoFrame<T, V>> extends Comparable<VideoFrame<?, ?>> permits ImageFrame, AudioFrame {
 
     /**
      * The content of the frame.
@@ -23,7 +23,16 @@ public sealed interface VideoFrame<T> permits ImageFrame, AudioFrame {
      */
     long timestamp();
 
-    VideoFrame<T> transform(float speedMultiplier);
+    V transform(T newContent);
 
-    VideoFrame<T> transform(T newContent, float speedMultiplier);
+    V transform(float speedMultiplier);
+
+    V transform(T newContent, float speedMultiplier);
+
+    V transform(double duration, long timestamp);
+
+    @Override
+    default int compareTo(VideoFrame<?, ?> o) {
+        return Long.compare(timestamp(), o.timestamp());
+    }
 }

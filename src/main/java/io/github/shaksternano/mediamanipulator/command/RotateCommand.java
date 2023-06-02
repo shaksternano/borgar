@@ -30,7 +30,7 @@ public class RotateCommand extends FileCommand {
     }
 
     @Override
-    protected NamedFile modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
+    protected NamedFile modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event, long maxFileSize) throws IOException {
         var rotationDegrees = CommandParser.parseFloatArgument(
             arguments,
             0,
@@ -54,7 +54,8 @@ public class RotateCommand extends FileCommand {
                 file,
                 outputFormat,
                 "rotated",
-                image -> rotate(image, rotationDegrees, backgroundColor, outputFormat)
+                image -> rotate(image, rotationDegrees, backgroundColor, outputFormat),
+                maxFileSize
             ),
             "rotated",
             outputFormat

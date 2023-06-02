@@ -22,10 +22,10 @@ public abstract non-sealed class FileCommand extends BaseFileCommand {
     }
 
     @Override
-    protected abstract NamedFile modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException;
+    protected abstract NamedFile modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event, long maxFileSize) throws IOException;
 
     @Override
-    protected final NamedFile createFile(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
+    protected final NamedFile createFile(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event, long maxFileSize) {
         throw new IllegalStateException("This method should never be called");
     }
 }

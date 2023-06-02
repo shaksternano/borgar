@@ -30,13 +30,14 @@ public class UncaptionCommand extends FileCommand {
     }
 
     @Override
-    protected NamedFile modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
+    protected NamedFile modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event, long maxFileSize) throws IOException {
         return new NamedFile(
             MediaUtil.cropMedia(
                 file,
                 fileFormat,
                 "uncaptioned",
-                this::findNonCaptionAreaTopAndBottom
+                this::findNonCaptionAreaTopAndBottom,
+                maxFileSize
             ),
             "uncaptioned",
             fileFormat

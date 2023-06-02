@@ -1,18 +1,16 @@
 package io.github.shaksternano.mediamanipulator.media.io.reader;
 
 import com.google.common.collect.Iterables;
+import io.github.shaksternano.mediamanipulator.util.ClosableSpliterator;
 import io.github.shaksternano.mediamanipulator.util.IterableUtil;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.util.*;
+import java.util.Objects;
+import java.util.Spliterator;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 
-public abstract class BaseMediaReader<E> extends AbstractCollection<E> implements MediaReader<E> {
-
-    private static final int SPLITERATOR_CHARACTERISTICS = Spliterator.ORDERED | Spliterator.NONNULL | Spliterator.IMMUTABLE;
+public abstract class BaseMediaReader<E> implements MediaReader<E> {
 
     private final String format;
     protected double frameRate;
@@ -35,8 +33,18 @@ public abstract class BaseMediaReader<E> extends AbstractCollection<E> implement
     }
 
     @Override
-    public boolean animated() {
-        return this.size() > 1;
+    public int frameCount() {
+        return frameCount;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return this.frameCount() == 0;
+    }
+
+    @Override
+    public boolean isAnimated() {
+        return this.frameCount() > 1;
     }
 
     @Override
@@ -85,41 +93,6 @@ public abstract class BaseMediaReader<E> extends AbstractCollection<E> implement
     }
 
     @Override
-    public int size() {
-        return frameCount;
-    }
-
-    @Override
-    public boolean remove(Object o) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean addAll(@NotNull Collection<? extends E> c) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean removeAll(@NotNull Collection<?> c) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean removeIf(Predicate<? super E> filter) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean retainAll(@NotNull Collection<?> c) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void clear() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public void forEach(Consumer<? super E> action) {
         Objects.requireNonNull(action);
         try (var iterator = iterator()) {
@@ -132,8 +105,13 @@ public abstract class BaseMediaReader<E> extends AbstractCollection<E> implement
     }
 
     @Override
-    public Spliterator<E> spliterator() {
-        return Spliterators.spliterator(this, SPLITERATOR_CHARACTERISTICS);
+    public ClosableSpliterator<E> spliterator() {
+        int characteristics = Spliterator.ORDERED
+            | Spliterator.DISTINCT
+            | Spliterator.SORTED
+            | Spliterator.NONNULL
+            | Spliterator.IMMUTABLE;
+        return ClosableSpliterator.create(iterator(), frameCount(), characteristics);
     }
 
     @Override

@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 
-public class ZippedMediaReader<A extends VideoFrame<?>, B extends VideoFrame<?>> extends BaseMediaReader<Pair<A, B>> {
+public class ZippedMediaReader<A extends VideoFrame<?, A>, B extends VideoFrame<?, B>> extends BaseMediaReader<Pair<A, B>> {
 
     private final MediaReader<A> firstReader;
     private final MediaReader<B> secondReader;
@@ -84,8 +84,8 @@ public class ZippedMediaReader<A extends VideoFrame<?>, B extends VideoFrame<?>>
     }
 
     private static boolean decideIsFirstControlling(MediaReader<?> firstReader, MediaReader<?> secondReader) {
-        return firstReader.animated() &&
-            (!secondReader.animated() || firstReader.frameDuration() <= secondReader.frameDuration());
+        return firstReader.isAnimated() &&
+            (!secondReader.isAnimated() || firstReader.frameDuration() <= secondReader.frameDuration());
     }
 
     private class ZippedMediaReaderIterator implements ClosableIterator<Pair<A, B>> {

@@ -31,7 +31,7 @@ public class AutoCropCommand extends FileCommand {
     }
 
     @Override
-    protected NamedFile modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
+    protected NamedFile modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event, long maxFileSize) throws IOException {
         int rgb = CommandParser.parseIntegerArgument(
             arguments,
             0,
@@ -54,7 +54,8 @@ public class AutoCropCommand extends FileCommand {
                 file,
                 fileFormat,
                 "cropped",
-                image -> findAutoCropArea(image, cropColor, colorTolerance)
+                image -> findAutoCropArea(image, cropColor, colorTolerance),
+                maxFileSize
             ),
             "cropped",
             fileFormat

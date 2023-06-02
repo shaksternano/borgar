@@ -1,12 +1,12 @@
 package io.github.shaksternano.mediamanipulator.media.io.reader;
 
 import io.github.shaksternano.mediamanipulator.util.ClosableIterator;
+import io.github.shaksternano.mediamanipulator.util.ClosableSpliterator;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.Collection;
 
-public interface MediaReader<E> extends Collection<E>, Closeable {
+public interface MediaReader<E> extends Iterable<E>, Closeable {
 
     /**
      * Gets the frame rate of the media.
@@ -15,7 +15,11 @@ public interface MediaReader<E> extends Collection<E>, Closeable {
      */
     double frameRate();
 
-    boolean animated();
+    int frameCount();
+
+    boolean isEmpty();
+
+    boolean isAnimated();
 
     /**
      * Gets the duration of time of the media.
@@ -60,4 +64,7 @@ public interface MediaReader<E> extends Collection<E>, Closeable {
 
     @Override
     ClosableIterator<E> iterator();
+
+    @Override
+    ClosableSpliterator<E> spliterator();
 }

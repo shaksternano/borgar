@@ -40,13 +40,14 @@ public class ResizeCommand extends FileCommand {
      * @param arguments      The arguments of the command.
      * @param extraArguments A multimap mapping the additional parameter names to a list of the arguments.
      * @param event          The {@link MessageReceivedEvent} that triggered the command.
+     * @param maxFileSize    The maximum file size of the output file.
      * @return The edited media file.
      * @throws IOException              If an error occurs while applying the operation.
      * @throws IllegalArgumentException If an argument is invalid.
      * @throws MissingArgumentException If the operation requires an argument but none was provided.
      */
     @Override
-    protected NamedFile modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
+    protected NamedFile modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event, long maxFileSize) throws IOException {
         if (arguments.size() > 0) {
             try {
                 float resizeMultiplier = Float.parseFloat(arguments.get(0));
@@ -55,7 +56,8 @@ public class ResizeCommand extends FileCommand {
                         file,
                         fileFormat,
                         "resize",
-                        image -> ImageUtil.resize(image, resizeMultiplier, RAW)
+                        image -> ImageUtil.resize(image, resizeMultiplier, RAW),
+                        maxFileSize
                     ),
                     "resized",
                     fileFormat

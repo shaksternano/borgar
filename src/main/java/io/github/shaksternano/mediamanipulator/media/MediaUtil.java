@@ -23,46 +23,51 @@ public class MediaUtil {
         File media,
         String outputFormat,
         String resultName,
-        UnaryOperator<BufferedImage> imageMapper
+        UnaryOperator<BufferedImage> imageMapper,
+        long maxFileSize
     ) throws IOException {
         return processMedia(
             media,
             outputFormat,
             resultName,
-            new BasicImageProcessor(imageMapper)
+            new BasicImageProcessor(imageMapper),
+            maxFileSize
         );
     }
 
-    public static <T> File processMedia(
+    public static File processMedia(
         File media,
         String outputFormat,
         String resultName,
-        SingleImageProcessor<T> processor
+        SingleImageProcessor<?> processor,
+        long maxFileSize
     ) throws IOException {
         var output = FileUtil.createTempFile(resultName, outputFormat);
-        return processMedia(media, outputFormat, output, processor);
+        return processMedia(media, outputFormat, output, processor, maxFileSize);
     }
 
-    public static <T> File processMedia(
+    public static File processMedia(
         File media,
         String outputFormat,
         File output,
-        SingleImageProcessor<T> processor
+        SingleImageProcessor<?> processor,
+        long maxFileSize
     ) throws IOException {
         var imageReader = MediaReaders.createImageReader(media, outputFormat);
         var audioReader = MediaReaders.createAudioReader(media, outputFormat);
-        return processMedia(imageReader, audioReader, output, outputFormat, processor);
+        return processMedia(imageReader, audioReader, output, outputFormat, processor, maxFileSize);
     }
 
-    public static <T> File processMedia(
+    public static File processMedia(
         MediaReader<ImageFrame> imageReader,
         MediaReader<AudioFrame> audioReader,
         String outputFormat,
         String resultName,
-        SingleImageProcessor<T> processor
+        SingleImageProcessor<?> processor,
+        long maxFileSize
     ) throws IOException {
         var output = FileUtil.createTempFile(resultName, outputFormat);
-        return processMedia(imageReader, audioReader, output, outputFormat, processor);
+        return processMedia(imageReader, audioReader, output, outputFormat, processor, maxFileSize);
     }
 
     public static <T> File processMedia(
@@ -70,42 +75,60 @@ public class MediaUtil {
         MediaReader<AudioFrame> audioReader,
         File output,
         String outputFormat,
-        SingleImageProcessor<T> processor
+        SingleImageProcessor<T> processor,
+        long maxFileSize
     ) throws IOException {
         if (processor.speed() < 0) {
             imageReader = imageReader.reversed();
             audioReader = audioReader.reversed();
         }
-        var finalImageReader = imageReader;
-        var finalAudioReader = audioReader;
         try (
-            finalImageReader;
-            finalAudioReader;
-            processor;
-            var writer = MediaWriters.createWriter(
-                output,
-                outputFormat,
-                finalAudioReader.audioChannels(),
-                finalAudioReader.audioSampleRate(),
-                finalAudioReader.audioBitrate());
-            var imageIterator = finalImageReader.iterator();
-            var audioIterator = finalAudioReader.iterator()
+            var finalImageReader = imageReader;
+            var finalAudioReader = audioReader;
+            processor
         ) {
-            T constantFrameDataValue = null;
-            while (imageIterator.hasNext()) {
-                var imageFrame = imageIterator.next();
-                if (constantFrameDataValue == null) {
-                    constantFrameDataValue = processor.constantData(imageFrame.content());
+            var outputSize = Long.MAX_VALUE;
+            var resizeRatio = 1F;
+            var maxResizeAttempts = 3;
+            var attempts = 0;
+            do {
+                try (
+                    var imageIterator = finalImageReader.iterator();
+                    var audioIterator = finalAudioReader.iterator();
+                    var writer = MediaWriters.createWriter(
+                        output,
+                        outputFormat,
+                        finalAudioReader.audioChannels(),
+                        finalAudioReader.audioSampleRate(),
+                        finalAudioReader.audioBitrate(),
+                        maxFileSize,
+                        finalImageReader.duration()
+                    )
+                ) {
+                    T constantFrameDataValue = null;
+                    while (imageIterator.hasNext()) {
+                        var imageFrame = imageIterator.next();
+                        if (constantFrameDataValue == null) {
+                            constantFrameDataValue = processor.constantData(imageFrame.content());
+                        }
+                        writer.writeImageFrame(imageFrame.transform(
+                            ImageUtil.resize(
+                                processor.transformImage(imageFrame, constantFrameDataValue),
+                                resizeRatio
+                            ),
+                            processor.absoluteSpeed()
+                        ));
+                    }
+
+                    while (audioIterator.hasNext()) {
+                        var audioFrame = audioIterator.next();
+                        writer.writeAudioFrame(audioFrame.transform(processor.absoluteSpeed()));
+                    }
                 }
-                writer.writeImageFrame(imageFrame.transform(
-                    processor.transformImage(imageFrame, constantFrameDataValue),
-                    processor.absoluteSpeed()
-                ));
-            }
-            while (audioIterator.hasNext()) {
-                var audioFrame = audioIterator.next();
-                writer.writeAudioFrame(audioFrame.transform(processor.absoluteSpeed()));
-            }
+                outputSize = output.length();
+                resizeRatio = Math.min((float) maxFileSize / outputSize, 0.9F);
+                attempts++;
+            } while (maxFileSize > 0 && outputSize > maxFileSize && attempts < maxResizeAttempts);
             return output;
         }
     }
@@ -116,7 +139,8 @@ public class MediaUtil {
         MediaReader<ImageFrame> imageReader2,
         String outputFormat,
         String resultName,
-        DualImageProcessor<T> processor
+        DualImageProcessor<T> processor,
+        long maxFileSize
     ) throws IOException {
         var output = FileUtil.createTempFile(resultName, outputFormat);
         var zippedImageReader = new ZippedMediaReader<>(imageReader1, imageReader2);
@@ -125,38 +149,57 @@ public class MediaUtil {
             audioReader1 = audioReader1.reversed();
         }
         try (
-            processor;
             var finalZippedImageReader = zippedImageReader;
             var finalAudioReader = audioReader1;
-            var writer = MediaWriters.createWriter(
-                output,
-                outputFormat,
-                finalAudioReader.audioChannels(),
-                finalAudioReader.audioSampleRate(),
-                finalAudioReader.audioBitrate());
-            var zippedImageIterator = finalZippedImageReader.iterator();
-            var audioIterator = finalAudioReader.iterator()
+            processor
         ) {
-            T constantFrameDataValue = null;
-            while (zippedImageIterator.hasNext()) {
-                var framePair = zippedImageIterator.next();
-                var firstFrame = framePair.first();
-                var secondFrame = framePair.second();
-                if (constantFrameDataValue == null) {
-                    constantFrameDataValue = processor.constantData(firstFrame.content(), secondFrame.content());
+            var outputSize = Long.MAX_VALUE;
+            var resizeRatio = 1F;
+            var maxResizeAttempts = 3;
+            var attempts = 0;
+            do {
+                try (
+                    var zippedImageIterator = finalZippedImageReader.iterator();
+                    var audioIterator = finalAudioReader.iterator();
+                    var writer = MediaWriters.createWriter(
+                        output,
+                        outputFormat,
+                        finalAudioReader.audioChannels(),
+                        finalAudioReader.audioSampleRate(),
+                        finalAudioReader.audioBitrate(),
+                        maxFileSize,
+                        finalZippedImageReader.duration()
+                    )
+                ) {
+                    T constantFrameDataValue = null;
+                    while (zippedImageIterator.hasNext()) {
+                        var framePair = zippedImageIterator.next();
+                        var firstFrame = framePair.first();
+                        var secondFrame = framePair.second();
+                        if (constantFrameDataValue == null) {
+                            constantFrameDataValue = processor.constantData(firstFrame.content(), secondFrame.content());
+                        }
+                        var toTransform = finalZippedImageReader.isFirstControlling()
+                            ? firstFrame
+                            : secondFrame;
+                        writer.writeImageFrame(toTransform.transform(
+                            ImageUtil.resize(
+                                processor.transformImage(firstFrame, secondFrame, constantFrameDataValue),
+                                resizeRatio
+                            ),
+                            processor.absoluteSpeed()
+                        ));
+                    }
+
+                    while (audioIterator.hasNext()) {
+                        var audioFrame = audioIterator.next();
+                        writer.writeAudioFrame(audioFrame.transform(processor.absoluteSpeed()));
+                    }
                 }
-                var toTransform = finalZippedImageReader.isFirstControlling()
-                    ? firstFrame
-                    : secondFrame;
-                writer.writeImageFrame(toTransform.transform(
-                    processor.transformImage(firstFrame, secondFrame, constantFrameDataValue),
-                    processor.absoluteSpeed()
-                ));
-            }
-            while (audioIterator.hasNext()) {
-                var audioFrame = audioIterator.next();
-                writer.writeAudioFrame(audioFrame.transform(processor.absoluteSpeed()));
-            }
+                outputSize = output.length();
+                resizeRatio = Math.min((float) maxFileSize / outputSize, 0.9F);
+                attempts++;
+            } while (maxFileSize > 0 && outputSize > maxFileSize && attempts < maxResizeAttempts);
             return output;
         }
     }
@@ -165,7 +208,8 @@ public class MediaUtil {
         File media,
         String outputFormat,
         String resultName,
-        Function<BufferedImage, Rectangle> cropKeepAreaFinder
+        Function<BufferedImage, Rectangle> cropKeepAreaFinder,
+        long maxFileSize
     ) throws IOException {
         try (
             var reader = MediaReaders.createImageReader(media, outputFormat);
@@ -217,7 +261,8 @@ public class MediaUtil {
                         finalToKeep.y,
                         finalToKeep.width,
                         finalToKeep.height
-                    )
+                    ),
+                    maxFileSize
                 );
             }
         }
@@ -270,7 +315,7 @@ public class MediaUtil {
         return false;
     }
 
-    public static <E extends VideoFrame<?>> E frameAtTime(long timestamp, List<E> frames, long duration) {
+    public static <E extends VideoFrame<?, E>> E frameAtTime(long timestamp, List<E> frames, long duration) {
         var circularTimestamp = timestamp % Math.max(duration, 1);
         var index = findIndex(circularTimestamp, frames);
         return frames.get(index);
@@ -285,7 +330,7 @@ public class MediaUtil {
      * @param frames    The frames.
      * @return The index of the frame with the given timestamp.
      */
-    private static int findIndex(long timeStamp, List<? extends VideoFrame<?>> frames) {
+    private static int findIndex(long timeStamp, List<? extends VideoFrame<?, ?>> frames) {
         if (frames.size() == 0) {
             throw new IllegalArgumentException("Frames list is empty");
         } else if (timeStamp < 0) {
@@ -302,7 +347,7 @@ public class MediaUtil {
         }
     }
 
-    private static int findIndexBinarySearch(long timeStamp, List<? extends VideoFrame<?>> frames) {
+    private static int findIndexBinarySearch(long timeStamp, List<? extends VideoFrame<?, ?>> frames) {
         var low = 0;
         var high = frames.size() - 1;
         while (low <= high) {

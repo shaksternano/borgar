@@ -27,7 +27,7 @@ public class SpeedCommand extends FileCommand {
     }
 
     @Override
-    protected NamedFile modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
+    protected NamedFile modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event, long maxFileSize) throws IOException {
         var speedMultiplier = CommandParser.parseFloatArgument(
             arguments,
             0,
@@ -41,7 +41,8 @@ public class SpeedCommand extends FileCommand {
                 file,
                 fileFormat,
                 "changed_speed",
-                new SpeedProcessor(speedMultiplier)
+                new SpeedProcessor(speedMultiplier),
+                maxFileSize
             ),
             "changed_speed",
             fileFormat

@@ -9,7 +9,12 @@ public record AudioFrame(
     Frame content,
     double duration,
     long timestamp
-) implements VideoFrame<Frame> {
+) implements VideoFrame<Frame, AudioFrame> {
+
+    @Override
+    public AudioFrame transform(Frame newContent) {
+        return transform(newContent, 1);
+    }
 
     @Override
     public AudioFrame transform(float speedMultiplier) {
@@ -24,6 +29,11 @@ public record AudioFrame(
             duration / speedMultiplier,
             timestamp
         );
+    }
+
+    @Override
+    public AudioFrame transform(double duration, long timestamp) {
+        return new AudioFrame(content, duration, timestamp);
     }
 
     @Override

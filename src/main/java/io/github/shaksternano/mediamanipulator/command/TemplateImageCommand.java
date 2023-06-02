@@ -41,13 +41,13 @@ public class TemplateImageCommand extends OptionalFileInputFileCommand {
     }
 
     @Override
-    protected NamedFile modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
+    protected NamedFile modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event, long maxFileSize) throws IOException {
         var contentImageReader = MediaReaders.createImageReader(file, fileFormat);
         var contentAudioReader = MediaReaders.createAudioReader(file, fileFormat);
         var templateImageReader = templateInfo.getImageReader();
         var processor = new ImageContentProcessor(templateInfo);
         String outputFormat;
-        if (contentImageReader.animated() || (!contentImageReader.animated() && !templateImageReader.animated())) {
+        if (contentImageReader.isAnimated() || (!contentImageReader.isAnimated() && !templateImageReader.isAnimated())) {
             outputFormat = contentImageReader.format();
         } else {
             outputFormat = templateImageReader.format();
@@ -59,7 +59,8 @@ public class TemplateImageCommand extends OptionalFileInputFileCommand {
                 templateImageReader,
                 outputFormat,
                 templateInfo.getResultName(),
-                processor
+                processor,
+                maxFileSize
             ),
             templateInfo.getResultName(),
             outputFormat
@@ -67,7 +68,7 @@ public class TemplateImageCommand extends OptionalFileInputFileCommand {
     }
 
     @Override
-    protected NamedFile createFile(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
+    protected NamedFile createFile(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event, long maxFileSize) throws IOException {
         var imageReader = templateInfo.getImageReader();
         var audioReader = templateInfo.getAudioReader();
         var nonTextParts = MessageUtil.getEmojiImages(event.getMessage());
@@ -80,7 +81,8 @@ public class TemplateImageCommand extends OptionalFileInputFileCommand {
                 audioReader,
                 outputFormat,
                 resultName,
-                processor
+                processor,
+                maxFileSize
             ),
             templateInfo.getResultName(),
             outputFormat

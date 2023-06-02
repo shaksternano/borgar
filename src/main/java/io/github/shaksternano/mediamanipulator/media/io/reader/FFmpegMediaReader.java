@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-public abstract sealed class FFmpegMediaReader<E extends VideoFrame<?>> extends BaseMediaReader<E> permits FFmpegImageReader, FFmpegAudioReader {
+public abstract sealed class FFmpegMediaReader<E extends VideoFrame<?, E>> extends BaseMediaReader<E> permits FFmpegImageReader, FFmpegAudioReader {
 
     private final Either<File, byte[]> input;
     protected final FFmpegFrameGrabber grabber;
@@ -124,7 +124,7 @@ public abstract sealed class FFmpegMediaReader<E extends VideoFrame<?>> extends 
     @Override
     public ClosableIterator<E> iterator() {
         try {
-            return new FFmpegMediaIterator();
+            return new Iterator();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -139,14 +139,14 @@ public abstract sealed class FFmpegMediaReader<E extends VideoFrame<?>> extends 
         MiscUtil.closeAll(toClose);
     }
 
-    private class FFmpegMediaIterator implements ClosableIterator<E> {
+    private class Iterator implements ClosableIterator<E> {
 
         private final FFmpegFrameGrabber grabber;
         @Nullable
         private E nextFrame;
         private boolean closed = false;
 
-        private FFmpegMediaIterator() throws IOException {
+        private Iterator() throws IOException {
             grabber = createGrabber();
             grabber.start();
             nextFrame = grabConvertedFrame(grabber);

@@ -6,10 +6,9 @@ import io.github.shaksternano.mediamanipulator.exception.InvalidMediaException;
 import io.github.shaksternano.mediamanipulator.exception.UnsupportedFileFormatException;
 import io.github.shaksternano.mediamanipulator.io.FileUtil;
 import io.github.shaksternano.mediamanipulator.io.NamedFile;
-import io.github.shaksternano.mediamanipulator.mediamanipulator.util.MediaManipulatorRegistry;
 import io.github.shaksternano.mediamanipulator.util.DiscordUtil;
 import io.github.shaksternano.mediamanipulator.util.MessageUtil;
-import net.dv8tion.jda.api.entities.Guild;
+import io.github.shaksternano.mediamanipulator.util.MiscUtil;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.utils.FileUpload;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
@@ -38,9 +37,9 @@ public abstract sealed class BaseFileCommand extends BaseCommand permits FileCom
         this.requireFileInput = requireFileInput;
     }
 
-    protected abstract NamedFile modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException;
+    protected abstract NamedFile modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event, long maxFileSize) throws IOException;
 
-    protected abstract NamedFile createFile(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException;
+    protected abstract NamedFile createFile(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event, long maxFileSize) throws IOException;
 
     @Override
     public CompletableFuture<List<MessageCreateData>> execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
@@ -50,8 +49,7 @@ public abstract sealed class BaseFileCommand extends BaseCommand permits FileCom
             : CompletableFuture.completedFuture(Optional.empty());
         return fileOptionalFuture.thenApply(namedFileOptional -> {
             File input = null;
-            File edited = null;
-            File compressed = null;
+            File output = null;
             var fileFormat = "N/A";
             try {
                 if (requireFileInput && namedFileOptional.isEmpty()) {
@@ -61,30 +59,31 @@ public abstract sealed class BaseFileCommand extends BaseCommand permits FileCom
                     input = fileOptional.orElse(null);
                     fileFormat = fileOptional.map(FileUtil::getFileFormat).orElse(fileFormat);
                     var finalFileFormat = fileFormat;
+                    var maxFileSize = DiscordUtil.getMaxUploadSize(event);
                     var namedEdited = fileOptional.map(file -> {
                         try {
-                            return modifyFile(file, finalFileFormat, arguments, extraArguments, event);
+                            return modifyFile(file, finalFileFormat, arguments, extraArguments, event, maxFileSize);
                         } catch (IOException e) {
                             throw new UncheckedIOException(e);
                         }
                     }).orElseGet(() -> {
                         try {
-                            return createFile(arguments, extraArguments, event);
+                            return createFile(arguments, extraArguments, event, maxFileSize);
                         } catch (IOException e) {
                             throw new UncheckedIOException(e);
                         }
                     });
-                    edited = namedEdited.file();
-                    var newFileFormat = FileUtil.getFileFormat(edited);
-                    compressed = compress(edited, newFileFormat, event.getGuild());
-                    var resultSize = compressed.length();
-                    if (resultSize > DiscordUtil.getMaxUploadSize(event.getGuild())) {
+                    output = namedEdited.file();
+                    var outputSize = output.length();
+                    if (outputSize > DiscordUtil.getMaxUploadSize(event.getGuild())) {
+                        var outputSizeMb = outputSize / MiscUtil.TO_MB;
+                        Main.getLogger().error("The size of the edited media file, " + outputSizeMb + "MB, is too large to send");
                         return MessageUtil.createResponse(
-                            "The size of the edited media file, " + resultSize + "MB, is too large to send!"
+                            "The size of the edited media file, " + outputSizeMb + "MB, is too large to send!"
                         );
                     } else {
                         return List.of(MessageCreateData.fromFiles(
-                            FileUpload.fromData(compressed, namedEdited.name())
+                            FileUpload.fromData(output, namedEdited.name())
                         ));
                     }
                 }
@@ -101,24 +100,12 @@ public abstract sealed class BaseFileCommand extends BaseCommand permits FileCom
             } catch (OutOfMemoryError e) {
                 Main.getLogger().error("Ran out of memory executing command " + getNameWithPrefix() + "!", e);
                 return MessageUtil.createResponse(
-                    "The server ran out of memory! Try again later or use a smaller file."
+                    "The server ran out of memory! Try using a smaller file."
                 );
             } finally {
-                deleteAll(input, edited, compressed);
+                deleteAll(input, output);
             }
         });
-    }
-
-    private static File compress(File file, String fileFormat, Guild guild) {
-        return MediaManipulatorRegistry.getManipulator(fileFormat)
-            .map(manipulator -> {
-                try {
-                    return manipulator.compress(file, fileFormat, guild);
-                } catch (IOException e) {
-                    throw new UncheckedIOException(e);
-                }
-            })
-            .orElse(file);
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")

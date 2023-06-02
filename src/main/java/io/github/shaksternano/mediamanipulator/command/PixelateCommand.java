@@ -28,7 +28,7 @@ public class PixelateCommand extends FileCommand {
     }
 
     @Override
-    protected NamedFile modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
+    protected NamedFile modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event, long maxFileSize) throws IOException {
         int pixelationMultiplier = CommandParser.parseIntegerArgument(
             arguments,
             0,
@@ -42,7 +42,8 @@ public class PixelateCommand extends FileCommand {
                 file,
                 fileFormat,
                 "pixelated",
-                image -> pixelate(image, pixelationMultiplier)
+                image -> pixelate(image, pixelationMultiplier),
+                maxFileSize
             ),
             "pixelated",
             fileFormat

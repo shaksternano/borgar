@@ -3,9 +3,8 @@ package io.github.shaksternano.mediamanipulator.media.io.reader;
 import com.google.common.collect.Iterators;
 import io.github.shaksternano.mediamanipulator.media.ImageFrame;
 import io.github.shaksternano.mediamanipulator.media.io.MediaReaderFactory;
-import io.github.shaksternano.mediamanipulator.util.ArrayUtil;
 import io.github.shaksternano.mediamanipulator.util.ClosableIterator;
-import org.jetbrains.annotations.NotNull;
+import io.github.shaksternano.mediamanipulator.util.ClosableSpliterator;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -13,10 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-import java.util.Spliterator;
 import java.util.function.Consumer;
-import java.util.function.IntFunction;
-import java.util.stream.Stream;
 
 public class JavaxImageReader extends BaseMediaReader<ImageFrame> {
 
@@ -58,34 +54,6 @@ public class JavaxImageReader extends BaseMediaReader<ImageFrame> {
     }
 
     @Override
-    public boolean contains(Object o) {
-        return image.equals(o);
-    }
-
-    @NotNull
-    @Override
-    public Object[] toArray() {
-        return new Object[]{image};
-    }
-
-    @SuppressWarnings("unchecked")
-    @NotNull
-    @Override
-    public <T> T[] toArray(@NotNull T[] a) {
-        var result = ArrayUtil.createNewOrReuse(a, 1);
-        result[0] = (T) image;
-        return result;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T> T[] toArray(IntFunction<T[]> generator) {
-        var result = generator.apply(1);
-        result[0] = (T) image;
-        return result;
-    }
-
-    @Override
     public ClosableIterator<ImageFrame> iterator() {
         return ClosableIterator.wrap(Iterators.singletonIterator(image));
     }
@@ -96,13 +64,8 @@ public class JavaxImageReader extends BaseMediaReader<ImageFrame> {
     }
 
     @Override
-    public Spliterator<ImageFrame> spliterator() {
-        return List.of(image).spliterator();
-    }
-
-    @Override
-    public Stream<ImageFrame> stream() {
-        return Stream.of(image);
+    public ClosableSpliterator<ImageFrame> spliterator() {
+        return ClosableSpliterator.wrap(List.of(image).spliterator());
     }
 
     @Override

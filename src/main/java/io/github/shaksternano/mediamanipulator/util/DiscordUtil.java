@@ -2,6 +2,7 @@ package io.github.shaksternano.mediamanipulator.util;
 
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
+import net.dv8tion.jda.api.events.message.GenericMessageEvent;
 import net.dv8tion.jda.api.utils.MarkdownSanitizer;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,6 +20,11 @@ public class DiscordUtil {
         } else {
             return guild.getBoostTier().getMaxFileSize();
         }
+    }
+
+    public static long getMaxUploadSize(GenericMessageEvent event) {
+        var guild = event.isFromGuild() ? event.getGuild() : null;
+        return getMaxUploadSize(guild);
     }
 
     public static String getContentStrippedKeepEmotes(Message message) {

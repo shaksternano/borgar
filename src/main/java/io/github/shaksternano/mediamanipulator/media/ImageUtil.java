@@ -73,6 +73,9 @@ public class ImageUtil {
      * @return The stretched image.
      */
     public static BufferedImage stretch(BufferedImage image, int targetWidth, int targetHeight, boolean raw) {
+        if (image.getWidth() == targetWidth && image.getHeight() == targetHeight) {
+            return image;
+        }
         if (raw) {
             BufferedImage stretchedImage = new BufferedImage(targetWidth, targetHeight, ImageUtil.getType(image));
             Graphics2D graphics = stretchedImage.createGraphics();
@@ -82,6 +85,10 @@ public class ImageUtil {
         } else {
             return ImmutableImage.wrapAwt(image).scaleTo(targetWidth, targetHeight).awt();
         }
+    }
+
+    public static BufferedImage resize(BufferedImage image, float resizeMultiplier) {
+        return resize(image, resizeMultiplier, false);
     }
 
     public static BufferedImage resize(BufferedImage image, float resizeMultiplier, boolean raw) {

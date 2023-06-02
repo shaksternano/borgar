@@ -31,7 +31,7 @@ public class CropCommand extends FileCommand {
     }
 
     @Override
-    protected NamedFile modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
+    protected NamedFile modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event, long maxFileSize) throws IOException {
         MessageChannel triggerChannel = event.getChannel();
         float topRatio = CommandParser.parseFloatExtraArgument(
             extraArguments,
@@ -74,7 +74,8 @@ public class CropCommand extends FileCommand {
                     file,
                     fileFormat,
                     "cropped",
-                    new CropProcessor(topRatio, rightRatio, bottomRatio, leftRatio)
+                    new CropProcessor(topRatio, rightRatio, bottomRatio, leftRatio),
+                    maxFileSize
                 ),
                 "cropped",
                 fileFormat

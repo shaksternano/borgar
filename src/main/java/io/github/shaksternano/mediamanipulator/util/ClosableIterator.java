@@ -3,6 +3,7 @@ package io.github.shaksternano.mediamanipulator.util;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.function.Consumer;
 
 public interface ClosableIterator<T> extends Iterator<T>, Closeable {
 
@@ -11,6 +12,16 @@ public interface ClosableIterator<T> extends Iterator<T>, Closeable {
             return closableIterator;
         }
         return new ClosableIterator<>() {
+
+            @Override
+            public void remove() {
+                iterator.remove();
+            }
+
+            @Override
+            public void forEachRemaining(Consumer<? super T> action) {
+                iterator.forEachRemaining(action);
+            }
 
             @Override
             public boolean hasNext() {

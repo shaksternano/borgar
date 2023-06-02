@@ -46,17 +46,19 @@ public class SpeechBubbleCommand extends FileCommand {
      * @param arguments      The arguments of the command.
      * @param extraArguments A multimap mapping the additional parameter names to a list of the arguments.
      * @param event          The {@link MessageReceivedEvent} that triggered the command.
+     * @param maxFileSize    The maximum file size of the output file.
      * @return The edited media file.
      * @throws IOException If an error occurs while applying the operation.
      */
     @Override
-    protected NamedFile modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
+    protected NamedFile modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event, long maxFileSize) throws IOException {
         return new NamedFile(
             MediaUtil.processMedia(
                 file,
                 fileFormat,
                 "speech_bubbled",
-                new SpeechBubbleProcessor(cutOut)
+                new SpeechBubbleProcessor(cutOut),
+                maxFileSize
             ),
             "speech_bubbled",
             fileFormat

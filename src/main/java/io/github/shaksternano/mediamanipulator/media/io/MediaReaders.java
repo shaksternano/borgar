@@ -45,14 +45,14 @@ public class MediaReaders {
     }
 
     private static void registerImageReaderFactory(MediaReaderFactory<ImageFrame> factory, String... formats) {
-        for (String format : formats) {
+        for (var format : formats) {
             imageReaderFactories.putIfAbsent(format.toLowerCase(), factory);
         }
     }
 
     @SuppressWarnings("SameParameterValue")
     private static void registerAudioReaderFactory(MediaReaderFactory<AudioFrame> factory, String... formats) {
-        for (String format : formats) {
+        for (var format : formats) {
             audioReaderFactories.putIfAbsent(format.toLowerCase(), factory);
         }
     }

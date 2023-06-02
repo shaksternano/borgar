@@ -7,7 +7,12 @@ public record ImageFrame(
     BufferedImage content,
     double duration,
     long timestamp
-) implements VideoFrame<BufferedImage> {
+) implements VideoFrame<BufferedImage, ImageFrame> {
+
+    @Override
+    public ImageFrame transform(BufferedImage newContent) {
+        return transform(newContent, 1);
+    }
 
     @Override
     public ImageFrame transform(float speedMultiplier) {
@@ -21,6 +26,11 @@ public record ImageFrame(
             duration / speedMultiplier,
             timestamp
         );
+    }
+
+    @Override
+    public ImageFrame transform(double duration, long timestamp) {
+        return new ImageFrame(content, duration, timestamp);
     }
 
     @Override

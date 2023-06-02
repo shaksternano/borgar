@@ -62,7 +62,7 @@ public class ImageDrawable implements Drawable {
 
     @Override
     public int getFrameCount() {
-        return reader.size();
+        return reader.frameCount();
     }
 
     @Override

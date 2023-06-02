@@ -8,11 +8,13 @@ import io.github.shaksternano.mediamanipulator.media.ImageFrame;
 import io.github.shaksternano.mediamanipulator.media.ImageUtil;
 import io.github.shaksternano.mediamanipulator.media.MediaUtil;
 import io.github.shaksternano.mediamanipulator.media.io.MediaReaders;
-import io.github.shaksternano.mediamanipulator.media.io.MediaWriters;
+import io.github.shaksternano.mediamanipulator.media.io.imageprocessor.SingleImageProcessor;
+import io.github.shaksternano.mediamanipulator.media.io.reader.ConstantFrameDurationReader;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -33,7 +35,7 @@ public class SpinCommand extends FileCommand {
     }
 
     @Override
-    protected NamedFile modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) throws IOException {
+    protected NamedFile modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event, long maxFileSize) throws IOException {
         var spinSpeed = CommandParser.parseFloatArgument(arguments,
             0,
             DEFAULT_SPIN_SPEED,
@@ -49,59 +51,87 @@ public class SpinCommand extends FileCommand {
             event.getChannel(),
             (argument, defaultValue) -> "RGB value \"" + argument + "\" is not a whole number. Setting transparent background color."
         );
-        return spin(file, fileFormat, spinSpeed, rgb < 0 ? null : new Color(rgb));
+        return spin(
+            file,
+            fileFormat,
+            spinSpeed,
+            rgb < 0 ? null : new Color(rgb),
+            maxFileSize
+        );
     }
 
-    private static NamedFile spin(File media, String format, float speed, @Nullable Color backgroundColor) throws IOException {
+    private static NamedFile spin(File media, String format, float speed, @Nullable Color backgroundColor, long maxFileSize) throws IOException {
         var outputFormat = MediaUtil.isStaticOnly(format) ? "gif" : format;
-        var output = FileUtil.createTempFile("spun", outputFormat);
-        try (
-            var imageReader = MediaReaders.createImageReader(media, format);
-            var audioReader = MediaReaders.createAudioReader(media, format);
-            var writer = MediaWriters.createWriter(
-                output,
-                outputFormat,
-                audioReader.audioChannels(),
-                audioReader.audioSampleRate(),
-                audioReader.audioBitrate());
-            var audioIterator = audioReader.iterator()
-        ) {
-            var mediaDuration = imageReader.duration();
-            var absoluteSpeed = Math.abs(speed);
-            var frameDuration = 20000L;
-            var framesPerRotation = 150;
-            if (absoluteSpeed > 1) {
-                framesPerRotation = Math.max((int) (framesPerRotation / absoluteSpeed), 1);
-            }
-            var rotationDuration = frameDuration * framesPerRotation;
-            var rotations = (int) Math.ceil(mediaDuration / (double) rotationDuration);
-            var totalDuration = rotations * rotationDuration;
-            var maxDimension = Math.max(imageReader.width(), imageReader.height());
-            var imageType = -1;
-            for (var timestamp = 0L; timestamp < totalDuration; timestamp += frameDuration) {
-                var image = imageReader.readFrame(timestamp).content();
-                if (imageType < 0) {
-                    imageType = MediaUtil.supportedTransparentImageType(image, imageReader.format());
-                }
-                var angle = 2 * Math.PI * (timestamp / (double) rotationDuration);
-                if (speed < 0) {
-                    angle = -angle;
-                }
-                var rotatedImage = ImageUtil.rotate(
-                    image,
-                    angle,
-                    maxDimension,
-                    maxDimension,
-                    backgroundColor,
-                    imageType
-                );
-                writer.writeImageFrame(new ImageFrame(rotatedImage, frameDuration, timestamp));
-            }
-            while (audioIterator.hasNext()) {
-                var audioFrame = audioIterator.next();
-                writer.writeAudioFrame(audioFrame);
-            }
-            return new NamedFile(output, "spun", outputFormat);
+        var nameWithoutExtension = "spun";
+        var output = FileUtil.createTempFile(nameWithoutExtension, outputFormat);
+        var imageReader = MediaReaders.createImageReader(media, format);
+        var audioReader = MediaReaders.createAudioReader(media, format);
+        var mediaDuration = imageReader.duration();
+        var absoluteSpeed = Math.abs(speed);
+        var frameDuration = 20000L;
+        var framesPerRotation = 150;
+        if (absoluteSpeed > 1) {
+            framesPerRotation = Math.max((int) (framesPerRotation / absoluteSpeed), 1);
         }
+        var rotationDuration = frameDuration * framesPerRotation;
+        var rotations = (int) Math.ceil(mediaDuration / (double) rotationDuration);
+        var totalDuration = rotations * rotationDuration;
+        var maxDimension = Math.max(imageReader.width(), imageReader.height());
+        return new NamedFile(
+            MediaUtil.processMedia(
+                new ConstantFrameDurationReader<>(imageReader, frameDuration, totalDuration),
+                audioReader,
+                output,
+                format,
+                new SpinProcessor(
+                    format,
+                    speed,
+                    rotationDuration,
+                    maxDimension,
+                    backgroundColor
+                ),
+                maxFileSize
+            ),
+            nameWithoutExtension,
+            outputFormat
+        );
+    }
+
+    private record SpinProcessor(
+        String outputFormat,
+        float speed,
+        long rotationDuration,
+        int maxDimension,
+        @Nullable Color backgroundColor
+    ) implements SingleImageProcessor<SpinData> {
+
+        @Override
+        public BufferedImage transformImage(ImageFrame frame, SpinData constantData) {
+            var image = frame.content();
+            var angle = 2 * Math.PI * (frame.timestamp() / (double) rotationDuration);
+            if (speed < 0) {
+                angle = -angle;
+            }
+            return ImageUtil.rotate(
+                image,
+                angle,
+                maxDimension,
+                maxDimension,
+                backgroundColor,
+                constantData.imageType()
+            );
+        }
+
+        @Override
+        public SpinData constantData(BufferedImage image) {
+            return new SpinData(
+                MediaUtil.supportedTransparentImageType(image, outputFormat)
+            );
+        }
+    }
+
+    private record SpinData(
+        int imageType
+    ) {
     }
 }
