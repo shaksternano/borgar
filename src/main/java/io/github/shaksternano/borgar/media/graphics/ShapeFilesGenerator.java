@@ -21,7 +21,7 @@ public class ShapeFilesGenerator {
         generateShapeFileFromImage("image/containerimage/thinking_bubble_edge_trimmed.png", new Coordinate(10, 120), new Coordinate(30, 90), new Coordinate(70, 40));
     }
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
+    @SuppressWarnings({"ResultOfMethodCallIgnored", "SameParameterValue"})
     private static void generateShapeFileFromImage(String imageResourcePath, Coordinate... fillStartPositions) {
         LOGGER.info("Starting!");
         long startTime = System.currentTimeMillis();

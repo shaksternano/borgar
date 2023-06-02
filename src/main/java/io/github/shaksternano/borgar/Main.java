@@ -3,8 +3,6 @@ package io.github.shaksternano.borgar;
 import io.github.shaksternano.borgar.command.Command;
 import io.github.shaksternano.borgar.command.util.Commands;
 import io.github.shaksternano.borgar.emoji.EmojiUtil;
-import io.github.shaksternano.borgar.image.reader.util.ImageReaders;
-import io.github.shaksternano.borgar.image.writer.util.ImageWriters;
 import io.github.shaksternano.borgar.listener.CommandListener;
 import io.github.shaksternano.borgar.logging.DiscordLogger;
 import io.github.shaksternano.borgar.media.template.ResourceTemplateImageInfo;
@@ -71,8 +69,6 @@ public class Main {
      * @param args The program arguments.
      */
     public static void main(String[] args) {
-        ImageReaders.registerImageReaders();
-        ImageWriters.registerImageWriters();
         Fonts.registerFonts();
         ResourceTemplateImageInfo.validate();
 

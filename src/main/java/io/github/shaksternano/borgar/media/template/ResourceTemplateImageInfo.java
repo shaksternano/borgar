@@ -1,7 +1,6 @@
 package io.github.shaksternano.borgar.media.template;
 
 import io.github.shaksternano.borgar.Main;
-import io.github.shaksternano.borgar.image.imagemedia.ImageMedia;
 import io.github.shaksternano.borgar.io.FileUtil;
 import io.github.shaksternano.borgar.media.AudioFrame;
 import io.github.shaksternano.borgar.media.ImageFrame;
@@ -267,6 +266,7 @@ public enum ResourceTemplateImageInfo implements TemplateImageInfo {
         this.fill = fill;
     }
 
+    @SuppressWarnings("SameParameterValue")
     ResourceTemplateImageInfo(
         String imagePath,
         String resultName,
@@ -308,11 +308,6 @@ public enum ResourceTemplateImageInfo implements TemplateImageInfo {
             isBackground,
             fill
         );
-    }
-
-    @Override
-    public ImageMedia getImage() throws IOException {
-        return ImageUtil.getImageResourceInRootPackage(imagePath);
     }
 
     @Override
@@ -442,14 +437,18 @@ public enum ResourceTemplateImageInfo implements TemplateImageInfo {
             try {
                 FileUtil.validateResourcePathInRootPackage(containerImageInfo.imagePath);
 
-                try {
-                    ImageUtil.getImageResourceInRootPackage(containerImageInfo.imagePath);
+                try (
+                    @SuppressWarnings("unused")
+                    var imageReader = containerImageInfo.getImageReader();
+                    @SuppressWarnings("unused")
+                    var audioReader = containerImageInfo.getAudioReader()
+                ) {
                     return;
                 } catch (Throwable t) {
-                    Main.getLogger().error("Error loading image with path \"" + containerImageInfo.imagePath + "\" in " + containerImageInfo.getClass().getSimpleName() + " \"" + containerImageInfo + "\"!", t);
+                    Main.getLogger().error("Error loading media with path \"" + containerImageInfo.imagePath + "\" in " + containerImageInfo.getClass().getSimpleName() + " \"" + containerImageInfo + "\"!", t);
                 }
             } catch (Throwable t) {
-                Main.getLogger().error("Image resource path \"" + containerImageInfo.imagePath + "\" in " + containerImageInfo.getClass().getSimpleName() + " \"" + containerImageInfo + "\" is invalid!", t);
+                Main.getLogger().error("Media resource path \"" + containerImageInfo.imagePath + "\" in " + containerImageInfo.getClass().getSimpleName() + " \"" + containerImageInfo + "\" is invalid!", t);
             }
         }
 

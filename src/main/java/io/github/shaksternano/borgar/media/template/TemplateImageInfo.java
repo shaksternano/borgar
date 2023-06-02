@@ -1,6 +1,5 @@
 package io.github.shaksternano.borgar.media.template;
 
-import io.github.shaksternano.borgar.image.imagemedia.ImageMedia;
 import io.github.shaksternano.borgar.media.AudioFrame;
 import io.github.shaksternano.borgar.media.ImageFrame;
 import io.github.shaksternano.borgar.media.graphics.Position;
@@ -14,8 +13,6 @@ import java.util.Optional;
 import java.util.function.Function;
 
 public interface TemplateImageInfo {
-
-    ImageMedia getImage() throws IOException;
 
     MediaReader<ImageFrame> getImageReader() throws IOException;
 

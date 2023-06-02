@@ -1,9 +1,6 @@
 package io.github.shaksternano.borgar.media;
 
 import com.sksamuel.scrimage.ImmutableImage;
-import io.github.shaksternano.borgar.image.imagemedia.ImageMedia;
-import io.github.shaksternano.borgar.image.reader.util.ImageReaders;
-import io.github.shaksternano.borgar.io.FileUtil;
 import io.github.shaksternano.borgar.media.graphics.GraphicsUtil;
 import io.github.shaksternano.borgar.media.graphics.OverlayData;
 import io.github.shaksternano.borgar.media.graphics.TextDrawData;
@@ -28,16 +25,6 @@ import java.util.*;
  * Contains static methods for dealing with images.
  */
 public class ImageUtil {
-
-    public static ImageMedia getImageResourceInRootPackage(String imageResourcePath) throws IOException {
-        try (InputStream imageTypeInputStream = FileUtil.getResourceInRootPackage(imageResourcePath)) {
-            String imageFormat = getImageFormat(imageTypeInputStream);
-
-            try (InputStream loadImageInputStream = FileUtil.getResourceInRootPackage(imageResourcePath)) {
-                return ImageReaders.read(loadImageInputStream, imageFormat, null);
-            }
-        }
-    }
 
     public static void configureTextDrawQuality(Graphics2D graphics) {
         graphics.setRenderingHint(
@@ -477,15 +464,6 @@ public class ImageUtil {
             ColorConvertOp convertOp = new ColorConvertOp(null);
             return convertOp.filter(image, newType);
         }
-    }
-
-    public static String imageToString(BufferedImage image) {
-        return image.getClass().getSimpleName() +
-            "[" +
-            image.getWidth() +
-            "x" +
-            image.getHeight() +
-            "]";
     }
 
     public static int getType(BufferedImage image) {
