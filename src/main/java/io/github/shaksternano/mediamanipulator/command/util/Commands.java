@@ -186,27 +186,15 @@ public class Commands {
     /**
      * Turns media into a GIF file.
      */
-    public static final Command TO_GIF = addCommandToRegister(new ToGifCommand(
-        "gif",
-        "Turns media into a GIF file.",
-        false
-    ));
+    public static final Command TO_GIF = addCommandToRegister(new TranscodeCommand("gif"));
 
-    public static final Command TO_GIF_2 = addCommandToRegister(new ToGifCommand(
-        "gif2",
-        "Turns media into a GIF file by just renaming the file extension to \".gif\".",
-        true
-    ));
+    public static final Command TO_GIF_2 = addCommandToRegister(new ChangeExtensionCommand("gif"));
 
-    public static final Command TO_PNG = addCommandToRegister(new ToPngCommand(
-        "png",
-        "Turns media into a PNG file and adds transparency."
-    ));
+    public static final Command TO_PNG = addCommandToRegister(new TranscodeCommand("png"));
 
-    public static final Command TO_ICO = addCommandToRegister(new ToIcoCommand(
-        "ico",
-        "Turns media into an ICO file."
-    ));
+    public static final Command TO_ICO = addCommandToRegister(new TranscodeCommand("ico"));
+
+    public static final Command TO_MP4 = addCommandToRegister(new TranscodeCommand("mp4"));
 
     public static final Command SERVER_ICON = addCommandToRegister(new ServerIconCommand(
         "servericon",

@@ -11,4 +11,8 @@ public interface MediaWriter extends Closeable {
     void writeImageFrame(ImageFrame frame) throws IOException;
 
     void writeAudioFrame(AudioFrame frame) throws IOException;
+
+    boolean isStatic();
+
+    boolean supportsAudio();
 }

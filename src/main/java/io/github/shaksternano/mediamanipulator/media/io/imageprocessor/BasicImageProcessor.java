@@ -5,15 +5,15 @@ import io.github.shaksternano.mediamanipulator.media.ImageFrame;
 import java.awt.image.BufferedImage;
 import java.util.function.UnaryOperator;
 
-public record BasicImageProcessor(UnaryOperator<BufferedImage> imageMapper) implements SingleImageProcessor<Boolean> {
+public record BasicImageProcessor(UnaryOperator<BufferedImage> imageMapper) implements SingleImageProcessor<Object> {
 
     @Override
-    public BufferedImage transformImage(ImageFrame frame, Boolean constantData) {
+    public BufferedImage transformImage(ImageFrame frame, Object constantData) {
         return imageMapper.apply(frame.content());
     }
 
     @Override
-    public Boolean constantData(BufferedImage image) {
+    public Object constantData(BufferedImage image) {
         return true;
     }
 }

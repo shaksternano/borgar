@@ -8,7 +8,6 @@ import io.github.shaksternano.mediamanipulator.image.writer.util.ImageWriters;
 import io.github.shaksternano.mediamanipulator.listener.CommandListener;
 import io.github.shaksternano.mediamanipulator.logging.DiscordLogger;
 import io.github.shaksternano.mediamanipulator.media.template.ResourceTemplateImageInfo;
-import io.github.shaksternano.mediamanipulator.mediamanipulator.util.MediaManipulators;
 import io.github.shaksternano.mediamanipulator.util.Fonts;
 import io.github.shaksternano.mediamanipulator.util.MiscUtil;
 import io.github.shaksternano.mediamanipulator.util.ProgramArguments;
@@ -88,7 +87,6 @@ public class Main {
         initTenorApiKey();
 
         Commands.registerCommands();
-        MediaManipulators.registerMediaManipulators();
 
         EmojiUtil.initEmojiUnicodeSet();
         EmojiUtil.initEmojiShortCodesToUrlsMap();

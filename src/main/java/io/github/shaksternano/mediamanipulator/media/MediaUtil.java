@@ -1,10 +1,12 @@
 package io.github.shaksternano.mediamanipulator.media;
 
+import com.google.common.io.Files;
 import io.github.shaksternano.mediamanipulator.io.FileUtil;
 import io.github.shaksternano.mediamanipulator.media.io.MediaReaders;
 import io.github.shaksternano.mediamanipulator.media.io.MediaWriters;
 import io.github.shaksternano.mediamanipulator.media.io.imageprocessor.BasicImageProcessor;
 import io.github.shaksternano.mediamanipulator.media.io.imageprocessor.DualImageProcessor;
+import io.github.shaksternano.mediamanipulator.media.io.imageprocessor.IdentityProcessor;
 import io.github.shaksternano.mediamanipulator.media.io.imageprocessor.SingleImageProcessor;
 import io.github.shaksternano.mediamanipulator.media.io.reader.MediaReader;
 import io.github.shaksternano.mediamanipulator.media.io.reader.ZippedMediaReader;
@@ -20,14 +22,14 @@ import java.util.function.UnaryOperator;
 public class MediaUtil {
 
     public static File processMedia(
-        File media,
+        File input,
         String outputFormat,
         String resultName,
         UnaryOperator<BufferedImage> imageMapper,
         long maxFileSize
     ) throws IOException {
         return processMedia(
-            media,
+            input,
             outputFormat,
             resultName,
             new BasicImageProcessor(imageMapper),
@@ -36,25 +38,43 @@ public class MediaUtil {
     }
 
     public static File processMedia(
-        File media,
+        File input,
         String outputFormat,
         String resultName,
         SingleImageProcessor<?> processor,
         long maxFileSize
     ) throws IOException {
         var output = FileUtil.createTempFile(resultName, outputFormat);
-        return processMedia(media, outputFormat, output, processor, maxFileSize);
+        return processMedia(input, output, outputFormat, processor, maxFileSize);
     }
 
     public static File processMedia(
-        File media,
-        String outputFormat,
+        File input,
         File output,
+        String outputFormat,
         SingleImageProcessor<?> processor,
         long maxFileSize
     ) throws IOException {
-        var imageReader = MediaReaders.createImageReader(media, outputFormat);
-        var audioReader = MediaReaders.createAudioReader(media, outputFormat);
+        return processMedia(
+            input,
+            outputFormat,
+            output,
+            outputFormat,
+            processor,
+            maxFileSize
+        );
+    }
+
+    public static File processMedia(
+        File input,
+        String inputFormat,
+        File output,
+        String outputFormat,
+        SingleImageProcessor<?> processor,
+        long maxFileSize
+    ) throws IOException {
+        var imageReader = MediaReaders.createImageReader(input, inputFormat);
+        var audioReader = MediaReaders.createAudioReader(input, inputFormat);
         return processMedia(imageReader, audioReader, output, outputFormat, processor, maxFileSize);
     }
 
@@ -118,11 +138,16 @@ public class MediaUtil {
                             ),
                             processor.absoluteSpeed()
                         ));
+                        if (writer.isStatic()) {
+                            break;
+                        }
                     }
 
-                    while (audioIterator.hasNext()) {
-                        var audioFrame = audioIterator.next();
-                        writer.writeAudioFrame(audioFrame.transform(processor.absoluteSpeed()));
+                    if (writer.supportsAudio()) {
+                        while (audioIterator.hasNext()) {
+                            var audioFrame = audioIterator.next();
+                            writer.writeAudioFrame(audioFrame.transform(processor.absoluteSpeed()));
+                        }
                     }
                 }
                 outputSize = output.length();
@@ -189,11 +214,16 @@ public class MediaUtil {
                             ),
                             processor.absoluteSpeed()
                         ));
+                        if (writer.isStatic()) {
+                            break;
+                        }
                     }
 
-                    while (audioIterator.hasNext()) {
-                        var audioFrame = audioIterator.next();
-                        writer.writeAudioFrame(audioFrame.transform(processor.absoluteSpeed()));
+                    if (writer.supportsAudio()) {
+                        while (audioIterator.hasNext()) {
+                            var audioFrame = audioIterator.next();
+                            writer.writeAudioFrame(audioFrame.transform(processor.absoluteSpeed()));
+                        }
                     }
                 }
                 outputSize = output.length();
@@ -268,6 +298,24 @@ public class MediaUtil {
         }
     }
 
+    public static File transcode(
+        File input,
+        String inputFormat,
+        String outputFormat,
+        long maxFileSize
+    ) throws IOException {
+        var nameWithoutExtension = Files.getNameWithoutExtension(input.getName());
+        var output = FileUtil.createTempFile(nameWithoutExtension, outputFormat);
+        return processMedia(
+            input,
+            inputFormat,
+            output,
+            outputFormat,
+            IdentityProcessor.INSTANCE,
+            maxFileSize
+        );
+    }
+
     public static String equivalentTransparentFormat(String format) {
         if (isJpg(format)) {
             return "png";
@@ -280,10 +328,13 @@ public class MediaUtil {
         return supportsTransparency(format) ? BufferedImage.TYPE_INT_ARGB : ImageUtil.getType(image);
     }
 
-    private static boolean supportsTransparency(String format) {
+    public static boolean supportsTransparency(String format) {
         return equalsIgnoreCaseAny(format,
+            "bmp",
             "png",
-            "gif"
+            "gif",
+            "tif",
+            "tiff"
         );
     }
 

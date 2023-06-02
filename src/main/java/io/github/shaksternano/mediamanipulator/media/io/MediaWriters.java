@@ -1,9 +1,6 @@
 package io.github.shaksternano.mediamanipulator.media.io;
 
-import io.github.shaksternano.mediamanipulator.media.io.writer.FFmpegVideoWriter;
-import io.github.shaksternano.mediamanipulator.media.io.writer.JavaxImageWriter;
-import io.github.shaksternano.mediamanipulator.media.io.writer.MediaWriter;
-import io.github.shaksternano.mediamanipulator.media.io.writer.ScrimageGifWriter;
+import io.github.shaksternano.mediamanipulator.media.io.writer.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -65,6 +62,18 @@ public class MediaWriters {
             "gif",
             "tif",
             "tiff"
+        );
+        registerWriterFactory(
+            (
+                output,
+                outputFormat,
+                audioChannels,
+                audioSampleRate,
+                audioBitrate,
+                maxFileSize,
+                maxDuration
+            ) -> new Image4jIcoWriter(output),
+            "ico"
         );
     }
 }

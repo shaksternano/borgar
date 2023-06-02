@@ -2,11 +2,13 @@ package io.github.shaksternano.mediamanipulator.media.io.writer;
 
 import io.github.shaksternano.mediamanipulator.media.AudioFrame;
 import io.github.shaksternano.mediamanipulator.media.ImageFrame;
+import io.github.shaksternano.mediamanipulator.media.ImageUtil;
 import org.bytedeco.ffmpeg.global.avcodec;
 import org.bytedeco.javacv.FFmpegFrameRecorder;
 import org.bytedeco.javacv.Java2DFrameConverter;
 import org.jetbrains.annotations.Nullable;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
@@ -46,7 +48,7 @@ public class FFmpegVideoWriter implements MediaWriter {
 
     @Override
     public void writeImageFrame(ImageFrame frame) throws IOException {
-        var image = frame.content();
+        var image = ImageUtil.convertType(frame.content(), BufferedImage.TYPE_3BYTE_BGR);
         if (recorder == null) {
             double fps = 1_000_000.0 / frame.duration();
             recorder = createFFmpegRecorder(
@@ -75,6 +77,16 @@ public class FFmpegVideoWriter implements MediaWriter {
         if (recorder.getFrameRate() <= MAX_AUDIO_FRAME_RATE) {
             recorder.record(frame.content());
         }
+    }
+
+    @Override
+    public boolean isStatic() {
+        return false;
+    }
+
+    @Override
+    public boolean supportsAudio() {
+        return true;
     }
 
     @Override

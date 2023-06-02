@@ -92,7 +92,7 @@ public abstract sealed class BaseFileCommand extends BaseCommand permits FileCom
                     e.getMessage() == null ? "Invalid media!" : "Invalid media: " + e.getMessage()
                 );
             } catch (UnsupportedFileFormatException e) {
-                var unsupportedMessage = "This operation is not supported on files with type \"" + fileFormat + "\"!";
+                var unsupportedMessage = "This operation is not supported on files with type `" + fileFormat + "`!";
                 if (e.getMessage() != null && !e.getMessage().isBlank()) {
                     unsupportedMessage = unsupportedMessage + " Reason: " + e.getMessage();
                 }

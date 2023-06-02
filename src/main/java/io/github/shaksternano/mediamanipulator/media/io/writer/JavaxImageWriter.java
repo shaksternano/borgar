@@ -1,8 +1,11 @@
 package io.github.shaksternano.mediamanipulator.media.io.writer;
 
 import io.github.shaksternano.mediamanipulator.media.ImageFrame;
+import io.github.shaksternano.mediamanipulator.media.ImageUtil;
+import io.github.shaksternano.mediamanipulator.media.MediaUtil;
 
 import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
@@ -21,11 +24,22 @@ public class JavaxImageWriter extends NoAudioWriter {
     public void writeImageFrame(ImageFrame frame) throws IOException {
         if (!written) {
             written = true;
-            var supportedFormat = ImageIO.write(frame.content(), outputFormat, output);
+            BufferedImage image;
+            if (MediaUtil.supportsTransparency(outputFormat)) {
+                image = ImageUtil.convertType(frame.content(), BufferedImage.TYPE_INT_ARGB);
+            } else {
+                image = frame.content();
+            }
+            var supportedFormat = ImageIO.write(image, outputFormat, output);
             if (!supportedFormat) {
                 throw new IOException("Unsupported image format: " + outputFormat);
             }
         }
+    }
+
+    @Override
+    public boolean isStatic() {
+        return true;
     }
 
     @Override

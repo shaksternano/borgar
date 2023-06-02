@@ -23,7 +23,7 @@ public class CommandRegistry {
      * @param commands The commands to register.
      */
     public static void register(Iterable<Command> commands) {
-        for (Command command : commands) {
+        for (var command : commands) {
             registry.put(command.getName().toLowerCase(), command);
         }
     }

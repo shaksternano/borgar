@@ -3,9 +3,9 @@ package io.github.shaksternano.mediamanipulator.io;
 import io.github.shaksternano.mediamanipulator.Main;
 import io.github.shaksternano.mediamanipulator.media.ImageUtil;
 import io.github.shaksternano.mediamanipulator.media.template.ResourceTemplateImageInfo;
+import io.github.shaksternano.mediamanipulator.util.MiscUtil;
 import io.github.shaksternano.mediamanipulator.util.tenor.TenorMediaType;
 import io.github.shaksternano.mediamanipulator.util.tenor.TenorUtil;
-import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.Nullable;
 import org.reflections.Reflections;
 import org.reflections.scanners.Scanners;
@@ -24,7 +24,6 @@ import java.util.regex.Pattern;
  */
 public class FileUtil {
 
-    private static File TEMP_DIR;
     private static final String ROOT_RESOURCE_DIRECTORY = Main.getRootPackage().replace(".", "/") + "/";
 
     /**
@@ -37,32 +36,6 @@ public class FileUtil {
         var file = Files.createTempFile(nameWithoutExtension, extensionWithDot).toFile();
         file.deleteOnExit();
         return file;
-    }
-
-    private static File createTempDir() throws IOException {
-        File tempDir = Files.createTempDirectory("mediamanipulator").toFile();
-        tempDir.deleteOnExit();
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> FileUtils.deleteQuietly(tempDir)));
-        return tempDir;
-    }
-
-    /**
-     * Gets the program's temporary directory.
-     *
-     * @return The program's temporary directory.
-     * This is guaranteed to be a directory instead of a file.
-     */
-    public static File getTempDir() {
-        if (TEMP_DIR == null || !TEMP_DIR.isDirectory()) {
-            try {
-                TEMP_DIR = createTempDir();
-            } catch (IOException e) {
-                Main.getLogger().error("Failed to create temporary directory!", e);
-                Main.shutdown(1);
-            }
-        }
-
-        return TEMP_DIR;
     }
 
     /**
@@ -113,18 +86,6 @@ public class FileUtil {
         }
 
         return file;
-    }
-
-    /**
-     * Gets a unique file that will be created in the program's temporary directory.
-     *
-     * @param fileName The name of the file.
-     * @return A {@link File} with a unique name.
-     */
-    public static File getUniqueTempFile(String fileName) {
-        File tempFile = getUniqueFile(getTempDir().toString(), fileName);
-        tempFile.deleteOnExit();
-        return tempFile;
     }
 
     public static String getResourcePathInRootPackage(String resourcePath) {
@@ -234,9 +195,9 @@ public class FileUtil {
         }
     }
 
-    public static String changeExtension(String filePath, @Nullable String newExtension) {
-        String fileNameWithoutExtension = com.google.common.io.Files.getNameWithoutExtension(filePath);
-        if (newExtension == null || newExtension.isBlank()) {
+    public static String changeExtension(String fileName, @Nullable String newExtension) {
+        String fileNameWithoutExtension = com.google.common.io.Files.getNameWithoutExtension(fileName);
+        if (MiscUtil.nullOrBlank(newExtension)) {
             return fileNameWithoutExtension;
         } else {
             return fileNameWithoutExtension + "." + newExtension;

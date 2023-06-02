@@ -110,6 +110,11 @@ public class ScrimageGifWriter extends NoAudioWriter {
     }
 
     @Override
+    public boolean isStatic() {
+        return false;
+    }
+
+    @Override
     public void close() throws IOException {
         if (!closed) {
             closed = true;
