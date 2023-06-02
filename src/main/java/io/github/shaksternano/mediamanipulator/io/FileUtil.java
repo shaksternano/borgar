@@ -38,56 +38,6 @@ public class FileUtil {
         return file;
     }
 
-    /**
-     * Gets a file that doesn't already exist by creating temporary folders
-     * that don't exist and placing the file in there.
-     *
-     * @param directory The directory the file will be located in.
-     * @param fileName  The name of the file.
-     * @return A file that doesn't already exist.
-     */
-    public static File getUniqueFile(@Nullable String directory, String fileName) {
-        String filePath = directory == null ? fileName : directory + File.separatorChar + fileName;
-        return getUniqueFile(filePath, false, false);
-    }
-
-    /**
-     * Gets a file that doesn't already exist by creating temporary folders
-     * that don't exist and placing the file in there.
-     *
-     * @param filePath        The starting file path to get a unique file path from.
-     * @param isDirectory     Whether the file is a directory.
-     * @param uniqueDirectory Whether the directory should be unique if trying to get a directory.
-     * @return A file that doesn't already exist.
-     */
-    @SuppressWarnings("ResultOfMethodCallIgnored")
-    public static File getUniqueFile(String filePath, boolean isDirectory, boolean uniqueDirectory) {
-        int num = 1;
-
-        File file = new File(filePath);
-        String name = file.getName();
-        String fileDirectory = file.getParent();
-
-        if (isDirectory) {
-            while (uniqueDirectory ? file.exists() : file.isFile()) {
-                String fileName = name + num;
-                file = new File(fileDirectory, fileName);
-                num++;
-            }
-
-            file.mkdirs();
-        } else {
-            while (file.exists()) {
-                File tempDirectory = getUniqueFile(fileDirectory + File.separatorChar + "temp", true, true);
-                tempDirectory.mkdirs();
-                tempDirectory.deleteOnExit();
-                file = new File(tempDirectory, name);
-            }
-        }
-
-        return file;
-    }
-
     public static String getResourcePathInRootPackage(String resourcePath) {
         return ROOT_RESOURCE_DIRECTORY + resourcePath;
     }
@@ -110,39 +60,6 @@ public class FileUtil {
         } else {
             return inputStream;
         }
-    }
-
-    /**
-     * Downloads a file from a URL.
-     *
-     * @param url       The text to download the image from.
-     * @param directory The directory to download the image to.
-     * @return An {@link Optional} describing the image file.
-     */
-    public static Optional<File> downloadFile(String url, String directory) {
-        try {
-            Optional<String> tenorMediaUrlOptional = TenorUtil.getTenorMediaUrl(url, TenorMediaType.GIF_NORMAL, Main.getTenorApiKey());
-            url = tenorMediaUrlOptional.orElse(url);
-            String fileNameWithoutExtension = com.google.common.io.Files.getNameWithoutExtension(url);
-            String extension = com.google.common.io.Files.getFileExtension(url);
-
-            int index = extension.indexOf("?");
-            if (index != -1) {
-                extension = extension.substring(0, index);
-            }
-
-            String fileName = fileNameWithoutExtension;
-            if (!extension.isBlank()) {
-                fileName += "." + extension;
-            }
-
-            File imageFile = getUniqueFile(directory, fileName);
-            downloadFile(url, imageFile);
-            return Optional.of(imageFile);
-        } catch (IOException ignored) {
-        }
-
-        return Optional.empty();
     }
 
     /**

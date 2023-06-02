@@ -16,7 +16,6 @@ import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
@@ -39,35 +38,6 @@ public class MessageUtil {
      * The maximum number of messages to retrieve from the channel history.
      */
     private static final int MAX_PAST_MESSAGES_TO_CHECK = 50;
-
-    /**
-     * Downloads a file.
-     *
-     * @param message   The message to download the file from.
-     * @param directory The directory to download the file to.
-     * @return A {@code CompletableFuture} that will complete with an {@link Optional} describing the file.
-     */
-    public static CompletableFuture<Optional<File>> downloadFile(Message message, String directory) {
-        return processMessagesAsync(message, messageToProcess -> downloadAttachment(messageToProcess, directory)
-            .thenApply(fileOptional -> {
-                if (fileOptional.isPresent()) {
-                    return fileOptional;
-                }
-                var urls = StringUtil.extractUrls(messageToProcess.getContentRaw());
-                if (!urls.isEmpty()) {
-                    fileOptional = FileUtil.downloadFile(urls.get(0), directory);
-                    if (fileOptional.isPresent()) {
-                        return fileOptional;
-                    }
-                    fileOptional = downloadEmbedImage(messageToProcess, directory);
-                    if (fileOptional.isPresent()) {
-                        return fileOptional;
-                    }
-                }
-                return Optional.empty();
-            })
-        );
-    }
 
     /**
      * Downloads a file.
@@ -182,18 +152,6 @@ public class MessageUtil {
             );
     }
 
-    private static CompletableFuture<Optional<File>> downloadAttachment(Message message, String directory) {
-        var attachments = message.getAttachments();
-        if (attachments.isEmpty()) {
-            return CompletableFuture.completedFuture(Optional.empty());
-        }
-        var attachment = attachments.get(0);
-        var file = FileUtil.getUniqueFile(directory, attachment.getFileName());
-        return attachment.getProxy()
-            .downloadToFile(file)
-            .thenApply(Optional::of);
-    }
-
     private static CompletableFuture<Optional<NamedFile>> downloadAttachment(Message message) {
         var attachments = message.getAttachments();
         if (attachments.isEmpty()) {
@@ -211,27 +169,6 @@ public class MessageUtil {
                 }
             }).thenCompose(file1 -> attachment.getProxy().downloadToFile(file1))
             .thenApply(file1 -> Optional.of(new NamedFile(file1, fileName)));
-    }
-
-    /**
-     * Downloads an image file from an embed.
-     *
-     * @param message   The message containing the embed to download the image from.
-     * @param directory The directory to download the image to.
-     * @return An {@link Optional} describing the image file.
-     */
-    private static Optional<File> downloadEmbedImage(Message message, String directory) {
-        List<MessageEmbed> embeds = message.getEmbeds();
-
-        for (MessageEmbed embed : embeds) {
-            MessageEmbed.ImageInfo imageInfo = embed.getImage();
-
-            if (imageInfo != null) {
-                return FileUtil.downloadFile(imageInfo.getUrl(), directory);
-            }
-        }
-
-        return Optional.empty();
     }
 
     /**
