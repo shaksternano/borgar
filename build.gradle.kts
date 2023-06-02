@@ -44,7 +44,7 @@ tasks {
         archiveBaseName.set("${project.property("archives_base_name")}-shadow")
         mergeServiceFiles()
         manifest {
-            attributes(mapOf("Main-Class" to "${project.group}.mediamanipulator.Main"))
+            attributes(mapOf("Main-Class" to "${project.group}.borgar.Main"))
         }
     }
 }
@@ -83,7 +83,7 @@ tasks.getByName<Test>("test") {
 publishing {
     publications {
         register("mavenJava", MavenPublication::class) {
-            artifact("media-manipulator-discord-bot")
+            artifact(base.archivesName.get())
             from(components["java"])
         }
     }
