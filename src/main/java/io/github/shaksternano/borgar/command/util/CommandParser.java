@@ -10,6 +10,7 @@ import io.github.shaksternano.borgar.exception.MissingArgumentException;
 import io.github.shaksternano.borgar.util.DiscordUtil;
 import io.github.shaksternano.borgar.util.MessageUtil;
 import io.github.shaksternano.borgar.util.MiscUtil;
+import io.github.shaksternano.borgar.util.StringUtil;
 import io.github.shaksternano.borgar.util.function.FloatPredicate;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -91,9 +92,9 @@ public class CommandParser {
             Main.getLogger().error("This bot doesn't have the required permissions needed to execute command " + command.getNameWithPrefix(), error);
             errorMessage = "This bot doesn't have the required permissions to execute this command!";
         } else if (error instanceof InvalidArgumentException) {
-            errorMessage = MiscUtil.nullOrBlank(throwableMessage) ? "Invalid arguments!" : "Invalid arguments: " + throwableMessage;
+            errorMessage = StringUtil.nullOrBlank(throwableMessage) ? "Invalid arguments!" : "Invalid arguments: " + throwableMessage;
         } else if (error instanceof MissingArgumentException) {
-            errorMessage = MiscUtil.nullOrBlank(throwableMessage) ? "Missing arguments!" : "Missing arguments: " + throwableMessage;
+            errorMessage = StringUtil.nullOrBlank(throwableMessage) ? "Missing arguments!" : "Missing arguments: " + throwableMessage;
         } else if (error instanceof OutOfMemoryError) {
             Main.getLogger().error("Ran out of memory trying to execute command " + command.getNameWithPrefix(), error);
             errorMessage = "The server ran out of memory trying to execute this command!";

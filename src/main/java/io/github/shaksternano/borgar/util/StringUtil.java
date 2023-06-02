@@ -1,5 +1,7 @@
 package io.github.shaksternano.borgar.util;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -37,5 +39,9 @@ public class StringUtil {
         PrintWriter printWriter = new PrintWriter(stringWriter);
         t.printStackTrace(printWriter);
         return stringWriter.toString();
+    }
+
+    public static boolean nullOrBlank(@Nullable String string) {
+        return string == null || string.isBlank();
     }
 }

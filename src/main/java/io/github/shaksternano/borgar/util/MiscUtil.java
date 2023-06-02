@@ -76,8 +76,4 @@ public class MiscUtil {
                 return repeatTry(toAttempt, maxAttempts, secondsBetweenAttempts, onAttemptFailure, newAttempts);
             });
     }
-
-    public static boolean nullOrBlank(@Nullable String string) {
-        return string == null || string.isBlank();
-    }
 }

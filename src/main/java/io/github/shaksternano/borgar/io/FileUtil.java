@@ -3,7 +3,7 @@ package io.github.shaksternano.borgar.io;
 import io.github.shaksternano.borgar.Main;
 import io.github.shaksternano.borgar.media.ImageUtil;
 import io.github.shaksternano.borgar.media.template.ResourceTemplateImageInfo;
-import io.github.shaksternano.borgar.util.MiscUtil;
+import io.github.shaksternano.borgar.util.StringUtil;
 import io.github.shaksternano.borgar.util.tenor.TenorMediaType;
 import io.github.shaksternano.borgar.util.tenor.TenorUtil;
 import org.jetbrains.annotations.Nullable;
@@ -114,7 +114,7 @@ public class FileUtil {
 
     public static String changeExtension(String fileName, @Nullable String newExtension) {
         String fileNameWithoutExtension = com.google.common.io.Files.getNameWithoutExtension(fileName);
-        if (MiscUtil.nullOrBlank(newExtension)) {
+        if (StringUtil.nullOrBlank(newExtension)) {
             return fileNameWithoutExtension;
         } else {
             return fileNameWithoutExtension + "." + newExtension;
