@@ -1,4 +1,14 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+val jdaVersion: String by project
+val log4j2Version: String by project
+val disruptorVersion: String by project
+val guavaVersion: String by project
+val gsonVersion: String by project
+val commonsIoVersion: String by project
+val javacvVersion: String by project
+val scrimageVersion: String by project
+val image4jVersion: String by project
+val reflectionsVersion: String by project
+val junitVersion: String by project
 
 plugins {
     java
@@ -6,78 +16,51 @@ plugins {
     id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
-group = project.property("maven_group") as String
-base.archivesName.set(project.property("archives_base_name") as String)
-version = project.property("version") as String
+group = "io.github.shaksternano.borgar"
+base.archivesName.set("borgar")
+version = "1.0.0"
 
 repositories {
     mavenCentral()
-
-    maven {
-        name = "JitPack"
-        url = uri("https://jitpack.io")
-    }
 }
 
 dependencies {
-    implementation("net.dv8tion:JDA:${project.property("java_discord_api_version")}")
-    implementation("org.apache.logging.log4j:log4j-slf4j-impl:${project.property("apache_log4j_2_version")}")
-    implementation("com.lmax:disruptor:${project.property("lmax_disruptor_version")}")
-    implementation("com.google.guava:guava:${project.property("google_guava_version")}-jre")
-    implementation("com.google.code.gson:gson:${project.property("google_gson_version")}")
-    implementation("commons-io:commons-io:${project.property("apache_commons_io_version")}")
-    implementation("org.bytedeco:javacv-platform:${project.property("javacv_version")}")
-    implementation("com.sksamuel.scrimage:scrimage-core:${project.property("scrimage_version")}")
-    implementation("net.ifok.image:image4j:${project.property("image4j_version")}")
-    implementation("org.reflections:reflections:${project.property("reflections_version")}")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:${project.property("junit_version")}")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${project.property("junit_version")}")
-}
-
-extensions.configure<JavaPluginExtension> {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    implementation("net.dv8tion:JDA:$jdaVersion")
+    implementation("org.apache.logging.log4j:log4j-slf4j-impl:$log4j2Version")
+    implementation("com.lmax:disruptor:$disruptorVersion")
+    implementation("com.google.guava:guava:$guavaVersion-jre")
+    implementation("com.google.code.gson:gson:$gsonVersion")
+    implementation("commons-io:commons-io:$commonsIoVersion")
+    implementation("org.bytedeco:javacv-platform:$javacvVersion")
+    implementation("com.sksamuel.scrimage:scrimage-core:$scrimageVersion")
+    implementation("net.ifok.image:image4j:$image4jVersion")
+    implementation("org.reflections:reflections:$reflectionsVersion")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
 }
 
 tasks {
-    named<ShadowJar>("shadowJar") {
-        archiveBaseName.set("${project.property("archives_base_name")}-shadow")
+    jar {
+        enabled = false
+    }
+
+    shadowJar {
+        archiveClassifier.set("")
         mergeServiceFiles()
         manifest {
-            attributes(mapOf("Main-Class" to "${project.group}.borgar.Main"))
+            attributes(mapOf(
+                "Main-Class" to "${project.group}.Main",
+            ))
         }
     }
-}
 
-tasks {
     build {
         dependsOn(shadowJar)
     }
-}
 
-tasks {
-    withType<JavaCompile> {
-        options.encoding = "UTF-8"
-        options.release.set(17)
+    test {
+        useJUnitPlatform()
     }
-}
-
-task("copyToLib") {
-    doLast {
-        copy {
-            into("$buildDir/libs")
-            from(configurations.compileClasspath)
-        }
-    }
-}
-
-task("stage") {
-    dependsOn.add("build")
-    dependsOn.add("copyToLib")
-}
-
-tasks.getByName<Test>("test") {
-    useJUnitPlatform()
 }
 
 publishing {
