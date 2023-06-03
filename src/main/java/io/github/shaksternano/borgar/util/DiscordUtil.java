@@ -11,9 +11,6 @@ import java.util.regex.Pattern;
 
 public class DiscordUtil {
 
-    public static final int DISCORD_MAX_DISPLAY_WIDTH = 400;
-    public static final int DISCORD_MAX_DISPLAY_HEIGHT = 300;
-
     public static long getMaxUploadSize(@Nullable Guild guild) {
         if (guild == null) {
             return Message.MAX_FILE_SIZE;

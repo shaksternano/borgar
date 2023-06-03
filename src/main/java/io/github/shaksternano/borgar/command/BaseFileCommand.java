@@ -75,7 +75,7 @@ public abstract sealed class BaseFileCommand extends BaseCommand permits FileCom
                     });
                     output = namedEdited.file();
                     var outputSize = output.length();
-                    if (outputSize > DiscordUtil.getMaxUploadSize(event.getGuild())) {
+                    if (outputSize > DiscordUtil.getMaxUploadSize(event)) {
                         var outputSizeMb = outputSize / MiscUtil.TO_MB;
                         Main.getLogger().error("The size of the edited media file, " + outputSizeMb + "MB, is too large to send");
                         return MessageUtil.createResponse(
