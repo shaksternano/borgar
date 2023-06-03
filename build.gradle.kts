@@ -25,7 +25,9 @@ repositories {
 }
 
 dependencies {
-    implementation("net.dv8tion:JDA:$jdaVersion")
+    implementation("net.dv8tion:JDA:$jdaVersion") {
+        exclude(module = "opus-java")
+    }
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:$log4j2Version")
     implementation("com.lmax:disruptor:$disruptorVersion")
     implementation("com.google.guava:guava:$guavaVersion-jre")
