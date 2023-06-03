@@ -1,0 +1,19 @@
+package io.github.shaksternano.borgar.io;
+
+import java.io.File;
+
+public record NamedFile(File file, String name) {
+
+    public NamedFile(File file) {
+        this(file, file.getName());
+    }
+
+    public NamedFile(File file, String nameWithoutExtension, String extension) {
+        this(file, filename(nameWithoutExtension, extension));
+    }
+
+    private static String filename(String nameWithoutExtension, String extension) {
+        var extensionWithDot = extension.isBlank() ? "" : "." + extension;
+        return nameWithoutExtension + extensionWithDot;
+    }
+}

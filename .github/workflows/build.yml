@@ -3,8 +3,8 @@
 # certain platforms or Java versions, and provides a first line of defence
 # against bad commits.
 
-name: build
-on: [pull_request, push]
+name: Build
+on: [ pull_request, push ]
 
 jobs:
   build:
@@ -15,23 +15,28 @@ jobs:
           17,    # Current Java LTS
         ]
         # and run on both Linux and Windows
-        os: [ubuntu-20.04, windows-2022]
+        os: [ ubuntu-20.04, windows-2022 ]
     runs-on: ${{ matrix.os }}
     steps:
-      - name: checkout repository
+      - name: Checkout repository
         uses: actions/checkout@v2
-      - name: validate gradle wrapper
+
+      - name: Validate gradle wrapper
         uses: gradle/wrapper-validation-action@v1
-      - name: setup jdk ${{ matrix.java }}
+
+      - name: Setup JDK ${{ matrix.java }}
         uses: actions/setup-java@v1
         with:
           java-version: ${{ matrix.java }}
-      - name: make gradle wrapper executable
+
+      - name: Make gradle wrapper executable
         if: ${{ runner.os != 'Windows' }}
         run: chmod +x ./gradlew
-      - name: build
+
+      - name: Build
         run: ./gradlew build
-      - name: capture build artifacts
+
+      - name: Capture build artifacts
         if: ${{ runner.os == 'Linux' && matrix.java == '17' }} # Only upload artifacts built from the latest java on one OS
         uses: actions/upload-artifact@v2
         with:
