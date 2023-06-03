@@ -12,7 +12,6 @@ val junitVersion: String by project
 
 plugins {
     java
-    `maven-publish`
     id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
@@ -88,14 +87,5 @@ tasks {
 
     test {
         useJUnitPlatform()
-    }
-}
-
-publishing {
-    publications {
-        register("mavenJava", MavenPublication::class) {
-            artifact(base.archivesName.get())
-            from(components["java"])
-        }
     }
 }
