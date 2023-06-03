@@ -1,4 +1,4 @@
-# Media Manipulator Discord Bot
+# Borgar
 
 Discord bot that provides fun image editing commands, such as image captioning. View the list of commands with `/help`.
 
@@ -14,11 +14,11 @@ Discord bot that provides fun image editing commands, such as image captioning. 
    3. Go to `File` → `Project Structure` → `Project` and set `Project compiler output` to `$PROJECT_DIR$/out`.
 
 ## How to run this project in Intellij Idea
-1. Run `io.github.shaksternano.mediamanipulator.Main#main`
+1. Run `io.github.shaksternano.borgar.Main#main`
 2. It should fail to run the first time due to missing arguments such as the Discord bot token, so put those in the `Program arguments` field under the `Main` run configuration → `Edit Configurations...`.
 
 ## How to export and run this project as a JAR file
 1. Run in a terminal from the same directory as the project directory `./gradlew build` on GNU/Linux and Mac, or `gradlew build` on Windows.
 2. Alternatively, in IntelliJ IDEA, open the Gradle tab on the right and execute `build` under `Tasks` → `build`. After this is done once, the `build` task should appear in the run configurations.
-3. The JAR should appear in `${projectDir}/build/libs`, and should be called `media-manipulator-discord-bot-shadow-VERSION-all.jar`.
-4. To execute the jar, run the command `java -jar media-manipulator-discord-bot-shadow-{VERSION}-all.jar DISCORD_BOT_TOKEN={TOKEN}`. For example, `java -jar media-manipulator-discord-bot-shadow-1.0.0-all.jar DISCORD_BOT_TOKEN=123456789`
+3. The JAR should appear in `${projectDir}/build/libs`, and should be called `borgar-VERSION.jar`.
+4. To execute the jar, run the command `java -jar borgar-{VERSION}.jar DISCORD_BOT_TOKEN={TOKEN}`. For example, `java -jar borgar-1.0.0.jar DISCORD_BOT_TOKEN=123456789`
