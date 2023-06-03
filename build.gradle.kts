@@ -31,12 +31,35 @@ dependencies {
     implementation("com.google.guava:guava:$guavaVersion-jre")
     implementation("com.google.code.gson:gson:$gsonVersion")
     implementation("commons-io:commons-io:$commonsIoVersion")
-    implementation("org.bytedeco:javacv-platform:$javacvVersion")
+    implementation("org.bytedeco:javacv-platform:$javacvVersion") {
+        excludeJavaCpp(
+            "artoolkitplus",
+            "flandmark",
+            "flycapture",
+            "leptonica",
+            "libdc1394",
+            "libfreenect",
+            "libfreenect2",
+            "librealsense",
+            "librealsense2",
+            "openblas",
+            "opencv",
+            "tesseract",
+            "videoinput",
+        )
+    }
     implementation("com.sksamuel.scrimage:scrimage-core:$scrimageVersion")
     implementation("net.ifok.image:image4j:$image4jVersion")
     implementation("org.reflections:reflections:$reflectionsVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
+}
+
+fun ModuleDependency.excludeJavaCpp(vararg modules: String) {
+    modules.forEach {
+        exclude(group = "org.bytedeco", module = it)
+        exclude(group = "org.bytedeco", module = "$it-platform")
+    }
 }
 
 tasks {
