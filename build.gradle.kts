@@ -50,7 +50,10 @@ dependencies {
             "videoinput",
         )
     }
-    implementation("com.sksamuel.scrimage:scrimage-core:$scrimageVersion")
+    implementation("com.sksamuel.scrimage:scrimage-core:$scrimageVersion") {
+        exclude(group = "ch.qos.logback", module = "logback-classic")
+        exclude(group = "ch.qos.logback", module = "logback-core")
+    }
     implementation("net.ifok.image:image4j:$image4jVersion")
     implementation("org.reflections:reflections:$reflectionsVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
