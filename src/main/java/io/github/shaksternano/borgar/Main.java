@@ -182,7 +182,7 @@ public class Main {
      * Terminates the program.
      */
     public static void shutdown(int exitCode) {
-        shutdown(exitCode, 1);
+        shutdown(exitCode, 0);
     }
 
     public static void shutdown(int exitCode, long waitSeconds) {

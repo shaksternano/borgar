@@ -32,7 +32,7 @@ public class ShutDownCommand extends BotOwnerCommand {
     @Override
     protected String botOwnerOperation(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
         Main.getLogger().info("Shut down request received");
-        Main.shutdown(0);
+        Main.shutdown(0, 5);
         return "Shutting down!";
     }
 }
