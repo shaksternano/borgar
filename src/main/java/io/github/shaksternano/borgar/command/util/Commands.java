@@ -192,6 +192,8 @@ public class Commands {
 
     public static final Command TO_PNG = addCommandToRegister(new TranscodeCommand("png"));
 
+    public static final Command TO_JPG = addCommandToRegister(new TranscodeCommand("jpg"));
+
     public static final Command TO_ICO = addCommandToRegister(new TranscodeCommand("ico"));
 
     public static final Command TO_MP4 = addCommandToRegister(new TranscodeCommand("mp4"));
