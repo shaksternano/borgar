@@ -1,14 +1,13 @@
 package io.github.shaksternano.borgar;
 
-import io.github.shaksternano.borgar.command.Command;
 import io.github.shaksternano.borgar.command.util.Commands;
 import io.github.shaksternano.borgar.emoji.EmojiUtil;
 import io.github.shaksternano.borgar.listener.CommandListener;
 import io.github.shaksternano.borgar.logging.DiscordLogger;
 import io.github.shaksternano.borgar.media.template.ResourceTemplateImageInfo;
+import io.github.shaksternano.borgar.util.Environment;
 import io.github.shaksternano.borgar.util.Fonts;
 import io.github.shaksternano.borgar.util.MiscUtil;
-import io.github.shaksternano.borgar.util.ProgramArguments;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -18,7 +17,9 @@ import org.bytedeco.ffmpeg.global.avutil;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
-import java.util.Optional;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.NoSuchFileException;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -61,18 +62,27 @@ public class Main {
      */
     private static String tenorApiKey = "LIVDSRZULELA";
 
-    private static ProgramArguments arguments;
-
     /**
      * The program's main class.
      *
      * @param args The program arguments.
      */
     public static void main(String[] args) {
+        var envFileName = ".env";
+        try {
+            Environment.load(new File(envFileName));
+        } catch (NoSuchFileException e) {
+            getLogger().error("\"" + envFileName + "\" file not found!");
+            shutdown(1);
+        } catch (IOException e) {
+            getLogger().error("Failed to load environment variables", e);
+            shutdown(1);
+        }
+
+        avutil.av_log_set_level(avutil.AV_LOG_PANIC);
+
         Fonts.registerFonts();
         ResourceTemplateImageInfo.validate();
-
-        arguments = new ProgramArguments(args);
 
         initJda(initDiscordBotToken());
 
@@ -87,7 +97,6 @@ public class Main {
         EmojiUtil.initEmojiUnicodeSet();
         EmojiUtil.initEmojiShortCodesToUrlsMap();
         configureJda();
-        avutil.av_log_set_level(avutil.AV_LOG_PANIC);
 
         getLogger().info("Initialised!");
     }
@@ -99,18 +108,19 @@ public class Main {
      * @return The Discord bot token.
      */
     private static String initDiscordBotToken() {
-        Optional<String> tokenOptional = arguments.getArgumentOrEnvironmentVariable(DISCORD_BOT_TOKEN_ARGUMENT_NAME);
+        var tokenOptional = Environment.getEnvVar(DISCORD_BOT_TOKEN_ARGUMENT_NAME);
         return tokenOptional.orElseThrow(() -> {
-            getLogger().error("Please provide a Discord bot token as an argument in the form of " + DISCORD_BOT_TOKEN_ARGUMENT_NAME + "=<token> or set the environment variable " + DISCORD_BOT_TOKEN_ARGUMENT_NAME + " to the Discord bot token.");
+            getLogger().error("Please provide a Discord bot token under the " + DISCORD_BOT_TOKEN_ARGUMENT_NAME + " variable!");
             Main.shutdown(1);
-            return new AssertionError("The program should not reach this point!");
+            return new IllegalStateException("The program should not reach this point");
         });
     }
 
     private static void initDiscordLogger() {
-        arguments.getArgumentOrEnvironmentVariable(DISCORD_LOG_CHANNEL_ID_ARGUMENT_NAME).ifPresentOrElse(logChannelIdString -> {
+        var channelIdOptional = Environment.getEnvVar(DISCORD_LOG_CHANNEL_ID_ARGUMENT_NAME);
+        channelIdOptional.ifPresentOrElse(logChannelIdString -> {
             try {
-                long logChannelIdLong = Long.parseLong(logChannelIdString);
+                var logChannelIdLong = Long.parseLong(logChannelIdString);
                 discordLogger = new DiscordLogger(LOGGER, logChannelIdLong, jda);
                 LOGGER.info("Logging to Discord channel with ID!");
             } catch (NumberFormatException e) {
@@ -123,8 +133,7 @@ public class Main {
      * Sets the Tenor API key from the program arguments or the environment variable.
      */
     private static void initTenorApiKey() {
-        Optional<String> apiKeyOptional = arguments.getArgumentOrEnvironmentVariable(TENOR_API_KEY_ARGUMENT_NAME);
-
+        var apiKeyOptional = Environment.getEnvVar(TENOR_API_KEY_ARGUMENT_NAME);
         apiKeyOptional.ifPresentOrElse(tenorApiKey -> {
             if (tenorApiKey.equals(Main.getTenorApiKey())) {
                 getLogger().warn("Tenor API key provided is the same as the default, restricted, rate limited example key (" + getTenorApiKey() + ")!");
@@ -161,8 +170,7 @@ public class Main {
             applicationInfo -> ownerId = applicationInfo.getOwner().getIdLong(),
             throwable -> getLogger().error("Failed to get the owner ID of this bot, owner exclusive functionality won't available!", throwable)
         );
-
-        Command helpCommand = Commands.HELP;
+        var helpCommand = Commands.HELP;
         jda.updateCommands()
             .addCommands(net.dv8tion.jda.api.interactions.commands.build.Commands.slash(helpCommand.getName(), helpCommand.getDescription()))
             .queue(commands -> {
