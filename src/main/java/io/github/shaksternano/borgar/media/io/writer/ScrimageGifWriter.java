@@ -22,6 +22,7 @@ public class ScrimageGifWriter extends NoAudioWriter {
      * The minimum frame duration in microseconds allowed on GIF files.
      */
     private static final int GIF_MINIMUM_FRAME_DURATION = 20000;
+    private static final int MAX_DIMENSION = 500;
 
     private final StreamingGifWriter.GifStream gif;
 
@@ -51,8 +52,8 @@ public class ScrimageGifWriter extends NoAudioWriter {
         var currentImage = ImageUtil.convertType(
             ImageUtil.bound(
                 frame.content(),
-                500,
-                500
+                MAX_DIMENSION,
+                MAX_DIMENSION
             ),
             BufferedImage.TYPE_INT_ARGB
         );
