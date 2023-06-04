@@ -8,6 +8,7 @@ val javacvVersion: String by project
 val scrimageVersion: String by project
 val image4jVersion: String by project
 val reflectionsVersion: String by project
+val kotlinCoroutinesVersion: String by project
 val exposedVersion: String by project
 val postgreSqlVersion: String by project
 val junitVersion: String by project
@@ -58,6 +59,7 @@ dependencies {
     }
     implementation("net.ifok.image:image4j:$image4jVersion")
     implementation("org.reflections:reflections:$reflectionsVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion")
     implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
     runtimeOnly("org.postgresql:postgresql:$postgreSqlVersion")
