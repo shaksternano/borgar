@@ -12,6 +12,7 @@ val junitVersion: String by project
 
 plugins {
     java
+    kotlin("jvm") version "1.8.21"
     id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
@@ -57,6 +58,7 @@ dependencies {
     implementation("org.reflections:reflections:$reflectionsVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
+    testImplementation(kotlin("test"))
 }
 
 fun ModuleDependency.excludeJavaCpp(vararg modules: String) {
@@ -88,4 +90,8 @@ tasks {
     test {
         useJUnitPlatform()
     }
+}
+
+kotlin {
+    jvmToolchain(17)
 }
