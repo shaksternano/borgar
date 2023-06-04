@@ -1,7 +1,7 @@
 package io.github.shaksternano.borgar.media.io.reader;
 
 import io.github.shaksternano.borgar.media.VideoFrame;
-import io.github.shaksternano.borgar.util.ClosableIterator;
+import io.github.shaksternano.borgar.util.collection.ClosableIterator;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
