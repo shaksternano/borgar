@@ -2,12 +2,16 @@ package io.github.shaksternano.borgar.data.repository
 
 import io.github.shaksternano.borgar.data.VarcharIdTable
 import io.github.shaksternano.borgar.data.databaseConnection
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.future.future
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.util.concurrent.CompletableFuture
 
 object SavedFileRepository {
 
@@ -32,15 +36,33 @@ object SavedFileRepository {
         }
     }
 
+    @JvmStatic
+    @OptIn(DelicateCoroutinesApi::class)
+    fun addAliasFuture(fileUrl: String, fileAliasUrl: String): CompletableFuture<Unit> = GlobalScope.future {
+        addAlias(fileUrl, fileAliasUrl)
+    }
+
     suspend fun findUrl(fileAliasUrl: String): String? = dbQuery {
         select { SavedFileTable.fileAliasUrl eq fileAliasUrl }
             .map { it[fileUrl] }
             .singleOrNull()
     }
 
+    @JvmStatic
+    @OptIn(DelicateCoroutinesApi::class)
+    fun findUrlFuture(fileAliasUrl: String): CompletableFuture<String?> = GlobalScope.future {
+        findUrl(fileAliasUrl)
+    }
+
     suspend fun findAliasUrl(fileUrl: String): String? = dbQuery {
         select { SavedFileTable.fileUrl eq fileUrl }
             .map { it[fileAliasUrl].value }
             .singleOrNull()
+    }
+
+    @JvmStatic
+    @OptIn(DelicateCoroutinesApi::class)
+    fun findAliasUrlFuture(fileUrl: String): CompletableFuture<String?> = GlobalScope.future {
+        findAliasUrl(fileUrl)
     }
 }
