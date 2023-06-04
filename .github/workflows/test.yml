@@ -6,9 +6,9 @@ jobs:
     runs-on: ubuntu-22.04
 
     env:
-      POSTGRES_URL: jdbc:postgresql://localhost:5332/postgres
-      POSTGRES_USERNAME: root
-      POSTGRES_PASSWORD: password
+      POSTGRESQL_URL: jdbc:postgresql://localhost:5332/postgres
+      POSTGRESQL_USERNAME: root
+      POSTGRESQL_PASSWORD: password
 
     steps:
       - uses: actions/checkout@v3
@@ -21,8 +21,8 @@ jobs:
       - name: Create .env file for Docker Compose
         run: |
           touch .env
-          echo POSTGRES_USERNAME=$POSTGRES_USERNAME >> .env
-          echo POSTGRES_PASSWORD=$POSTGRES_PASSWORD >> .env
+          echo POSTGRESQL_USERNAME=$POSTGRESQL_USERNAME >> .env
+          echo POSTGRESQL_PASSWORD=$POSTGRESQL_PASSWORD >> .env
 
       - name: Run Docker Compose
         run: |
