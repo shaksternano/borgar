@@ -13,7 +13,6 @@ import org.reflections.scanners.Scanners;
 import java.io.*;
 import java.net.URL;
 import java.nio.channels.Channels;
-import java.nio.file.Files;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -32,8 +31,14 @@ public class FileUtil {
     private static final long MAXIMUM_FILE_SIZE_TO_DOWNLOAD = 104857600;
 
     public static File createTempFile(String nameWithoutExtension, String extension) throws IOException {
+        var nameLength = nameWithoutExtension.length();
+        var minLength = 3;
+        if (nameLength < minLength) {
+            var difference = minLength - nameLength;
+            nameWithoutExtension = nameWithoutExtension + "_".repeat(difference);
+        }
         var extensionWithDot = extension.isBlank() ? "" : "." + extension;
-        var file = Files.createTempFile(nameWithoutExtension, extensionWithDot).toFile();
+        var file = File.createTempFile(nameWithoutExtension, extensionWithDot);
         file.deleteOnExit();
         return file;
     }
