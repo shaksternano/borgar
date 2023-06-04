@@ -1,7 +1,6 @@
 package io.github.shaksternano.borgar.util.collection;
 
 import io.github.shaksternano.borgar.util.MiscUtil;
-import io.github.shaksternano.borgar.util.collection.ClosableSpliterator;
 
 import java.io.IOException;
 import java.util.*;
