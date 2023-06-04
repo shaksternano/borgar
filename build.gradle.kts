@@ -8,6 +8,8 @@ val javacvVersion: String by project
 val scrimageVersion: String by project
 val image4jVersion: String by project
 val reflectionsVersion: String by project
+val exposedVersion: String by project
+val postgreSqlVersion: String by project
 val junitVersion: String by project
 
 plugins {
@@ -56,6 +58,10 @@ dependencies {
     }
     implementation("net.ifok.image:image4j:$image4jVersion")
     implementation("org.reflections:reflections:$reflectionsVersion")
+    implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
+    implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
+    runtimeOnly("org.postgresql:postgresql:$postgreSqlVersion")
+
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
     testImplementation(kotlin("test"))
