@@ -140,16 +140,19 @@ public class MessageUtil {
         return message.getChannel()
             .getHistoryBefore(message, MAX_PAST_MESSAGES_TO_CHECK)
             .submit()
-            .thenCompose(history -> CompletableFutureUtil.all(history.getRetrievedHistory()
-                .stream()
-                .map(operation)
-                .toList()
-            ))
-            .thenApply(results -> results.stream()
-                .filter(Optional::isPresent)
-                .findFirst()
-                .flatMap(Function.identity())
-            );
+            .thenCompose(history -> {
+                CompletableFuture<Optional<T>> resultFuture = CompletableFuture.completedFuture(Optional.empty());
+                for (var previousMessage : history.getRetrievedHistory()) {
+                    resultFuture = resultFuture.thenCompose(result -> {
+                        if (result.isPresent()) {
+                            return CompletableFuture.completedFuture(result);
+                        } else {
+                            return operation.apply(previousMessage);
+                        }
+                    });
+                }
+                return resultFuture;
+            });
     }
 
     private static CompletableFuture<Optional<NamedFile>> downloadAttachment(Message message) {
