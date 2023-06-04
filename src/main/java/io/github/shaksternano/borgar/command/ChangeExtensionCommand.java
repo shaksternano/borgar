@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 public class ChangeExtensionCommand extends FileCommand {
@@ -27,7 +28,11 @@ public class ChangeExtensionCommand extends FileCommand {
         }
         var output = FileUtil.createTempFile(com.google.common.io.Files.getNameWithoutExtension(file.getName()), newExtension);
         return new NamedFile(
-            Files.move(file.toPath(), output.toPath()).toFile(),
+            Files.move(
+                file.toPath(),
+                output.toPath(),
+                StandardCopyOption.REPLACE_EXISTING
+            ).toFile(),
             output.getName()
         );
     }
