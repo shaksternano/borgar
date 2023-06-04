@@ -26,7 +26,6 @@ public class MiscUtil {
         return LoggerFactory.getLogger(name);
     }
 
-    @SuppressWarnings("UnstableApiUsage")
     public static void closeAll(Iterable<? extends AutoCloseable> closeables) throws IOException {
         try (var closer = Closer.create()) {
             for (@Nullable var closable : closeables) {
