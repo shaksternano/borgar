@@ -28,7 +28,7 @@ public class FileUtil {
     /**
      * The maximum file size that is allowed to be downloaded, 100MB.
      */
-    private static final long MAXIMUM_FILE_SIZE_TO_DOWNLOAD = 104857600;
+    private static final long MAXIMUM_FILE_SIZE_TO_DOWNLOAD = 100 << 20;
 
     public static File createTempFile(String nameWithoutExtension, String extension) throws IOException {
         var nameLength = nameWithoutExtension.length();
