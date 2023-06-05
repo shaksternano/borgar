@@ -11,6 +11,7 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.util.*
 import java.util.concurrent.CompletableFuture
 
 object SavedFileRepository {
@@ -38,9 +39,9 @@ object SavedFileRepository {
 
     @JvmStatic
     @OptIn(DelicateCoroutinesApi::class)
-    fun addAliasFuture(fileUrl: String, fileAliasUrl: String): CompletableFuture<Unit> = GlobalScope.future {
+    fun addAliasFuture(fileUrl: String, fileAliasUrl: String): CompletableFuture<Void> = GlobalScope.future {
         addAlias(fileUrl, fileAliasUrl)
-    }
+    }.thenAccept { }
 
     suspend fun findUrl(fileAliasUrl: String): String? = dbQuery {
         select { SavedFileTable.fileAliasUrl eq fileAliasUrl }
@@ -50,8 +51,8 @@ object SavedFileRepository {
 
     @JvmStatic
     @OptIn(DelicateCoroutinesApi::class)
-    fun findUrlFuture(fileAliasUrl: String): CompletableFuture<String?> = GlobalScope.future {
-        findUrl(fileAliasUrl)
+    fun findUrlFuture(fileAliasUrl: String): CompletableFuture<Optional<String>> = GlobalScope.future {
+        Optional.ofNullable(findUrl(fileAliasUrl))
     }
 
     suspend fun findAliasUrl(fileUrl: String): String? = dbQuery {
@@ -62,7 +63,7 @@ object SavedFileRepository {
 
     @JvmStatic
     @OptIn(DelicateCoroutinesApi::class)
-    fun findAliasUrlFuture(fileUrl: String): CompletableFuture<String?> = GlobalScope.future {
-        findAliasUrl(fileUrl)
+    fun findAliasUrlFuture(fileUrl: String): CompletableFuture<Optional<String>> = GlobalScope.future {
+        Optional.ofNullable(findAliasUrl(fileUrl))
     }
 }
