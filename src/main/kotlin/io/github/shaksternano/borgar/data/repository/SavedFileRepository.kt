@@ -17,7 +17,7 @@ import java.util.concurrent.CompletableFuture
 object SavedFileRepository {
 
     private object SavedFileTable : VarcharIdTable(columnName = "file_alias_url", length = 2000) {
-        val fileUrl = text("file_url").uniqueIndex()
+        val fileUrl = varchar("file_url", 2000).uniqueIndex()
         val fileAliasUrl = id
     }
 
