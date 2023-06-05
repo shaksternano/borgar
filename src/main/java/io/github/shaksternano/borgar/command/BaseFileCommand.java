@@ -43,9 +43,8 @@ public abstract sealed class BaseFileCommand extends BaseCommand permits FileCom
 
     @Override
     public CompletableFuture<List<MessageCreateData>> execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
-        var triggerMessage = event.getMessage();
         CompletableFuture<Optional<NamedFile>> fileOptionalFuture = requireFileInput || arguments.isEmpty()
-            ? MessageUtil.downloadFile(triggerMessage)
+            ? MessageUtil.downloadFile(event.getMessage())
             : CompletableFuture.completedFuture(Optional.empty());
         return fileOptionalFuture.thenApply(namedFileOptional -> {
             File input = null;
