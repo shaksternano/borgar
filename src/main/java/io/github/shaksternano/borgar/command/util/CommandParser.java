@@ -7,10 +7,7 @@ import io.github.shaksternano.borgar.Main;
 import io.github.shaksternano.borgar.command.Command;
 import io.github.shaksternano.borgar.exception.InvalidArgumentException;
 import io.github.shaksternano.borgar.exception.MissingArgumentException;
-import io.github.shaksternano.borgar.util.DiscordUtil;
-import io.github.shaksternano.borgar.util.MessageUtil;
-import io.github.shaksternano.borgar.util.MiscUtil;
-import io.github.shaksternano.borgar.util.StringUtil;
+import io.github.shaksternano.borgar.util.*;
 import io.github.shaksternano.borgar.util.function.FloatPredicate;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -22,7 +19,6 @@ import java.text.DecimalFormat;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.function.BiFunction;
 import java.util.function.IntPredicate;
@@ -53,25 +49,21 @@ public class CommandParser {
                     var extraArguments = parseExtraArguments(commandParts, command);
                     command.execute(arguments, extraArguments, event)
                         .exceptionally(throwable -> handleError(throwable, command))
-                        .thenAccept(responses -> {
-                            CompletableFuture<?> future = CompletableFuture.completedFuture(null);
-                            for (var i = 0; i < responses.size(); i++) {
-                                var response = responses.get(i);
-                                var isFirst = i == 0;
-                                future = future.thenCompose(unused -> {
-                                    var reply = channel.sendMessage(response);
-                                    if (isFirst) {
-                                        reply.setMessageReference(triggerMessage);
-                                    }
-                                    return MiscUtil.repeatTry(
-                                        reply::submit,
-                                        3,
-                                        5,
-                                        CommandParser::handleReplyAttemptFailure
-                                    );
-                                });
+                        .thenCompose(responses -> CompletableFutureUtil.processSequentiallyAsync(
+                            responses,
+                            (response, index) -> {
+                                var reply = channel.sendMessage(response);
+                                if (index == 0) {
+                                    reply.setMessageReference(triggerMessage);
+                                }
+                                return MiscUtil.repeatTry(
+                                    reply::submit,
+                                    3,
+                                    5,
+                                    CommandParser::handleReplyAttemptFailure
+                                );
                             }
-                        });
+                        ));
                 } catch (PermissionException e) {
                     Main.getLogger().error("Missing send message permission", e);
                 }

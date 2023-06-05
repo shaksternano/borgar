@@ -105,25 +105,26 @@ public class MessageUtil {
         Function<Message, CompletableFuture<Optional<T>>> operation,
         BiFunction<Message, Function<Message, CompletableFuture<Optional<T>>>, CompletableFuture<Optional<T>>>... messageProcessors
     ) {
-        CompletableFuture<Optional<T>> resultFuture = CompletableFuture.completedFuture(Optional.empty());
-        for (var messageProcessor : messageProcessors) {
-            resultFuture = resultFuture.thenCompose(result -> {
+        return CompletableFutureUtil.processSequentiallyAsync(
+            Arrays.asList(messageProcessors),
+            Optional.empty(),
+            (messageProcessor, result, index) -> {
                 if (result.isPresent()) {
                     return CompletableFuture.completedFuture(result);
                 } else {
                     return messageProcessor.apply(message, operation);
                 }
-            });
-        }
-        return resultFuture;
+            }
+        );
     }
 
     private static <T> CompletableFuture<Optional<T>> processReferencedMessage(Message message, Function<Message, CompletableFuture<Optional<T>>> operation) {
         var referencedMessage = message.getReferencedMessage();
-        if (referencedMessage != null) {
+        if (referencedMessage == null) {
+            return CompletableFuture.completedFuture(Optional.empty());
+        } else {
             return operation.apply(referencedMessage);
         }
-        return CompletableFuture.completedFuture(Optional.empty());
     }
 
     private static <T> CompletableFuture<Optional<T>> processEmbedLinkedMessage(Message message, Function<Message, CompletableFuture<Optional<T>>> operation) {
@@ -141,17 +142,18 @@ public class MessageUtil {
             .getHistoryBefore(message, MAX_PAST_MESSAGES_TO_CHECK)
             .submit()
             .thenCompose(history -> {
-                CompletableFuture<Optional<T>> resultFuture = CompletableFuture.completedFuture(Optional.empty());
-                for (var previousMessage : history.getRetrievedHistory()) {
-                    resultFuture = resultFuture.thenCompose(result -> {
+                Optional<T> initialValue = Optional.empty();
+                return CompletableFutureUtil.processSequentiallyAsync(
+                    history.getRetrievedHistory(),
+                    initialValue,
+                    (previousMessage, result, index) -> {
                         if (result.isPresent()) {
                             return CompletableFuture.completedFuture(result);
                         } else {
                             return operation.apply(previousMessage);
                         }
-                    });
-                }
-                return resultFuture;
+                    }
+                );
             });
     }
 
