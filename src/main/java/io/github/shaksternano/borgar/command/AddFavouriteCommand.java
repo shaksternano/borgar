@@ -96,7 +96,7 @@ public class AddFavouriteCommand extends BaseCommand<AddFavouriteCommand.Respons
                 audioReader,
                 outputFormat,
                 resultName,
-                new BasicImageProcessor(image -> ImageUtil.bound(image, 200, 200)),
+                new BasicImageProcessor(image -> ImageUtil.bound(image, 200)),
                 maxFileSize
             ),
             resultName,

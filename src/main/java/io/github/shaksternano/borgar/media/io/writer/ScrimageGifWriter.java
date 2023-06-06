@@ -52,7 +52,6 @@ public class ScrimageGifWriter extends NoAudioWriter {
         var currentImage = ImageUtil.convertType(
             ImageUtil.bound(
                 frame.content(),
-                MAX_DIMENSION,
                 MAX_DIMENSION
             ),
             BufferedImage.TYPE_INT_ARGB

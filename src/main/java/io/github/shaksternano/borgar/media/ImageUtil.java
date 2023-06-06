@@ -98,6 +98,10 @@ public class ImageUtil {
         return ImmutableImage.wrapAwt(image).bound(width, height).awt();
     }
 
+    public static BufferedImage bound(BufferedImage image, int maxDimension) {
+        return bound(image, maxDimension, maxDimension);
+    }
+
     public static BufferedImage fill(BufferedImage toFill, Color color) {
         BufferedImage filledImage = new BufferedImage(toFill.getWidth(), toFill.getHeight(), ImageUtil.getType(toFill));
         Graphics2D graphics = filledImage.createGraphics();
