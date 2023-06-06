@@ -2,16 +2,16 @@ package io.github.shaksternano.borgar.command;
 
 import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.borgar.Main;
+import io.github.shaksternano.borgar.command.util.CommandResponse;
 import io.github.shaksternano.borgar.util.MessageUtil;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-public class UserAvatarCommand extends BaseCommand {
+public class UserAvatarCommand extends BaseCommand<Void> {
 
     /**
      * Creates a new command object.
@@ -25,11 +25,11 @@ public class UserAvatarCommand extends BaseCommand {
     }
 
     @Override
-    public CompletableFuture<List<MessageCreateData>> execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
+    public CompletableFuture<CommandResponse<Void>> execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
         var triggerMessage = event.getMessage();
         return MessageUtil.processMessages(triggerMessage, message -> getUserAvatarUrl(triggerMessage, message))
             .thenApply(urlOptional ->
-                MessageUtil.createResponse(urlOptional.map(MessageUtil::enlargeImageUrl)
+                new CommandResponse<>(urlOptional.map(MessageUtil::enlargeImageUrl)
                     .orElseGet(() -> {
                         Main.getLogger().error("Could not find a user to get the profile picture of, this shouldn't happen");
                         return "Could not find a user to get the profile picture of!";

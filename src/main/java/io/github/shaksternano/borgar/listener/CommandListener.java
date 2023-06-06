@@ -23,7 +23,7 @@ public class CommandListener extends ListenerAdapter {
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
         if (event.getName().equals(Commands.HELP.getName())) {
-            CompletableFutureUtil.processSequentiallyAsync(
+            CompletableFutureUtil.forEachSequentiallyAsync(
                 HelpCommand.getHelpMessages(),
                 (response, index) -> {
                     if (index == 0) {

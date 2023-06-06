@@ -11,7 +11,7 @@ public class ConstantFrameDurationMediaReader<E extends VideoFrame<?, E>> extend
 
     private final MediaReader<E> reader;
     @Nullable
-    private MediaReader<E> reversed;
+    private ConstantFrameDurationMediaReader<E> reversed;
 
     public ConstantFrameDurationMediaReader(MediaReader<E> reader, double frameDuration, long totalDuration) {
         super(reader.format());
@@ -39,6 +39,7 @@ public class ConstantFrameDurationMediaReader<E extends VideoFrame<?, E>> extend
     public MediaReader<E> reversed() throws IOException {
         if (reversed == null) {
             reversed = new ConstantFrameDurationMediaReader<>(reader.reversed(), frameDuration, duration);
+            reversed.reversed = this;
         }
         return reversed;
     }

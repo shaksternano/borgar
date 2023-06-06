@@ -15,14 +15,14 @@ public class CommandRegistry {
     /**
      * Stores the registered {@code Command}s.
      */
-    private static final Map<String, Command> registry = new HashMap<>();
+    private static final Map<String, Command<?>> registry = new HashMap<>();
 
     /**
      * Registers {@code Command}s.
      *
      * @param commands The commands to register.
      */
-    public static void register(Iterable<Command> commands) {
+    public static void register(Iterable<Command<?>> commands) {
         for (var command : commands) {
             registry.put(command.getName().toLowerCase(), command);
         }
@@ -36,7 +36,7 @@ public class CommandRegistry {
      * The {@code Optional} will be empty if and only if
      * no command was registered with the given name.
      */
-    public static Optional<Command> getCommand(String name) {
+    public static Optional<Command<?>> getCommand(String name) {
         return Optional.ofNullable(registry.get(name.toLowerCase()));
     }
 
@@ -45,7 +45,7 @@ public class CommandRegistry {
      *
      * @return A set of all registered {@code Command}s.
      */
-    public static Set<Command> getCommands() {
+    public static Set<Command<?>> getCommands() {
         return Set.copyOf(registry.values());
     }
 }

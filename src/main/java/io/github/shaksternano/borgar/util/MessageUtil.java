@@ -14,7 +14,6 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -53,7 +52,7 @@ public class MessageUtil {
                 }
                 var urls = StringUtil.extractUrls(messageToProcess.getContentRaw());
                 if (!urls.isEmpty()) {
-                    fileOptional = FileUtil.downloadFile(urls.get(0));
+                    fileOptional = FileUtil.downloadFileOptional(urls.get(0));
                     if (fileOptional.isPresent()) {
                         return fileOptional;
                     }
@@ -65,6 +64,20 @@ public class MessageUtil {
                 return Optional.empty();
             })
         );
+    }
+
+    public static CompletableFuture<Optional<String>> getFileUrl(Message message) {
+        return processMessages(message, messageToProcess -> {
+            var attachments = messageToProcess.getAttachments();
+            if (!attachments.isEmpty()) {
+                return Optional.of(attachments.get(0).getUrl());
+            }
+            var urls = StringUtil.extractUrls(messageToProcess.getContentRaw());
+            if (!urls.isEmpty()) {
+                return Optional.of(urls.get(0));
+            }
+            return Optional.empty();
+        });
     }
 
     /**
@@ -105,7 +118,7 @@ public class MessageUtil {
         Function<Message, CompletableFuture<Optional<T>>> operation,
         BiFunction<Message, Function<Message, CompletableFuture<Optional<T>>>, CompletableFuture<Optional<T>>>... messageProcessors
     ) {
-        return CompletableFutureUtil.processSequentiallyAsync(
+        return CompletableFutureUtil.reduceSequentiallyAsync(
             Arrays.asList(messageProcessors),
             Optional.empty(),
             (messageProcessor, result, index) -> {
@@ -143,7 +156,7 @@ public class MessageUtil {
             .submit()
             .thenCompose(history -> {
                 Optional<T> initialValue = Optional.empty();
-                return CompletableFutureUtil.processSequentiallyAsync(
+                return CompletableFutureUtil.reduceSequentiallyAsync(
                     history.getRetrievedHistory(),
                     initialValue,
                     (previousMessage, result, index) -> {
@@ -187,7 +200,7 @@ public class MessageUtil {
         for (var embed : embeds) {
             var imageInfo = embed.getImage();
             if (imageInfo != null) {
-                return FileUtil.downloadFile(imageInfo.getUrl());
+                return FileUtil.downloadFileOptional(imageInfo.getUrl());
             }
         }
         return Optional.empty();
@@ -353,9 +366,5 @@ public class MessageUtil {
 
     public static String enlargeImageUrl(String url) {
         return url + "?size=1024";
-    }
-
-    public static List<MessageCreateData> createResponse(String content) {
-        return List.of(MessageCreateData.fromContent(content));
     }
 }

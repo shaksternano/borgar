@@ -68,24 +68,26 @@ public class FileUtil {
      * @param url The text to download the image from.
      * @return An {@link Optional} describing the image file.
      */
-    public static Optional<NamedFile> downloadFile(String url) {
+    public static Optional<NamedFile> downloadFileOptional(String url) {
         try {
-            var tenorMediaUrlOptional = TenorUtil.getTenorMediaUrl(url, TenorMediaType.GIF_NORMAL, Main.getTenorApiKey());
-            url = tenorMediaUrlOptional.orElse(url);
-            var fileNameWithoutExtension = com.google.common.io.Files.getNameWithoutExtension(url);
-            var extension = com.google.common.io.Files.getFileExtension(url);
-            int index = extension.indexOf("?");
-            if (index != -1) {
-                extension = extension.substring(0, index);
-            }
-            var extensionWithDot = extension.isBlank() ? "" : "." + extension;
-            var fileName = fileNameWithoutExtension + extensionWithDot;
-            var file = createTempFile(fileNameWithoutExtension, extension);
-            downloadFile(url, file);
-            return Optional.of(new NamedFile(file, fileName));
+            return Optional.of(downloadFile(url));
         } catch (IOException ignored) {
             return Optional.empty();
         }
+    }
+
+    public static NamedFile downloadFile(String url) throws IOException {
+        var tenorMediaUrlOptional = TenorUtil.getTenorMediaUrl(url, TenorMediaType.GIF_NORMAL, Main.getTenorApiKey());
+        url = tenorMediaUrlOptional.orElse(url);
+        var fileNameWithoutExtension = com.google.common.io.Files.getNameWithoutExtension(url);
+        var extension = com.google.common.io.Files.getFileExtension(url);
+        int index = extension.indexOf("?");
+        if (index != -1) {
+            extension = extension.substring(0, index);
+        }
+        var file = createTempFile(fileNameWithoutExtension, extension);
+        downloadFile(url, file);
+        return new NamedFile(file, fileNameWithoutExtension, extension);
     }
 
     /**
@@ -150,6 +152,15 @@ public class FileUtil {
                 operation.accept(resourcePath, inputStream);
             } catch (IOException e) {
                 Main.getLogger().error("Error loading resource " + resourcePath, e);
+            }
+        }
+    }
+
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    public static void deleteAll(File... files) {
+        for (var file : files) {
+            if (file != null) {
+                file.delete();
             }
         }
     }

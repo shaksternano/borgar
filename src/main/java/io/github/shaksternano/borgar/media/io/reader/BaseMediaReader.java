@@ -2,7 +2,6 @@ package io.github.shaksternano.borgar.media.io.reader;
 
 import com.google.common.collect.Iterables;
 import io.github.shaksternano.borgar.util.collection.ClosableSpliterator;
-import io.github.shaksternano.borgar.util.collection.IterableUtil;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -117,9 +116,22 @@ public abstract class BaseMediaReader<E> implements MediaReader<E> {
     @Override
     public int hashCode() {
         return Objects.hash(
-            IterableUtil.hashElements(this),
+            hashElements(),
             format()
         );
+    }
+
+    private int hashElements() {
+        try (var iterator = iterator()) {
+            var hash = 1;
+            while (iterator.hasNext()) {
+                var element = iterator.next();
+                hash = 31 * hash + element.hashCode();
+            }
+            return hash;
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     @Override

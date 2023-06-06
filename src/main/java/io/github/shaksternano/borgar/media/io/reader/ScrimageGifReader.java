@@ -49,8 +49,8 @@ public class ScrimageGifReader extends BaseMediaReader<ImageFrame> {
             totalDuration += frameDuration;
         }
         duration = totalDuration;
-        frameRate = (1_000_000.0 * frameCount) / duration;
-        frameDuration = 1_000_000 / frameRate;
+        frameDuration = (double) duration / frameCount;
+        frameRate = 1_000_000 / frameDuration;
         var dimensions = gif.getDimensions();
         width = dimensions.width;
         height = dimensions.height;

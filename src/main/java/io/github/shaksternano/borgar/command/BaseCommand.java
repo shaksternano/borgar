@@ -1,12 +1,16 @@
 package io.github.shaksternano.borgar.command;
 
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Objects;
 import java.util.Set;
 
 /**
  * This class provides some default implementations for the {@code Command} interface.
  */
-public abstract class BaseCommand implements Command {
+public abstract class BaseCommand<T> implements Command<T> {
 
     /**
      * The unique name of the command. When a user sends a message starting with {@link Command#PREFIX}
@@ -32,6 +36,10 @@ public abstract class BaseCommand implements Command {
     }
 
     @Override
+    public void handleFirstResponse(Message response, MessageReceivedEvent event, @Nullable T responseData) {
+    }
+
+    @Override
     public Set<String> getAdditionalParameterNames() {
         return Set.of();
     }
@@ -52,7 +60,7 @@ public abstract class BaseCommand implements Command {
     }
 
     @Override
-    public int compareTo(Command o) {
+    public int compareTo(Command<?> o) {
         return name.compareTo(o.getName());
     }
 
@@ -65,7 +73,7 @@ public abstract class BaseCommand implements Command {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (obj instanceof BaseCommand other) {
+        } else if (obj instanceof BaseCommand<?> other) {
             return Objects.equals(name, other.name);
         } else {
             return false;

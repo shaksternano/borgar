@@ -1,9 +1,11 @@
 package io.github.shaksternano.borgar.command;
 
 import com.google.common.collect.ListMultimap;
+import io.github.shaksternano.borgar.command.util.CommandResponse;
 import io.github.shaksternano.borgar.command.util.Commands;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.utils.messages.MessageCreateData;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Set;
@@ -12,7 +14,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * A command that is executed when a user sends a certain message. Commands are registered in {@link Commands}.
  */
-public interface Command extends Comparable<Command> {
+public interface Command<T> extends Comparable<Command<?>> {
 
     /**
      * The command prefix.
@@ -27,7 +29,9 @@ public interface Command extends Comparable<Command> {
      * @param event          The event that triggered the command.
      * @return A {@code CompletableFuture} that completes with a list of {@code MessageCreateData} that will be sent to the channel where the command was triggered.
      */
-    CompletableFuture<List<MessageCreateData>> execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event);
+    CompletableFuture<CommandResponse<T>> execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event);
+
+    void handleFirstResponse(Message response, MessageReceivedEvent event, @Nullable T responseData);
 
     Set<String> getAdditionalParameterNames();
 
