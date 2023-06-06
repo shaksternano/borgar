@@ -157,7 +157,7 @@ public class FileUtil {
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    public static void deleteAll(File... files) {
+    public static void delete(File... files) {
         for (var file : files) {
             if (file != null) {
                 file.delete();

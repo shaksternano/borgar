@@ -243,6 +243,11 @@ public class Commands {
         "Gets the number of servers that this bot is in."
     ));
 
+    public static final Command<?> FAVOURITE_FILE = addCommandToRegister(new AddFavouriteCommand(
+        "fav",
+        "Favourites a file."
+    ));
+
     public static final Command<?> MEMORY_USAGE = addCommandToRegister(new MemoryUsageCommand(
         "memory",
         "Get the memory usage of the bot."

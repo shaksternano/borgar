@@ -107,13 +107,13 @@ public abstract sealed class BaseFileCommand extends BaseCommand<File> permits F
                     "The server ran out of memory! Try using a smaller file."
                 );
             } finally {
-                FileUtil.deleteAll(input, output);
+                FileUtil.delete(input, output);
             }
         });
     }
 
     @Override
     public void handleFirstResponse(Message response, MessageReceivedEvent event, @Nullable File responseData) {
-        FileUtil.deleteAll(responseData);
+        FileUtil.delete(responseData);
     }
 }
