@@ -188,6 +188,7 @@ public class Main {
             Environment.getEnvVar("POSTGRESQL_PASSWORD").orElseThrow(),
             "org.postgresql.Driver"
         );
+        DatabaseConnectionKt.testConnection();
     }
 
     /**

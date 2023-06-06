@@ -21,3 +21,5 @@ fun databaseConnection(): Database =
     } else {
         throw IllegalStateException("Database connection not initialized")
     }
+
+fun testConnection() = connection.connector()
