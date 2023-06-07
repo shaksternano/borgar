@@ -23,7 +23,7 @@ object SavedFileRepository {
 
     init {
         transaction(databaseConnection()) {
-            SchemaUtils.createMissingTablesAndColumns(SavedFileTable)
+            SchemaUtils.create(SavedFileTable)
         }
     }
 
