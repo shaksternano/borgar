@@ -1,4 +1,5 @@
 val jdaVersion: String by project
+val discordWebhooksVersion: String by project
 val log4j2Version: String by project
 val disruptorVersion: String by project
 val guavaVersion: String by project
@@ -31,6 +32,7 @@ dependencies {
     implementation("net.dv8tion:JDA:$jdaVersion") {
         exclude(module = "opus-java")
     }
+    implementation("club.minnced:discord-webhooks:$discordWebhooksVersion")
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:$log4j2Version")
     implementation("com.lmax:disruptor:$disruptorVersion")
     implementation("com.google.guava:guava:$guavaVersion-jre")
