@@ -38,7 +38,7 @@ public abstract sealed class BaseFileCommand extends BaseCommand<File> permits F
         this.requireFileInput = requireFileInput;
     }
 
-    protected abstract NamedFile modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event, long maxFileSize) throws IOException;
+    protected abstract NamedFile modifyFile(File file, String fileName, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event, long maxFileSize) throws IOException;
 
     protected abstract NamedFile createFile(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event, long maxFileSize) throws IOException;
 
@@ -60,9 +60,11 @@ public abstract sealed class BaseFileCommand extends BaseCommand<File> permits F
                     fileFormat = fileOptional.map(FileUtil::getFileFormat).orElse(fileFormat);
                     var finalFileFormat = fileFormat;
                     var maxFileSize = DiscordUtil.getMaxUploadSize(event);
-                    var namedEdited = fileOptional.map(file -> {
+                    var namedEdited = namedFileOptional.map(namedFile -> {
+                        var file = namedFile.file();
+                        var fileName = namedFile.name();
                         try {
-                            return modifyFile(file, finalFileFormat, arguments, extraArguments, event, maxFileSize);
+                            return modifyFile(file, fileName, finalFileFormat, arguments, extraArguments, event, maxFileSize);
                         } catch (IOException e) {
                             throw new UncheckedIOException(e);
                         }

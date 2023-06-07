@@ -22,18 +22,20 @@ public class ChangeExtensionCommand extends FileCommand {
     }
 
     @Override
-    protected NamedFile modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event, long maxFileSize) throws IOException {
-        if (com.google.common.io.Files.getFileExtension(file.getName()).equals(newExtension)) {
+    protected NamedFile modifyFile(File file, String fileName, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event, long maxFileSize) throws IOException {
+        if (com.google.common.io.Files.getFileExtension(fileName).equals(newExtension)) {
             throw new UnsupportedFileFormatException("The file already has the extension `." + newExtension.toLowerCase() + "`!");
         }
-        var output = FileUtil.createTempFile(com.google.common.io.Files.getNameWithoutExtension(file.getName()), newExtension);
+        var fileNameWithoutExtension = com.google.common.io.Files.getNameWithoutExtension(fileName);
+        var output = FileUtil.createTempFile(fileNameWithoutExtension, newExtension);
         return new NamedFile(
             Files.move(
                 file.toPath(),
                 output.toPath(),
                 StandardCopyOption.REPLACE_EXISTING
             ).toFile(),
-            output.getName()
+            fileNameWithoutExtension,
+            newExtension
         );
     }
 }

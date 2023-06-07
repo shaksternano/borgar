@@ -42,6 +42,7 @@ public class SpeechBubbleCommand extends FileCommand {
      * Adds a speech bubble on top of media. The speech bubble is resized so that it's width is the same as the media's width.
      *
      * @param file           The media file to apply the operation to.
+     * @param fileName
      * @param fileFormat     The file format of the media file.
      * @param arguments      The arguments of the command.
      * @param extraArguments A multimap mapping the additional parameter names to a list of the arguments.
@@ -51,7 +52,7 @@ public class SpeechBubbleCommand extends FileCommand {
      * @throws IOException If an error occurs while applying the operation.
      */
     @Override
-    protected NamedFile modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event, long maxFileSize) throws IOException {
+    protected NamedFile modifyFile(File file, String fileName, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event, long maxFileSize) throws IOException {
         return new NamedFile(
             MediaUtil.processMedia(
                 file,
