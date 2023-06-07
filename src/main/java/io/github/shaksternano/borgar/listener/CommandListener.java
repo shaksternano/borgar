@@ -55,6 +55,7 @@ public class CommandListener extends ListenerAdapter {
                 message.reply(emoji).queue();
             }
             CommandParser.parseAndExecute(event);
+            FavouriteHandler.sendFavouriteFile(event);
         }
     }
 }

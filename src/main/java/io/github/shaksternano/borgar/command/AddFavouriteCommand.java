@@ -25,6 +25,8 @@ import java.util.concurrent.CompletableFuture;
 
 public class AddFavouriteCommand extends BaseCommand<AddFavouriteCommand.ResponseData> {
 
+    public static String ALIAS_PREFIX = "favourite_";
+
     /**
      * Creates a new command object.
      *
@@ -88,7 +90,7 @@ public class AddFavouriteCommand extends BaseCommand<AddFavouriteCommand.Respons
     private static NamedFile createAliasGif(NamedFile input, String fileFormat, long maxFileSize) throws IOException {
         var imageReader = MediaReaders.createImageReader(input.file(), fileFormat);
         var audioReader = NoAudioReader.INSTANCE;
-        var resultName = "favourite_" + input.nameWithoutExtension();
+        var resultName = ALIAS_PREFIX + input.nameWithoutExtension();
         var outputFormat = "gif";
         return new NamedFile(
             MediaUtil.processMedia(
