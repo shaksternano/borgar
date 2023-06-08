@@ -50,7 +50,7 @@ public class CommandListener extends ListenerAdapter {
         if (!event.getJDA().getSelfUser().equals(author)) {
             var message = event.getMessage();
             if (author.getName().equals("74") && message.getContentRaw().contains("timetable")) {
-                var emoji = "🤓";
+                var emoji = "\uD83E\uDD13";
                 message.addReaction(Emoji.fromUnicode(emoji)).queue();
                 message.reply(emoji).queue();
             }
