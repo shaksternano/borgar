@@ -84,7 +84,7 @@ public abstract sealed class BaseFileCommand extends BaseCommand<File> permits F
                             "The size of the edited media file, " + outputSizeMb + "MB, is too large to send!"
                         );
                     } else {
-                        var response = new CommandResponse<File>(output, namedEdited.name())
+                        var response = new CommandResponse<File>(namedEdited)
                             .withResponseData(output);
                         // Don't delete the output file yet. It will be deleted after the response is sent.
                         output = null;

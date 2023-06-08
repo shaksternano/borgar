@@ -14,6 +14,7 @@ import java.io.*;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -163,5 +164,19 @@ public class FileUtil {
                 file.delete();
             }
         }
+    }
+
+    public static NamedFile changeFileExtension(File file, String fileName, String newExtension) throws IOException {
+        var fileNameWithoutExtension = com.google.common.io.Files.getNameWithoutExtension(fileName);
+        var output = FileUtil.createTempFile(fileNameWithoutExtension, newExtension);
+        return new NamedFile(
+            Files.move(
+                file.toPath(),
+                output.toPath(),
+                StandardCopyOption.REPLACE_EXISTING
+            ).toFile(),
+            fileNameWithoutExtension,
+            newExtension
+        );
     }
 }

@@ -8,8 +8,6 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 public class ChangeExtensionCommand extends FileCommand {
@@ -26,16 +24,6 @@ public class ChangeExtensionCommand extends FileCommand {
         if (com.google.common.io.Files.getFileExtension(fileName).equals(newExtension)) {
             throw new UnsupportedFileFormatException("The file already has the extension `." + newExtension.toLowerCase() + "`!");
         }
-        var fileNameWithoutExtension = com.google.common.io.Files.getNameWithoutExtension(fileName);
-        var output = FileUtil.createTempFile(fileNameWithoutExtension, newExtension);
-        return new NamedFile(
-            Files.move(
-                file.toPath(),
-                output.toPath(),
-                StandardCopyOption.REPLACE_EXISTING
-            ).toFile(),
-            fileNameWithoutExtension,
-            newExtension
-        );
+        return FileUtil.changeFileExtension(file, fileName, newExtension);
     }
 }

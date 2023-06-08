@@ -1,6 +1,7 @@
 package io.github.shaksternano.borgar.command;
 
 import com.google.common.collect.ListMultimap;
+import com.google.common.io.Files;
 import io.github.shaksternano.borgar.command.util.CommandResponse;
 import io.github.shaksternano.borgar.data.repository.SavedFileRepository;
 import io.github.shaksternano.borgar.io.FileUtil;
@@ -25,7 +26,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.net.URL;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -76,9 +76,28 @@ public class AddFavouriteCommand extends BaseCommand<AddFavouriteCommand.Respons
         String url,
         MessageReceivedEvent event
     ) {
-        return SavedFileRepository.findAliasUrlFuture(url).thenApply(fileUrlOptional -> {
+        var fileExtension = Files.getFileExtension(url).toLowerCase();
+        if (fileExtension.equals("gif")) {
+            return new CommandResponse<ResponseData>("This is already a GIF file!").asFuture();
+        }
+
+        if (fileExtension.equals("png") || fileExtension.equals("jpg") || fileExtension.equals("jpeg")) {
+            try {
+                var namedFile = FileUtil.downloadFile(url);
+                var renamed = FileUtil.changeFileExtension(
+                    namedFile.file(),
+                    namedFile.name(),
+                    "gif"
+                );
+                return new CommandResponse<ResponseData>(renamed).asFuture();
+            } catch (IOException e) {
+                return CompletableFuture.failedFuture(e);
+            }
+        }
+
+        return SavedFileRepository.findAliasUrlFuture(url).thenCompose(fileUrlOptional -> {
             if (fileUrlOptional.isPresent()) {
-                return new CommandResponse<>(fileUrlOptional.orElseThrow());
+                return new CommandResponse<ResponseData>(fileUrlOptional.orElseThrow()).asFuture();
             }
             File input = null;
             try {
@@ -87,10 +106,11 @@ public class AddFavouriteCommand extends BaseCommand<AddFavouriteCommand.Respons
                 var fileFormat = FileUtil.getFileFormat(namedFile.file());
                 var maxFileSize = DiscordUtil.getMaxUploadSize(event);
                 var aliasGif = createAliasGif(namedFile, fileFormat, maxFileSize, event);
-                return new CommandResponse<ResponseData>(aliasGif.file(), aliasGif.name())
-                    .withResponseData(new ResponseData(aliasGif.file(), url, true));
+                return new CommandResponse<ResponseData>(aliasGif)
+                    .withResponseData(new ResponseData(aliasGif.file(), url, true))
+                    .asFuture();
             } catch (IOException e) {
-                throw new UncheckedIOException(e);
+                return CompletableFuture.failedFuture(e);
             } finally {
                 FileUtil.delete(input);
             }
@@ -167,6 +187,7 @@ public class AddFavouriteCommand extends BaseCommand<AddFavouriteCommand.Respons
                 var imageWidth = resized.getWidth();
                 var imageHeight = resized.getHeight();
                 var smallestDimension = Math.min(imageWidth, imageHeight);
+                var padding = (int) (smallestDimension * 0.05);
 
                 var icon = reader.first().content();
                 var iconTargetWidth = (int) (smallestDimension * 0.2);
@@ -177,24 +198,27 @@ public class AddFavouriteCommand extends BaseCommand<AddFavouriteCommand.Respons
                 var cornerRadius = (iconSmallestDimension * 0.2F);
                 var roundedCorners = ImageUtil.makeRoundedCorners(resizedIcon, cornerRadius);
 
-                var padding = (int) (smallestDimension * 0.05);
+                var graphics = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB).createGraphics();
+                ImageUtil.configureTextDrawQuality(graphics);
 
                 var formatText = new TextDrawable(fileFormat.toUpperCase());
                 var font = new Font("Helvetica Neue", Font.PLAIN, smallestDimension);
-                var graphics = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB).createGraphics();
-                ImageUtil.configureTextDrawQuality(graphics);
                 graphics.setFont(font);
                 var textBoxPadding = (int) (iconSmallestDimension * 0.1);
                 var textBoxMaxWidth = 2 * iconWidth - 2 * textBoxPadding;
                 var textBoxMaxHeight = iconHeight - 2 * textBoxPadding;
+
                 GraphicsUtil.fontFitWidth(textBoxMaxWidth, formatText, graphics);
                 GraphicsUtil.fontFitHeight(textBoxMaxHeight, formatText, graphics);
                 var resizedFont = graphics.getFont();
+
                 var textBoxWidth = formatText.getWidth(graphics) + 2 * textBoxPadding;
                 var textBoxHeight = formatText.getHeight(graphics) + 2 * textBoxPadding;
                 var textBoxX = imageWidth - padding - textBoxWidth;
+
                 var textX = textBoxX + textBoxPadding;
                 var textY = padding + textBoxPadding;
+
                 graphics.dispose();
 
                 return new AddFavouriteData(
