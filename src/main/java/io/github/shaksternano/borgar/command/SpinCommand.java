@@ -82,9 +82,9 @@ public class SpinCommand extends FileCommand {
                 new ConstantFrameDurationMediaReader<>(imageReader, frameDuration, totalDuration),
                 audioReader,
                 output,
-                format,
+                outputFormat,
                 new SpinProcessor(
-                    format,
+                    outputFormat,
                     speed,
                     rotationDuration,
                     maxDimension,
