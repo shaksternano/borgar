@@ -3,7 +3,7 @@ package io.github.shaksternano.borgar.media.io.reader;
 import io.github.shaksternano.borgar.media.VideoFrame;
 import io.github.shaksternano.borgar.util.MiscUtil;
 import io.github.shaksternano.borgar.util.Pair;
-import io.github.shaksternano.borgar.util.collection.ClosableIterator;
+import io.github.shaksternano.borgar.util.collect.ClosableIterator;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;

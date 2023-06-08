@@ -3,8 +3,8 @@ package io.github.shaksternano.borgar.media.io.reader;
 import com.google.common.collect.Iterators;
 import io.github.shaksternano.borgar.media.ImageFrame;
 import io.github.shaksternano.borgar.media.io.MediaReaderFactory;
-import io.github.shaksternano.borgar.util.collection.ClosableIterator;
-import io.github.shaksternano.borgar.util.collection.ClosableSpliterator;
+import io.github.shaksternano.borgar.util.collect.ClosableIterator;
+import io.github.shaksternano.borgar.util.collect.ClosableSpliterator;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;

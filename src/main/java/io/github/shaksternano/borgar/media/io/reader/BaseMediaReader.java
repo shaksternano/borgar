@@ -1,7 +1,7 @@
 package io.github.shaksternano.borgar.media.io.reader;
 
 import com.google.common.collect.Iterables;
-import io.github.shaksternano.borgar.util.collection.ClosableSpliterator;
+import io.github.shaksternano.borgar.util.collect.ClosableSpliterator;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;

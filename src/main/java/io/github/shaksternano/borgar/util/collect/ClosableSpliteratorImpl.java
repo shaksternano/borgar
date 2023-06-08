@@ -1,4 +1,4 @@
-package io.github.shaksternano.borgar.util.collection;
+package io.github.shaksternano.borgar.util.collect;
 
 import io.github.shaksternano.borgar.util.MiscUtil;
 
