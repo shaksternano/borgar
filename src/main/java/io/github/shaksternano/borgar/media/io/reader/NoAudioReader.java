@@ -2,8 +2,8 @@ package io.github.shaksternano.borgar.media.io.reader;
 
 import io.github.shaksternano.borgar.media.AudioFrame;
 import io.github.shaksternano.borgar.media.io.MediaReaderFactory;
-import io.github.shaksternano.borgar.util.collection.ClosableIterator;
-import io.github.shaksternano.borgar.util.collection.ClosableSpliterator;
+import io.github.shaksternano.borgar.util.collect.ClosableIterator;
+import io.github.shaksternano.borgar.util.collect.ClosableSpliterator;
 
 import java.io.File;
 import java.io.InputStream;

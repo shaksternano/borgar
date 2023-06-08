@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.events.message.GenericMessageEvent;
 import net.dv8tion.jda.api.utils.MarkdownSanitizer;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,24 +25,48 @@ public class DiscordUtil {
         return getMaxUploadSize(guild);
     }
 
-    public static String getContentStrippedKeepEmotes(Message message) {
-        String displayMessage = message.getContentRaw();
+    public static CompletableFuture<String> getContentStrippedKeepEmotes(Message message) {
+        var displayMessageFuture = CompletableFuture.completedFuture(message.getContentRaw());
         for (User user : message.getMentions().getUsers()) {
-            String name = message.getGuild()
-                .retrieveMember(user)
+            displayMessageFuture = displayMessageFuture.thenCompose(displayMessage ->
+                retrieveUserDetails(message)
+                    .thenApply(userDetails -> displayMessage.replaceAll(
+                        "<@!?" + Pattern.quote(user.getId()) + '>', '@' + Matcher.quoteReplacement(userDetails.username())
+                    ))
+            );
+        }
+        return displayMessageFuture.thenApply(displayMessage -> {
+            for (GuildChannel mentionedChannel : message.getMentions().getChannels()) {
+                displayMessage = displayMessage.replace(mentionedChannel.getAsMention(), '#' + mentionedChannel.getName());
+            }
+            for (Role mentionedRole : message.getMentions().getRoles()) {
+                displayMessage = displayMessage.replace(mentionedRole.getAsMention(), '@' + mentionedRole.getName());
+            }
+            return MarkdownSanitizer.sanitize(displayMessage);
+        });
+    }
+
+    public static CompletableFuture<UserDetails> retrieveUserDetails(Message message) {
+        var author = message.getAuthor();
+        if (message.isFromGuild()) {
+            return message.getGuild()
+                .retrieveMember(author)
                 .submit()
-                .thenApply(Member::getEffectiveName)
-                .exceptionally(throwable -> user.getName())
-                .join();
-            displayMessage = displayMessage.replaceAll("<@!?" + Pattern.quote(user.getId()) + '>', '@' + Matcher.quoteReplacement(name));
+                .thenApply(UserDetails::new)
+                .exceptionally(throwable -> new UserDetails(author));
+        } else {
+            return CompletableFuture.completedFuture(new UserDetails(author));
         }
-        for (GuildChannel mentionedChannel : message.getMentions().getChannels()) {
-            displayMessage = displayMessage.replace(mentionedChannel.getAsMention(), '#' + mentionedChannel.getName());
-        }
-        for (Role mentionedRole : message.getMentions().getRoles()) {
-            displayMessage = displayMessage.replace(mentionedRole.getAsMention(), '@' + mentionedRole.getName());
+    }
+
+    public record UserDetails(String username, String avatarUrl) {
+
+        public UserDetails(User user) {
+            this(user.getEffectiveName(), user.getEffectiveAvatarUrl());
         }
 
-        return MarkdownSanitizer.sanitize(displayMessage);
+        public UserDetails(Member member) {
+            this(member.getEffectiveName(), member.getEffectiveAvatarUrl());
+        }
     }
 }

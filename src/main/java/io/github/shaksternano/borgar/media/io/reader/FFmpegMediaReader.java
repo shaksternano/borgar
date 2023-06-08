@@ -3,7 +3,7 @@ package io.github.shaksternano.borgar.media.io.reader;
 import io.github.shaksternano.borgar.media.VideoFrame;
 import io.github.shaksternano.borgar.util.Either;
 import io.github.shaksternano.borgar.util.MiscUtil;
-import io.github.shaksternano.borgar.util.collection.ClosableIterator;
+import io.github.shaksternano.borgar.util.collect.ClosableIterator;
 import org.apache.commons.io.IOUtils;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.Frame;
