@@ -3,7 +3,7 @@ package io.github.shaksternano.borgar.media.io.reader;
 import com.google.common.collect.Lists;
 import io.github.shaksternano.borgar.media.ImageFrame;
 import io.github.shaksternano.borgar.media.io.MediaReaderFactory;
-import io.github.shaksternano.borgar.util.ClosableIterator;
+import io.github.shaksternano.borgar.util.collection.ClosableIterator;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.Java2DFrameConverter;

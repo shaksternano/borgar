@@ -7,22 +7,20 @@ import io.github.shaksternano.borgar.Main;
 import io.github.shaksternano.borgar.command.Command;
 import io.github.shaksternano.borgar.exception.InvalidArgumentException;
 import io.github.shaksternano.borgar.exception.MissingArgumentException;
+import io.github.shaksternano.borgar.util.CompletableFutureUtil;
 import io.github.shaksternano.borgar.util.DiscordUtil;
-import io.github.shaksternano.borgar.util.MessageUtil;
 import io.github.shaksternano.borgar.util.MiscUtil;
 import io.github.shaksternano.borgar.util.StringUtil;
 import io.github.shaksternano.borgar.util.function.FloatPredicate;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.PermissionException;
-import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.jetbrains.annotations.Nullable;
 
 import java.text.DecimalFormat;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.function.BiFunction;
 import java.util.function.IntPredicate;
@@ -35,51 +33,51 @@ public class CommandParser {
 
     private static final DecimalFormat FORMAT = new DecimalFormat("0.####");
 
-    /**
-     * Gets a {@link Command} from the command word in a message and executes it.
-     *
-     * @param event The {@link MessageReceivedEvent} that triggered the command.
-     */
+
     public static void parseAndExecute(MessageReceivedEvent event) {
         var triggerMessage = event.getMessage();
         var stringMessage = DiscordUtil.getContentStrippedKeepEmotes(triggerMessage).trim();
         var commandParts = parseCommandParts(stringMessage);
-        var channel = event.getChannel();
         if (commandParts.size() > 0) {
-            CommandRegistry.getCommand(commandParts.get(0)).ifPresent(command -> {
-                try {
-                    channel.sendTyping().queue();
-                    var arguments = parseBaseArguments(commandParts, command);
-                    var extraArguments = parseExtraArguments(commandParts, command);
-                    command.execute(arguments, extraArguments, event)
-                        .exceptionally(throwable -> handleError(throwable, command))
-                        .thenAccept(responses -> {
-                            CompletableFuture<?> future = CompletableFuture.completedFuture(null);
-                            for (var i = 0; i < responses.size(); i++) {
-                                var response = responses.get(i);
-                                var isFirst = i == 0;
-                                future = future.thenCompose(unused -> {
-                                    var reply = channel.sendMessage(response);
-                                    if (isFirst) {
-                                        reply.setMessageReference(triggerMessage);
-                                    }
-                                    return MiscUtil.repeatTry(
-                                        reply::submit,
-                                        3,
-                                        5,
-                                        CommandParser::handleReplyAttemptFailure
-                                    );
-                                });
-                            }
-                        });
-                } catch (PermissionException e) {
-                    Main.getLogger().error("Missing send message permission", e);
-                }
-            });
+            CommandRegistry.getCommand(commandParts.get(0))
+                .ifPresent(command -> handleCommand(command, commandParts, event));
         }
     }
 
-    private static List<MessageCreateData> handleError(Throwable error, Command command) {
+    private static <T> void handleCommand(Command<T> command, List<String> commandParts, MessageReceivedEvent event) {
+        try {
+            var channel = event.getChannel();
+            var triggerMessage = event.getMessage();
+            channel.sendTyping().queue();
+            var arguments = parseBaseArguments(commandParts, command);
+            var extraArguments = parseExtraArguments(commandParts, command);
+            command.execute(arguments, extraArguments, event)
+                .exceptionally(throwable -> handleError(throwable, command))
+                .thenCompose(response -> CompletableFutureUtil.forEachSequentiallyAsync(
+                    response.responses(),
+                    (messageResponse, index) -> {
+                        var reply = channel.sendMessage(messageResponse);
+                        if (index == 0) {
+                            reply.setMessageReference(triggerMessage);
+                        }
+                        return MiscUtil.repeatTry(
+                            reply::submit,
+                            3,
+                            5,
+                            CommandParser::handleReplyAttemptFailure
+                        ).thenAccept(message -> {
+                            if (index == 0) {
+                                command.handleFirstResponse(message, event, response.responseData());
+                            }
+                        });
+                    }
+                ));
+        } catch (PermissionException e) {
+            Main.getLogger().error("Missing send message permission", e);
+        }
+    }
+
+    private static <T> CommandResponse<T> handleError(Throwable error, Command<?> command) {
         if (error instanceof CompletionException) {
             var cause = error.getCause();
             if (cause != null) {
@@ -102,7 +100,7 @@ public class CommandParser {
             Main.getLogger().error("Error executing command " + command.getNameWithPrefix(), error);
             errorMessage = "Error executing command!";
         }
-        return MessageUtil.createResponse(errorMessage);
+        return new CommandResponse<>(errorMessage);
     }
 
     private static void handleReplyAttemptFailure(int attempts, Throwable error) {
@@ -132,7 +130,7 @@ public class CommandParser {
      * @param commandParts The command parts to remove the command word from.
      * @return The arguments of the command.
      */
-    private static List<String> parseBaseArguments(List<String> commandParts, Command command) {
+    private static List<String> parseBaseArguments(List<String> commandParts, Command<?> command) {
         var argumentsBuilder = new ImmutableList.Builder<String>();
         var passedFirst = false;
         for (var commandPart : commandParts) {
@@ -151,7 +149,7 @@ public class CommandParser {
         return argumentsBuilder.build();
     }
 
-    private static ListMultimap<String, String> parseExtraArguments(List<String> commandParts, Command command) {
+    private static ListMultimap<String, String> parseExtraArguments(List<String> commandParts, Command<?> command) {
         var argumentsBuilder = new ImmutableListMultimap.Builder<String, String>();
         Set<String> passedExtraCommandWords = new HashSet<>();
         String currentExtraParameterName = null;

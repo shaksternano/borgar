@@ -1,9 +1,9 @@
 package io.github.shaksternano.borgar.command;
 
 import com.google.common.collect.ListMultimap;
+import io.github.shaksternano.borgar.command.util.CommandResponse;
 import io.github.shaksternano.borgar.util.MessageUtil;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -11,7 +11,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Gets the image of an emoji.
  */
-public class EmojiImageCommand extends BaseCommand {
+public class EmojiImageCommand extends BaseCommand<Void> {
 
     /**
      * Creates a new command object.
@@ -33,10 +33,10 @@ public class EmojiImageCommand extends BaseCommand {
      * @return A {@code CompletableFuture} that completes with a list of {@code MessageCreateData} that will be sent to the channel where the command was triggered.
      */
     @Override
-    public CompletableFuture<List<MessageCreateData>> execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
+    public CompletableFuture<CommandResponse<Void>> execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
         return MessageUtil.processMessages(event.getMessage(), MessageUtil::getFirstEmojiUrl)
             .thenApply(urlOptional ->
-                MessageUtil.createResponse(urlOptional.orElse("No emoji found!"))
+                new CommandResponse<>(urlOptional.orElse("No emoji found!"))
             );
     }
 }

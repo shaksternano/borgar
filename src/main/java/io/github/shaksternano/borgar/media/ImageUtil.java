@@ -15,6 +15,7 @@ import javax.imageio.stream.ImageInputStream;
 import java.awt.*;
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
+import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorConvertOp;
 import java.io.*;
@@ -96,6 +97,10 @@ public class ImageUtil {
 
     public static BufferedImage bound(BufferedImage image, int width, int height) {
         return ImmutableImage.wrapAwt(image).bound(width, height).awt();
+    }
+
+    public static BufferedImage bound(BufferedImage image, int maxDimension) {
+        return bound(image, maxDimension, maxDimension);
     }
 
     public static BufferedImage fill(BufferedImage toFill, Color color) {
@@ -615,5 +620,32 @@ public class ImageUtil {
             }
         }
         return true;
+    }
+
+    public static BufferedImage makeRoundedCorners(BufferedImage image, float cornerRadius) {
+        var width = image.getWidth();
+        var height = image.getHeight();
+        var output = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        var graphics = output.createGraphics();
+
+        /*
+        This is what we want, but it only does hard-clipping, i.e. aliasing
+        graphics.setClip(new RoundRectangle2D ...)
+        So instead fake soft-clipping by first drawing the desired clip shape
+        in fully opaque white with antialiasing enabled...
+         */
+        graphics.setComposite(AlphaComposite.Src);
+        graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        graphics.setColor(Color.WHITE);
+        graphics.fill(new RoundRectangle2D.Float(0, 0, width, height, cornerRadius, cornerRadius));
+        /*
+        ...then compositing the image on top,
+        using the white shape from above as alpha source
+         */
+        graphics.setComposite(AlphaComposite.SrcAtop);
+        graphics.drawImage(image, 0, 0, null);
+
+        graphics.dispose();
+        return output;
     }
 }

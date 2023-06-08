@@ -1,17 +1,17 @@
 package io.github.shaksternano.borgar.command;
 
 import com.google.common.collect.ListMultimap;
+import io.github.shaksternano.borgar.command.util.CommandResponse;
 import io.github.shaksternano.borgar.util.MessageUtil;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.sticker.StickerItem;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-public class StickerImageCommand extends BaseCommand {
+public class StickerImageCommand extends BaseCommand<Void> {
 
     /**
      * Creates a new command object.
@@ -25,10 +25,10 @@ public class StickerImageCommand extends BaseCommand {
     }
 
     @Override
-    public CompletableFuture<List<MessageCreateData>> execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
+    public CompletableFuture<CommandResponse<Void>> execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
         return MessageUtil.processMessages(event.getMessage(), StickerImageCommand::getFirstStickerUrl)
             .thenApply(urlOptional ->
-                MessageUtil.createResponse(urlOptional.orElse("No sticker found!"))
+                new CommandResponse<>(urlOptional.orElse("No sticker found!"))
             );
     }
 

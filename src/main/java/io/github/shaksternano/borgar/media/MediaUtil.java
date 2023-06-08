@@ -300,11 +300,12 @@ public class MediaUtil {
 
     public static File transcode(
         File input,
+        String fileName,
         String inputFormat,
         String outputFormat,
         long maxFileSize
     ) throws IOException {
-        var nameWithoutExtension = Files.getNameWithoutExtension(input.getName());
+        var nameWithoutExtension = Files.getNameWithoutExtension(fileName);
         var output = FileUtil.createTempFile(nameWithoutExtension, outputFormat);
         return processMedia(
             input,

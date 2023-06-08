@@ -9,7 +9,7 @@ import io.github.shaksternano.borgar.media.ImageUtil;
 import io.github.shaksternano.borgar.media.MediaUtil;
 import io.github.shaksternano.borgar.media.io.MediaReaders;
 import io.github.shaksternano.borgar.media.io.imageprocessor.SingleImageProcessor;
-import io.github.shaksternano.borgar.media.io.reader.ConstantFrameDurationReader;
+import io.github.shaksternano.borgar.media.io.reader.ConstantFrameDurationMediaReader;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,7 +35,7 @@ public class SpinCommand extends FileCommand {
     }
 
     @Override
-    protected NamedFile modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event, long maxFileSize) throws IOException {
+    protected NamedFile modifyFile(File file, String fileName, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event, long maxFileSize) throws IOException {
         var spinSpeed = CommandParser.parseFloatArgument(arguments,
             0,
             DEFAULT_SPIN_SPEED,
@@ -79,7 +79,7 @@ public class SpinCommand extends FileCommand {
         var maxDimension = Math.max(imageReader.width(), imageReader.height());
         return new NamedFile(
             MediaUtil.processMedia(
-                new ConstantFrameDurationReader<>(imageReader, frameDuration, totalDuration),
+                new ConstantFrameDurationMediaReader<>(imageReader, frameDuration, totalDuration),
                 audioReader,
                 output,
                 format,

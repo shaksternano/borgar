@@ -7,7 +7,7 @@ import io.github.shaksternano.borgar.io.NamedFile;
 import io.github.shaksternano.borgar.media.MediaUtil;
 import io.github.shaksternano.borgar.media.io.MediaReaders;
 import io.github.shaksternano.borgar.media.io.imageprocessor.IdentityProcessor;
-import io.github.shaksternano.borgar.media.io.reader.ConstantFrameDurationReader;
+import io.github.shaksternano.borgar.media.io.reader.ConstantFrameDurationMediaReader;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.io.File;
@@ -30,7 +30,7 @@ public class ReduceFpsCommand extends FileCommand {
     }
 
     @Override
-    protected NamedFile modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event, long maxFileSize) throws IOException {
+    protected NamedFile modifyFile(File file, String fileName, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event, long maxFileSize) throws IOException {
         var fpsReductionRatio = CommandParser.parseFloatArgument(
             arguments,
             0,
@@ -55,7 +55,7 @@ public class ReduceFpsCommand extends FileCommand {
         var frameInterval = imageReader.frameDuration() * fpsReductionRatio;
         return new NamedFile(
             MediaUtil.processMedia(
-                new ConstantFrameDurationReader<>(imageReader, frameInterval),
+                new ConstantFrameDurationMediaReader<>(imageReader, frameInterval),
                 audioReader,
                 output,
                 format,

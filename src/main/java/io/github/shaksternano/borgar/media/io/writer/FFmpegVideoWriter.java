@@ -14,6 +14,7 @@ import java.io.IOException;
 
 public class FFmpegVideoWriter implements MediaWriter {
 
+    private static final int MAX_DIMENSION = 1000;
     private static final int MAX_AUDIO_FRAME_RATE = 1000;
 
     @Nullable
@@ -48,7 +49,13 @@ public class FFmpegVideoWriter implements MediaWriter {
 
     @Override
     public void writeImageFrame(ImageFrame frame) throws IOException {
-        var image = ImageUtil.convertType(frame.content(), BufferedImage.TYPE_3BYTE_BGR);
+        var image = ImageUtil.convertType(
+            ImageUtil.bound(
+                frame.content(),
+                MAX_DIMENSION
+            ),
+            BufferedImage.TYPE_3BYTE_BGR
+        );
         if (recorder == null) {
             double fps = 1_000_000.0 / frame.duration();
             recorder = createFFmpegRecorder(

@@ -1,14 +1,13 @@
 package io.github.shaksternano.borgar.command;
 
 import com.google.common.collect.ListMultimap;
-import io.github.shaksternano.borgar.util.MessageUtil;
+import io.github.shaksternano.borgar.command.util.CommandResponse;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public abstract class SimpleCommand extends BaseCommand {
+public abstract class SimpleCommand extends BaseCommand<Void> {
 
     /**
      * Creates a new command object.
@@ -22,10 +21,8 @@ public abstract class SimpleCommand extends BaseCommand {
     }
 
     @Override
-    public final CompletableFuture<List<MessageCreateData>> execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
-        return CompletableFuture.completedFuture(
-            MessageUtil.createResponse(response(arguments, extraArguments, event))
-        );
+    public final CompletableFuture<CommandResponse<Void>> execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
+        return new CommandResponse<Void>(response(arguments, extraArguments, event)).asFuture();
     }
 
     protected abstract String response(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event);

@@ -41,7 +41,7 @@ public class TemplateImageCommand extends OptionalFileInputFileCommand {
     }
 
     @Override
-    protected NamedFile modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event, long maxFileSize) throws IOException {
+    protected NamedFile modifyFile(File file, String fileName, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event, long maxFileSize) throws IOException {
         var contentImageReader = MediaReaders.createImageReader(file, fileFormat);
         var contentAudioReader = MediaReaders.createAudioReader(file, fileFormat);
         var templateImageReader = templateInfo.getImageReader();

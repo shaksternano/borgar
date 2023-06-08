@@ -1,19 +1,19 @@
 package io.github.shaksternano.borgar.media.io.reader;
 
 import io.github.shaksternano.borgar.media.VideoFrame;
-import io.github.shaksternano.borgar.util.ClosableIterator;
+import io.github.shaksternano.borgar.util.collection.ClosableIterator;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
 
-public class ConstantFrameDurationReader<E extends VideoFrame<?, E>> extends BaseMediaReader<E> {
+public class ConstantFrameDurationMediaReader<E extends VideoFrame<?, E>> extends BaseMediaReader<E> {
 
     private final MediaReader<E> reader;
     @Nullable
-    private MediaReader<E> reversed;
+    private ConstantFrameDurationMediaReader<E> reversed;
 
-    public ConstantFrameDurationReader(MediaReader<E> reader, double frameDuration, long totalDuration) {
+    public ConstantFrameDurationMediaReader(MediaReader<E> reader, double frameDuration, long totalDuration) {
         super(reader.format());
         this.reader = reader;
         frameCount = (int) Math.ceil((double) totalDuration / frameDuration);
@@ -24,7 +24,7 @@ public class ConstantFrameDurationReader<E extends VideoFrame<?, E>> extends Bas
         height = reader.height();
     }
 
-    public ConstantFrameDurationReader(MediaReader<E> reader, double frameDuration) {
+    public ConstantFrameDurationMediaReader(MediaReader<E> reader, double frameDuration) {
         this(reader, frameDuration, reader.duration());
     }
 
@@ -38,7 +38,8 @@ public class ConstantFrameDurationReader<E extends VideoFrame<?, E>> extends Bas
     @Override
     public MediaReader<E> reversed() throws IOException {
         if (reversed == null) {
-            reversed = new ConstantFrameDurationReader<>(reader.reversed(), frameDuration, duration);
+            reversed = new ConstantFrameDurationMediaReader<>(reader.reversed(), frameDuration, duration);
+            reversed.reversed = this;
         }
         return reversed;
     }

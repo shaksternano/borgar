@@ -1,4 +1,4 @@
-package io.github.shaksternano.borgar.util;
+package io.github.shaksternano.borgar.util.collection;
 
 import java.io.Closeable;
 import java.util.Iterator;

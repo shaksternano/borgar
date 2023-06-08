@@ -6,8 +6,8 @@ import io.github.shaksternano.borgar.media.ImageFrame;
 import io.github.shaksternano.borgar.media.MediaUtil;
 import io.github.shaksternano.borgar.media.VideoFrame;
 import io.github.shaksternano.borgar.media.io.MediaReaderFactory;
-import io.github.shaksternano.borgar.util.ClosableIterator;
-import io.github.shaksternano.borgar.util.ClosableSpliterator;
+import io.github.shaksternano.borgar.util.collection.ClosableIterator;
+import io.github.shaksternano.borgar.util.collection.ClosableSpliterator;
 import io.github.shaksternano.borgar.util.function.TriFunction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -49,8 +49,8 @@ public class ScrimageGifReader extends BaseMediaReader<ImageFrame> {
             totalDuration += frameDuration;
         }
         duration = totalDuration;
-        frameRate = (1_000_000.0 * frameCount) / duration;
-        frameDuration = 1_000_000 / frameRate;
+        frameDuration = (double) duration / frameCount;
+        frameRate = 1_000_000 / frameDuration;
         var dimensions = gif.getDimensions();
         width = dimensions.width;
         height = dimensions.height;

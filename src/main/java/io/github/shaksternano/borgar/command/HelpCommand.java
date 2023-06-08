@@ -2,6 +2,7 @@ package io.github.shaksternano.borgar.command;
 
 import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.borgar.command.util.CommandRegistry;
+import io.github.shaksternano.borgar.command.util.CommandResponse;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.utils.SplitUtil;
@@ -14,7 +15,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * A command that displays the all registered commands.
  */
-public class HelpCommand extends BaseCommand {
+public class HelpCommand extends BaseCommand<Void> {
 
     /**
      * The command list strings are cached here.
@@ -42,8 +43,8 @@ public class HelpCommand extends BaseCommand {
      * @return A {@code CompletableFuture} that completes with a list of {@code MessageCreateData} that will be sent to the channel where the command was triggered.
      */
     @Override
-    public CompletableFuture<List<MessageCreateData>> execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
-        return CompletableFuture.completedFuture(getHelpMessages());
+    public CompletableFuture<CommandResponse<Void>> execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
+        return new CommandResponse<Void>(getHelpMessages()).asFuture();
     }
 
     /**

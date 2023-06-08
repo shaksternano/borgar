@@ -1,4 +1,6 @@
-package io.github.shaksternano.borgar.util;
+package io.github.shaksternano.borgar.util.collection;
+
+import io.github.shaksternano.borgar.util.AutoCloseableClosable;
 
 import java.io.Closeable;
 import java.io.IOException;

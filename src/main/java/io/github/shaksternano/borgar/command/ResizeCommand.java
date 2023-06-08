@@ -36,6 +36,7 @@ public class ResizeCommand extends FileCommand {
      * Equivalent to stretching an image with the width and height multipliers set to the same amount.
      *
      * @param file           The media file to apply the operation to.
+     * @param fileName
      * @param fileFormat     The file format of the media file.
      * @param arguments      The arguments of the command.
      * @param extraArguments A multimap mapping the additional parameter names to a list of the arguments.
@@ -47,7 +48,7 @@ public class ResizeCommand extends FileCommand {
      * @throws MissingArgumentException If the operation requires an argument but none was provided.
      */
     @Override
-    protected NamedFile modifyFile(File file, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event, long maxFileSize) throws IOException {
+    protected NamedFile modifyFile(File file, String fileName, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event, long maxFileSize) throws IOException {
         if (arguments.size() > 0) {
             try {
                 float resizeMultiplier = Float.parseFloat(arguments.get(0));

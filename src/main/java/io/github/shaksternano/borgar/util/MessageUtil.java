@@ -14,7 +14,6 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -53,7 +52,7 @@ public class MessageUtil {
                 }
                 var urls = StringUtil.extractUrls(messageToProcess.getContentRaw());
                 if (!urls.isEmpty()) {
-                    fileOptional = FileUtil.downloadFile(urls.get(0));
+                    fileOptional = FileUtil.downloadFileOptional(urls.get(0));
                     if (fileOptional.isPresent()) {
                         return fileOptional;
                     }
@@ -65,6 +64,20 @@ public class MessageUtil {
                 return Optional.empty();
             })
         );
+    }
+
+    public static CompletableFuture<Optional<String>> getFileUrl(Message message) {
+        return processMessages(message, messageToProcess -> {
+            var attachments = messageToProcess.getAttachments();
+            if (!attachments.isEmpty()) {
+                return Optional.of(attachments.get(0).getUrl());
+            }
+            var urls = StringUtil.extractUrls(messageToProcess.getContentRaw());
+            if (!urls.isEmpty()) {
+                return Optional.of(urls.get(0));
+            }
+            return Optional.empty();
+        });
     }
 
     /**
@@ -105,25 +118,26 @@ public class MessageUtil {
         Function<Message, CompletableFuture<Optional<T>>> operation,
         BiFunction<Message, Function<Message, CompletableFuture<Optional<T>>>, CompletableFuture<Optional<T>>>... messageProcessors
     ) {
-        CompletableFuture<Optional<T>> resultFuture = CompletableFuture.completedFuture(Optional.empty());
-        for (var messageProcessor : messageProcessors) {
-            resultFuture = resultFuture.thenCompose(result -> {
+        return CompletableFutureUtil.reduceSequentiallyAsync(
+            Arrays.asList(messageProcessors),
+            Optional.empty(),
+            (messageProcessor, result, index) -> {
                 if (result.isPresent()) {
                     return CompletableFuture.completedFuture(result);
                 } else {
                     return messageProcessor.apply(message, operation);
                 }
-            });
-        }
-        return resultFuture;
+            }
+        );
     }
 
     private static <T> CompletableFuture<Optional<T>> processReferencedMessage(Message message, Function<Message, CompletableFuture<Optional<T>>> operation) {
         var referencedMessage = message.getReferencedMessage();
-        if (referencedMessage != null) {
+        if (referencedMessage == null) {
+            return CompletableFuture.completedFuture(Optional.empty());
+        } else {
             return operation.apply(referencedMessage);
         }
-        return CompletableFuture.completedFuture(Optional.empty());
     }
 
     private static <T> CompletableFuture<Optional<T>> processEmbedLinkedMessage(Message message, Function<Message, CompletableFuture<Optional<T>>> operation) {
@@ -140,16 +154,20 @@ public class MessageUtil {
         return message.getChannel()
             .getHistoryBefore(message, MAX_PAST_MESSAGES_TO_CHECK)
             .submit()
-            .thenCompose(history -> CompletableFutureUtil.all(history.getRetrievedHistory()
-                .stream()
-                .map(operation)
-                .toList()
-            ))
-            .thenApply(results -> results.stream()
-                .filter(Optional::isPresent)
-                .findFirst()
-                .flatMap(Function.identity())
-            );
+            .thenCompose(history -> {
+                Optional<T> initialValue = Optional.empty();
+                return CompletableFutureUtil.reduceSequentiallyAsync(
+                    history.getRetrievedHistory(),
+                    initialValue,
+                    (previousMessage, result, index) -> {
+                        if (result.isPresent()) {
+                            return CompletableFuture.completedFuture(result);
+                        } else {
+                            return operation.apply(previousMessage);
+                        }
+                    }
+                );
+            });
     }
 
     private static CompletableFuture<Optional<NamedFile>> downloadAttachment(Message message) {
@@ -182,7 +200,7 @@ public class MessageUtil {
         for (var embed : embeds) {
             var imageInfo = embed.getImage();
             if (imageInfo != null) {
-                return FileUtil.downloadFile(imageInfo.getUrl());
+                return FileUtil.downloadFileOptional(imageInfo.getUrl());
             }
         }
         return Optional.empty();
@@ -348,9 +366,5 @@ public class MessageUtil {
 
     public static String enlargeImageUrl(String url) {
         return url + "?size=1024";
-    }
-
-    public static List<MessageCreateData> createResponse(String content) {
-        return List.of(MessageCreateData.fromContent(content));
     }
 }

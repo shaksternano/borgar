@@ -14,6 +14,7 @@ import java.io.*;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -29,7 +30,7 @@ public class FileUtil {
     /**
      * The maximum file size that is allowed to be downloaded, 100MB.
      */
-    private static final long MAXIMUM_FILE_SIZE_TO_DOWNLOAD = 104857600;
+    private static final long MAXIMUM_FILE_SIZE_TO_DOWNLOAD = 100 << 20;
 
     public static File createTempFile(String nameWithoutExtension, String extension) throws IOException {
         var extensionWithDot = extension.isBlank() ? "" : "." + extension;
@@ -68,24 +69,26 @@ public class FileUtil {
      * @param url The text to download the image from.
      * @return An {@link Optional} describing the image file.
      */
-    public static Optional<NamedFile> downloadFile(String url) {
+    public static Optional<NamedFile> downloadFileOptional(String url) {
         try {
-            var tenorMediaUrlOptional = TenorUtil.getTenorMediaUrl(url, TenorMediaType.GIF_NORMAL, Main.getTenorApiKey());
-            url = tenorMediaUrlOptional.orElse(url);
-            var fileNameWithoutExtension = com.google.common.io.Files.getNameWithoutExtension(url);
-            var extension = com.google.common.io.Files.getFileExtension(url);
-            int index = extension.indexOf("?");
-            if (index != -1) {
-                extension = extension.substring(0, index);
-            }
-            var extensionWithDot = extension.isBlank() ? "" : "." + extension;
-            var fileName = fileNameWithoutExtension + extensionWithDot;
-            var file = createTempFile(fileNameWithoutExtension, extension);
-            downloadFile(url, file);
-            return Optional.of(new NamedFile(file, fileName));
+            return Optional.of(downloadFile(url));
         } catch (IOException ignored) {
             return Optional.empty();
         }
+    }
+
+    public static NamedFile downloadFile(String url) throws IOException {
+        var tenorMediaUrlOptional = TenorUtil.getTenorMediaUrl(url, TenorMediaType.GIF_NORMAL, Main.getTenorApiKey());
+        url = tenorMediaUrlOptional.orElse(url);
+        var fileNameWithoutExtension = com.google.common.io.Files.getNameWithoutExtension(url);
+        var extension = com.google.common.io.Files.getFileExtension(url);
+        int index = extension.indexOf("?");
+        if (index != -1) {
+            extension = extension.substring(0, index);
+        }
+        var file = createTempFile(fileNameWithoutExtension, extension);
+        downloadFile(url, file);
+        return new NamedFile(file, fileNameWithoutExtension, extension);
     }
 
     /**
@@ -152,5 +155,28 @@ public class FileUtil {
                 Main.getLogger().error("Error loading resource " + resourcePath, e);
             }
         }
+    }
+
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    public static void delete(File... files) {
+        for (var file : files) {
+            if (file != null) {
+                file.delete();
+            }
+        }
+    }
+
+    public static NamedFile changeFileExtension(File file, String fileName, String newExtension) throws IOException {
+        var fileNameWithoutExtension = com.google.common.io.Files.getNameWithoutExtension(fileName);
+        var output = FileUtil.createTempFile(fileNameWithoutExtension, newExtension);
+        return new NamedFile(
+            Files.move(
+                file.toPath(),
+                output.toPath(),
+                StandardCopyOption.REPLACE_EXISTING
+            ).toFile(),
+            fileNameWithoutExtension,
+            newExtension
+        );
     }
 }

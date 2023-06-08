@@ -8,7 +8,7 @@ import java.util.function.Predicate;
  * argument. This is the {@code float}-consuming primitive type specialization of
  * {@link Predicate}.
  *
- * <p>This is a functional interface</a>
+ * <p>This is a functional interface
  * whose functional method is {@link #test(float)}.
  *
  * @see Predicate

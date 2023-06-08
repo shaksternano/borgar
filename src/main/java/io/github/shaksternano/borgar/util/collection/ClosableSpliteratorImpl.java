@@ -1,4 +1,6 @@
-package io.github.shaksternano.borgar.util;
+package io.github.shaksternano.borgar.util.collection;
+
+import io.github.shaksternano.borgar.util.MiscUtil;
 
 import java.io.IOException;
 import java.util.*;

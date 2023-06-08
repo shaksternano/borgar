@@ -15,6 +15,7 @@ import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 public class ScrimageGifWriter extends NoAudioWriter {
 
@@ -22,6 +23,7 @@ public class ScrimageGifWriter extends NoAudioWriter {
      * The minimum frame duration in microseconds allowed on GIF files.
      */
     private static final int GIF_MINIMUM_FRAME_DURATION = 20000;
+    private static final int MAX_DIMENSION = 500;
 
     private final StreamingGifWriter.GifStream gif;
 
@@ -51,12 +53,11 @@ public class ScrimageGifWriter extends NoAudioWriter {
         var currentImage = ImageUtil.convertType(
             ImageUtil.bound(
                 frame.content(),
-                500,
-                500
+                MAX_DIMENSION
             ),
             BufferedImage.TYPE_INT_ARGB
         );
-        if (ImageUtil.imageEquals(previousImage, currentImage)) {
+        if (previousImage != null && isSimilar(previousImage, currentImage)) {
             // Merge duplicate sequential frames into one.
             pendingDuration += frame.duration();
         } else {
@@ -74,7 +75,7 @@ public class ScrimageGifWriter extends NoAudioWriter {
                 disposeMethod = DisposeMethod.NONE;
             } else if (cannotOptimiseNext) {
                 toWrite = currentImage;
-                if (fullyOpaque(currentImage)) {
+                if (isFullyOpaque(currentImage)) {
                     disposeMethod = DisposeMethod.NONE;
                     cannotOptimiseNext = false;
                 } else {
@@ -138,6 +139,14 @@ public class ScrimageGifWriter extends NoAudioWriter {
         }
     }
 
+    private static boolean isSimilar(BufferedImage image1, BufferedImage image2) {
+        try {
+            return isFullyTransparent(optimiseTransparency(image1, image2));
+        } catch (PreviousTransparentException e) {
+            return false;
+        }
+    }
+
     private static BufferedImage optimiseTransparency(
         BufferedImage previousImage,
         BufferedImage currentImage
@@ -169,16 +178,24 @@ public class ScrimageGifWriter extends NoAudioWriter {
         return newImage;
     }
 
-    private static boolean fullyOpaque(BufferedImage image) {
+    private static boolean filterPixels(BufferedImage image, Predicate<? super Color> predicate) {
         for (var x = 0; x < image.getWidth(); x++) {
             for (var y = 0; y < image.getHeight(); y++) {
                 var pixelColor = new Color(image.getRGB(x, y), true);
-                if (pixelColor.getAlpha() < 255) {
+                if (!predicate.test(pixelColor)) {
                     return false;
                 }
             }
         }
         return true;
+    }
+
+    private static boolean isFullyOpaque(BufferedImage image) {
+        return filterPixels(image, color -> color.getAlpha() == 255);
+    }
+
+    private static boolean isFullyTransparent(BufferedImage image) {
+        return filterPixels(image, color -> color.getAlpha() == 0);
     }
 
     private void writeFrame() throws IOException {
