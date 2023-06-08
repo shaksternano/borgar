@@ -7,9 +7,9 @@ import com.google.common.io.Files;
 import io.github.shaksternano.borgar.Main;
 import io.github.shaksternano.borgar.command.AddFavouriteCommand;
 import io.github.shaksternano.borgar.data.repository.SavedFileRepository;
+import io.github.shaksternano.borgar.util.DiscordUtil;
 import io.github.shaksternano.borgar.util.StringUtil;
 import net.dv8tion.jda.api.entities.Icon;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.Webhook;
 import net.dv8tion.jda.api.entities.channel.Channel;
@@ -134,22 +134,9 @@ public class FavouriteHandler {
     }
 
     private static CompletableFuture<Void> sendMessage(String content, MessageSender sender, MessageReceivedEvent event) {
-        return retrieveUserDetails(event).thenCompose(userDetails ->
+        return DiscordUtil.retrieveUserDetails(event.getMessage()).thenCompose(userDetails ->
             sender.sendMessage(content, userDetails.username(), userDetails.avatarUrl())
         ).thenAccept(unused -> sender.close());
-    }
-
-    private static CompletableFuture<UserDetails> retrieveUserDetails(MessageReceivedEvent event) {
-        var author = event.getAuthor();
-        if (event.isFromGuild()) {
-            var guild = event.getGuild();
-            return guild.retrieveMember(author)
-                .submit()
-                .thenApply(UserDetails::new)
-                .exceptionally(throwable -> new UserDetails(author));
-        } else {
-            return CompletableFuture.completedFuture(new UserDetails(author));
-        }
     }
 
     @FunctionalInterface
@@ -197,17 +184,6 @@ public class FavouriteHandler {
                 .submit()
                 .thenAccept(unused -> {
                 });
-        }
-    }
-
-    private record UserDetails(String username, String avatarUrl) {
-
-        public UserDetails(User user) {
-            this(user.getEffectiveName(), user.getEffectiveAvatarUrl());
-        }
-
-        public UserDetails(Member member) {
-            this(member.getEffectiveName(), member.getEffectiveAvatarUrl());
         }
     }
 }

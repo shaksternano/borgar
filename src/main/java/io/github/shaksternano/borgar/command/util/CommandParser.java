@@ -35,13 +35,13 @@ public class CommandParser {
 
 
     public static void parseAndExecute(MessageReceivedEvent event) {
-        var triggerMessage = event.getMessage();
-        var stringMessage = DiscordUtil.getContentStrippedKeepEmotes(triggerMessage).trim();
-        var commandParts = parseCommandParts(stringMessage);
-        if (commandParts.size() > 0) {
-            CommandRegistry.getCommand(commandParts.get(0))
-                .ifPresent(command -> handleCommand(command, commandParts, event));
-        }
+        DiscordUtil.getContentStrippedKeepEmotes(event.getMessage()).thenAccept(stringMessage -> {
+            var commandParts = parseCommandParts(stringMessage.trim());
+            if (commandParts.size() > 0) {
+                CommandRegistry.getCommand(commandParts.get(0))
+                    .ifPresent(command -> handleCommand(command, commandParts, event));
+            }
+        });
     }
 
     private static <T> void handleCommand(Command<T> command, List<String> commandParts, MessageReceivedEvent event) {
