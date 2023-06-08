@@ -245,7 +245,7 @@ public class Commands {
 
     public static final Command<?> FAVOURITE_FILE = addCommandToRegister(new AddFavouriteCommand(
         "fav",
-        "Favourites a file."
+        "Creates an alias GIF for a file, which when sent, will be replaced by that file."
     ));
 
     public static final Command<?> MEMORY_USAGE = addCommandToRegister(new MemoryUsageCommand(
