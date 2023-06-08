@@ -622,7 +622,7 @@ public class ImageUtil {
         return true;
     }
 
-    public static BufferedImage makeRoundedCorner(BufferedImage image, int cornerRadius) {
+    public static BufferedImage makeRoundedCorners(BufferedImage image, float cornerRadius) {
         var width = image.getWidth();
         var height = image.getHeight();
         var output = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
