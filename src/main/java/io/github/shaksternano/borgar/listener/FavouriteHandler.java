@@ -6,7 +6,6 @@ import club.minnced.discord.webhook.send.WebhookMessageBuilder;
 import com.google.common.io.Files;
 import io.github.shaksternano.borgar.Main;
 import io.github.shaksternano.borgar.command.AddFavouriteCommand;
-import io.github.shaksternano.borgar.data.repository.SavedFileRepository;
 import io.github.shaksternano.borgar.util.DiscordUtil;
 import io.github.shaksternano.borgar.util.StringUtil;
 import net.dv8tion.jda.api.entities.Icon;
@@ -22,7 +21,9 @@ import org.jetbrains.annotations.Nullable;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -37,29 +38,42 @@ public class FavouriteHandler {
             return;
         }
         var aliasUrl = urls.get(0);
+
         try {
             var host = new URI(aliasUrl).getHost();
             if (!host.equals("media.discordapp.net")) {
                 return;
             }
-        } catch (Exception e) {
-            Main.getLogger().error("Error creating URI from url {}", aliasUrl, e);
+        } catch (URISyntaxException ignored) {
             return;
         }
+
         var fileName = Files.getNameWithoutExtension(aliasUrl);
         if (!fileName.startsWith(AddFavouriteCommand.ALIAS_PREFIX)) {
             return;
         }
-        SavedFileRepository.findUrlFuture(aliasUrl).thenAccept(urlOptional ->
-            urlOptional.ifPresent(url ->
-                sendUrl(url, event).thenAccept(unused -> {
-                    try {
-                        event.getMessage().delete().queue();
-                    } catch (Exception ignored) {
-                    }
-                })
-            )
+
+        getUrl(aliasUrl).ifPresent(url ->
+            sendUrl(url, event).thenAccept(unused -> {
+                try {
+                    event.getMessage().delete().queue();
+                } catch (Exception ignored) {
+                }
+            })
         );
+    }
+
+    private static Optional<String> getUrl(String aliasUrl) {
+        var fileName = Files.getNameWithoutExtension(aliasUrl);
+        var nameParts = fileName.split("_", 2);
+        if (nameParts.length == 2) {
+            try {
+                var decodedBytes = Base64.getDecoder().decode(nameParts[1]);
+                return Optional.of(new String(decodedBytes));
+            } catch (IllegalArgumentException ignored) {
+            }
+        }
+        return Optional.empty();
     }
 
     private static CompletableFuture<Void> sendUrl(String url, MessageReceivedEvent event) {

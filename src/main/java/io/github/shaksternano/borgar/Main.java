@@ -1,7 +1,6 @@
 package io.github.shaksternano.borgar;
 
 import io.github.shaksternano.borgar.command.util.Commands;
-import io.github.shaksternano.borgar.data.DatabaseConnectionKt;
 import io.github.shaksternano.borgar.emoji.EmojiUtil;
 import io.github.shaksternano.borgar.listener.CommandListener;
 import io.github.shaksternano.borgar.logging.DiscordLogger;
@@ -81,8 +80,6 @@ public class Main {
         }
 
         avutil.av_log_set_level(avutil.AV_LOG_PANIC);
-
-        connectToPostgreSql();
 
         Fonts.registerFonts();
         ResourceTemplateImageInfo.validate();
@@ -179,16 +176,6 @@ public class Main {
             .queue(commands -> {
             }, throwable -> getLogger().error("Failed to add slash commands!", throwable));
         jda.addEventListener(new CommandListener());
-    }
-
-    private static void connectToPostgreSql() {
-        DatabaseConnectionKt.connectToDatabase(
-            Environment.getEnvVar("POSTGRESQL_URL").orElseThrow(),
-            Environment.getEnvVar("POSTGRESQL_USERNAME").orElseThrow(),
-            Environment.getEnvVar("POSTGRESQL_PASSWORD").orElseThrow(),
-            "org.postgresql.Driver"
-        );
-        DatabaseConnectionKt.testConnection();
     }
 
     /**

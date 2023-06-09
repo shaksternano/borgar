@@ -27,6 +27,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Base64;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -69,7 +70,7 @@ public class AddFavouriteCommand extends BaseCommand<AddFavouriteCommand.Respons
         }
         var url = responseData.url();
         var aliasUrl = attachments.get(0).getProxyUrl();
-        SavedFileRepository.addAliasFuture(url, aliasUrl);
+        SavedFileRepository.addAlias(url, aliasUrl);
     }
 
     private static CompletableFuture<CommandResponse<ResponseData>> getOrCreateAliasGif(
@@ -95,37 +96,38 @@ public class AddFavouriteCommand extends BaseCommand<AddFavouriteCommand.Respons
             }
         }
 
-        return SavedFileRepository.findAliasUrlFuture(url).thenCompose(fileUrlOptional -> {
-            if (fileUrlOptional.isPresent()) {
-                return new CommandResponse<ResponseData>(fileUrlOptional.orElseThrow()).asFuture();
-            }
-            File input = null;
-            try {
-                var namedFile = FileUtil.downloadFile(url);
-                input = namedFile.file();
-                var fileFormat = FileUtil.getFileFormat(namedFile.file());
-                var maxFileSize = DiscordUtil.getMaxUploadSize(event);
-                var aliasGif = createAliasGif(namedFile, fileFormat, maxFileSize, event);
-                return new CommandResponse<ResponseData>(aliasGif)
-                    .withResponseData(new ResponseData(aliasGif.file(), url, true))
-                    .asFuture();
-            } catch (IOException e) {
-                return CompletableFuture.failedFuture(e);
-            } finally {
-                FileUtil.delete(input);
-            }
-        });
+        return SavedFileRepository.getAlias(url)
+            .map(aliasUrl -> new CommandResponse<ResponseData>(aliasUrl).asFuture())
+            .orElseGet(() -> {
+                File input = null;
+                try {
+                    var namedFile = FileUtil.downloadFile(url);
+                    input = namedFile.file();
+                    var fileFormat = FileUtil.getFileFormat(namedFile.file());
+                    var maxFileSize = DiscordUtil.getMaxUploadSize(event);
+                    var aliasGif = createAliasGif(namedFile, url, fileFormat, maxFileSize, event);
+                    return new CommandResponse<ResponseData>(aliasGif)
+                        .withResponseData(new ResponseData(aliasGif.file(), url, true))
+                        .asFuture();
+                } catch (IOException e) {
+                    return CompletableFuture.failedFuture(e);
+                } finally {
+                    FileUtil.delete(input);
+                }
+            });
     }
 
     private static NamedFile createAliasGif(
         NamedFile input,
+        String originalUrl,
         String fileFormat,
         long maxFileSize,
         MessageReceivedEvent event
     ) throws IOException {
         var imageReader = MediaReaders.createImageReader(input.file(), fileFormat);
         var audioReader = NoAudioReader.INSTANCE;
-        var resultName = ALIAS_PREFIX + input.nameWithoutExtension();
+        var encodedUrl = Base64.getEncoder().encodeToString(originalUrl.getBytes());
+        var resultName = ALIAS_PREFIX + encodedUrl;
         var outputFormat = "gif";
         return new NamedFile(
             MediaUtil.processMedia(
