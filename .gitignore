@@ -30,3 +30,4 @@ bin/
 *.log
 .env
 *.mapdb
+*.mapdb.wal.0
