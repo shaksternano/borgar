@@ -11,12 +11,17 @@ import org.reflections.Reflections;
 import org.reflections.scanners.Scanners;
 
 import java.io.*;
+import java.net.URI;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.channels.Channels;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
 
@@ -63,32 +68,28 @@ public class FileUtil {
         }
     }
 
-    /**
-     * Downloads a file from a URL.
-     *
-     * @param url The text to download the image from.
-     * @return An {@link Optional} describing the image file.
-     */
-    public static Optional<NamedFile> downloadFileOptional(String url) {
+    public static CompletableFuture<NamedFile> downloadFile(String url) {
+        CompletableFuture<String> urlFuture;
         try {
-            return Optional.of(downloadFile(url));
-        } catch (IOException ignored) {
-            return Optional.empty();
+            urlFuture = TenorUtil.retrieveTenorMediaUrl(url, TenorMediaType.GIF_NORMAL, Main.getTenorApiKey());
+        } catch (IllegalArgumentException e) {
+            urlFuture = CompletableFuture.completedFuture(url);
         }
-    }
-
-    public static NamedFile downloadFile(String url) throws IOException {
-        var tenorMediaUrlOptional = TenorUtil.getTenorMediaUrl(url, TenorMediaType.GIF_NORMAL, Main.getTenorApiKey());
-        url = tenorMediaUrlOptional.orElse(url);
-        var fileNameWithoutExtension = com.google.common.io.Files.getNameWithoutExtension(url);
-        var extension = com.google.common.io.Files.getFileExtension(url);
-        int index = extension.indexOf("?");
-        if (index != -1) {
-            extension = extension.substring(0, index);
-        }
-        var file = createTempFile(fileNameWithoutExtension, extension);
-        downloadFile(url, file);
-        return new NamedFile(file, fileNameWithoutExtension, extension);
+        return urlFuture.thenCompose(url1 -> {
+            var fileNameWithoutExtension = com.google.common.io.Files.getNameWithoutExtension(url1);
+            var extension = com.google.common.io.Files.getFileExtension(url1);
+            int index = extension.indexOf("?");
+            if (index != -1) {
+                extension = extension.substring(0, index);
+            }
+            try {
+                var file = createTempFile(fileNameWithoutExtension, extension);
+                downloadFile(url1, file);
+                return CompletableFuture.completedFuture(new NamedFile(file, fileNameWithoutExtension, extension));
+            } catch (IOException e) {
+                return CompletableFuture.failedFuture(e);
+            }
+        });
     }
 
     /**
@@ -178,5 +179,16 @@ public class FileUtil {
             fileNameWithoutExtension,
             newExtension
         );
+    }
+
+    public static CompletableFuture<Optional<String>> getContentType(String url) {
+        var request = HttpRequest.newBuilder()
+            .uri(URI.create(url))
+            .method("HEAD", HttpRequest.BodyPublishers.noBody())
+            .build();
+        return HttpClient.newHttpClient()
+            .sendAsync(request, HttpResponse.BodyHandlers.discarding())
+            .thenApply(HttpResponse::headers)
+            .thenApply(headers -> headers.firstValue("Content-Type"));
     }
 }

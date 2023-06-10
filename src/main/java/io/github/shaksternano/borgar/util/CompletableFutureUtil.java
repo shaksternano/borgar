@@ -3,8 +3,10 @@ package io.github.shaksternano.borgar.util;
 import io.github.shaksternano.borgar.util.function.TriFunction;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 public class CompletableFutureUtil {
 
@@ -21,6 +23,23 @@ public class CompletableFutureUtil {
             i++;
         }
         return future;
+    }
+
+    public static <T, R> CompletableFuture<Optional<R>> findFirstAsync(
+        Iterable<T> iterable,
+        Function<T, CompletableFuture<Optional<R>>> function
+    ) {
+        return reduceSequentiallyAsync(
+            iterable,
+            Optional.empty(),
+            (element, optional, index) -> {
+                if (optional.isPresent()) {
+                    return CompletableFuture.completedFuture(optional);
+                } else {
+                    return function.apply(element);
+                }
+            }
+        );
     }
 
     public static <T> CompletableFuture<Void> forEachSequentiallyAsync(

@@ -248,6 +248,11 @@ public class Commands {
         "Creates an alias GIF for a file, which when sent, will be replaced by that file."
     ));
 
+    public static final Command<?> TENOR_URL = addCommandToRegister(new TenorUrlCommand(
+        "tenor",
+        "Gets the direct file URL of Tenor media. Optional arguments: [media type, default value is `" + TenorUrlCommand.DEFAULT_MEDIA_TYPE + "`]"
+    ));
+
     public static final Command<?> MEMORY_USAGE = addCommandToRegister(new MemoryUsageCommand(
         "memory",
         "Get the memory usage of the bot."
