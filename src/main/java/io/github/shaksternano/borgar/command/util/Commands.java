@@ -253,6 +253,11 @@ public class Commands {
         "Gets the direct file URL of Tenor media. Optional arguments: [media type, default value is `" + TenorUrlCommand.DEFAULT_MEDIA_TYPE + "`]"
     ));
 
+    public static final Command<?> DOWNLOAD = addCommandToRegister(new DownloadCommand(
+        "download",
+        "Downloads a file from a social media website, for example, a video from YouTube."
+    ));
+
     public static final Command<?> MEMORY_USAGE = addCommandToRegister(new MemoryUsageCommand(
         "memory",
         "Get the memory usage of the bot."

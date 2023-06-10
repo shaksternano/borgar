@@ -184,8 +184,8 @@ public class MessageUtil {
                 if (videoInfo != null) {
                     var url = videoInfo.getUrl();
                     if (url != null) {
-                        FileUtil.getContentType(url).thenCompose(contentTypeOptional -> {
-                            if (contentTypeOptional.orElse("").contains("text")) {
+                        FileUtil.getHeaders(url).thenCompose(headers -> {
+                            if (headers.firstValue("Content-Type").orElse("").contains("text")) {
                                 return CompletableFuture.completedFuture(Optional.empty());
                             }
                             return FileUtil.downloadFile(videoInfo.getUrl())

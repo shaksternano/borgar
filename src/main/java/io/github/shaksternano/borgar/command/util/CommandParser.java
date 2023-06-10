@@ -69,6 +69,11 @@ public class CommandParser {
                             if (index == 0) {
                                 command.handleFirstResponse(message, event, response.responseData());
                             }
+                        }).whenComplete((unused, throwable) -> {
+                            if (throwable != null) {
+                                Main.getLogger().error("Error sending response", throwable);
+                                event.getMessage().reply("Error sending response!").queue();
+                            }
                         });
                     }
                 ));
