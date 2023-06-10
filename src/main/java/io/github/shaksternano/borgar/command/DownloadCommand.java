@@ -131,6 +131,7 @@ public class DownloadCommand extends BaseCommand<InputStream> {
         body.addProperty("vQuality", String.valueOf(videoQuality));
         body.addProperty("isAudioOnly", audioOnly);
         body.addProperty("isNoTTWatermark", true);
+        // Don't use isAudioMuted as there can be issues with it.
         try {
             var request = HttpRequest.newBuilder(new URI(cobaltApiDomain + "/api/json"))
                 .POST(HttpRequest.BodyPublishers.ofString(body.toString()))
