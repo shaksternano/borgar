@@ -20,6 +20,7 @@ import java.net.http.HttpResponse;
 import java.nio.channels.Channels;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.time.Duration;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
@@ -185,6 +186,7 @@ public class FileUtil {
         var request = HttpRequest.newBuilder()
             .uri(URI.create(url))
             .method("HEAD", HttpRequest.BodyPublishers.noBody())
+            .timeout(Duration.ofSeconds(10))
             .build();
         return HttpClient.newHttpClient()
             .sendAsync(request, HttpResponse.BodyHandlers.discarding())

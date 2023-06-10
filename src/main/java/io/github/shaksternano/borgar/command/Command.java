@@ -21,6 +21,8 @@ public interface Command<T> extends Comparable<Command<?>> {
      */
     String PREFIX = "%";
 
+    String ARGUMENT_PREFIX = "-";
+
     /**
      * Executes the command.
      *

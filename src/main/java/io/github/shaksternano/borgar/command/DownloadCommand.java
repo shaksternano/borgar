@@ -23,9 +23,17 @@ import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 public class DownloadCommand extends BaseCommand<InputStream> {
+
+    // Other qualities have issues with the Cobalt API.
+    private static final List<Integer> VIDEO_QUALITIES = List.of(
+        720,
+        360
+    );
 
     /**
      * Creates a new command object.
@@ -40,30 +48,16 @@ public class DownloadCommand extends BaseCommand<InputStream> {
 
     @Override
     public CompletableFuture<CommandResponse<InputStream>> execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
+        var audioOnly = extraArguments.containsKey("audioonly");
         return MessageUtil.getUrl(event.getMessage())
             .thenCompose(urlOptional ->
-                urlOptional.map(url ->
-                    getDownloadUrl(url).thenCompose(streamUrl ->
-                        FileUtil.getHeaders(streamUrl)
-                            .thenCompose(headers -> {
-                                var contentLength = getContentLength(headers);
-                                if (contentLength > DiscordUtil.getMaxUploadSize(event)) {
-                                    return new CommandResponse<InputStream>("File is too large!").asFuture();
-                                }
-                                var fileName = getFileName(headers);
-                                try {
-                                    var inputStream = new URL(streamUrl).openStream();
-                                    return new CommandResponse<InputStream>(inputStream, fileName)
-                                        .withResponseData(inputStream)
-                                        .asFuture();
-                                } catch (IOException e) {
-                                    Main.getLogger().error("Failed to open stream from URL {}", streamUrl, e);
-                                    return new CommandResponse<InputStream>("Error downloading file!").asFuture();
-                                }
-                            })
-                    )
-                ).orElseGet(() -> new CommandResponse<InputStream>("No URL found").asFuture())
-            );
+                urlOptional.map(url -> download(
+                    url,
+                    0,
+                    audioOnly,
+                    event
+                )).orElseGet(() -> new CommandResponse<InputStream>("No URL found").asFuture())
+            ).exceptionally(throwable -> new CommandResponse<>("Error downloading file!"));
     }
 
     @Override
@@ -77,10 +71,66 @@ public class DownloadCommand extends BaseCommand<InputStream> {
         }
     }
 
-    private static CompletableFuture<String> getDownloadUrl(String url) {
-        var cobaltApiDomain = Environment.getEnvVar("COBALT_API_DOMAIN").orElse("https://co.wuk.sh");
+    @Override
+    public Set<String> getAdditionalParameterNames() {
+        return Set.of(
+            "audioonly"
+        );
+    }
+
+    private static CompletableFuture<CommandResponse<InputStream>> download(
+        String url,
+        int videoQualityIndex,
+        boolean audioOnly,
+        MessageReceivedEvent event
+    ) {
+        return getDownloadUrl(
+            url,
+            VIDEO_QUALITIES.get(videoQualityIndex),
+            audioOnly
+        ).thenCompose(streamUrl ->
+            FileUtil.getHeaders(streamUrl)
+                .exceptionally(throwable -> HttpHeaders.of(Map.of(), (s, s2) -> true))
+                .thenCompose(headers -> {
+                    var contentLength = getContentLength(headers);
+                    if (contentLength > DiscordUtil.getMaxUploadSize(event)) {
+                        if (videoQualityIndex < VIDEO_QUALITIES.size() - 1) {
+                            return download(
+                                url,
+                                videoQualityIndex + 1,
+                                audioOnly,
+                                event
+                            );
+                        } else {
+                            return new CommandResponse<InputStream>("File is too large!").asFuture();
+                        }
+                    }
+                    var fileName = getFileName(headers);
+                    try {
+                        var inputStream = new URL(streamUrl).openStream();
+                        return new CommandResponse<InputStream>(inputStream, fileName)
+                            .withResponseData(inputStream)
+                            .asFuture();
+                    } catch (IOException e) {
+                        Main.getLogger().error("Failed to open stream from URL {}", streamUrl, e);
+                        return CompletableFuture.failedFuture(e);
+                    }
+                })
+        );
+    }
+
+    private static CompletableFuture<String> getDownloadUrl(
+        String url,
+        int videoQuality,
+        boolean audioOnly
+    ) {
+        var cobaltApiDomain = Environment.getEnvVar("COBALT_API_DOMAIN")
+            .orElse("https://co.wuk.sh");
         var body = new JsonObject();
         body.addProperty("url", url);
+        body.addProperty("vQuality", String.valueOf(videoQuality));
+        body.addProperty("isAudioOnly", audioOnly);
+        body.addProperty("isNoTTWatermark", true);
         try {
             var request = HttpRequest.newBuilder(new URI(cobaltApiDomain + "/api/json"))
                 .POST(HttpRequest.BodyPublishers.ofString(body.toString()))
