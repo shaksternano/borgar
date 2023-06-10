@@ -12,14 +12,14 @@ public class CompletableFutureUtil {
 
     public static <T, R> CompletableFuture<R> reduceSequentiallyAsync(
         Iterable<T> iterable,
-        @Nullable R initialValue,
-        TriFunction<T, R, Integer, CompletableFuture<R>> function
+        @Nullable R identity,
+        TriFunction<T, R, Integer, CompletableFuture<R>> accumulator
     ) {
-        CompletableFuture<R> future = CompletableFuture.completedFuture(initialValue);
+        CompletableFuture<R> future = CompletableFuture.completedFuture(identity);
         var i = 0;
         for (var element : iterable) {
             var index = i;
-            future = future.thenCompose(value -> function.apply(element, value, index));
+            future = future.thenCompose(value -> accumulator.apply(element, value, index));
             i++;
         }
         return future;
@@ -27,7 +27,7 @@ public class CompletableFutureUtil {
 
     public static <T, R> CompletableFuture<Optional<R>> findFirstAsync(
         Iterable<T> iterable,
-        Function<T, CompletableFuture<Optional<R>>> function
+        Function<T, CompletableFuture<Optional<R>>> mapper
     ) {
         return reduceSequentiallyAsync(
             iterable,
@@ -36,7 +36,7 @@ public class CompletableFutureUtil {
                 if (optional.isPresent()) {
                     return CompletableFuture.completedFuture(optional);
                 } else {
-                    return function.apply(element);
+                    return mapper.apply(element);
                 }
             }
         );
@@ -44,12 +44,12 @@ public class CompletableFutureUtil {
 
     public static <T> CompletableFuture<Void> forEachSequentiallyAsync(
         Iterable<T> iterable,
-        BiFunction<T, Integer, CompletableFuture<?>> function
+        BiFunction<T, Integer, CompletableFuture<?>> action
     ) {
         return reduceSequentiallyAsync(
             iterable,
             null,
-            (element, unused, index) -> function.apply(element, index).thenApply(unused2 -> null)
+            (element, unused, index) -> action.apply(element, index).thenApply(unused2 -> null)
         );
     }
 }
