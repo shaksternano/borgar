@@ -4,12 +4,6 @@ on: [ push, pull_request ]
 jobs:
   build:
     runs-on: ubuntu-22.04
-
-    env:
-      POSTGRESQL_URL: jdbc:postgresql://localhost:5332/postgres
-      POSTGRESQL_USERNAME: root
-      POSTGRESQL_PASSWORD: password
-
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-java@v3
@@ -17,16 +11,6 @@ jobs:
           distribution: "temurin"
           java-version: 17
           cache: "gradle"
-
-      - name: Create .env file for Docker Compose
-        run: |
-          touch .env
-          echo POSTGRESQL_USERNAME=$POSTGRESQL_USERNAME >> .env
-          echo POSTGRESQL_PASSWORD=$POSTGRESQL_PASSWORD >> .env
-
-      - name: Run Docker Compose
-        run: |
-          docker-compose up -d
 
       - name: Run tests
         run: ./gradlew test --stacktrace --parallel

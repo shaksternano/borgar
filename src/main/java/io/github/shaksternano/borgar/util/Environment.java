@@ -18,7 +18,7 @@ public class Environment {
             if (!line.isBlank()) {
                 var envVar = line.split("=", 2);
                 if (envVar.length == 2) {
-                    setEnvVar(envVar[0], envVar[1]);
+                    setEnvVar(envVar[0].trim(), envVar[1].trim());
                 } else {
                     Main.getLogger().error("Invalid environment variable: " + line);
                 }

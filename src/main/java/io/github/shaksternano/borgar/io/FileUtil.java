@@ -14,12 +14,13 @@ import java.io.*;
 import java.net.URI;
 import java.net.URL;
 import java.net.http.HttpClient;
+import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.channels.Channels;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.Optional;
+import java.time.Duration;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
@@ -181,14 +182,14 @@ public class FileUtil {
         );
     }
 
-    public static CompletableFuture<Optional<String>> getContentType(String url) {
+    public static CompletableFuture<HttpHeaders> getHeaders(String url) {
         var request = HttpRequest.newBuilder()
             .uri(URI.create(url))
             .method("HEAD", HttpRequest.BodyPublishers.noBody())
+            .timeout(Duration.ofSeconds(10))
             .build();
         return HttpClient.newHttpClient()
             .sendAsync(request, HttpResponse.BodyHandlers.discarding())
-            .thenApply(HttpResponse::headers)
-            .thenApply(headers -> headers.firstValue("Content-Type"));
+            .thenApply(HttpResponse::headers);
     }
 }

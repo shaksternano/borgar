@@ -1,8 +1,9 @@
 package io.github.shaksternano.borgar.command.util;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ListMultimap;
+import com.google.common.collect.MultimapBuilder;
+import com.google.common.collect.Multimaps;
 import io.github.shaksternano.borgar.Main;
 import io.github.shaksternano.borgar.command.Command;
 import io.github.shaksternano.borgar.exception.InvalidArgumentException;
@@ -22,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 import java.util.function.IntPredicate;
 import java.util.function.Predicate;
@@ -60,6 +62,7 @@ public class CommandParser {
                         if (index == 0) {
                             reply.setMessageReference(triggerMessage);
                         }
+                        reply.timeout(10, TimeUnit.SECONDS);
                         return MiscUtil.repeatTry(
                             reply::submit,
                             3,
@@ -68,6 +71,11 @@ public class CommandParser {
                         ).thenAccept(message -> {
                             if (index == 0) {
                                 command.handleFirstResponse(message, event, response.responseData());
+                            }
+                        }).whenComplete((unused, throwable) -> {
+                            if (throwable != null) {
+                                Main.getLogger().error("Error sending response", throwable);
+                                event.getMessage().reply("Error sending response!").queue();
                             }
                         });
                     }
@@ -150,25 +158,31 @@ public class CommandParser {
     }
 
     private static ListMultimap<String, String> parseExtraArguments(List<String> commandParts, Command<?> command) {
-        var argumentsBuilder = new ImmutableListMultimap.Builder<String, String>();
+        ListMultimap<String, String> arguments = MultimapBuilder.hashKeys().arrayListValues().build();
         Set<String> passedExtraCommandWords = new HashSet<>();
         String currentExtraParameterName = null;
         for (var commandPart : commandParts) {
-            if (commandPart.startsWith(Command.PREFIX)) {
+            if (commandPart.startsWith(Command.ARGUMENT_PREFIX)) {
                 var commandWord = commandPart.substring(1).toLowerCase();
                 if (command.getAdditionalParameterNames().contains(commandWord)
                     && !passedExtraCommandWords.contains(commandWord)
                 ) {
+                    if (currentExtraParameterName != null && !arguments.containsKey(currentExtraParameterName)) {
+                        arguments.put(currentExtraParameterName, "");
+                    }
                     currentExtraParameterName = commandWord;
                     passedExtraCommandWords.add(commandWord);
                     continue;
                 }
             }
             if (currentExtraParameterName != null) {
-                argumentsBuilder.put(currentExtraParameterName, commandPart);
+                arguments.put(currentExtraParameterName, commandPart);
             }
         }
-        return argumentsBuilder.build();
+        if (currentExtraParameterName != null && !arguments.containsKey(currentExtraParameterName)) {
+            arguments.put(currentExtraParameterName, "");
+        }
+        return Multimaps.unmodifiableListMultimap(arguments);
     }
 
     public static int parseIntegerArgument(List<String> arguments, int toParseIndex, int defaultValue, @Nullable IntPredicate constraint, MessageChannel triggerChannel, BiFunction<String, String, String> errorMessage) {
