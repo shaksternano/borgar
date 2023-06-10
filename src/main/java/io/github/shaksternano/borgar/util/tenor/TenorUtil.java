@@ -1,13 +1,13 @@
 package io.github.shaksternano.borgar.util.tenor;
 
-import com.google.gson.JsonElement;
-import io.github.shaksternano.borgar.Main;
-import io.github.shaksternano.borgar.util.JsonUtil;
-import io.github.shaksternano.borgar.util.NetworkUtil;
+import com.google.gson.JsonParser;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Optional;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * For dealing with the Tenor API.
@@ -15,38 +15,46 @@ import java.util.Optional;
 public class TenorUtil {
 
     /**
-     * Gets the direct file URL from a Tenor link.
+     * Retrieves the direct file URL from a Tenor link.
      *
      * @param url       The Tenor URL.
      * @param mediaType The media type to get the URL of.
      * @param apiKey    The Tenor API key to use.
-     * @return The direct file URL.
+     * @return A future containing the direct file URL.
      */
-    public static Optional<String> getTenorMediaUrl(String url, TenorMediaType mediaType, String apiKey) {
+    public static CompletableFuture<String> retrieveTenorMediaUrl(String url, String mediaType, String apiKey) {
+        var invalidUrlMessage = "Invalid Tenor URL";
         try {
-            URI uri = new URI(url);
+            var uri = new URI(url);
             if (uri.getHost().contains("tenor.com") && uri.getPath().startsWith("/view/")) {
-                String mediaId = url.substring(url.lastIndexOf("-") + 1);
-                String requestUrl = "https://g.tenor.com/v1/gifs?key=" + apiKey + "&ids=" + mediaId;
-                JsonElement request = NetworkUtil.httpGet(requestUrl);
-
-                Optional<String> mediaUrlOptional = JsonUtil.getNestedElement(request, "results")
-                    .flatMap(resultsArrayElement -> JsonUtil.getArrayElement(resultsArrayElement, 0))
-                    .flatMap(resultElement -> JsonUtil.getNestedElement(resultElement, "media"))
-                    .flatMap(mediaArrayElement -> JsonUtil.getArrayElement(mediaArrayElement, 0))
-                    .flatMap(mediaElement -> JsonUtil.getNestedElement(mediaElement, mediaType.getKey(), "url"))
-                    .flatMap(JsonUtil::getString);
-                if (mediaUrlOptional.isPresent()) {
-                    return mediaUrlOptional;
-                } else {
-                    Main.getLogger().error("Error while getting Tenor media URL from Tenor URL " + url + "!");
-                    Main.getLogger().error("Erroneous Tenor JSON contents:\n" + request);
-                }
+                var mediaId = url.substring(url.lastIndexOf("-") + 1);
+                var requestUrl = "https://g.tenor.com/v1/gifs?key=" + apiKey + "&ids=" + mediaId;
+                var request = HttpRequest.newBuilder()
+                    .uri(new URI(requestUrl))
+                    .build();
+                return HttpClient.newHttpClient()
+                    .sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                    .thenApply(response -> JsonParser.parseString(response.body())
+                        .getAsJsonObject()
+                        .getAsJsonArray("results")
+                        .get(0)
+                        .getAsJsonObject()
+                        .getAsJsonArray("media")
+                        .get(0)
+                        .getAsJsonObject()
+                        .getAsJsonObject(mediaType)
+                        .getAsJsonPrimitive("url")
+                        .getAsString()
+                    );
+            } else {
+                throw new IllegalArgumentException(invalidUrlMessage);
             }
         } catch (URISyntaxException e) {
-            Main.getLogger().error("Error parsing URL " + url + "!", e);
+            throw new IllegalArgumentException(invalidUrlMessage, e);
         }
+    }
 
-        return Optional.empty();
+    public static CompletableFuture<String> retrieveTenorMediaUrl(String url, TenorMediaType mediaType, String apiKey) {
+        return retrieveTenorMediaUrl(url, mediaType.getKey(), apiKey);
     }
 }

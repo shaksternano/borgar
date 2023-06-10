@@ -48,7 +48,7 @@ public class AddFavouriteCommand extends BaseCommand<AddFavouriteCommand.Respons
 
     @Override
     public CompletableFuture<CommandResponse<ResponseData>> execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
-        return MessageUtil.getFileUrl(event.getMessage()).thenCompose(aliasUrlOptional ->
+        return MessageUtil.getUrl(event.getMessage()).thenCompose(aliasUrlOptional ->
             aliasUrlOptional.map(url -> getOrCreateAliasGif(url, event))
                 .orElseGet(() -> new CommandResponse<ResponseData>("No media found!").asFuture())
         );
@@ -83,25 +83,25 @@ public class AddFavouriteCommand extends BaseCommand<AddFavouriteCommand.Respons
         }
 
         if (fileExtension.equals("png") || fileExtension.equals("jpg") || fileExtension.equals("jpeg")) {
-            try {
-                var namedFile = FileUtil.downloadFile(url);
-                var renamed = FileUtil.changeFileExtension(
-                    namedFile.file(),
-                    namedFile.name(),
-                    "gif"
-                );
-                return new CommandResponse<ResponseData>(renamed).asFuture();
-            } catch (IOException e) {
-                return CompletableFuture.failedFuture(e);
-            }
+            return FileUtil.downloadFile(url).thenCompose(namedFile -> {
+                try {
+                    var renamed = FileUtil.changeFileExtension(
+                        namedFile.file(),
+                        namedFile.name(),
+                        "gif"
+                    );
+                    return new CommandResponse<ResponseData>(renamed).asFuture();
+                } catch (IOException e) {
+                    return CompletableFuture.failedFuture(e);
+                }
+            });
         }
 
         return SavedFileRepository.getAlias(url)
             .map(aliasUrl -> new CommandResponse<ResponseData>(aliasUrl).asFuture())
-            .orElseGet(() -> {
+            .orElseGet(() -> FileUtil.downloadFile(url).thenCompose(namedFile -> {
                 File input = null;
                 try {
-                    var namedFile = FileUtil.downloadFile(url);
                     input = namedFile.file();
                     var fileFormat = FileUtil.getFileFormat(namedFile.file());
                     var maxFileSize = DiscordUtil.getMaxUploadSize(event);
@@ -114,7 +114,7 @@ public class AddFavouriteCommand extends BaseCommand<AddFavouriteCommand.Respons
                 } finally {
                     FileUtil.delete(input);
                 }
-            });
+            }));
     }
 
     private static NamedFile createAliasGif(

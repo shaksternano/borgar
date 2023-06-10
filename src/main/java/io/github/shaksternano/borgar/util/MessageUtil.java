@@ -46,27 +46,23 @@ public class MessageUtil {
      */
     public static CompletableFuture<Optional<NamedFile>> downloadFile(Message message) {
         return processMessagesAsync(message, messageToProcess -> downloadAttachment(messageToProcess)
-            .thenApply(fileOptional -> {
+            .thenCompose(fileOptional -> {
                 if (fileOptional.isPresent()) {
-                    return fileOptional;
+                    return CompletableFuture.completedFuture(fileOptional);
                 }
                 var urls = StringUtil.extractUrls(messageToProcess.getContentRaw());
                 if (!urls.isEmpty()) {
-                    fileOptional = FileUtil.downloadFileOptional(urls.get(0));
-                    if (fileOptional.isPresent()) {
-                        return fileOptional;
-                    }
-                    fileOptional = downloadEmbedImage(messageToProcess);
-                    if (fileOptional.isPresent()) {
-                        return fileOptional;
-                    }
+                    return FileUtil.downloadFile(urls.get(0))
+                        .exceptionallyCompose(throwable -> MessageUtil.downloadEmbedFile(messageToProcess))
+                        .thenApply(Optional::of)
+                        .exceptionally(throwable -> Optional.empty());
                 }
-                return Optional.empty();
+                return CompletableFuture.completedFuture(Optional.empty());
             })
         );
     }
 
-    public static CompletableFuture<Optional<String>> getFileUrl(Message message) {
+    public static CompletableFuture<Optional<String>> getUrl(Message message) {
         return processMessages(message, messageToProcess -> {
             var attachments = messageToProcess.getAttachments();
             if (!attachments.isEmpty()) {
@@ -118,16 +114,9 @@ public class MessageUtil {
         Function<Message, CompletableFuture<Optional<T>>> operation,
         BiFunction<Message, Function<Message, CompletableFuture<Optional<T>>>, CompletableFuture<Optional<T>>>... messageProcessors
     ) {
-        return CompletableFutureUtil.reduceSequentiallyAsync(
+        return CompletableFutureUtil.findFirstAsync(
             Arrays.asList(messageProcessors),
-            Optional.empty(),
-            (messageProcessor, result, index) -> {
-                if (result.isPresent()) {
-                    return CompletableFuture.completedFuture(result);
-                } else {
-                    return messageProcessor.apply(message, operation);
-                }
-            }
+            messageProcessor -> messageProcessor.apply(message, operation)
         );
     }
 
@@ -154,20 +143,10 @@ public class MessageUtil {
         return message.getChannel()
             .getHistoryBefore(message, MAX_PAST_MESSAGES_TO_CHECK)
             .submit()
-            .thenCompose(history -> {
-                Optional<T> initialValue = Optional.empty();
-                return CompletableFutureUtil.reduceSequentiallyAsync(
-                    history.getRetrievedHistory(),
-                    initialValue,
-                    (previousMessage, result, index) -> {
-                        if (result.isPresent()) {
-                            return CompletableFuture.completedFuture(result);
-                        } else {
-                            return operation.apply(previousMessage);
-                        }
-                    }
-                );
-            });
+            .thenCompose(history -> CompletableFutureUtil.findFirstAsync(
+                history.getRetrievedHistory(),
+                operation
+            ));
     }
 
     private static CompletableFuture<Optional<NamedFile>> downloadAttachment(Message message) {
@@ -189,21 +168,34 @@ public class MessageUtil {
             .thenApply(file1 -> Optional.of(new NamedFile(file1, fileName)));
     }
 
-    /**
-     * Downloads an image file from an embed.
-     *
-     * @param message The message containing the embed to download the image from.
-     * @return An {@link Optional} describing the image file.
-     */
-    private static Optional<NamedFile> downloadEmbedImage(Message message) {
-        var embeds = message.getEmbeds();
-        for (var embed : embeds) {
-            var imageInfo = embed.getImage();
-            if (imageInfo != null) {
-                return FileUtil.downloadFileOptional(imageInfo.getUrl());
+    private static CompletableFuture<NamedFile> downloadEmbedFile(Message message) {
+        return CompletableFutureUtil.findFirstAsync(
+            message.getEmbeds(),
+            embed -> {
+                var imageInfo = embed.getImage();
+                if (imageInfo != null) {
+                    var url = imageInfo.getUrl();
+                    if (url != null) {
+                        return FileUtil.downloadFile(imageInfo.getUrl())
+                            .thenApply(Optional::of);
+                    }
+                }
+                var videoInfo = embed.getVideoInfo();
+                if (videoInfo != null) {
+                    var url = videoInfo.getUrl();
+                    if (url != null) {
+                        FileUtil.getContentType(url).thenCompose(contentTypeOptional -> {
+                            if (contentTypeOptional.orElse("").contains("text")) {
+                                return CompletableFuture.completedFuture(Optional.empty());
+                            }
+                            return FileUtil.downloadFile(videoInfo.getUrl())
+                                .thenApply(Optional::of);
+                        });
+                    }
+                }
+                return CompletableFuture.completedFuture(Optional.empty());
             }
-        }
-        return Optional.empty();
+        ).thenApply(fileOptional -> fileOptional.orElseThrow(() -> new IllegalArgumentException("Message does not contain an embed with media")));
     }
 
     public static Optional<String> getFirstEmojiUrl(Message message) {

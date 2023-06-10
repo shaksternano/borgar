@@ -44,7 +44,7 @@ public class FavouriteHandler {
             if (!host.equals("media.discordapp.net")) {
                 return;
             }
-        } catch (URISyntaxException ignored) {
+        } catch (URISyntaxException e) {
             return;
         }
 

@@ -1,5 +1,9 @@
 package io.github.shaksternano.borgar.util.tenor;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 /**
  * Contains Tenor string constants for different media types.
  */
@@ -19,6 +23,10 @@ public enum TenorMediaType {
     WEBM_EXTRA_SMALL("nanowebm"),
     WEBM_SMALL("tinywebm"),
     WEBM_NORMAL("webm");
+
+    private static final Set<String> MEDIA_TYPES = Stream.of(values())
+        .map(TenorMediaType::getKey)
+        .collect(Collectors.toSet());
 
     /**
      * The Tenor JSON key for the media type.
@@ -41,5 +49,9 @@ public enum TenorMediaType {
      */
     public String getKey() {
         return KEY;
+    }
+
+    public static boolean isValidMediaType(String mediaType) {
+        return MEDIA_TYPES.contains(mediaType);
     }
 }
