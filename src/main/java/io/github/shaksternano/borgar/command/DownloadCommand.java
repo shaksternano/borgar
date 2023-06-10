@@ -105,7 +105,7 @@ public class DownloadCommand extends BaseCommand<InputStream> {
                             return new CommandResponse<InputStream>("File is too large!").asFuture();
                         }
                     }
-                    var fileName = getFileName(headers);
+                    var fileName = getFileName(headers, audioOnly);
                     try {
                         var inputStream = new URL(streamUrl).openStream();
                         return new CommandResponse<InputStream>(inputStream, fileName)
@@ -168,8 +168,13 @@ public class DownloadCommand extends BaseCommand<InputStream> {
         }).orElse(defaultContentLength);
     }
 
-    private static String getFileName(HttpHeaders headers) {
-        var defaultFileName = "video.mp4";
+    private static String getFileName(HttpHeaders headers, boolean audioOnly) {
+        String defaultFileName;
+        if (audioOnly) {
+            defaultFileName = "audio.mp3";
+        } else {
+            defaultFileName = "video.mp4";
+        }
         return headers.firstValue("Content-Disposition").map(contentDisposition -> {
             var headerParts = contentDisposition.split("filename=");
             if (headerParts.length < 2) {
