@@ -35,6 +35,8 @@ public class DownloadCommand extends BaseCommand<InputStream> {
         360
     );
 
+    private static final String AUDIO_ONLY_FLAG = "audio";
+
     /**
      * Creates a new command object.
      *
@@ -48,7 +50,7 @@ public class DownloadCommand extends BaseCommand<InputStream> {
 
     @Override
     public CompletableFuture<CommandResponse<InputStream>> execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
-        var audioOnly = extraArguments.containsKey("audioonly");
+        var audioOnly = extraArguments.containsKey(AUDIO_ONLY_FLAG);
         return MessageUtil.getUrl(event.getMessage())
             .thenCompose(urlOptional ->
                 urlOptional.map(url -> download(
@@ -74,7 +76,7 @@ public class DownloadCommand extends BaseCommand<InputStream> {
     @Override
     public Set<String> getAdditionalParameterNames() {
         return Set.of(
-            "audioonly"
+            AUDIO_ONLY_FLAG
         );
     }
 
