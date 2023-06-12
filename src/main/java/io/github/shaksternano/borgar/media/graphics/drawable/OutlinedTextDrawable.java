@@ -31,7 +31,7 @@ public class OutlinedTextDrawable extends TextDrawable {
         var originalStroke = graphics.getStroke();
         var originalHints = graphics.getRenderingHints();
 
-        var textShape = getBounds(graphics);
+        var textShape = getShape(graphics);
 
         ImageUtil.configureTextDrawQuality(graphics);
 
@@ -63,11 +63,15 @@ public class OutlinedTextDrawable extends TextDrawable {
         return (int) (getBounds(graphicsContext).getHeight() + textOutlineWidth * 2);
     }
 
-    private Rectangle2D getBounds(Graphics2D graphicsContext) {
+    private Shape getShape(Graphics2D graphicsContext) {
         var font = graphicsContext.getFont();
         var fontRenderContext = graphicsContext.getFontRenderContext();
         var glyphVector = font.createGlyphVector(fontRenderContext, getText());
-        return glyphVector.getOutline().getBounds2D();
+        return glyphVector.getOutline();
+    }
+
+    private Rectangle2D getBounds(Graphics2D graphicsContext) {
+        return getShape(graphicsContext).getBounds2D();
     }
 
     @Override
