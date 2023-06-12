@@ -33,12 +33,12 @@ public class Commands {
 
     public static final Command<?> DEMOTIVATE = addCommandToRegister(new DemotivateCommand(
         "demotiv",
-        "Puts image in demotivate meme. Optional arguments: [Meme text. To specify sub text, add \"%sub\" before the text.]"
+        "Puts image in demotivate meme. Optional arguments: [Meme text. To specify sub text, add \"-sub\" before the text.]"
     ));
 
-    public static final Command<?> IMPACT = addCommandToRegister(new ImpactCommand(
-        "impact",
-        "Adds Impact text to a media file. Required arguments: [The text to be drawn. By default, the text is drawn at the top. To specify text drawn at the bottom, add \"%bottom\" before the text.]"
+    public static final Command<?> MEME = addCommandToRegister(new MemeCommand(
+        "meme",
+        "Adds impact font text to a media file. Required arguments: [The text to be drawn. By default, the text is drawn at the top. To specify text drawn at the bottom, add \"-bottom\" before the text.]"
     ));
 
     public static final Command<?> SONIC_SAYS = addCommandToRegister(new TemplateImageCommand(
@@ -135,7 +135,7 @@ public class Commands {
 
     public static final Command<?> CROP = addCommandToRegister(new CropCommand(
         "crop",
-        "Crops media. Required arguments: [Crop ratio. To which side, add \"%top\", \"%right\", \"%bottom\" or \"%left\" before the crop ratio to specify which side to crop.]"
+        "Crops media. Required arguments: [Crop ratio. To which side, add \"-top\", \"-right\", \"-bottom\" or \"-left\" before the crop ratio to specify which side to crop.]"
     ));
 
     public static final Command<?> AUTO_CROP = addCommandToRegister(new AutoCropCommand(

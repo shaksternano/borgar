@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class ImpactCommand extends FileCommand {
+public class MemeCommand extends FileCommand {
 
     /**
      * Creates a new command object.
@@ -34,7 +34,7 @@ public class ImpactCommand extends FileCommand {
      *                    followed by this name, the command will be executed.
      * @param description The description of the command. This is displayed in the help command.
      */
-    public ImpactCommand(String name, String description) {
+    public MemeCommand(String name, String description) {
         super(name, description);
     }
 
