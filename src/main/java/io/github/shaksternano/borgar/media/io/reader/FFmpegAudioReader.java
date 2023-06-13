@@ -20,10 +20,18 @@ public final class FFmpegAudioReader extends FFmpegMediaReader<AudioFrame> {
 
     public FFmpegAudioReader(File input, String format) throws IOException {
         super(input, format);
+        fixAudioBitrate();
     }
 
     public FFmpegAudioReader(InputStream input, String format) throws IOException {
         super(input, format);
+        fixAudioBitrate();
+    }
+
+    private void fixAudioBitrate() {
+        if (audioChannels > 0 && audioBitrate == 0) {
+            audioBitrate = 128000;
+        }
     }
 
     @Override
@@ -77,6 +85,8 @@ public final class FFmpegAudioReader extends FFmpegMediaReader<AudioFrame> {
             duration = FFmpegAudioReader.this.duration;
             frameDuration = FFmpegAudioReader.this.frameDuration;
             audioChannels = FFmpegAudioReader.this.audioChannels;
+            audioSampleRate = FFmpegAudioReader.this.audioSampleRate;
+            audioBitrate = FFmpegAudioReader.this.audioBitrate;
             width = FFmpegAudioReader.this.width;
             height = FFmpegAudioReader.this.height;
             reversedFrames = reverseFrames();

@@ -55,11 +55,18 @@ public final class FFmpegImageReader extends FFmpegMediaReader<ImageFrame> {
 
     @Override
     protected ImageFrame convertFrame(Frame frame) {
+        if (isInvalidImageChannels(frame.imageChannels)) {
+            frame.imageChannels = 3;
+        }
         return new ImageFrame(
             converter.convert(frame),
             frameDuration(),
             frame.timestamp
         );
+    }
+
+    private static boolean isInvalidImageChannels(int imageChannels) {
+        return imageChannels != 1 && imageChannels != 3 && imageChannels != 4;
     }
 
     public enum Factory implements MediaReaderFactory<ImageFrame> {
