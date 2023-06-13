@@ -139,7 +139,7 @@ public class FFmpegVideoWriter implements MediaWriter {
         recorder.setInterleaved(true);
 
         if (format.equals("webm")) {
-            // VP9 takes too long to encode. In one case it was 4x slower than VP8.
+            // VP9 takes too long to encode. In one case it was over 4x slower than VP8.
             recorder.setVideoCodec(avcodec.AV_CODEC_ID_VP8);
             recorder.setAudioCodec(avcodec.AV_CODEC_ID_OPUS);
             audioSampleRate = getWebmSampleRate(audioSampleRate);
