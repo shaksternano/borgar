@@ -20,10 +20,18 @@ public final class FFmpegAudioReader extends FFmpegMediaReader<AudioFrame> {
 
     public FFmpegAudioReader(File input, String format) throws IOException {
         super(input, format);
+        fixAudioBitrate();
     }
 
     public FFmpegAudioReader(InputStream input, String format) throws IOException {
         super(input, format);
+        fixAudioBitrate();
+    }
+
+    private void fixAudioBitrate() {
+        if (audioChannels > 0 && audioBitrate == 0) {
+            audioBitrate = 128000;
+        }
     }
 
     @Override

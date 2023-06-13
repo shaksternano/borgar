@@ -138,12 +138,21 @@ public class FFmpegVideoWriter implements MediaWriter {
         recorder.setFormat(format);
         recorder.setInterleaved(true);
 
-        recorder.setVideoCodec(avcodec.AV_CODEC_ID_H264);
-        /*
-        Decrease "startup" latency in FFMPEG
-        (see: https://trac.ffmpeg.org/wiki/StreamingGuide).
-         */
-        recorder.setVideoOption("tune", "zerolatency");
+        if (format.equals("webm")) {
+            // VP9 takes too long to encode. In one case it was 4x slower than VP8.
+            recorder.setVideoCodec(avcodec.AV_CODEC_ID_VP8);
+            recorder.setAudioCodec(avcodec.AV_CODEC_ID_OPUS);
+            audioSampleRate = getWebmSampleRate(audioSampleRate);
+        } else {
+            recorder.setVideoCodec(avcodec.AV_CODEC_ID_H264);
+            recorder.setAudioCodec(avcodec.AV_CODEC_ID_AAC);
+            /*
+            Decrease "startup" latency in FFMPEG
+            (see: https://trac.ffmpeg.org/wiki/StreamingGuide).
+             */
+            recorder.setVideoOption("tune", "zerolatency");
+        }
+
         /*
         Tradeoff between quality and encode speed.
         Possible values are: ultrafast, superfast, veryfast, faster, fast, medium, slow, slower, veryslow.
@@ -162,12 +171,28 @@ public class FFmpegVideoWriter implements MediaWriter {
          */
         recorder.setGopSize((int) (fps * 2));
 
-        recorder.setAudioCodec(avcodec.AV_CODEC_ID_AAC);
+
         // Highest quality
         recorder.setAudioQuality(0);
         recorder.setSampleRate(audioSampleRate);
         recorder.setAudioBitrate(audioBitrate);
         return recorder;
+    }
+
+    private static int getWebmSampleRate(int sampleRate) {
+        if (sampleRate > 24000) {
+            return 48000;
+        }
+        if (sampleRate > 16000) {
+            return 24000;
+        }
+        if (sampleRate > 12000) {
+            return 16000;
+        }
+        if (sampleRate > 8000) {
+            return 12000;
+        }
+        return 8000;
     }
 
     @SuppressWarnings("SameParameterValue")

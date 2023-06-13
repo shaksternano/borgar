@@ -113,7 +113,7 @@ public class FileUtil {
         try {
             return ImageUtil.getImageFormat(file);
         } catch (Exception ignored) {
-            return com.google.common.io.Files.getFileExtension(file.getName());
+            return com.google.common.io.Files.getFileExtension(file.getName()).toLowerCase();
         }
     }
 

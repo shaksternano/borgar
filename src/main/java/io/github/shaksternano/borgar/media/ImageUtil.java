@@ -451,7 +451,7 @@ public class ImageUtil {
 
                 if (imageReaders.hasNext()) {
                     ImageReader reader = imageReaders.next();
-                    return reader.getFormatName();
+                    return reader.getFormatName().toLowerCase();
                 }
             }
 
