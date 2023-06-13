@@ -85,7 +85,7 @@ public class ScrimageGifWriter extends NoAudioWriter {
                 try {
                     toWrite = optimiseTransparency(previousImage, currentImage);
                     disposeMethod = DisposeMethod.DO_NOT_DISPOSE;
-                } catch (PreviousTransparentException ignored) {
+                } catch (PreviousTransparentException e) {
                     toWrite = currentImage;
                     disposeMethod = DisposeMethod.RESTORE_TO_BACKGROUND_COLOR;
                     cannotOptimiseNext = true;
@@ -95,7 +95,6 @@ public class ScrimageGifWriter extends NoAudioWriter {
             var frameDuration = frame.duration();
             if (pendingWrite == null) {
                 previousImage = currentImage;
-
                 pendingWrite = toWrite;
                 pendingDuration = frameDuration;
                 pendingDisposeMethod = disposeMethod;
@@ -151,6 +150,9 @@ public class ScrimageGifWriter extends NoAudioWriter {
         BufferedImage previousImage,
         BufferedImage currentImage
     ) throws PreviousTransparentException {
+        if (previousImage.getWidth() != currentImage.getWidth() || previousImage.getHeight() != currentImage.getHeight()) {
+            throw new PreviousTransparentException();
+        }
         var colorTolerance = 10;
         List<Position> similarPixels = new ArrayList<>();
         for (var x = 0; x < previousImage.getWidth(); x++) {

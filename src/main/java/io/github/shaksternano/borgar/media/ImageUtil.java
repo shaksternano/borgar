@@ -64,15 +64,25 @@ public class ImageUtil {
         if (image.getWidth() == targetWidth && image.getHeight() == targetHeight) {
             return image;
         }
+        targetWidth = Math.max(targetWidth, 1);
+        targetHeight = Math.max(targetHeight, 1);
         if (raw) {
-            BufferedImage stretchedImage = new BufferedImage(targetWidth, targetHeight, ImageUtil.getType(image));
-            Graphics2D graphics = stretchedImage.createGraphics();
-            graphics.drawImage(image, 0, 0, targetWidth, targetHeight, null);
-            graphics.dispose();
-            return stretchedImage;
+            return stretchRaw(image, targetWidth, targetHeight);
         } else {
-            return ImmutableImage.wrapAwt(image).scaleTo(targetWidth, targetHeight).awt();
+            try {
+                return ImmutableImage.wrapAwt(image).scaleTo(targetWidth, targetHeight).awt();
+            } catch (Exception e) {
+                return stretchRaw(image, targetWidth, targetHeight);
+            }
         }
+    }
+
+    private static BufferedImage stretchRaw(BufferedImage image, int targetWidth, int targetHeight) {
+        var stretchedImage = new BufferedImage(targetWidth, targetHeight, ImageUtil.getType(image));
+        var graphics = stretchedImage.createGraphics();
+        graphics.drawImage(image, 0, 0, targetWidth, targetHeight, null);
+        graphics.dispose();
+        return stretchedImage;
     }
 
     public static BufferedImage resize(BufferedImage image, float resizeMultiplier) {
@@ -80,7 +90,11 @@ public class ImageUtil {
     }
 
     public static BufferedImage resize(BufferedImage image, float resizeMultiplier, boolean raw) {
-        return stretch(image, (int) (image.getWidth() * resizeMultiplier), (int) (image.getHeight() * resizeMultiplier), raw);
+        if (resizeMultiplier == 1) {
+            return image;
+        } else {
+            return stretch(image, (int) (image.getWidth() * resizeMultiplier), (int) (image.getHeight() * resizeMultiplier), raw);
+        }
     }
 
     public static BufferedImage fitWidth(BufferedImage toFit, int width) {
@@ -100,7 +114,22 @@ public class ImageUtil {
     }
 
     public static BufferedImage bound(BufferedImage image, int maxDimension) {
-        return bound(image, maxDimension, maxDimension);
+        try {
+            return bound(image, maxDimension, maxDimension);
+        } catch (Exception e) {
+            var width = image.getWidth();
+            var height = image.getHeight();
+            if (width <= maxDimension && height <= maxDimension) {
+                return image;
+            }
+            float resizeRatio;
+            if (width > height) {
+                resizeRatio = (float) maxDimension / width;
+            } else {
+                resizeRatio = (float) maxDimension / height;
+            }
+            return resize(image, resizeRatio, true);
+        }
     }
 
     public static BufferedImage fill(BufferedImage toFill, Color color) {
