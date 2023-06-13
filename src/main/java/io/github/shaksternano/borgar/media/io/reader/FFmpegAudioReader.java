@@ -77,6 +77,8 @@ public final class FFmpegAudioReader extends FFmpegMediaReader<AudioFrame> {
             duration = FFmpegAudioReader.this.duration;
             frameDuration = FFmpegAudioReader.this.frameDuration;
             audioChannels = FFmpegAudioReader.this.audioChannels;
+            audioSampleRate = FFmpegAudioReader.this.audioSampleRate;
+            audioBitrate = FFmpegAudioReader.this.audioBitrate;
             width = FFmpegAudioReader.this.width;
             height = FFmpegAudioReader.this.height;
             reversedFrames = reverseFrames();
