@@ -16,7 +16,6 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpHeaders;
@@ -126,6 +125,10 @@ public class DownloadCommand extends BaseCommand<InputStream> {
         int videoQuality,
         boolean audioOnly
     ) {
+        var uri = URI.create(url);
+        if (uri.getHost().equalsIgnoreCase("vxtwitter.com")) {
+            url = uri.getScheme() + "://twitter.com" + uri.getPath();
+        }
         var cobaltApiDomain = Environment.getEnvVar("COBALT_API_DOMAIN")
             .orElse("https://co.wuk.sh");
         var body = new JsonObject();
@@ -134,29 +137,26 @@ public class DownloadCommand extends BaseCommand<InputStream> {
         body.addProperty("isAudioOnly", audioOnly);
         body.addProperty("isNoTTWatermark", true);
         // Don't use isAudioMuted as there can be issues with it.
-        try {
-            var request = HttpRequest.newBuilder(new URI(cobaltApiDomain + "/api/json"))
-                .POST(HttpRequest.BodyPublishers.ofString(body.toString()))
-                .header("Content-Type", "application/json")
-                .header("Accept", "application/json")
-                .build();
-            return HttpClient.newHttpClient()
-                .sendAsync(request, HttpResponse.BodyHandlers.ofString())
-                .thenApply(response -> {
-                    var responseBody = response.body();
-                    try {
-                        return JsonParser.parseString(responseBody)
-                            .getAsJsonObject()
-                            .get("url")
-                            .getAsString();
-                    } catch (RuntimeException e) {
-                        Main.getLogger().error("Failed to parse Cobalt stream URL response: {}", responseBody, e);
-                        throw e;
-                    }
-                });
-        } catch (URISyntaxException e) {
-            return CompletableFuture.failedFuture(e);
-        }
+
+        var request = HttpRequest.newBuilder(URI.create(cobaltApiDomain + "/api/json"))
+            .POST(HttpRequest.BodyPublishers.ofString(body.toString()))
+            .header("Content-Type", "application/json")
+            .header("Accept", "application/json")
+            .build();
+        return HttpClient.newHttpClient()
+            .sendAsync(request, HttpResponse.BodyHandlers.ofString())
+            .thenApply(response -> {
+                var responseBody = response.body();
+                try {
+                    return JsonParser.parseString(responseBody)
+                        .getAsJsonObject()
+                        .get("url")
+                        .getAsString();
+                } catch (Exception e) {
+                    Main.getLogger().error("Failed to parse Cobalt stream URL response:\n{}", responseBody, e);
+                    throw e;
+                }
+            });
     }
 
     private static long getContentLength(HttpHeaders headers) {
