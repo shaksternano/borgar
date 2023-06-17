@@ -1,8 +1,8 @@
 package io.github.shaksternano.borgar.command;
 
 import com.google.common.collect.ListMultimap;
-import com.sksamuel.scrimage.ImmutableImage;
 import io.github.shaksternano.borgar.io.NamedFile;
+import io.github.shaksternano.borgar.media.ImageUtil;
 import io.github.shaksternano.borgar.media.MediaUtil;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -45,14 +45,11 @@ public class FlipCommand extends FileCommand {
     }
 
     private static BufferedImage flip(BufferedImage image, boolean vertical) {
-        var immutableImage = ImmutableImage.wrapAwt(image);
-        ImmutableImage flippedImage;
         if (vertical) {
-            flippedImage = immutableImage.flipY();
+            return ImageUtil.flipY(image);
         } else {
-            flippedImage = immutableImage.flipX();
+            return ImageUtil.flipX(image);
         }
-        return flippedImage.awt();
     }
 
     @Override

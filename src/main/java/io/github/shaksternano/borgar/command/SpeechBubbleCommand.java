@@ -17,11 +17,14 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Adds a speech bubble on top of media.
  */
 public class SpeechBubbleCommand extends FileCommand {
+
+    public static final String FLIP_FLAG = "f";
 
     private final boolean cutOut;
 
@@ -42,7 +45,7 @@ public class SpeechBubbleCommand extends FileCommand {
      * Adds a speech bubble on top of media. The speech bubble is resized so that it's width is the same as the media's width.
      *
      * @param file           The media file to apply the operation to.
-     * @param fileName
+     * @param fileName       The name of the media file.
      * @param fileFormat     The file format of the media file.
      * @param arguments      The arguments of the command.
      * @param extraArguments A multimap mapping the additional parameter names to a list of the arguments.
@@ -53,12 +56,13 @@ public class SpeechBubbleCommand extends FileCommand {
      */
     @Override
     protected NamedFile modifyFile(File file, String fileName, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event, long maxFileSize) throws IOException {
+        var flipped = extraArguments.containsKey(FLIP_FLAG);
         return new NamedFile(
             MediaUtil.processMedia(
                 file,
                 fileFormat,
                 "speech_bubbled",
-                new SpeechBubbleProcessor(cutOut),
+                new SpeechBubbleProcessor(cutOut, flipped),
                 maxFileSize
             ),
             "speech_bubbled",
@@ -66,7 +70,17 @@ public class SpeechBubbleCommand extends FileCommand {
         );
     }
 
-    private record SpeechBubbleProcessor(boolean cutOut) implements SingleImageProcessor<SpeechBubbleData> {
+    @Override
+    public Set<String> getAdditionalParameterNames() {
+        return Set.of(
+            FLIP_FLAG
+        );
+    }
+
+    private record SpeechBubbleProcessor(
+        boolean cutOut,
+        boolean flipped
+    ) implements SingleImageProcessor<SpeechBubbleData> {
 
         @Override
         public BufferedImage transformImage(ImageFrame frame, SpeechBubbleData constantData) {
@@ -124,6 +138,9 @@ public class SpeechBubbleCommand extends FileCommand {
             var result = cutOut
                 ? resizedSpeechBubble
                 : ImageUtil.fill(resizedSpeechBubble, Color.WHITE);
+            if (flipped) {
+                result = ImageUtil.flipX(result);
+            }
             var overlayData = ImageUtil.getOverlayData(image, result, 0, -result.getHeight(), true, null);
             return new SpeechBubbleData(result, overlayData);
         }

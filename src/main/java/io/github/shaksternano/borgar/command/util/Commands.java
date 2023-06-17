@@ -173,13 +173,13 @@ public class Commands {
      */
     public static final Command<?> SPEECH_BUBBLE = addCommandToRegister(new SpeechBubbleCommand(
         "sb",
-        "Overlays a speech bubble over media.",
+        "Overlays a speech bubble over media. Use -" + SpeechBubbleCommand.FLIP_FLAG + " to flip the speech bubble.",
         false
     ));
 
     public static final Command<?> INVERTED_SPEECH_BUBBLE = addCommandToRegister(new SpeechBubbleCommand(
         "sbi",
-        "Cuts out a speech bubble from media (Inverted speech bubble).",
+        "Cuts out a speech bubble from media (Inverted speech bubble). Use -" + SpeechBubbleCommand.FLIP_FLAG + " to flip the speech bubble.",
         true
     ));
 

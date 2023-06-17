@@ -677,4 +677,12 @@ public class ImageUtil {
         graphics.dispose();
         return output;
     }
+
+    public static BufferedImage flipX(BufferedImage image) {
+        return ImmutableImage.wrapAwt(image).flipX().awt();
+    }
+
+    public static BufferedImage flipY(BufferedImage image) {
+        return ImmutableImage.wrapAwt(image).flipY().awt();
+    }
 }
