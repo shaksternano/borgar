@@ -179,7 +179,7 @@ public class Commands {
 
     public static final Command<?> INVERTED_SPEECH_BUBBLE = addCommandToRegister(new SpeechBubbleCommand(
         "sbi",
-        "Cuts out a speech bubble from media (Inverted speech bubble). Use -" + SpeechBubbleCommand.FLIP_FLAG + " to flip the speech bubble.",
+        "Cuts out a speech bubble from media (Inverted speech bubble). Use -" + SpeechBubbleCommand.FLIP_FLAG + " to flip the speech bubble. Use -" + SpeechBubbleCommand.OPAQUE_FLAG + " to make the speech bubble opaque.",
         true
     ));
 

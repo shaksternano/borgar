@@ -25,6 +25,7 @@ import java.util.Set;
 public class SpeechBubbleCommand extends FileCommand {
 
     public static final String FLIP_FLAG = "f";
+    public static final String OPAQUE_FLAG = "o";
 
     private final boolean cutOut;
 
@@ -57,12 +58,17 @@ public class SpeechBubbleCommand extends FileCommand {
     @Override
     protected NamedFile modifyFile(File file, String fileName, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event, long maxFileSize) throws IOException {
         var flipped = extraArguments.containsKey(FLIP_FLAG);
+        var opaque = extraArguments.containsKey(OPAQUE_FLAG);
         return new NamedFile(
             MediaUtil.processMedia(
                 file,
                 fileFormat,
                 "speech_bubbled",
-                new SpeechBubbleProcessor(cutOut, flipped),
+                new SpeechBubbleProcessor(
+                    cutOut,
+                    flipped,
+                    opaque
+                ),
                 maxFileSize
             ),
             "speech_bubbled",
@@ -73,13 +79,15 @@ public class SpeechBubbleCommand extends FileCommand {
     @Override
     public Set<String> parameterNames() {
         return Set.of(
-            FLIP_FLAG
+            FLIP_FLAG,
+            OPAQUE_FLAG
         );
     }
 
     private record SpeechBubbleProcessor(
         boolean cutOut,
-        boolean flipped
+        boolean flipped,
+        boolean opaque
     ) implements SingleImageProcessor<SpeechBubbleData> {
 
         @Override
@@ -87,7 +95,8 @@ public class SpeechBubbleCommand extends FileCommand {
             var image = frame.content();
             var speechBubble = constantData.speechBubble();
             if (cutOut) {
-                return ImageUtil.cutoutImage(image, speechBubble, 0, 0, 0xFFFFFF);
+                var cutoutColor = constantData.cutoutColor();
+                return ImageUtil.cutoutImage(image, speechBubble, 0, 0, cutoutColor);
             } else {
                 return ImageUtil.overlayImage(
                     image,
@@ -142,13 +151,19 @@ public class SpeechBubbleCommand extends FileCommand {
                 result = ImageUtil.flipX(result);
             }
             var overlayData = ImageUtil.getOverlayData(image, result, 0, -result.getHeight(), true, null);
-            return new SpeechBubbleData(result, overlayData);
+            var cutoutColor = opaque ? Color.WHITE.getRGB() : 0;
+            return new SpeechBubbleData(
+                result,
+                overlayData,
+                cutoutColor
+            );
         }
     }
 
     private record SpeechBubbleData(
         BufferedImage speechBubble,
-        OverlayData overlayData
+        OverlayData overlayData,
+        int cutoutColor
     ) {
     }
 }
