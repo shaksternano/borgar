@@ -13,6 +13,8 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * A command that is executed when a user sends a certain message. Commands are registered in {@link Commands}.
+ *
+ * @param <T> The type of the response data.
  */
 public interface Command<T> extends Comparable<Command<?>> {
 
@@ -35,7 +37,7 @@ public interface Command<T> extends Comparable<Command<?>> {
 
     void handleFirstResponse(Message response, MessageReceivedEvent event, @Nullable T responseData);
 
-    Set<String> getAdditionalParameterNames();
+    Set<String> parameterNames();
 
     /**
      * Gets the name of the command. When a user sends a message starting with {@link #PREFIX}
@@ -43,19 +45,19 @@ public interface Command<T> extends Comparable<Command<?>> {
      *
      * @return The name of the command.
      */
-    String getName();
+    String name();
 
     /**
      * Gets the name of the command prepended with the {@link #PREFIX}.
      *
      * @return The name of the command prepended with the {@link #PREFIX}.
      */
-    String getNameWithPrefix();
+    String nameWithPrefix();
 
     /**
      * Gets the description of the command.
      *
      * @return The description of the command.
      */
-    String getDescription();
+    String description();
 }

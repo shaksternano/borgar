@@ -66,7 +66,7 @@ public class HelpCommand extends BaseCommand<Void> {
         var commandDescriptions = CommandRegistry.getCommands()
             .stream()
             .sorted()
-            .map(command -> "**" + command.getNameWithPrefix() + "** - " + command.getDescription() + "\n")
+            .map(command -> "**" + command.nameWithPrefix() + "** - " + command.description() + "\n")
             .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append)
             .toString();
         return SplitUtil.split(

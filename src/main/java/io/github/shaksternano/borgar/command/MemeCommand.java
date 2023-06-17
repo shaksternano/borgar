@@ -60,7 +60,7 @@ public class MemeCommand extends FileCommand {
     }
 
     @Override
-    public Set<String> getAdditionalParameterNames() {
+    public Set<String> parameterNames() {
         return ImmutableSet.of(
             "bottom"
         );

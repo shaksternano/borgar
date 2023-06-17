@@ -71,7 +71,7 @@ public class SpeechBubbleCommand extends FileCommand {
     }
 
     @Override
-    public Set<String> getAdditionalParameterNames() {
+    public Set<String> parameterNames() {
         return Set.of(
             FLIP_FLAG
         );

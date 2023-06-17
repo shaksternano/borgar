@@ -53,7 +53,7 @@ public class FlipCommand extends FileCommand {
     }
 
     @Override
-    public Set<String> getAdditionalParameterNames() {
+    public Set<String> parameterNames() {
         return Set.of(
             VERTICAL_FLAG
         );

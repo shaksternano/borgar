@@ -104,7 +104,7 @@ public abstract sealed class BaseFileCommand extends BaseCommand<File> permits F
                 }
                 return new CommandResponse<>(unsupportedMessage);
             } catch (OutOfMemoryError e) {
-                Main.getLogger().error("Ran out of memory executing command " + getNameWithPrefix() + "!", e);
+                Main.getLogger().error("Ran out of memory executing command " + nameWithPrefix() + "!", e);
                 return new CommandResponse<>(
                     "The server ran out of memory! Try using a smaller file."
                 );

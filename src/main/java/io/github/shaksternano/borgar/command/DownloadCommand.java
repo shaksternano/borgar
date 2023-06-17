@@ -73,7 +73,7 @@ public class DownloadCommand extends BaseCommand<InputStream> {
     }
 
     @Override
-    public Set<String> getAdditionalParameterNames() {
+    public Set<String> parameterNames() {
         return Set.of(
             AUDIO_ONLY_FLAG
         );

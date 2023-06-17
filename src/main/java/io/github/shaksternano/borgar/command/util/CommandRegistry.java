@@ -24,7 +24,7 @@ public class CommandRegistry {
      */
     public static void register(Iterable<Command<?>> commands) {
         for (var command : commands) {
-            registry.put(command.getName().toLowerCase(), command);
+            registry.put(command.name().toLowerCase(), command);
         }
     }
 
