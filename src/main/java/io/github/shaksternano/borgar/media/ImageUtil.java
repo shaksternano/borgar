@@ -385,35 +385,28 @@ public class ImageUtil {
     }
 
     public static BufferedImage cutoutImage(BufferedImage imageToCut, BufferedImage imageToCutout, int x, int y, int cutoutColor) {
-        if (cutoutColor > 0xFFFFFF) {
-            throw new IllegalArgumentException("Cutout color must be a 24-bit color!");
-        } else {
-            imageToCut = ImageUtil.convertType(imageToCut, BufferedImage.TYPE_INT_ARGB);
+        imageToCut = ImageUtil.convertType(imageToCut, BufferedImage.TYPE_INT_ARGB);
 
-            int toCutWidth = imageToCut.getWidth();
-            int toCutHeight = imageToCut.getHeight();
+        var toCutWidth = imageToCut.getWidth();
+        var toCutHeight = imageToCut.getHeight();
 
-            int toCutoutWidth = imageToCutout.getWidth();
-            int toCutoutHeight = imageToCutout.getHeight();
+        var toCutoutWidth = imageToCutout.getWidth();
+        var toCutoutHeight = imageToCutout.getHeight();
 
-            int[] toCutPixels = imageToCut.getRGB(0, 0, toCutWidth, toCutHeight, null, 0, toCutWidth);
-            int[] toCutoutPixels = imageToCutout.getRGB(0, 0, toCutoutWidth, toCutoutHeight, null, 0, toCutoutWidth);
+        var toCutPixels = imageToCut.getRGB(0, 0, toCutWidth, toCutHeight, null, 0, toCutWidth);
+        var toCutoutPixels = imageToCutout.getRGB(0, 0, toCutoutWidth, toCutoutHeight, null, 0, toCutoutWidth);
 
-            for (int i = 0; i < toCutoutPixels.length; i++) {
-                int toCutoutRgb = toCutoutPixels[i];
-
-                if (!isTransparent(toCutoutRgb)) {
-                    int toCutIndex = get1dIndex(Math.min(toCutWidth, x + getX(i, toCutWidth)), Math.min(toCutHeight, y + getY(i, toCutWidth)), toCutWidth);
-
-                    if (toCutIndex < toCutPixels.length) {
-                        toCutPixels[toCutIndex] = cutoutColor;
-                    }
+        for (var i = 0; i < toCutoutPixels.length; i++) {
+            var toCutoutRgb = toCutoutPixels[i];
+            if (!isTransparent(toCutoutRgb)) {
+                var toCutIndex = get1dIndex(Math.min(toCutWidth, x + getX(i, toCutWidth)), Math.min(toCutHeight, y + getY(i, toCutWidth)), toCutWidth);
+                if (toCutIndex < toCutPixels.length) {
+                    toCutPixels[toCutIndex] = cutoutColor;
                 }
             }
-
-            imageToCut.setRGB(0, 0, toCutWidth, toCutHeight, toCutPixels, 0, toCutWidth);
-            return imageToCut;
         }
+        imageToCut.setRGB(0, 0, toCutWidth, toCutHeight, toCutPixels, 0, toCutWidth);
+        return imageToCut;
     }
 
     public static boolean isTransparent(int rgb) {
@@ -676,5 +669,13 @@ public class ImageUtil {
 
         graphics.dispose();
         return output;
+    }
+
+    public static BufferedImage flipX(BufferedImage image) {
+        return ImmutableImage.wrapAwt(image).flipX().awt();
+    }
+
+    public static BufferedImage flipY(BufferedImage image) {
+        return ImmutableImage.wrapAwt(image).flipY().awt();
     }
 }

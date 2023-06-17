@@ -110,7 +110,7 @@ public class CropCommand extends FileCommand {
     }
 
     @Override
-    public Set<String> getAdditionalParameterNames() {
+    public Set<String> parameterNames() {
         return ImmutableSet.of(
             "top",
             "right",

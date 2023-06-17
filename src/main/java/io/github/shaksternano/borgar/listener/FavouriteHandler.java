@@ -43,12 +43,12 @@ public class FavouriteHandler {
         }
 
         getUrl(aliasUrl).ifPresent(url ->
-                sendUrl(url, event).thenAccept(unused -> {
-                    try {
-                        event.getMessage().delete().queue();
-                    } catch (Exception ignored) {
-                    }
-                })
+            sendUrl(url, event).thenAccept(unused -> {
+                try {
+                    event.getMessage().delete().queue();
+                } catch (Exception ignored) {
+                }
+            })
         );
     }
 
@@ -67,17 +67,17 @@ public class FavouriteHandler {
 
     private static CompletableFuture<Void> sendUrl(String url, MessageReceivedEvent event) {
         return getOrCreateWebhook(event.getChannel())
-                .thenApply(webhook -> WebhookMessageSender.create(webhook, event.getChannel()))
-                .exceptionally(throwable -> new StandardMessageSender(event.getChannel()))
-                .thenCompose(sender -> sendMessage(url, sender, event));
+            .thenApply(webhook -> WebhookMessageSender.create(webhook, event.getChannel()))
+            .exceptionally(throwable -> new StandardMessageSender(event.getChannel()))
+            .thenCompose(sender -> sendMessage(url, sender, event));
     }
 
     private static CompletableFuture<Webhook> getOrCreateWebhook(Channel channel) {
         return getWebhookContainer(channel).map(webhookContainer -> {
             try {
                 return webhookContainer.retrieveWebhooks()
-                        .submit()
-                        .thenCompose(webhooks -> getOrCreateWebhook(webhooks, webhookContainer));
+                    .submit()
+                    .thenCompose(webhooks -> getOrCreateWebhook(webhooks, webhookContainer));
             } catch (Exception e) {
                 return CompletableFuture.<Webhook>failedFuture(e);
             }
@@ -97,14 +97,14 @@ public class FavouriteHandler {
 
     private static CompletableFuture<Webhook> getOrCreateWebhook(Collection<Webhook> webhooks, IWebhookContainer webhookContainer) {
         return getOwnWebhook(webhooks)
-                .map(CompletableFuture::completedFuture)
-                .orElseGet(() -> createWebhook(webhookContainer));
+            .map(CompletableFuture::completedFuture)
+            .orElseGet(() -> createWebhook(webhookContainer));
     }
 
     private static Optional<Webhook> getOwnWebhook(Collection<Webhook> webhooks) {
         return webhooks.stream()
-                .filter(FavouriteHandler::isOwnWebhook)
-                .findAny();
+            .filter(FavouriteHandler::isOwnWebhook)
+            .findAny();
     }
 
     private static boolean isOwnWebhook(Webhook webhook) {
@@ -129,8 +129,8 @@ public class FavouriteHandler {
     private static CompletableFuture<Webhook> createWebhook(IWebhookContainer webhookContainer, @Nullable Icon icon) {
         try {
             return webhookContainer.createWebhook(webhookContainer.getJDA().getSelfUser().getName())
-                    .setAvatar(icon)
-                    .submit();
+                .setAvatar(icon)
+                .submit();
         } catch (Exception e) {
             return CompletableFuture.failedFuture(e);
         }
@@ -138,7 +138,7 @@ public class FavouriteHandler {
 
     private static CompletableFuture<Void> sendMessage(String content, MessageSender sender, MessageReceivedEvent event) {
         return DiscordUtil.retrieveUserDetails(event.getMessage()).thenCompose(userDetails ->
-                sender.sendMessage(content, userDetails.username(), userDetails.avatarUrl())
+            sender.sendMessage(content, userDetails.username(), userDetails.avatarUrl())
         ).thenAccept(unused -> sender.close());
     }
 
@@ -157,10 +157,10 @@ public class FavouriteHandler {
         @Override
         public CompletableFuture<Void> sendMessage(String content, String username, String avatarUrl) {
             var message = new WebhookMessageBuilder()
-                    .setContent(content)
-                    .setUsername(username)
-                    .setAvatarUrl(avatarUrl)
-                    .build();
+                .setContent(content)
+                .setUsername(username)
+                .setAvatarUrl(avatarUrl)
+                .build();
             return client.send(message).thenAccept(unused -> {
             });
         }
@@ -184,9 +184,9 @@ public class FavouriteHandler {
         @Override
         public CompletableFuture<Void> sendMessage(String content, String username, String avatarUrl) {
             return channel.sendMessage(content)
-                    .submit()
-                    .thenAccept(unused -> {
-                    });
+                .submit()
+                .thenAccept(unused -> {
+                });
         }
     }
 }

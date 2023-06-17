@@ -95,17 +95,17 @@ public class CommandParser {
         var throwableMessage = error.getMessage();
         String errorMessage;
         if (error instanceof PermissionException) {
-            Main.getLogger().error("This bot doesn't have the required permissions needed to execute command " + command.getNameWithPrefix(), error);
+            Main.getLogger().error("This bot doesn't have the required permissions needed to execute command " + command.nameWithPrefix(), error);
             errorMessage = "This bot doesn't have the required permissions to execute this command!";
         } else if (error instanceof InvalidArgumentException) {
             errorMessage = StringUtil.nullOrBlank(throwableMessage) ? "Invalid arguments!" : "Invalid arguments: " + throwableMessage;
         } else if (error instanceof MissingArgumentException) {
             errorMessage = StringUtil.nullOrBlank(throwableMessage) ? "Missing arguments!" : "Missing arguments: " + throwableMessage;
         } else if (error instanceof OutOfMemoryError) {
-            Main.getLogger().error("Ran out of memory trying to execute command " + command.getNameWithPrefix(), error);
+            Main.getLogger().error("Ran out of memory trying to execute command " + command.nameWithPrefix(), error);
             errorMessage = "The server ran out of memory trying to execute this command!";
         } else {
-            Main.getLogger().error("Error executing command " + command.getNameWithPrefix(), error);
+            Main.getLogger().error("Error executing command " + command.nameWithPrefix(), error);
             errorMessage = "Error executing command!";
         }
         return new CommandResponse<>(errorMessage);
@@ -145,7 +145,7 @@ public class CommandParser {
             if (passedFirst) {
                 if (commandPart.startsWith(Command.PREFIX)) {
                     var commandWord = commandPart.substring(1).toLowerCase();
-                    if (command.getAdditionalParameterNames().contains(commandWord)) {
+                    if (command.parameterNames().contains(commandWord)) {
                         break;
                     }
                 }
@@ -164,7 +164,7 @@ public class CommandParser {
         for (var commandPart : commandParts) {
             if (commandPart.startsWith(Command.ARGUMENT_PREFIX)) {
                 var commandWord = commandPart.substring(1).toLowerCase();
-                if (command.getAdditionalParameterNames().contains(commandWord)
+                if (command.parameterNames().contains(commandWord)
                     && !passedExtraCommandWords.contains(commandWord)
                 ) {
                     if (currentExtraParameterName != null && !arguments.containsKey(currentExtraParameterName)) {

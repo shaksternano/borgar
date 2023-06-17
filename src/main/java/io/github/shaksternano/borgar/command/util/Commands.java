@@ -123,13 +123,13 @@ public class Commands {
 
     public static final Command<?> RESIZE = addCommandToRegister(new ResizeCommand(
         "resize",
-        "Resizes media with extra processing to smoothen the resulting image. Equivalent to " + STRETCH.getNameWithPrefix() + " x x. Required arguments: [Resize multiplier]",
+        "Resizes media with extra processing to smoothen the resulting image. Equivalent to " + STRETCH.nameWithPrefix() + " x x. Required arguments: [Resize multiplier]",
         false
     ));
 
     public static final Command<?> RESIZE_RAW = addCommandToRegister(new ResizeCommand(
         "resizeraw",
-        "Resizes media without extra processing. Equivalent to " + STRETCH_RAW.getNameWithPrefix() + " x x. Required arguments: [Resize multiplier]",
+        "Resizes media without extra processing. Equivalent to " + STRETCH_RAW.nameWithPrefix() + " x x. Required arguments: [Resize multiplier]",
         true
     ));
 
@@ -141,6 +141,11 @@ public class Commands {
     public static final Command<?> AUTO_CROP = addCommandToRegister(new AutoCropCommand(
         "autocrop",
         "Automatically crops out background color. Optional arguments: [Background crop hex RGB colour, by default it is transparent], [Background crop colour tolerance, default value is " + FORMAT.format(AutoCropCommand.DEFAULT_COLOR_TOLERANCE) + "]"
+    ));
+
+    public static final Command<?> FLIP = addCommandToRegister(new FlipCommand(
+        "flip",
+        "Flips media horizontally. Use -" + FlipCommand.VERTICAL_FLAG + " to flip vertically."
     ));
 
     public static final Command<?> SPEED = addCommandToRegister(new SpeedCommand(
@@ -155,7 +160,7 @@ public class Commands {
 
     public static final Command<?> PIXELATE = addCommandToRegister(new PixelateCommand(
         "pixel",
-        "Pixelates media. Equivalent to " + RESIZE_RAW.getNameWithPrefix() + " 1/x followed by " + Command.PREFIX + RESIZE_RAW.getName() + " x Optional arguments: [Pixelation multiplier, default value is " + FORMAT.format(PixelateCommand.DEFAULT_PIXELATION_MULTIPLIER) + "]"
+        "Pixelates media. Equivalent to " + RESIZE_RAW.nameWithPrefix() + " 1/x followed by " + Command.PREFIX + RESIZE_RAW.name() + " x Optional arguments: [Pixelation multiplier, default value is " + FORMAT.format(PixelateCommand.DEFAULT_PIXELATION_MULTIPLIER) + "]"
     ));
 
     public static final Command<?> REDUCE_FPS = addCommandToRegister(new ReduceFpsCommand(
@@ -168,13 +173,13 @@ public class Commands {
      */
     public static final Command<?> SPEECH_BUBBLE = addCommandToRegister(new SpeechBubbleCommand(
         "sb",
-        "Overlays a speech bubble over media.",
+        "Overlays a speech bubble over media. Use -" + SpeechBubbleCommand.FLIP_FLAG + " to flip the speech bubble.",
         false
     ));
 
     public static final Command<?> INVERTED_SPEECH_BUBBLE = addCommandToRegister(new SpeechBubbleCommand(
         "sbi",
-        "Cuts out a speech bubble from media (Inverted speech bubble).",
+        "Cuts out a speech bubble from media (Inverted speech bubble). Use -" + SpeechBubbleCommand.FLIP_FLAG + " to flip the speech bubble. Use -" + SpeechBubbleCommand.OPAQUE_FLAG + " to make the speech bubble opaque.",
         true
     ));
 
@@ -255,7 +260,7 @@ public class Commands {
 
     public static final Command<?> DOWNLOAD = addCommandToRegister(new DownloadCommand(
         "download",
-        "Downloads a file from a social media website, for example, a video from YouTube."
+        "Downloads a file from a social media website, for example, a video from YouTube. Use -" + DownloadCommand.AUDIO_ONLY_FLAG + " to download audio only."
     ));
 
     public static final Command<?> MEMORY_USAGE = addCommandToRegister(new MemoryUsageCommand(

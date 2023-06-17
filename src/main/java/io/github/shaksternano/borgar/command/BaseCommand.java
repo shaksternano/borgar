@@ -40,28 +40,28 @@ public abstract class BaseCommand<T> implements Command<T> {
     }
 
     @Override
-    public Set<String> getAdditionalParameterNames() {
+    public Set<String> parameterNames() {
         return Set.of();
     }
 
     @Override
-    public String getName() {
+    public String name() {
         return name;
     }
 
     @Override
-    public String getNameWithPrefix() {
+    public String nameWithPrefix() {
         return Command.PREFIX + name;
     }
 
     @Override
-    public String getDescription() {
+    public String description() {
         return description;
     }
 
     @Override
     public int compareTo(Command<?> o) {
-        return name.compareTo(o.getName());
+        return name.compareTo(o.name());
     }
 
     @Override
@@ -87,6 +87,6 @@ public abstract class BaseCommand<T> implements Command<T> {
      */
     @Override
     public String toString() {
-        return "Command: " + getNameWithPrefix() + ", description: " + getDescription();
+        return "Command: " + nameWithPrefix() + ", description: " + description();
     }
 }
