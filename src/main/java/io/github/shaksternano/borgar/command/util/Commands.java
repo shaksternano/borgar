@@ -143,6 +143,11 @@ public class Commands {
         "Automatically crops out background color. Optional arguments: [Background crop hex RGB colour, by default it is transparent], [Background crop colour tolerance, default value is " + FORMAT.format(AutoCropCommand.DEFAULT_COLOR_TOLERANCE) + "]"
     ));
 
+    public static final Command<?> FLIP = addCommandToRegister(new FlipCommand(
+        "flip",
+        "Flips media horizontally. Use -v to flip vertically."
+    ));
+
     public static final Command<?> SPEED = addCommandToRegister(new SpeedCommand(
         "speed",
         "Speeds up or slows down animated media. Optional arguments: [Speed multiplier, default value is " + FORMAT.format(SpeedCommand.DEFAULT_SPEED_MULTIPLIER) + "]"
