@@ -114,13 +114,12 @@ public class SpeechBubbleCommand extends FileCommand {
          */
         @Override
         public SpeechBubbleData constantData(BufferedImage image) throws IOException {
-            var speechBubblePath = cutOut
-                ? "image/overlay/speech_bubble_2_partial.png"
-                : "image/overlay/speech_bubble_1_partial.png";
-
             var width = image.getWidth();
             var height = image.getHeight();
 
+            var speechBubblePath = cutOut
+                ? "image/overlay/speech_bubble_2_partial.png"
+                : "image/overlay/speech_bubble_1_partial.png";
             BufferedImage speechBubble;
             try (
                 var inputStream = FileUtil.getResourceInRootPackage(speechBubblePath);
@@ -136,14 +135,13 @@ public class SpeechBubbleCommand extends FileCommand {
                 if (speechBubble.getHeight() < speechBubble.getWidth()) {
                     var scaleRatio = (float) width / speechBubble.getWidth();
                     var newHeight = (int) (speechBubble.getHeight() * scaleRatio);
-
                     if (newHeight < minDimension) {
                         throw new InvalidMediaException("Image height of " + height + " pixels is too small!");
                     }
                 }
             }
 
-            BufferedImage resizedSpeechBubble = ImageUtil.fitWidth(speechBubble, width);
+            var resizedSpeechBubble = ImageUtil.fitWidth(speechBubble, width);
             var result = cutOut
                 ? resizedSpeechBubble
                 : ImageUtil.fill(resizedSpeechBubble, Color.WHITE);
