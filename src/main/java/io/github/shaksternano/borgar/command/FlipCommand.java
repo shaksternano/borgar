@@ -14,6 +14,8 @@ import java.util.Set;
 
 public class FlipCommand extends FileCommand {
 
+    public static final String VERTICAL_FLAG = "v";
+
     /**
      * Creates a new command object.
      *
@@ -28,7 +30,7 @@ public class FlipCommand extends FileCommand {
     @Override
     protected NamedFile modifyFile(File file, String fileName, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event, long maxFileSize) throws IOException {
         var resultName = "flipped";
-        var vertical = extraArguments.containsKey("v");
+        var vertical = extraArguments.containsKey(VERTICAL_FLAG);
         return new NamedFile(
             MediaUtil.processMedia(
                 file,
@@ -56,7 +58,7 @@ public class FlipCommand extends FileCommand {
     @Override
     public Set<String> getAdditionalParameterNames() {
         return Set.of(
-            "v"
+            VERTICAL_FLAG
         );
     }
 }

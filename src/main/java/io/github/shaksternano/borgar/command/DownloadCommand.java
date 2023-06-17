@@ -34,7 +34,7 @@ public class DownloadCommand extends BaseCommand<InputStream> {
         360
     );
 
-    private static final String AUDIO_ONLY_FLAG = "audio";
+    public static final String AUDIO_ONLY_FLAG = "a";
 
     /**
      * Creates a new command object.

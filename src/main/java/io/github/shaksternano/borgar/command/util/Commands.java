@@ -145,7 +145,7 @@ public class Commands {
 
     public static final Command<?> FLIP = addCommandToRegister(new FlipCommand(
         "flip",
-        "Flips media horizontally. Use -v to flip vertically."
+        "Flips media horizontally. Use -" + FlipCommand.VERTICAL_FLAG + " to flip vertically."
     ));
 
     public static final Command<?> SPEED = addCommandToRegister(new SpeedCommand(
@@ -260,7 +260,7 @@ public class Commands {
 
     public static final Command<?> DOWNLOAD = addCommandToRegister(new DownloadCommand(
         "download",
-        "Downloads a file from a social media website, for example, a video from YouTube."
+        "Downloads a file from a social media website, for example, a video from YouTube. Use -" + DownloadCommand.AUDIO_ONLY_FLAG + " to download audio only."
     ));
 
     public static final Command<?> MEMORY_USAGE = addCommandToRegister(new MemoryUsageCommand(
