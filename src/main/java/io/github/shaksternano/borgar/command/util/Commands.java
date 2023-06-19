@@ -259,7 +259,7 @@ public class Commands {
     ));
 
     public static final Command<?> DOWNLOAD = addCommandToRegister(new DownloadCommand(
-        "download",
+        "dl",
         "Downloads a file from a social media website, for example, a video from YouTube. Use -" + DownloadCommand.AUDIO_ONLY_FLAG + " to download audio only."
     ));
 
