@@ -2,8 +2,9 @@ package io.github.shaksternano.borgar.command;
 
 import com.google.common.collect.ListMultimap;
 import com.google.common.io.Files;
+import io.github.shaksternano.borgar.Main;
 import io.github.shaksternano.borgar.command.util.CommandResponse;
-import io.github.shaksternano.borgar.data.repository.SavedFileRepository;
+import io.github.shaksternano.borgar.data.repository.SavedUrlRepository;
 import io.github.shaksternano.borgar.io.FileUtil;
 import io.github.shaksternano.borgar.io.NamedFile;
 import io.github.shaksternano.borgar.media.ImageFrame;
@@ -70,7 +71,11 @@ public class AddFavouriteCommand extends BaseCommand<AddFavouriteCommand.Respons
         }
         var url = responseData.url();
         var aliasUrl = attachments.get(0).getProxyUrl();
-        SavedFileRepository.addAlias(url, aliasUrl);
+        SavedUrlRepository.addAliasFuture(url, aliasUrl).whenComplete((unused, throwable) -> {
+            if (throwable != null) {
+                Main.getLogger().error("Error linking alias gif", throwable);
+            }
+        });
     }
 
     private static CompletableFuture<CommandResponse<ResponseData>> getOrCreateAliasGif(
@@ -97,9 +102,10 @@ public class AddFavouriteCommand extends BaseCommand<AddFavouriteCommand.Respons
             });
         }
 
-        return SavedFileRepository.getAlias(url)
-            .map(aliasUrl -> new CommandResponse<ResponseData>(aliasUrl).asFuture())
-            .orElseGet(() -> FileUtil.downloadFile(url).thenCompose(namedFile -> {
+        return SavedUrlRepository.getAliasUrlFuture(url)
+            .thenCompose(aliasUrlOptional -> aliasUrlOptional.map(aliasUrl ->
+                new CommandResponse<ResponseData>(aliasUrl).asFuture()
+            ).orElseGet(() -> FileUtil.downloadFile(url).thenCompose(namedFile -> {
                 File input = null;
                 try {
                     input = namedFile.file();
@@ -114,7 +120,7 @@ public class AddFavouriteCommand extends BaseCommand<AddFavouriteCommand.Respons
                 } finally {
                     FileUtil.delete(input);
                 }
-            }));
+            })));
     }
 
     private static NamedFile createAliasGif(

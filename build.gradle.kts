@@ -10,10 +10,14 @@ val scrimageVersion: String by project
 val image4jVersion: String by project
 val reflectionsVersion: String by project
 val mapdbVersion: String by project
+val kotlinCoroutinesVersion: String by project
+val exposedVersion: String by project
+val postgreSqlVersion: String by project
 val junitVersion: String by project
 
 plugins {
     java
+    kotlin("jvm") version "1.8.21"
     id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
@@ -60,8 +64,14 @@ dependencies {
     implementation("org.reflections:reflections:$reflectionsVersion")
     implementation("org.mapdb:mapdb:$mapdbVersion")
 
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion")
+    implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
+    implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
+    runtimeOnly("org.postgresql:postgresql:$postgreSqlVersion")
+
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
+    testImplementation(kotlin("test"))
 }
 
 fun ModuleDependency.excludeJavaCpp(vararg modules: String) {
@@ -93,4 +103,8 @@ tasks {
     test {
         useJUnitPlatform()
     }
+}
+
+kotlin {
+    jvmToolchain(17)
 }
