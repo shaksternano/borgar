@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.function.Function;
 
-public enum ResourceTemplateImageInfo implements TemplateImageInfo {
+public enum ResourceTemplateInfo implements TemplateInfo {
 
     SONIC_SAYS(
         "image/containerimage/sonic_says.png",
@@ -54,7 +54,8 @@ public enum ResourceTemplateImageInfo implements TemplateImageInfo {
         450,
         0,
         Position.CENTRE,
-        TextAlignment.CENTER, "Futura-CondensedExtraBold",
+        TextAlignment.CENTER,
+        "Futura-CondensedExtraBold",
         Color.BLACK,
         200,
         null,
@@ -78,7 +79,8 @@ public enum ResourceTemplateImageInfo implements TemplateImageInfo {
         81,
         20,
         Position.CENTRE,
-        TextAlignment.CENTER, "Futura-CondensedExtraBold",
+        TextAlignment.CENTER,
+        "Futura-CondensedExtraBold",
         Color.BLACK,
         50,
         null,
@@ -219,7 +221,7 @@ public enum ResourceTemplateImageInfo implements TemplateImageInfo {
     @Nullable
     private final Color fill;
 
-    ResourceTemplateImageInfo(
+    ResourceTemplateInfo(
         String imagePath,
         String resultName,
         int imageContainerStartX,
@@ -234,7 +236,8 @@ public enum ResourceTemplateImageInfo implements TemplateImageInfo {
         int textContainerEndY,
         int textContainerPadding,
         Position textContentPosition,
-        TextAlignment textContentAlignment, String fontName,
+        TextAlignment textContentAlignment,
+        String fontName,
         Color textColor,
         int maxFontSize,
         @Nullable Function<String, Drawable> customTextDrawableFactory,
@@ -267,7 +270,7 @@ public enum ResourceTemplateImageInfo implements TemplateImageInfo {
     }
 
     @SuppressWarnings("SameParameterValue")
-    ResourceTemplateImageInfo(
+    ResourceTemplateInfo(
         String imagePath,
         String resultName,
         int contentContainerStartX,
@@ -423,14 +426,14 @@ public enum ResourceTemplateImageInfo implements TemplateImageInfo {
     }
 
     public static void validate() {
-        for (var containerImageInfo : ResourceTemplateImageInfo.values()) {
+        for (var containerImageInfo : ResourceTemplateInfo.values()) {
             validateImage(containerImageInfo);
             validateFont(containerImageInfo);
             validateContentClip(containerImageInfo);
         }
     }
 
-    private static void validateImage(ResourceTemplateImageInfo containerImageInfo) {
+    private static void validateImage(ResourceTemplateInfo containerImageInfo) {
         if (containerImageInfo.imagePath == null) {
             Main.getLogger().error("Image resource path in " + containerImageInfo.getClass().getSimpleName() + " \"" + containerImageInfo + "\" is null!");
         } else {
@@ -455,7 +458,7 @@ public enum ResourceTemplateImageInfo implements TemplateImageInfo {
         Main.shutdown(1);
     }
 
-    private static void validateFont(ResourceTemplateImageInfo containerImageInfo) {
+    private static void validateFont(ResourceTemplateInfo containerImageInfo) {
         if (containerImageInfo.fontName == null) {
             Main.getLogger().error("Font name in " + containerImageInfo.getClass().getSimpleName() + " \"" + containerImageInfo + "\" is null!");
         } else {
@@ -470,7 +473,7 @@ public enum ResourceTemplateImageInfo implements TemplateImageInfo {
         Main.shutdown(1);
     }
 
-    private static void validateContentClip(ResourceTemplateImageInfo containerImageInfo) {
+    private static void validateContentClip(ResourceTemplateInfo containerImageInfo) {
         if (containerImageInfo.contentClipShapeFilePath != null) {
             try {
                 FileUtil.validateResourcePathInRootPackage(containerImageInfo.contentClipShapeFilePath);

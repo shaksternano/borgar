@@ -11,7 +11,7 @@ import io.github.shaksternano.borgar.media.graphics.drawable.Drawable;
 import io.github.shaksternano.borgar.media.io.MediaReaders;
 import io.github.shaksternano.borgar.media.io.imageprocessor.DualImageProcessor;
 import io.github.shaksternano.borgar.media.io.imageprocessor.SingleImageProcessor;
-import io.github.shaksternano.borgar.media.template.TemplateImageInfo;
+import io.github.shaksternano.borgar.media.template.TemplateInfo;
 import io.github.shaksternano.borgar.util.MessageUtil;
 import io.github.shaksternano.borgar.util.MiscUtil;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -26,7 +26,7 @@ import java.util.Map;
 
 public class TemplateImageCommand extends OptionalFileInputFileCommand {
 
-    private final TemplateImageInfo templateInfo;
+    private final TemplateInfo templateInfo;
 
     /**
      * Creates a new command object.
@@ -35,7 +35,7 @@ public class TemplateImageCommand extends OptionalFileInputFileCommand {
      *                    followed by this name, the command will be executed.
      * @param description The description of the command. This is displayed in the help command.
      */
-    public TemplateImageCommand(String name, String description, TemplateImageInfo templateInfo) {
+    public TemplateImageCommand(String name, String description, TemplateInfo templateInfo) {
         super(name, description);
         this.templateInfo = templateInfo;
     }
@@ -90,7 +90,7 @@ public class TemplateImageCommand extends OptionalFileInputFileCommand {
     }
 
     private record ImageContentProcessor(
-        TemplateImageInfo templateInfo
+        TemplateInfo templateInfo
     ) implements DualImageProcessor<ImageContentData> {
 
         @Override
@@ -170,7 +170,7 @@ public class TemplateImageCommand extends OptionalFileInputFileCommand {
     private record TextContentProcessor(
         List<String> words,
         Map<String, Drawable> nonTextParts,
-        TemplateImageInfo templateInfo
+        TemplateInfo templateInfo
     ) implements SingleImageProcessor<TextDrawData> {
 
         @Override

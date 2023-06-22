@@ -1,7 +1,7 @@
 package io.github.shaksternano.borgar.command.util;
 
 import io.github.shaksternano.borgar.command.*;
-import io.github.shaksternano.borgar.media.template.ResourceTemplateImageInfo;
+import io.github.shaksternano.borgar.media.template.ResourceTemplateInfo;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -44,49 +44,49 @@ public class Commands {
     public static final Command<?> SONIC_SAYS = addCommandToRegister(new TemplateImageCommand(
         "sonic",
         "Sonic says. Optional arguments: [What sonic says]",
-        ResourceTemplateImageInfo.SONIC_SAYS
+        ResourceTemplateInfo.SONIC_SAYS
     ));
 
     public static final Command<?> SOYJAK_POINTING = addCommandToRegister(new TemplateImageCommand(
         "soy",
         "Soyjak pointing. Optional arguments: [What is being pointed at]",
-        ResourceTemplateImageInfo.SOYJAK_POINTING
+        ResourceTemplateInfo.SOYJAK_POINTING
     ));
 
     public static final Command<?> MUTA_SOY = addCommandToRegister(new TemplateImageCommand(
         "mutasoy",
         "Mutahar soyjak pointing. Optional arguments: [What is being pointed at]",
-        ResourceTemplateImageInfo.MUTA_SOY
+        ResourceTemplateInfo.MUTA_SOY
     ));
 
     public static final Command<?> WALMART_WANTED = addCommandToRegister(new TemplateImageCommand(
         "wanted",
         "Walmart wanted. Optional arguments: [What is wanted]",
-        ResourceTemplateImageInfo.WALMART_WANTED
+        ResourceTemplateInfo.WALMART_WANTED
     ));
 
     public static final Command<?> OH_MY_GOODNESS_GRACIOUS = addCommandToRegister(new TemplateImageCommand(
         "omgg",
         "Oh my goodness gracious. Optional arguments: [What is wanted]",
-        ResourceTemplateImageInfo.OH_MY_GOODNESS_GRACIOUS
+        ResourceTemplateInfo.OH_MY_GOODNESS_GRACIOUS
     ));
 
     public static final Command<?> THINKING_BUBBLE = addCommandToRegister(new TemplateImageCommand(
         "think",
         "Puts text or an image in a thinking bubble. Optional arguments: [Thinking bubble text]",
-        ResourceTemplateImageInfo.THINKING_BUBBLE
+        ResourceTemplateInfo.THINKING_BUBBLE
     ));
 
     public static final Command<?> LIVING_IN_1984 = addCommandToRegister(new TemplateImageCommand(
         "1984",
         "Puts image into the 'living in 1984' meme. Optional arguments: [Speech bubble text]",
-        ResourceTemplateImageInfo.LIVING_IN_1984
+        ResourceTemplateInfo.LIVING_IN_1984
     ));
 
     public static final Command<?> WHO_DID_THIS = addCommandToRegister(new TemplateImageCommand(
         "wdt",
         "Puts image into the 'who did this' meme. Optional arguments: [meme text]",
-        ResourceTemplateImageInfo.WHO_DID_THIS
+        ResourceTemplateInfo.WHO_DID_THIS
     ));
 
     public static final Command<?> SPIN = addCommandToRegister(new SpinCommand(

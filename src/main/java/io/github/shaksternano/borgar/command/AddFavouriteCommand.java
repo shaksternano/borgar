@@ -71,7 +71,7 @@ public class AddFavouriteCommand extends BaseCommand<AddFavouriteCommand.Respons
         }
         var url = responseData.url();
         var aliasUrl = attachments.get(0).getProxyUrl();
-        SavedUrlRepository.addAliasFuture(url, aliasUrl).whenComplete((unused, throwable) -> {
+        SavedUrlRepository.createAliasFuture(url, aliasUrl).whenComplete((unused, throwable) -> {
             if (throwable != null) {
                 Main.getLogger().error("Error linking alias gif", throwable);
             }
@@ -102,7 +102,7 @@ public class AddFavouriteCommand extends BaseCommand<AddFavouriteCommand.Respons
             });
         }
 
-        return SavedUrlRepository.getAliasUrlFuture(url)
+        return SavedUrlRepository.readAliasUrlFuture(url)
             .thenCompose(aliasUrlOptional -> aliasUrlOptional.map(aliasUrl ->
                 new CommandResponse<ResponseData>(aliasUrl).asFuture()
             ).orElseGet(() -> FileUtil.downloadFile(url).thenCompose(namedFile -> {

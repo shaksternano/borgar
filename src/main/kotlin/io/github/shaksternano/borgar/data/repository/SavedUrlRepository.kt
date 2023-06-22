@@ -30,7 +30,7 @@ object SavedUrlRepository {
     private suspend fun <T> dbQuery(block: suspend SavedUrlTable.() -> T): T =
         newSuspendedTransaction(Dispatchers.IO) { block(SavedUrlTable) }
 
-    suspend fun addAlias(url: String, aliasUrl: String): Unit = dbQuery {
+    suspend fun createAlias(url: String, aliasUrl: String): Unit = dbQuery {
         insert {
             it[this.url] = url
             it[this.aliasUrl] = aliasUrl
@@ -39,19 +39,19 @@ object SavedUrlRepository {
 
     @JvmStatic
     @OptIn(DelicateCoroutinesApi::class)
-    fun addAliasFuture(url: String, aliasUrl: String): CompletableFuture<Void> = GlobalScope.future {
-        addAlias(url, aliasUrl)
+    fun createAliasFuture(url: String, aliasUrl: String): CompletableFuture<Void> = GlobalScope.future {
+        createAlias(url, aliasUrl)
     }.thenAccept { }
 
-    suspend fun getAliasUrl(url: String): String? = dbQuery {
-        select { this@dbQuery.url eq url }
+    suspend fun readAliasUrl(url: String): String? = dbQuery {
+        select { SavedUrlTable.url eq url }
             .map { it[aliasUrl] }
             .singleOrNull()
     }
 
     @JvmStatic
     @OptIn(DelicateCoroutinesApi::class)
-    fun getAliasUrlFuture(url: String): CompletableFuture<Optional<String>> = GlobalScope.future {
-        Optional.ofNullable(getAliasUrl(url))
+    fun readAliasUrlFuture(url: String): CompletableFuture<Optional<String>> = GlobalScope.future {
+        Optional.ofNullable(readAliasUrl(url))
     }
 }
