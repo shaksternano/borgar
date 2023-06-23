@@ -3,7 +3,7 @@ package io.github.shaksternano.borgar.media.graphics;
 public enum TextAlignment {
 
     LEFT,
-    CENTER,
+    CENTRE,
     RIGHT,
     JUSTIFY
 }

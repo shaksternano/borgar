@@ -113,10 +113,10 @@ public class MemeCommand extends FileCommand {
 
             var topParagraph = new ParagraphCompositeDrawable.Builder(nonTextParts)
                 .addWords(ImpactProcessor::createText, topWords)
-                .build(TextAlignment.CENTER, textWidth);
+                .build(TextAlignment.CENTRE, textWidth);
             var bottomParagraph = new ParagraphCompositeDrawable.Builder(nonTextParts)
                 .addWords(ImpactProcessor::createText, bottomWords)
-                .build(TextAlignment.CENTER, textWidth);
+                .build(TextAlignment.CENTRE, textWidth);
 
             var font = new Font("Impact", Font.BOLD, smallestDimension);
 

@@ -10,17 +10,20 @@ import io.github.shaksternano.borgar.media.template.TemplateInfo;
 import org.jetbrains.annotations.Nullable;
 
 import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.stream.ImageInputStream;
 import java.awt.*;
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorConvertOp;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Contains static methods for dealing with images.
@@ -464,19 +467,14 @@ public class ImageUtil {
     }
 
     public static String getImageFormat(InputStream inputStream) throws IOException {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        inputStream.transferTo(outputStream);
-        InputStream copy = new ByteArrayInputStream(outputStream.toByteArray());
-        try (ImageInputStream imageInputStream = ImageIO.createImageInputStream(copy)) {
+        try (var imageInputStream = ImageIO.createImageInputStream(inputStream)) {
             if (imageInputStream != null) {
-                Iterator<ImageReader> imageReaders = ImageIO.getImageReaders(imageInputStream);
-
+                var imageReaders = ImageIO.getImageReaders(imageInputStream);
                 if (imageReaders.hasNext()) {
-                    ImageReader reader = imageReaders.next();
+                    var reader = imageReaders.next();
                     return reader.getFormatName().toLowerCase();
                 }
             }
-
             throw new IllegalArgumentException("Unable to determine image type");
         }
     }

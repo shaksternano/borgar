@@ -157,7 +157,7 @@ public class MessageUtil {
         var attachment = attachments.get(0);
         var fileName = attachment.getFileName();
         var fileNameWithoutExtension = com.google.common.io.Files.getNameWithoutExtension(fileName);
-        var fileExtension = com.google.common.io.Files.getFileExtension(fileName);
+        var fileExtension = FileUtil.getFileExtension(fileName);
         return CompletableFuture.supplyAsync(() -> {
                 try {
                     return FileUtil.createTempFile(fileNameWithoutExtension, fileExtension);

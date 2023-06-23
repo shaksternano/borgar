@@ -119,7 +119,7 @@ public class DemotivateCommand extends FileCommand {
             graphics.setFont(font);
             ImageUtil.configureTextDrawQuality(graphics);
 
-            var textAlignment = TextAlignment.CENTER;
+            var textAlignment = TextAlignment.CENTRE;
             var paragraph = new ParagraphCompositeDrawable.Builder(nonTextParts)
                 .addWords(null, words)
                 .build(textAlignment, imageWidth);

@@ -21,7 +21,7 @@ public class ChangeExtensionCommand extends FileCommand {
 
     @Override
     protected NamedFile modifyFile(File file, String fileName, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event, long maxFileSize) throws IOException {
-        if (com.google.common.io.Files.getFileExtension(fileName).equals(newExtension)) {
+        if (FileUtil.getFileExtension(fileName).equals(newExtension)) {
             throw new UnsupportedFileFormatException("The file already has the extension `." + newExtension.toLowerCase() + "`!");
         }
         return FileUtil.changeFileExtension(file, fileName, newExtension);

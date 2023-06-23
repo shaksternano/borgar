@@ -24,4 +24,13 @@ public class Fonts {
             }
         });
     }
+
+    public static boolean fontExists(String fontName) {
+        for (var font : GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts()) {
+            if (font.getName().equals(fontName)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

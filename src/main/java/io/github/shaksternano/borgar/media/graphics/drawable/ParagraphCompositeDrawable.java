@@ -77,7 +77,7 @@ public class ParagraphCompositeDrawable extends ListCompositeDrawable {
 
     private static int calculateTextXPosition(TextAlignment alignment, int x, int lineWidth, int maxWidth) {
         switch (alignment) {
-            case CENTER -> x += (maxWidth - lineWidth) / 2;
+            case CENTRE -> x += (maxWidth - lineWidth) / 2;
             case RIGHT -> x += maxWidth - lineWidth;
         }
 

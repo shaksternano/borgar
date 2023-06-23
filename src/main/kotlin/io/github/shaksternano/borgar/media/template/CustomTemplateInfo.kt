@@ -16,7 +16,7 @@ import java.util.*
 import java.util.function.Function
 
 class CustomTemplateInfo(
-    private val mediaUrl: String,
+    val mediaUrl: String,
     private val format: String,
     private val resultName: String,
 
@@ -47,6 +47,8 @@ class CustomTemplateInfo(
 
     private fun inputStream(): InputStream =
         URL(mediaUrl).openStream()
+
+    override fun getFormat(): String = format
 
     override fun getResultName(): String = resultName
 

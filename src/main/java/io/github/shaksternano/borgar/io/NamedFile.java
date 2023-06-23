@@ -19,7 +19,7 @@ public record NamedFile(File file, String name) {
     }
 
     public String extension() {
-        return Files.getFileExtension(name);
+        return FileUtil.getFileExtension(name);
     }
 
     private static String filename(String nameWithoutExtension, String extension) {

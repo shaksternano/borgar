@@ -122,7 +122,7 @@ public class CaptionCommand extends FileCommand {
             if (caption2) {
                 textAlignment = TextAlignment.LEFT;
             } else {
-                textAlignment = TextAlignment.CENTER;
+                textAlignment = TextAlignment.CENTRE;
             }
 
             Drawable paragraph = new ParagraphCompositeDrawable.Builder(nonTextParts)

@@ -1,24 +1,16 @@
 package io.github.shaksternano.borgar.data.repository
 
-import com.google.common.io.Files
 import io.github.shaksternano.borgar.data.databaseConnection
-import io.github.shaksternano.borgar.media.ImageUtil
 import io.github.shaksternano.borgar.media.graphics.Position
 import io.github.shaksternano.borgar.media.graphics.TextAlignment
 import io.github.shaksternano.borgar.media.template.CustomTemplateInfo
 import io.github.shaksternano.borgar.media.template.TemplateInfo
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.future.future
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.awt.Color
 import java.awt.Font
-import java.net.URL
-import java.util.*
-import java.util.concurrent.CompletableFuture
 
 object TemplateRepository {
 
@@ -26,6 +18,7 @@ object TemplateRepository {
         val commandName = varchar("command_name", 100)
         val guildId = long("guild_id")
         val mediaUrl = varchar("media_url", 2000)
+        val format = varchar("format", 100)
         val resultName = varchar("result_name", 100)
 
         val imageX = integer("image_x")
@@ -59,11 +52,12 @@ object TemplateRepository {
     private suspend fun <T> dbQuery(block: suspend TemplateTable.() -> T): T =
         newSuspendedTransaction(Dispatchers.IO) { block(TemplateTable) }
 
-    suspend fun create(template: TemplateInfo, mediaUrl: String, commandName: String, guildId: Long): Unit = dbQuery {
+    suspend fun create(template: TemplateInfo, commandName: String, mediaUrl: String, guildId: Long): Unit = dbQuery {
         insert {
             it[this.commandName] = commandName
             it[this.guildId] = guildId
             it[this.mediaUrl] = mediaUrl
+            it[format] = template.format
             it[resultName] = template.resultName
 
             it[imageX] = template.imageContentX
@@ -87,24 +81,13 @@ object TemplateRepository {
         }
     }
 
-    @JvmStatic
-    @OptIn(DelicateCoroutinesApi::class)
-    fun createFuture(
-        template: TemplateInfo,
-        mediaUrl: String,
-        commandName: String,
-        guildId: Long
-    ): CompletableFuture<Void> = GlobalScope.future {
-        create(template, mediaUrl, commandName, guildId)
-    }.thenAccept { }
-
     suspend fun read(commandName: String, guildId: Long): TemplateInfo? = dbQuery {
         select { (TemplateTable.commandName eq commandName) and (TemplateTable.guildId eq guildId) }
             .map {
                 val mediaUrl = it[mediaUrl]
                 CustomTemplateInfo(
                     mediaUrl,
-                    format(mediaUrl),
+                    it[format],
                     it[resultName],
 
                     it[imageX],
@@ -128,21 +111,7 @@ object TemplateRepository {
             }.singleOrNull()
     }
 
-    @JvmStatic
-    @OptIn(DelicateCoroutinesApi::class)
-    fun readFuture(commandName: String, guildId: Long): CompletableFuture<Optional<TemplateInfo>> = GlobalScope.future {
-        Optional.ofNullable(read(commandName, guildId))
+    suspend fun exists(commandName: String, guildId: Long): Boolean = dbQuery {
+        select { (TemplateTable.commandName eq commandName) and (TemplateTable.guildId eq guildId) }.any()
     }
-
-    private fun format(url: String): String {
-        val inputStream = URL(url).openStream()
-        return runCatching {
-            inputStream.use {
-                ImageUtil.getImageFormat(inputStream)
-            }
-        }.getOrElse {
-            Files.getFileExtension(url)
-        }
-    }
-
 }

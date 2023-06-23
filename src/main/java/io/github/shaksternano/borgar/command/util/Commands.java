@@ -89,6 +89,8 @@ public class Commands {
         ResourceTemplateInfo.WHO_DID_THIS
     ));
 
+    public static final Command<?> CREATE_TEMPLATE = addCommandToRegister(CreateTemplateCommand.INSTANCE);
+
     public static final Command<?> SPIN = addCommandToRegister(new SpinCommand(
         "spin",
         "Spins a media file. Optional arguments: [Spin speed, default value is " + FORMAT.format(SpinCommand.DEFAULT_SPIN_SPEED) + "], [Background hex RGB colour, by default it is transparent]"

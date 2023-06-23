@@ -78,11 +78,7 @@ public class FileUtil {
         }
         return urlFuture.thenCompose(url1 -> {
             var fileNameWithoutExtension = com.google.common.io.Files.getNameWithoutExtension(url1);
-            var extension = com.google.common.io.Files.getFileExtension(url1);
-            int index = extension.indexOf("?");
-            if (index != -1) {
-                extension = extension.substring(0, index);
-            }
+            var extension = getFileExtension(url1);
             try {
                 var file = createTempFile(fileNameWithoutExtension, extension);
                 downloadFile(url1, file);
@@ -113,8 +109,17 @@ public class FileUtil {
         try {
             return ImageUtil.getImageFormat(file);
         } catch (Exception ignored) {
-            return com.google.common.io.Files.getFileExtension(file.getName()).toLowerCase();
+            return getFileExtension(file.getName()).toLowerCase();
         }
+    }
+
+    public static String getFileExtension(String fileName) {
+        var extension = com.google.common.io.Files.getFileExtension(fileName);
+        int index = extension.indexOf("?");
+        if (index != -1) {
+            extension = extension.substring(0, index);
+        }
+        return extension.toLowerCase();
     }
 
     public static String changeExtension(String fileName, @Nullable String newExtension) {

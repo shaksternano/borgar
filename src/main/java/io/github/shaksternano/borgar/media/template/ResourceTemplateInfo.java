@@ -15,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -29,7 +30,7 @@ public enum ResourceTemplateInfo implements TemplateInfo {
         330,
         30,
         Position.CENTRE,
-        TextAlignment.CENTER,
+        TextAlignment.CENTRE,
         "Bitstream Vera Sans",
         Color.WHITE,
         200,
@@ -54,7 +55,7 @@ public enum ResourceTemplateInfo implements TemplateInfo {
         450,
         0,
         Position.CENTRE,
-        TextAlignment.CENTER,
+        TextAlignment.CENTRE,
         "Futura-CondensedExtraBold",
         Color.BLACK,
         200,
@@ -79,7 +80,7 @@ public enum ResourceTemplateInfo implements TemplateInfo {
         81,
         20,
         Position.CENTRE,
-        TextAlignment.CENTER,
+        TextAlignment.CENTRE,
         "Futura-CondensedExtraBold",
         Color.BLACK,
         50,
@@ -98,7 +99,7 @@ public enum ResourceTemplateInfo implements TemplateInfo {
         768,
         0,
         Position.CENTRE,
-        TextAlignment.CENTER,
+        TextAlignment.CENTRE,
         "Futura-CondensedExtraBold",
         Color.WHITE,
         200,
@@ -123,7 +124,7 @@ public enum ResourceTemplateInfo implements TemplateInfo {
         318,
         10,
         Position.CENTRE,
-        TextAlignment.CENTER,
+        TextAlignment.CENTRE,
         "Futura-CondensedExtraBold",
         Color.BLACK,
         200,
@@ -148,7 +149,7 @@ public enum ResourceTemplateInfo implements TemplateInfo {
         640,
         10,
         Position.CENTRE,
-        TextAlignment.CENTER,
+        TextAlignment.CENTRE,
         "Futura-CondensedExtraBold",
         Color.BLACK,
         200,
@@ -167,7 +168,7 @@ public enum ResourceTemplateInfo implements TemplateInfo {
         120,
         10,
         Position.CENTRE,
-        TextAlignment.CENTER,
+        TextAlignment.CENTRE,
         "Futura-CondensedExtraBold",
         Color.BLACK,
         100,
@@ -186,7 +187,7 @@ public enum ResourceTemplateInfo implements TemplateInfo {
         403,
         10,
         Position.CENTRE,
-        TextAlignment.CENTER,
+        TextAlignment.CENTRE,
         "Futura-CondensedExtraBold",
         Color.BLACK,
         100,
@@ -198,6 +199,7 @@ public enum ResourceTemplateInfo implements TemplateInfo {
     ;
 
     private final String imagePath;
+    private final String format;
     private final String resultName;
     private final int imageContentX;
     private final int imageContentY;
@@ -246,6 +248,7 @@ public enum ResourceTemplateInfo implements TemplateInfo {
         @Nullable Color fill
     ) {
         this.imagePath = imagePath;
+        format = determineFormat();
         this.resultName = resultName;
         imageContentX = imageContainerStartX + imageContainerPadding;
         imageContentY = imageContainerStartY + imageContainerPadding;
@@ -313,22 +316,29 @@ public enum ResourceTemplateInfo implements TemplateInfo {
         );
     }
 
-    @Override
-    public MediaReader<ImageFrame> getImageReader() throws IOException {
-        try (var formatStream = FileUtil.getResourceInRootPackage(imagePath)) {
-            var format = ImageUtil.getImageFormat(formatStream);
-            var inputStream = FileUtil.getResourceInRootPackage(imagePath);
-            return MediaReaders.createImageReader(inputStream, format);
+    private String determineFormat() {
+        try (var inputStream = FileUtil.getResourceInRootPackage(imagePath)) {
+            return ImageUtil.getImageFormat(inputStream);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 
     @Override
+    public MediaReader<ImageFrame> getImageReader() throws IOException {
+        var inputStream = FileUtil.getResourceInRootPackage(imagePath);
+        return MediaReaders.createImageReader(inputStream, format);
+    }
+
+    @Override
     public MediaReader<AudioFrame> getAudioReader() throws IOException {
-        try (var formatStream = FileUtil.getResourceInRootPackage(imagePath)) {
-            var format = ImageUtil.getImageFormat(formatStream);
-            var inputStream = FileUtil.getResourceInRootPackage(imagePath);
-            return MediaReaders.createAudioReader(inputStream, format);
-        }
+        var inputStream = FileUtil.getResourceInRootPackage(imagePath);
+        return MediaReaders.createAudioReader(inputStream, format);
+    }
+
+    @Override
+    public String getFormat() {
+        return format;
     }
 
     @Override

@@ -1,7 +1,6 @@
 package io.github.shaksternano.borgar.command;
 
 import com.google.common.collect.ListMultimap;
-import com.google.common.io.Files;
 import io.github.shaksternano.borgar.Main;
 import io.github.shaksternano.borgar.command.util.CommandResponse;
 import io.github.shaksternano.borgar.data.repository.SavedUrlRepository;
@@ -82,7 +81,7 @@ public class AddFavouriteCommand extends BaseCommand<AddFavouriteCommand.Respons
         String url,
         MessageReceivedEvent event
     ) {
-        var fileExtension = Files.getFileExtension(url).toLowerCase();
+        var fileExtension = FileUtil.getFileExtension(url);
         if (fileExtension.equals("gif")) {
             return new CommandResponse<ResponseData>("This is already a GIF file!").asFuture();
         }

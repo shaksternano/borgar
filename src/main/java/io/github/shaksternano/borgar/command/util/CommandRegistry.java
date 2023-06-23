@@ -48,4 +48,8 @@ public class CommandRegistry {
     public static Set<Command<?>> getCommands() {
         return Set.copyOf(registry.values());
     }
+
+    public static boolean isCommand(String name) {
+        return registry.containsKey(name.toLowerCase());
+    }
 }

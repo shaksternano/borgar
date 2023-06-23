@@ -18,6 +18,8 @@ public interface TemplateInfo {
 
     MediaReader<AudioFrame> getAudioReader() throws IOException;
 
+    String getFormat();
+
     String getResultName();
 
     int getImageContentX();
