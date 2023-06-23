@@ -27,8 +27,11 @@ public class JavaxImageReader extends BaseMediaReader<ImageFrame> {
         input.close();
     }
 
-    private JavaxImageReader(BufferedImage image, String format) {
+    private JavaxImageReader(BufferedImage image, String format) throws IOException {
         super(format);
+        if (image == null) {
+            throw new IOException("Failed to read image");
+        }
         this.image = new ImageFrame(image, 1, 0);
         frameCount = 1;
         duration = 1;
