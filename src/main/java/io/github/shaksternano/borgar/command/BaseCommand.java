@@ -1,5 +1,6 @@
 package io.github.shaksternano.borgar.command;
 
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.Nullable;
@@ -57,6 +58,11 @@ public abstract class BaseCommand<T> implements Command<T> {
     @Override
     public String description() {
         return description;
+    }
+
+    @Override
+    public Set<Permission> requiredPermissions() {
+        return Set.of();
     }
 
     @Override

@@ -48,6 +48,14 @@ public class CommandParser {
 
     private static <T> void handleCommand(Command<T> command, List<String> commandParts, MessageReceivedEvent event) {
         try {
+            var member = event.getMember();
+            if (member != null) {
+                var requiredPermissions = command.requiredPermissions();
+                if (!member.hasPermission(requiredPermissions)) {
+                    event.getMessage().reply("You don't have permission to use this command!").queue();
+                    return;
+                }
+            }
             var channel = event.getChannel();
             var triggerMessage = event.getMessage();
             channel.sendTyping().queue();

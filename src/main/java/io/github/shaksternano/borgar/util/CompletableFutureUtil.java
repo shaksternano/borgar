@@ -19,7 +19,13 @@ public class CompletableFutureUtil {
         var i = 0;
         for (var element : iterable) {
             var index = i;
-            future = future.thenCompose(value -> accumulator.apply(element, value, index));
+            future = future.thenCompose(value -> {
+                try {
+                    return accumulator.apply(element, value, index);
+                } catch (Throwable t) {
+                    return CompletableFuture.failedFuture(t);
+                }
+            });
             i++;
         }
         return future;

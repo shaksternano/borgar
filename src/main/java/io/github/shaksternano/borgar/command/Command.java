@@ -3,6 +3,7 @@ package io.github.shaksternano.borgar.command;
 import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.borgar.command.util.CommandResponse;
 import io.github.shaksternano.borgar.command.util.Commands;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.Nullable;
@@ -60,4 +61,6 @@ public interface Command<T> extends Comparable<Command<?>> {
      * @return The description of the command.
      */
     String description();
+
+    Set<Permission> requiredPermissions();
 }

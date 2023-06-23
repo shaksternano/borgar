@@ -15,11 +15,8 @@ import io.github.shaksternano.borgar.media.template.CustomTemplateInfo
 import io.github.shaksternano.borgar.util.Fonts
 import io.github.shaksternano.borgar.util.MessageUtil
 import io.github.shaksternano.borgar.util.StringUtil
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.future.await
-import kotlinx.coroutines.future.future
 import kotlinx.coroutines.withContext
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
@@ -31,40 +28,31 @@ import java.net.URL
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
-import java.util.concurrent.CompletableFuture
 
-object CreateTemplateCommand : BaseCommand<Unit>(
+object CreateTemplateCommand : KotlinCommand<Unit>(
     "template",
     "Creates a custom image template for this guild.",
 ) {
 
-    @OptIn(DelicateCoroutinesApi::class)
-    override fun execute(
-        arguments: MutableList<String>,
+    override suspend fun executeSuspend(
+        arguments: List<String>,
         extraArguments: ListMultimap<String, String>,
         event: MessageReceivedEvent
-    ): CompletableFuture<CommandResponse<Unit>> = GlobalScope.future {
-        val member = event.member
-        if (member != null) {
-            if (!member.permissions.contains(Permission.MANAGE_GUILD_EXPRESSIONS)) {
-                return@future CommandResponse("You do not have permission to create templates!")
-            }
-        }
-
+    ): CommandResponse<Unit> {
         val templateFileOptional = MessageUtil.downloadFile(event.message).await()
         if (templateFileOptional.isEmpty) {
-            return@future CommandResponse("No template file found!")
+            return CommandResponse("No template file found!")
         }
         val templateFile = templateFileOptional.orElseThrow().file
-        return@future try {
+        return try {
             val templateJson = parseJson(templateFile)
             val guildId = if (event.isFromGuild) event.guild.idLong else event.channel.idLong
             val commandName = getString(templateJson, "command_name").lowercase()
             if (CommandRegistry.isCommand(commandName)) {
-                return@future CommandResponse("A command with the name `$commandName` already exists!")
+                return CommandResponse("A command with the name `$commandName` already exists!")
             }
             if (TemplateRepository.exists(commandName, guildId)) {
-                return@future CommandResponse("A template with the command name `$commandName` already exists!")
+                return CommandResponse("A template with the command name `$commandName` already exists!")
             }
             val template = createTemplate(templateJson, commandName)
             val mediaUrl = template.mediaUrl
@@ -74,6 +62,8 @@ object CreateTemplateCommand : BaseCommand<Unit>(
             CommandResponse("Invalid template file. Reason: ${e.message}")
         }
     }
+
+    override fun requiredPermissions(): Set<Permission> = setOf(Permission.MANAGE_GUILD_EXPRESSIONS)
 
     private fun parseJson(file: File): JsonObject = runCatching {
         file.bufferedReader().use {

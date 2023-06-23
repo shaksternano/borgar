@@ -7,6 +7,7 @@ import io.github.shaksternano.borgar.media.template.CustomTemplateInfo
 import io.github.shaksternano.borgar.media.template.TemplateInfo
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.awt.Color
@@ -113,5 +114,9 @@ object TemplateRepository {
 
     suspend fun exists(commandName: String, guildId: Long): Boolean = dbQuery {
         select { (TemplateTable.commandName eq commandName) and (TemplateTable.guildId eq guildId) }.any()
+    }
+
+    suspend fun delete(commandName: String, guildId: Long): Unit = dbQuery {
+        deleteWhere { (TemplateTable.commandName eq commandName) and (TemplateTable.guildId eq guildId) }
     }
 }

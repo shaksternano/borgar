@@ -24,7 +24,10 @@ public class CommandRegistry {
      */
     public static void register(Iterable<Command<?>> commands) {
         for (var command : commands) {
-            registry.put(command.name().toLowerCase(), command);
+            var previous = registry.putIfAbsent(command.name().toLowerCase(), command);
+            if (previous != null) {
+                throw new IllegalArgumentException("A command with name " + command.name() + " already exists");
+            }
         }
     }
 

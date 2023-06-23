@@ -1,5 +1,6 @@
 package io.github.shaksternano.borgar.logging;
 
+import io.github.shaksternano.borgar.util.CompletableFutureUtil;
 import io.github.shaksternano.borgar.util.LimitedStringBuilder;
 import io.github.shaksternano.borgar.util.StringUtil;
 import net.dv8tion.jda.api.JDA;
@@ -34,9 +35,14 @@ public class DiscordLogger extends InterceptLogger {
                 builder.append("\nStacktrace:\n").append(StringUtil.getStacktrace(t));
             }
 
-            for (String part : builder.getParts()) {
-                channel.sendMessage(part).queue();
-            }
+            CompletableFutureUtil.forEachSequentiallyAsync(
+                builder.getParts(),
+                (part, index) -> channel.sendMessage(part).submit()
+            ).whenComplete((unused, throwable) -> {
+                if (throwable != null) {
+                    delegate.error("Failed to send message to Discord", throwable);
+                }
+            });
         }, () -> {
             if (!notFoundLogged) {
                 notFoundLogged = true;
