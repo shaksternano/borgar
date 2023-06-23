@@ -1,6 +1,5 @@
 package io.github.shaksternano.borgar.command.util;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.Multimaps;
@@ -19,9 +18,7 @@ import net.dv8tion.jda.api.exceptions.PermissionException;
 import org.jetbrains.annotations.Nullable;
 
 import java.text.DecimalFormat;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
@@ -34,7 +31,6 @@ import java.util.function.Predicate;
 public class CommandParser {
 
     private static final DecimalFormat FORMAT = new DecimalFormat("0.####");
-
 
     public static void parseAndExecute(MessageReceivedEvent event) {
         DiscordUtil.getContentStrippedKeepEmotes(event.getMessage()).thenAccept(stringMessage -> {
@@ -131,10 +127,10 @@ public class CommandParser {
             if (message.startsWith(Command.PREFIX)) {
                 var commandParts = message.split("\\s+");
                 commandParts[0] = commandParts[0].substring(1).toLowerCase();
-                return ImmutableList.copyOf(commandParts);
+                return List.of(commandParts);
             }
         }
-        return ImmutableList.of();
+        return List.of();
     }
 
     /**
@@ -144,7 +140,7 @@ public class CommandParser {
      * @return The arguments of the command.
      */
     private static List<String> parseBaseArguments(List<String> commandParts, Command<?> command) {
-        var argumentsBuilder = new ImmutableList.Builder<String>();
+        List<String> arguments = new ArrayList<>();
         var passedFirst = false;
         for (var commandPart : commandParts) {
             if (passedFirst) {
@@ -154,12 +150,12 @@ public class CommandParser {
                         break;
                     }
                 }
-                argumentsBuilder.add(commandPart);
+                arguments.add(commandPart);
             } else {
                 passedFirst = true;
             }
         }
-        return argumentsBuilder.build();
+        return Collections.unmodifiableList(arguments);
     }
 
     private static ListMultimap<String, String> parseExtraArguments(List<String> commandParts, Command<?> command) {
