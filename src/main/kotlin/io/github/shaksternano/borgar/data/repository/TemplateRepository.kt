@@ -17,7 +17,9 @@ object TemplateRepository {
 
     private object TemplateTable : Table(name = "template") {
         val commandName = varchar("command_name", 100)
-        val guildId = long("guild_id")
+
+        // A guild ID if from a guild, otherwise a channel ID
+        val entityId = long("entity_id")
         val mediaUrl = varchar("media_url", 2000)
         val format = varchar("format", 100)
         val resultName = varchar("result_name", 100)
@@ -41,7 +43,7 @@ object TemplateRepository {
         val isTemplateBackground = bool("is_template_background")
         val fillColor = integer("fill_color").nullable()
 
-        override val primaryKey = PrimaryKey(commandName, guildId, name = "template_pk")
+        override val primaryKey = PrimaryKey(commandName, entityId, name = "template_pk")
     }
 
     init {
@@ -53,10 +55,10 @@ object TemplateRepository {
     private suspend fun <T> dbQuery(block: suspend TemplateTable.() -> T): T =
         newSuspendedTransaction(Dispatchers.IO) { block(TemplateTable) }
 
-    suspend fun create(template: TemplateInfo, commandName: String, mediaUrl: String, guildId: Long): Unit = dbQuery {
+    suspend fun create(template: TemplateInfo, commandName: String, mediaUrl: String, entityId: Long): Unit = dbQuery {
         insert {
             it[this.commandName] = commandName
-            it[this.guildId] = guildId
+            it[this.entityId] = entityId
             it[this.mediaUrl] = mediaUrl
             it[format] = template.format
             it[resultName] = template.resultName
@@ -82,8 +84,8 @@ object TemplateRepository {
         }
     }
 
-    suspend fun read(commandName: String, guildId: Long): TemplateInfo? = dbQuery {
-        select { (TemplateTable.commandName eq commandName) and (TemplateTable.guildId eq guildId) }
+    suspend fun read(commandName: String, entityId: Long): TemplateInfo? = dbQuery {
+        select { (TemplateTable.commandName eq commandName) and (TemplateTable.entityId eq entityId) }
             .map {
                 val mediaUrl = it[mediaUrl]
                 CustomTemplateInfo(
@@ -112,11 +114,11 @@ object TemplateRepository {
             }.singleOrNull()
     }
 
-    suspend fun exists(commandName: String, guildId: Long): Boolean = dbQuery {
-        select { (TemplateTable.commandName eq commandName) and (TemplateTable.guildId eq guildId) }.any()
+    suspend fun exists(commandName: String, entityId: Long): Boolean = dbQuery {
+        select { (TemplateTable.commandName eq commandName) and (TemplateTable.entityId eq entityId) }.any()
     }
 
-    suspend fun delete(commandName: String, guildId: Long): Unit = dbQuery {
-        deleteWhere { (TemplateTable.commandName eq commandName) and (TemplateTable.guildId eq guildId) }
+    suspend fun delete(commandName: String, entityId: Long): Unit = dbQuery {
+        deleteWhere { (TemplateTable.commandName eq commandName) and (TemplateTable.entityId eq entityId) }
     }
 }

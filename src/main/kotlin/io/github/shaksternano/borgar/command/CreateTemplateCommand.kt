@@ -46,17 +46,21 @@ object CreateTemplateCommand : KotlinCommand<Unit>(
         val templateFile = templateFileOptional.orElseThrow().file
         return try {
             val templateJson = parseJson(templateFile)
-            val guildId = if (event.isFromGuild) event.guild.idLong else event.channel.idLong
+            val entityId = if (event.isFromGuild) {
+                event.guild.idLong
+            } else {
+                event.channel.idLong
+            }
             val commandName = getString(templateJson, "command_name").lowercase()
             if (CommandRegistry.isCommand(commandName)) {
                 return CommandResponse("A command with the name `$commandName` already exists!")
             }
-            if (TemplateRepository.exists(commandName, guildId)) {
+            if (TemplateRepository.exists(commandName, entityId)) {
                 return CommandResponse("A template with the command name `$commandName` already exists!")
             }
             val template = createTemplate(templateJson, commandName)
             val mediaUrl = template.mediaUrl
-            TemplateRepository.create(template, commandName, mediaUrl, guildId)
+            TemplateRepository.create(template, commandName, mediaUrl, entityId)
             CommandResponse("Template created!")
         } catch (e: InvalidTemplateException) {
             CommandResponse("Invalid template file. Reason: ${e.message}")

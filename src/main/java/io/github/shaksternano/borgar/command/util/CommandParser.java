@@ -12,6 +12,8 @@ import io.github.shaksternano.borgar.util.DiscordUtil;
 import io.github.shaksternano.borgar.util.MiscUtil;
 import io.github.shaksternano.borgar.util.StringUtil;
 import io.github.shaksternano.borgar.util.function.FloatPredicate;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.PermissionException;
@@ -44,8 +46,7 @@ public class CommandParser {
 
     private static <T> void handleCommand(Command<T> command, List<String> commandParts, MessageReceivedEvent event) {
         try {
-            var member = event.getMember();
-            if (member == null || !member.hasPermission(command.requiredPermissions())) {
+            if (!hasPermissions(command.requiredPermissions(), event)) {
                 event.getMessage().reply("You don't have permission to use this command!").queue();
                 return;
             }
@@ -84,6 +85,14 @@ public class CommandParser {
         } catch (PermissionException e) {
             Main.getLogger().error("Missing send message permission", e);
         }
+    }
+
+    private static boolean hasPermissions(Collection<Permission> permissions, MessageReceivedEvent event) {
+        if (event.isFromType(ChannelType.PRIVATE)) {
+            return true;
+        }
+        var member = event.getMember();
+        return member != null && member.hasPermission(permissions);
     }
 
     private static <T> CommandResponse<T> handleError(Throwable error, Command<?> command) {
