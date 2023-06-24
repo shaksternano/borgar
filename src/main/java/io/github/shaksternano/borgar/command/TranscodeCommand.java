@@ -2,7 +2,6 @@ package io.github.shaksternano.borgar.command;
 
 import com.google.common.collect.ListMultimap;
 import com.google.common.io.Files;
-import io.github.shaksternano.borgar.exception.UnsupportedFileFormatException;
 import io.github.shaksternano.borgar.io.NamedFile;
 import io.github.shaksternano.borgar.media.MediaUtil;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -22,10 +21,6 @@ public class TranscodeCommand extends FileCommand {
 
     @Override
     protected NamedFile modifyFile(File file, String fileName, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event, long maxFileSize) throws IOException {
-        if (fileFormat.equals(outputFormat)) {
-            throw new UnsupportedFileFormatException("The file is already a `" + outputFormat.toLowerCase() + "` file!");
-        }
-        var fileNameWithoutExtension = Files.getNameWithoutExtension(fileName);
         return new NamedFile(
             MediaUtil.transcode(
                 file,
@@ -34,7 +29,7 @@ public class TranscodeCommand extends FileCommand {
                 outputFormat,
                 maxFileSize
             ),
-            fileNameWithoutExtension,
+            Files.getNameWithoutExtension(fileName),
             outputFormat
         );
     }
