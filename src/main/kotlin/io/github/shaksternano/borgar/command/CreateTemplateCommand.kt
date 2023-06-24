@@ -49,7 +49,7 @@ object CreateTemplateCommand : KotlinCommand<Unit>(
             val entityId = if (event.isFromGuild) {
                 event.guild.idLong
             } else {
-                event.channel.idLong
+                event.author.idLong
             }
             val commandName = getString(templateJson, "command_name").lowercase()
             if (CommandRegistry.isCommand(commandName)) {
