@@ -63,7 +63,7 @@ object CreateTemplateCommand : KotlinCommand<Unit>(
             TemplateRepository.create(template, commandName, mediaUrl, entityId)
             CommandResponse("Template created!")
         } catch (e: InvalidTemplateException) {
-            CommandResponse("Invalid template file. Reason: ${e.message}")
+            CommandResponse("Invalid template file. ${e.message}")
         }
     }
 
@@ -87,46 +87,57 @@ object CreateTemplateCommand : KotlinCommand<Unit>(
             commandName
         }
 
-        val imageProperties = getObject(templateJson, "image")
-        val imageX = getInt(imageProperties, "x")
-        val imageY = getInt(imageProperties, "y")
-        val imageWidth = getInt(imageProperties, "width")
-        val imageHeight = getInt(imageProperties, "height")
-        val imagePosition = getEnum<Position>(imageProperties, "position") {
+        val imageStartX = getInt(templateJson, "image.start.x")
+        val imageStartY = getInt(templateJson, "image.start.y")
+        val imageEndX = getInt(templateJson, "image.end.x")
+        val imageEndY = getInt(templateJson, "image.end.y")
+        val imagePadding = getInt(templateJson, "image.padding") {
+            0
+        }
+        val imageX = imageStartX + imagePadding
+        val imageY = imageStartY + imagePadding
+        val imageWidth = imageEndX - imageStartX - imagePadding * 2
+        val imageHeight = imageEndY - imageStartY - imagePadding * 2
+        val imagePosition = getEnum<Position>(templateJson, "image.position") {
             Position.CENTRE
         }
 
-        val textProperties = getObject(templateJson, "text") {
-            JsonObject()
+        val textStartX = getInt(templateJson, "text.start.x") {
+            imageStartX
         }
-        val textX = getInt(textProperties, "x") {
-            imageX
+        val textStartY = getInt(templateJson, "text.start.y") {
+            imageStartY
         }
-        val textY = getInt(textProperties, "y") {
-            imageY
+        val textEndX = getInt(templateJson, "text.end.x") {
+            imageEndX
         }
-        val textWidth = getInt(textProperties, "width") {
-            imageWidth
+        val textEndY = getInt(templateJson, "text.end.y") {
+            imageEndY
         }
-        val textHeight = getInt(textProperties, "height") {
-            imageHeight
+        val textPadding = getInt(templateJson, "text.padding") {
+            imagePadding
         }
-        val textPosition = getEnum<Position>(textProperties, "position") {
+
+        val textX = textStartX + textPadding
+        val textY = textStartY + textPadding
+        val textWidth = textEndX - textStartX - textPadding * 2
+        val textHeight = textEndY - textStartY - textPadding * 2
+        val textPosition = getEnum<Position>(templateJson, "text.position") {
             imagePosition
         }
-        val textAlignment = getEnum<TextAlignment>(textProperties, "alignment") {
+        val textAlignment = getEnum<TextAlignment>(templateJson, "text.alignment") {
             TextAlignment.CENTRE
         }
-        val textFont = getString(textProperties, "font") {
+        val textFont = getString(templateJson, "text.font") {
             "Futura-CondensedExtraBold"
         }
         if (!Fonts.fontExists(textFont)) {
             throw InvalidTemplateException("Font $textFont does not exist!")
         }
-        val textMaxSize = getInt(textProperties, "max_size") {
+        val textMaxSize = getInt(templateJson, "text.max_size") {
             200
         }
-        val textColor = getColor(textProperties, "color") {
+        val textColor = getColor(templateJson, "text.color") {
             Color.BLACK
         }
 
@@ -179,10 +190,19 @@ object CreateTemplateCommand : KotlinCommand<Unit>(
         transform: (JsonElement) -> R,
         noinline default: (() -> R)? = null
     ): R {
-        val value = json.get(key)
-        return if (value == null) {
+        val keys = key.split(".")
+        val value = keys.fold(json as JsonElement) { subJson, keyPart ->
+            if (subJson is JsonObject) {
+                val jsonElement = subJson.get(keyPart)
+                if (jsonElement != null) {
+                    return@fold jsonElement
+                }
+            }
+            json
+        }
+        return if (value === json) {
             if (default == null) {
-                throw MissingKeyException("No `$key` found!")
+                throw MissingKeyException(key)
             } else {
                 default()
             }
@@ -196,10 +216,6 @@ object CreateTemplateCommand : KotlinCommand<Unit>(
         }
     }
 
-    private fun getObject(json: JsonObject, key: String, default: (() -> JsonObject)? = null): JsonObject {
-        return getAs(json, key, JsonElement::getAsJsonObject, default)
-    }
-
     private fun getString(json: JsonObject, key: String, default: (() -> String)? = null): String {
         return getAs(json, key, JsonElement::getAsString, default)
     }
@@ -208,6 +224,7 @@ object CreateTemplateCommand : KotlinCommand<Unit>(
         return getAs(json, key, JsonElement::getAsInt, default)
     }
 
+    @Suppress("SameParameterValue")
     private fun getBoolean(json: JsonObject, key: String, default: (() -> Boolean)? = null): Boolean {
         return getAs(json, key, JsonElement::getAsBoolean, default)
     }
