@@ -87,13 +87,20 @@ object CreateTemplateCommand : KotlinCommand<Unit>(
             commandName
         }
 
-        val imageStartX = getInt(templateJson, "image.start.x")
-        val imageStartY = getInt(templateJson, "image.start.y")
-        val imageEndX = getInt(templateJson, "image.end.x")
-        val imageEndY = getInt(templateJson, "image.end.y")
-        val imagePadding = getInt(templateJson, "image.padding") {
+        val imageStartX = getPositiveInt(templateJson, "image.start.x")
+
+        val imageStartY = getPositiveInt(templateJson, "image.start.y")
+
+        val imageEndX = getPositiveInt(templateJson, "image.end.x")
+
+        val imageEndY = getPositiveInt(templateJson, "image.end.y")
+
+        val imagePadding = getPositiveInt(templateJson, "image.padding") {
             0
         }
+        checkValidPadding(imageStartX, "image.start.x", imageEndX, "image.end.x", imagePadding, "image.padding")
+        checkValidPadding(imageStartY, "image.start.y", imageEndY, "image.end.y", imagePadding, "image.padding")
+
         val imageX = imageStartX + imagePadding
         val imageY = imageStartY + imagePadding
         val imageWidth = imageEndX - imageStartX - imagePadding * 2
@@ -102,21 +109,27 @@ object CreateTemplateCommand : KotlinCommand<Unit>(
             Position.CENTRE
         }
 
-        val textStartX = getInt(templateJson, "text.start.x") {
+        val textStartX = getPositiveInt(templateJson, "text.start.x") {
             imageStartX
         }
-        val textStartY = getInt(templateJson, "text.start.y") {
+
+        val textStartY = getPositiveInt(templateJson, "text.start.y") {
             imageStartY
         }
-        val textEndX = getInt(templateJson, "text.end.x") {
+
+        val textEndX = getPositiveInt(templateJson, "text.end.x") {
             imageEndX
         }
-        val textEndY = getInt(templateJson, "text.end.y") {
+
+        val textEndY = getPositiveInt(templateJson, "text.end.y") {
             imageEndY
         }
-        val textPadding = getInt(templateJson, "text.padding") {
+
+        val textPadding = getPositiveInt(templateJson, "text.padding") {
             imagePadding
         }
+        checkValidPadding(textStartX, "text.start.x", textEndX, "text.end.x", textPadding, "text.padding")
+        checkValidPadding(textStartY, "text.start.y", textEndY, "text.end.y", textPadding, "text.padding")
 
         val textX = textStartX + textPadding
         val textY = textStartY + textPadding
@@ -134,7 +147,7 @@ object CreateTemplateCommand : KotlinCommand<Unit>(
         if (!Fonts.fontExists(textFont)) {
             throw InvalidTemplateException("Font $textFont does not exist!")
         }
-        val textMaxSize = getInt(templateJson, "text.max_size") {
+        val textMaxSize = getPositiveInt(templateJson, "text.max_size") {
             200
         }
         val textColor = getColor(templateJson, "text.color") {
@@ -224,9 +237,30 @@ object CreateTemplateCommand : KotlinCommand<Unit>(
         return getAs(json, key, JsonElement::getAsInt, default)
     }
 
+    private fun getPositiveInt(json: JsonObject, key: String, default: (() -> Int)? = null): Int {
+        val value = getInt(json, key, default)
+        if (value < 0) {
+            throw InvalidTemplateException("`$key` must be positive!")
+        }
+        return value
+    }
+
     @Suppress("SameParameterValue")
     private fun getBoolean(json: JsonObject, key: String, default: (() -> Boolean)? = null): Boolean {
         return getAs(json, key, JsonElement::getAsBoolean, default)
+    }
+
+    private fun checkValidPadding(
+        start: Int,
+        startKey: String,
+        end: Int,
+        endKey: String,
+        padding: Int,
+        paddingKey: String
+    ) {
+        if (start + padding * 2 >= end) {
+            throw InvalidTemplateException("`$startKey` + `$paddingKey` * 2 must be less than `$endKey`!")
+        }
     }
 
     private inline fun <reified T : Enum<T>> getEnum(
