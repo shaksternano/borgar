@@ -75,7 +75,7 @@ object TemplateRepository {
                 resultRow[textHeight],
                 resultRow[textPosition],
                 resultRow[textAlignment],
-                Font.decode(resultRow[textFont]),
+                Font(resultRow[textFont], Font.PLAIN, resultRow[textMaxSize]),
                 Color(resultRow[textColorRgb]),
 
                 resultRow[rotationRadians],
