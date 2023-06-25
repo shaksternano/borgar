@@ -21,6 +21,7 @@ public abstract class BaseMediaReader<E> implements MediaReader<E> {
     protected int audioBitrate;
     protected int width;
     protected int height;
+    protected int loopCount;
 
     public BaseMediaReader(String format) {
         this.format = format;
@@ -79,6 +80,11 @@ public abstract class BaseMediaReader<E> implements MediaReader<E> {
     @Override
     public int height() {
         return height;
+    }
+
+    @Override
+    public int loopCount() {
+        return loopCount;
     }
 
     @Override

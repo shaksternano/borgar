@@ -44,6 +44,11 @@ public class ZippedMediaReader<A extends VideoFrame<?, A>, B extends VideoFrame<
         audioChannels = Math.max(firstReader.audioChannels(), secondReader.audioChannels());
         width = Math.max(firstReader.width(), secondReader.width());
         height = Math.max(firstReader.height(), secondReader.height());
+        if (firstReader.loopCount() == 0 || secondReader.loopCount() == 0) {
+            loopCount = 0;
+        } else {
+            loopCount = Math.max(firstReader.loopCount(), secondReader.loopCount());
+        }
     }
 
     @Override

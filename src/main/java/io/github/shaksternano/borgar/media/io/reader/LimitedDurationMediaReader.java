@@ -23,6 +23,7 @@ public class LimitedDurationMediaReader<E extends VideoFrame<?, E>> extends Base
         frameRate = 1_000_000 / frameDuration;
         width = reader.width();
         height = reader.height();
+        loopCount = reader.loopCount();
     }
 
     private ReaderInfo readerInfo(MediaReader<E> reader, long maxDuration) throws IOException {

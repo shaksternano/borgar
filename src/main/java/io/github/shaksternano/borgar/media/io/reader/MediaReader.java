@@ -45,6 +45,8 @@ public interface MediaReader<E> extends Iterable<E>, Closeable {
 
     int height();
 
+    int loopCount();
+
     String format();
 
     /**

@@ -54,6 +54,7 @@ public class ScrimageGifReader extends BaseMediaReader<ImageFrame> {
         var dimensions = gif.getDimensions();
         width = dimensions.width;
         height = dimensions.height;
+        loopCount = gif.getLoopCount();
     }
 
     @Override
@@ -124,6 +125,7 @@ public class ScrimageGifReader extends BaseMediaReader<ImageFrame> {
             frameDuration = ScrimageGifReader.this.frameDuration;
             width = ScrimageGifReader.this.width;
             height = ScrimageGifReader.this.height;
+            loopCount = ScrimageGifReader.this.loopCount;
             reversedFrames = reverseFrames(frames, ImageFrame::new);
         }
 

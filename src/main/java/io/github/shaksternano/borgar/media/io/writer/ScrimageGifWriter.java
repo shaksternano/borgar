@@ -43,8 +43,9 @@ public class ScrimageGifWriter extends NoAudioWriter {
 
     private boolean closed;
 
-    public ScrimageGifWriter(File output) throws IOException {
-        var writer = new StreamingGifWriter();
+    public ScrimageGifWriter(File output, int loopCount) throws IOException {
+        var infiniteLoop = loopCount == 0;
+        var writer = new StreamingGifWriter().withInfiniteLoop(infiniteLoop);
         gif = writer.prepareStream(output, BufferedImage.TYPE_INT_ARGB);
     }
 

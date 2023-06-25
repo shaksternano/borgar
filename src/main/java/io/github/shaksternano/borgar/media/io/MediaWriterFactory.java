@@ -11,6 +11,7 @@ public interface MediaWriterFactory {
     MediaWriter createWriter(
         File output,
         String outputFormat,
+        int loopCount,
         int audioChannels,
         int audioSampleRate,
         int audioBitrate,

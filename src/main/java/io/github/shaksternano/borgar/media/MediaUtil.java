@@ -118,12 +118,12 @@ public class MediaUtil {
                     var writer = MediaWriters.createWriter(
                         output,
                         outputFormat,
+                        finalImageReader.loopCount(),
                         finalAudioReader.audioChannels(),
                         finalAudioReader.audioSampleRate(),
                         finalAudioReader.audioBitrate(),
                         maxFileSize,
-                        finalImageReader.duration()
-                    )
+                        finalImageReader.duration())
                 ) {
                     T constantFrameDataValue = null;
                     while (imageIterator.hasNext()) {
@@ -189,12 +189,12 @@ public class MediaUtil {
                     var writer = MediaWriters.createWriter(
                         output,
                         outputFormat,
+                        finalZippedImageReader.loopCount(),
                         finalAudioReader.audioChannels(),
                         finalAudioReader.audioSampleRate(),
                         finalAudioReader.audioBitrate(),
                         maxFileSize,
-                        finalZippedImageReader.duration()
-                    )
+                        finalZippedImageReader.duration())
                 ) {
                     T constantFrameDataValue = null;
                     while (zippedImageIterator.hasNext()) {
