@@ -124,8 +124,7 @@ public class TemplateCommand extends OptionalFileInputFileCommand {
             int contentImageY = switch (template.getImageContentPosition()) {
                 case TOP -> template.getImageContentY();
                 case BOTTOM -> template.getImageContentY() + (template.getImageContentHeight() - resizedHeight);
-                default ->
-                    template.getImageContentY() + ((template.getImageContentHeight() - resizedHeight) / 2);
+                default -> template.getImageContentY() + ((template.getImageContentHeight() - resizedHeight) / 2);
             };
 
             var fill = template.getFill().orElseGet(() -> resizedContentImage.getColorModel().hasAlpha()

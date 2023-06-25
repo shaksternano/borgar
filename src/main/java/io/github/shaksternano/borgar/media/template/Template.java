@@ -50,6 +50,8 @@ public interface Template {
 
     Optional<Function<String, Drawable>> getCustomTextDrawableFactory();
 
+    double getContentRotation();
+
     Optional<Shape> getContentClip() throws IOException;
 
     boolean isBackground();

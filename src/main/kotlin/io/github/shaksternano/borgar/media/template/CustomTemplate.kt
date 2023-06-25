@@ -39,6 +39,7 @@ class CustomTemplate(
     private val textFont: Font,
     private val textColor: Color,
 
+    private val rotation: Double,
     private val isBackground: Boolean,
     private val fill: Color?
 ) : Template {
@@ -83,6 +84,8 @@ class CustomTemplate(
     override fun getTextColor(): Color = textColor
 
     override fun getCustomTextDrawableFactory(): Optional<Function<String, Drawable>> = Optional.empty()
+
+    override fun getContentRotation(): Double = rotation
 
     override fun getContentClip(): Optional<Shape> = Optional.empty()
 

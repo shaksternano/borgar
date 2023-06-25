@@ -47,6 +47,7 @@ object TemplateRepository {
         val textColorRgb = integer("text_color_rgb")
         val textMaxSize = integer("text_max_size")
 
+        val rotationRadians = double("rotation_radians")
         val isTemplateBackground = bool("is_template_background")
         val fillColor = integer("fill_color").nullable()
 
@@ -77,6 +78,7 @@ object TemplateRepository {
                 Font.decode(resultRow[textFont]),
                 Color(resultRow[textColorRgb]),
 
+                resultRow[rotationRadians],
                 resultRow[isTemplateBackground],
                 resultRow[fillColor]?.let { Color(it) }
             )
@@ -118,6 +120,7 @@ object TemplateRepository {
             it[textColorRgb] = template.textColor.rgb
             it[textMaxSize] = template.font.size
 
+            it[rotationRadians] = template.contentRotation
             it[isTemplateBackground] = template.isBackground
             it[fillColor] = template.fill.getOrNull()?.rgb
         }

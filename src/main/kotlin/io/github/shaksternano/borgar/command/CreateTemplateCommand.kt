@@ -160,6 +160,10 @@ object CreateTemplateCommand : KotlinCommand<Unit>(
             Color.BLACK
         }
 
+        val rotationDegrees = getDouble(templateJson, "rotation") {
+            0.0
+        }
+        val rotationRadians = Math.toRadians(rotationDegrees)
         val isBackground = getBoolean(templateJson, "is_background") {
             true
         }
@@ -189,6 +193,7 @@ object CreateTemplateCommand : KotlinCommand<Unit>(
             Font(textFont, Font.PLAIN, textMaxSize),
             textColor,
 
+            rotationRadians,
             isBackground,
             fillColor,
         )
@@ -266,6 +271,11 @@ object CreateTemplateCommand : KotlinCommand<Unit>(
     @Suppress("SameParameterValue")
     private fun getBoolean(json: JsonObject, key: String, default: (() -> Boolean)? = null): Boolean {
         return getAs(json, key, JsonElement::getAsBoolean, default)
+    }
+
+    @Suppress("SameParameterValue")
+    private fun getDouble(json: JsonObject, key: String, default: (() -> Double)? = null): Double {
+        return getAs(json, key, JsonElement::getAsDouble, default)
     }
 
     private fun checkValidPadding(

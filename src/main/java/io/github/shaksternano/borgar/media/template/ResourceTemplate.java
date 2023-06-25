@@ -35,6 +35,7 @@ public enum ResourceTemplate implements Template {
         Color.WHITE,
         200,
         null,
+        0,
         null,
         true,
         null
@@ -60,6 +61,7 @@ public enum ResourceTemplate implements Template {
         Color.BLACK,
         200,
         null,
+        0,
         null,
         false,
         null
@@ -85,6 +87,7 @@ public enum ResourceTemplate implements Template {
         Color.BLACK,
         50,
         null,
+        0,
         "shape/thinking_bubble_edge_trimmed.javaobject",
         false,
         Color.WHITE
@@ -104,6 +107,7 @@ public enum ResourceTemplate implements Template {
         Color.WHITE,
         200,
         null,
+        0,
         null,
         false,
         null
@@ -129,6 +133,7 @@ public enum ResourceTemplate implements Template {
         Color.BLACK,
         200,
         null,
+        0,
         null,
         true,
         null
@@ -154,6 +159,7 @@ public enum ResourceTemplate implements Template {
         Color.BLACK,
         200,
         null,
+        0,
         null,
         true,
         null
@@ -173,6 +179,7 @@ public enum ResourceTemplate implements Template {
         Color.BLACK,
         100,
         null,
+        0,
         null,
         true,
         null
@@ -192,6 +199,7 @@ public enum ResourceTemplate implements Template {
         Color.BLACK,
         100,
         null,
+        0,
         null,
         true,
         Color.WHITE
@@ -217,6 +225,7 @@ public enum ResourceTemplate implements Template {
     private final Color textColor;
     @Nullable
     private final Function<String, Drawable> customTextDrawableFactory;
+    private final double contentRotationRadians;
     @Nullable
     private final String contentClipShapeFilePath;
     private final boolean isBackground;
@@ -243,6 +252,7 @@ public enum ResourceTemplate implements Template {
         Color textColor,
         int maxFontSize,
         @Nullable Function<String, Drawable> customTextDrawableFactory,
+        double contentRotationRadians,
         @Nullable String contentClipShapeFilePath,
         boolean isBackground,
         @Nullable Color fill
@@ -267,6 +277,7 @@ public enum ResourceTemplate implements Template {
         font = new Font(this.fontName, Font.PLAIN, maxFontSize);
         this.textColor = textColor;
         this.customTextDrawableFactory = customTextDrawableFactory;
+        this.contentRotationRadians = contentRotationRadians;
         this.contentClipShapeFilePath = contentClipShapeFilePath;
         this.isBackground = isBackground;
         this.fill = fill;
@@ -287,6 +298,7 @@ public enum ResourceTemplate implements Template {
         Color textColor,
         int maxFontSize,
         @Nullable Function<String, Drawable> customTextDrawableFactory,
+        double contentRotationRadians,
         @Nullable String contentClipShapeFilePath,
         boolean isBackground,
         @Nullable Color fill
@@ -310,6 +322,7 @@ public enum ResourceTemplate implements Template {
             textColor,
             maxFontSize,
             customTextDrawableFactory,
+            contentRotationRadians,
             contentClipShapeFilePath,
             isBackground,
             fill
@@ -414,6 +427,11 @@ public enum ResourceTemplate implements Template {
     @Override
     public Optional<Function<String, Drawable>> getCustomTextDrawableFactory() {
         return Optional.ofNullable(customTextDrawableFactory);
+    }
+
+    @Override
+    public double getContentRotation() {
+        return contentRotationRadians;
     }
 
     @Override
