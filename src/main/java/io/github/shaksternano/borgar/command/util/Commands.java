@@ -144,7 +144,7 @@ public class Commands {
 
     public static final Command<?> AUTO_CROP = addCommandToRegister(new AutoCropCommand(
         "autocrop",
-        "Automatically crops out background color. Optional arguments: [Background crop hex RGB colour, by default it is transparent], [Background crop colour tolerance, default value is " + FORMAT.format(AutoCropCommand.DEFAULT_COLOR_TOLERANCE) + "]"
+        "Automatically crops out background color. Optional arguments: [Background crop hex RGB colour, by default it is the color of the top left pixel], [Background crop colour tolerance, default value is " + FORMAT.format(AutoCropCommand.DEFAULT_COLOR_TOLERANCE) + "]"
     ));
 
     public static final Command<?> FLIP = addCommandToRegister(new FlipCommand(

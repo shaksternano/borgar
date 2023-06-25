@@ -8,12 +8,14 @@ import io.github.shaksternano.borgar.command.util.CommandParser;
 import io.github.shaksternano.borgar.io.NamedFile;
 import io.github.shaksternano.borgar.media.MediaUtil;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.function.Function;
 
 public class AutoCropCommand extends FileCommand {
 
@@ -48,13 +50,13 @@ public class AutoCropCommand extends FileCommand {
             event.getChannel(),
             (argument, defaultValue) -> "Color tolerance \"" + argument + "\" is not a whole number, choosing default value of " + defaultValue + "."
         );
-        Color cropColor = rgb < 0 ? new Color(0, 0, 0, 0) : new Color(rgb);
+        var cropColor = rgb < 0 ? null : new Color(rgb);
         return new NamedFile(
             MediaUtil.cropMedia(
                 file,
                 fileFormat,
                 "cropped",
-                image -> findAutoCropArea(image, cropColor, colorTolerance),
+                new CropAreaFinder(cropColor, colorTolerance),
                 maxFileSize
             ),
             "cropped",
@@ -62,24 +64,39 @@ public class AutoCropCommand extends FileCommand {
         );
     }
 
-    private static Rectangle findAutoCropArea(BufferedImage image, Color cropColor, int colorTolerance) {
-        int width = image.getWidth();
-        int height = image.getHeight();
-        PixelsExtractor extractor = rectangle -> ImmutableImage.wrapAwt(image).pixels(
-            (int) rectangle.getX(),
-            (int) rectangle.getY(),
-            (int) rectangle.getWidth(),
-            (int) rectangle.getHeight()
-        );
+    private static class CropAreaFinder implements Function<BufferedImage, Rectangle> {
 
-        int x1 = AutocropOps.scanright(cropColor, height, width, 0, extractor, colorTolerance);
-        int x2 = AutocropOps.scanleft(cropColor, height, width - 1, extractor, colorTolerance);
-        int y1 = AutocropOps.scandown(cropColor, height, width, 0, extractor, colorTolerance);
-        int y2 = AutocropOps.scanup(cropColor, width, height - 1, extractor, colorTolerance);
-        if (x1 == 0 && y1 == 0 && x2 == width - 1 && y2 == height - 1) {
-            return new Rectangle(0, 0, width, height);
-        } else {
-            return new Rectangle(x1, y1, x2 - x1, y2 - y1);
+        @Nullable
+        private Color cropColor;
+        private final int colorTolerance;
+
+        private CropAreaFinder(@Nullable Color cropColor, int colorTolerance) {
+            this.cropColor = cropColor;
+            this.colorTolerance = colorTolerance;
+        }
+
+        @Override
+        public Rectangle apply(BufferedImage image) {
+            var width = image.getWidth();
+            var height = image.getHeight();
+            PixelsExtractor extractor = rectangle -> ImmutableImage.wrapAwt(image).pixels(
+                (int) rectangle.getX(),
+                (int) rectangle.getY(),
+                (int) rectangle.getWidth(),
+                (int) rectangle.getHeight()
+            );
+            if (cropColor == null) {
+                cropColor = new Color(image.getRGB(0, 0), true);
+            }
+            var x1 = AutocropOps.scanright(cropColor, height, width, 0, extractor, colorTolerance);
+            var x2 = AutocropOps.scanleft(cropColor, height, width - 1, extractor, colorTolerance);
+            var y1 = AutocropOps.scandown(cropColor, height, width, 0, extractor, colorTolerance);
+            var y2 = AutocropOps.scanup(cropColor, width, height - 1, extractor, colorTolerance);
+            if (x1 == 0 && y1 == 0 && x2 == width - 1 && y2 == height - 1) {
+                return new Rectangle(0, 0, width, height);
+            } else {
+                return new Rectangle(x1, y1, x2 - x1, y2 - y1);
+            }
         }
     }
 }
