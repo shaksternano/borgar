@@ -3,25 +3,25 @@ package io.github.shaksternano.borgar.command;
 import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.borgar.command.util.CommandRegistry;
 import io.github.shaksternano.borgar.command.util.CommandResponse;
+import io.github.shaksternano.borgar.data.repository.TemplateRepository;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.utils.SplitUtil;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
-import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A command that displays the all registered commands.
  */
 public class HelpCommand extends BaseCommand<Void> {
 
-    /**
-     * The command list strings are cached here.
-     */
-    @Nullable
-    private static List<String> cachedHelpMessages = null;
+    private static final Map<Long, List<String>> cachedHelpMessages = new ConcurrentHashMap<>();
 
     /**
      * Creates a new command object.
@@ -44,29 +44,52 @@ public class HelpCommand extends BaseCommand<Void> {
      */
     @Override
     public CompletableFuture<CommandResponse<Void>> execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
-        return new CommandResponse<Void>(getHelpMessages()).asFuture();
+        var entityId = event.isFromGuild() ? event.getGuild().getIdLong() : event.getAuthor().getIdLong();
+        return getHelpMessages(entityId).thenApply(CommandResponse::new);
     }
 
     /**
      * Gets the messages to be displayed when this command is run.
      *
+     * @param entityId The ID of the guild the command was run in, or the ID of the user if the command was run in a DM.
      * @return The messages to be displayed when this command is run.
      */
-    public static List<MessageCreateData> getHelpMessages() {
-        if (cachedHelpMessages == null) {
-            cachedHelpMessages = createHelpMessages();
+    public static CompletableFuture<List<MessageCreateData>> getHelpMessages(long entityId) {
+        var cachedMessage = cachedHelpMessages.get(entityId);
+        if (cachedMessage != null) {
+            return CompletableFuture.completedFuture(cachedMessage
+                .stream()
+                .map(MessageCreateData::fromContent)
+                .toList()
+            );
         }
-        return cachedHelpMessages
-            .stream()
-            .map(MessageCreateData::fromContent)
-            .toList();
+        return getCommandInfos(entityId).thenApply(commandInfos -> {
+            var helpMessages = createHelpMessages(commandInfos);
+            cachedHelpMessages.put(entityId, helpMessages);
+            return helpMessages.stream()
+                .map(MessageCreateData::fromContent)
+                .toList();
+        });
     }
 
-    private static List<String> createHelpMessages() {
-        var commandDescriptions = CommandRegistry.getCommands()
+    private static CompletableFuture<List<CommandInfo>> getCommandInfos(long entityId) {
+        return TemplateRepository.readAllFuture(entityId).thenApply(templates -> {
+            List<CommandInfo> commandInfos = new ArrayList<>();
+            for (var command : CommandRegistry.getCommands()) {
+                commandInfos.add(new CommandInfo(command.nameWithPrefix(), command.description()));
+            }
+            for (var template : templates) {
+                commandInfos.add(new CommandInfo(Command.PREFIX + template.getCommandName(), template.getDescription()));
+            }
+            return commandInfos;
+        });
+    }
+
+    private static List<String> createHelpMessages(Collection<CommandInfo> commandInfo) {
+        var commandDescriptions = commandInfo
             .stream()
             .sorted()
-            .map(command -> "**" + command.nameWithPrefix() + "** - " + command.description() + "\n")
+            .map(command -> "**" + command.name + "** - " + command.description() + "\n")
             .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append)
             .toString();
         return SplitUtil.split(
@@ -77,5 +100,13 @@ public class HelpCommand extends BaseCommand<Void> {
             SplitUtil.Strategy.WHITESPACE,
             SplitUtil.Strategy.ANYWHERE
         );
+    }
+
+    private record CommandInfo(String name, String description) implements Comparable<CommandInfo> {
+
+        @Override
+        public int compareTo(CommandInfo o) {
+            return name.compareTo(o.name);
+        }
     }
 }

@@ -51,6 +51,36 @@ object TemplateRepository {
         val fillColor = integer("fill_color").nullable()
 
         override val primaryKey = PrimaryKey(commandName, entityId, name = "template_pk")
+
+        fun create(resultRow: ResultRow): CustomTemplateInfo {
+            return CustomTemplateInfo(
+                resultRow[commandName],
+                resultRow[entityId],
+
+                resultRow[description],
+                resultRow[mediaUrl],
+                resultRow[format],
+                resultRow[resultName],
+
+                resultRow[imageX],
+                resultRow[imageY],
+                resultRow[imageWidth],
+                resultRow[imageHeight],
+                resultRow[imagePosition],
+
+                resultRow[textX],
+                resultRow[textY],
+                resultRow[textWidth],
+                resultRow[textHeight],
+                resultRow[textPosition],
+                resultRow[textAlignment],
+                Font.decode(resultRow[textFont]),
+                Color(resultRow[textColorRgb]),
+
+                resultRow[isTemplateBackground],
+                resultRow[fillColor]?.let { Color(it) }
+            )
+        }
     }
 
     init {
@@ -99,35 +129,7 @@ object TemplateRepository {
                 expression or (TemplateTable.entityId eq id)
             }
             TemplateTable.commandName eq commandName and idEq
-        }.map {
-            CustomTemplateInfo(
-                it[this.commandName],
-                it[this.entityId],
-
-                it[description],
-                it[mediaUrl],
-                it[format],
-                it[resultName],
-
-                it[imageX],
-                it[imageY],
-                it[imageWidth],
-                it[imageHeight],
-                it[imagePosition],
-
-                it[textX],
-                it[textY],
-                it[textWidth],
-                it[textHeight],
-                it[textPosition],
-                it[textAlignment],
-                Font(it[textFont], Font.PLAIN, it[textMaxSize]),
-                Color(it[textColorRgb]),
-
-                it[isTemplateBackground],
-                it[fillColor]?.let(::Color),
-            )
-        }.singleOrNull()
+        }.map(TemplateTable::create).singleOrNull()
     }
 
     @JvmStatic
@@ -138,6 +140,16 @@ object TemplateRepository {
         vararg entityIds: Long
     ): CompletableFuture<Optional<CustomTemplateInfo>> = GlobalScope.future {
         Optional.ofNullable(read(commandName, entityId, *entityIds))
+    }
+
+    suspend fun readAll(entityId: Long): List<CustomTemplateInfo> = dbQuery {
+        select { TemplateTable.entityId eq entityId }.map(TemplateTable::create)
+    }
+
+    @JvmStatic
+    @OptIn(DelicateCoroutinesApi::class)
+    fun readAllFuture(entityId: Long): CompletableFuture<List<CustomTemplateInfo>> = GlobalScope.future {
+        readAll(entityId)
     }
 
     suspend fun exists(commandName: String, entityId: Long): Boolean = dbQuery {

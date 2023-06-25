@@ -10,6 +10,8 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
+
 /**
  * Listens for commands in Discord messages.
  */
@@ -23,18 +25,21 @@ public class CommandListener extends ListenerAdapter {
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
         if (event.getName().equals(Commands.HELP.name())) {
-            CompletableFutureUtil.forEachSequentiallyAsync(
-                HelpCommand.getHelpMessages(),
-                (response, index) -> {
-                    if (index == 0) {
-                        return event.reply(response)
-                            .submit();
-                    } else {
-                        return event.getChannel()
-                            .sendMessage(response)
-                            .submit();
+            var entityId = Objects.requireNonNullElseGet(event.getGuild(), event::getUser).getIdLong();
+            HelpCommand.getHelpMessages(entityId).thenAccept(responses ->
+                CompletableFutureUtil.forEachSequentiallyAsync(
+                    responses,
+                    (response, index) -> {
+                        if (index == 0) {
+                            return event.reply(response)
+                                .submit();
+                        } else {
+                            return event.getChannel()
+                                .sendMessage(response)
+                                .submit();
+                        }
                     }
-                }
+                )
             );
         }
     }
