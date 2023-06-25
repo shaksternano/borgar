@@ -320,7 +320,8 @@ public class MessageUtil {
     private static CompletableFuture<Optional<Message>> getLinkedMessage(String url, MessageChannel channel) {
         try {
             var uri = new URI(url);
-            if (uri.getHost().contains("discord.com")) {
+            var host = uri.getHost();
+            if (host != null && host.contains("discord.com")) {
                 var parts = url.split(Pattern.quote("/"));
                 if (parts.length >= 1) {
                     try {
