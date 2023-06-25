@@ -22,6 +22,7 @@ object DeleteTemplateCommand : KotlinCommand<Unit>(
             return CommandResponse("No template with the command name `$commandName` exists!")
         }
         TemplateRepository.delete(commandName, entityId)
+        HelpCommand.removeCachedMessage(entityId)
         return CommandResponse("Template `$commandName` deleted!")
     }
 

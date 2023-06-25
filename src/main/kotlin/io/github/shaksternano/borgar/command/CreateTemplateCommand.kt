@@ -60,6 +60,7 @@ object CreateTemplateCommand : KotlinCommand<Unit>(
             }
             val template = createTemplate(templateJson, commandName, entityId)
             TemplateRepository.create(template)
+            HelpCommand.removeCachedMessage(entityId)
             CommandResponse("Template created!")
         } catch (e: InvalidTemplateException) {
             CommandResponse("Invalid template file. ${e.message}")

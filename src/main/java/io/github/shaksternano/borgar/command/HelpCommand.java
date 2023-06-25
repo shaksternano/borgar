@@ -72,6 +72,10 @@ public class HelpCommand extends BaseCommand<Void> {
         });
     }
 
+    public static void removeCachedMessage(long entityId) {
+        cachedHelpMessages.remove(entityId);
+    }
+
     private static CompletableFuture<List<CommandInfo>> getCommandInfos(long entityId) {
         return TemplateRepository.readAllFuture(entityId).thenApply(templates -> {
             List<CommandInfo> commandInfos = new ArrayList<>();
