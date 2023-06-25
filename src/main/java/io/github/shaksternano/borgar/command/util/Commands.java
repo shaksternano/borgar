@@ -1,7 +1,7 @@
 package io.github.shaksternano.borgar.command.util;
 
 import io.github.shaksternano.borgar.command.*;
-import io.github.shaksternano.borgar.media.template.ResourceTemplateInfo;
+import io.github.shaksternano.borgar.media.template.ResourceTemplate;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -41,52 +41,52 @@ public class Commands {
         "Adds impact font text to a media file. Required arguments: [The text to be drawn. By default, the text is drawn at the top. To specify text drawn at the bottom, add \"-bottom\" before the text.]"
     ));
 
-    public static final Command<?> SONIC_SAYS = addCommandToRegister(new TemplateImageCommand(
+    public static final Command<?> SONIC_SAYS = addCommandToRegister(new TemplateCommand(
         "sonic",
         "Sonic says. Optional arguments: [What sonic says]",
-        ResourceTemplateInfo.SONIC_SAYS
+        ResourceTemplate.SONIC_SAYS
     ));
 
-    public static final Command<?> SOYJAK_POINTING = addCommandToRegister(new TemplateImageCommand(
+    public static final Command<?> SOYJAK_POINTING = addCommandToRegister(new TemplateCommand(
         "soy",
         "Soyjak pointing. Optional arguments: [What is being pointed at]",
-        ResourceTemplateInfo.SOYJAK_POINTING
+        ResourceTemplate.SOYJAK_POINTING
     ));
 
-    public static final Command<?> MUTA_SOY = addCommandToRegister(new TemplateImageCommand(
+    public static final Command<?> MUTA_SOY = addCommandToRegister(new TemplateCommand(
         "mutasoy",
         "Mutahar soyjak pointing. Optional arguments: [What is being pointed at]",
-        ResourceTemplateInfo.MUTA_SOY
+        ResourceTemplate.MUTA_SOY
     ));
 
-    public static final Command<?> WALMART_WANTED = addCommandToRegister(new TemplateImageCommand(
+    public static final Command<?> WALMART_WANTED = addCommandToRegister(new TemplateCommand(
         "wanted",
         "Walmart wanted. Optional arguments: [What is wanted]",
-        ResourceTemplateInfo.WALMART_WANTED
+        ResourceTemplate.WALMART_WANTED
     ));
 
-    public static final Command<?> OH_MY_GOODNESS_GRACIOUS = addCommandToRegister(new TemplateImageCommand(
+    public static final Command<?> OH_MY_GOODNESS_GRACIOUS = addCommandToRegister(new TemplateCommand(
         "omgg",
         "Oh my goodness gracious. Optional arguments: [What is wanted]",
-        ResourceTemplateInfo.OH_MY_GOODNESS_GRACIOUS
+        ResourceTemplate.OH_MY_GOODNESS_GRACIOUS
     ));
 
-    public static final Command<?> THINKING_BUBBLE = addCommandToRegister(new TemplateImageCommand(
+    public static final Command<?> THINKING_BUBBLE = addCommandToRegister(new TemplateCommand(
         "think",
         "Puts text or an image in a thinking bubble. Optional arguments: [Thinking bubble text]",
-        ResourceTemplateInfo.THINKING_BUBBLE
+        ResourceTemplate.THINKING_BUBBLE
     ));
 
-    public static final Command<?> LIVING_IN_1984 = addCommandToRegister(new TemplateImageCommand(
+    public static final Command<?> LIVING_IN_1984 = addCommandToRegister(new TemplateCommand(
         "1984",
         "Puts image into the 'living in 1984' meme. Optional arguments: [Speech bubble text]",
-        ResourceTemplateInfo.LIVING_IN_1984
+        ResourceTemplate.LIVING_IN_1984
     ));
 
-    public static final Command<?> WHO_DID_THIS = addCommandToRegister(new TemplateImageCommand(
+    public static final Command<?> WHO_DID_THIS = addCommandToRegister(new TemplateCommand(
         "wdt",
         "Puts image into the 'who did this' meme. Optional arguments: [meme text]",
-        ResourceTemplateInfo.WHO_DID_THIS
+        ResourceTemplate.WHO_DID_THIS
     ));
 
     public static final Command<?> CREATE_TEMPLATE = addCommandToRegister(CreateTemplateCommand.INSTANCE);

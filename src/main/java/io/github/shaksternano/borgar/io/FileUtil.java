@@ -2,7 +2,7 @@ package io.github.shaksternano.borgar.io;
 
 import io.github.shaksternano.borgar.Main;
 import io.github.shaksternano.borgar.media.ImageUtil;
-import io.github.shaksternano.borgar.media.template.ResourceTemplateInfo;
+import io.github.shaksternano.borgar.media.template.ResourceTemplate;
 import io.github.shaksternano.borgar.util.StringUtil;
 import io.github.shaksternano.borgar.util.tenor.TenorMediaType;
 import io.github.shaksternano.borgar.util.tenor.TenorUtil;
@@ -135,7 +135,7 @@ public class FileUtil {
         if (resourcePath == null || resourcePath.isBlank()) {
             throw new IllegalArgumentException("File path cannot be null or blank!");
         } else {
-            try (InputStream inputStream = ResourceTemplateInfo.class.getClassLoader().getResourceAsStream(getResourcePathInRootPackage(resourcePath))) {
+            try (InputStream inputStream = ResourceTemplate.class.getClassLoader().getResourceAsStream(getResourcePathInRootPackage(resourcePath))) {
                 if (inputStream == null) {
                     throw new FileNotFoundException("File path not found: " + resourcePath);
                 }

@@ -6,7 +6,7 @@ import io.github.shaksternano.borgar.media.graphics.OverlayData;
 import io.github.shaksternano.borgar.media.graphics.TextDrawData;
 import io.github.shaksternano.borgar.media.graphics.drawable.Drawable;
 import io.github.shaksternano.borgar.media.graphics.drawable.ParagraphCompositeDrawable;
-import io.github.shaksternano.borgar.media.template.TemplateInfo;
+import io.github.shaksternano.borgar.media.template.Template;
 import org.jetbrains.annotations.Nullable;
 
 import javax.imageio.ImageIO;
@@ -305,36 +305,36 @@ public class ImageUtil {
         BufferedImage image,
         List<String> words,
         Map<String, Drawable> nonTextParts,
-        TemplateInfo templateInfo
+        Template template
     ) {
         if (words.isEmpty()) {
             return Optional.empty();
         }
 
         var paragraph = new ParagraphCompositeDrawable.Builder(nonTextParts)
-            .addWords(templateInfo.getCustomTextDrawableFactory().orElse(null), words)
-            .build(templateInfo.getTextContentAlignment(), templateInfo.getTextContentWidth());
+            .addWords(template.getCustomTextDrawableFactory().orElse(null), words)
+            .build(template.getTextContentAlignment(), template.getTextContentWidth());
 
         var graphics = image.createGraphics();
 
-        var font = templateInfo.getFont();
+        var font = template.getFont();
         graphics.setFont(font);
         configureTextDrawQuality(graphics);
 
-        GraphicsUtil.fontFitWidth(templateInfo.getTextContentWidth(), paragraph, graphics);
-        var paragraphHeight = GraphicsUtil.fontFitHeight(templateInfo.getTextContentHeight(), paragraph, graphics);
+        GraphicsUtil.fontFitWidth(template.getTextContentWidth(), paragraph, graphics);
+        var paragraphHeight = GraphicsUtil.fontFitHeight(template.getTextContentHeight(), paragraph, graphics);
         var fontSize = graphics.getFont().getSize2D();
 
         graphics.dispose();
 
         var resizedFont = font.deriveFont(fontSize);
 
-        var containerCentreY = templateInfo.getTextContentY() + (templateInfo.getTextContentHeight() / 2);
+        var containerCentreY = template.getTextContentY() + (template.getTextContentHeight() / 2);
 
-        var paragraphX = templateInfo.getTextContentX();
-        var paragraphY = switch (templateInfo.getTextContentPosition()) {
-            case TOP -> templateInfo.getTextContentY();
-            case BOTTOM -> templateInfo.getTextContentY() + (templateInfo.getTextContentHeight() - paragraphHeight);
+        var paragraphX = template.getTextContentX();
+        var paragraphY = switch (template.getTextContentPosition()) {
+            case TOP -> template.getTextContentY();
+            case BOTTOM -> template.getTextContentY() + (template.getTextContentHeight() - paragraphHeight);
             default -> containerCentreY - (paragraphHeight / 2);
         };
 
@@ -345,13 +345,13 @@ public class ImageUtil {
         BufferedImage image,
         TextDrawData textDrawData,
         long timestamp,
-        TemplateInfo templateInfo
+        Template template
     ) throws IOException {
         var imageWithText = copySize(image);
         var graphics = imageWithText.createGraphics();
 
-        var contentClipOptional = templateInfo.getContentClip();
-        templateInfo.getFill().ifPresent(color -> {
+        var contentClipOptional = template.getContentClip();
+        template.getFill().ifPresent(color -> {
             graphics.setColor(color);
             contentClipOptional.ifPresentOrElse(
                 graphics::fill,
@@ -359,14 +359,14 @@ public class ImageUtil {
             );
         });
 
-        if (templateInfo.isBackground()) {
+        if (template.isBackground()) {
             graphics.drawImage(image, 0, 0, null);
         }
 
         var font = textDrawData.font();
         graphics.setFont(font);
         ImageUtil.configureTextDrawQuality(graphics);
-        graphics.setColor(templateInfo.getTextColor());
+        graphics.setColor(template.getTextColor());
 
         contentClipOptional.ifPresent(graphics::setClip);
 
@@ -379,7 +379,7 @@ public class ImageUtil {
             graphics.setClip(null);
         }
 
-        if (!templateInfo.isBackground()) {
+        if (!template.isBackground()) {
             graphics.drawImage(image, 0, 0, null);
         }
 

@@ -19,7 +19,7 @@ import java.io.UncheckedIOException;
 import java.util.Optional;
 import java.util.function.Function;
 
-public enum ResourceTemplateInfo implements TemplateInfo {
+public enum ResourceTemplate implements Template {
 
     SONIC_SAYS(
         "image/containerimage/sonic_says.png",
@@ -223,7 +223,7 @@ public enum ResourceTemplateInfo implements TemplateInfo {
     @Nullable
     private final Color fill;
 
-    ResourceTemplateInfo(
+    ResourceTemplate(
         String imagePath,
         String resultName,
         int imageContainerStartX,
@@ -273,7 +273,7 @@ public enum ResourceTemplateInfo implements TemplateInfo {
     }
 
     @SuppressWarnings("SameParameterValue")
-    ResourceTemplateInfo(
+    ResourceTemplate(
         String imagePath,
         String resultName,
         int contentContainerStartX,
@@ -436,14 +436,14 @@ public enum ResourceTemplateInfo implements TemplateInfo {
     }
 
     public static void validate() {
-        for (var containerImageInfo : ResourceTemplateInfo.values()) {
+        for (var containerImageInfo : ResourceTemplate.values()) {
             validateImage(containerImageInfo);
             validateFont(containerImageInfo);
             validateContentClip(containerImageInfo);
         }
     }
 
-    private static void validateImage(ResourceTemplateInfo containerImageInfo) {
+    private static void validateImage(ResourceTemplate containerImageInfo) {
         if (containerImageInfo.imagePath == null) {
             Main.getLogger().error("Image resource path in " + containerImageInfo.getClass().getSimpleName() + " \"" + containerImageInfo + "\" is null!");
         } else {
@@ -468,7 +468,7 @@ public enum ResourceTemplateInfo implements TemplateInfo {
         Main.shutdown(1);
     }
 
-    private static void validateFont(ResourceTemplateInfo containerImageInfo) {
+    private static void validateFont(ResourceTemplate containerImageInfo) {
         if (containerImageInfo.fontName == null) {
             Main.getLogger().error("Font name in " + containerImageInfo.getClass().getSimpleName() + " \"" + containerImageInfo + "\" is null!");
         } else {
@@ -483,7 +483,7 @@ public enum ResourceTemplateInfo implements TemplateInfo {
         Main.shutdown(1);
     }
 
-    private static void validateContentClip(ResourceTemplateInfo containerImageInfo) {
+    private static void validateContentClip(ResourceTemplate containerImageInfo) {
         if (containerImageInfo.contentClipShapeFilePath != null) {
             try {
                 FileUtil.validateResourcePathInRootPackage(containerImageInfo.contentClipShapeFilePath);

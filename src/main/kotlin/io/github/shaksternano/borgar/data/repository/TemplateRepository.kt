@@ -3,7 +3,7 @@ package io.github.shaksternano.borgar.data.repository
 import io.github.shaksternano.borgar.data.databaseConnection
 import io.github.shaksternano.borgar.media.graphics.Position
 import io.github.shaksternano.borgar.media.graphics.TextAlignment
-import io.github.shaksternano.borgar.media.template.CustomTemplateInfo
+import io.github.shaksternano.borgar.media.template.CustomTemplate
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -52,8 +52,8 @@ object TemplateRepository {
 
         override val primaryKey = PrimaryKey(commandName, entityId, name = "template_pk")
 
-        fun create(resultRow: ResultRow): CustomTemplateInfo {
-            return CustomTemplateInfo(
+        fun create(resultRow: ResultRow): CustomTemplate {
+            return CustomTemplate(
                 resultRow[commandName],
                 resultRow[entityId],
 
@@ -92,7 +92,7 @@ object TemplateRepository {
     private suspend fun <T> dbQuery(block: suspend TemplateTable.() -> T): T =
         newSuspendedTransaction(Dispatchers.IO) { block(TemplateTable) }
 
-    suspend fun create(template: CustomTemplateInfo): Unit = dbQuery {
+    suspend fun create(template: CustomTemplate): Unit = dbQuery {
         insert {
             it[commandName] = template.commandName
             it[entityId] = template.entityId
@@ -123,7 +123,7 @@ object TemplateRepository {
         }
     }
 
-    suspend fun read(commandName: String, entityId: Long, vararg entityIds: Long): CustomTemplateInfo? = dbQuery {
+    suspend fun read(commandName: String, entityId: Long, vararg entityIds: Long): CustomTemplate? = dbQuery {
         select {
             val idEq = entityIds.fold(TemplateTable.entityId eq entityId) { expression, id ->
                 expression or (TemplateTable.entityId eq id)
@@ -138,17 +138,17 @@ object TemplateRepository {
         commandName: String,
         entityId: Long,
         vararg entityIds: Long
-    ): CompletableFuture<Optional<CustomTemplateInfo>> = GlobalScope.future {
+    ): CompletableFuture<Optional<CustomTemplate>> = GlobalScope.future {
         Optional.ofNullable(read(commandName, entityId, *entityIds))
     }
 
-    suspend fun readAll(entityId: Long): List<CustomTemplateInfo> = dbQuery {
+    suspend fun readAll(entityId: Long): List<CustomTemplate> = dbQuery {
         select { TemplateTable.entityId eq entityId }.map(TemplateTable::create)
     }
 
     @JvmStatic
     @OptIn(DelicateCoroutinesApi::class)
-    fun readAllFuture(entityId: Long): CompletableFuture<List<CustomTemplateInfo>> = GlobalScope.future {
+    fun readAllFuture(entityId: Long): CompletableFuture<List<CustomTemplate>> = GlobalScope.future {
         readAll(entityId)
     }
 

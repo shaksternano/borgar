@@ -11,7 +11,7 @@ import io.github.shaksternano.borgar.media.graphics.drawable.Drawable;
 import io.github.shaksternano.borgar.media.io.MediaReaders;
 import io.github.shaksternano.borgar.media.io.imageprocessor.DualImageProcessor;
 import io.github.shaksternano.borgar.media.io.imageprocessor.SingleImageProcessor;
-import io.github.shaksternano.borgar.media.template.TemplateInfo;
+import io.github.shaksternano.borgar.media.template.Template;
 import io.github.shaksternano.borgar.util.MessageUtil;
 import io.github.shaksternano.borgar.util.MiscUtil;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -24,9 +24,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-public class TemplateImageCommand extends OptionalFileInputFileCommand {
+public class TemplateCommand extends OptionalFileInputFileCommand {
 
-    private final TemplateInfo templateInfo;
+    private final Template template;
 
     /**
      * Creates a new command object.
@@ -35,17 +35,17 @@ public class TemplateImageCommand extends OptionalFileInputFileCommand {
      *                    followed by this name, the command will be executed.
      * @param description The description of the command. This is displayed in the help command.
      */
-    public TemplateImageCommand(String name, String description, TemplateInfo templateInfo) {
+    public TemplateCommand(String name, String description, Template template) {
         super(name, description);
-        this.templateInfo = templateInfo;
+        this.template = template;
     }
 
     @Override
     protected NamedFile modifyFile(File file, String fileName, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event, long maxFileSize) throws IOException {
         var contentImageReader = MediaReaders.createImageReader(file, fileFormat);
         var contentAudioReader = MediaReaders.createAudioReader(file, fileFormat);
-        var templateImageReader = templateInfo.getImageReader();
-        var processor = new ImageContentProcessor(templateInfo);
+        var templateImageReader = template.getImageReader();
+        var processor = new ImageContentProcessor(template);
         String outputFormat;
         if (contentImageReader.isAnimated() || (!contentImageReader.isAnimated() && !templateImageReader.isAnimated())) {
             outputFormat = contentImageReader.format();
@@ -58,23 +58,23 @@ public class TemplateImageCommand extends OptionalFileInputFileCommand {
                 contentAudioReader,
                 templateImageReader,
                 outputFormat,
-                templateInfo.getResultName(),
+                template.getResultName(),
                 processor,
                 maxFileSize
             ),
-            templateInfo.getResultName(),
+            template.getResultName(),
             outputFormat
         );
     }
 
     @Override
     protected NamedFile createFile(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event, long maxFileSize) throws IOException {
-        var imageReader = templateInfo.getImageReader();
-        var audioReader = templateInfo.getAudioReader();
+        var imageReader = template.getImageReader();
+        var audioReader = template.getAudioReader();
         var nonTextParts = MessageUtil.getEmojiImages(event.getMessage());
-        var processor = new TextContentProcessor(arguments, nonTextParts, templateInfo);
+        var processor = new TextContentProcessor(arguments, nonTextParts, template);
         var outputFormat = imageReader.format();
-        var resultName = templateInfo.getResultName();
+        var resultName = template.getResultName();
         return new NamedFile(
             MediaUtil.processMedia(
                 imageReader,
@@ -84,13 +84,13 @@ public class TemplateImageCommand extends OptionalFileInputFileCommand {
                 processor,
                 maxFileSize
             ),
-            templateInfo.getResultName(),
+            template.getResultName(),
             outputFormat
         );
     }
 
     private record ImageContentProcessor(
-        TemplateInfo templateInfo
+        Template template
     ) implements DualImageProcessor<ImageContentData> {
 
         @Override
@@ -112,23 +112,23 @@ public class TemplateImageCommand extends OptionalFileInputFileCommand {
 
         @Override
         public ImageContentData constantData(BufferedImage contentImage, BufferedImage templateImage) throws IOException {
-            var width = templateInfo.getImageContentWidth();
-            var height = templateInfo.getImageContentHeight();
+            var width = template.getImageContentWidth();
+            var height = template.getImageContentHeight();
 
             var resizedContentImage = ImageUtil.fit(contentImage, width, height);
 
             int resizedWidth = resizedContentImage.getWidth();
             int resizedHeight = resizedContentImage.getHeight();
 
-            int contentImageX = templateInfo.getImageContentX() + ((templateInfo.getImageContentWidth() - resizedWidth) / 2);
-            int contentImageY = switch (templateInfo.getImageContentPosition()) {
-                case TOP -> templateInfo.getImageContentY();
-                case BOTTOM -> templateInfo.getImageContentY() + (templateInfo.getImageContentHeight() - resizedHeight);
+            int contentImageX = template.getImageContentX() + ((template.getImageContentWidth() - resizedWidth) / 2);
+            int contentImageY = switch (template.getImageContentPosition()) {
+                case TOP -> template.getImageContentY();
+                case BOTTOM -> template.getImageContentY() + (template.getImageContentHeight() - resizedHeight);
                 default ->
-                    templateInfo.getImageContentY() + ((templateInfo.getImageContentHeight() - resizedHeight) / 2);
+                    template.getImageContentY() + ((template.getImageContentHeight() - resizedHeight) / 2);
             };
 
-            var fill = templateInfo.getFill().orElseGet(() -> resizedContentImage.getColorModel().hasAlpha()
+            var fill = template.getFill().orElseGet(() -> resizedContentImage.getColorModel().hasAlpha()
                 ? null
                 : Color.WHITE
             );
@@ -148,8 +148,8 @@ public class TemplateImageCommand extends OptionalFileInputFileCommand {
                 contentImageY,
                 width,
                 height,
-                templateInfo.isBackground(),
-                templateInfo.getContentClip().orElse(null),
+                template.isBackground(),
+                template.getContentClip().orElse(null),
                 fill
             );
         }
@@ -170,7 +170,7 @@ public class TemplateImageCommand extends OptionalFileInputFileCommand {
     private record TextContentProcessor(
         List<String> words,
         Map<String, Drawable> nonTextParts,
-        TemplateInfo templateInfo
+        Template template
     ) implements SingleImageProcessor<TextDrawData> {
 
         @Override
@@ -182,14 +182,14 @@ public class TemplateImageCommand extends OptionalFileInputFileCommand {
                 frame.content(),
                 constantData,
                 frame.timestamp(),
-                templateInfo
+                template
             );
         }
 
         @Nullable
         @Override
         public TextDrawData constantData(BufferedImage image) {
-            return ImageUtil.getTextDrawData(image, words, nonTextParts, templateInfo).orElse(null);
+            return ImageUtil.getTextDrawData(image, words, nonTextParts, template).orElse(null);
         }
 
         @Override

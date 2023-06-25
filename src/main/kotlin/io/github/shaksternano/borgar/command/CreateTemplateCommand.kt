@@ -11,7 +11,7 @@ import io.github.shaksternano.borgar.io.FileUtil
 import io.github.shaksternano.borgar.media.ImageUtil
 import io.github.shaksternano.borgar.media.graphics.Position
 import io.github.shaksternano.borgar.media.graphics.TextAlignment
-import io.github.shaksternano.borgar.media.template.CustomTemplateInfo
+import io.github.shaksternano.borgar.media.template.CustomTemplate
 import io.github.shaksternano.borgar.util.Fonts
 import io.github.shaksternano.borgar.util.MessageUtil
 import io.github.shaksternano.borgar.util.StringUtil
@@ -80,7 +80,7 @@ object CreateTemplateCommand : KotlinCommand<Unit>(
         templateJson: JsonObject,
         commandName: String,
         entityId: Long
-    ): CustomTemplateInfo {
+    ): CustomTemplate {
         val description = getString(templateJson, "description") {
             "A custom template."
         }
@@ -165,7 +165,7 @@ object CreateTemplateCommand : KotlinCommand<Unit>(
         }
         val fillColor = runCatching { getColor(templateJson, "fill_color") }.getOrDefault(null)
 
-        return CustomTemplateInfo(
+        return CustomTemplate(
             commandName,
             entityId,
 

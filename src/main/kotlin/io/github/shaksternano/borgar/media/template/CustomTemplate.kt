@@ -15,7 +15,7 @@ import java.net.URL
 import java.util.*
 import java.util.function.Function
 
-class CustomTemplateInfo(
+class CustomTemplate(
     val commandName: String,
     val entityId: Long,
 
@@ -41,7 +41,7 @@ class CustomTemplateInfo(
 
     private val isBackground: Boolean,
     private val fill: Color?
-) : TemplateInfo {
+) : Template {
 
     override fun getImageReader(): MediaReader<ImageFrame> =
         MediaReaders.createImageReader(inputStream(), format)

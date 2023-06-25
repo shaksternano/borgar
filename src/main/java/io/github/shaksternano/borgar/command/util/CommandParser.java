@@ -5,11 +5,11 @@ import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.Multimaps;
 import io.github.shaksternano.borgar.Main;
 import io.github.shaksternano.borgar.command.Command;
-import io.github.shaksternano.borgar.command.TemplateImageCommand;
+import io.github.shaksternano.borgar.command.TemplateCommand;
 import io.github.shaksternano.borgar.data.repository.TemplateRepository;
 import io.github.shaksternano.borgar.exception.InvalidArgumentException;
 import io.github.shaksternano.borgar.exception.MissingArgumentException;
-import io.github.shaksternano.borgar.media.template.CustomTemplateInfo;
+import io.github.shaksternano.borgar.media.template.CustomTemplate;
 import io.github.shaksternano.borgar.util.CompletableFutureUtil;
 import io.github.shaksternano.borgar.util.DiscordUtil;
 import io.github.shaksternano.borgar.util.MiscUtil;
@@ -50,7 +50,7 @@ public class CommandParser {
                 } else {
                     commandOptionalFuture = getCustomTemplate(commandName, event)
                         .thenApply(templateOptional -> templateOptional.map(template ->
-                            new TemplateImageCommand(
+                            new TemplateCommand(
                                 template.getCommandName(),
                                 template.getDescription(),
                                 template
@@ -64,7 +64,7 @@ public class CommandParser {
         });
     }
 
-    private static CompletableFuture<Optional<CustomTemplateInfo>> getCustomTemplate(String commandName, MessageReceivedEvent event) {
+    private static CompletableFuture<Optional<CustomTemplate>> getCustomTemplate(String commandName, MessageReceivedEvent event) {
         var commandNameParts = commandName.split(":", 2);
         var templateCommandName = commandNameParts[0];
         if (commandNameParts.length == 1) {
