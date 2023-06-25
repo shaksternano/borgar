@@ -58,8 +58,8 @@ object CreateTemplateCommand : KotlinCommand<Unit>(
             if (TemplateRepository.exists(commandName, entityId)) {
                 return CommandResponse("A template with the command name `$commandName` already exists!")
             }
-            val template = createTemplate(templateJson, commandName)
-            TemplateRepository.create(template, commandName, entityId)
+            val template = createTemplate(templateJson, commandName, entityId)
+            TemplateRepository.create(template)
             CommandResponse("Template created!")
         } catch (e: InvalidTemplateException) {
             CommandResponse("Invalid template file. ${e.message}")
@@ -76,7 +76,11 @@ object CreateTemplateCommand : KotlinCommand<Unit>(
         throw InvalidTemplateException("Invalid JSON!", it)
     }
 
-    private suspend fun createTemplate(templateJson: JsonObject, commandName: String): CustomTemplateInfo {
+    private suspend fun createTemplate(
+        templateJson: JsonObject,
+        commandName: String,
+        entityId: Long
+    ): CustomTemplateInfo {
         val description = getString(templateJson, "description") {
             "A custom template."
         }
@@ -157,11 +161,14 @@ object CreateTemplateCommand : KotlinCommand<Unit>(
         }
 
         val isBackground = getBoolean(templateJson, "is_background") {
-            false
+            true
         }
         val fillColor = runCatching { getColor(templateJson, "fill_color") }.getOrDefault(null)
 
         return CustomTemplateInfo(
+            commandName,
+            entityId,
+
             description,
             mediaUrl,
             format,
@@ -286,7 +293,12 @@ object CreateTemplateCommand : KotlinCommand<Unit>(
 
     private fun getColor(json: JsonObject, key: String, default: (() -> Color)? = null): Color {
         return getAs(json, key, {
-            Color(it.asInt)
+            val rgb = try {
+                it.asInt
+            } catch (e: Exception) {
+                Integer.decode(it.asString)
+            }
+            Color(rgb)
         }, default)
     }
 

@@ -16,6 +16,9 @@ import java.util.*
 import java.util.function.Function
 
 class CustomTemplateInfo(
+    val commandName: String,
+    val entityId: Long,
+
     val description: String,
     val mediaUrl: String,
     private val format: String,

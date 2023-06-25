@@ -4,21 +4,28 @@ import io.github.shaksternano.borgar.data.databaseConnection
 import io.github.shaksternano.borgar.media.graphics.Position
 import io.github.shaksternano.borgar.media.graphics.TextAlignment
 import io.github.shaksternano.borgar.media.template.CustomTemplateInfo
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.future.future
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.awt.Color
 import java.awt.Font
+import java.util.*
+import java.util.concurrent.CompletableFuture
 import kotlin.jvm.optionals.getOrNull
 
 object TemplateRepository {
 
     private object TemplateTable : Table(name = "template") {
         val commandName = varchar("command_name", 100)
+
         // Either a guild ID or a user ID (for DMs)
         val entityId = long("entity_id")
+
         val description = varchar("description", 1000)
         val mediaUrl = varchar("media_url", 2000)
         val format = varchar("format", 100)
@@ -55,17 +62,18 @@ object TemplateRepository {
     private suspend fun <T> dbQuery(block: suspend TemplateTable.() -> T): T =
         newSuspendedTransaction(Dispatchers.IO) { block(TemplateTable) }
 
-    suspend fun create(template: CustomTemplateInfo, commandName: String, entityId: Long): Unit = dbQuery {
+    suspend fun create(template: CustomTemplateInfo): Unit = dbQuery {
         insert {
-            it[this.commandName] = commandName
+            it[commandName] = template.commandName
+            it[entityId] = template.entityId
+
             it[description] = template.description
-            it[this.entityId] = entityId
             it[mediaUrl] = template.mediaUrl
             it[format] = template.format
             it[resultName] = template.resultName
 
             it[imageX] = template.imageContentX
-            it[imageY] = template.imageContentX
+            it[imageY] = template.imageContentY
             it[imageWidth] = template.imageContentWidth
             it[imageHeight] = template.imageContentHeight
             it[imagePosition] = template.imageContentPosition
@@ -85,34 +93,51 @@ object TemplateRepository {
         }
     }
 
-    suspend fun read(commandName: String, entityId: Long): CustomTemplateInfo? = dbQuery {
-        select { (TemplateTable.commandName eq commandName) and (TemplateTable.entityId eq entityId) }
-            .map {
-                CustomTemplateInfo(
-                    it[description],
-                    it[mediaUrl],
-                    it[format],
-                    it[resultName],
+    suspend fun read(commandName: String, entityId: Long, vararg entityIds: Long): CustomTemplateInfo? = dbQuery {
+        select {
+            val idEq = entityIds.fold(TemplateTable.entityId eq entityId) { expression, id ->
+                expression or (TemplateTable.entityId eq id)
+            }
+            TemplateTable.commandName eq commandName and idEq
+        }.map {
+            CustomTemplateInfo(
+                it[this.commandName],
+                it[this.entityId],
 
-                    it[imageX],
-                    it[imageY],
-                    it[imageWidth],
-                    it[imageHeight],
-                    it[imagePosition],
+                it[description],
+                it[mediaUrl],
+                it[format],
+                it[resultName],
 
-                    it[textX],
-                    it[textY],
-                    it[textWidth],
-                    it[textHeight],
-                    it[textPosition],
-                    it[textAlignment],
-                    Font(it[textFont], Font.PLAIN, it[textMaxSize]),
-                    Color(it[textColorRgb]),
+                it[imageX],
+                it[imageY],
+                it[imageWidth],
+                it[imageHeight],
+                it[imagePosition],
 
-                    it[isTemplateBackground],
-                    it[fillColor]?.let(::Color),
-                )
-            }.singleOrNull()
+                it[textX],
+                it[textY],
+                it[textWidth],
+                it[textHeight],
+                it[textPosition],
+                it[textAlignment],
+                Font(it[textFont], Font.PLAIN, it[textMaxSize]),
+                Color(it[textColorRgb]),
+
+                it[isTemplateBackground],
+                it[fillColor]?.let(::Color),
+            )
+        }.singleOrNull()
+    }
+
+    @JvmStatic
+    @OptIn(DelicateCoroutinesApi::class)
+    fun readFuture(
+        commandName: String,
+        entityId: Long,
+        vararg entityIds: Long
+    ): CompletableFuture<Optional<CustomTemplateInfo>> = GlobalScope.future {
+        Optional.ofNullable(read(commandName, entityId, *entityIds))
     }
 
     suspend fun exists(commandName: String, entityId: Long): Boolean = dbQuery {

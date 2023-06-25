@@ -17,7 +17,7 @@ object DeleteTemplateCommand : KotlinCommand<Unit>(
         event: MessageReceivedEvent
     ): CommandResponse<Unit> {
         val commandName = arguments.firstOrNull() ?: return CommandResponse("No template name provided!")
-        val guildId = if (event.isFromGuild) event.guild.idLong else event.channel.idLong
+        val guildId = if (event.isFromGuild) event.guild.idLong else event.author.idLong
         if (!TemplateRepository.exists(commandName, guildId)) {
             return CommandResponse("No template with the command name `$commandName` exists!")
         }

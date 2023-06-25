@@ -5,14 +5,18 @@ import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.Multimaps;
 import io.github.shaksternano.borgar.Main;
 import io.github.shaksternano.borgar.command.Command;
+import io.github.shaksternano.borgar.command.TemplateImageCommand;
+import io.github.shaksternano.borgar.data.repository.TemplateRepository;
 import io.github.shaksternano.borgar.exception.InvalidArgumentException;
 import io.github.shaksternano.borgar.exception.MissingArgumentException;
+import io.github.shaksternano.borgar.media.template.CustomTemplateInfo;
 import io.github.shaksternano.borgar.util.CompletableFutureUtil;
 import io.github.shaksternano.borgar.util.DiscordUtil;
 import io.github.shaksternano.borgar.util.MiscUtil;
 import io.github.shaksternano.borgar.util.StringUtil;
 import io.github.shaksternano.borgar.util.function.FloatPredicate;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.PermissionException;
@@ -20,6 +24,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.text.DecimalFormat;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
@@ -37,10 +42,61 @@ public class CommandParser {
         DiscordUtil.getContentStrippedKeepEmotes(event.getMessage()).thenAccept(stringMessage -> {
             var commandParts = parseCommandParts(stringMessage.trim());
             if (commandParts.size() > 0) {
-                CommandRegistry.getCommand(commandParts.get(0))
-                    .ifPresent(command -> handleCommand(command, commandParts, event));
+                CompletableFuture<Optional<Command<?>>> commandOptionalFuture;
+                var commandName = commandParts.get(0);
+                var commandOptional = CommandRegistry.getCommand(commandName);
+                if (commandOptional.isPresent()) {
+                    commandOptionalFuture = CompletableFuture.completedFuture(commandOptional);
+                } else {
+                    commandOptionalFuture = getCustomTemplate(commandName, event)
+                        .thenApply(templateOptional -> templateOptional.map(template ->
+                            new TemplateImageCommand(
+                                template.getCommandName(),
+                                template.getDescription(),
+                                template
+                            )
+                        ));
+                }
+                commandOptionalFuture.thenAccept(commandOptional1 ->
+                    commandOptional1.ifPresent(command -> handleCommand(command, commandParts, event))
+                );
             }
         });
+    }
+
+    private static CompletableFuture<Optional<CustomTemplateInfo>> getCustomTemplate(String commandName, MessageReceivedEvent event) {
+        var commandNameParts = commandName.split(":", 2);
+        var templateCommandName = commandNameParts[0];
+        if (commandNameParts.length == 1) {
+            var entityId = event.isFromGuild() ? event.getGuild().getIdLong()
+                : event.getAuthor().getIdLong();
+            return TemplateRepository.readFuture(templateCommandName, entityId)
+                .thenCompose(templateOptional -> {
+                    if (templateOptional.isPresent()) {
+                        return CompletableFuture.completedFuture(templateOptional);
+                    } else {
+                        var mutualGuildIds = event.getJDA()
+                            .getMutualGuilds(event.getAuthor())
+                            .stream()
+                            .mapToLong(ISnowflake::getIdLong)
+                            .toArray();
+                        return TemplateRepository.readFuture(
+                            templateCommandName,
+                            event.getAuthor().getIdLong(),
+                            mutualGuildIds
+                        );
+                    }
+                });
+        } else {
+            var entityIdString = commandNameParts[1];
+            long entityId;
+            try {
+                entityId = Long.parseLong(entityIdString);
+            } catch (NumberFormatException e) {
+                return CompletableFuture.completedFuture(Optional.empty());
+            }
+            return TemplateRepository.readFuture(templateCommandName, entityId);
+        }
     }
 
     private static <T> void handleCommand(Command<T> command, List<String> commandParts, MessageReceivedEvent event) {
