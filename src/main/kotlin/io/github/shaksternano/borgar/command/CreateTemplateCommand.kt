@@ -59,8 +59,7 @@ object CreateTemplateCommand : KotlinCommand<Unit>(
                 return CommandResponse("A template with the command name `$commandName` already exists!")
             }
             val template = createTemplate(templateJson, commandName)
-            val mediaUrl = template.mediaUrl
-            TemplateRepository.create(template, commandName, mediaUrl, entityId)
+            TemplateRepository.create(template, commandName, entityId)
             CommandResponse("Template created!")
         } catch (e: InvalidTemplateException) {
             CommandResponse("Invalid template file. ${e.message}")
@@ -78,6 +77,9 @@ object CreateTemplateCommand : KotlinCommand<Unit>(
     }
 
     private suspend fun createTemplate(templateJson: JsonObject, commandName: String): CustomTemplateInfo {
+        val description = getString(templateJson, "description") {
+            "A custom template."
+        }
         val mediaUrl = getString(templateJson, "media_url")
         if (!isUrlValid(mediaUrl)) {
             throw InvalidTemplateException("Invalid media URL!")
@@ -160,6 +162,7 @@ object CreateTemplateCommand : KotlinCommand<Unit>(
         val fillColor = runCatching { getColor(templateJson, "fill_color") }.getOrDefault(null)
 
         return CustomTemplateInfo(
+            description,
             mediaUrl,
             format,
             resultName,

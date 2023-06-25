@@ -4,7 +4,6 @@ import io.github.shaksternano.borgar.data.databaseConnection
 import io.github.shaksternano.borgar.media.graphics.Position
 import io.github.shaksternano.borgar.media.graphics.TextAlignment
 import io.github.shaksternano.borgar.media.template.CustomTemplateInfo
-import io.github.shaksternano.borgar.media.template.TemplateInfo
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -12,11 +11,13 @@ import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransacti
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.awt.Color
 import java.awt.Font
+import kotlin.jvm.optionals.getOrNull
 
 object TemplateRepository {
 
     private object TemplateTable : Table(name = "template") {
         val commandName = varchar("command_name", 100)
+        val description = varchar("description", 1000)
 
         // Either a guild ID or a user ID (for DMs)
         val entityId = long("entity_id")
@@ -55,11 +56,12 @@ object TemplateRepository {
     private suspend fun <T> dbQuery(block: suspend TemplateTable.() -> T): T =
         newSuspendedTransaction(Dispatchers.IO) { block(TemplateTable) }
 
-    suspend fun create(template: TemplateInfo, commandName: String, mediaUrl: String, entityId: Long): Unit = dbQuery {
+    suspend fun create(template: CustomTemplateInfo, commandName: String, entityId: Long): Unit = dbQuery {
         insert {
             it[this.commandName] = commandName
+            it[description] = template.description
             it[this.entityId] = entityId
-            it[this.mediaUrl] = mediaUrl
+            it[mediaUrl] = template.mediaUrl
             it[format] = template.format
             it[resultName] = template.resultName
 
@@ -80,16 +82,16 @@ object TemplateRepository {
             it[textMaxSize] = template.font.size
 
             it[isTemplateBackground] = template.isBackground
-            it[fillColor] = template.fill.orElse(null)?.rgb
+            it[fillColor] = template.fill.getOrNull()?.rgb
         }
     }
 
-    suspend fun read(commandName: String, entityId: Long): TemplateInfo? = dbQuery {
+    suspend fun read(commandName: String, entityId: Long): CustomTemplateInfo? = dbQuery {
         select { (TemplateTable.commandName eq commandName) and (TemplateTable.entityId eq entityId) }
             .map {
-                val mediaUrl = it[mediaUrl]
                 CustomTemplateInfo(
-                    mediaUrl,
+                    it[description],
+                    it[mediaUrl],
                     it[format],
                     it[resultName],
 
