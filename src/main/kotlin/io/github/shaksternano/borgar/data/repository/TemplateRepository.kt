@@ -17,10 +17,9 @@ object TemplateRepository {
 
     private object TemplateTable : Table(name = "template") {
         val commandName = varchar("command_name", 100)
-        val description = varchar("description", 1000)
-
         // Either a guild ID or a user ID (for DMs)
         val entityId = long("entity_id")
+        val description = varchar("description", 1000)
         val mediaUrl = varchar("media_url", 2000)
         val format = varchar("format", 100)
         val resultName = varchar("result_name", 100)
