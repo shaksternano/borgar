@@ -16,7 +16,6 @@ import io.github.shaksternano.borgar.util.MiscUtil;
 import io.github.shaksternano.borgar.util.StringUtil;
 import io.github.shaksternano.borgar.util.function.FloatPredicate;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.PermissionException;
@@ -70,23 +69,7 @@ public class CommandParser {
         if (commandNameParts.length == 1) {
             var entityId = event.isFromGuild() ? event.getGuild().getIdLong()
                 : event.getAuthor().getIdLong();
-            return TemplateRepository.readFuture(templateCommandName, entityId)
-                .thenCompose(templateOptional -> {
-                    if (templateOptional.isPresent()) {
-                        return CompletableFuture.completedFuture(templateOptional);
-                    } else {
-                        var mutualGuildIds = event.getJDA()
-                            .getMutualGuilds(event.getAuthor())
-                            .stream()
-                            .mapToLong(ISnowflake::getIdLong)
-                            .toArray();
-                        return TemplateRepository.readFuture(
-                            templateCommandName,
-                            event.getAuthor().getIdLong(),
-                            mutualGuildIds
-                        );
-                    }
-                });
+            return TemplateRepository.readFuture(templateCommandName, entityId);
         } else {
             var entityIdString = commandNameParts[1];
             long entityId;
@@ -95,7 +78,18 @@ public class CommandParser {
             } catch (NumberFormatException e) {
                 return CompletableFuture.completedFuture(Optional.empty());
             }
-            return TemplateRepository.readFuture(templateCommandName, entityId);
+            if (entityId == event.getAuthor().getIdLong()) {
+                return TemplateRepository.readFuture(templateCommandName, entityId);
+            } else {
+                var guild = event.getJDA().getGuildById(entityId);
+                if (guild == null) {
+                    return CompletableFuture.completedFuture(Optional.empty());
+                }
+                return guild.retrieveMember(event.getAuthor())
+                    .submit()
+                    .thenCompose(member -> TemplateRepository.readFuture(templateCommandName, entityId))
+                    .exceptionally(throwable -> Optional.empty());
+            }
         }
     }
 

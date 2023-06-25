@@ -126,12 +126,9 @@ object TemplateRepository {
         }
     }
 
-    suspend fun read(commandName: String, entityId: Long, vararg entityIds: Long): CustomTemplate? = dbQuery {
+    suspend fun read(commandName: String, entityId: Long): CustomTemplate? = dbQuery {
         select {
-            val idEq = entityIds.fold(TemplateTable.entityId eq entityId) { expression, id ->
-                expression or (TemplateTable.entityId eq id)
-            }
-            TemplateTable.commandName eq commandName and idEq
+            TemplateTable.commandName eq commandName and (TemplateTable.entityId eq entityId)
         }.map(TemplateTable::create).singleOrNull()
     }
 
@@ -140,9 +137,8 @@ object TemplateRepository {
     fun readFuture(
         commandName: String,
         entityId: Long,
-        vararg entityIds: Long
     ): CompletableFuture<Optional<CustomTemplate>> = GlobalScope.future {
-        Optional.ofNullable(read(commandName, entityId, *entityIds))
+        Optional.ofNullable(read(commandName, entityId))
     }
 
     suspend fun readAll(entityId: Long): List<CustomTemplate> = dbQuery {
