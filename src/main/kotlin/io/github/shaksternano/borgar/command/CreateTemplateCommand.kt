@@ -97,7 +97,7 @@ object CreateTemplateCommand : KotlinCommand<Unit>(
 
         val imageEndY = getPositiveInt(templateJson, "image.end.y")
 
-        val imagePadding = getPositiveInt(templateJson, "image.padding") {
+        val imagePadding = getPositiveOrZeroInt(templateJson, "image.padding") {
             0
         }
         checkValidPadding(imageStartX, "image.start.x", imageEndX, "image.end.x", imagePadding, "image.padding")
@@ -127,7 +127,7 @@ object CreateTemplateCommand : KotlinCommand<Unit>(
             imageEndY
         }
 
-        val textPadding = getPositiveInt(templateJson, "text.padding") {
+        val textPadding = getPositiveOrZeroInt(templateJson, "text.padding") {
             imagePadding
         }
         checkValidPadding(textStartX, "text.start.x", textEndX, "text.end.x", textPadding, "text.padding")
@@ -242,8 +242,16 @@ object CreateTemplateCommand : KotlinCommand<Unit>(
 
     private fun getPositiveInt(json: JsonObject, key: String, default: (() -> Int)? = null): Int {
         val value = getInt(json, key, default)
-        if (value < 0) {
+        if (value <= 0) {
             throw InvalidTemplateException("`$key` must be positive!")
+        }
+        return value
+    }
+
+    private fun getPositiveOrZeroInt(json: JsonObject, key: String, default: (() -> Int)? = null): Int {
+        val value = getInt(json, key, default)
+        if (value < 0) {
+            throw InvalidTemplateException("`$key` must be positive or zero!")
         }
         return value
     }
