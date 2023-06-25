@@ -26,7 +26,8 @@ public class TenorUtil {
         var invalidUrlMessage = "Invalid Tenor URL";
         try {
             var uri = new URI(url);
-            if (uri.getHost().contains("tenor.com") && uri.getPath().startsWith("/view/")) {
+            var host = uri.getHost();
+            if (host != null && host.contains("tenor.com") && uri.getPath().startsWith("/view/")) {
                 var mediaId = url.substring(url.lastIndexOf("-") + 1);
                 var requestUrl = "https://g.tenor.com/v1/gifs?key=" + apiKey + "&ids=" + mediaId;
                 var request = HttpRequest.newBuilder()

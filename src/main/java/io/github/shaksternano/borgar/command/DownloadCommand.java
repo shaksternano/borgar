@@ -126,7 +126,8 @@ public class DownloadCommand extends BaseCommand<InputStream> {
         boolean audioOnly
     ) {
         var uri = URI.create(url);
-        if (uri.getHost().equalsIgnoreCase("vxtwitter.com")) {
+        var host = uri.getHost();
+        if (host != null && host.equalsIgnoreCase("vxtwitter.com")) {
             url = uri.getScheme() + "://twitter.com" + uri.getPath();
         }
         var cobaltApiDomain = Environment.getEnvVar("COBALT_API_DOMAIN")
