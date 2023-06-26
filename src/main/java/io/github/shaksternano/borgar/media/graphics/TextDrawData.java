@@ -8,6 +8,8 @@ public record TextDrawData(
     Drawable text,
     int textX,
     int textY,
+    int textCentreX,
+    int textCentreY,
     Font font
 ) {
 }

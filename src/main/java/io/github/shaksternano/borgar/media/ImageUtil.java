@@ -331,14 +331,24 @@ public class ImageUtil {
 
         var containerCentreY = template.getTextContentY() + (template.getTextContentHeight() / 2);
 
-        var paragraphX = template.getTextContentX();
-        var paragraphY = switch (template.getTextContentPosition()) {
+        var textX = template.getTextContentX();
+        var textY = switch (template.getTextContentPosition()) {
             case TOP -> template.getTextContentY();
             case BOTTOM -> template.getTextContentY() + (template.getTextContentHeight() - paragraphHeight);
             default -> containerCentreY - (paragraphHeight / 2);
         };
 
-        return Optional.of(new TextDrawData(paragraph, paragraphX, paragraphY, resizedFont));
+        var textCentreX = template.getTextContentX() + (template.getTextContentWidth() / 2);
+        var textCentreY = template.getTextContentY() + (template.getTextContentHeight() / 2);
+
+        return Optional.of(new TextDrawData(
+            paragraph,
+            textX,
+            textY,
+            textCentreX,
+            textCentreY,
+            resizedFont
+        ));
     }
 
     public static BufferedImage drawText(
@@ -365,15 +375,31 @@ public class ImageUtil {
 
         var font = textDrawData.font();
         graphics.setFont(font);
-        ImageUtil.configureTextDrawQuality(graphics);
+        configureTextDrawQuality(graphics);
         graphics.setColor(template.getTextColor());
 
         contentClipOptional.ifPresent(graphics::setClip);
 
+        var text = textDrawData.text();
         var textX = textDrawData.textX();
         var textY = textDrawData.textY();
-        var text = textDrawData.text();
+        if (template.getContentRotation() != 0) {
+            graphics.rotate(
+                template.getContentRotation(),
+                textDrawData.textCentreX(),
+                textDrawData.textCentreY()
+            );
+        }
+
         text.draw(graphics, textX, textY, timestamp);
+
+        if (template.getContentRotation() != 0) {
+            graphics.rotate(
+                -template.getContentRotation(),
+                textDrawData.textCentreX(),
+                textDrawData.textCentreY()
+            );
+        }
 
         if (contentClipOptional.isPresent()) {
             graphics.setClip(null);
@@ -464,6 +490,21 @@ public class ImageUtil {
         graphics.dispose();
 
         return rotated;
+    }
+
+    public static BufferedImage rotate(BufferedImage image, double radians) {
+        if (radians == 0) {
+            return image;
+        } else {
+            return rotate(
+                image,
+                radians,
+                null,
+                null,
+                null,
+                ImageUtil.getType(image)
+            );
+        }
     }
 
     public static String getImageFormat(InputStream inputStream) throws IOException {

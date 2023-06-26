@@ -95,14 +95,17 @@ public class TemplateCommand extends OptionalFileInputFileCommand {
 
         @Override
         public BufferedImage transformImage(ImageFrame contentFrame, ImageFrame templateFrame, ImageContentData constantData) {
-            var resizedContentImage = ImageUtil.fit(
-                contentFrame.content(),
-                constantData.contentImageTargetWidth(),
-                constantData.contentImageTargetHeight()
+            var transformedContentImage = ImageUtil.rotate(
+                ImageUtil.fit(
+                    contentFrame.content(),
+                    constantData.contentImageTargetWidth(),
+                    constantData.contentImageTargetHeight()
+                ),
+                template.getContentRotation()
             );
             return ImageUtil.overlayImage(
                 templateFrame.content(),
-                resizedContentImage,
+                transformedContentImage,
                 constantData.overlayData(),
                 constantData.contentIsBackground(),
                 constantData.contentClip(),
@@ -115,19 +118,22 @@ public class TemplateCommand extends OptionalFileInputFileCommand {
             var width = template.getImageContentWidth();
             var height = template.getImageContentHeight();
 
-            var resizedContentImage = ImageUtil.fit(contentImage, width, height);
+            var transformedContentImage = ImageUtil.rotate(
+                ImageUtil.fit(contentImage, width, height),
+                template.getContentRotation()
+            );
 
-            int resizedWidth = resizedContentImage.getWidth();
-            int resizedHeight = resizedContentImage.getHeight();
+            int transformedWidth = transformedContentImage.getWidth();
+            int transformedHeight = transformedContentImage.getHeight();
 
-            int contentImageX = template.getImageContentX() + ((template.getImageContentWidth() - resizedWidth) / 2);
+            int contentImageX = template.getImageContentX() + ((template.getImageContentWidth() - transformedWidth) / 2);
             int contentImageY = switch (template.getImageContentPosition()) {
                 case TOP -> template.getImageContentY();
-                case BOTTOM -> template.getImageContentY() + (template.getImageContentHeight() - resizedHeight);
-                default -> template.getImageContentY() + ((template.getImageContentHeight() - resizedHeight) / 2);
+                case BOTTOM -> template.getImageContentY() + (template.getImageContentHeight() - transformedHeight);
+                default -> template.getImageContentY() + ((template.getImageContentHeight() - transformedHeight) / 2);
             };
 
-            var fill = template.getFill().orElseGet(() -> resizedContentImage.getColorModel().hasAlpha()
+            var fill = template.getFill().orElseGet(() -> transformedContentImage.getColorModel().hasAlpha()
                 ? null
                 : Color.WHITE
             );
