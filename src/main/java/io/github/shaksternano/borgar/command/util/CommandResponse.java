@@ -10,7 +10,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public record CommandResponse<T>(List<MessageCreateData> responses, @Nullable T responseData) {
+public record CommandResponse<T>(List<MessageCreateData> responses, boolean suppressEmbeds, @Nullable T responseData) {
 
     public CommandResponse(String message) {
         this(MessageCreateData.fromContent(message));
@@ -33,11 +33,15 @@ public record CommandResponse<T>(List<MessageCreateData> responses, @Nullable T 
     }
 
     public CommandResponse(List<MessageCreateData> responses) {
-        this(responses, null);
+        this(responses, false, null);
+    }
+
+    public CommandResponse<T> withSuppressEmbeds(boolean suppressEmbeds) {
+        return new CommandResponse<>(responses, suppressEmbeds, responseData);
     }
 
     public CommandResponse<T> withResponseData(T responseData) {
-        return new CommandResponse<>(responses, responseData);
+        return new CommandResponse<>(responses, false, responseData);
     }
 
     public CompletableFuture<CommandResponse<T>> asFuture() {

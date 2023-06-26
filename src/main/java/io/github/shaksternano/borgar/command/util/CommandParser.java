@@ -110,6 +110,7 @@ public class CommandParser {
                     response.responses(),
                     (messageResponse, index) -> {
                         var reply = channel.sendMessage(messageResponse);
+                        reply.setSuppressEmbeds(response.suppressEmbeds());
                         if (index == 0) {
                             reply.setMessageReference(triggerMessage);
                         }

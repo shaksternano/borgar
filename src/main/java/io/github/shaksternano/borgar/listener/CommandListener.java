@@ -32,10 +32,12 @@ public class CommandListener extends ListenerAdapter {
                     (response, index) -> {
                         if (index == 0) {
                             return event.reply(response)
+                                .setSuppressEmbeds(true)
                                 .submit();
                         } else {
                             return event.getChannel()
                                 .sendMessage(response)
+                                .setSuppressEmbeds(true)
                                 .submit();
                         }
                     }

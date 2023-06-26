@@ -45,7 +45,7 @@ public class HelpCommand extends BaseCommand<Void> {
     @Override
     public CompletableFuture<CommandResponse<Void>> execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
         var entityId = event.isFromGuild() ? event.getGuild().getIdLong() : event.getAuthor().getIdLong();
-        return getHelpMessages(entityId).thenApply(CommandResponse::new);
+        return getHelpMessages(entityId).thenApply(messages -> new CommandResponse<Void>(messages).withSuppressEmbeds(true));
     }
 
     /**
