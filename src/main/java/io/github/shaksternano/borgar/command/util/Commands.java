@@ -2,6 +2,7 @@ package io.github.shaksternano.borgar.command.util;
 
 import io.github.shaksternano.borgar.command.*;
 import io.github.shaksternano.borgar.media.template.ResourceTemplate;
+import net.dv8tion.jda.api.entities.Message;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -276,7 +277,7 @@ public class Commands {
     public static final Command<?> CAT_BOMB = addCommandToRegister(new CatCommand(
         "catbomb",
         "Sends a bunch of random cat images or GIFs.",
-        10
+        Message.MAX_FILE_AMOUNT
     ));
 
     public static final Command<?> MEMORY_USAGE = addCommandToRegister(new MemoryUsageCommand(
