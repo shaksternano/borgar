@@ -17,7 +17,7 @@ val junitVersion: String by project
 
 plugins {
     java
-    kotlin("jvm") version "1.8.21"
+    kotlin("jvm") version "1.8.22"
     id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
@@ -30,6 +30,7 @@ repositories {
 }
 
 dependencies {
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion")
     implementation("net.dv8tion:JDA:$jdaVersion") {
         exclude(module = "opus-java")
     }
@@ -64,7 +65,6 @@ dependencies {
     implementation("org.reflections:reflections:$reflectionsVersion")
     implementation("org.mapdb:mapdb:$mapdbVersion")
 
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion")
     implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
     runtimeOnly("org.postgresql:postgresql:$postgreSqlVersion")
