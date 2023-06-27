@@ -203,7 +203,7 @@ public class CommandParser {
         var passedFirst = false;
         for (var commandPart : commandParts) {
             if (passedFirst) {
-                if (commandPart.startsWith(Command.PREFIX)) {
+                if (commandPart.startsWith(Command.ARGUMENT_PREFIX)) {
                     var commandWord = commandPart.substring(1).toLowerCase();
                     if (command.parameterNames().contains(commandWord)) {
                         break;
