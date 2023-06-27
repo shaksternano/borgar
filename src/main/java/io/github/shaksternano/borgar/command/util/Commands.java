@@ -267,6 +267,18 @@ public class Commands {
         "Downloads a file from a social media website, for example, a video from YouTube. Use -" + DownloadCommand.AUDIO_ONLY_FLAG + " to download audio only."
     ));
 
+    public static final Command<?> CAT = addCommandToRegister(new CatCommand(
+        "cat",
+        "Sends a random cat image or GIF.",
+        1
+    ));
+
+    public static final Command<?> CAT_BOMB = addCommandToRegister(new CatCommand(
+        "catbomb",
+        "Sends a bunch of random cat images or GIFs.",
+        10
+    ));
+
     public static final Command<?> MEMORY_USAGE = addCommandToRegister(new MemoryUsageCommand(
         "memory",
         "Get the memory usage of the bot."
