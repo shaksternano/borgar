@@ -16,13 +16,13 @@ public class MediaReaders {
     private static final Map<String, MediaReaderFactory<ImageFrame>> imageReaderFactories = new HashMap<>();
     private static final Map<String, MediaReaderFactory<AudioFrame>> audioReaderFactories = new HashMap<>();
 
-    public static MediaReader<ImageFrame> createImageReader(File media, String format) throws IOException {
-        MediaReaderFactory<ImageFrame> factory = getImageReaderFactory(format);
+    public static MediaReader<ImageFrame> createImageReader(File media, String format) throws UnreadableFileException {
+        var factory = getImageReaderFactory(format);
         return createReader(factory, media, format);
     }
 
-    public static MediaReader<ImageFrame> createImageReader(InputStream media, String format) throws IOException {
-        MediaReaderFactory<ImageFrame> factory = getImageReaderFactory(format);
+    public static MediaReader<ImageFrame> createImageReader(InputStream media, String format) throws UnreadableFileException {
+        var factory = getImageReaderFactory(format);
         return createReader(factory, media, format);
     }
 
@@ -30,14 +30,14 @@ public class MediaReaders {
         return imageReaderFactories.getOrDefault(format.toLowerCase(), FFmpegImageReader.Factory.INSTANCE);
     }
 
-    public static MediaReader<AudioFrame> createAudioReader(File media, String format) throws IOException {
-        MediaReaderFactory<AudioFrame> factory = getAudioReaderFactory(format);
+    public static MediaReader<AudioFrame> createAudioReader(File media, String format) throws UnreadableFileException {
+        var factory = getAudioReaderFactory(format);
         return createReader(factory, media, format);
     }
 
     @SuppressWarnings("unused")
-    public static MediaReader<AudioFrame> createAudioReader(InputStream media, String format) throws IOException {
-        MediaReaderFactory<AudioFrame> factory = getAudioReaderFactory(format);
+    public static MediaReader<AudioFrame> createAudioReader(InputStream media, String format) throws UnreadableFileException {
+        var factory = getAudioReaderFactory(format);
         return createReader(factory, media, format);
     }
 

@@ -100,7 +100,9 @@ public abstract sealed class FFmpegMediaReader<E extends VideoFrame<?, E>> exten
                 return correctFrame;
             }
             correctFrame.close();
-            correctFrame = newFrame;
+            var copy = newFrame.clone();
+            newFrame.close();
+            correctFrame = copy;
         }
         return correctFrame;
     }

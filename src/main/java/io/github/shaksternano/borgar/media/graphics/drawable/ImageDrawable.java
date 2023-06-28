@@ -14,20 +14,24 @@ import java.util.Objects;
 public class ImageDrawable implements Drawable {
 
     private final MediaReader<ImageFrame> reader;
+    private final BufferedImage firstFrame;
     private int targetWidth;
     private int targetHeight;
-    private BufferedImage firstFrame;
+    private int actualWidth;
+    private int actualHeight;
 
     public ImageDrawable(InputStream inputStream, String format) throws IOException {
         reader = MediaReaders.createImageReader(inputStream, format);
         targetWidth = reader.width();
         targetHeight = reader.height();
         firstFrame = reader.first().content();
+        actualWidth = firstFrame.getWidth();
+        actualHeight = firstFrame.getHeight();
     }
 
     @Override
     public void draw(Graphics2D graphics, int x, int y, long timestamp) throws IOException {
-        BufferedImage image = resizeImage(reader.readFrame(timestamp).content());
+        var image = resizeImage(reader.readFrame(timestamp).content());
         graphics.drawImage(image, x, y, null);
     }
 
@@ -38,25 +42,33 @@ public class ImageDrawable implements Drawable {
 
     @Override
     public int getWidth(Graphics2D graphicsContext) {
-        return firstFrame.getWidth();
+        return actualWidth;
     }
 
     @Override
     public int getHeight(Graphics2D graphicsContext) {
-        return firstFrame.getHeight();
+        return actualHeight;
     }
 
     @Override
     public Drawable resizeToWidth(int width) {
-        this.targetWidth = width;
-        firstFrame = resizeImage(firstFrame);
+        if (width != actualWidth) {
+            this.targetWidth = width;
+            var resized = resizeImage(firstFrame);
+            actualWidth = resized.getWidth();
+            actualHeight = resized.getHeight();
+        }
         return this;
     }
 
     @Override
     public Drawable resizeToHeight(int height) {
-        this.targetHeight = height;
-        firstFrame = resizeImage(firstFrame);
+        if (height != actualHeight) {
+            this.targetHeight = height;
+            var resized = resizeImage(firstFrame);
+            actualWidth = resized.getWidth();
+            actualHeight = resized.getHeight();
+        }
         return this;
     }
 
@@ -77,7 +89,13 @@ public class ImageDrawable implements Drawable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(reader, targetWidth, targetHeight);
+        return Objects.hash(
+            reader,
+            targetWidth,
+            targetHeight,
+            actualWidth,
+            actualHeight
+        );
     }
 
     @Override
@@ -87,7 +105,9 @@ public class ImageDrawable implements Drawable {
         } else if (obj instanceof ImageDrawable other) {
             return Objects.equals(reader, other.reader)
                 && targetWidth == other.targetWidth
-                && targetHeight == other.targetHeight;
+                && targetHeight == other.targetHeight
+                && actualWidth == other.actualWidth
+                && actualHeight == other.actualHeight;
         } else {
             return false;
         }

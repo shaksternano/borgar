@@ -197,4 +197,14 @@ public class FileUtil {
             .sendAsync(request, HttpResponse.BodyHandlers.discarding())
             .thenApply(HttpResponse::headers);
     }
+
+    public static InputStream readUrl(URL url) throws IOException {
+        return readUrl(url, 60);
+    }
+
+    public static InputStream readUrl(URL url, int timeout) throws IOException {
+        var connection = url.openConnection();
+        connection.setConnectTimeout(timeout * 1000);
+        return connection.getInputStream();
+    }
 }

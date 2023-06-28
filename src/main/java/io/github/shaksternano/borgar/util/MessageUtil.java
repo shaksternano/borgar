@@ -50,12 +50,14 @@ public class MessageUtil {
                 if (fileOptional.isPresent()) {
                     return CompletableFuture.completedFuture(fileOptional);
                 }
-                var urls = StringUtil.extractUrls(messageToProcess.getContentRaw());
-                if (!urls.isEmpty()) {
-                    return FileUtil.downloadFile(urls.get(0))
-                        .exceptionallyCompose(throwable -> MessageUtil.downloadEmbedFile(messageToProcess))
-                        .thenApply(Optional::of)
-                        .exceptionally(throwable -> Optional.empty());
+                if (!message.equals(messageToProcess)) {
+                    var urls = StringUtil.extractUrls(messageToProcess.getContentRaw());
+                    if (!urls.isEmpty()) {
+                        return FileUtil.downloadFile(urls.get(0))
+                            .exceptionallyCompose(throwable -> MessageUtil.downloadEmbedFile(messageToProcess))
+                            .thenApply(Optional::of)
+                            .exceptionally(throwable -> Optional.empty());
+                    }
                 }
                 return CompletableFuture.completedFuture(Optional.empty());
             })
@@ -340,21 +342,45 @@ public class MessageUtil {
     }
 
     public static Map<String, Drawable> getEmojiImages(Message message) {
-        Map<String, String> imageUrls = MessageUtil.getEmojiUrls(message);
-        return imageUrls.entrySet().parallelStream().map(imageUrlEntry -> {
-            try {
-                String emojiCode = imageUrlEntry.getKey();
-                String emojiImageUrl = imageUrlEntry.getValue();
-                URL url = new URL(emojiImageUrl);
-                try (InputStream formatStream = url.openStream()) {
-                    String format = ImageUtil.getImageFormat(formatStream);
-                    Drawable emoji = new ImageDrawable(url.openStream(), format);
-                    return Map.entry(emojiCode, emoji);
+        var emojiUrls = MessageUtil.getEmojiUrls(message);
+        Map<String, String> mediaUrls = new HashMap<>(emojiUrls);
+        var urls = StringUtil.extractUrls(message.getContentRaw());
+        for (var url : urls) {
+            mediaUrls.put(url, url);
+        }
+        return mediaUrls.entrySet().parallelStream().map(imageUrlEntry -> {
+                var emojiCode = imageUrlEntry.getKey();
+                var emojiImageUrl = imageUrlEntry.getValue();
+                InputStream mediaStream = null;
+                var needsClosing = true;
+                try {
+                    var url = new URL(emojiImageUrl);
+                    try (
+                        var formatStream = FileUtil.readUrl(url)
+                    ) {
+                        String format;
+                        try {
+                            format = ImageUtil.getImageFormat(formatStream);
+                        } catch (Exception e) {
+                            format = FileUtil.getFileExtension(emojiImageUrl);
+                        }
+                        mediaStream = FileUtil.readUrl(url);
+                        var emoji = new ImageDrawable(mediaStream, format);
+                        needsClosing = false;
+                        return Optional.of(Map.entry(emojiCode, emoji));
+                    }
+                } catch (IOException e) {
+                    return Optional.<Map.Entry<String, Drawable>>empty();
+                } finally {
+                    if (needsClosing && mediaStream != null) {
+                        try {
+                            mediaStream.close();
+                        } catch (IOException ignored) {
+                        }
+                    }
                 }
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            }).flatMap(Optional::stream)
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     public static String enlargeImageUrl(String url) {

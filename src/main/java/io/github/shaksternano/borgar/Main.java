@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.nio.file.NoSuchFileException;
 import java.util.concurrent.TimeUnit;
 
@@ -81,7 +82,7 @@ public class Main {
         }
 
         avutil.av_log_set_level(avutil.AV_LOG_PANIC);
-
+        HttpURLConnection.setFollowRedirects(false);
         connectToPostgreSql();
 
         Fonts.registerFonts();
