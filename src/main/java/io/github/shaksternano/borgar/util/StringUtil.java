@@ -6,7 +6,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class StringUtil {
@@ -24,13 +23,12 @@ public class StringUtil {
      */
     public static List<String> extractUrls(String text) {
         List<String> urls = new ArrayList<>();
-
-        Matcher matcher = WEB_URL_PATTERN.matcher(text);
-
-        while (matcher.find()) {
-            urls.add(text.substring(matcher.start(0), matcher.end(0)));
+        for (var textPart : text.split("\\s+")) {
+            var matcher = WEB_URL_PATTERN.matcher(textPart);
+            while (matcher.find()) {
+                urls.add(matcher.group());
+            }
         }
-
         return urls;
     }
 
