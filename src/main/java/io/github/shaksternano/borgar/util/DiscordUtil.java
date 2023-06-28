@@ -3,7 +3,6 @@ package io.github.shaksternano.borgar.util;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.events.message.GenericMessageEvent;
-import net.dv8tion.jda.api.utils.MarkdownSanitizer;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
@@ -42,7 +41,7 @@ public class DiscordUtil {
             for (Role mentionedRole : message.getMentions().getRoles()) {
                 displayMessage = displayMessage.replace(mentionedRole.getAsMention(), '@' + mentionedRole.getName());
             }
-            return MarkdownSanitizer.sanitize(displayMessage);
+            return displayMessage;
         });
     }
 
