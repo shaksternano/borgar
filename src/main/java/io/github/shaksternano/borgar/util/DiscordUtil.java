@@ -25,10 +25,11 @@ public class DiscordUtil {
     }
 
     public static CompletableFuture<String> getContentStrippedKeepEmotes(Message message) {
+        var guild = message.isFromGuild() ? message.getGuild() : null;
         var displayMessageFuture = CompletableFuture.completedFuture(message.getContentRaw());
         for (User user : message.getMentions().getUsers()) {
             displayMessageFuture = displayMessageFuture.thenCompose(displayMessage ->
-                retrieveUserDetails(message)
+                retrieveUserDetails(user, guild)
                     .thenApply(userDetails -> displayMessage.replaceAll(
                         "<@!?" + Pattern.quote(user.getId()) + '>', '@' + Matcher.quoteReplacement(userDetails.username())
                     ))
@@ -45,16 +46,14 @@ public class DiscordUtil {
         });
     }
 
-    public static CompletableFuture<UserDetails> retrieveUserDetails(Message message) {
-        var author = message.getAuthor();
-        if (message.isFromGuild()) {
-            return message.getGuild()
-                .retrieveMember(author)
+    public static CompletableFuture<UserDetails> retrieveUserDetails(User user, @Nullable Guild guild) {
+        if (guild == null) {
+            return CompletableFuture.completedFuture(new UserDetails(user));
+        } else {
+            return guild.retrieveMember(user)
                 .submit()
                 .thenApply(UserDetails::new)
-                .exceptionally(throwable -> new UserDetails(author));
-        } else {
-            return CompletableFuture.completedFuture(new UserDetails(author));
+                .exceptionally(throwable -> new UserDetails(user));
         }
     }
 

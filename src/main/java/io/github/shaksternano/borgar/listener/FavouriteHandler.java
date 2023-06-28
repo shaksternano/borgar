@@ -137,7 +137,9 @@ public class FavouriteHandler {
     }
 
     private static CompletableFuture<Void> sendMessage(String content, MessageSender sender, MessageReceivedEvent event) {
-        return DiscordUtil.retrieveUserDetails(event.getMessage()).thenCompose(userDetails ->
+        var author = event.getAuthor();
+        var guild = event.isFromGuild() ? event.getGuild() : null;
+        return DiscordUtil.retrieveUserDetails(author, guild).thenCompose(userDetails ->
             sender.sendMessage(content, userDetails.username(), userDetails.avatarUrl())
         ).thenAccept(unused -> sender.close());
     }
