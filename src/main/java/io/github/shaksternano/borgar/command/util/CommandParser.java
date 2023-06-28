@@ -114,7 +114,7 @@ public class CommandParser {
                         if (index == 0) {
                             reply.setMessageReference(triggerMessage);
                         }
-                        reply.timeout(10, TimeUnit.SECONDS);
+                        reply.timeout(60, TimeUnit.SECONDS);
                         return MiscUtil.repeatTry(
                             reply::submit,
                             3,
