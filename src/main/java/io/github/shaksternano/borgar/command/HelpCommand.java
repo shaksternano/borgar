@@ -57,8 +57,7 @@ public class HelpCommand extends BaseCommand<Void> {
     public static CompletableFuture<List<MessageCreateData>> getHelpMessages(long entityId) {
         var cachedMessage = cachedHelpMessages.get(entityId);
         if (cachedMessage != null) {
-            return CompletableFuture.completedFuture(cachedMessage
-                .stream()
+            return CompletableFuture.completedFuture(cachedMessage.stream()
                 .map(MessageCreateData::fromContent)
                 .toList()
             );

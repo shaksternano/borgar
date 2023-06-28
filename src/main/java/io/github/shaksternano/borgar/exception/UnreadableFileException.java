@@ -1,8 +1,10 @@
 package io.github.shaksternano.borgar.exception;
 
-public class UnreadableFileException extends RuntimeException {
+import java.io.IOException;
 
-    public UnreadableFileException(String message) {
-        super(message);
+public class UnreadableFileException extends IOException {
+
+    public UnreadableFileException(Throwable cause) {
+        super(cause);
     }
 }
