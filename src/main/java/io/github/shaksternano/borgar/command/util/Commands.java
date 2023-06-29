@@ -248,6 +248,8 @@ public class Commands {
         "Haema"
     ));
 
+    public static final Command<?> TULIN = addCommandToRegister(TulinCommand.INSTANCE);
+
     public static final Command<?> SERVER_COUNT = addCommandToRegister(new ServerCountCommand(
         "servers",
         "Gets the number of servers that this bot is in."
