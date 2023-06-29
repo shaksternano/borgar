@@ -1,26 +1,23 @@
 package io.github.shaksternano.borgar.data.repository
 
-import io.github.shaksternano.borgar.data.databaseConnection
 import io.github.shaksternano.borgar.media.graphics.Position
 import io.github.shaksternano.borgar.media.graphics.TextAlignment
 import io.github.shaksternano.borgar.media.template.CustomTemplate
 import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.future.future
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.statements.UpdateBuilder
 import java.awt.Color
 import java.awt.Font
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import kotlin.jvm.optionals.getOrNull
 
-object TemplateRepository {
+object TemplateRepository : Repository<TemplateRepository.TemplateTable>() {
 
-    private object TemplateTable : Table(name = "template") {
+    object TemplateTable : Table(name = "template") {
         val commandName = varchar("command_name", 100)
 
         // Either a guild ID or a user ID (for DMs)
@@ -52,84 +49,81 @@ object TemplateRepository {
         val fillColor = integer("fill_color").nullable()
 
         override val primaryKey = PrimaryKey(commandName, entityId, name = "template_pk")
-
-        fun create(resultRow: ResultRow): CustomTemplate {
-            return CustomTemplate(
-                resultRow[commandName],
-                resultRow[entityId],
-
-                resultRow[description],
-                resultRow[mediaUrl],
-                resultRow[format],
-                resultRow[resultName],
-
-                resultRow[imageX],
-                resultRow[imageY],
-                resultRow[imageWidth],
-                resultRow[imageHeight],
-                resultRow[imagePosition],
-
-                resultRow[textX],
-                resultRow[textY],
-                resultRow[textWidth],
-                resultRow[textHeight],
-                resultRow[textPosition],
-                resultRow[textAlignment],
-                Font(resultRow[textFont], Font.PLAIN, resultRow[textMaxSize]),
-                Color(resultRow[textColorRgb]),
-
-                resultRow[rotationRadians],
-                resultRow[isTemplateBackground],
-                resultRow[fillColor]?.let { Color(it) }
-            )
-        }
     }
 
-    init {
-        transaction(databaseConnection()) {
-            SchemaUtils.create(TemplateTable)
-        }
-    }
+    override fun table(): TemplateTable = TemplateTable
 
-    private suspend fun <T> dbQuery(block: suspend TemplateTable.() -> T): T =
-        newSuspendedTransaction(Dispatchers.IO) { block(TemplateTable) }
+    private fun ResultRow.read(): CustomTemplate = CustomTemplate(
+        this[table().commandName],
+        this[table().entityId],
+
+        this[table().description],
+        this[table().mediaUrl],
+        this[table().format],
+        this[table().resultName],
+
+        this[table().imageX],
+        this[table().imageY],
+        this[table().imageWidth],
+        this[table().imageHeight],
+        this[table().imagePosition],
+
+        this[table().textX],
+        this[table().textY],
+        this[table().textWidth],
+        this[table().textHeight],
+        this[table().textPosition],
+        this[table().textAlignment],
+        Font(this[table().textFont], Font.PLAIN, this[table().textMaxSize]),
+        Color(this[table().textColorRgb]),
+
+        this[table().rotationRadians],
+        this[table().isTemplateBackground],
+        this[table().fillColor]?.let { Color(it) }
+    )
+
+    private fun UpdateBuilder<*>.write(template: CustomTemplate) {
+        this[table().commandName] = template.commandName
+        this[table().entityId] = template.entityId
+
+        this[table().description] = template.description
+        this[table().mediaUrl] = template.mediaUrl
+        this[table().format] = template.format
+        this[table().resultName] = template.resultName
+
+        this[table().imageX] = template.imageContentX
+        this[table().imageY] = template.imageContentY
+        this[table().imageWidth] = template.imageContentWidth
+        this[table().imageHeight] = template.imageContentHeight
+        this[table().imagePosition] = template.imageContentPosition
+
+        this[table().textX] = template.textContentX
+        this[table().textY] = template.textContentY
+        this[table().textWidth] = template.textContentWidth
+        this[table().textHeight] = template.textContentHeight
+        this[table().textPosition] = template.textContentPosition
+        this[table().textAlignment] = template.textContentAlignment
+        this[table().textFont] = template.font.name
+        this[table().textColorRgb] = template.textColor.rgb
+        this[table().textMaxSize] = template.font.size
+
+        this[table().rotationRadians] = template.contentRotation
+        this[table().isTemplateBackground] = template.isBackground
+        this[table().fillColor] = template.fill.getOrNull()?.rgb
+    }
 
     suspend fun create(template: CustomTemplate): Unit = dbQuery {
         insert {
-            it[commandName] = template.commandName
-            it[entityId] = template.entityId
-
-            it[description] = template.description
-            it[mediaUrl] = template.mediaUrl
-            it[format] = template.format
-            it[resultName] = template.resultName
-
-            it[imageX] = template.imageContentX
-            it[imageY] = template.imageContentY
-            it[imageWidth] = template.imageContentWidth
-            it[imageHeight] = template.imageContentHeight
-            it[imagePosition] = template.imageContentPosition
-
-            it[textX] = template.textContentX
-            it[textY] = template.textContentY
-            it[textWidth] = template.textContentWidth
-            it[textHeight] = template.textContentHeight
-            it[textPosition] = template.textContentPosition
-            it[textAlignment] = template.textContentAlignment
-            it[textFont] = template.font.name
-            it[textColorRgb] = template.textColor.rgb
-            it[textMaxSize] = template.font.size
-
-            it[rotationRadians] = template.contentRotation
-            it[isTemplateBackground] = template.isBackground
-            it[fillColor] = template.fill.getOrNull()?.rgb
+            it.write(template)
         }
     }
 
     suspend fun read(commandName: String, entityId: Long): CustomTemplate? = dbQuery {
         select {
-            TemplateTable.commandName eq commandName and (TemplateTable.entityId eq entityId)
-        }.map(TemplateTable::create).singleOrNull()
+            table().commandName eq commandName and (table().entityId eq entityId)
+        }.map {
+            it.read()
+        }.firstOrNull()
     }
 
     @JvmStatic
@@ -142,7 +136,11 @@ object TemplateRepository {
     }
 
     suspend fun readAll(entityId: Long): List<CustomTemplate> = dbQuery {
-        select { TemplateTable.entityId eq entityId }.map(TemplateTable::create)
+        select {
+            table().entityId eq entityId
+        }.map {
+            it.read()
+        }
     }
 
     @JvmStatic
@@ -152,10 +150,10 @@ object TemplateRepository {
     }
 
     suspend fun exists(commandName: String, entityId: Long): Boolean = dbQuery {
-        select { (TemplateTable.commandName eq commandName) and (TemplateTable.entityId eq entityId) }.any()
+        select { table().commandName eq commandName and (table().entityId eq entityId) }.any()
     }
 
     suspend fun delete(commandName: String, entityId: Long): Unit = dbQuery {
-        deleteWhere { (TemplateTable.commandName eq commandName) and (TemplateTable.entityId eq entityId) }
+        deleteWhere { table().commandName eq commandName and (table().entityId eq entityId) }
     }
 }
