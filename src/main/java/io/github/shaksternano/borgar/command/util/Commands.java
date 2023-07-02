@@ -94,6 +94,8 @@ public class Commands {
 
     public static final Command<?> DELETE_TEMPLATE = addCommandToRegister(DeleteTemplateCommand.INSTANCE);
 
+    public static final Command<?> SUBWAY_SURFERS = addCommandToRegister(SubwaySurfersCommand.INSTANCE);
+
     public static final Command<?> SPIN = addCommandToRegister(new SpinCommand(
         "spin",
         "Spins a media file. Optional arguments: [Spin speed, default value is " + FORMAT.format(SpinCommand.DEFAULT_SPIN_SPEED) + "], [Background hex RGB colour, by default it is transparent]"
