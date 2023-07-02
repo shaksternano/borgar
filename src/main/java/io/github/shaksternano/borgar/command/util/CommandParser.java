@@ -16,6 +16,7 @@ import io.github.shaksternano.borgar.util.MiscUtil;
 import io.github.shaksternano.borgar.util.StringUtil;
 import io.github.shaksternano.borgar.util.function.FloatPredicate;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.PermissionException;
@@ -138,11 +139,16 @@ public class CommandParser {
     }
 
     private static boolean authorHasPermissions(Collection<Permission> permissions, MessageReceivedEvent event) {
-        if (!event.isFromGuild()) {
+        if (!event.isFromGuild() || permissions.isEmpty()) {
             return true;
         }
         var member = event.getMember();
-        return member != null && member.hasPermission(permissions);
+        var permissionHolder = member == null ? event.getGuild().getPublicRole() : member;
+        if (event.getChannel() instanceof GuildChannel guildChannel) {
+            return permissionHolder.hasPermission(guildChannel, permissions);
+        } else {
+            return permissionHolder.hasPermission(permissions);
+        }
     }
 
     private static <T> CommandResponse<T> handleError(Throwable error, Command<?> command) {
