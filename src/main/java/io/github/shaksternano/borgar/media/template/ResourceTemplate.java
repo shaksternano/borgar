@@ -22,7 +22,7 @@ import java.util.function.Function;
 public enum ResourceTemplate implements Template {
 
     SONIC_SAYS(
-        "image/containerimage/sonic_says.png",
+        "media/containerimage/sonic_says.png",
         "sonic_says",
         210,
         15,
@@ -42,7 +42,7 @@ public enum ResourceTemplate implements Template {
     ),
 
     SOYJAK_POINTING(
-        "image/containerimage/soyjak_pointing.png",
+        "media/containerimage/soyjak_pointing.png",
         "soyjak_pointing",
         0,
         100,
@@ -68,7 +68,7 @@ public enum ResourceTemplate implements Template {
     ),
 
     THINKING_BUBBLE(
-        "image/containerimage/thinking_bubble.png",
+        "media/containerimage/thinking_bubble.png",
         "thinking_bubble",
         12,
         0,
@@ -94,7 +94,7 @@ public enum ResourceTemplate implements Template {
     ),
 
     MUTA_SOY(
-        "image/containerimage/muta_soy.png",
+        "media/containerimage/muta_soy.png",
         "muta_soy",
         400,
         256,
@@ -114,7 +114,7 @@ public enum ResourceTemplate implements Template {
     ),
 
     WALMART_WANTED(
-        "image/containerimage/walmart_wanted.png",
+        "media/containerimage/walmart_wanted.png",
         "walmart_wanted",
         428,
         94,
@@ -140,7 +140,7 @@ public enum ResourceTemplate implements Template {
     ),
 
     OH_MY_GOODNESS_GRACIOUS(
-        "image/containerimage/oh_my_goodness_gracious.gif",
+        "media/containerimage/oh_my_goodness_gracious.gif",
         "oh_my_goodness_gracious",
         250,
         350,
@@ -166,7 +166,7 @@ public enum ResourceTemplate implements Template {
     ),
 
     LIVING_IN_1984(
-        "image/containerimage/living_in_1984.png",
+        "media/containerimage/living_in_1984.png",
         "living_in_1984",
         40,
         6,
@@ -186,7 +186,7 @@ public enum ResourceTemplate implements Template {
     ),
 
     WHO_DID_THIS(
-        "image/containerimage/who_did_this.png",
+        "media/containerimage/who_did_this.png",
         "wdt",
         0,
         104,

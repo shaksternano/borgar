@@ -118,8 +118,8 @@ public class SpeechBubbleCommand extends FileCommand {
             var height = image.getHeight();
 
             var speechBubblePath = cutOut
-                ? "image/overlay/speech_bubble_2_partial.png"
-                : "image/overlay/speech_bubble_1_partial.png";
+                ? "media/overlay/speech_bubble_2_partial.png"
+                : "media/overlay/speech_bubble_1_partial.png";
             BufferedImage speechBubble;
             try (
                 var inputStream = FileUtil.getResourceInRootPackage(speechBubblePath);
