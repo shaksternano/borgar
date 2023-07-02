@@ -201,6 +201,6 @@ public class FFmpegVideoWriter implements MediaWriter {
     }
 
     private static long estimateFileSize(int bitrate, long duration) {
-        return bitrate * duration;
+        return (bitrate * duration) / 8;
     }
 }
