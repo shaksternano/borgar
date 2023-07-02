@@ -123,7 +123,8 @@ public class MediaUtil {
                         finalAudioReader.audioSampleRate(),
                         finalAudioReader.audioBitrate(),
                         maxFileSize,
-                        finalImageReader.duration())
+                        finalImageReader.duration()
+                    )
                 ) {
                     T constantFrameDataValue = null;
                     while (imageIterator.hasNext()) {

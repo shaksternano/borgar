@@ -171,7 +171,6 @@ public class FFmpegVideoWriter implements MediaWriter {
          */
         recorder.setGopSize((int) (fps * 2));
 
-
         // Highest quality
         recorder.setAudioQuality(0);
         recorder.setSampleRate(audioSampleRate);
@@ -200,7 +199,7 @@ public class FFmpegVideoWriter implements MediaWriter {
         return (int) (width * height * fps * bitsPerPixel);
     }
 
-    private static long estimateFileSize(int bitrate, long duration) {
-        return (bitrate * duration) / 8;
+    private static long estimateFileSize(int bitrate, long durationMicros) {
+        return (bitrate * durationMicros) / 8;
     }
 }
