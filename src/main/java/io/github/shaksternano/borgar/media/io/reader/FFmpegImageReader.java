@@ -1,6 +1,7 @@
 package io.github.shaksternano.borgar.media.io.reader;
 
 import com.google.common.collect.Lists;
+import io.github.shaksternano.borgar.media.FrameInfo;
 import io.github.shaksternano.borgar.media.ImageFrame;
 import io.github.shaksternano.borgar.media.io.MediaReaderFactory;
 import io.github.shaksternano.borgar.util.collect.ClosableIterator;
@@ -170,9 +171,6 @@ public final class FFmpegImageReader extends FFmpegMediaReader<ImageFrame> {
                     grabber.close();
                 }
             }
-        }
-
-        private record FrameInfo(double duration, long timestamp) {
         }
     }
 }

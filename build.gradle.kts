@@ -7,6 +7,7 @@ val gsonVersion: String by project
 val commonsIoVersion: String by project
 val javacvVersion: String by project
 val scrimageVersion: String by project
+val twelveMonkeysVersion: String by project
 val image4jVersion: String by project
 val reflectionsVersion: String by project
 val mapdbVersion: String by project
@@ -61,6 +62,7 @@ dependencies {
         exclude(group = "ch.qos.logback", module = "logback-classic")
         exclude(group = "ch.qos.logback", module = "logback-core")
     }
+    implementation("com.twelvemonkeys.imageio:imageio-webp:$twelveMonkeysVersion")
     implementation("net.ifok.image:image4j:$image4jVersion")
     implementation("org.reflections:reflections:$reflectionsVersion")
     implementation("org.mapdb:mapdb:$mapdbVersion")

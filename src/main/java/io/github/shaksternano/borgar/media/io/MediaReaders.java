@@ -93,5 +93,8 @@ public class MediaReaders {
             "tif",
             "tiff"
         );
+        registerImageOnlyReaderFactory(WebPImageReader.Factory.INSTANCE,
+            "webp"
+        );
     }
 }

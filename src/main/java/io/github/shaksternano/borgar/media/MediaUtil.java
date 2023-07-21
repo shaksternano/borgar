@@ -10,6 +10,7 @@ import io.github.shaksternano.borgar.media.io.imageprocessor.IdentityProcessor;
 import io.github.shaksternano.borgar.media.io.imageprocessor.SingleImageProcessor;
 import io.github.shaksternano.borgar.media.io.reader.MediaReader;
 import io.github.shaksternano.borgar.media.io.reader.ZippedMediaReader;
+import io.github.shaksternano.borgar.util.collect.MappedList;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -370,7 +371,7 @@ public class MediaUtil {
 
     public static <E extends VideoFrame<?, E>> E frameAtTime(long timestamp, List<E> frames, long duration) {
         var circularTimestamp = timestamp % Math.max(duration, 1);
-        var index = findIndex(circularTimestamp, frames);
+        var index = findIndex(circularTimestamp, new MappedList<>(frames, VideoFrame::timestamp));
         return frames.get(index);
     }
 
@@ -379,42 +380,42 @@ public class MediaUtil {
      * If there is no frame with the given timestamp, the index of the frame
      * with the highest timestamp smaller than the given timestamp is returned.
      *
-     * @param timeStamp The timestamp in microseconds.
-     * @param frames    The frames.
+     * @param timeStamp  The timestamp in microseconds.
+     * @param timestamps The frame timestamps.
      * @return The index of the frame with the given timestamp.
      */
-    private static int findIndex(long timeStamp, List<? extends VideoFrame<?, ?>> frames) {
-        if (frames.size() == 0) {
-            throw new IllegalArgumentException("Frames list is empty");
+    public static int findIndex(long timeStamp, List<? extends Number> timestamps) {
+        if (timestamps.size() == 0) {
+            throw new IllegalArgumentException("Timestamp list is empty");
         } else if (timeStamp < 0) {
             throw new IllegalArgumentException("Timestamp must not be negative");
-        } else if (timeStamp < frames.get(0).timestamp()) {
+        } else if (timeStamp < timestamps.get(0).doubleValue()) {
             throw new IllegalArgumentException("Timestamp must not be smaller than the first timestamp");
-        } else if (timeStamp == frames.get(0).timestamp()) {
+        } else if (timeStamp == timestamps.get(0).doubleValue()) {
             return 0;
-        } else if (timeStamp < frames.get(frames.size() - 1).timestamp()) {
-            return findIndexBinarySearch(timeStamp, frames);
+        } else if (timeStamp < timestamps.get(timestamps.size() - 1).doubleValue()) {
+            return findIndexBinarySearch(timeStamp, timestamps);
         } else {
             // If the timestamp is equal to or greater than the last timestamp.
-            return frames.size() - 1;
+            return timestamps.size() - 1;
         }
     }
 
-    private static int findIndexBinarySearch(long timeStamp, List<? extends VideoFrame<?, ?>> frames) {
+    private static int findIndexBinarySearch(long timeStamp, List<? extends Number> timestamps) {
         var low = 0;
-        var high = frames.size() - 1;
+        var high = timestamps.size() - 1;
         while (low <= high) {
             var mid = low + ((high - low) / 2);
-            if (frames.get(mid).timestamp() == timeStamp
-                || (frames.get(mid).timestamp() < timeStamp
-                && frames.get(mid + 1).timestamp() > timeStamp)) {
+            if (timestamps.get(mid).doubleValue() == timeStamp
+                || (timestamps.get(mid).doubleValue() < timeStamp
+                && timestamps.get(mid + 1).doubleValue() > timeStamp)) {
                 return mid;
-            } else if (frames.get(mid).timestamp() < timeStamp) {
+            } else if (timestamps.get(mid).doubleValue() < timeStamp) {
                 low = mid + 1;
             } else {
                 high = mid - 1;
             }
         }
-        throw new IllegalStateException("This should never be reached. Timestamp: " + timeStamp + ", Frames: " + frames);
+        throw new IllegalStateException("This should never be reached. Timestamp: " + timeStamp + ", all timestamps: " + timestamps);
     }
 }
