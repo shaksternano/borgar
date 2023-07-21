@@ -9,7 +9,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-public class JavaxImageWriter extends NoAudioWriter {
+public class JavaxImageWriter implements NoAudioWriter {
 
     private final File output;
     private final String outputFormat;

@@ -7,7 +7,7 @@ import net.ifok.image.image4j.codec.ico.ICOEncoder;
 import java.io.File;
 import java.io.IOException;
 
-public class Image4jIcoWriter extends NoAudioWriter {
+public class Image4jIcoWriter implements NoAudioWriter {
 
     private final File output;
     private boolean written = false;

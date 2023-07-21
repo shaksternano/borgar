@@ -2,14 +2,14 @@ package io.github.shaksternano.borgar.media.io.writer;
 
 import io.github.shaksternano.borgar.media.AudioFrame;
 
-public abstract class NoAudioWriter implements MediaWriter {
+public interface NoAudioWriter extends MediaWriter {
 
     @Override
-    public void writeAudioFrame(AudioFrame frame) {
+    default void writeAudioFrame(AudioFrame frame) {
     }
 
     @Override
-    public boolean supportsAudio() {
+    default boolean supportsAudio() {
         return false;
     }
 }
