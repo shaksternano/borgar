@@ -274,13 +274,25 @@ public class Commands {
 
     public static final Command<?> CAT = addCommandToRegister(new CatCommand(
         "cat",
-        "Sends a random cat image or GIF.",
+        "Sends a random cat image.",
         1
     ));
 
     public static final Command<?> CAT_BOMB = addCommandToRegister(new CatCommand(
         "catbomb",
-        "Sends a bunch of random cat images or GIFs.",
+        "Sends a bunch of random cat images.",
+        Message.MAX_FILE_AMOUNT
+    ));
+
+    public static final Command<?> PONY = addCommandToRegister(new PonyCommand(
+        "pony",
+        "Sends a random pony image.",
+        1
+    ));
+
+    public static final Command<?> PONY_BOMB = addCommandToRegister(new PonyCommand(
+        "ponybomb",
+        "Sends a bunch of random pony images.",
         Message.MAX_FILE_AMOUNT
     ));
 
