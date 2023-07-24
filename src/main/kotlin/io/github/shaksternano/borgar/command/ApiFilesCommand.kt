@@ -31,7 +31,7 @@ abstract class ApiFilesCommand(
         extraArguments: ListMultimap<String, String>,
         event: MessageReceivedEvent
     ): CommandResponse<Unit> {
-        val client = HttpClient(CIO) {
+        HttpClient(CIO) {
             install(ContentNegotiation) {
                 json(Json {
                     ignoreUnknownKeys = true
@@ -44,25 +44,26 @@ abstract class ApiFilesCommand(
                 }
                 constantDelay(5000)
             }
-        }
-        val files = (1..count)
-            .parallelMap { response(client) }
-            .distinctBy { it.id }
-            .parallelMap {
-                val inputStream = download(client, it.url) ?: return@parallelMap null
-                val extension: String = if (it.extension.equals("jpeg", true)) {
-                    "jpg"
-                } else {
-                    it.extension.lowercase()
+        }.use { client ->
+            val files = (1..count)
+                .parallelMap { response(client) }
+                .distinctBy { it.id }
+                .parallelMap {
+                    val inputStream = download(client, it.url) ?: return@parallelMap null
+                    val extension: String = if (it.extension.equals("jpeg", true)) {
+                        "jpg"
+                    } else {
+                        it.extension.lowercase()
+                    }
+                    val fileName = "$prefix-${it.id}.${extension}"
+                    FileUpload.fromData(inputStream, fileName)
                 }
-                val fileName = "$prefix-${it.id}.${extension}"
-                FileUpload.fromData(inputStream, fileName)
+                .filterNotNull()
+            return if (files.isEmpty()) {
+                CommandResponse("Error getting images!")
+            } else {
+                CommandResponse(MessageCreateData.fromFiles(files))
             }
-            .filterNotNull()
-        return if (files.isEmpty()) {
-            CommandResponse("Error getting images!")
-        } else {
-            CommandResponse(MessageCreateData.fromFiles(files))
         }
     }
 
