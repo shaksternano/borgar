@@ -1,3 +1,5 @@
+val kotlinCoroutinesVersion: String by project
+val ktorVersion: String by project
 val jdaVersion: String by project
 val discordWebhooksVersion: String by project
 val log4j2Version: String by project
@@ -10,15 +12,15 @@ val scrimageVersion: String by project
 val twelveMonkeysVersion: String by project
 val image4jVersion: String by project
 val reflectionsVersion: String by project
-val mapdbVersion: String by project
-val kotlinCoroutinesVersion: String by project
 val exposedVersion: String by project
 val postgreSqlVersion: String by project
 val junitVersion: String by project
 
 plugins {
     java
-    kotlin("jvm") version "1.8.22"
+    val kotlinVersion = "1.9.0"
+    kotlin("jvm") version kotlinVersion
+    kotlin("plugin.serialization") version kotlinVersion
     id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
@@ -32,12 +34,21 @@ repositories {
 
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion")
+
+    implementation("io.ktor:ktor-client-core:$ktorVersion")
+    implementation("io.ktor:ktor-client-cio:$ktorVersion")
+    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
+
+    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+
     implementation("net.dv8tion:JDA:$jdaVersion") {
         exclude(module = "opus-java")
     }
     implementation("club.minnced:discord-webhooks:$discordWebhooksVersion")
+
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:$log4j2Version")
     implementation("com.lmax:disruptor:$disruptorVersion")
+
     implementation("com.google.guava:guava:$guavaVersion-jre")
     implementation("com.google.code.gson:gson:$gsonVersion")
     implementation("commons-io:commons-io:$commonsIoVersion")
@@ -65,7 +76,6 @@ dependencies {
     implementation("com.twelvemonkeys.imageio:imageio-webp:$twelveMonkeysVersion")
     implementation("net.ifok.image:image4j:$image4jVersion")
     implementation("org.reflections:reflections:$reflectionsVersion")
-    implementation("org.mapdb:mapdb:$mapdbVersion")
 
     implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
@@ -76,6 +86,9 @@ dependencies {
     testImplementation(kotlin("test"))
 }
 
+/**
+ * Exclude unused native libraries in order to reduce the JAR size.
+ */
 fun ModuleDependency.excludeJavaCpp(vararg modules: String) {
     modules.forEach {
         exclude(group = "org.bytedeco", module = it)
@@ -92,9 +105,11 @@ tasks {
         archiveClassifier.set("")
         mergeServiceFiles()
         manifest {
-            attributes(mapOf(
-                "Main-Class" to "${project.group}.Main",
-            ))
+            attributes(
+                mapOf(
+                    "Main-Class" to "${project.group}.Main",
+                )
+            )
         }
     }
 
