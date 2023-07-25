@@ -11,7 +11,7 @@ private const val CAT_API_DOMAIN = "https://cataas.com"
 class CatCommand(
     name: String,
     description: String,
-    count: Int,
+    count: Int? = null,
 ) : ApiFilesCommand(
     name,
     description,

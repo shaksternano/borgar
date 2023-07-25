@@ -274,8 +274,14 @@ public class Commands {
 
     public static final Command<?> CAT = addCommandToRegister(new CatCommand(
         "cat",
-        "Sends a random cat image.",
-        1
+        "Sends a random cat image. Optional arguments: [number of cats to send]",
+        null
+    ));
+
+    public static final Command<?> CATS = addCommandToRegister(new CatCommand(
+        "cats",
+        "Sends a few random cat images.",
+        5
     ));
 
     public static final Command<?> CAT_BOMB = addCommandToRegister(new CatCommand(
@@ -286,8 +292,14 @@ public class Commands {
 
     public static final Command<?> PONY = addCommandToRegister(new PonyCommand(
         "pony",
-        "Sends a random pony image.",
-        1
+        "Sends a random pony image. Optional arguments: [number of ponies to send]",
+        null
+    ));
+
+    public static final Command<?> PONIES = addCommandToRegister(new PonyCommand(
+        "ponies",
+        "Sends a few random pony images.",
+        5
     ));
 
     public static final Command<?> PONY_BOMB = addCommandToRegister(new PonyCommand(

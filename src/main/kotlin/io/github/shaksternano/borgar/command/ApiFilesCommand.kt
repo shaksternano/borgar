@@ -22,7 +22,7 @@ import java.io.InputStream
 abstract class ApiFilesCommand(
     name: String,
     description: String,
-    private val count: Int,
+    private val count: Int?,
     private val prefix: String,
 ) : KotlinCommand<Unit>(name, description) {
 
@@ -45,7 +45,14 @@ abstract class ApiFilesCommand(
                 constantDelay(5000)
             }
         }.use { client ->
-            val files = (1..count)
+            val fileCount = (count ?: arguments.firstOrNull()?.toIntOrNull()).let {
+                if (it == null) {
+                    1
+                } else {
+                    (1..Message.MAX_FILE_AMOUNT).bound(it)
+                }
+            }
+            val files = (1..fileCount)
                 .parallelMap { response(client) }
                 .distinctBy { it.id }
                 .parallelMap {
@@ -69,6 +76,14 @@ abstract class ApiFilesCommand(
             } else {
                 CommandResponse(MessageCreateData.fromFiles(files))
             }
+        }
+    }
+
+    private fun IntRange.bound(value: Int): Int {
+        return when {
+            value < first -> first
+            value > last -> last
+            else -> value
         }
     }
 

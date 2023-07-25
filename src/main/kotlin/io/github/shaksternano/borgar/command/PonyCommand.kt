@@ -9,7 +9,7 @@ private const val PONY_API_DOMAIN = "https://www.theponyapi.com"
 class PonyCommand(
     name: String,
     description: String,
-    count: Int,
+    count: Int? = null,
 ) : ApiFilesCommand(
     name,
     description,
