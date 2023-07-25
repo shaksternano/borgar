@@ -23,7 +23,7 @@ abstract class ApiFilesCommand(
     name: String,
     description: String,
     private val count: Int,
-    val prefix: String,
+    private val prefix: String,
 ) : KotlinCommand<Unit>(name, description) {
 
     final override suspend fun executeSuspend(
@@ -49,13 +49,18 @@ abstract class ApiFilesCommand(
                 .parallelMap { response(client) }
                 .distinctBy { it.id }
                 .parallelMap {
-                    val inputStream = download(client, it.url) ?: return@parallelMap null
-                    val extension: String = if (it.extension.equals("jpeg", true)) {
+                    val fileResponse = client.get(it.url)
+                    val inputStream = download(fileResponse) ?: return@parallelMap null
+                    val extension = fileResponse.headers["Content-Type"]?.let { contentType ->
+                        val extensionSplitIndex = contentType.lastIndexOf('/')
+                        contentType.substring(extensionSplitIndex + 1)
+                    } ?: it.extension
+                    val fixedExtension = if (extension.equals("jpeg", true)) {
                         "jpg"
                     } else {
-                        it.extension.lowercase()
+                        extension.lowercase()
                     }
-                    val fileName = "$prefix-${it.id}.${extension}"
+                    val fileName = "$prefix-${it.id}.${fixedExtension}"
                     FileUpload.fromData(inputStream, fileName)
                 }
                 .filterNotNull()
@@ -79,8 +84,7 @@ abstract class ApiFilesCommand(
 
     protected abstract suspend fun parseResponse(response: HttpResponse): ApiResponse
 
-    private suspend fun download(client: HttpClient, url: String): InputStream? {
-        val response = client.get(url)
+    private suspend fun download(response: HttpResponse): InputStream? {
         val contentLength = response.headers["Content-Length"]?.toLongOrNull() ?: 0
         return if (response.status.isSuccess() && contentLength <= Message.MAX_FILE_SIZE) {
             response.body<InputStream>()
