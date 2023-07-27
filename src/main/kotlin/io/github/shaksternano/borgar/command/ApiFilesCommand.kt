@@ -53,8 +53,15 @@ abstract class ApiFilesCommand(
                 }
             }
             val files = (1..fileCount)
-                .parallelMap { response(client) }
-                .distinctBy { it.id }
+                .parallelMap {
+                    runCatching {
+                        response(client)
+                    }.getOrNull()
+                }
+                .filterNotNull()
+                .distinctBy {
+                    it.id
+                }
                 .parallelMap {
                     val fileResponse = client.get(it.url)
                     val inputStream = download(fileResponse) ?: return@parallelMap null
