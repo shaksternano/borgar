@@ -74,6 +74,22 @@ public class MessageUtil {
             if (!urls.isEmpty()) {
                 return Optional.of(urls.get(0));
             }
+            for (var embed : messageToProcess.getEmbeds()) {
+                var image = embed.getImage();
+                if (image != null) {
+                    var url = image.getUrl();
+                    if (url != null) {
+                        return Optional.of(url);
+                    }
+                }
+                var video = embed.getVideoInfo();
+                if (video != null) {
+                    var url = video.getUrl();
+                    if (url != null) {
+                        return Optional.of(url);
+                    }
+                }
+            }
             return Optional.empty();
         });
     }
