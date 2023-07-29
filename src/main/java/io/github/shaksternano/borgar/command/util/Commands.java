@@ -308,6 +308,8 @@ public class Commands {
         Message.MAX_FILE_AMOUNT
     ));
 
+    public static final Command<?> PING = addCommandToRegister(PingCommand.INSTANCE);
+
     public static final Command<?> MEMORY_USAGE = addCommandToRegister(new MemoryUsageCommand(
         "memory",
         "Get the memory usage of the bot."
