@@ -21,7 +21,7 @@ public class HaemaCommand extends SimpleCommand {
     @Override
     protected String response(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
         return """
-            https://media.discordapp.net/attachments/811250178651717642/998714832851312641/impacted.gif
+            https://media.discordapp.net/attachments/964551969509347331/1134818935829712987/YOU_SHOULD_DOWNLOAD_HAEMA_NOW.gif
 
             https://www.curseforge.com/minecraft/mc-mods/haema
             """;
