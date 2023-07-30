@@ -41,7 +41,7 @@ public class CommandParser {
     public static void parseAndExecute(MessageReceivedEvent event) {
         DiscordUtil.getContentStrippedKeepEmotes(event.getMessage()).thenAccept(stringMessage -> {
             var commandParts = parseCommandParts(stringMessage.trim());
-            if (commandParts.size() > 0) {
+            if (!commandParts.isEmpty()) {
                 CompletableFuture<Optional<Command<?>>> commandOptionalFuture;
                 var commandName = commandParts.get(0);
                 var commandOptional = CommandRegistry.getCommand(commandName);
