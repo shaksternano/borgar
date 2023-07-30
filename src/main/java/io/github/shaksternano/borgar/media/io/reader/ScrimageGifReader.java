@@ -41,7 +41,7 @@ public class ScrimageGifReader extends BaseMediaReader<ImageFrame> {
         if (frameCount <= 0) {
             throw new IOException("Could not read any frames!");
         }
-        var totalDuration = 0;
+        var totalDuration = 0L;
         for (var i = 0; i < frameCount; i++) {
             var image = gif.getFrame(i).awt();
             var frameDuration = gif.getDelay(i).toMillis() * 1000;
