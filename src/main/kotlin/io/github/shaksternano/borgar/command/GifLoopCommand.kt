@@ -29,27 +29,24 @@ import kotlin.io.use
 import kotlin.jvm.optionals.getOrElse
 import kotlin.math.pow
 
-class GifLoopCommand(
-    name: String,
-    description: String,
-    private val noLoop: Boolean,
-) : KotlinCommand<Path>(name, description) {
+object GifLoopCommand : KotlinCommand<Path>(
+    "loop",
+    "Changes the number of times a GIF loops. Required arguments: [" +
+            "The number of times to loop the GIF. " +
+            "In other words, the loop count + 1 is the number of times the GIF will play. " +
+            "Use 0 to make the GIF loop forever. " +
+            "Use -1 to remove looping.]"
+) {
 
     override suspend fun executeSuspend(
         arguments: List<String>,
         extraArguments: ListMultimap<String, String>,
         event: MessageReceivedEvent
     ): CommandResponse<Path> {
-        val loopCount = if (noLoop) {
-            null
-        } else {
-            val loopCountString = arguments.firstOrNull() ?: return CommandResponse("No loop count specified!")
-            val loopCountInt = loopCountString.toIntOrNull() ?: return CommandResponse("Loop count is not a number!")
-            if (loopCountInt in 0..65535) {
-                loopCountInt
-            } else {
-                return CommandResponse("Loop count must be between 0 and 65535 inclusive!")
-            }
+        val loopCountString = arguments.firstOrNull() ?: return CommandResponse("No loop count specified!")
+        val loopCount = loopCountString.toIntOrNull() ?: return CommandResponse("Loop count is not a number!")
+        if (loopCount !in -1..65535) {
+            return CommandResponse("Loop count must be between -1 and 65535 inclusive!")
         }
         HttpClient(CIO).use { client ->
             val url = MessageUtil.getUrl(event.message)
@@ -71,8 +68,10 @@ class GifLoopCommand(
             }
             val urlNoQueryParams = url.split('?').first()
             val fileNameWithoutExtension = Files.getNameWithoutExtension(urlNoQueryParams)
-            val extension =
-                response.headers["Content-Type"]?.split("/")?.getOrNull(1) ?: Files.getFileExtension(urlNoQueryParams)
+            val extension = response.headers["Content-Type"]
+                ?.split("/")
+                ?.getOrNull(1)
+                ?: Files.getFileExtension(urlNoQueryParams)
             val path = createTemporaryFile(fileNameWithoutExtension, extension)
             download(response, path)
             val gifInfo = try {
@@ -83,7 +82,7 @@ class GifLoopCommand(
             }
             val fileName = if (extension.isBlank()) fileNameWithoutExtension else "$fileNameWithoutExtension.$extension"
             // Do not add the application extension if no looping is wanted.
-            val applicationExtension = loopCount?.let { createApplicationExtension(it) } ?: listOf()
+            val applicationExtension = if (loopCount < 0) listOf() else createApplicationExtension(loopCount)
             val inputStream = path.inputStream().buffered().modifiable()
             inputStream.insertBytes(gifInfo.globalColorTableEnd, applicationExtension)
             gifInfo.applicationExtensions.forEach {

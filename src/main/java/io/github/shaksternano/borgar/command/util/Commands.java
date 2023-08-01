@@ -210,17 +210,7 @@ public class Commands {
 
     public static final Command<?> TO_MP4 = addCommandToRegister(new TranscodeCommand("mp4"));
 
-    public static final Command<?> LOOP = addCommandToRegister(new GifLoopCommand(
-        "loop",
-        "Changes the number of times a GIF loops. Required arguments: [The number of times to loop the GIF. In other words, the loop count + 1 is the number of times the GIF will play. Use 0 to make the GIF loop forever.]",
-        false
-    ));
-
-    public static final Command<?> NO_LOOP = addCommandToRegister(new GifLoopCommand(
-        "noloop",
-        "Removes looping from a GIF.",
-        true
-    ));
+    public static final Command<?> LOOP = addCommandToRegister(GifLoopCommand.INSTANCE);
 
     public static final Command<?> SERVER_ICON = addCommandToRegister(new ServerIconCommand(
         "servericon",
