@@ -34,8 +34,9 @@ object GifLoopCommand : KotlinCommand<Path>(
     "Changes the number of times a GIF loops. Required arguments: [" +
             "The number of times to loop the GIF. " +
             "In other words, the loop count + 1 is the number of times the GIF will play. " +
-            "Use 0 to make the GIF loop forever. " +
-            "Use -1 to remove looping.]"
+            "Use 0 to remove looping. " +
+            "Use -1 to make the GIF loop forever." +
+            "]"
 ) {
 
     override suspend fun executeSuspend(
@@ -44,7 +45,17 @@ object GifLoopCommand : KotlinCommand<Path>(
         event: MessageReceivedEvent
     ): CommandResponse<Path> {
         val loopCountString = arguments.firstOrNull() ?: return CommandResponse("No loop count specified!")
-        val loopCount = loopCountString.toIntOrNull() ?: return CommandResponse("Loop count is not a number!")
+        val loopCount = loopCountString.toIntOrNull()
+            ?.let {
+                when (it) {
+                    // Remove looping
+                    0 -> -1
+                    // Loop forever
+                    -1 -> 0
+                    else -> it
+                }
+            }
+            ?: return CommandResponse("Loop count is not a number!")
         if (loopCount !in -1..65535) {
             return CommandResponse("Loop count must be between -1 and 65535 inclusive!")
         }
