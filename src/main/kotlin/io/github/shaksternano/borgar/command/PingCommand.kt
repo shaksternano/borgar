@@ -21,6 +21,6 @@ object PingCommand : KotlinCommand<Unit>(
 
     override fun handleFirstResponse(response: Message, event: MessageReceivedEvent, responseData: Unit?) {
         val ping = event.message.timeCreated.until(response.timeCreated, ChronoUnit.MILLIS)
-        response.editMessage("Ping: " + ping  + "ms | Websocket: " + event.jda.gatewayPing + "ms").queue()
+        response.editMessage("Ping: ${ping}ms | Websocket: ${event.jda.gatewayPing}ms").queue()
     }
 }
