@@ -32,16 +32,21 @@ class ChangeExtensionCommand(
             .getOrElse {
                 return CommandResponse("No media found!")
             }
+        val urlNoQueryParams = url.split('?').first()
+        val oldExtension = Files.getFileExtension(urlNoQueryParams)
+        if (oldExtension == newExtension) {
+            return CommandResponse("File already has the extension `.$newExtension`!")
+        }
         HttpClient(CIO).use { client ->
             val response = client.get(url)
             val contentLength = response.contentLength() ?: 0
             if (contentLength > Message.MAX_FILE_SIZE) {
                 return CommandResponse("File is too large!")
             }
-            val urlNoQueryParams = url.split('?').first()
             val fileNameWithoutExtension = Files.getNameWithoutExtension(urlNoQueryParams)
             val fileName =
-                if (newExtension.isBlank()) fileNameWithoutExtension else "$fileNameWithoutExtension.$newExtension"
+                if (newExtension.isBlank()) fileNameWithoutExtension
+                else "$fileNameWithoutExtension.$newExtension"
             val inputStream = response.body<InputStream>()
             return CommandResponse(inputStream, fileName)
         }
