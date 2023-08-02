@@ -9,12 +9,11 @@ import io.github.shaksternano.borgar.util.io.IndexedInputStream
 import io.github.shaksternano.borgar.util.io.createTemporaryFile
 import io.github.shaksternano.borgar.util.io.indexed
 import io.github.shaksternano.borgar.util.io.modifiable
-import io.github.shaksternano.borgar.util.tenor.TenorMediaType
-import io.github.shaksternano.borgar.util.tenor.TenorUtil
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
+import io.ktor.http.*
 import io.ktor.utils.io.core.*
 import io.ktor.utils.io.errors.EOFException
 import kotlinx.coroutines.future.await
@@ -59,29 +58,21 @@ object GifLoopCommand : KotlinCommand<Path>(
         if (loopCount !in -1..65535) {
             return CommandResponse("Loop count must be between -1 and 65535 inclusive!")
         }
+        val url = MessageUtil.getUrlTenor(event.message)
+            .await()
+            .getOrElse {
+                return CommandResponse("No media found!")
+            }
         HttpClient(CIO).use { client ->
-            val url = MessageUtil.getUrl(event.message)
-                .await()
-                .getOrElse {
-                    return CommandResponse("No media found!")
-                }
-                .let {
-                    try {
-                        TenorUtil.retrieveTenorMediaUrl(it, TenorMediaType.GIF_NORMAL, Main.getTenorApiKey()).await()
-                    } catch (e: IllegalArgumentException) {
-                        it
-                    }
-                }
             val response = client.get(url)
-            val contentLength = response.headers["Content-Length"]?.toLongOrNull() ?: 0
+            val contentLength = response.contentLength() ?: 0
             if (contentLength > Message.MAX_FILE_SIZE) {
                 return CommandResponse("File is too large!")
             }
             val urlNoQueryParams = url.split('?').first()
             val fileNameWithoutExtension = Files.getNameWithoutExtension(urlNoQueryParams)
-            val extension = response.headers["Content-Type"]
-                ?.split("/")
-                ?.getOrNull(1)
+            val extension = response.contentType()
+                ?.contentSubtype
                 ?: Files.getFileExtension(urlNoQueryParams)
             val path = createTemporaryFile(fileNameWithoutExtension, extension)
             download(response, path)
@@ -203,7 +194,7 @@ object GifLoopCommand : KotlinCommand<Path>(
         while (continueReading) {
             // Code
             when (inputStream.read()) {
-                // Extension
+                // Extension introducer
                 0x21 -> readExtension(inputStream)?.let { applicationExtensions.add(it) }
                 // Image descriptor
                 0x2C -> readImage(inputStream)
@@ -217,6 +208,7 @@ object GifLoopCommand : KotlinCommand<Path>(
     }
 
     private fun readExtension(inputStream: IndexedInputStream): LongRange? {
+        // Extension label
         when (inputStream.read()) {
             // Application extension
             0xFF -> {

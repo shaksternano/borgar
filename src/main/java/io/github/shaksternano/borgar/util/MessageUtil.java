@@ -9,6 +9,8 @@ import io.github.shaksternano.borgar.io.NamedFile;
 import io.github.shaksternano.borgar.media.ImageUtil;
 import io.github.shaksternano.borgar.media.graphics.drawable.Drawable;
 import io.github.shaksternano.borgar.media.graphics.drawable.ImageDrawable;
+import io.github.shaksternano.borgar.util.tenor.TenorMediaType;
+import io.github.shaksternano.borgar.util.tenor.TenorUtil;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
@@ -91,6 +93,21 @@ public class MessageUtil {
                 }
             }
             return Optional.empty();
+        });
+    }
+
+    public static CompletableFuture<Optional<String>> getUrlTenor(Message message) {
+        return getUrl(message).thenCompose(urlOptional -> {
+            if (urlOptional.isPresent()) {
+                var url = urlOptional.orElseThrow();
+                try {
+                    return TenorUtil.retrieveTenorMediaUrl(url, TenorMediaType.GIF_NORMAL, Main.getTenorApiKey()).thenApply(Optional::of);
+                } catch (IllegalArgumentException e) {
+                    return CompletableFuture.completedFuture(urlOptional);
+                }
+            } else {
+                return CompletableFuture.completedFuture(Optional.empty());
+            }
         });
     }
 
