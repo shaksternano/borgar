@@ -46,6 +46,7 @@ object GifLoopCommand : KotlinCommand<Path>(
         val loopCountString = arguments.firstOrNull() ?: return CommandResponse("No loop count specified!")
         val loopCount = loopCountString.toIntOrNull()
             ?.let {
+                // Swap 0 and -1
                 when (it) {
                     // Remove looping
                     0 -> -1
@@ -83,10 +84,12 @@ object GifLoopCommand : KotlinCommand<Path>(
                 return CommandResponse("Not a GIF file!")
             }
             val fileName = if (extension.isBlank()) fileNameWithoutExtension else "$fileNameWithoutExtension.$extension"
-            // Do not add the application extension if no looping is wanted.
+            // Do not add the application extension if no looping is wanted
             val applicationExtension = if (loopCount < 0) listOf() else createApplicationExtension(loopCount)
             val inputStream = path.inputStream().buffered().modifiable()
+            // Insert the new application extension with the specified loop count after the global color table
             inputStream.insertBytes(gifInfo.globalColorTableEnd, applicationExtension)
+            // Remove all existing application extensions
             gifInfo.applicationExtensions.forEach {
                 inputStream.removeBytes(it.first, it.last - it.first + 1)
             }
@@ -129,6 +132,7 @@ object GifLoopCommand : KotlinCommand<Path>(
     }
 
     private fun readHeader(inputStream: InputStream) {
+        // First 6 bytes should be the GIF header
         val bytes = inputStream.readNBytes(6)
         // Should either be GIF87a or GIF89a
         val id = bytes.decodeToString()
@@ -173,8 +177,8 @@ object GifLoopCommand : KotlinCommand<Path>(
     private fun calculateColorTableBytes(colorTableSize: Int): Long {
         /*
         Color table bytes = 2^(N+1) * 3:
-        2^(N+1) colors, where N the color table size
-        3 bytes per color
+            2^(N+1) colors, where N the color table size
+            3 bytes per color
          */
         return 2.0.pow(colorTableSize + 1).toLong() * 3
     }
@@ -189,7 +193,7 @@ object GifLoopCommand : KotlinCommand<Path>(
         These will all be removed.
          */
         val applicationExtensions = mutableListOf<LongRange>()
-        // read GIF file content blocks
+        // Read GIF file content blocks
         var continueReading = true
         while (continueReading) {
             // Code
@@ -264,12 +268,14 @@ object GifLoopCommand : KotlinCommand<Path>(
 
     private fun skipBlocks(inputStream: InputStream) {
         var blockSize: Int
+        // Loop until the block terminator, 0x00, is reached
         do {
             blockSize = skipBlock(inputStream)
         } while (blockSize > 0)
     }
 
     private fun skipBlock(inputStream: InputStream): Int {
+        // The first byte is the block size
         val blockSize = inputStream.read()
         inputStream.skipNBytes(blockSize.toLong())
         return blockSize
