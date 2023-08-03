@@ -6,7 +6,8 @@ jobs:
     runs-on: ubuntu-22.04
 
     env:
-      POSTGRESQL_URL: jdbc:postgresql://localhost:5332/postgres
+      POSTGRESQL_URL: jdbc:postgresql://localhost:5432/postgres
+      POSTGRESQL_PORTS: 5432:5432
       POSTGRESQL_USERNAME: root
       POSTGRESQL_PASSWORD: password
 
@@ -21,6 +22,7 @@ jobs:
       - name: Create .env file for Docker Compose
         run: |
           touch .env
+          echo POSTGRESQL_PORTS=POSTGRESQL_PORTS >> .env
           echo POSTGRESQL_USERNAME=$POSTGRESQL_USERNAME >> .env
           echo POSTGRESQL_PASSWORD=$POSTGRESQL_PASSWORD >> .env
 
