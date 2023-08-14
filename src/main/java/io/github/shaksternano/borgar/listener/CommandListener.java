@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Listens for commands in Discord messages.
@@ -61,7 +62,7 @@ public class CommandListener extends ListenerAdapter {
                 message.addReaction(Emoji.fromUnicode(emoji)).queue();
                 message.reply(emoji).queue();
             }
-            CommandParser.parseAndExecute(event);
+            CompletableFuture.runAsync(() -> CommandParser.parseAndExecute(event));
             FavouriteHandler.sendFavouriteFile(event);
         }
     }
