@@ -3,6 +3,7 @@ package io.github.shaksternano.borgar.media.io.writer;
 import com.sksamuel.scrimage.DisposeMethod;
 import com.sksamuel.scrimage.ImmutableImage;
 import com.sksamuel.scrimage.nio.StreamingGifWriter;
+import io.github.shaksternano.borgar.media.FixedLoopingGifWriter;
 import io.github.shaksternano.borgar.media.ImageFrame;
 import io.github.shaksternano.borgar.media.ImageUtil;
 import org.jetbrains.annotations.Nullable;
@@ -45,7 +46,7 @@ public class ScrimageGifWriter implements NoAudioWriter {
 
     public ScrimageGifWriter(File output, int loopCount) throws IOException {
         var infiniteLoop = loopCount == 0;
-        var writer = new StreamingGifWriter().withInfiniteLoop(infiniteLoop);
+        var writer = new FixedLoopingGifWriter().withInfiniteLoop(infiniteLoop);
         gif = writer.prepareStream(output, BufferedImage.TYPE_INT_ARGB);
     }
 
