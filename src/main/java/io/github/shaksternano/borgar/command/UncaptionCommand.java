@@ -37,7 +37,8 @@ public class UncaptionCommand extends FileCommand {
                 fileFormat,
                 "uncaptioned",
                 this::findNonCaptionAreaTopAndBottom,
-                maxFileSize
+                maxFileSize,
+                "Couldn't detect caption!"
             ),
             "uncaptioned",
             fileFormat

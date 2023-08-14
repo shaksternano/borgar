@@ -57,7 +57,8 @@ public class AutoCropCommand extends FileCommand {
                 fileFormat,
                 "cropped",
                 new CropAreaFinder(cropColor, colorTolerance),
-                maxFileSize
+                maxFileSize,
+                "Couldn't find area to crop!"
             ),
             "cropped",
             fileFormat

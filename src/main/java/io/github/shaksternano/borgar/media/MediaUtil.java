@@ -1,6 +1,7 @@
 package io.github.shaksternano.borgar.media;
 
 import com.google.common.io.Files;
+import io.github.shaksternano.borgar.exception.FailedOperationException;
 import io.github.shaksternano.borgar.io.FileUtil;
 import io.github.shaksternano.borgar.media.io.MediaReaders;
 import io.github.shaksternano.borgar.media.io.MediaWriters;
@@ -241,7 +242,8 @@ public class MediaUtil {
         String outputFormat,
         String resultName,
         Function<BufferedImage, Rectangle> cropKeepAreaFinder,
-        long maxFileSize
+        long maxFileSize,
+        String failureMessage
     ) throws IOException {
         try (
             var reader = MediaReaders.createImageReader(media, outputFormat);
@@ -281,7 +283,7 @@ public class MediaUtil {
                 && toKeep.getWidth() == width
                 && toKeep.getHeight() == height
             )) {
-                return media;
+                throw new FailedOperationException(failureMessage);
             } else {
                 var finalToKeep = toKeep;
                 return processMedia(
@@ -385,7 +387,7 @@ public class MediaUtil {
      * @return The index of the frame with the given timestamp.
      */
     public static int findIndex(long timeStamp, List<? extends Number> timestamps) {
-        if (timestamps.size() == 0) {
+        if (timestamps.isEmpty()) {
             throw new IllegalArgumentException("Timestamp list is empty");
         } else if (timeStamp < 0) {
             throw new IllegalArgumentException("Timestamp must not be negative");

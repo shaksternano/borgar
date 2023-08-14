@@ -3,6 +3,7 @@ package io.github.shaksternano.borgar.command;
 import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.borgar.Main;
 import io.github.shaksternano.borgar.command.util.CommandResponse;
+import io.github.shaksternano.borgar.exception.FailedOperationException;
 import io.github.shaksternano.borgar.exception.InvalidMediaException;
 import io.github.shaksternano.borgar.exception.UnreadableFileException;
 import io.github.shaksternano.borgar.exception.UnsupportedFileFormatException;
@@ -109,6 +110,10 @@ public abstract sealed class BaseFileCommand extends BaseCommand<List<File>> per
                     unsupportedMessage = "This operation is not supported on files with type `" + fileFormat + "`!";
                 }
                 return new CommandResponse<>(unsupportedMessage);
+            } catch (FailedOperationException e) {
+                return new CommandResponse<>(
+                    e.getMessage() == null ? "Failed to edit media!" : e.getMessage()
+                );
             } catch (UncheckedIOException e) {
                 if (e.getCause() instanceof UnreadableFileException) {
                     Main.getLogger().error("Could not read file", e);
