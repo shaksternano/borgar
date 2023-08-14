@@ -1,8 +1,8 @@
 package io.github.shaksternano.borgar.command
 
 import com.google.common.collect.ListMultimap
+import io.github.shaksternano.borgar.collect.parallelMap
 import io.github.shaksternano.borgar.command.util.CommandResponse
-import io.github.shaksternano.borgar.util.collect.parallelMap
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*

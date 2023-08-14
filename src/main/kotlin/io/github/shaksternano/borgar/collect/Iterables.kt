@@ -1,4 +1,4 @@
-package io.github.shaksternano.borgar.util.collect
+package io.github.shaksternano.borgar.collect
 
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll

@@ -1,4 +1,4 @@
-package io.github.shaksternano.borgar.util.io
+package io.github.shaksternano.borgar.io
 
 import java.io.InputStream
 
