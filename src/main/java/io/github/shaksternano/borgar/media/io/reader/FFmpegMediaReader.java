@@ -1,43 +1,42 @@
 package io.github.shaksternano.borgar.media.io.reader;
 
+import io.github.shaksternano.borgar.io.FileUtil;
 import io.github.shaksternano.borgar.media.VideoFrame;
-import io.github.shaksternano.borgar.util.Either;
 import io.github.shaksternano.borgar.util.MiscUtil;
 import io.github.shaksternano.borgar.util.collect.ClosableIterator;
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.FileUtils;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.Frame;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 public abstract sealed class FFmpegMediaReader<E extends VideoFrame<?, E>> extends BaseMediaReader<E> permits FFmpegImageReader, FFmpegAudioReader {
 
-    private final Either<File, byte[]> input;
+    private final File input;
     protected final FFmpegFrameGrabber grabber;
     protected final List<AutoCloseable> toClose = new ArrayList<>();
+    private final boolean deleteFile;
     private boolean closed = false;
 
     public FFmpegMediaReader(File input, String format) throws IOException {
-        this(Either.left(input), format);
+        this(input, format, false);
     }
 
     public FFmpegMediaReader(InputStream input, String format) throws IOException {
-        this(Either.right(input), format);
+        this(writeToFile(input, format), format, true);
     }
 
-    private FFmpegMediaReader(Either<File, InputStream> input, String format) throws IOException {
+    private FFmpegMediaReader(File input, String format, boolean deleteFile) throws IOException {
         super(format);
-        this.input = input.mapRight(inputStream -> {
-            try (inputStream) {
-                return IOUtils.toByteArray(inputStream);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        });
+        this.input = input;
+        this.deleteFile = deleteFile;
         this.grabber = createGrabber();
         toClose.add(grabber);
         grabber.start();
@@ -58,9 +57,14 @@ public abstract sealed class FFmpegMediaReader<E extends VideoFrame<?, E>> exten
         height = grabber.getImageHeight();
     }
 
+    private static File writeToFile(InputStream input, String format) throws IOException {
+        var file = FileUtil.createTempFile("video", format);
+        FileUtils.copyInputStreamToFile(input, file);
+        return file;
+    }
+
     protected FFmpegFrameGrabber createGrabber() {
-        return input.mapRight(ByteArrayInputStream::new)
-            .map(FFmpegFrameGrabber::new, FFmpegFrameGrabber::new);
+        return new FFmpegFrameGrabber(input);
     }
 
     @Override
@@ -132,6 +136,7 @@ public abstract sealed class FFmpegMediaReader<E extends VideoFrame<?, E>> exten
         }
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
     public void close() throws IOException {
         if (closed) {
@@ -139,6 +144,9 @@ public abstract sealed class FFmpegMediaReader<E extends VideoFrame<?, E>> exten
         }
         closed = true;
         MiscUtil.closeAll(toClose);
+        if (deleteFile) {
+            input.delete();
+        }
     }
 
     private class Iterator implements ClosableIterator<E> {
