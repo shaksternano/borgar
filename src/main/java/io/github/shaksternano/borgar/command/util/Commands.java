@@ -90,6 +90,8 @@ public class Commands {
         ResourceTemplate.WHO_DID_THIS
     ));
 
+    public static final Command<?> LIVE_REACTION = addCommandToRegister(LiveReactionCommand.INSTANCE);
+
     public static final Command<?> CREATE_TEMPLATE = addCommandToRegister(CreateTemplateCommand.INSTANCE);
 
     public static final Command<?> DELETE_TEMPLATE = addCommandToRegister(DeleteTemplateCommand.INSTANCE);

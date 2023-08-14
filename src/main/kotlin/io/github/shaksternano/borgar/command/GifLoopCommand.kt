@@ -5,26 +5,19 @@ import com.google.common.io.Files
 import io.github.shaksternano.borgar.Main
 import io.github.shaksternano.borgar.command.util.CommandResponse
 import io.github.shaksternano.borgar.util.MessageUtil
-import io.github.shaksternano.borgar.util.io.IndexedInputStream
-import io.github.shaksternano.borgar.util.io.createTemporaryFile
-import io.github.shaksternano.borgar.util.io.indexed
-import io.github.shaksternano.borgar.util.io.modifiable
+import io.github.shaksternano.borgar.util.io.*
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import io.ktor.http.*
-import io.ktor.utils.io.core.*
-import io.ktor.utils.io.errors.EOFException
+import io.ktor.utils.io.errors.*
 import kotlinx.coroutines.future.await
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import java.io.InputStream
 import java.nio.file.Path
-import kotlin.io.path.appendBytes
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.inputStream
-import kotlin.io.use
 import kotlin.jvm.optionals.getOrElse
 import kotlin.math.pow
 
@@ -99,17 +92,6 @@ object GifLoopCommand : KotlinCommand<Path>(
 
     override fun handleFirstResponse(response: Message, event: MessageReceivedEvent, responseData: Path?) {
         responseData?.deleteIfExists()
-    }
-
-    private suspend fun download(response: HttpResponse, path: Path) {
-        val channel = response.bodyAsChannel()
-        while (!channel.isClosedForRead) {
-            val packet = channel.readRemaining(DEFAULT_BUFFER_SIZE.toLong())
-            while (!packet.isEmpty) {
-                val bytes = packet.readBytes()
-                path.appendBytes(bytes)
-            }
-        }
     }
 
     /*
