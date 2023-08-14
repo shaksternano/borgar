@@ -5,8 +5,7 @@ import net.dv8tion.jda.api.utils.FileUpload;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
-import java.io.InputStream;
+import java.io.*;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -17,7 +16,13 @@ public record CommandResponse<T>(List<MessageCreateData> responses, boolean supp
     }
 
     public CommandResponse(File file, String fileName) {
-        this(MessageCreateData.fromFiles(FileUpload.fromData(file, fileName)));
+        this(MessageCreateData.fromFiles(FileUpload.fromStreamSupplier(fileName, () -> {
+            try {
+                return new FileInputStream(file);
+            } catch (FileNotFoundException e) {
+                throw new UncheckedIOException(e);
+            }
+        })));
     }
 
     public CommandResponse(NamedFile file) {
