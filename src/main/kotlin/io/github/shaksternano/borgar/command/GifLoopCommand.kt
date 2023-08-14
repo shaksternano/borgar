@@ -139,7 +139,9 @@ object GifLoopCommand : KotlinCommand<Path>(
         6-8 : global color table size
          */
         val packed = inputStream.read()
+        // Bit 1
         val globalColorTableFlag = packed and 128 != 0
+        // Bits 6-8
         val globalColorTableSize = packed and 7
 
         /*
@@ -233,7 +235,9 @@ object GifLoopCommand : KotlinCommand<Path>(
         6-8 : local color table size
          */
         val packed = inputStream.read()
+        // Bit 1
         val localColorTableFlag = packed and 128 != 0
+        // Bits 6-8
         val localColorTableSize = packed and 7
         return if (localColorTableFlag) {
             calculateColorTableBytes(localColorTableSize)
@@ -250,7 +254,7 @@ object GifLoopCommand : KotlinCommand<Path>(
 
     private fun skipBlocks(inputStream: InputStream) {
         var blockSize: Int
-        // Loop until the block terminator, 0x00, is reached
+        // Loop until the block terminator, 0x00, or the end of the stream, -1, is reached
         do {
             blockSize = skipBlock(inputStream)
         } while (blockSize > 0)
@@ -267,9 +271,9 @@ object GifLoopCommand : KotlinCommand<Path>(
         val applicationExtension = mutableListOf<Int>()
         applicationExtension.add(0x21)                              // Extension code
         applicationExtension.add(0xFF)                              // Application extension label
-        applicationExtension.add(0x0B)                              // Length of Application block
+        applicationExtension.add(0x0B)                              // Length of Application block, 11 bytes
         "NETSCAPE2.0".forEach { applicationExtension.add(it.code) } // Application identifier
-        applicationExtension.add(0x03)                              // Length of data sub-block
+        applicationExtension.add(0x03)                              // Length of data sub-block, 3 bytes
         applicationExtension.add(0x01)                              // Constant
         applicationExtension.add(loopCount and 0xFF)                // Loop count in two byte little-endian format.
         applicationExtension.add((loopCount shr 8) and 0xFF)
