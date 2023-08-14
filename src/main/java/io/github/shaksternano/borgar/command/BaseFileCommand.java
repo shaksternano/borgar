@@ -18,11 +18,12 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-public abstract sealed class BaseFileCommand extends BaseCommand<File> permits FileCommand, OptionalFileInputFileCommand {
+public abstract sealed class BaseFileCommand extends BaseCommand<List<File>> permits FileCommand, OptionalFileInputFileCommand {
 
     private final boolean requireFileInput;
 
@@ -44,7 +45,7 @@ public abstract sealed class BaseFileCommand extends BaseCommand<File> permits F
     protected abstract NamedFile createFile(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event, long maxFileSize) throws IOException;
 
     @Override
-    public CompletableFuture<CommandResponse<File>> execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
+    public CompletableFuture<CommandResponse<List<File>>> execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
         CompletableFuture<Optional<NamedFile>> fileOptionalFuture = requireFileInput || arguments.isEmpty()
             ? MessageUtil.downloadFile(event.getMessage())
             : CompletableFuture.completedFuture(Optional.empty());
@@ -85,9 +86,13 @@ public abstract sealed class BaseFileCommand extends BaseCommand<File> permits F
                             "The size of the edited media file, " + outputSizeMb + "MB, is too large to send!"
                         );
                     } else {
-                        var response = new CommandResponse<File>(namedEdited)
-                            .withResponseData(output);
-                        // Don't delete the output file yet. It will be deleted after the response is sent.
+                        List<File> toDelete = new ArrayList<>();
+                        toDelete.add(input);
+                        toDelete.add(output);
+                        var response = new CommandResponse<List<File>>(namedEdited)
+                            .withResponseData(toDelete);
+                        // Don't delete the input and output files yet. They will be deleted after the response is sent.
+                        input = null;
                         output = null;
                         return response;
                     }
@@ -122,7 +127,9 @@ public abstract sealed class BaseFileCommand extends BaseCommand<File> permits F
     }
 
     @Override
-    public void handleFirstResponse(Message response, MessageReceivedEvent event, @Nullable File responseData) {
-        FileUtil.delete(responseData);
+    public void handleFirstResponse(Message response, MessageReceivedEvent event, @Nullable List<File> responseData) {
+        if (responseData != null) {
+            FileUtil.delete(responseData);
+        }
     }
 }

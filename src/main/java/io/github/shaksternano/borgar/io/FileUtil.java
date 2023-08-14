@@ -21,6 +21,7 @@ import java.nio.channels.Channels;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
@@ -165,12 +166,16 @@ public class FileUtil {
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    public static void delete(File... files) {
+    public static void delete(Iterable<File> files) {
         for (var file : files) {
             if (file != null) {
                 file.delete();
             }
         }
+    }
+
+    public static void delete(File... files) {
+        delete(Arrays.asList(files));
     }
 
     public static NamedFile changeFileExtension(File file, String fileName, String newExtension) throws IOException {
