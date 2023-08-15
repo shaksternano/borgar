@@ -15,19 +15,18 @@ import io.github.shaksternano.borgar.media.template.CustomTemplate
 import io.github.shaksternano.borgar.util.Fonts
 import io.github.shaksternano.borgar.util.MessageUtil
 import io.github.shaksternano.borgar.util.StringUtil
-import kotlinx.coroutines.Dispatchers
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.request.*
+import io.ktor.http.*
 import kotlinx.coroutines.future.await
-import kotlinx.coroutines.withContext
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import java.awt.Color
 import java.awt.Font
 import java.io.File
-import java.net.URI
-import java.net.URL
-import java.net.http.HttpClient
-import java.net.http.HttpRequest
-import java.net.http.HttpResponse
+import java.io.InputStream
 
 object CreateTemplateCommand : KotlinCommand<Unit>(
     "template",
@@ -201,16 +200,13 @@ object CreateTemplateCommand : KotlinCommand<Unit>(
     }
 
     private suspend fun isUrlValid(url: String): Boolean {
-        val client = HttpClient.newHttpClient()
-        val request = runCatching {
-            HttpRequest.newBuilder(URI(url))
-                .method("HEAD", HttpRequest.BodyPublishers.noBody())
-                .build()
-        }.getOrElse {
-            return false
+        return try {
+            HttpClient(CIO).use { client ->
+                client.head(url).status.isSuccess()
+            }
+        } catch (e: Exception) {
+            false
         }
-        val response = client.sendAsync(request, HttpResponse.BodyHandlers.discarding()).await()
-        return response.statusCode() in 200..299
     }
 
     private inline fun <reified R> getAs(
@@ -314,13 +310,13 @@ object CreateTemplateCommand : KotlinCommand<Unit>(
     }
 
     private suspend fun format(url: String): String {
-        return runCatching {
-            withContext(Dispatchers.IO) {
-                URL(url).openStream()
-            }.use {
-                ImageUtil.getImageFormat(it)
+        return try {
+            HttpClient(CIO).use { client ->
+                client.get(url).body<InputStream>().use {
+                    ImageUtil.getImageFormat(it)
+                }
             }
-        }.getOrElse {
+        } catch (e: Exception) {
             FileUtil.getFileExtension(url)
         }
     }
