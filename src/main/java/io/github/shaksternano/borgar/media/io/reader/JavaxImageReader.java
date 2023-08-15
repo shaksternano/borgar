@@ -2,6 +2,7 @@ package io.github.shaksternano.borgar.media.io.reader;
 
 import com.google.common.collect.Iterators;
 import io.github.shaksternano.borgar.media.ImageFrame;
+import io.github.shaksternano.borgar.media.ImageUtil;
 import io.github.shaksternano.borgar.media.io.MediaReaderFactory;
 import io.github.shaksternano.borgar.util.collect.ClosableIterator;
 import io.github.shaksternano.borgar.util.collect.ClosableSpliterator;
@@ -32,13 +33,15 @@ public class JavaxImageReader extends BaseMediaReader<ImageFrame> {
         if (image == null) {
             throw new IOException("Failed to read image");
         }
-        this.image = new ImageFrame(image, 1, 0);
+        // For some reason some images have a greyscale type, even though they have color
+        var converted = ImageUtil.convertType(image, BufferedImage.TYPE_INT_ARGB);
+        this.image = new ImageFrame(converted, 1, 0);
         frameCount = 1;
         duration = 1;
         frameRate = 1;
         frameDuration = 1;
-        width = image.getWidth();
-        height = image.getHeight();
+        width = converted.getWidth();
+        height = converted.getHeight();
     }
 
     @Override
