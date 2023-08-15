@@ -107,11 +107,16 @@ public class FileUtil {
     }
 
     public static String getFileFormat(File file) {
+        String format;
         try {
-            return ImageUtil.getImageFormat(file);
+            format = ImageUtil.getImageFormat(file);
         } catch (Exception ignored) {
-            return getFileExtension(file.getName()).toLowerCase();
+            format = getFileExtension(file.getName()).toLowerCase();
         }
+        if (format.equals("jpeg")) {
+            format = "jpg";
+        }
+        return format;
     }
 
     public static String getFileExtension(String fileName) {

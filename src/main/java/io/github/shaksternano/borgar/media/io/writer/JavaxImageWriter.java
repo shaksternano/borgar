@@ -28,7 +28,7 @@ public class JavaxImageWriter implements NoAudioWriter {
             if (MediaUtil.supportsTransparency(outputFormat)) {
                 image = ImageUtil.convertType(frame.content(), BufferedImage.TYPE_INT_ARGB);
             } else {
-                image = frame.content();
+                image = ImageUtil.convertType(frame.content(), BufferedImage.TYPE_3BYTE_BGR);
             }
             var supportedFormat = ImageIO.write(image, outputFormat, output);
             if (!supportedFormat) {

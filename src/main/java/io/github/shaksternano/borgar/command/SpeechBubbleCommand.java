@@ -59,6 +59,9 @@ public class SpeechBubbleCommand extends FileCommand {
     protected NamedFile modifyFile(File file, String fileName, String fileFormat, List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event, long maxFileSize) throws IOException {
         var flipped = extraArguments.containsKey(FLIP_FLAG);
         var opaque = extraArguments.containsKey(OPAQUE_FLAG);
+        if (cutOut) {
+            fileFormat = MediaUtil.equivalentTransparentFormat(fileFormat);
+        }
         return new NamedFile(
             MediaUtil.processMedia(
                 file,
