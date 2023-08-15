@@ -6,6 +6,7 @@ import io.github.shaksternano.borgar.media.ImageUtil;
 import io.github.shaksternano.borgar.media.io.MediaReaderFactory;
 import io.github.shaksternano.borgar.util.collect.ClosableIterator;
 import io.github.shaksternano.borgar.util.collect.ClosableSpliterator;
+import org.jetbrains.annotations.Nullable;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -28,7 +29,7 @@ public class JavaxImageReader extends BaseMediaReader<ImageFrame> {
         input.close();
     }
 
-    private JavaxImageReader(BufferedImage image, String format) throws IOException {
+    private JavaxImageReader(@Nullable BufferedImage image, String format) throws IOException {
         super(format);
         if (image == null) {
             throw new IOException("Failed to read image");
