@@ -44,6 +44,9 @@ abstract class ApiFilesCommand(
                 }
                 constantDelay(5000)
             }
+            install(HttpTimeout) {
+                requestTimeoutMillis = 60000
+            }
         }.use { client ->
             val fileCount = (count ?: arguments.firstOrNull()?.toIntOrNull()).let {
                 if (it == null) {
