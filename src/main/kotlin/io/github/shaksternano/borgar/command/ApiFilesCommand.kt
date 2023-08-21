@@ -57,16 +57,22 @@ abstract class ApiFilesCommand(
             }
             val files = (1..fileCount)
                 .parallelMap {
-                    runCatching {
+                    try {
                         response(client)
-                    }.getOrNull()
+                    } catch (e: Exception) {
+                        return@parallelMap null
+                    }
                 }
                 .filterNotNull()
                 .distinctBy {
                     it.id
                 }
                 .parallelMap {
-                    val fileResponse = client.get(it.url)
+                    val fileResponse = try {
+                        client.get(it.url)
+                    } catch (e: Exception) {
+                        return@parallelMap null
+                    }
                     val inputStream = download(fileResponse) ?: return@parallelMap null
                     val extension = fileResponse.headers["Content-Type"]?.let { contentType ->
                         val extensionSplitIndex = contentType.lastIndexOf('/')
