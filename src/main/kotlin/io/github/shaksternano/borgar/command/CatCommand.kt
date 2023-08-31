@@ -19,8 +19,8 @@ class CatCommand(
     "cat",
 ) {
 
-    override fun requestUrl(): String {
-        val isGif = Random.nextBoolean()
+    override fun requestUrl(tags: List<String>): String {
+        val isGif = Random.nextInt(5) == 0
         val path = if (isGif) "/cat/gif" else "/cat"
         return "$CAT_API_DOMAIN$path?json=true"
     }

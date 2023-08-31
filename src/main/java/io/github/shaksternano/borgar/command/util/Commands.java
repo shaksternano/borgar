@@ -278,7 +278,7 @@ public class Commands {
 
     public static final Command<?> CAT = addCommandToRegister(new CatCommand(
         "cat",
-        "Sends a random cat image. Optional arguments: [number of cats to send]",
+        "Sends a random cat image. Use -" + ApiFilesCommand.COUNT_FLAG + " to specify the number of cats.",
         null
     ));
 
@@ -296,19 +296,19 @@ public class Commands {
 
     public static final Command<?> PONY = addCommandToRegister(new PonyCommand(
         "pony",
-        "Sends a random pony image. Optional arguments: [number of ponies to send]",
+        "Sends a random pony image. Optional arguments: [Comma separated image tags]. Use -" + ApiFilesCommand.COUNT_FLAG + " to specify the number of ponies.",
         null
     ));
 
     public static final Command<?> PONIES = addCommandToRegister(new PonyCommand(
         "ponies",
-        "Sends a few random pony images.",
+        "Sends a few random pony images. Optional arguments: [Comma separated image tags].",
         5
     ));
 
     public static final Command<?> PONY_BOMB = addCommandToRegister(new PonyCommand(
         "ponybomb",
-        "Sends a bunch of random pony images.",
+        "Sends a bunch of random pony images. Optional arguments: [Comma separated image tags].",
         Message.MAX_FILE_AMOUNT
     ));
 

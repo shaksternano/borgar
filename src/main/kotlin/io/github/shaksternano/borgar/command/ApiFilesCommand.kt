@@ -26,11 +26,23 @@ abstract class ApiFilesCommand(
     private val prefix: String,
 ) : KotlinCommand<Unit>(name, description) {
 
+    companion object {
+        const val COUNT_FLAG = "n"
+    }
+
     final override suspend fun executeSuspend(
         arguments: List<String>,
         extraArguments: ListMultimap<String, String>,
         event: MessageReceivedEvent
     ): CommandResponse<Unit> {
+        val tags = parseTags(arguments)
+        val fileCount = (count ?: extraArguments.get(COUNT_FLAG).firstOrNull()?.toIntOrNull()).let {
+            if (it == null) {
+                1
+            } else {
+                (1..Message.MAX_FILE_AMOUNT).bound(it)
+            }
+        }
         HttpClient(CIO) {
             install(ContentNegotiation) {
                 json(Json {
@@ -48,17 +60,10 @@ abstract class ApiFilesCommand(
                 requestTimeoutMillis = 60000
             }
         }.use { client ->
-            val fileCount = (count ?: arguments.firstOrNull()?.toIntOrNull()).let {
-                if (it == null) {
-                    1
-                } else {
-                    (1..Message.MAX_FILE_AMOUNT).bound(it)
-                }
-            }
             val files = (1..fileCount)
                 .parallelMap {
                     try {
-                        response(client)
+                        response(client, tags)
                     } catch (e: Exception) {
                         return@parallelMap null
                     }
@@ -88,10 +93,18 @@ abstract class ApiFilesCommand(
                 }
                 .filterNotNull()
             return if (files.isEmpty()) {
-                CommandResponse("Error getting images!")
+                CommandResponse("No images found!")
             } else {
                 CommandResponse(MessageCreateData.fromFiles(files))
             }
+        }
+    }
+
+    override fun parameterNames(): Set<String> {
+        return if (count == null) {
+            setOf(COUNT_FLAG)
+        } else {
+            emptySet()
         }
     }
 
@@ -103,15 +116,27 @@ abstract class ApiFilesCommand(
         }
     }
 
-    private suspend fun response(client: HttpClient): ApiResponse {
-        val url = requestUrl()
+    private fun parseTags(arguments: List<String>): List<String> {
+        return arguments
+            .joinToString(" ")
+            .split(',')
+            .map {
+                it.trim()
+            }
+            .filter {
+                it.isNotEmpty()
+            }
+    }
+
+    private suspend fun response(client: HttpClient, tags: List<String>): ApiResponse {
+        val url = requestUrl(tags)
         val response = client.get(url) {
             contentType(ContentType.Application.Json)
         }
         return parseResponse(response)
     }
 
-    protected abstract fun requestUrl(): String
+    protected abstract fun requestUrl(tags: List<String>): String
 
     protected abstract suspend fun parseResponse(response: HttpResponse): ApiResponse
 

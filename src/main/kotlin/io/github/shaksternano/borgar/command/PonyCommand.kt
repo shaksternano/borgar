@@ -17,7 +17,14 @@ class PonyCommand(
     "pony",
 ) {
 
-    override fun requestUrl(): String = "$PONY_API_DOMAIN/api/v1/pony/random"
+    override fun requestUrl(tags: List<String>): String = buildString {
+        append("$PONY_API_DOMAIN/api/v1/pony/random")
+        if (tags.isNotEmpty()) {
+            tags.joinTo(this, ",", "?q=") {
+                it.replace(" ", "%20")
+            }
+        }
+    }
 
     override suspend fun parseResponse(response: HttpResponse): ApiResponse {
         val body = response.body<ResponseBody>()
