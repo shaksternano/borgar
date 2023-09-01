@@ -24,6 +24,8 @@ plugins {
 base.archivesName.set("borgar")
 
 dependencies {
+    implementation(project(":core"))
+
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion")
 
     implementation("io.ktor:ktor-client-core:$ktorVersion")
