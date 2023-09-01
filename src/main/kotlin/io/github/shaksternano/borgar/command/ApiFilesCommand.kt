@@ -133,7 +133,11 @@ abstract class ApiFilesCommand(
         val response = client.get(url) {
             contentType(ContentType.Application.Json)
         }
-        return parseResponse(response)
+        return if (response.status.isSuccess()) {
+            parseResponse(response)
+        } else {
+            throw Exception("Bad response: ${response.status}")
+        }
     }
 
     protected abstract fun requestUrl(tags: List<String>): String
