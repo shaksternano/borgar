@@ -36,7 +36,9 @@ object GifLoopCommand : KotlinCommand<Path>(
         extraArguments: ListMultimap<String, String>,
         event: MessageReceivedEvent
     ): CommandResponse<Path> {
-        val loopCountString = arguments.firstOrNull() ?: return CommandResponse("No loop count specified!")
+        val loopCountString = arguments.firstOrNull() ?: return CommandResponse(
+            "No loop count specified!"
+        )
         val loopCount = loopCountString.toIntOrNull()
             ?.let {
                 // Swap 0 and -1
@@ -86,7 +88,10 @@ object GifLoopCommand : KotlinCommand<Path>(
             gifInfo.applicationExtensions.forEach {
                 inputStream.removeBytes(it.first, it.last - it.first + 1)
             }
-            return CommandResponse<Path>(inputStream, fileName).withResponseData(path)
+            return CommandResponse<Path>(
+                inputStream,
+                fileName
+            ).withResponseData(path)
         }
     }
 

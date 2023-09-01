@@ -95,7 +95,11 @@ abstract class ApiFilesCommand(
             return if (files.isEmpty()) {
                 CommandResponse("No images found!")
             } else {
-                CommandResponse(MessageCreateData.fromFiles(files))
+                CommandResponse(
+                    MessageCreateData.fromFiles(
+                        files
+                    )
+                )
             }
         }
     }

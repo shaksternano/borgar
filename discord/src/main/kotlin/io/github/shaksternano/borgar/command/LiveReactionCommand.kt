@@ -70,7 +70,13 @@ object LiveReactionCommand : KotlinCommand<Path>(
                 },
                 DiscordUtil.getMaxUploadSize(event)
             )
-            return CommandResponse<Path>(NamedFile(result, resultName, fileFormat))
+            return CommandResponse<Path>(
+                NamedFile(
+                    result,
+                    resultName,
+                    fileFormat
+                )
+            )
                 .withResponseData(result.toPath())
         }
     }
