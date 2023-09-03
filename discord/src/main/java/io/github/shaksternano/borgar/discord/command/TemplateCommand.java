@@ -1,8 +1,8 @@
 package io.github.shaksternano.borgar.discord.command;
 
 import com.google.common.collect.ListMultimap;
+import io.github.shaksternano.borgar.core.media.ImageFrame;
 import io.github.shaksternano.borgar.discord.io.NamedFile;
-import io.github.shaksternano.borgar.discord.media.ImageFrame;
 import io.github.shaksternano.borgar.discord.media.ImageUtil;
 import io.github.shaksternano.borgar.discord.media.MediaUtil;
 import io.github.shaksternano.borgar.discord.media.graphics.OverlayData;
@@ -97,14 +97,14 @@ public class TemplateCommand extends OptionalFileInputFileCommand {
         public BufferedImage transformImage(ImageFrame contentFrame, ImageFrame templateFrame, ImageContentData constantData) {
             var transformedContentImage = ImageUtil.rotate(
                 ImageUtil.fit(
-                    contentFrame.content(),
+                    contentFrame.getContent(),
                     constantData.contentImageTargetWidth(),
                     constantData.contentImageTargetHeight()
                 ),
                 template.getContentRotation()
             );
             return ImageUtil.overlayImage(
-                templateFrame.content(),
+                templateFrame.getContent(),
                 transformedContentImage,
                 constantData.overlayData(),
                 constantData.contentIsBackground(),
@@ -181,12 +181,12 @@ public class TemplateCommand extends OptionalFileInputFileCommand {
         @Override
         public BufferedImage transformImage(ImageFrame frame, @Nullable TextDrawData constantData) throws IOException {
             if (constantData == null) {
-                return frame.content();
+                return frame.getContent();
             }
             return ImageUtil.drawText(
-                frame.content(),
+                frame.getContent(),
                 constantData,
-                frame.timestamp(),
+                frame.getTimestamp(),
                 template
             );
         }

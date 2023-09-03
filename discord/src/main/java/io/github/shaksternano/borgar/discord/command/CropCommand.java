@@ -2,10 +2,10 @@ package io.github.shaksternano.borgar.discord.command;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
+import io.github.shaksternano.borgar.core.media.ImageFrame;
 import io.github.shaksternano.borgar.discord.command.util.CommandParser;
 import io.github.shaksternano.borgar.discord.exception.MissingArgumentException;
 import io.github.shaksternano.borgar.discord.io.NamedFile;
-import io.github.shaksternano.borgar.discord.media.ImageFrame;
 import io.github.shaksternano.borgar.discord.media.MediaUtil;
 import io.github.shaksternano.borgar.discord.media.io.imageprocessor.SingleImageProcessor;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
@@ -92,7 +92,7 @@ public class CropCommand extends FileCommand {
 
         @Override
         public BufferedImage transformImage(ImageFrame frame, CropData constantData) {
-            return frame.content().getSubimage(constantData.x(), constantData.y(), constantData.width(), constantData.height());
+            return frame.getContent().getSubimage(constantData.x(), constantData.y(), constantData.width(), constantData.height());
         }
 
         @Override

@@ -1,6 +1,6 @@
 package io.github.shaksternano.borgar.discord.media.io.reader;
 
-import io.github.shaksternano.borgar.discord.media.AudioFrame;
+import io.github.shaksternano.borgar.core.media.AudioFrame;
 import io.github.shaksternano.borgar.discord.media.io.MediaReaderFactory;
 import io.github.shaksternano.borgar.discord.util.collect.ClosableIterator;
 import io.github.shaksternano.borgar.discord.util.collect.ClosableSpliterator;

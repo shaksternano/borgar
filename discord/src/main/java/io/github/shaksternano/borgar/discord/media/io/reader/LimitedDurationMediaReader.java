@@ -1,6 +1,6 @@
 package io.github.shaksternano.borgar.discord.media.io.reader;
 
-import io.github.shaksternano.borgar.discord.media.VideoFrame;
+import io.github.shaksternano.borgar.core.media.VideoFrame;
 import io.github.shaksternano.borgar.discord.util.collect.ClosableIterator;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,7 +32,7 @@ public class LimitedDurationMediaReader<E extends VideoFrame<?, E>> extends Base
             var duration = 0L;
             while (iterator.hasNext()) {
                 var frame = iterator.next();
-                var newDuration = duration + (long) frame.duration();
+                var newDuration = duration + (long) frame.getDuration();
                 if (newDuration > maxDuration) {
                     if (frameCount == 0) {
                         return new ReaderInfo(1, newDuration);
@@ -88,7 +88,7 @@ public class LimitedDurationMediaReader<E extends VideoFrame<?, E>> extends Base
                 throw new NoSuchElementException("Iterator has no more elements");
             }
             var frame = delegate.next();
-            currentTimestamp += frame.duration();
+            currentTimestamp += frame.getDuration();
             return frame;
         }
 

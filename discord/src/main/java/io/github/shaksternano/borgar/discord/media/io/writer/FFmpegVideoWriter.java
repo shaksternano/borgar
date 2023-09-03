@@ -1,7 +1,7 @@
 package io.github.shaksternano.borgar.discord.media.io.writer;
 
-import io.github.shaksternano.borgar.discord.media.AudioFrame;
-import io.github.shaksternano.borgar.discord.media.ImageFrame;
+import io.github.shaksternano.borgar.core.media.AudioFrame;
+import io.github.shaksternano.borgar.core.media.ImageFrame;
 import io.github.shaksternano.borgar.discord.media.ImageUtil;
 import org.bytedeco.ffmpeg.global.avcodec;
 import org.bytedeco.javacv.FFmpegFrameRecorder;
@@ -51,13 +51,13 @@ public class FFmpegVideoWriter implements MediaWriter {
     public void writeImageFrame(ImageFrame frame) throws IOException {
         var image = ImageUtil.convertType(
             ImageUtil.bound(
-                frame.content(),
+                frame.getContent(),
                 MAX_DIMENSION
             ),
             BufferedImage.TYPE_3BYTE_BGR
         );
         if (recorder == null) {
-            double fps = 1_000_000.0 / frame.duration();
+            double fps = 1_000_000.0 / frame.getDuration();
             recorder = createFFmpegRecorder(
                 output,
                 outputFormat,
@@ -82,7 +82,7 @@ public class FFmpegVideoWriter implements MediaWriter {
         }
         // Prevent errors from occurring when the frame rate is too high.
         if (recorder.getFrameRate() <= MAX_AUDIO_FRAME_RATE) {
-            recorder.record(frame.content());
+            recorder.record(frame.getContent());
         }
     }
 

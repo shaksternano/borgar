@@ -1,9 +1,9 @@
 package io.github.shaksternano.borgar.discord.media.template;
 
+import io.github.shaksternano.borgar.core.media.AudioFrame;
+import io.github.shaksternano.borgar.core.media.ImageFrame;
 import io.github.shaksternano.borgar.discord.Main;
 import io.github.shaksternano.borgar.discord.io.FileUtil;
-import io.github.shaksternano.borgar.discord.media.AudioFrame;
-import io.github.shaksternano.borgar.discord.media.ImageFrame;
 import io.github.shaksternano.borgar.discord.media.ImageUtil;
 import io.github.shaksternano.borgar.discord.media.graphics.GraphicsUtil;
 import io.github.shaksternano.borgar.discord.media.graphics.Position;

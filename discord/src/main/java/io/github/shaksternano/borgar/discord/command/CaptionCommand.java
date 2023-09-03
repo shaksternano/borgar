@@ -1,8 +1,8 @@
 package io.github.shaksternano.borgar.discord.command;
 
 import com.google.common.collect.ListMultimap;
+import io.github.shaksternano.borgar.core.media.ImageFrame;
 import io.github.shaksternano.borgar.discord.io.NamedFile;
-import io.github.shaksternano.borgar.discord.media.ImageFrame;
 import io.github.shaksternano.borgar.discord.media.ImageUtil;
 import io.github.shaksternano.borgar.discord.media.MediaUtil;
 import io.github.shaksternano.borgar.discord.media.graphics.GraphicsUtil;
@@ -66,7 +66,7 @@ public class CaptionCommand extends FileCommand {
 
         @Override
         public BufferedImage transformImage(ImageFrame frame, CaptionData constantData) throws IOException {
-            BufferedImage image = frame.content();
+            BufferedImage image = frame.getContent();
             BufferedImage captionedImage = new BufferedImage(image.getWidth(), image.getHeight() + constantData.fillHeight(), ImageUtil.getType(image));
             Graphics2D graphics = captionedImage.createGraphics();
             ImageUtil.configureTextDrawQuality(graphics);
@@ -92,7 +92,7 @@ public class CaptionCommand extends FileCommand {
                 graphics,
                 constantData.padding(),
                 captionY + constantData.padding(),
-                frame.timestamp()
+                frame.getTimestamp()
             );
 
             graphics.dispose();

@@ -1,10 +1,10 @@
 package io.github.shaksternano.borgar.discord.command;
 
 import com.google.common.collect.ListMultimap;
+import io.github.shaksternano.borgar.core.media.ImageFrame;
 import io.github.shaksternano.borgar.discord.exception.InvalidMediaException;
 import io.github.shaksternano.borgar.discord.io.FileUtil;
 import io.github.shaksternano.borgar.discord.io.NamedFile;
-import io.github.shaksternano.borgar.discord.media.ImageFrame;
 import io.github.shaksternano.borgar.discord.media.ImageUtil;
 import io.github.shaksternano.borgar.discord.media.MediaUtil;
 import io.github.shaksternano.borgar.discord.media.graphics.OverlayData;
@@ -95,7 +95,7 @@ public class SpeechBubbleCommand extends FileCommand {
 
         @Override
         public BufferedImage transformImage(ImageFrame frame, SpeechBubbleData constantData) {
-            var image = frame.content();
+            var image = frame.getContent();
             var speechBubble = constantData.speechBubble();
             if (cutOut) {
                 var cutoutColor = constantData.cutoutColor();
@@ -128,7 +128,7 @@ public class SpeechBubbleCommand extends FileCommand {
                 var inputStream = FileUtil.getResourceInRootPackage(speechBubblePath);
                 var reader = MediaReaders.createImageReader(inputStream, "png")
             ) {
-                speechBubble = reader.first().content();
+                speechBubble = reader.first().getContent();
             }
 
             var minDimension = 3;

@@ -3,8 +3,8 @@ package io.github.shaksternano.borgar.discord.media.io.writer;
 import com.sksamuel.scrimage.DisposeMethod;
 import com.sksamuel.scrimage.ImmutableImage;
 import com.sksamuel.scrimage.nio.StreamingGifWriter;
+import io.github.shaksternano.borgar.core.media.ImageFrame;
 import io.github.shaksternano.borgar.discord.media.FixedLoopingGifWriter;
-import io.github.shaksternano.borgar.discord.media.ImageFrame;
 import io.github.shaksternano.borgar.discord.media.ImageUtil;
 import org.jetbrains.annotations.Nullable;
 
@@ -54,14 +54,14 @@ public class ScrimageGifWriter implements NoAudioWriter {
     public void writeImageFrame(ImageFrame frame) throws IOException {
         var currentImage = ImageUtil.convertType(
             ImageUtil.bound(
-                frame.content(),
+                frame.getContent(),
                 MAX_DIMENSION
             ),
             BufferedImage.TYPE_INT_ARGB
         );
         if (previousImage != null && isSimilar(previousImage, currentImage)) {
             // Merge duplicate sequential frames into one.
-            pendingDuration += frame.duration();
+            pendingDuration += frame.getDuration();
         } else {
             // Write the previous frame if it exists and the duration is long enough.
             if (pendingWrite != null && pendingDuration >= GIF_MINIMUM_FRAME_DURATION) {
@@ -94,7 +94,7 @@ public class ScrimageGifWriter implements NoAudioWriter {
                 }
             }
 
-            var frameDuration = frame.duration();
+            var frameDuration = frame.getDuration();
             if (pendingWrite == null) {
                 previousImage = currentImage;
                 pendingWrite = toWrite;

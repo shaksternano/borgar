@@ -1,6 +1,9 @@
 package io.github.shaksternano.borgar.discord.media;
 
 import com.google.common.io.Files;
+import io.github.shaksternano.borgar.core.media.AudioFrame;
+import io.github.shaksternano.borgar.core.media.ImageFrame;
+import io.github.shaksternano.borgar.core.media.VideoFrame;
 import io.github.shaksternano.borgar.discord.exception.FailedOperationException;
 import io.github.shaksternano.borgar.discord.io.FileUtil;
 import io.github.shaksternano.borgar.discord.media.io.MediaReaders;
@@ -132,7 +135,7 @@ public class MediaUtil {
                     while (imageIterator.hasNext()) {
                         var imageFrame = imageIterator.next();
                         if (constantFrameDataValue == null) {
-                            constantFrameDataValue = processor.constantData(imageFrame.content());
+                            constantFrameDataValue = processor.constantData(imageFrame.getContent());
                         }
                         writer.writeImageFrame(imageFrame.transform(
                             ImageUtil.resize(
@@ -205,7 +208,7 @@ public class MediaUtil {
                         var firstFrame = framePair.first();
                         var secondFrame = framePair.second();
                         if (constantFrameDataValue == null) {
-                            constantFrameDataValue = processor.constantData(firstFrame.content(), secondFrame.content());
+                            constantFrameDataValue = processor.constantData(firstFrame.getContent(), secondFrame.getContent());
                         }
                         var toTransform = finalZippedImageReader.isFirstControlling()
                             ? firstFrame
@@ -255,7 +258,7 @@ public class MediaUtil {
 
             while (iterator.hasNext()) {
                 var frame = iterator.next();
-                var image = frame.content();
+                var image = frame.getContent();
                 if (width < 0) {
                     width = image.getWidth();
                     height = image.getHeight();
@@ -373,7 +376,7 @@ public class MediaUtil {
 
     public static <E extends VideoFrame<?, E>> E frameAtTime(long timestamp, List<E> frames, long duration) {
         var circularTimestamp = timestamp % Math.max(duration, 1);
-        var index = findIndex(circularTimestamp, new MappedList<>(frames, VideoFrame::timestamp));
+        var index = findIndex(circularTimestamp, new MappedList<>(frames, VideoFrame::getTimestamp));
         return frames.get(index);
     }
 

@@ -1,6 +1,6 @@
 package io.github.shaksternano.borgar.discord.media.io.imageprocessor;
 
-import io.github.shaksternano.borgar.discord.media.ImageFrame;
+import io.github.shaksternano.borgar.core.media.ImageFrame;
 
 import java.awt.image.BufferedImage;
 
@@ -8,7 +8,7 @@ public record SpeedProcessor(float speed) implements SingleImageProcessor<Boolea
 
     @Override
     public BufferedImage transformImage(ImageFrame frame, Boolean constantData) {
-        return frame.content();
+        return frame.getContent();
     }
 
     @Override

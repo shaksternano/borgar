@@ -1,9 +1,9 @@
 package io.github.shaksternano.borgar.discord.command
 
 import com.google.common.collect.ListMultimap
+import io.github.shaksternano.borgar.core.media.ImageFrame
 import io.github.shaksternano.borgar.discord.io.FileUtil
 import io.github.shaksternano.borgar.discord.io.NamedFile
-import io.github.shaksternano.borgar.discord.media.ImageFrame
 import io.github.shaksternano.borgar.discord.media.ImageUtil
 import io.github.shaksternano.borgar.discord.media.MediaUtil
 import io.github.shaksternano.borgar.discord.media.graphics.OverlayData

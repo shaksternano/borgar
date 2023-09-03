@@ -1,6 +1,6 @@
 package io.github.shaksternano.borgar.discord.media.io.reader;
 
-import io.github.shaksternano.borgar.discord.media.AudioFrame;
+import io.github.shaksternano.borgar.core.media.AudioFrame;
 import io.github.shaksternano.borgar.discord.media.MediaUtil;
 import io.github.shaksternano.borgar.discord.media.io.MediaReaderFactory;
 import io.github.shaksternano.borgar.discord.util.collect.ClosableIterator;
@@ -101,9 +101,9 @@ public final class FFmpegAudioReader extends FFmpegMediaReader<AudioFrame> {
                 var sampleRate = -1;
                 while (iterator.hasNext()) {
                     var frame = iterator.next();
-                    reverseFilter.push(frame.content());
+                    reverseFilter.push(frame.getContent());
                     if (sampleRate < 0) {
-                        sampleRate = frame.content().sampleRate;
+                        sampleRate = frame.getContent().sampleRate;
                     }
                 }
                 List<AudioFrame> reversedFrames = new ArrayList<>(frameCount);

@@ -1,6 +1,6 @@
 package io.github.shaksternano.borgar.discord.media.io.writer;
 
-import io.github.shaksternano.borgar.discord.media.ImageFrame;
+import io.github.shaksternano.borgar.core.media.ImageFrame;
 import io.github.shaksternano.borgar.discord.media.ImageUtil;
 import io.github.shaksternano.borgar.discord.media.MediaUtil;
 
@@ -26,9 +26,9 @@ public class JavaxImageWriter implements NoAudioWriter {
             written = true;
             BufferedImage image;
             if (MediaUtil.supportsTransparency(outputFormat)) {
-                image = ImageUtil.convertType(frame.content(), BufferedImage.TYPE_INT_ARGB);
+                image = ImageUtil.convertType(frame.getContent(), BufferedImage.TYPE_INT_ARGB);
             } else {
-                image = ImageUtil.convertType(frame.content(), BufferedImage.TYPE_3BYTE_BGR);
+                image = ImageUtil.convertType(frame.getContent(), BufferedImage.TYPE_3BYTE_BGR);
             }
             var supportedFormat = ImageIO.write(image, outputFormat, output);
             if (!supportedFormat) {

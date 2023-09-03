@@ -1,7 +1,7 @@
 package io.github.shaksternano.borgar.discord.media.io.reader;
 
+import io.github.shaksternano.borgar.core.media.ImageFrame;
 import io.github.shaksternano.borgar.discord.media.FrameInfo;
-import io.github.shaksternano.borgar.discord.media.ImageFrame;
 import io.github.shaksternano.borgar.discord.media.MediaUtil;
 import io.github.shaksternano.borgar.discord.media.io.MediaReaderFactory;
 import io.github.shaksternano.borgar.discord.util.collect.ClosableIterator;

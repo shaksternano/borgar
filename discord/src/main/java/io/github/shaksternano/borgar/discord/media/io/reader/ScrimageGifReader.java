@@ -2,9 +2,9 @@ package io.github.shaksternano.borgar.discord.media.io.reader;
 
 import com.sksamuel.scrimage.nio.AnimatedGifReader;
 import com.sksamuel.scrimage.nio.ImageSource;
-import io.github.shaksternano.borgar.discord.media.ImageFrame;
+import io.github.shaksternano.borgar.core.media.ImageFrame;
+import io.github.shaksternano.borgar.core.media.VideoFrame;
 import io.github.shaksternano.borgar.discord.media.MediaUtil;
-import io.github.shaksternano.borgar.discord.media.VideoFrame;
 import io.github.shaksternano.borgar.discord.media.io.MediaReaderFactory;
 import io.github.shaksternano.borgar.discord.util.collect.ClosableIterator;
 import io.github.shaksternano.borgar.discord.util.collect.ClosableSpliterator;
@@ -134,8 +134,8 @@ public class ScrimageGifReader extends BaseMediaReader<ImageFrame> {
             double timestamp = 0;
             for (var i = frames.size() - 1; i >= 0; i--) {
                 var frame = frames.get(i);
-                reversed.add(frameGenerator.apply(frame.content(), frame.duration(), (long) timestamp));
-                timestamp += frame.duration();
+                reversed.add(frameGenerator.apply(frame.getContent(), frame.getDuration(), (long) timestamp));
+                timestamp += frame.getDuration();
             }
             return reversed;
         }

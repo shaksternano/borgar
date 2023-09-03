@@ -2,8 +2,8 @@ package io.github.shaksternano.borgar.discord.command;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
+import io.github.shaksternano.borgar.core.media.ImageFrame;
 import io.github.shaksternano.borgar.discord.io.NamedFile;
-import io.github.shaksternano.borgar.discord.media.ImageFrame;
 import io.github.shaksternano.borgar.discord.media.ImageUtil;
 import io.github.shaksternano.borgar.discord.media.MediaUtil;
 import io.github.shaksternano.borgar.discord.media.graphics.TextAlignment;
@@ -67,7 +67,7 @@ public class DemotivateCommand extends FileCommand {
 
         @Override
         public BufferedImage transformImage(ImageFrame frame, DemotivateData constantData) throws IOException {
-            var image = frame.content();
+            var image = frame.getContent();
             var result = new BufferedImage(constantData.width(), constantData.height(), ImageUtil.getType(image));
             var graphics = result.createGraphics();
 
@@ -88,9 +88,9 @@ public class DemotivateCommand extends FileCommand {
             // Draw text
             graphics.setFont(constantData.font());
             ImageUtil.configureTextDrawQuality(graphics);
-            draw(graphics, constantData.paragraph, constantData.paragraphPosition(), frame.timestamp());
+            draw(graphics, constantData.paragraph, constantData.paragraphPosition(), frame.getTimestamp());
             graphics.setFont(constantData.subFont());
-            draw(graphics, constantData.subParagraph, constantData.subParagraphPosition(), frame.timestamp());
+            draw(graphics, constantData.subParagraph, constantData.subParagraphPosition(), frame.getTimestamp());
 
             graphics.dispose();
             return result;

@@ -1,7 +1,7 @@
 package io.github.shaksternano.borgar.discord.media.io.writer;
 
-import io.github.shaksternano.borgar.discord.media.AudioFrame;
-import io.github.shaksternano.borgar.discord.media.ImageFrame;
+import io.github.shaksternano.borgar.core.media.AudioFrame;
+import io.github.shaksternano.borgar.core.media.ImageFrame;
 
 import java.io.Closeable;
 import java.io.IOException;

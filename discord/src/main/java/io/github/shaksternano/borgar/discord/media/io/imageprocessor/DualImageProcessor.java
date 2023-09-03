@@ -1,6 +1,6 @@
 package io.github.shaksternano.borgar.discord.media.io.imageprocessor;
 
-import io.github.shaksternano.borgar.discord.media.ImageFrame;
+import io.github.shaksternano.borgar.core.media.ImageFrame;
 import io.github.shaksternano.borgar.discord.util.Pair;
 
 import java.awt.image.BufferedImage;

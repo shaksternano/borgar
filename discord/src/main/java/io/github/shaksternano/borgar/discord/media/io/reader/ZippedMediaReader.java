@@ -1,6 +1,6 @@
 package io.github.shaksternano.borgar.discord.media.io.reader;
 
-import io.github.shaksternano.borgar.discord.media.VideoFrame;
+import io.github.shaksternano.borgar.core.media.VideoFrame;
 import io.github.shaksternano.borgar.discord.util.MiscUtil;
 import io.github.shaksternano.borgar.discord.util.Pair;
 import io.github.shaksternano.borgar.discord.util.collect.ClosableIterator;
@@ -127,9 +127,9 @@ public class ZippedMediaReader<A extends VideoFrame<?, A>, B extends VideoFrame<
             try {
                 if (firstIterator != null) {
                     var first = firstIterator.next();
-                    var timestamp = first.timestamp() + (loops * firstReader.duration());
+                    var timestamp = first.getTimestamp() + (loops * firstReader.duration());
                     var second = secondReader.readFrame(timestamp);
-                    if (!firstIterator.hasNext() && (timestamp + first.duration()) < secondReader.duration()) {
+                    if (!firstIterator.hasNext() && (timestamp + first.getDuration()) < secondReader.duration()) {
                         firstIterator.close();
                         firstIterator = firstReader.iterator();
                         loops++;
@@ -137,9 +137,9 @@ public class ZippedMediaReader<A extends VideoFrame<?, A>, B extends VideoFrame<
                     return new Pair<>(first, second);
                 } else if (secondIterator != null) {
                     var second = secondIterator.next();
-                    var timestamp = second.timestamp() + (loops * secondReader.duration());
+                    var timestamp = second.getTimestamp() + (loops * secondReader.duration());
                     var first = firstReader.readFrame(timestamp);
-                    if (!secondIterator.hasNext() && (timestamp + second.duration()) < firstReader.duration()) {
+                    if (!secondIterator.hasNext() && (timestamp + second.getDuration()) < firstReader.duration()) {
                         secondIterator.close();
                         secondIterator = secondReader.iterator();
                         loops++;

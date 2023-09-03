@@ -1,8 +1,8 @@
 package io.github.shaksternano.borgar.discord.media.io.reader;
 
 import com.google.common.collect.Lists;
+import io.github.shaksternano.borgar.core.media.ImageFrame;
 import io.github.shaksternano.borgar.discord.media.FrameInfo;
-import io.github.shaksternano.borgar.discord.media.ImageFrame;
 import io.github.shaksternano.borgar.discord.media.io.MediaReaderFactory;
 import io.github.shaksternano.borgar.discord.util.collect.ClosableIterator;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
@@ -106,7 +106,7 @@ public final class FFmpegImageReader extends FFmpegMediaReader<ImageFrame> {
             try (var iterator = FFmpegImageReader.this.iterator()) {
                 while (iterator.hasNext()) {
                     var frame = iterator.next();
-                    frameInfo.add(new FrameInfo(frame.duration(), frame.timestamp()));
+                    frameInfo.add(new FrameInfo(frame.getDuration(), frame.getTimestamp()));
                 }
             }
             return Collections.unmodifiableList(Lists.reverse(frameInfo));
@@ -116,7 +116,7 @@ public final class FFmpegImageReader extends FFmpegMediaReader<ImageFrame> {
         public ImageFrame readFrame(long timestamp) throws IOException {
             var reversedTimestamp = duration - (timestamp % duration);
             var frame = FFmpegImageReader.this.readFrame(reversedTimestamp);
-            return new ImageFrame(frame.content(), frame.duration(), timestamp);
+            return new ImageFrame(frame.getContent(), frame.getDuration(), timestamp);
         }
 
         @Override

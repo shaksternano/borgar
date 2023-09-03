@@ -1,6 +1,6 @@
 package io.github.shaksternano.borgar.discord.media.io.reader;
 
-import io.github.shaksternano.borgar.discord.media.VideoFrame;
+import io.github.shaksternano.borgar.core.media.VideoFrame;
 import io.github.shaksternano.borgar.discord.util.collect.ClosableIterator;
 import org.jetbrains.annotations.Nullable;
 

@@ -1,10 +1,10 @@
 package io.github.shaksternano.borgar.discord.command;
 
 import com.google.common.collect.ListMultimap;
+import io.github.shaksternano.borgar.core.media.ImageFrame;
 import io.github.shaksternano.borgar.discord.command.util.CommandParser;
 import io.github.shaksternano.borgar.discord.io.FileUtil;
 import io.github.shaksternano.borgar.discord.io.NamedFile;
-import io.github.shaksternano.borgar.discord.media.ImageFrame;
 import io.github.shaksternano.borgar.discord.media.ImageUtil;
 import io.github.shaksternano.borgar.discord.media.MediaUtil;
 import io.github.shaksternano.borgar.discord.media.io.MediaReaders;
@@ -107,8 +107,8 @@ public class SpinCommand extends FileCommand {
 
         @Override
         public BufferedImage transformImage(ImageFrame frame, SpinData constantData) {
-            var image = frame.content();
-            var angle = 2 * Math.PI * (frame.timestamp() / (double) rotationDuration);
+            var image = frame.getContent();
+            var angle = 2 * Math.PI * (frame.getTimestamp() / (double) rotationDuration);
             if (speed < 0) {
                 angle = -angle;
             }

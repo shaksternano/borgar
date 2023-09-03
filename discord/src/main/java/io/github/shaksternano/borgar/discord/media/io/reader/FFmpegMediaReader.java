@@ -1,7 +1,7 @@
 package io.github.shaksternano.borgar.discord.media.io.reader;
 
+import io.github.shaksternano.borgar.core.media.VideoFrame;
 import io.github.shaksternano.borgar.discord.io.FileUtil;
-import io.github.shaksternano.borgar.discord.media.VideoFrame;
 import io.github.shaksternano.borgar.discord.util.MiscUtil;
 import io.github.shaksternano.borgar.discord.util.collect.ClosableIterator;
 import org.apache.commons.io.FileUtils;

@@ -1,12 +1,12 @@
 package io.github.shaksternano.borgar.discord.command;
 
 import com.google.common.collect.ListMultimap;
+import io.github.shaksternano.borgar.core.media.ImageFrame;
 import io.github.shaksternano.borgar.discord.Main;
 import io.github.shaksternano.borgar.discord.command.util.CommandResponse;
 import io.github.shaksternano.borgar.discord.data.repository.SavedUrlRepository;
 import io.github.shaksternano.borgar.discord.io.FileUtil;
 import io.github.shaksternano.borgar.discord.io.NamedFile;
-import io.github.shaksternano.borgar.discord.media.ImageFrame;
 import io.github.shaksternano.borgar.discord.media.ImageUtil;
 import io.github.shaksternano.borgar.discord.media.MediaUtil;
 import io.github.shaksternano.borgar.discord.media.graphics.GraphicsUtil;
@@ -158,7 +158,7 @@ public class AddFavouriteCommand extends BaseCommand<AddFavouriteCommand.Respons
 
         @Override
         public BufferedImage transformImage(ImageFrame frame, AddFavouriteData constantData) throws IOException {
-            var resized = resizeImage(frame.content());
+            var resized = resizeImage(frame.getContent());
             var graphics = resized.createGraphics();
             ImageUtil.configureTextDrawQuality(graphics);
             var padding = constantData.padding();
@@ -178,7 +178,7 @@ public class AddFavouriteCommand extends BaseCommand<AddFavouriteCommand.Respons
                 graphics,
                 constantData.textX(),
                 constantData.textY(),
-                frame.timestamp()
+                frame.getTimestamp()
             );
             return resized;
         }
@@ -196,7 +196,7 @@ public class AddFavouriteCommand extends BaseCommand<AddFavouriteCommand.Respons
                 var smallestDimension = Math.min(imageWidth, imageHeight);
                 var padding = (int) (smallestDimension * 0.05);
 
-                var icon = reader.first().content();
+                var icon = reader.first().getContent();
                 var iconTargetWidth = (int) (smallestDimension * 0.2);
                 var resizedIcon = ImageUtil.fitWidth(icon, iconTargetWidth);
                 var iconWidth = resizedIcon.getWidth();

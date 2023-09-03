@@ -2,9 +2,9 @@ package io.github.shaksternano.borgar.discord.command;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
+import io.github.shaksternano.borgar.core.media.ImageFrame;
 import io.github.shaksternano.borgar.discord.exception.MissingArgumentException;
 import io.github.shaksternano.borgar.discord.io.NamedFile;
-import io.github.shaksternano.borgar.discord.media.ImageFrame;
 import io.github.shaksternano.borgar.discord.media.ImageUtil;
 import io.github.shaksternano.borgar.discord.media.MediaUtil;
 import io.github.shaksternano.borgar.discord.media.graphics.GraphicsUtil;
@@ -74,7 +74,7 @@ public class MemeCommand extends FileCommand {
 
         @Override
         public BufferedImage transformImage(ImageFrame frame, ImpactData constantData) throws IOException {
-            var result = frame.content();
+            var result = frame.getContent();
             var graphics = result.createGraphics();
             ImageUtil.configureTextDrawQuality(graphics);
 
@@ -83,7 +83,7 @@ public class MemeCommand extends FileCommand {
                 graphics,
                 constantData.topParagraphX(),
                 constantData.topParagraphY(),
-                frame.timestamp()
+                frame.getTimestamp()
             );
 
             graphics.setFont(constantData.bottomFont());
@@ -91,7 +91,7 @@ public class MemeCommand extends FileCommand {
                 graphics,
                 constantData.bottomParagraphX(),
                 constantData.bottomParagraphY(),
-                frame.timestamp()
+                frame.getTimestamp()
             );
 
             graphics.dispose();

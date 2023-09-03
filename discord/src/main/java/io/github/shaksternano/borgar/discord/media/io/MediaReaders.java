@@ -1,8 +1,8 @@
 package io.github.shaksternano.borgar.discord.media.io;
 
+import io.github.shaksternano.borgar.core.media.AudioFrame;
+import io.github.shaksternano.borgar.core.media.ImageFrame;
 import io.github.shaksternano.borgar.discord.exception.UnreadableFileException;
-import io.github.shaksternano.borgar.discord.media.AudioFrame;
-import io.github.shaksternano.borgar.discord.media.ImageFrame;
 import io.github.shaksternano.borgar.discord.media.io.reader.*;
 
 import java.io.File;

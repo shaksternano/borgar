@@ -1,6 +1,6 @@
 package io.github.shaksternano.borgar.discord.media.graphics.drawable;
 
-import io.github.shaksternano.borgar.discord.media.ImageFrame;
+import io.github.shaksternano.borgar.core.media.ImageFrame;
 import io.github.shaksternano.borgar.discord.media.ImageUtil;
 import io.github.shaksternano.borgar.discord.media.io.MediaReaders;
 import io.github.shaksternano.borgar.discord.media.io.reader.MediaReader;
@@ -24,14 +24,14 @@ public class ImageDrawable implements Drawable {
         reader = MediaReaders.createImageReader(inputStream, format);
         targetWidth = reader.width();
         targetHeight = reader.height();
-        firstFrame = reader.first().content();
+        firstFrame = reader.first().getContent();
         actualWidth = firstFrame.getWidth();
         actualHeight = firstFrame.getHeight();
     }
 
     @Override
     public void draw(Graphics2D graphics, int x, int y, long timestamp) throws IOException {
-        var image = resizeImage(reader.readFrame(timestamp).content());
+        var image = resizeImage(reader.readFrame(timestamp).getContent());
         graphics.drawImage(image, x, y, null);
     }
 

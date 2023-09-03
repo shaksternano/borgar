@@ -1,7 +1,7 @@
 package io.github.shaksternano.borgar.discord.media.io.writer;
 
 import com.sksamuel.scrimage.ImmutableImage;
-import io.github.shaksternano.borgar.discord.media.ImageFrame;
+import io.github.shaksternano.borgar.core.media.ImageFrame;
 import net.ifok.image.image4j.codec.ico.ICOEncoder;
 
 import java.io.File;
@@ -20,7 +20,7 @@ public class Image4jIcoWriter implements NoAudioWriter {
     public void writeImageFrame(ImageFrame frame) throws IOException {
         if (!written) {
             written = true;
-            var image = ImmutableImage.wrapAwt(frame.content())
+            var image = ImmutableImage.wrapAwt(frame.getContent())
                 .bound(256, 256)
                 .awt();
             ICOEncoder.write(image, output);
