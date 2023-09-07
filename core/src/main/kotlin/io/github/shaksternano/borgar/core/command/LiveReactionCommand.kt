@@ -5,7 +5,7 @@ import com.google.common.io.Files
 import io.github.shaksternano.borgar.core.command.util.CommandResponse
 import io.github.shaksternano.borgar.core.io.FileUtil
 import io.github.shaksternano.borgar.core.io.NamedFile
-import io.github.shaksternano.borgar.core.io.createTemporaryFile
+import io.github.shaksternano.borgar.core.io.createTempFile
 import io.github.shaksternano.borgar.core.io.download
 import io.github.shaksternano.borgar.core.media.ImageUtil
 import io.github.shaksternano.borgar.core.media.MediaReaders
@@ -48,7 +48,7 @@ object LiveReactionCommand : KotlinCommand<Path>(
             val extension = response.contentType()
                 ?.contentSubtype
                 ?: Files.getFileExtension(urlNoQueryParams)
-            val path = createTemporaryFile(fileNameWithoutExtension, extension)
+            val path = createTempFile(fileNameWithoutExtension, extension)
             download(response, path)
             val file = path.toFile()
             val fileFormat = FileUtil.getFileFormat(file)
