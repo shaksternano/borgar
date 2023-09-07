@@ -17,9 +17,6 @@ interface FileTask {
 
             override suspend fun run(input: List<DataSource>): List<DataSource> {
                 val firstOutput = this@FileTask.run(input)
-                if (firstOutput.isEmpty()) {
-                    throw IllegalStateException("The first task must output at least one file")
-                }
                 return after.run(firstOutput)
             }
 
