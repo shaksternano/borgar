@@ -90,8 +90,8 @@ public class AddFavouriteCommand extends BaseCommand<AddFavouriteCommand.Respons
             return FileUtil.downloadFile(url).thenCompose(namedFile -> {
                 try {
                     var renamed = FileUtil.changeFileExtension(
-                        namedFile.file(),
-                        namedFile.name(),
+                        namedFile.getFile(),
+                        namedFile.getName(),
                         "gif"
                     );
                     return new CommandResponse<ResponseData>(renamed).asFuture();
@@ -107,12 +107,12 @@ public class AddFavouriteCommand extends BaseCommand<AddFavouriteCommand.Respons
             ).orElseGet(() -> FileUtil.downloadFile(url).thenCompose(namedFile -> {
                 File input = null;
                 try {
-                    input = namedFile.file();
-                    var fileFormat = FileUtil.getFileFormat(namedFile.file());
+                    input = namedFile.getFile();
+                    var fileFormat = FileUtil.getFileFormat(namedFile.getFile());
                     var maxFileSize = DiscordUtil.getMaxUploadSize(event);
                     var aliasGif = createAliasGif(namedFile, url, fileFormat, maxFileSize, event);
                     return new CommandResponse<ResponseData>(aliasGif)
-                        .withResponseData(new ResponseData(aliasGif.file(), url, true))
+                        .withResponseData(new ResponseData(aliasGif.getFile(), url, true))
                         .asFuture();
                 } catch (IOException e) {
                     return CompletableFuture.failedFuture(e);
@@ -129,7 +129,7 @@ public class AddFavouriteCommand extends BaseCommand<AddFavouriteCommand.Respons
         long maxFileSize,
         MessageReceivedEvent event
     ) throws IOException {
-        var imageReader = MediaReaders.createImageReader(input.file(), fileFormat);
+        var imageReader = MediaReaders.createImageReader(input.getFile(), fileFormat);
         var audioReader = NoAudioReader.INSTANCE;
         var encodedUrl = Base64.getEncoder().encodeToString(originalUrl.getBytes());
         var resultName = ALIAS_PREFIX + encodedUrl;

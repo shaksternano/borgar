@@ -29,3 +29,8 @@ suspend fun HttpResponse.download(path: Path) {
         }
     }
 }
+
+fun filename(nameWithoutExtension: String, extension: String): String {
+    val extensionWithDot = if (extension.isBlank()) "" else ".$extension"
+    return nameWithoutExtension + extensionWithDot
+}

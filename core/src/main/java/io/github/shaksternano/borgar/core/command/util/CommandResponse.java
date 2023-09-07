@@ -26,7 +26,7 @@ public record CommandResponse<T>(List<MessageCreateData> responses, boolean supp
     }
 
     public CommandResponse(NamedFile file) {
-        this(file.file(), file.name());
+        this(file.getFile(), file.getName());
     }
 
     public CommandResponse(InputStream inputStream, String fileName) {

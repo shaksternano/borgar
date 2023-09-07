@@ -58,14 +58,14 @@ public abstract sealed class BaseFileCommand extends BaseCommand<List<File>> per
                 if (requireFileInput && namedFileOptional.isEmpty()) {
                     return new CommandResponse<>("No media found!");
                 } else {
-                    var fileOptional = namedFileOptional.map(NamedFile::file);
+                    var fileOptional = namedFileOptional.map(NamedFile::getFile);
                     input = fileOptional.orElse(null);
                     fileFormat = fileOptional.map(FileUtil::getFileFormat).orElse(fileFormat);
                     var finalFileFormat = fileFormat;
                     var maxFileSize = DiscordUtil.getMaxUploadSize(event);
                     var namedEdited = namedFileOptional.map(namedFile -> {
-                        var file = namedFile.file();
-                        var fileName = namedFile.name();
+                        var file = namedFile.getFile();
+                        var fileName = namedFile.getName();
                         try {
                             return modifyFile(file, fileName, finalFileFormat, arguments, extraArguments, event, maxFileSize);
                         } catch (IOException e) {
@@ -78,7 +78,7 @@ public abstract sealed class BaseFileCommand extends BaseCommand<List<File>> per
                             throw new UncheckedIOException(e);
                         }
                     });
-                    output = namedEdited.file();
+                    output = namedEdited.getFile();
                     var outputSize = output.length();
                     if (outputSize > DiscordUtil.getMaxUploadSize(event)) {
                         var outputSizeMb = outputSize / MiscUtil.TO_MB;
