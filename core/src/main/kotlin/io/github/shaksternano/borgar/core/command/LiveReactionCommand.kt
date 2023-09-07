@@ -49,7 +49,7 @@ object LiveReactionCommand : KotlinCommand<Path>(
                 ?.contentSubtype
                 ?: Files.getFileExtension(urlNoQueryParams)
             val path = createTemporaryFile(fileNameWithoutExtension, extension)
-            download(response, path)
+            response.download(path)
             val file = path.toFile()
             val fileFormat = FileUtil.getFileFormat(file)
             val imageReader = MediaReaders.createImageReader(file, fileFormat)

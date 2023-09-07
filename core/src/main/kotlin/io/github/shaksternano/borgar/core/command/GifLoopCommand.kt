@@ -71,7 +71,7 @@ object GifLoopCommand : KotlinCommand<Path>(
                 ?.contentSubtype
                 ?: Files.getFileExtension(urlNoQueryParams)
             val path = createTemporaryFile(fileNameWithoutExtension, extension)
-            download(response, path)
+            response.download(path)
             val gifInfo = try {
                 locateGifComponents(path.inputStream())
             } catch (e: IllegalArgumentException) {

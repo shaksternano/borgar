@@ -17,8 +17,8 @@ suspend fun createTemporaryFile(nameWithoutExtension: String, extension: String)
     return path
 }
 
-suspend fun download(response: HttpResponse, path: Path) {
-    val channel = response.bodyAsChannel()
+suspend fun HttpResponse.download(path: Path) {
+    val channel = bodyAsChannel()
     while (!channel.isClosedForRead) {
         val packet = channel.readRemaining(DEFAULT_BUFFER_SIZE.toLong())
         while (!packet.isEmpty) {
