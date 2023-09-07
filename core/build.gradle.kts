@@ -10,8 +10,21 @@ val scrimageVersion: String by project
 val twelveMonkeysVersion: String by project
 val image4jVersion: String by project
 val reflectionsVersion: String by project
+val jdaVersion: String by project
+val discordWebhooksVersion: String by project
+val exposedVersion: String by project
+val postgreSqlVersion: String by project
 
 dependencies {
+    implementation("net.dv8tion:JDA:$jdaVersion") {
+        exclude(module = "opus-java")
+    }
+    implementation("club.minnced:discord-webhooks:$discordWebhooksVersion")
+
+    implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
+    implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
+    runtimeOnly("org.postgresql:postgresql:$postgreSqlVersion")
+
     api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion")
 
     api("io.ktor:ktor-client-core:$ktorVersion")

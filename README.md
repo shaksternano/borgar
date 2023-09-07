@@ -14,7 +14,7 @@ Discord bot that provides fun image editing commands, such as image captioning. 
    3. Go to `File` → `Project Structure` → `Project` and set `Project compiler output` to `$PROJECT_DIR$/out`.
 
 ## How to run this project in Intellij Idea
-1. Run `io.github.shaksternano.borgar.discord.Main#main`
+1. Run `io.github.shaksternano.borgar.core.Main#main`
 2. It should fail to run the first time due to missing arguments such as the Discord bot token, so put those in the `Program arguments` field under the `Main` run configuration → `Edit Configurations...`.
 
 ## How to export and run this project as a JAR file
