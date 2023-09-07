@@ -4,14 +4,14 @@ import io.ktor.client.statement.*
 import io.ktor.utils.io.core.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.appendBytes
+import kotlin.io.path.createTempFile
 
-suspend fun createTempFile(nameWithoutExtension: String, extension: String): Path {
+suspend fun createTemporaryFile(nameWithoutExtension: String, extension: String): Path {
     val extensionWithDot = if (extension.isBlank()) "" else ".$extension"
     val path = withContext(Dispatchers.IO) {
-        Files.createTempFile(nameWithoutExtension, extensionWithDot)
+        createTempFile(nameWithoutExtension, extensionWithDot)
     }
     path.toFile().deleteOnExit()
     return path
