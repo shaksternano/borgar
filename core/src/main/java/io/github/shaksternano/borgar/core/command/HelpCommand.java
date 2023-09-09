@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class HelpCommand extends BaseCommand<Void> {
 
-    private static final Map<Long, List<String>> cachedHelpMessages = new ConcurrentHashMap<>();
+    private static final Map<String, List<String>> cachedHelpMessages = new ConcurrentHashMap<>();
 
     /**
      * Creates a new command object.
@@ -44,7 +44,7 @@ public class HelpCommand extends BaseCommand<Void> {
      */
     @Override
     public CompletableFuture<CommandResponse<Void>> execute(List<String> arguments, ListMultimap<String, String> extraArguments, MessageReceivedEvent event) {
-        var entityId = event.isFromGuild() ? event.getGuild().getIdLong() : event.getAuthor().getIdLong();
+        var entityId = event.isFromGuild() ? event.getGuild().getId() : event.getAuthor().getId();
         return getHelpMessages(entityId).thenApply(messages -> new CommandResponse<Void>(messages).withSuppressEmbeds(true));
     }
 
@@ -54,7 +54,7 @@ public class HelpCommand extends BaseCommand<Void> {
      * @param entityId The ID of the guild the command was run in, or the ID of the user if the command was run in a DM.
      * @return The messages to be displayed when this command is run.
      */
-    public static CompletableFuture<List<MessageCreateData>> getHelpMessages(long entityId) {
+    public static CompletableFuture<List<MessageCreateData>> getHelpMessages(String entityId) {
         var cachedMessage = cachedHelpMessages.get(entityId);
         if (cachedMessage != null) {
             return CompletableFuture.completedFuture(cachedMessage.stream()
@@ -71,11 +71,11 @@ public class HelpCommand extends BaseCommand<Void> {
         });
     }
 
-    public static void removeCachedMessage(long entityId) {
+    public static void removeCachedMessage(String entityId) {
         cachedHelpMessages.remove(entityId);
     }
 
-    private static CompletableFuture<List<CommandInfo>> getCommandInfos(long entityId) {
+    private static CompletableFuture<List<CommandInfo>> getCommandInfos(String entityId) {
         return TemplateRepository.readAllFuture(entityId).thenApply(templates -> {
             List<CommandInfo> commandInfos = new ArrayList<>();
             for (var command : CommandRegistry.getCommands()) {

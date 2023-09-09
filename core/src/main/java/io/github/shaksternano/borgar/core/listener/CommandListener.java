@@ -26,7 +26,7 @@ public class CommandListener extends ListenerAdapter {
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
         if (event.getName().equals(Commands.HELP.name())) {
-            var entityId = Objects.requireNonNullElseGet(event.getGuild(), event::getUser).getIdLong();
+            var entityId = Objects.requireNonNullElseGet(event.getGuild(), event::getUser).getId();
             HelpCommand.getHelpMessages(entityId).thenAccept(responses ->
                 CompletableFutureUtil.forEachSequentiallyAsync(
                     responses,

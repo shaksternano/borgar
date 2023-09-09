@@ -68,18 +68,12 @@ public class CommandParser {
         var commandNameParts = commandName.split(":", 2);
         var templateCommandName = commandNameParts[0];
         if (commandNameParts.length == 1) {
-            var entityId = event.isFromGuild() ? event.getGuild().getIdLong()
-                : event.getAuthor().getIdLong();
+            var entityId = event.isFromGuild() ? event.getGuild().getId()
+                : event.getAuthor().getId();
             return TemplateRepository.readFuture(templateCommandName, entityId);
         } else {
-            var entityIdString = commandNameParts[1];
-            long entityId;
-            try {
-                entityId = Long.parseLong(entityIdString);
-            } catch (NumberFormatException e) {
-                return CompletableFuture.completedFuture(Optional.empty());
-            }
-            if (entityId == event.getAuthor().getIdLong()) {
+            var entityId = commandNameParts[1];
+            if (event.getAuthor().getId().equals(entityId)) {
                 return TemplateRepository.readFuture(templateCommandName, entityId);
             } else {
                 var guild = event.getJDA().getGuildById(entityId);

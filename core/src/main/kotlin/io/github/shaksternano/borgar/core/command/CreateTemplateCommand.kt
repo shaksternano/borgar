@@ -46,9 +46,9 @@ object CreateTemplateCommand : KotlinCommand<Unit>(
         return try {
             val templateJson = parseJson(templateFile)
             val entityId = if (event.isFromGuild) {
-                event.guild.idLong
+                event.guild.id
             } else {
-                event.author.idLong
+                event.author.id
             }
             val commandName = getString(templateJson, "command_name").lowercase()
             if (CommandRegistry.isCommand(commandName)) {
@@ -79,7 +79,7 @@ object CreateTemplateCommand : KotlinCommand<Unit>(
     private suspend fun createTemplate(
         templateJson: JsonObject,
         commandName: String,
-        entityId: Long
+        entityId: String
     ): CustomTemplate {
         val description = getString(templateJson, "description") {
             "A custom template."

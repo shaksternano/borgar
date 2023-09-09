@@ -21,7 +21,7 @@ object TemplateRepository : Repository<TemplateRepository.TemplateTable>() {
         val commandName = varchar("command_name", 100)
 
         // Either a guild ID or a user ID (for DMs)
-        val entityId = long("entity_id")
+        val entityId = varchar("entity_id", 100)
 
         val description = varchar("description", 1000)
         val mediaUrl = varchar("media_url", 2000)
@@ -118,7 +118,7 @@ object TemplateRepository : Repository<TemplateRepository.TemplateTable>() {
         }
     }
 
-    suspend fun read(commandName: String, entityId: Long): CustomTemplate? = dbQuery {
+    suspend fun read(commandName: String, entityId: String): CustomTemplate? = dbQuery {
         select {
             TemplateTable.commandName eq commandName and (TemplateTable.entityId eq entityId)
         }.map {
@@ -130,12 +130,12 @@ object TemplateRepository : Repository<TemplateRepository.TemplateTable>() {
     @OptIn(DelicateCoroutinesApi::class)
     fun readFuture(
         commandName: String,
-        entityId: Long,
+        entityId: String,
     ): CompletableFuture<Optional<CustomTemplate>> = GlobalScope.future {
         Optional.ofNullable(read(commandName, entityId))
     }
 
-    suspend fun readAll(entityId: Long): List<CustomTemplate> = dbQuery {
+    suspend fun readAll(entityId: String): List<CustomTemplate> = dbQuery {
         select {
             TemplateTable.entityId eq entityId
         }.map {
@@ -145,15 +145,15 @@ object TemplateRepository : Repository<TemplateRepository.TemplateTable>() {
 
     @JvmStatic
     @OptIn(DelicateCoroutinesApi::class)
-    fun readAllFuture(entityId: Long): CompletableFuture<List<CustomTemplate>> = GlobalScope.future {
+    fun readAllFuture(entityId: String): CompletableFuture<List<CustomTemplate>> = GlobalScope.future {
         readAll(entityId)
     }
 
-    suspend fun exists(commandName: String, entityId: Long): Boolean = dbQuery {
+    suspend fun exists(commandName: String, entityId: String): Boolean = dbQuery {
         select { TemplateTable.commandName eq commandName and (TemplateTable.entityId eq entityId) }.any()
     }
 
-    suspend fun delete(commandName: String, entityId: Long): Unit = dbQuery {
+    suspend fun delete(commandName: String, entityId: String): Unit = dbQuery {
         deleteWhere { TemplateTable.commandName eq commandName and (TemplateTable.entityId eq entityId) }
     }
 }
