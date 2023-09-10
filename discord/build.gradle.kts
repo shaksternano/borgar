@@ -1,3 +1,4 @@
+val kotlinCoroutinesVersion: String by project
 val jdaVersion: String by project
 val discordWebhooksVersion: String by project
 val exposedVersion: String by project
@@ -23,6 +24,8 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
     runtimeOnly("org.postgresql:postgresql:$postgreSqlVersion")
 
+    testImplementation(kotlin("test"))
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinCoroutinesVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
 }
