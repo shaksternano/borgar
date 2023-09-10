@@ -1,9 +1,7 @@
 package io.github.shaksternano.borgar.discord.command
 
 fun parseRawCommands(message: String): List<RawCommandExecutable> {
-    val trimmed = message.trim()
-    if (!trimmed.startsWith(COMMAND_PREFIX)) return emptyList()
-    return parseCommandStrings(trimmed).map { commandString ->
+    return parseCommandStrings(message).map { commandString ->
         val commandEndIndex = commandString.endOfWord(COMMAND_PREFIX.length)
         val command = commandString.substring(COMMAND_PREFIX.length, commandEndIndex)
         val namedArgumentPrefixIndexes = commandString.indexesOfPrefix(NAMED_ARGUMENT_PREFIX)
