@@ -1,6 +1,6 @@
 package io.github.shaksternano.borgar.discord.command
 
-fun parseRawCommands(message: String): List<RawCommandExecutable> {
+fun parseRawCommands(message: String): List<RawCommandConfig> {
     return parseCommandStrings(message).map { commandString ->
         val commandEndIndex = commandString.endOfWord(COMMAND_PREFIX.length)
         val command = commandString.substring(COMMAND_PREFIX.length, commandEndIndex)
@@ -17,7 +17,7 @@ fun parseRawCommands(message: String): List<RawCommandExecutable> {
         } else {
             commandString.substring(commandEndIndex, namedArgumentPrefixIndexes[0])
         }.trim()
-        RawCommandExecutable(command, arguments, namedArguments)
+        RawCommandConfig(command, arguments, namedArguments)
     }
 }
 
@@ -59,7 +59,7 @@ private fun CharSequence.endOfWord(startIndex: Int): Int {
     return endIndex
 }
 
-class RawCommandExecutable(
+class RawCommandConfig(
     val command: String,
     val arguments: String,
     val namedArguments: Map<String, String>,
