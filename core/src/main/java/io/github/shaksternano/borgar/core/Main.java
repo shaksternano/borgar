@@ -70,6 +70,8 @@ public class Main {
      * @param args The program arguments.
      */
     public static void main(String[] args) {
+        getLogger().info("Starting!");
+
         var envFileName = ".env";
         try {
             Environment.load(new File(envFileName));
@@ -91,8 +93,6 @@ public class Main {
         initJda(initDiscordBotToken());
 
         initDiscordLogger();
-
-        getLogger().info("Starting!");
 
         initTenorApiKey();
 
