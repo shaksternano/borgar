@@ -10,6 +10,7 @@ dependencies {
         exclude(module = "opus-java")
     }
     implementation("com.github.minndevelopment:jda-ktx:${jdaKtxVersion}")
+    @Suppress
     implementation("club.minnced:discord-webhooks:$discordWebhooksVersion")
 
     testImplementation(kotlin("test"))

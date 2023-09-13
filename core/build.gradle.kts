@@ -24,6 +24,7 @@ dependencies {
     implementation("net.dv8tion:JDA:$jdaVersion") {
         exclude(module = "opus-java")
     }
+    @Suppress
     implementation("club.minnced:discord-webhooks:$discordWebhooksVersion")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion")
