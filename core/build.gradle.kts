@@ -14,6 +14,11 @@ val jdaVersion: String by project
 val discordWebhooksVersion: String by project
 val exposedVersion: String by project
 val postgreSqlVersion: String by project
+val junitVersion: String by project
+
+plugins {
+    kotlin("plugin.serialization") version "1.9.0"
+}
 
 dependencies {
     implementation("net.dv8tion:JDA:$jdaVersion") {
@@ -21,25 +26,21 @@ dependencies {
     }
     implementation("club.minnced:discord-webhooks:$discordWebhooksVersion")
 
-    implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
-    implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
-    runtimeOnly("org.postgresql:postgresql:$postgreSqlVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion")
 
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion")
+    implementation("io.ktor:ktor-client-core:$ktorVersion")
+    implementation("io.ktor:ktor-client-cio-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
 
-    api("io.ktor:ktor-client-core:$ktorVersion")
-    api("io.ktor:ktor-client-cio-jvm:$ktorVersion")
-    api("io.ktor:ktor-client-content-negotiation:$ktorVersion")
-    api("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+    implementation("org.apache.logging.log4j:log4j-slf4j-impl:$log4j2Version")
+    runtimeOnly("com.lmax:disruptor:$disruptorVersion")
 
-    api("org.apache.logging.log4j:log4j-slf4j-impl:$log4j2Version")
-    api("com.lmax:disruptor:$disruptorVersion")
+    implementation("com.google.guava:guava:$guavaVersion-jre")
+    implementation("com.google.code.gson:gson:$gsonVersion")
+    implementation("commons-io:commons-io:$commonsIoVersion")
 
-    api("com.google.guava:guava:$guavaVersion-jre")
-    api("com.google.code.gson:gson:$gsonVersion")
-    api("commons-io:commons-io:$commonsIoVersion")
-
-    api("org.bytedeco:javacv-platform:$javacvVersion") {
+    implementation("org.bytedeco:javacv-platform:$javacvVersion") {
         excludeJavaCpp(
             "artoolkitplus",
             "flandmark",
@@ -56,16 +57,22 @@ dependencies {
             "videoinput",
         )
     }
-    api("com.sksamuel.scrimage:scrimage-core:$scrimageVersion") {
+    implementation("com.sksamuel.scrimage:scrimage-core:$scrimageVersion") {
         exclude(group = "ch.qos.logback", module = "logback-classic")
         exclude(group = "ch.qos.logback", module = "logback-core")
     }
-    api("com.twelvemonkeys.imageio:imageio-webp:$twelveMonkeysVersion")
-    api("net.ifok.image:image4j:$image4jVersion")
-    api("org.reflections:reflections:$reflectionsVersion")
+    implementation("com.twelvemonkeys.imageio:imageio-webp:$twelveMonkeysVersion")
+    implementation("net.ifok.image:image4j:$image4jVersion")
+    implementation("org.reflections:reflections:$reflectionsVersion")
 
-    testApi(kotlin("test"))
-    testApi("org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinCoroutinesVersion")
+    implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
+    implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
+    runtimeOnly("org.postgresql:postgresql:$postgreSqlVersion")
+
+    testImplementation(kotlin("test"))
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinCoroutinesVersion")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
 }
 
 /**

@@ -1,4 +1,4 @@
-package io.github.shaksternano.borgar.discord.command
+package io.github.shaksternano.borgar.chat.command
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -99,7 +99,7 @@ class CommandParsingTest {
         val argumentName2 = "named2"
         val argumentValue2 = "Test3"
         val command =
-            "${COMMAND_PREFIX}$commandName $arguments $NAMED_ARGUMENT_PREFIX$argumentName1 $argumentValue1 $NAMED_ARGUMENT_PREFIX$argumentName2 $argumentValue2"
+            "$COMMAND_PREFIX$commandName $arguments $NAMED_ARGUMENT_PREFIX$argumentName1 $argumentValue1 $NAMED_ARGUMENT_PREFIX$argumentName2 $argumentValue2"
         val rawCommands = parseRawCommands(command)
         assertEquals(1, rawCommands.size)
         val rawCommand = rawCommands[0]
@@ -119,16 +119,16 @@ class CommandParsingTest {
         val argument1Name2 = "named2"
         val argument1Value2 = "Test3"
         val command1 =
-            "${COMMAND_PREFIX}$command1Name $arguments1 $NAMED_ARGUMENT_PREFIX$argument1Name1 $argument1Value1 $NAMED_ARGUMENT_PREFIX$argument1Name2 $argument1Value2"
+            "$COMMAND_PREFIX$command1Name $arguments1 $NAMED_ARGUMENT_PREFIX$argument1Name1 $argument1Value1 $NAMED_ARGUMENT_PREFIX$argument1Name2 $argument1Value2"
 
         val command2Name = "spin"
         val arguments2 = "2"
-        val command2 = "${COMMAND_PREFIX}$command2Name $arguments2"
+        val command2 = "$COMMAND_PREFIX$command2Name $arguments2"
 
         val command3Name = "gif"
         val argument3Name = "named"
         val argument3Value = "Test"
-        val command3 = "${COMMAND_PREFIX}$command3Name $NAMED_ARGUMENT_PREFIX$argument3Name $argument3Value"
+        val command3 = "$COMMAND_PREFIX$command3Name $NAMED_ARGUMENT_PREFIX$argument3Name $argument3Value"
 
         val chained = "$command1 $command2 $command3"
         val rawCommands = parseRawCommands(chained)

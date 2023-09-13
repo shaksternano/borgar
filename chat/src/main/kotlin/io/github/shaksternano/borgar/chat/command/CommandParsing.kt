@@ -1,4 +1,4 @@
-package io.github.shaksternano.borgar.discord.command
+package io.github.shaksternano.borgar.chat.command
 
 fun parseRawCommands(message: String): List<RawCommandConfig> {
     return parseCommandStrings(message).map { commandString ->
