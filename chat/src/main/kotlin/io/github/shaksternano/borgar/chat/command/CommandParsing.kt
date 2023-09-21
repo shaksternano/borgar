@@ -1,23 +1,27 @@
 package io.github.shaksternano.borgar.chat.command
 
+import io.github.shaksternano.borgar.core.util.endOfWord
+import io.github.shaksternano.borgar.core.util.indexesOfPrefix
+import io.github.shaksternano.borgar.core.util.split
+
 fun parseRawCommands(message: String): List<RawCommandConfig> {
     return parseCommandStrings(message).map { commandString ->
         val commandEndIndex = commandString.endOfWord(COMMAND_PREFIX.length)
         val command = commandString.substring(COMMAND_PREFIX.length, commandEndIndex)
-        val namedArgumentPrefixIndexes = commandString.indexesOfPrefix(NAMED_ARGUMENT_PREFIX)
-        val namedArguments = commandString.split(namedArgumentPrefixIndexes)
+        val argumentPrefixIndexes = commandString.indexesOfPrefix(ARGUMENT_PREFIX)
+        val arguments = commandString.split(argumentPrefixIndexes)
             .associate {
-                val argumentNameEndIndex = it.endOfWord(NAMED_ARGUMENT_PREFIX.length)
-                val argumentName = it.substring(NAMED_ARGUMENT_PREFIX.length, argumentNameEndIndex)
+                val argumentNameEndIndex = it.endOfWord(ARGUMENT_PREFIX.length)
+                val argumentName = it.substring(ARGUMENT_PREFIX.length, argumentNameEndIndex)
                 val argumentValue = it.substring(argumentNameEndIndex).trim()
                 argumentName to argumentValue
             }
-        val arguments = if (namedArgumentPrefixIndexes.isEmpty()) {
+        val defaultArgument = if (argumentPrefixIndexes.isEmpty()) {
             commandString.substring(commandEndIndex)
         } else {
-            commandString.substring(commandEndIndex, namedArgumentPrefixIndexes[0])
+            commandString.substring(commandEndIndex, argumentPrefixIndexes[0])
         }.trim()
-        RawCommandConfig(command, arguments, namedArguments)
+        RawCommandConfig(command, arguments, defaultArgument)
     }
 }
 
@@ -26,41 +30,8 @@ internal fun parseCommandStrings(message: String): List<String> {
     return message.split(commandPrefixIndexes).map { it.trim() }
 }
 
-private fun CharSequence.indexesOfPrefix(prefix: String, ignoreCase: Boolean = false): List<Int> {
-    return indexesOf(prefix, ignoreCase)
-        .filter {
-            val isStart = it == 0 || this[it - 1].isWhitespace()
-            val prefixEndIndex = it + prefix.length
-            val endsWithWord = prefixEndIndex < length && !this[prefixEndIndex].isWhitespace()
-            isStart && endsWithWord
-        }
-}
-
-private fun CharSequence.indexesOf(substr: String, ignoreCase: Boolean = false): List<Int> {
-    val regex = if (ignoreCase) Regex(substr, RegexOption.IGNORE_CASE) else Regex(substr)
-    return regex.findAll(this).map { it.range.first }.toList()
-}
-
-private fun CharSequence.split(indexes: Iterable<Int>): List<String> {
-    return indexes.windowed(2, partialWindows = true) {
-        if (it.size == 2) {
-            substring(it[0], it[1])
-        } else {
-            substring(it[0])
-        }
-    }
-}
-
-private fun CharSequence.endOfWord(startIndex: Int): Int {
-    var endIndex = startIndex
-    while (endIndex < length && !this[endIndex].isWhitespace()) {
-        endIndex++
-    }
-    return endIndex
-}
-
 class RawCommandConfig(
     val command: String,
-    val arguments: String,
-    val namedArguments: Map<String, String>,
+    val arguments: Map<String, String>,
+    val defaultArgument: String,
 )

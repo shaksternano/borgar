@@ -91,7 +91,7 @@ class CommandParsingTest {
     }
 
     @Test
-    fun canParseCommandWithNamedArguments() {
+    fun canParseCommandWithArguments() {
         val commandName = "caption"
         val arguments = "Test"
         val argumentName1 = "named"
@@ -99,19 +99,19 @@ class CommandParsingTest {
         val argumentName2 = "named2"
         val argumentValue2 = "Test3"
         val command =
-            "$COMMAND_PREFIX$commandName $arguments $NAMED_ARGUMENT_PREFIX$argumentName1 $argumentValue1 $NAMED_ARGUMENT_PREFIX$argumentName2 $argumentValue2"
+            "$COMMAND_PREFIX$commandName $arguments $ARGUMENT_PREFIX$argumentName1 $argumentValue1 $ARGUMENT_PREFIX$argumentName2 $argumentValue2"
         val rawCommands = parseRawCommands(command)
         assertEquals(1, rawCommands.size)
-        val rawCommand = rawCommands[0]
+        val rawCommand = rawCommands.first()
         assertEquals(commandName, rawCommand.command)
-        assertEquals(arguments, rawCommand.arguments)
-        assertEquals(2, rawCommand.namedArguments.size)
-        assertEquals(argumentValue1, rawCommand.namedArguments[argumentName1])
-        assertEquals(argumentValue2, rawCommand.namedArguments[argumentName2])
+        assertEquals(arguments, rawCommand.defaultArgument)
+        assertEquals(2, rawCommand.arguments.size)
+        assertEquals(argumentValue1, rawCommand.arguments[argumentName1])
+        assertEquals(argumentValue2, rawCommand.arguments[argumentName2])
     }
 
     @Test
-    fun canParseMultipleCommandsWithNamedArguments() {
+    fun canParseMultipleCommandsWithArguments() {
         val command1Name = "caption"
         val arguments1 = "Test"
         val argument1Name1 = "named"
@@ -119,7 +119,7 @@ class CommandParsingTest {
         val argument1Name2 = "named2"
         val argument1Value2 = "Test3"
         val command1 =
-            "$COMMAND_PREFIX$command1Name $arguments1 $NAMED_ARGUMENT_PREFIX$argument1Name1 $argument1Value1 $NAMED_ARGUMENT_PREFIX$argument1Name2 $argument1Value2"
+            "$COMMAND_PREFIX$command1Name $arguments1 $ARGUMENT_PREFIX$argument1Name1 $argument1Value1 $ARGUMENT_PREFIX$argument1Name2 $argument1Value2"
 
         val command2Name = "spin"
         val arguments2 = "2"
@@ -128,7 +128,7 @@ class CommandParsingTest {
         val command3Name = "gif"
         val argument3Name = "named"
         val argument3Value = "Test"
-        val command3 = "$COMMAND_PREFIX$command3Name $NAMED_ARGUMENT_PREFIX$argument3Name $argument3Value"
+        val command3 = "$COMMAND_PREFIX$command3Name $ARGUMENT_PREFIX$argument3Name $argument3Value"
 
         val chained = "$command1 $command2 $command3"
         val rawCommands = parseRawCommands(chained)
@@ -136,20 +136,20 @@ class CommandParsingTest {
 
         val rawCommand1 = rawCommands[0]
         assertEquals(command1Name, rawCommand1.command)
-        assertEquals(arguments1, rawCommand1.arguments)
-        assertEquals(2, rawCommand1.namedArguments.size)
-        assertEquals(argument1Value1, rawCommand1.namedArguments[argument1Name1])
-        assertEquals(argument1Value2, rawCommand1.namedArguments[argument1Name2])
+        assertEquals(arguments1, rawCommand1.defaultArgument)
+        assertEquals(2, rawCommand1.arguments.size)
+        assertEquals(argument1Value1, rawCommand1.arguments[argument1Name1])
+        assertEquals(argument1Value2, rawCommand1.arguments[argument1Name2])
 
         val rawCommand2 = rawCommands[1]
         assertEquals(command2Name, rawCommand2.command)
-        assertEquals(arguments2, rawCommand2.arguments)
-        assertEquals(0, rawCommand2.namedArguments.size)
+        assertEquals(arguments2, rawCommand2.defaultArgument)
+        assertEquals(0, rawCommand2.arguments.size)
 
         val rawCommand3 = rawCommands[2]
         assertEquals(command3Name, rawCommand3.command)
-        assertEquals("", rawCommand3.arguments)
-        assertEquals(1, rawCommand3.namedArguments.size)
-        assertEquals(argument3Value, rawCommand3.namedArguments[argument3Name])
+        assertEquals("", rawCommand3.defaultArgument)
+        assertEquals(1, rawCommand3.arguments.size)
+        assertEquals(argument3Value, rawCommand3.arguments[argument3Name])
     }
 }
