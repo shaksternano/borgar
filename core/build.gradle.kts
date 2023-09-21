@@ -21,12 +21,6 @@ plugins {
 }
 
 dependencies {
-    implementation("net.dv8tion:JDA:$jdaVersion") {
-        exclude(module = "opus-java")
-    }
-    @Suppress
-    implementation("club.minnced:discord-webhooks:$discordWebhooksVersion")
-
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion")
 
     implementation("io.ktor:ktor-client-core:$ktorVersion")
@@ -40,6 +34,13 @@ dependencies {
     implementation("com.google.guava:guava:$guavaVersion-jre")
     implementation("com.google.code.gson:gson:$gsonVersion")
     implementation("commons-io:commons-io:$commonsIoVersion")
+    implementation("org.reflections:reflections:$reflectionsVersion")
+    // For utility classes such as SplitUtil
+    implementation("net.dv8tion:JDA:$jdaVersion") {
+        exclude(module = "opus-java")
+    }
+    @Suppress
+    implementation("club.minnced:discord-webhooks:$discordWebhooksVersion")
 
     implementation("org.bytedeco:javacv-platform:$javacvVersion") {
         excludeJavaCpp(
@@ -64,7 +65,6 @@ dependencies {
     }
     implementation("com.twelvemonkeys.imageio:imageio-webp:$twelveMonkeysVersion")
     implementation("net.ifok.image:image4j:$image4jVersion")
-    implementation("org.reflections:reflections:$reflectionsVersion")
 
     implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
