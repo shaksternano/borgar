@@ -1,8 +1,6 @@
 package io.github.shaksternano.borgar.core.media
 
-import io.github.shaksternano.borgar.core.io.NamedFile
-import io.github.shaksternano.borgar.core.io.createTemporaryFile
-import io.github.shaksternano.borgar.core.io.useAll
+import io.github.shaksternano.borgar.core.io.*
 import io.github.shaksternano.borgar.core.media.reader.MediaReader
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -15,7 +13,7 @@ class MediaProcessConfig(
     val processor: ImageProcessor<out Any>,
     val outputName: String,
     val outputFormat: (String) -> String = { it },
-    val modifyImageReader: (MediaReader<ImageFrame>) -> MediaReader<ImageFrame>,
+    val modifyImageReader: (MediaReader<ImageFrame>) -> MediaReader<ImageFrame> = { it },
 ) {
 
     infix fun then(after: MediaProcessConfig): MediaProcessConfig {
@@ -37,7 +35,7 @@ suspend fun processMedia(
     input: Path,
     config: MediaProcessConfig,
     maxFileSize: Long,
-): NamedFile {
+): FileDataSource {
     val inputFormat = mediaFormat(input) ?: input.extension
     val inputFile = input.toFile()
     val (imageReader, audioReader) = withContext(Dispatchers.IO) {
@@ -50,12 +48,12 @@ suspend fun processMedia(
         createTemporaryFile(config.outputName, outputFormat),
         outputFormat,
         config.processor,
-        maxFileSize
+        maxFileSize,
     )
-    return NamedFile(
+    val filename = filename(config.outputName, outputFormat)
+    return DataSource.fromFile(
+        filename,
         output,
-        config.outputName,
-        outputFormat
     )
 }
 
