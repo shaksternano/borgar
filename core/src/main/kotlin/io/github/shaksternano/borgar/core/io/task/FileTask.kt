@@ -1,6 +1,10 @@
 package io.github.shaksternano.borgar.core.io.task
 
 import io.github.shaksternano.borgar.core.io.DataSource
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.nio.file.Path
+import kotlin.io.path.deleteIfExists
 
 interface FileTask {
 
@@ -28,4 +32,18 @@ interface FileTask {
     }
 
     suspend fun cleanup() = Unit
+}
+
+abstract class BaseFileTask : FileTask {
+
+    protected val outputs: MutableList<Path> = mutableListOf()
+
+    override suspend fun cleanup() {
+        withContext(Dispatchers.IO) {
+            outputs.forEach {
+                it.deleteIfExists()
+            }
+        }
+        outputs.clear()
+    }
 }
