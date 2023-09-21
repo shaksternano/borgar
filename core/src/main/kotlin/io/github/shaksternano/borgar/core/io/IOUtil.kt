@@ -2,10 +2,19 @@ package io.github.shaksternano.borgar.core.io
 
 import com.google.common.io.Closer
 import com.google.common.io.Files
+import io.github.shaksternano.borgar.core.media.mediaFormat
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.request.*
 import io.ktor.client.statement.*
+import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
 import io.ktor.utils.io.core.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
 import org.apache.commons.io.FileUtils
 import java.io.Closeable
 import java.io.InputStream
@@ -27,15 +36,61 @@ suspend fun createTemporaryFile(nameWithoutExtension: String, extension: String)
     return path
 }
 
+fun HttpClient(json: Boolean = false): HttpClient = HttpClient(CIO) {
+    if (json) {
+        install(ContentNegotiation) {
+            json(Json {
+                ignoreUnknownKeys = true
+            })
+        }
+    }
+    install(HttpRequestRetry) {
+        maxRetries = 3
+        retryIf { _, response ->
+            !response.status.isSuccess()
+        }
+        constantDelay(5000)
+    }
+    install(HttpTimeout) {
+        requestTimeoutMillis = 60000
+    }
+}
+
+inline fun <T> useHttpClient(json: Boolean = false, block: (HttpClient) -> T) =
+    HttpClient(json).use(block)
+
+suspend fun download(url: String, path: Path) {
+    useHttpClient { client ->
+        val response = client.get(url)
+        response.download(path)
+    }
+}
+
 suspend fun HttpResponse.download(path: Path) {
+    readBytes {
+        withContext(Dispatchers.IO) {
+            path.appendBytes(it)
+        }
+    }
+}
+
+suspend fun HttpResponse.size(): Long {
+    return headers["Content-Length"]?.toLongOrNull() ?: let {
+        var size = 0L
+        readBytes {
+            size += it.size
+        }
+        size
+    }
+}
+
+private suspend inline fun HttpResponse.readBytes(block: (ByteArray) -> Unit) {
     val channel = bodyAsChannel()
     while (!channel.isClosedForRead) {
         val packet = channel.readRemaining(DEFAULT_BUFFER_SIZE.toLong())
         while (!packet.isEmpty) {
             val bytes = packet.readBytes()
-            withContext(Dispatchers.IO) {
-                path.appendBytes(bytes)
-            }
+            block(bytes)
         }
     }
 }
@@ -44,6 +99,15 @@ suspend fun Path.write(inputStream: InputStream) {
     withContext(Dispatchers.IO) {
         FileUtils.copyInputStreamToFile(inputStream, toFile())
     }
+}
+
+fun DataSource.nameWithoutExtension(): String = nameWithoutExtension(filename)
+
+fun DataSource.fileExtension(): String = fileExtension(filename)
+
+suspend fun DataSource.fileFormat(): String {
+    val mediaFormat = path?.let { mediaFormat(it) } ?: mediaFormat(newStream())
+    return mediaFormat ?: fileExtension()
 }
 
 fun removeQueryParams(url: String): String {

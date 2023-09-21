@@ -15,15 +15,15 @@ suspend fun mediaFormat(inputStream: InputStream): String? {
 }
 
 private suspend fun mediaFormatImpl(input: Any): String? {
-    withContext(Dispatchers.IO) {
+    return withContext(Dispatchers.IO) {
         ImageIO.createImageInputStream(input).use {
             if (it != null) {
                 val readers = ImageIO.getImageReaders(it)
                 if (readers.hasNext()) {
-                    return@withContext readers.next().formatName.lowercase()
+                    return@use readers.next().formatName.lowercase()
                 }
             }
+            null
         }
     }
-    return null
 }

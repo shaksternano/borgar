@@ -3,16 +3,12 @@ package io.github.shaksternano.borgar.core.command
 import com.google.common.collect.ListMultimap
 import io.github.shaksternano.borgar.core.collect.parallelMap
 import io.github.shaksternano.borgar.core.command.util.CommandResponse
+import io.github.shaksternano.borgar.core.io.useHttpClient
 import io.ktor.client.*
 import io.ktor.client.call.*
-import io.ktor.client.engine.cio.*
-import io.ktor.client.plugins.*
-import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import io.ktor.serialization.kotlinx.json.*
-import kotlinx.serialization.json.Json
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.utils.FileUpload
@@ -43,23 +39,7 @@ abstract class ApiFilesCommand(
                 (1..Message.MAX_FILE_AMOUNT).bound(it)
             }
         }
-        HttpClient(CIO) {
-            install(ContentNegotiation) {
-                json(Json {
-                    ignoreUnknownKeys = true
-                })
-            }
-            install(HttpRequestRetry) {
-                maxRetries = 3
-                retryIf { _, response ->
-                    !response.status.isSuccess()
-                }
-                constantDelay(5000)
-            }
-            install(HttpTimeout) {
-                requestTimeoutMillis = 60000
-            }
-        }.use { client ->
+        return useHttpClient(true) { client ->
             val files = (1..fileCount)
                 .parallelMap {
                     try {
@@ -92,7 +72,7 @@ abstract class ApiFilesCommand(
                     FileUpload.fromData(inputStream, fileName)
                 }
                 .filterNotNull()
-            return if (files.isEmpty()) {
+            if (files.isEmpty()) {
                 CommandResponse("No images found!")
             } else {
                 CommandResponse(
