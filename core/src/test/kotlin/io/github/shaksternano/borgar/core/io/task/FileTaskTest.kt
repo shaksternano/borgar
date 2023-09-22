@@ -27,7 +27,7 @@ class FileTaskTest {
     fun taskMustRequireInput() = runTest {
         val task1 = StringConcatTask("b")
         val task2 = NoInputTask()
-        assertThrows<IllegalArgumentException> {
+        assertThrows<UnsupportedOperationException> {
             task1 then task2
         }
     }

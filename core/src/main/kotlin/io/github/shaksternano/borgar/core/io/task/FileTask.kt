@@ -14,7 +14,7 @@ interface FileTask {
 
     infix fun then(after: FileTask): FileTask {
         if (!after.requireInput) {
-            throw IllegalArgumentException("The task after this one must require input")
+            throw UnsupportedOperationException("The task after this one must require input")
         }
         return object : FileTask {
             override val requireInput: Boolean = this@FileTask.requireInput
