@@ -41,7 +41,7 @@ interface DataSource {
             writeToPath(newPath)
             newPath
         }
-        return fromFile(filename, path)
+        return fromFile(path, filename)
     }
 
     suspend fun writeToPath(path: Path) {
@@ -50,18 +50,30 @@ interface DataSource {
         } ?: path.write(newStream())
     }
 
+    fun rename(newName: String): DataSource = object : DataSource {
+        override val filename: String = newName
+        override val path: Path? = this@DataSource.path
+        override val url: String? = this@DataSource.url
+
+        override suspend fun newStream(): InputStream = this@DataSource.newStream()
+    }
+
+    fun asConvertable(): DataSourceConvertable = DataSourceConvertable {
+        this
+    }
+
     companion object {
-        fun fromFile(name: String? = null, path: Path): FileDataSource {
+        fun fromFile(path: Path, name: String? = null): FileDataSource {
             val filename = name ?: path.fileName?.toString() ?: throw IllegalArgumentException("Invalid path")
             return FileDataSource(filename, path)
         }
 
-        fun fromUrl(name: String? = null, url: String): UrlDataSource {
+        fun fromUrl(url: String, name: String? = null): UrlDataSource {
             val filename = name ?: filename(url)
             return UrlDataSource(filename, url)
         }
 
-        fun fromBytes(name: String, bytes: ByteArray): DataSource = BytesDataSource(name, bytes)
+        fun fromBytes(bytes: ByteArray, name: String): DataSource = BytesDataSource(name, bytes)
 
         fun fromStreamSupplier(name: String, streamSupplier: suspend () -> InputStream): DataSource {
             return object : DataSource {
@@ -73,6 +85,11 @@ interface DataSource {
             }
         }
     }
+}
+
+fun interface DataSourceConvertable {
+
+    fun asDataSource(): DataSource
 }
 
 data class FileDataSource(
@@ -91,6 +108,8 @@ data class FileDataSource(
     override suspend fun size(): Long = withContext(Dispatchers.IO) {
         path.fileSize()
     }
+
+    override fun rename(newName: String): FileDataSource = copy(filename = newName)
 }
 
 data class UrlDataSource(
@@ -113,9 +132,11 @@ data class UrlDataSource(
             response.size()
         }
     }
+
+    override fun rename(newName: String): UrlDataSource = copy(filename = newName)
 }
 
-private class BytesDataSource(
+private data class BytesDataSource(
     override val filename: String,
     val bytes: ByteArray,
 ) : DataSource {
@@ -128,6 +149,8 @@ private class BytesDataSource(
     override fun newStreamBlocking(): InputStream = bytes.inputStream()
 
     override suspend fun size(): Long = bytes.size.toLong()
+
+    override fun rename(newName: String): DataSource = copy(filename = newName)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

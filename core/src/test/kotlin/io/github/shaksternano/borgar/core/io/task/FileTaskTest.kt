@@ -13,7 +13,7 @@ class FileTaskTest {
         val task1 = StringConcatTask("b")
         val task2 = StringConcatTask("c")
         val inputBytes = "a".toByteArray()
-        val input = DataSource.fromBytes("input", inputBytes)
+        val input = DataSource.fromBytes(inputBytes, "input")
         val chained = task1 then task2
         val result = chained.run(listOf(input))
         assertEquals(1, result.size)
@@ -42,7 +42,7 @@ private class StringConcatTask(
         return input.map {
             val string = String(it.newStream().readAllBytes())
             val output = string + toConcat
-            DataSource.fromBytes("string", output.toByteArray())
+            DataSource.fromBytes(output.toByteArray(), "string")
         }
     }
 }

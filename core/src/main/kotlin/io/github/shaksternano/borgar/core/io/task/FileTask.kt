@@ -34,9 +34,13 @@ interface FileTask {
     suspend fun cleanup() = Unit
 }
 
-abstract class BaseFileTask : FileTask {
+abstract class BaseFileTask(
+    final override val requireInput: Boolean,
+) : FileTask {
 
-    protected val outputs: MutableList<Path> = mutableListOf()
+    private val outputs: MutableList<Path> = mutableListOf()
+
+    protected fun addOutput(path: Path) = outputs.add(path)
 
     override suspend fun cleanup() {
         withContext(Dispatchers.IO) {
@@ -46,4 +50,17 @@ abstract class BaseFileTask : FileTask {
         }
         outputs.clear()
     }
+}
+
+abstract class MappedFileTask(
+    requireInput: Boolean,
+) : BaseFileTask(requireInput) {
+
+    final override suspend fun run(input: List<DataSource>): List<DataSource> = input.map {
+        val output = process(it)
+        output.path?.let(this::addOutput)
+        output
+    }
+
+    abstract suspend fun process(input: DataSource): DataSource
 }

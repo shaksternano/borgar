@@ -1,5 +1,14 @@
 package io.github.shaksternano.borgar.core.util
 
+import net.dv8tion.jda.api.utils.SplitUtil
+
+private val URL_REGEX = "\\b((?:https?|ftp|file)://[-a-zA-Z\\d+&@#/%?=~_|!:, .;]*[-a-zA-Z\\d+&@#/%=~_|])".toRegex()
+private val WHITE_SPACE_REGEX = "\\s+".toRegex()
+
+fun CharSequence.getUrls(): List<String> {
+    return URL_REGEX.findAll(this).map { it.value }.toList()
+}
+
 fun CharSequence.indexesOfPrefix(prefix: String, ignoreCase: Boolean = false): List<Int> {
     return indexesOf(prefix, ignoreCase)
         .filter {
@@ -32,3 +41,16 @@ fun CharSequence.endOfWord(startIndex: Int): Int {
     }
     return endIndex
 }
+
+fun CharSequence.splitWords(): List<String> {
+    return split(WHITE_SPACE_REGEX)
+}
+
+fun String.splitChunks(limit: Int): List<String> = SplitUtil.split(
+    this,
+    limit,
+    true,
+    SplitUtil.Strategy.NEWLINE,
+    SplitUtil.Strategy.WHITESPACE,
+    SplitUtil.Strategy.ANYWHERE
+)
