@@ -4,4 +4,5 @@ include(
     "core",
     "chat",
     "discord",
+    "app",
 )
