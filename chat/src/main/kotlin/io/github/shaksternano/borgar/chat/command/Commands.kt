@@ -15,4 +15,3 @@ private fun registerCommands(vararg commands: Command): Map<String, Command> = b
         put(it.name, it)
     }
 }
-

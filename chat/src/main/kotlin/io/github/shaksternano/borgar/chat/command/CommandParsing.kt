@@ -28,7 +28,11 @@ suspend fun parseAndExecuteCommand(event: MessageReceiveEvent) {
     val commandEvent = MessageCommandEvent(event)
     val (responses, executable) = try {
         val executables = commandConfigs.map {
-            it.command.run(it.arguments, commandEvent)
+            try {
+                it.command.run(it.arguments, commandEvent)
+            } catch (t: Throwable) {
+                throw CommandException(it.command, t)
+            }
         }
         val chained = executables.reduce { executable1, executable2 ->
             try {
@@ -37,7 +41,12 @@ suspend fun parseAndExecuteCommand(event: MessageReceiveEvent) {
                 throw NonChainableCommandException(executable1.command, executable2.command, e)
             }
         }
-        chained.execute() to chained
+        val result = try {
+            chained.execute()
+        } catch (t: Throwable) {
+            throw CommandException(chained.command, t)
+        }
+        result to chained
     } catch (t: Throwable) {
         val responseContent = handleError(t)
         listOf(CommandResponse(responseContent)) to null
@@ -84,6 +93,10 @@ private suspend fun contentStripped(message: Message): String {
 
 private fun handleError(throwable: Throwable): String = when (throwable) {
     is NonChainableCommandException -> "Cannot chain ${throwable.command1.name} with ${throwable.command2.name}!"
+    is CommandException -> {
+        logger.error("Error executing command ${throwable.command}", throwable)
+        "An error occurred!"
+    }
     else -> {
         logger.error("An error occurred", throwable)
         "An error occurred!"
@@ -182,4 +195,9 @@ private class NonChainableCommandException(
     val command1: Command,
     val command2: Command,
     cause: Throwable,
+) : Exception(cause)
+
+private class CommandException(
+    val command: Command,
+    override val cause: Throwable,
 ) : Exception(cause)
