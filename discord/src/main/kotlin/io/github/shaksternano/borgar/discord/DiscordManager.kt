@@ -6,13 +6,12 @@ import io.github.shaksternano.borgar.discord.entity.DiscordGuild
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.Message
 
-private val managers: MutableMap<JDA, BotManager> = mutableMapOf()
-
 class DiscordManager(
     private val jda: JDA,
 ) : BotManager {
-
     companion object {
+        private val managers: MutableMap<JDA, BotManager> = mutableMapOf()
+
         fun create(jda: JDA) {
             managers[jda] = DiscordManager(jda)
         }
