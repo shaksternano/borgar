@@ -24,7 +24,7 @@ import kotlin.io.path.createTempFile
 import kotlin.io.use
 
 suspend fun createTemporaryFile(fileName: String): Path {
-    return createTemporaryFile(nameWithoutExtension(fileName), fileExtension(fileName))
+    return createTemporaryFile(filenameWithoutExtension(fileName), fileExtension(fileName))
 }
 
 suspend fun createTemporaryFile(nameWithoutExtension: String, extension: String): Path {
@@ -101,10 +101,6 @@ suspend fun Path.write(inputStream: InputStream) {
     }
 }
 
-fun DataSource.nameWithoutExtension(): String = nameWithoutExtension(filename)
-
-fun DataSource.fileExtension(): String = fileExtension(filename)
-
 suspend fun DataSource.fileFormat(): String {
     val mediaFormat = path?.let { mediaFormat(it) } ?: mediaFormat(newStream())
     return mediaFormat ?: fileExtension()
@@ -123,12 +119,20 @@ fun filename(nameWithoutExtension: String, extension: String): String {
     return nameWithoutExtension + extensionWithDot
 }
 
-fun nameWithoutExtension(fileName: String): String {
+fun filenameWithoutExtension(fileName: String): String {
     return Files.getNameWithoutExtension(removeQueryParams(fileName))
 }
 
 fun fileExtension(fileName: String): String {
     return Files.getFileExtension(removeQueryParams(fileName))
+}
+
+fun DataSource.filenameWithoutExtension(): String = filenameWithoutExtension(filename)
+
+fun DataSource.fileExtension(): String = fileExtension(filename)
+
+fun toMb(bytes: Long): Long {
+    return bytes / 1024 / 1024
 }
 
 fun closeAll(vararg closeables: Closeable?) {
