@@ -46,6 +46,7 @@ suspend fun <T> CommandMessageUnion.search(find: suspend (CommandMessageUnion) -
     )
 }
 
+@Suppress("SameParameterValue")
 private suspend fun <T> CommandMessageUnion.searchVisitors(
     find: suspend (CommandMessageUnion) -> T?,
     vararg messageVisitors: suspend CommandMessageUnion.(suspend (CommandMessageUnion) -> T?) -> T?,
