@@ -52,8 +52,8 @@ suspend fun processMedia(
     )
     val filename = filename(config.outputName, outputFormat)
     return DataSource.fromFile(
-        filename,
         output,
+        filename,
     )
 }
 
