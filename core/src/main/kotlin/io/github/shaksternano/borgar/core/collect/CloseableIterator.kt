@@ -1,5 +1,6 @@
 package io.github.shaksternano.borgar.core.collect
 
+import com.google.common.collect.Iterators
 import java.io.Closeable
 import java.util.*
 
@@ -27,5 +28,7 @@ interface CloseableIterator<T> : Iterator<T>, Closeable {
 
         @Suppress("UNCHECKED_CAST")
         fun <T> empty(): CloseableIterator<T> = EMPTY as CloseableIterator<T>
+
+        fun <T> singleton(value: T): CloseableIterator<T> = wrap(Iterators.singletonIterator(value))
     }
 }

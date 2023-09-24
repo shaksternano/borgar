@@ -2,10 +2,12 @@ package io.github.shaksternano.borgar.core.media.reader
 
 import io.github.shaksternano.borgar.core.collect.CloseableIterator
 import io.github.shaksternano.borgar.core.collect.CloseableSpliterator
+import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.media.AudioFrame
+import io.github.shaksternano.borgar.core.media.AudioReaderFactory
 import java.util.function.Consumer
 
-object NoAudioReader : BaseMediaReader<AudioFrame>() {
+object NoAudioReader : BaseAudioReader() {
 
     override val size: Long = 0
     override val frameRate: Double = 0.0
@@ -14,16 +16,11 @@ object NoAudioReader : BaseMediaReader<AudioFrame>() {
     override val audioChannels: Int = 0
     override val audioSampleRate: Int = 0
     override val audioBitrate: Int = 0
-    override val width: Int = 0
-    override val height: Int = 0
     override val loopCount: Int = 0
-    override val format: String = ""
-
-    override suspend fun start() = Unit
 
     override fun readFrame(timestamp: Double): AudioFrame = throw UnsupportedOperationException("No audio available")
 
-    override fun createReversed(): MediaReader<AudioFrame> = this
+    override fun createReversed(): AudioReader = this
 
     override fun iterator(): CloseableIterator<AudioFrame> = CloseableIterator.empty()
 
@@ -32,4 +29,10 @@ object NoAudioReader : BaseMediaReader<AudioFrame>() {
     override fun spliterator(): CloseableSpliterator<AudioFrame> = CloseableSpliterator.empty()
 
     override fun close() = Unit
+
+    object Factory : AudioReaderFactory {
+        override val supportedFormats: Set<String> = emptySet()
+
+        override fun create(input: DataSource): AudioReader = NoAudioReader
+    }
 }

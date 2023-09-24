@@ -1,7 +1,20 @@
 package io.github.shaksternano.borgar.core.media
 
+import io.github.shaksternano.borgar.core.collect.putAllKeys
+import io.github.shaksternano.borgar.core.media.writer.JavaxImageWriter
 import io.github.shaksternano.borgar.core.media.writer.MediaWriter
 import java.nio.file.Path
+
+private val writerFactories: Map<String, MediaWriterFactory> = buildMap {
+    registerFactory(JavaxImageWriter.Factory)
+}
+
+private fun MutableMap<String, MediaWriterFactory>.registerFactory(
+    factory: MediaWriterFactory,
+) = putAllKeys(
+    factory.supportedFormats,
+    factory,
+)
 
 fun createWriter(
     output: Path,
@@ -13,5 +26,15 @@ fun createWriter(
     maxFileSize: Long,
     maxDuration: Double
 ): MediaWriter {
-    TODO()
+    val factory = writerFactories.getOrDefault(outputFormat, JavaxImageWriter.Factory)
+    return factory.create(
+        output,
+        outputFormat,
+        loopCount,
+        audioChannels,
+        audioSampleRate,
+        audioBitrate,
+        maxFileSize,
+        maxDuration,
+    )
 }

@@ -6,7 +6,7 @@ import java.awt.image.BufferedImage
 data class VideoFrame<T>(
     val content: T,
     val duration: Double,
-    val timestamp: Long,
+    val timestamp: Double,
 )
 
 typealias ImageFrame = VideoFrame<BufferedImage>

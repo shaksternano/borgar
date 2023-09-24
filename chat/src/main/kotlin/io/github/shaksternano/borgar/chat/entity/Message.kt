@@ -1,7 +1,7 @@
 package io.github.shaksternano.borgar.chat.entity
 
 import io.github.shaksternano.borgar.chat.BotManager
-import io.github.shaksternano.borgar.chat.command.CommandMessageUnion
+import io.github.shaksternano.borgar.chat.command.CommandMessageIntersection
 import io.github.shaksternano.borgar.chat.entity.channel.Channel
 import io.github.shaksternano.borgar.chat.entity.channel.MessageChannel
 import kotlinx.coroutines.flow.Flow
@@ -28,7 +28,7 @@ interface Message : Entity {
 
     suspend fun getReferencedMessage(): Message?
 
-    fun asCommandUnion(): CommandMessageUnion = object : CommandMessageUnion {
+    fun asCommandIntersection(): CommandMessageIntersection = object : CommandMessageIntersection {
         override val id: String = this@Message.id
         override val manager: BotManager = this@Message.manager
         override val content: String = this@Message.content

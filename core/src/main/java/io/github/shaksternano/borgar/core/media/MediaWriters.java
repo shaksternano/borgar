@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class MediaWriters {
 
-    private static final Map<String, MediaWriterFactory> writerFactories = new HashMap<>();
+    private static final Map<String, MediaWriterFactoryOld> writerFactories = new HashMap<>();
 
     public static MediaWriter createWriter(
         File output,
@@ -44,7 +44,7 @@ public class MediaWriters {
         );
     }
 
-    private static void registerWriterFactory(MediaWriterFactory factory, String... formats) {
+    private static void registerWriterFactory(MediaWriterFactoryOld factory, String... formats) {
         for (var format : formats) {
             writerFactories.putIfAbsent(format.toLowerCase(), factory);
         }

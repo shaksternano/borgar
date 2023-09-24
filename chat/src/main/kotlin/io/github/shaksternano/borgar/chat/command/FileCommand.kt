@@ -17,7 +17,7 @@ abstract class FileCommand : BaseCommand() {
         val convertable = arguments.getAttachment("file")
             ?: arguments.getString("url")
                 ?.let { DataSource.fromUrl(it).asConvertable() }
-            ?: event.asMessageUnion(arguments).getUrls().firstOrNull()
+            ?: event.asMessageIntersection(arguments).getUrls().firstOrNull()
         val files = convertable?.asDataSource()?.asSingletonList() ?: emptyList()
         val maxFileSize = event.getChannel().getMaxFileSize()
         return FileExecutable(

@@ -4,25 +4,6 @@ import io.github.shaksternano.borgar.core.io.useAll
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
-import java.io.Closeable
-import java.util.function.Consumer
-
-interface CloseableIterable<T> : Iterable<T>, Closeable {
-
-    override fun iterator(): CloseableIterator<T>
-
-    override fun forEach(action: Consumer<in T>) = iterator().use {
-        while (it.hasNext()) {
-            action.accept(it.next())
-        }
-    }
-
-    override fun spliterator(): CloseableSpliterator<T>
-}
-
-interface SizedIterable<T> : Iterable<T> {
-    val size: Long
-}
 
 suspend fun <T, R> Iterable<T>.parallelMap(transform: suspend (T) -> R): List<R> = coroutineScope {
     map { async { transform(it) } }.awaitAll()

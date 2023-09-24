@@ -2,7 +2,7 @@ package io.github.shaksternano.borgar.chat.event
 
 import io.github.shaksternano.borgar.chat.BotManager
 import io.github.shaksternano.borgar.chat.command.CommandArguments
-import io.github.shaksternano.borgar.chat.command.CommandMessageUnion
+import io.github.shaksternano.borgar.chat.command.CommandMessageIntersection
 import io.github.shaksternano.borgar.chat.command.CommandResponse
 import io.github.shaksternano.borgar.chat.entity.*
 import io.github.shaksternano.borgar.chat.entity.channel.MessageChannel
@@ -34,19 +34,20 @@ data class MessageCommandEvent(
         }
     }
 
-    override fun asMessageUnion(arguments: CommandArguments): CommandMessageUnion = object : CommandMessageUnion {
-        override val id: String = this@MessageCommandEvent.id
-        override val manager: BotManager = this@MessageCommandEvent.manager
-        override val content: String = arguments.defaultKey?.let(arguments::getString) ?: ""
-        override val attachments: List<Attachment> = event.message.attachments
-        override val embeds: List<MessageEmbed> = event.message.embeds
+    override fun asMessageIntersection(arguments: CommandArguments): CommandMessageIntersection =
+        object : CommandMessageIntersection {
+            override val id: String = this@MessageCommandEvent.id
+            override val manager: BotManager = this@MessageCommandEvent.manager
+            override val content: String = arguments.defaultKey?.let(arguments::getString) ?: ""
+            override val attachments: List<Attachment> = event.message.attachments
+            override val embeds: List<MessageEmbed> = event.message.embeds
 
-        override suspend fun getUser(): User = this@MessageCommandEvent.getUser()
+            override suspend fun getUser(): User = this@MessageCommandEvent.getUser()
 
-        override suspend fun getChannel(): MessageChannel = this@MessageCommandEvent.getChannel()
+            override suspend fun getChannel(): MessageChannel = this@MessageCommandEvent.getChannel()
 
-        override suspend fun getGuild(): Guild? = this@MessageCommandEvent.getGuild()
+            override suspend fun getGuild(): Guild? = this@MessageCommandEvent.getGuild()
 
-        override suspend fun getReferencedMessage(): Message? = this@MessageCommandEvent.getReferencedMessage()
-    }
+            override suspend fun getReferencedMessage(): Message? = this@MessageCommandEvent.getReferencedMessage()
+        }
 }

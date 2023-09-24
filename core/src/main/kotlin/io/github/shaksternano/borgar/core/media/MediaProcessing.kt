@@ -11,27 +11,35 @@ import kotlin.io.path.extension
 import kotlin.io.path.fileSize
 import kotlin.math.min
 
-class MediaProcessConfig(
-    val processor: ImageProcessor<out Any>,
-    val outputName: String,
-    val outputFormat: (String) -> String = { it },
-    val modifyImageReader: (ImageReader) -> ImageReader = { it },
-) {
+interface MediaProcessConfig {
 
-    infix fun then(after: MediaProcessConfig): MediaProcessConfig {
-        return MediaProcessConfig(
-            processor then after.processor,
-            after.outputName,
-            {
-                val firstFormat = outputFormat(it)
-                after.outputFormat(firstFormat)
-            }
-        ) {
-            val firstReader = modifyImageReader(it)
-            after.modifyImageReader(firstReader)
+    val processor: ImageProcessor<out Any>
+    val outputName: String?
+
+    fun transformOutputFormat(inputFormat: String): String = inputFormat
+
+    fun transformImageReader(imageReader: ImageReader): ImageReader = imageReader
+
+    infix fun then(after: MediaProcessConfig): MediaProcessConfig = object : MediaProcessConfig {
+        override val processor: ImageProcessor<out Any> = this@MediaProcessConfig.processor then after.processor
+        override val outputName: String? = after.outputName ?: this@MediaProcessConfig.outputName
+
+        override fun transformOutputFormat(inputFormat: String): String {
+            val firstFormat = this@MediaProcessConfig.transformOutputFormat(inputFormat)
+            return after.transformOutputFormat(firstFormat)
+        }
+
+        override fun transformImageReader(imageReader: ImageReader): ImageReader {
+            val firstReader = this@MediaProcessConfig.transformImageReader(imageReader)
+            return after.transformImageReader(firstReader)
         }
     }
 }
+
+class BasicMediaProcessConfig(
+    override val processor: ImageProcessor<out Any>,
+    override val outputName: String?,
+) : MediaProcessConfig
 
 suspend fun processMedia(
     input: DataSource,
@@ -44,16 +52,17 @@ suspend fun processMedia(
     val (imageReader, audioReader) = withContext(Dispatchers.IO) {
         createImageReader(fileInput, inputFormat) to createAudioReader(fileInput, inputFormat)
     }
-    val outputFormat = config.outputFormat(inputFormat)
+    val outputFormat = config.transformOutputFormat(inputFormat)
+    val outputName = config.outputName ?: fileInput.filenameWithoutExtension()
     val output = processMedia(
-        config.modifyImageReader(imageReader),
+        config.transformImageReader(imageReader),
         audioReader,
-        createTemporaryFile(config.outputName, outputFormat),
+        createTemporaryFile(outputName, outputFormat),
         outputFormat,
         config.processor,
         maxFileSize,
     )
-    val filename = filename(config.outputName, outputFormat)
+    val filename = filename(outputName, outputFormat)
     return DataSource.fromFile(
         output,
         filename,
@@ -74,8 +83,6 @@ suspend fun <T : Any> processMedia(
         imageReader to audioReader
     }
     useAll(newImageReader, newAudioReader, processor) { _, _, _ ->
-        newImageReader.start()
-        newAudioReader.start()
         var outputSize: Long
         var resizeRatio = 1F
         val maxResizeAttempts = 3

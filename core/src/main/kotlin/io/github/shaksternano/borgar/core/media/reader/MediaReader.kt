@@ -33,11 +33,7 @@ interface MediaReader<T : VideoFrame<*>> : CloseableIterable<T>, SizedIterable<T
     val height: Int
     val loopCount: Int
 
-    val format: String
-
     val reversed: MediaReader<T>
-
-    suspend fun start()
 
     /**
      * Gets the frame at the given timestamp.
@@ -65,6 +61,9 @@ interface MediaReader<T : VideoFrame<*>> : CloseableIterable<T>, SizedIterable<T
     }
 }
 
+typealias ImageReader = MediaReader<ImageFrame>
+typealias AudioReader = MediaReader<AudioFrame>
+
 val MediaReader<*>.frameCount: Long
     get() = size
 val MediaReader<*>.isEmpty: Boolean
@@ -73,6 +72,3 @@ val MediaReader<*>.isAnimated: Boolean
     get() = size > 1
 val <T : VideoFrame<*>> MediaReader<T>.first: T
     get() = readFrame(0.0)
-
-typealias ImageReader = MediaReader<ImageFrame>
-typealias AudioReader = MediaReader<AudioFrame>

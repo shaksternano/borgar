@@ -11,8 +11,8 @@ import java.util.Map;
 
 public class MediaReaders {
 
-    private static final Map<String, MediaReaderFactory<ImageFrameOld>> imageReaderFactories = new HashMap<>();
-    private static final Map<String, MediaReaderFactory<AudioFrameOld>> audioReaderFactories = new HashMap<>();
+    private static final Map<String, MediaReaderFactoryOld<ImageFrameOld>> imageReaderFactories = new HashMap<>();
+    private static final Map<String, MediaReaderFactoryOld<AudioFrameOld>> audioReaderFactories = new HashMap<>();
 
     public static MediaReader<ImageFrameOld> createImageReader(File media, String format) throws UnreadableFileException {
         var factory = getImageReaderFactory(format);
@@ -24,7 +24,7 @@ public class MediaReaders {
         return createReader(factory, media, format);
     }
 
-    private static MediaReaderFactory<ImageFrameOld> getImageReaderFactory(String format) {
+    private static MediaReaderFactoryOld<ImageFrameOld> getImageReaderFactory(String format) {
         return imageReaderFactories.getOrDefault(format.toLowerCase(), FFmpegImageReader.Factory.INSTANCE);
     }
 
@@ -39,11 +39,11 @@ public class MediaReaders {
         return createReader(factory, media, format);
     }
 
-    private static MediaReaderFactory<AudioFrameOld> getAudioReaderFactory(String format) {
+    private static MediaReaderFactoryOld<AudioFrameOld> getAudioReaderFactory(String format) {
         return audioReaderFactories.getOrDefault(format.toLowerCase(), FFmpegAudioReader.Factory.INSTANCE);
     }
 
-    private static <T> MediaReader<T> createReader(MediaReaderFactory<T> factory, File media, String format) throws UnreadableFileException {
+    private static <T> MediaReader<T> createReader(MediaReaderFactoryOld<T> factory, File media, String format) throws UnreadableFileException {
         try {
             return factory.createReader(media, format);
         } catch (IOException e) {
@@ -51,7 +51,7 @@ public class MediaReaders {
         }
     }
 
-    private static <T> MediaReader<T> createReader(MediaReaderFactory<T> factory, InputStream media, String format) throws UnreadableFileException {
+    private static <T> MediaReader<T> createReader(MediaReaderFactoryOld<T> factory, InputStream media, String format) throws UnreadableFileException {
         try {
             return factory.createReader(media, format);
         } catch (IOException e) {
@@ -59,20 +59,20 @@ public class MediaReaders {
         }
     }
 
-    private static void registerImageReaderFactory(MediaReaderFactory<ImageFrameOld> factory, String... formats) {
+    private static void registerImageReaderFactory(MediaReaderFactoryOld<ImageFrameOld> factory, String... formats) {
         for (var format : formats) {
             imageReaderFactories.putIfAbsent(format.toLowerCase(), factory);
         }
     }
 
     @SuppressWarnings("SameParameterValue")
-    private static void registerAudioReaderFactory(MediaReaderFactory<AudioFrameOld> factory, String... formats) {
+    private static void registerAudioReaderFactory(MediaReaderFactoryOld<AudioFrameOld> factory, String... formats) {
         for (var format : formats) {
             audioReaderFactories.putIfAbsent(format.toLowerCase(), factory);
         }
     }
 
-    private static void registerImageOnlyReaderFactory(MediaReaderFactory<ImageFrameOld> factory, String... formats) {
+    private static void registerImageOnlyReaderFactory(MediaReaderFactoryOld<ImageFrameOld> factory, String... formats) {
         registerImageReaderFactory(factory, formats);
         registerAudioReaderFactory(NoAudioReader.Factory.INSTANCE, formats);
     }

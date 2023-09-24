@@ -3,7 +3,7 @@ package io.github.shaksternano.borgar.core.media.readerold;
 import io.github.shaksternano.borgar.core.collect.ClosableIteratorOld;
 import io.github.shaksternano.borgar.core.collect.ClosableSpliteratorOld;
 import io.github.shaksternano.borgar.core.media.AudioFrameOld;
-import io.github.shaksternano.borgar.core.media.MediaReaderFactory;
+import io.github.shaksternano.borgar.core.media.MediaReaderFactoryOld;
 
 import java.io.File;
 import java.io.InputStream;
@@ -52,7 +52,7 @@ public class NoAudioReader extends BaseMediaReader<AudioFrameOld> {
     public void close() {
     }
 
-    public enum Factory implements MediaReaderFactory<AudioFrameOld> {
+    public enum Factory implements MediaReaderFactoryOld<AudioFrameOld> {
 
         INSTANCE;
 

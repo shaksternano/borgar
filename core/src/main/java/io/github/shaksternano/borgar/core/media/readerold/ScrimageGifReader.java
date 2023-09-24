@@ -6,7 +6,7 @@ import io.github.shaksternano.borgar.core.collect.ClosableIteratorOld;
 import io.github.shaksternano.borgar.core.collect.ClosableSpliteratorOld;
 import io.github.shaksternano.borgar.core.function.TriFunction;
 import io.github.shaksternano.borgar.core.media.ImageFrameOld;
-import io.github.shaksternano.borgar.core.media.MediaReaderFactory;
+import io.github.shaksternano.borgar.core.media.MediaReaderFactoryOld;
 import io.github.shaksternano.borgar.core.media.MediaUtil;
 import io.github.shaksternano.borgar.core.media.VideoFrameOld;
 import org.jetbrains.annotations.NotNull;
@@ -98,7 +98,7 @@ public class ScrimageGifReader extends BaseMediaReader<ImageFrameOld> {
         }
     }
 
-    public enum Factory implements MediaReaderFactory<ImageFrameOld> {
+    public enum Factory implements MediaReaderFactoryOld<ImageFrameOld> {
 
         INSTANCE;
 

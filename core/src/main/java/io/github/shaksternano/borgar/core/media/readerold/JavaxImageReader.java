@@ -5,7 +5,7 @@ import io.github.shaksternano.borgar.core.collect.ClosableIteratorOld;
 import io.github.shaksternano.borgar.core.collect.ClosableSpliteratorOld;
 import io.github.shaksternano.borgar.core.media.ImageFrameOld;
 import io.github.shaksternano.borgar.core.media.ImageUtil;
-import io.github.shaksternano.borgar.core.media.MediaReaderFactory;
+import io.github.shaksternano.borgar.core.media.MediaReaderFactoryOld;
 import org.jetbrains.annotations.Nullable;
 
 import javax.imageio.ImageIO;
@@ -79,7 +79,7 @@ public class JavaxImageReader extends BaseMediaReader<ImageFrameOld> {
     public void close() {
     }
 
-    public enum Factory implements MediaReaderFactory<ImageFrameOld> {
+    public enum Factory implements MediaReaderFactoryOld<ImageFrameOld> {
 
         INSTANCE;
 

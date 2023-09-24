@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import io.github.shaksternano.borgar.core.collect.ClosableIteratorOld;
 import io.github.shaksternano.borgar.core.media.FrameInfo;
 import io.github.shaksternano.borgar.core.media.ImageFrameOld;
-import io.github.shaksternano.borgar.core.media.MediaReaderFactory;
+import io.github.shaksternano.borgar.core.media.MediaReaderFactoryOld;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.Java2DFrameConverter;
@@ -70,7 +70,7 @@ public final class FFmpegImageReader extends FFmpegMediaReader<ImageFrameOld> {
         return imageChannels != 1 && imageChannels != 3 && imageChannels != 4;
     }
 
-    public enum Factory implements MediaReaderFactory<ImageFrameOld> {
+    public enum Factory implements MediaReaderFactoryOld<ImageFrameOld> {
 
         INSTANCE;
 

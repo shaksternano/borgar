@@ -6,7 +6,7 @@ import java.io.File;
 import java.io.IOException;
 
 @FunctionalInterface
-public interface MediaWriterFactory {
+public interface MediaWriterFactoryOld {
 
     MediaWriter createWriter(
         File output,

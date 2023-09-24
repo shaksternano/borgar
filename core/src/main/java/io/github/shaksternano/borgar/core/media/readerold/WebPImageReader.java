@@ -4,7 +4,7 @@ import io.github.shaksternano.borgar.core.collect.ClosableIteratorOld;
 import io.github.shaksternano.borgar.core.collect.MappedList;
 import io.github.shaksternano.borgar.core.media.FrameInfo;
 import io.github.shaksternano.borgar.core.media.ImageFrameOld;
-import io.github.shaksternano.borgar.core.media.MediaReaderFactory;
+import io.github.shaksternano.borgar.core.media.MediaReaderFactoryOld;
 import io.github.shaksternano.borgar.core.media.MediaUtil;
 import org.jetbrains.annotations.Nullable;
 
@@ -141,7 +141,7 @@ public class WebPImageReader extends BaseMediaReader<ImageFrameOld> {
         return image;
     }
 
-    public enum Factory implements MediaReaderFactory<ImageFrameOld> {
+    public enum Factory implements MediaReaderFactoryOld<ImageFrameOld> {
 
         INSTANCE;
 
@@ -176,7 +176,7 @@ public class WebPImageReader extends BaseMediaReader<ImageFrameOld> {
                     timestamp
                 );
                 index++;
-                timestamp += duration;
+                timestamp += (long) duration;
                 return frame;
             } catch (IOException e) {
                 throw new UncheckedIOException(e);

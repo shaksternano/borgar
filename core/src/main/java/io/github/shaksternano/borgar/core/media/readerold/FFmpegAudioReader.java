@@ -2,7 +2,7 @@ package io.github.shaksternano.borgar.core.media.readerold;
 
 import io.github.shaksternano.borgar.core.collect.ClosableIteratorOld;
 import io.github.shaksternano.borgar.core.media.AudioFrameOld;
-import io.github.shaksternano.borgar.core.media.MediaReaderFactory;
+import io.github.shaksternano.borgar.core.media.MediaReaderFactoryOld;
 import io.github.shaksternano.borgar.core.media.MediaUtil;
 import org.bytedeco.javacv.FFmpegFrameFilter;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
@@ -59,7 +59,7 @@ public final class FFmpegAudioReader extends FFmpegMediaReader<AudioFrameOld> {
         return new Reversed();
     }
 
-    public enum Factory implements MediaReaderFactory<AudioFrameOld> {
+    public enum Factory implements MediaReaderFactoryOld<AudioFrameOld> {
 
         INSTANCE;
 

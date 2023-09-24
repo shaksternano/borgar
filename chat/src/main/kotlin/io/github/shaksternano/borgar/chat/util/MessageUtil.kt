@@ -1,6 +1,6 @@
 package io.github.shaksternano.borgar.chat.util
 
-import io.github.shaksternano.borgar.chat.command.CommandMessageUnion
+import io.github.shaksternano.borgar.chat.command.CommandMessageIntersection
 import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.io.DataSourceConvertable
 import io.github.shaksternano.borgar.core.io.UrlDataSource
@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.map
 
 private const val MAX_PAST_MESSAGES_TO_CHECK = 50
 
-suspend fun CommandMessageUnion.getUrls(): List<UrlInfo> {
+suspend fun CommandMessageIntersection.getUrls(): List<UrlInfo> {
     return search {
         val urls = buildList {
             addAll(
@@ -37,37 +37,37 @@ suspend fun CommandMessageUnion.getUrls(): List<UrlInfo> {
     } ?: emptyList()
 }
 
-suspend fun <T> CommandMessageUnion.search(find: suspend (CommandMessageUnion) -> T?): T? {
+suspend fun <T> CommandMessageIntersection.search(find: suspend (CommandMessageIntersection) -> T?): T? {
     return searchVisitors(
         find,
-        CommandMessageUnion::searchReferencedMessage,
-        CommandMessageUnion::searchSelf,
-        CommandMessageUnion::searchPreviousMessages,
+        CommandMessageIntersection::searchReferencedMessage,
+        CommandMessageIntersection::searchSelf,
+        CommandMessageIntersection::searchPreviousMessages,
     )
 }
 
 @Suppress("SameParameterValue")
-private suspend fun <T> CommandMessageUnion.searchVisitors(
-    find: suspend (CommandMessageUnion) -> T?,
-    vararg messageVisitors: suspend CommandMessageUnion.(suspend (CommandMessageUnion) -> T?) -> T?,
+private suspend fun <T> CommandMessageIntersection.searchVisitors(
+    find: suspend (CommandMessageIntersection) -> T?,
+    vararg messageVisitors: suspend CommandMessageIntersection.(suspend (CommandMessageIntersection) -> T?) -> T?,
 ): T? = messageVisitors.firstNotNullOfOrNull {
     it(find)
 }
 
-private suspend fun <T> CommandMessageUnion.searchReferencedMessage(find: suspend (CommandMessageUnion) -> T?): T? {
+private suspend fun <T> CommandMessageIntersection.searchReferencedMessage(find: suspend (CommandMessageIntersection) -> T?): T? {
     return getReferencedMessage()?.let {
-        find(it.asCommandUnion())
+        find(it.asCommandIntersection())
     }
 }
 
-private suspend fun <T> CommandMessageUnion.searchSelf(find: suspend (CommandMessageUnion) -> T?): T? {
+private suspend fun <T> CommandMessageIntersection.searchSelf(find: suspend (CommandMessageIntersection) -> T?): T? {
     return find(this)
 }
 
-private suspend fun <T> CommandMessageUnion.searchPreviousMessages(find: suspend (CommandMessageUnion) -> T?): T? {
+private suspend fun <T> CommandMessageIntersection.searchPreviousMessages(find: suspend (CommandMessageIntersection) -> T?): T? {
     val previousMessages = getPreviousMessages(MAX_PAST_MESSAGES_TO_CHECK)
     return previousMessages.map {
-        find(it.asCommandUnion())
+        find(it.asCommandIntersection())
     }.firstOrNull {
         it != null
     }

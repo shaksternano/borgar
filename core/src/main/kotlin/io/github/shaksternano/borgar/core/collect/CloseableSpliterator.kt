@@ -22,6 +22,8 @@ interface CloseableSpliterator<T> : Spliterator<T>, Closeable {
 
         @Suppress("UNCHECKED_CAST")
         fun <T> empty(): CloseableSpliterator<T> = EMPTY as CloseableSpliterator<T>
+
+        fun <T> singleton(value: T): CloseableSpliterator<T> = wrap(listOf(value).spliterator())
     }
 }
 

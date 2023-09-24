@@ -4,9 +4,8 @@ import io.github.shaksternano.borgar.chat.entity.*
 import io.github.shaksternano.borgar.chat.entity.channel.MessageChannel
 import kotlinx.coroutines.flow.Flow
 
-interface CommandMessageUnion : Managed {
+interface CommandMessageIntersection : Entity {
 
-    val id: String
     val content: String
     val attachments: List<Attachment>
     val embeds: List<MessageEmbed>

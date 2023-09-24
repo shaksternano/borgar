@@ -1,7 +1,7 @@
 package io.github.shaksternano.borgar.chat.event
 
 import io.github.shaksternano.borgar.chat.command.CommandArguments
-import io.github.shaksternano.borgar.chat.command.CommandMessageUnion
+import io.github.shaksternano.borgar.chat.command.CommandMessageIntersection
 import io.github.shaksternano.borgar.chat.command.CommandResponse
 import io.github.shaksternano.borgar.chat.entity.Guild
 import io.github.shaksternano.borgar.chat.entity.Managed
@@ -25,5 +25,5 @@ interface CommandEvent : Managed {
 
     suspend fun respond(content: String): Message = respond(CommandResponse(content))
 
-    fun asMessageUnion(arguments: CommandArguments): CommandMessageUnion
+    fun asMessageIntersection(arguments: CommandArguments): CommandMessageIntersection
 }

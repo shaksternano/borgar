@@ -6,7 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
-public interface MediaReaderFactory<T> {
+public interface MediaReaderFactoryOld<T> {
 
     MediaReader<T> createReader(File media, String format) throws IOException;
 
