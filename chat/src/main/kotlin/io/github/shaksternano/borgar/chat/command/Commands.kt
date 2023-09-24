@@ -6,6 +6,8 @@ const val ENTITY_ID_SEPARATOR: String = ":"
 
 val COMMANDS: Map<String, Command> = registerCommands(
     HelpCommand,
+    CaptionCommand.Caption,
+    CaptionCommand.Caption2,
     ChangeExtensionCommand("gif"),
 )
 
