@@ -13,7 +13,9 @@ val COMMANDS: Map<String, Command> = registerCommands(
 
 private fun registerCommands(vararg commands: Command): Map<String, Command> = buildMap {
     commands.forEach {
-        if (containsKey(it.name)) throw IllegalArgumentException("Command with name ${it.name} already exists")
+        if (containsKey(it.name)) throw IllegalArgumentException(
+            "Command with name ${it.name} already exists. Existing command: ${get(it.name)}. New command: $it"
+        )
         put(it.name, it)
     }
 }
