@@ -7,13 +7,13 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.function.Consumer;
 
-public interface ClosableIterator<T> extends Iterator<T>, Closeable {
+public interface ClosableIteratorOld<T> extends Iterator<T>, Closeable {
 
-    static <T> ClosableIterator<T> wrap(Iterator<T> iterator) {
-        if (iterator instanceof ClosableIterator<T> closableIterator) {
+    static <T> ClosableIteratorOld<T> wrap(Iterator<T> iterator) {
+        if (iterator instanceof ClosableIteratorOld<T> closableIterator) {
             return closableIterator;
         }
-        return new ClosableIterator<>() {
+        return new ClosableIteratorOld<>() {
 
             @Override
             public void remove() {

@@ -2,7 +2,7 @@ package io.github.shaksternano.borgar.core.command;
 
 import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.borgar.core.io.NamedFile;
-import io.github.shaksternano.borgar.core.media.ImageFrame;
+import io.github.shaksternano.borgar.core.media.ImageFrameOld;
 import io.github.shaksternano.borgar.core.media.ImageUtil;
 import io.github.shaksternano.borgar.core.media.MediaUtil;
 import io.github.shaksternano.borgar.core.media.graphics.GraphicsUtil;
@@ -65,7 +65,7 @@ public class CaptionCommand extends FileCommand {
     ) implements SingleImageProcessor<CaptionData> {
 
         @Override
-        public BufferedImage transformImage(ImageFrame frame, CaptionData constantData) throws IOException {
+        public BufferedImage transformImage(ImageFrameOld frame, CaptionData constantData) throws IOException {
             BufferedImage image = frame.getContent();
             BufferedImage captionedImage = new BufferedImage(image.getWidth(), image.getHeight() + constantData.fillHeight(), ImageUtil.getType(image));
             Graphics2D graphics = captionedImage.createGraphics();

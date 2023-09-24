@@ -3,13 +3,13 @@ package io.github.shaksternano.borgar.core.command
 import com.google.common.collect.ListMultimap
 import io.github.shaksternano.borgar.core.io.FileUtil
 import io.github.shaksternano.borgar.core.io.NamedFile
-import io.github.shaksternano.borgar.core.media.ImageFrame
+import io.github.shaksternano.borgar.core.media.ImageFrameOld
 import io.github.shaksternano.borgar.core.media.ImageUtil
 import io.github.shaksternano.borgar.core.media.MediaReaders
 import io.github.shaksternano.borgar.core.media.MediaUtil
 import io.github.shaksternano.borgar.core.media.graphics.OverlayData
 import io.github.shaksternano.borgar.core.media.imageprocessor.SingleImageProcessor
-import io.github.shaksternano.borgar.core.media.reader.MediaReader
+import io.github.shaksternano.borgar.core.media.readerold.MediaReader
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import java.awt.image.BufferedImage
 import java.io.File
@@ -46,10 +46,10 @@ object SubwaySurfersCommand : FileCommand(
     }
 
     private class SubwaySurfersProcessor(
-        val reader: MediaReader<ImageFrame>
+        val reader: MediaReader<ImageFrameOld>
     ) : SingleImageProcessor<SubwaySurfersData> {
 
-        override fun transformImage(frame: ImageFrame, constantData: SubwaySurfersData): BufferedImage {
+        override fun transformImage(frame: ImageFrameOld, constantData: SubwaySurfersData): BufferedImage {
             val image = frame.content
             val subwaySurfersFrame = reader.readFrame(frame.timestamp).content
             val resized = ImageUtil.fitHeight(subwaySurfersFrame, image.height)

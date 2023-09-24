@@ -1,7 +1,7 @@
-package io.github.shaksternano.borgar.core.media.reader;
+package io.github.shaksternano.borgar.core.media.readerold;
 
-import io.github.shaksternano.borgar.core.collect.ClosableIterator;
-import io.github.shaksternano.borgar.core.media.VideoFrame;
+import io.github.shaksternano.borgar.core.collect.ClosableIteratorOld;
+import io.github.shaksternano.borgar.core.media.VideoFrameOld;
 import io.github.shaksternano.borgar.core.util.MiscUtil;
 import io.github.shaksternano.borgar.core.util.Pair;
 import org.jetbrains.annotations.Nullable;
@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 
-public class ZippedMediaReader<A extends VideoFrame<?, A>, B extends VideoFrame<?, B>> extends BaseMediaReader<Pair<A, B>> {
+public class ZippedMediaReader<A extends VideoFrameOld<?, A>, B extends VideoFrameOld<?, B>> extends BaseMediaReader<Pair<A, B>> {
 
     private final MediaReader<A> firstReader;
     private final MediaReader<B> secondReader;
@@ -75,7 +75,7 @@ public class ZippedMediaReader<A extends VideoFrame<?, A>, B extends VideoFrame<
     }
 
     @Override
-    public ClosableIterator<Pair<A, B>> iterator() {
+    public ClosableIteratorOld<Pair<A, B>> iterator() {
         return new ZippedMediaReaderIterator();
     }
 
@@ -93,12 +93,12 @@ public class ZippedMediaReader<A extends VideoFrame<?, A>, B extends VideoFrame<
             (!secondReader.isAnimated() || firstReader.frameDuration() <= secondReader.frameDuration());
     }
 
-    private class ZippedMediaReaderIterator implements ClosableIterator<Pair<A, B>> {
+    private class ZippedMediaReaderIterator implements ClosableIteratorOld<Pair<A, B>> {
 
         @Nullable
-        private ClosableIterator<A> firstIterator;
+        private ClosableIteratorOld<A> firstIterator;
         @Nullable
-        private ClosableIterator<B> secondIterator;
+        private ClosableIteratorOld<B> secondIterator;
         private int loops = 0;
 
         public ZippedMediaReaderIterator() {

@@ -1,9 +1,9 @@
 package io.github.shaksternano.borgar.core.media.graphics.drawable;
 
-import io.github.shaksternano.borgar.core.media.ImageFrame;
+import io.github.shaksternano.borgar.core.media.ImageFrameOld;
 import io.github.shaksternano.borgar.core.media.ImageUtil;
 import io.github.shaksternano.borgar.core.media.MediaReaders;
-import io.github.shaksternano.borgar.core.media.reader.MediaReader;
+import io.github.shaksternano.borgar.core.media.readerold.MediaReader;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -13,7 +13,7 @@ import java.util.Objects;
 
 public class ImageDrawable implements Drawable {
 
-    private final MediaReader<ImageFrame> reader;
+    private final MediaReader<ImageFrameOld> reader;
     private final BufferedImage firstFrame;
     private int targetWidth;
     private int targetHeight;

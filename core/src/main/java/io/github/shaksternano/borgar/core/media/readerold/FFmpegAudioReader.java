@@ -1,7 +1,7 @@
-package io.github.shaksternano.borgar.core.media.reader;
+package io.github.shaksternano.borgar.core.media.readerold;
 
-import io.github.shaksternano.borgar.core.collect.ClosableIterator;
-import io.github.shaksternano.borgar.core.media.AudioFrame;
+import io.github.shaksternano.borgar.core.collect.ClosableIteratorOld;
+import io.github.shaksternano.borgar.core.media.AudioFrameOld;
 import io.github.shaksternano.borgar.core.media.MediaReaderFactory;
 import io.github.shaksternano.borgar.core.media.MediaUtil;
 import org.bytedeco.javacv.FFmpegFrameFilter;
@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public final class FFmpegAudioReader extends FFmpegMediaReader<AudioFrame> {
+public final class FFmpegAudioReader extends FFmpegMediaReader<AudioFrameOld> {
 
     public FFmpegAudioReader(File input, String format) throws IOException {
         super(input, format);
@@ -46,8 +46,8 @@ public final class FFmpegAudioReader extends FFmpegMediaReader<AudioFrame> {
     }
 
     @Override
-    protected AudioFrame convertFrame(Frame frame) {
-        return new AudioFrame(
+    protected AudioFrameOld convertFrame(Frame frame) {
+        return new AudioFrameOld(
             frame,
             frameDuration(),
             frame.timestamp
@@ -55,28 +55,28 @@ public final class FFmpegAudioReader extends FFmpegMediaReader<AudioFrame> {
     }
 
     @Override
-    public MediaReader<AudioFrame> reversed() throws IOException {
+    public MediaReader<AudioFrameOld> reversed() throws IOException {
         return new Reversed();
     }
 
-    public enum Factory implements MediaReaderFactory<AudioFrame> {
+    public enum Factory implements MediaReaderFactory<AudioFrameOld> {
 
         INSTANCE;
 
         @Override
-        public MediaReader<AudioFrame> createReader(File media, String format) throws IOException {
+        public MediaReader<AudioFrameOld> createReader(File media, String format) throws IOException {
             return new FFmpegAudioReader(media, format);
         }
 
         @Override
-        public MediaReader<AudioFrame> createReader(InputStream media, String format) throws IOException {
+        public MediaReader<AudioFrameOld> createReader(InputStream media, String format) throws IOException {
             return new FFmpegAudioReader(media, format);
         }
     }
 
-    private class Reversed extends BaseMediaReader<AudioFrame> {
+    private class Reversed extends BaseMediaReader<AudioFrameOld> {
 
-        private final List<AudioFrame> reversedFrames;
+        private final List<AudioFrameOld> reversedFrames;
 
         private Reversed() throws IOException {
             super(FFmpegAudioReader.this.format());
@@ -92,7 +92,7 @@ public final class FFmpegAudioReader extends FFmpegMediaReader<AudioFrame> {
             reversedFrames = reverseFrames();
         }
 
-        private List<AudioFrame> reverseFrames() throws IOException {
+        private List<AudioFrameOld> reverseFrames() throws IOException {
             try (
                 var iterator = FFmpegAudioReader.this.iterator();
                 var reverseFilter = new FFmpegFrameFilter("areverse", FFmpegAudioReader.this.audioChannels())
@@ -106,24 +106,24 @@ public final class FFmpegAudioReader extends FFmpegMediaReader<AudioFrame> {
                         sampleRate = frame.getContent().sampleRate;
                     }
                 }
-                List<AudioFrame> reversedFrames = new ArrayList<>(frameCount);
+                List<AudioFrameOld> reversedFrames = new ArrayList<>(frameCount);
                 Frame reversedFrame;
                 while ((reversedFrame = reverseFilter.pullSamples()) != null) {
                     // The sample rate gets messed up by the filter, so we reset it.
                     reversedFrame.sampleRate = sampleRate;
-                    reversedFrames.add(new AudioFrame(reversedFrame.clone(), frameDuration(), reversedFrame.timestamp));
+                    reversedFrames.add(new AudioFrameOld(reversedFrame.clone(), frameDuration(), reversedFrame.timestamp));
                 }
                 return Collections.unmodifiableList(reversedFrames);
             }
         }
 
         @Override
-        public AudioFrame readFrame(long timestamp) {
+        public AudioFrameOld readFrame(long timestamp) {
             return MediaUtil.frameAtTime(timestamp, reversedFrames, duration);
         }
 
         @Override
-        public MediaReader<AudioFrame> reversed() {
+        public MediaReader<AudioFrameOld> reversed() {
             return FFmpegAudioReader.this;
         }
 
@@ -133,8 +133,8 @@ public final class FFmpegAudioReader extends FFmpegMediaReader<AudioFrame> {
         }
 
         @Override
-        public ClosableIterator<AudioFrame> iterator() {
-            return ClosableIterator.wrap(reversedFrames.iterator());
+        public ClosableIteratorOld<AudioFrameOld> iterator() {
+            return ClosableIteratorOld.wrap(reversedFrames.iterator());
         }
     }
 }

@@ -8,8 +8,8 @@ import io.github.shaksternano.borgar.core.media.imageprocessor.BasicImageProcess
 import io.github.shaksternano.borgar.core.media.imageprocessor.DualImageProcessor;
 import io.github.shaksternano.borgar.core.media.imageprocessor.IdentityProcessor;
 import io.github.shaksternano.borgar.core.media.imageprocessor.SingleImageProcessor;
-import io.github.shaksternano.borgar.core.media.reader.MediaReader;
-import io.github.shaksternano.borgar.core.media.reader.ZippedMediaReader;
+import io.github.shaksternano.borgar.core.media.readerold.MediaReader;
+import io.github.shaksternano.borgar.core.media.readerold.ZippedMediaReader;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -79,8 +79,8 @@ public class MediaUtil {
     }
 
     public static File processMedia(
-        MediaReader<ImageFrame> imageReader,
-        MediaReader<AudioFrame> audioReader,
+        MediaReader<ImageFrameOld> imageReader,
+        MediaReader<AudioFrameOld> audioReader,
         String outputFormat,
         String resultName,
         SingleImageProcessor<?> processor,
@@ -91,8 +91,8 @@ public class MediaUtil {
     }
 
     public static <T> File processMedia(
-        MediaReader<ImageFrame> imageReader,
-        MediaReader<AudioFrame> audioReader,
+        MediaReader<ImageFrameOld> imageReader,
+        MediaReader<AudioFrameOld> audioReader,
         File output,
         String outputFormat,
         SingleImageProcessor<T> processor,
@@ -160,9 +160,9 @@ public class MediaUtil {
     }
 
     public static <T> File processMedia(
-        MediaReader<ImageFrame> imageReader1,
-        MediaReader<AudioFrame> audioReader1,
-        MediaReader<ImageFrame> imageReader2,
+        MediaReader<ImageFrameOld> imageReader1,
+        MediaReader<AudioFrameOld> audioReader1,
+        MediaReader<ImageFrameOld> imageReader2,
         String outputFormat,
         String resultName,
         DualImageProcessor<T> processor,
@@ -369,9 +369,9 @@ public class MediaUtil {
         return false;
     }
 
-    public static <E extends VideoFrame<?, E>> E frameAtTime(long timestamp, List<E> frames, long duration) {
+    public static <E extends VideoFrameOld<?, E>> E frameAtTime(long timestamp, List<E> frames, long duration) {
         var circularTimestamp = timestamp % Math.max(duration, 1);
-        var index = findIndex(circularTimestamp, new MappedList<>(frames, VideoFrame::getTimestamp));
+        var index = findIndex(circularTimestamp, new MappedList<>(frames, VideoFrameOld::getTimestamp));
         return frames.get(index);
     }
 

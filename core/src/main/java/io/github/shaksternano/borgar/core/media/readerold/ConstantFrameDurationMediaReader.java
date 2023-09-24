@@ -1,13 +1,13 @@
-package io.github.shaksternano.borgar.core.media.reader;
+package io.github.shaksternano.borgar.core.media.readerold;
 
-import io.github.shaksternano.borgar.core.collect.ClosableIterator;
-import io.github.shaksternano.borgar.core.media.VideoFrame;
+import io.github.shaksternano.borgar.core.collect.ClosableIteratorOld;
+import io.github.shaksternano.borgar.core.media.VideoFrameOld;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
 
-public class ConstantFrameDurationMediaReader<E extends VideoFrame<?, E>> extends BaseMediaReader<E> {
+public class ConstantFrameDurationMediaReader<E extends VideoFrameOld<?, E>> extends BaseMediaReader<E> {
 
     private final MediaReader<E> reader;
     @Nullable
@@ -45,7 +45,7 @@ public class ConstantFrameDurationMediaReader<E extends VideoFrame<?, E>> extend
     }
 
     @Override
-    public ClosableIterator<E> iterator() {
+    public ClosableIteratorOld<E> iterator() {
         return new Iterator();
     }
 
@@ -54,7 +54,7 @@ public class ConstantFrameDurationMediaReader<E extends VideoFrame<?, E>> extend
         reader.close();
     }
 
-    private class Iterator implements ClosableIterator<E> {
+    private class Iterator implements ClosableIteratorOld<E> {
 
         private long currentTimestamp = 0;
 

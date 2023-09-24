@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
 
-public class ClosableSpliteratorImpl<T> implements ClosableSpliterator<T> {
+public class ClosableSpliteratorImpl<T> implements ClosableSpliteratorOld<T> {
 
     private final Spliterator<T> spliterator;
     private final List<AutoCloseable> toClose = new ArrayList<>();

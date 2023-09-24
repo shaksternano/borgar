@@ -4,12 +4,12 @@ import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.borgar.core.command.util.CommandParser;
 import io.github.shaksternano.borgar.core.io.FileUtil;
 import io.github.shaksternano.borgar.core.io.NamedFile;
-import io.github.shaksternano.borgar.core.media.ImageFrame;
+import io.github.shaksternano.borgar.core.media.ImageFrameOld;
 import io.github.shaksternano.borgar.core.media.ImageUtil;
 import io.github.shaksternano.borgar.core.media.MediaReaders;
 import io.github.shaksternano.borgar.core.media.MediaUtil;
 import io.github.shaksternano.borgar.core.media.imageprocessor.SingleImageProcessor;
-import io.github.shaksternano.borgar.core.media.reader.ConstantFrameDurationMediaReader;
+import io.github.shaksternano.borgar.core.media.readerold.ConstantFrameDurationMediaReader;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.Nullable;
 
@@ -106,7 +106,7 @@ public class SpinCommand extends FileCommand {
     ) implements SingleImageProcessor<SpinData> {
 
         @Override
-        public BufferedImage transformImage(ImageFrame frame, SpinData constantData) {
+        public BufferedImage transformImage(ImageFrameOld frame, SpinData constantData) {
             var image = frame.getContent();
             var angle = 2 * Math.PI * (frame.getTimestamp() / (double) rotationDuration);
             if (speed < 0) {

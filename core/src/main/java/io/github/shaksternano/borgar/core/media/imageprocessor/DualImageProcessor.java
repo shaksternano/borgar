@@ -1,6 +1,6 @@
 package io.github.shaksternano.borgar.core.media.imageprocessor;
 
-import io.github.shaksternano.borgar.core.media.ImageFrame;
+import io.github.shaksternano.borgar.core.media.ImageFrameOld;
 import io.github.shaksternano.borgar.core.util.Pair;
 
 import java.awt.image.BufferedImage;
@@ -9,7 +9,7 @@ import java.util.function.UnaryOperator;
 
 public interface DualImageProcessor<T> extends ImageProcessor<T> {
 
-    BufferedImage transformImage(ImageFrame frame1, ImageFrame frame2, T constantData) throws IOException;
+    BufferedImage transformImage(ImageFrameOld frame1, ImageFrameOld frame2, T constantData) throws IOException;
 
     /**
      * Calculates data that remains constant for all frames,
@@ -26,7 +26,7 @@ public interface DualImageProcessor<T> extends ImageProcessor<T> {
     default <V> DualImageProcessor<Pair<T, V>> andThen(SingleImageProcessor<V> after) {
         return new DualImageProcessor<>() {
             @Override
-            public BufferedImage transformImage(ImageFrame frame1, ImageFrame frame2, Pair<T, V> constantData) throws IOException {
+            public BufferedImage transformImage(ImageFrameOld frame1, ImageFrameOld frame2, Pair<T, V> constantData) throws IOException {
                 var firstTransformed = frame1.transform(
                     DualImageProcessor.this.transformImage(frame1, frame2, constantData.first())
                 );
@@ -58,7 +58,7 @@ public interface DualImageProcessor<T> extends ImageProcessor<T> {
     default DualImageProcessor<T> andThen(UnaryOperator<BufferedImage> after) {
         return new DualImageProcessor<>() {
             @Override
-            public BufferedImage transformImage(ImageFrame frame1, ImageFrame frame2, T constantData) throws IOException {
+            public BufferedImage transformImage(ImageFrameOld frame1, ImageFrameOld frame2, T constantData) throws IOException {
                 var firstTransformed = DualImageProcessor.this.transformImage(frame1, frame2, constantData);
                 return after.apply(firstTransformed);
             }

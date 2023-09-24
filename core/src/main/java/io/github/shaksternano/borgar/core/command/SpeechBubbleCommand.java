@@ -4,7 +4,7 @@ import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.borgar.core.exception.InvalidMediaException;
 import io.github.shaksternano.borgar.core.io.FileUtil;
 import io.github.shaksternano.borgar.core.io.NamedFile;
-import io.github.shaksternano.borgar.core.media.ImageFrame;
+import io.github.shaksternano.borgar.core.media.ImageFrameOld;
 import io.github.shaksternano.borgar.core.media.ImageUtil;
 import io.github.shaksternano.borgar.core.media.MediaReaders;
 import io.github.shaksternano.borgar.core.media.MediaUtil;
@@ -94,7 +94,7 @@ public class SpeechBubbleCommand extends FileCommand {
     ) implements SingleImageProcessor<SpeechBubbleData> {
 
         @Override
-        public BufferedImage transformImage(ImageFrame frame, SpeechBubbleData constantData) {
+        public BufferedImage transformImage(ImageFrameOld frame, SpeechBubbleData constantData) {
             var image = frame.getContent();
             var speechBubble = constantData.speechBubble();
             if (cutOut) {

@@ -1,10 +1,10 @@
-package io.github.shaksternano.borgar.core.media.writer;
+package io.github.shaksternano.borgar.core.media.writerold;
 
 import com.sksamuel.scrimage.DisposeMethod;
 import com.sksamuel.scrimage.ImmutableImage;
 import com.sksamuel.scrimage.nio.StreamingGifWriter;
 import io.github.shaksternano.borgar.core.media.FixedLoopingGifWriter;
-import io.github.shaksternano.borgar.core.media.ImageFrame;
+import io.github.shaksternano.borgar.core.media.ImageFrameOld;
 import io.github.shaksternano.borgar.core.media.ImageUtil;
 import org.jetbrains.annotations.Nullable;
 
@@ -51,7 +51,7 @@ public class ScrimageGifWriter implements NoAudioWriter {
     }
 
     @Override
-    public void writeImageFrame(ImageFrame frame) throws IOException {
+    public void writeImageFrame(ImageFrameOld frame) throws IOException {
         var currentImage = ImageUtil.convertType(
             ImageUtil.bound(
                 frame.getContent(),

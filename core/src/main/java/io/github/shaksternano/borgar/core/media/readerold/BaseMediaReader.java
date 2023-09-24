@@ -1,7 +1,7 @@
-package io.github.shaksternano.borgar.core.media.reader;
+package io.github.shaksternano.borgar.core.media.readerold;
 
 import com.google.common.collect.Iterables;
-import io.github.shaksternano.borgar.core.collect.ClosableSpliterator;
+import io.github.shaksternano.borgar.core.collect.ClosableSpliteratorOld;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -110,13 +110,13 @@ public abstract class BaseMediaReader<E> implements MediaReader<E> {
     }
 
     @Override
-    public ClosableSpliterator<E> spliterator() {
+    public ClosableSpliteratorOld<E> spliterator() {
         int characteristics = Spliterator.ORDERED
             | Spliterator.DISTINCT
             | Spliterator.SORTED
             | Spliterator.NONNULL
             | Spliterator.IMMUTABLE;
-        return ClosableSpliterator.create(iterator(), frameCount(), characteristics);
+        return ClosableSpliteratorOld.create(iterator(), frameCount(), characteristics);
     }
 
     @Override

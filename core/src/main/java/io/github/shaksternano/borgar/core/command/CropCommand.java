@@ -5,7 +5,7 @@ import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.borgar.core.command.util.CommandParser;
 import io.github.shaksternano.borgar.core.exception.MissingArgumentException;
 import io.github.shaksternano.borgar.core.io.NamedFile;
-import io.github.shaksternano.borgar.core.media.ImageFrame;
+import io.github.shaksternano.borgar.core.media.ImageFrameOld;
 import io.github.shaksternano.borgar.core.media.MediaUtil;
 import io.github.shaksternano.borgar.core.media.imageprocessor.SingleImageProcessor;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
@@ -91,7 +91,7 @@ public class CropCommand extends FileCommand {
     ) implements SingleImageProcessor<CropData> {
 
         @Override
-        public BufferedImage transformImage(ImageFrame frame, CropData constantData) {
+        public BufferedImage transformImage(ImageFrameOld frame, CropData constantData) {
             return frame.getContent().getSubimage(constantData.x(), constantData.y(), constantData.width(), constantData.height());
         }
 

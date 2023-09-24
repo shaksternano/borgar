@@ -1,9 +1,9 @@
-package io.github.shaksternano.borgar.core.media.reader;
+package io.github.shaksternano.borgar.core.media.readerold;
 
 import com.google.common.collect.Lists;
-import io.github.shaksternano.borgar.core.collect.ClosableIterator;
+import io.github.shaksternano.borgar.core.collect.ClosableIteratorOld;
 import io.github.shaksternano.borgar.core.media.FrameInfo;
-import io.github.shaksternano.borgar.core.media.ImageFrame;
+import io.github.shaksternano.borgar.core.media.ImageFrameOld;
 import io.github.shaksternano.borgar.core.media.MediaReaderFactory;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.Frame;
@@ -20,11 +20,11 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-public final class FFmpegImageReader extends FFmpegMediaReader<ImageFrame> {
+public final class FFmpegImageReader extends FFmpegMediaReader<ImageFrameOld> {
 
     private final Java2DFrameConverter converter = new Java2DFrameConverter();
     @Nullable
-    private MediaReader<ImageFrame> reversed;
+    private MediaReader<ImageFrameOld> reversed;
 
     public FFmpegImageReader(File input, String format) throws IOException {
         super(input, format);
@@ -36,7 +36,7 @@ public final class FFmpegImageReader extends FFmpegMediaReader<ImageFrame> {
     }
 
     @Override
-    public MediaReader<ImageFrame> reversed() throws IOException {
+    public MediaReader<ImageFrameOld> reversed() throws IOException {
         if (reversed == null) {
             reversed = new Reversed();
         }
@@ -55,11 +55,11 @@ public final class FFmpegImageReader extends FFmpegMediaReader<ImageFrame> {
     }
 
     @Override
-    protected ImageFrame convertFrame(Frame frame) {
+    protected ImageFrameOld convertFrame(Frame frame) {
         if (isInvalidImageChannels(frame.imageChannels)) {
             frame.imageChannels = 3;
         }
-        return new ImageFrame(
+        return new ImageFrameOld(
             converter.convert(frame),
             frameDuration(),
             frame.timestamp
@@ -70,22 +70,22 @@ public final class FFmpegImageReader extends FFmpegMediaReader<ImageFrame> {
         return imageChannels != 1 && imageChannels != 3 && imageChannels != 4;
     }
 
-    public enum Factory implements MediaReaderFactory<ImageFrame> {
+    public enum Factory implements MediaReaderFactory<ImageFrameOld> {
 
         INSTANCE;
 
         @Override
-        public MediaReader<ImageFrame> createReader(File media, String format) throws IOException {
+        public MediaReader<ImageFrameOld> createReader(File media, String format) throws IOException {
             return new FFmpegImageReader(media, format);
         }
 
         @Override
-        public MediaReader<ImageFrame> createReader(InputStream media, String format) throws IOException {
+        public MediaReader<ImageFrameOld> createReader(InputStream media, String format) throws IOException {
             return new FFmpegImageReader(media, format);
         }
     }
 
-    private class Reversed extends BaseMediaReader<ImageFrame> {
+    private class Reversed extends BaseMediaReader<ImageFrameOld> {
 
         private final List<FrameInfo> reversedFrameInfo;
 
@@ -113,14 +113,14 @@ public final class FFmpegImageReader extends FFmpegMediaReader<ImageFrame> {
         }
 
         @Override
-        public ImageFrame readFrame(long timestamp) throws IOException {
+        public ImageFrameOld readFrame(long timestamp) throws IOException {
             var reversedTimestamp = duration - (timestamp % duration);
             var frame = FFmpegImageReader.this.readFrame(reversedTimestamp);
-            return new ImageFrame(frame.getContent(), frame.getDuration(), timestamp);
+            return new ImageFrameOld(frame.getContent(), frame.getDuration(), timestamp);
         }
 
         @Override
-        public MediaReader<ImageFrame> reversed() {
+        public MediaReader<ImageFrameOld> reversed() {
             return FFmpegImageReader.this;
         }
 
@@ -131,7 +131,7 @@ public final class FFmpegImageReader extends FFmpegMediaReader<ImageFrame> {
 
         @NotNull
         @Override
-        public ClosableIterator<ImageFrame> iterator() {
+        public ClosableIteratorOld<ImageFrameOld> iterator() {
             try {
                 return new ReversedIterator();
             } catch (IOException e) {
@@ -139,7 +139,7 @@ public final class FFmpegImageReader extends FFmpegMediaReader<ImageFrame> {
             }
         }
 
-        private class ReversedIterator implements ClosableIterator<ImageFrame> {
+        private class ReversedIterator implements ClosableIteratorOld<ImageFrameOld> {
 
             private final FFmpegFrameGrabber grabber = createGrabber();
             private final Iterator<FrameInfo> frameInfoIterator = reversedFrameInfo.iterator();
@@ -155,7 +155,7 @@ public final class FFmpegImageReader extends FFmpegMediaReader<ImageFrame> {
             }
 
             @Override
-            public ImageFrame next() {
+            public ImageFrameOld next() {
                 var info = frameInfoIterator.next();
                 try {
                     return FFmpegImageReader.this.frameAtTime(info.timestamp(), grabber);

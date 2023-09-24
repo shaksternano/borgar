@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.borgar.core.exception.MissingArgumentException;
 import io.github.shaksternano.borgar.core.io.NamedFile;
-import io.github.shaksternano.borgar.core.media.ImageFrame;
+import io.github.shaksternano.borgar.core.media.ImageFrameOld;
 import io.github.shaksternano.borgar.core.media.ImageUtil;
 import io.github.shaksternano.borgar.core.media.MediaUtil;
 import io.github.shaksternano.borgar.core.media.graphics.GraphicsUtil;
@@ -73,7 +73,7 @@ public class MemeCommand extends FileCommand {
     ) implements SingleImageProcessor<ImpactData> {
 
         @Override
-        public BufferedImage transformImage(ImageFrame frame, ImpactData constantData) throws IOException {
+        public BufferedImage transformImage(ImageFrameOld frame, ImpactData constantData) throws IOException {
             var result = frame.getContent();
             var graphics = result.createGraphics();
             ImageUtil.configureTextDrawQuality(graphics);

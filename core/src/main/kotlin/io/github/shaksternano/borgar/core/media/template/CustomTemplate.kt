@@ -1,12 +1,12 @@
 package io.github.shaksternano.borgar.core.media.template
 
-import io.github.shaksternano.borgar.core.media.AudioFrame
-import io.github.shaksternano.borgar.core.media.ImageFrame
+import io.github.shaksternano.borgar.core.media.AudioFrameOld
+import io.github.shaksternano.borgar.core.media.ImageFrameOld
 import io.github.shaksternano.borgar.core.media.MediaReaders
 import io.github.shaksternano.borgar.core.media.graphics.Position
 import io.github.shaksternano.borgar.core.media.graphics.TextAlignment
 import io.github.shaksternano.borgar.core.media.graphics.drawable.Drawable
-import io.github.shaksternano.borgar.core.media.reader.MediaReader
+import io.github.shaksternano.borgar.core.media.readerold.MediaReader
 import java.awt.Color
 import java.awt.Font
 import java.awt.Shape
@@ -44,10 +44,10 @@ class CustomTemplate(
     private val fill: Color?
 ) : Template {
 
-    override fun getImageReader(): MediaReader<ImageFrame> =
+    override fun getImageReader(): MediaReader<ImageFrameOld> =
         MediaReaders.createImageReader(inputStream(), format)
 
-    override fun getAudioReader(): MediaReader<AudioFrame> =
+    override fun getAudioReader(): MediaReader<AudioFrameOld> =
         MediaReaders.createAudioReader(inputStream(), format)
 
     private fun inputStream(): InputStream =

@@ -6,7 +6,7 @@ import io.github.shaksternano.borgar.core.command.util.CommandResponse;
 import io.github.shaksternano.borgar.core.data.repository.SavedUrlRepository;
 import io.github.shaksternano.borgar.core.io.FileUtil;
 import io.github.shaksternano.borgar.core.io.NamedFile;
-import io.github.shaksternano.borgar.core.media.ImageFrame;
+import io.github.shaksternano.borgar.core.media.ImageFrameOld;
 import io.github.shaksternano.borgar.core.media.ImageUtil;
 import io.github.shaksternano.borgar.core.media.MediaReaders;
 import io.github.shaksternano.borgar.core.media.MediaUtil;
@@ -14,8 +14,8 @@ import io.github.shaksternano.borgar.core.media.graphics.GraphicsUtil;
 import io.github.shaksternano.borgar.core.media.graphics.drawable.Drawable;
 import io.github.shaksternano.borgar.core.media.graphics.drawable.TextDrawable;
 import io.github.shaksternano.borgar.core.media.imageprocessor.SingleImageProcessor;
-import io.github.shaksternano.borgar.core.media.reader.LimitedDurationMediaReader;
-import io.github.shaksternano.borgar.core.media.reader.NoAudioReader;
+import io.github.shaksternano.borgar.core.media.readerold.LimitedDurationMediaReader;
+import io.github.shaksternano.borgar.core.media.readerold.NoAudioReader;
 import io.github.shaksternano.borgar.core.util.DiscordUtil;
 import io.github.shaksternano.borgar.core.util.MessageUtil;
 import net.dv8tion.jda.api.entities.Message;
@@ -157,7 +157,7 @@ public class AddFavouriteCommand extends BaseCommand<AddFavouriteCommand.Respons
         private static final Color TEXT_COLOR = Color.WHITE;
 
         @Override
-        public BufferedImage transformImage(ImageFrame frame, AddFavouriteData constantData) throws IOException {
+        public BufferedImage transformImage(ImageFrameOld frame, AddFavouriteData constantData) throws IOException {
             var resized = resizeImage(frame.getContent());
             var graphics = resized.createGraphics();
             ImageUtil.configureTextDrawQuality(graphics);

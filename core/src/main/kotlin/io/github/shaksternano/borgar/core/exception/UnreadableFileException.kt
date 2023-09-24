@@ -1,10 +1,7 @@
-package io.github.shaksternano.borgar.core.exception;
+package io.github.shaksternano.borgar.core.exception
 
-import java.io.IOException;
+import java.io.IOException
 
-public class UnreadableFileException extends IOException {
-
-    public UnreadableFileException(Throwable cause) {
-        super(cause);
-    }
-}
+class UnreadableFileException(
+    override val cause: Throwable,
+) : IOException(cause)

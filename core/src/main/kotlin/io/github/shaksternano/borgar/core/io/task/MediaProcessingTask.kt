@@ -7,13 +7,11 @@ import io.github.shaksternano.borgar.core.media.processMedia
 class MediaProcessingTask(
     private val maxFileSize: Long,
     private val config: MediaProcessConfig,
-) : BaseFileTask(true) {
+) : MappedFileTask(true) {
 
-    override suspend fun run(input: List<DataSource>): List<DataSource> = input.map {
-        val path = it.getOrWriteFile().path
-        val output = processMedia(path, config, maxFileSize)
-        addOutput(output.path)
-        output
+    override suspend fun process(input: DataSource): DataSource {
+        val fileInput = input.getOrWriteFile()
+        return processMedia(fileInput, config, maxFileSize)
     }
 
     override fun then(after: FileTask): FileTask {

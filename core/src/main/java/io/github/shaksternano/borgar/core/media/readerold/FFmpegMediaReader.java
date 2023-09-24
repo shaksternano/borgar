@@ -1,8 +1,8 @@
-package io.github.shaksternano.borgar.core.media.reader;
+package io.github.shaksternano.borgar.core.media.readerold;
 
-import io.github.shaksternano.borgar.core.collect.ClosableIterator;
+import io.github.shaksternano.borgar.core.collect.ClosableIteratorOld;
 import io.github.shaksternano.borgar.core.io.FileUtil;
-import io.github.shaksternano.borgar.core.media.VideoFrame;
+import io.github.shaksternano.borgar.core.media.VideoFrameOld;
 import io.github.shaksternano.borgar.core.util.MiscUtil;
 import org.apache.commons.io.FileUtils;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-public abstract sealed class FFmpegMediaReader<E extends VideoFrame<?, E>> extends BaseMediaReader<E> permits FFmpegImageReader, FFmpegAudioReader {
+public abstract sealed class FFmpegMediaReader<E extends VideoFrameOld<?, E>> extends BaseMediaReader<E> permits FFmpegImageReader, FFmpegAudioReader {
 
     private final File input;
     protected final FFmpegFrameGrabber grabber;
@@ -128,7 +128,7 @@ public abstract sealed class FFmpegMediaReader<E extends VideoFrame<?, E>> exten
     protected abstract E convertFrame(Frame frame);
 
     @Override
-    public ClosableIterator<E> iterator() {
+    public ClosableIteratorOld<E> iterator() {
         try {
             return new Iterator();
         } catch (IOException e) {
@@ -149,7 +149,7 @@ public abstract sealed class FFmpegMediaReader<E extends VideoFrame<?, E>> exten
         }
     }
 
-    private class Iterator implements ClosableIterator<E> {
+    private class Iterator implements ClosableIteratorOld<E> {
 
         private final FFmpegFrameGrabber grabber;
         @Nullable

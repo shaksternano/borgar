@@ -3,7 +3,7 @@ package io.github.shaksternano.borgar.core.command;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.borgar.core.io.NamedFile;
-import io.github.shaksternano.borgar.core.media.ImageFrame;
+import io.github.shaksternano.borgar.core.media.ImageFrameOld;
 import io.github.shaksternano.borgar.core.media.ImageUtil;
 import io.github.shaksternano.borgar.core.media.MediaUtil;
 import io.github.shaksternano.borgar.core.media.graphics.TextAlignment;
@@ -66,7 +66,7 @@ public class DemotivateCommand extends FileCommand {
     ) implements SingleImageProcessor<DemotivateData> {
 
         @Override
-        public BufferedImage transformImage(ImageFrame frame, DemotivateData constantData) throws IOException {
+        public BufferedImage transformImage(ImageFrameOld frame, DemotivateData constantData) throws IOException {
             var image = frame.getContent();
             var result = new BufferedImage(constantData.width(), constantData.height(), ImageUtil.getType(image));
             var graphics = result.createGraphics();

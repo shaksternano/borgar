@@ -7,7 +7,7 @@ import io.github.shaksternano.borgar.core.io.NamedFile;
 import io.github.shaksternano.borgar.core.media.MediaReaders;
 import io.github.shaksternano.borgar.core.media.MediaUtil;
 import io.github.shaksternano.borgar.core.media.imageprocessor.IdentityProcessor;
-import io.github.shaksternano.borgar.core.media.reader.ConstantFrameDurationMediaReader;
+import io.github.shaksternano.borgar.core.media.readerold.ConstantFrameDurationMediaReader;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.io.File;

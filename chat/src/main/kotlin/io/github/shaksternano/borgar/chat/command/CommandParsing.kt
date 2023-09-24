@@ -97,6 +97,7 @@ private fun handleError(throwable: Throwable): String = when (throwable) {
         logger.error("Error executing command ${throwable.command}", throwable)
         "An error occurred!"
     }
+
     else -> {
         logger.error("An error occurred", throwable)
         "An error occurred!"

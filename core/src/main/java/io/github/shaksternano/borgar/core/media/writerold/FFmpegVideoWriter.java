@@ -1,7 +1,7 @@
-package io.github.shaksternano.borgar.core.media.writer;
+package io.github.shaksternano.borgar.core.media.writerold;
 
-import io.github.shaksternano.borgar.core.media.AudioFrame;
-import io.github.shaksternano.borgar.core.media.ImageFrame;
+import io.github.shaksternano.borgar.core.media.AudioFrameOld;
+import io.github.shaksternano.borgar.core.media.ImageFrameOld;
 import io.github.shaksternano.borgar.core.media.ImageUtil;
 import org.bytedeco.ffmpeg.global.avcodec;
 import org.bytedeco.javacv.FFmpegFrameRecorder;
@@ -48,7 +48,7 @@ public class FFmpegVideoWriter implements MediaWriter {
     }
 
     @Override
-    public void writeImageFrame(ImageFrame frame) throws IOException {
+    public void writeImageFrame(ImageFrameOld frame) throws IOException {
         var image = ImageUtil.convertType(
             ImageUtil.bound(
                 frame.getContent(),
@@ -76,7 +76,7 @@ public class FFmpegVideoWriter implements MediaWriter {
     }
 
     @Override
-    public void writeAudioFrame(AudioFrame frame) throws IOException {
+    public void writeAudioFrame(AudioFrameOld frame) throws IOException {
         if (recorder == null) {
             throw new IllegalStateException("Cannot record an audio frame before an image frame");
         }

@@ -1,7 +1,7 @@
-package io.github.shaksternano.borgar.core.media.writer;
+package io.github.shaksternano.borgar.core.media.writerold;
 
 import com.sksamuel.scrimage.ImmutableImage;
-import io.github.shaksternano.borgar.core.media.ImageFrame;
+import io.github.shaksternano.borgar.core.media.ImageFrameOld;
 import net.ifok.image.image4j.codec.ico.ICOEncoder;
 
 import java.io.File;
@@ -17,7 +17,7 @@ public class Image4jIcoWriter implements NoAudioWriter {
     }
 
     @Override
-    public void writeImageFrame(ImageFrame frame) throws IOException {
+    public void writeImageFrame(ImageFrameOld frame) throws IOException {
         if (!written) {
             written = true;
             var image = ImmutableImage.wrapAwt(frame.getContent())

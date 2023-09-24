@@ -1,9 +1,9 @@
-package io.github.shaksternano.borgar.core.media.reader;
+package io.github.shaksternano.borgar.core.media.readerold;
 
-import io.github.shaksternano.borgar.core.collect.ClosableIterator;
+import io.github.shaksternano.borgar.core.collect.ClosableIteratorOld;
 import io.github.shaksternano.borgar.core.collect.MappedList;
 import io.github.shaksternano.borgar.core.media.FrameInfo;
-import io.github.shaksternano.borgar.core.media.ImageFrame;
+import io.github.shaksternano.borgar.core.media.ImageFrameOld;
 import io.github.shaksternano.borgar.core.media.MediaReaderFactory;
 import io.github.shaksternano.borgar.core.media.MediaUtil;
 import org.jetbrains.annotations.Nullable;
@@ -20,7 +20,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WebPImageReader extends BaseMediaReader<ImageFrame> {
+public class WebPImageReader extends BaseMediaReader<ImageFrameOld> {
 
     private final ImageInputStream input;
     private final ImageReader reader;
@@ -96,10 +96,10 @@ public class WebPImageReader extends BaseMediaReader<ImageFrame> {
     }
 
     @Override
-    public ImageFrame readFrame(long timestamp) throws IOException {
+    public ImageFrameOld readFrame(long timestamp) throws IOException {
         var circularTimestamp = timestamp % Math.max(duration, 1);
         var index = MediaUtil.findIndex(circularTimestamp, new MappedList<>(frameInfos, FrameInfo::timestamp));
-        return new ImageFrame(
+        return new ImageFrameOld(
             read(index),
             frameInfos.get(index).duration(),
             circularTimestamp
@@ -107,7 +107,7 @@ public class WebPImageReader extends BaseMediaReader<ImageFrame> {
     }
 
     @Override
-    public MediaReader<ImageFrame> reversed() throws IOException {
+    public MediaReader<ImageFrameOld> reversed() throws IOException {
         if (reversed == null) {
             reversed = new Reversed();
         }
@@ -115,7 +115,7 @@ public class WebPImageReader extends BaseMediaReader<ImageFrame> {
     }
 
     @Override
-    public ClosableIterator<ImageFrame> iterator() {
+    public ClosableIteratorOld<ImageFrameOld> iterator() {
         return new Iterator();
     }
 
@@ -141,22 +141,22 @@ public class WebPImageReader extends BaseMediaReader<ImageFrame> {
         return image;
     }
 
-    public enum Factory implements MediaReaderFactory<ImageFrame> {
+    public enum Factory implements MediaReaderFactory<ImageFrameOld> {
 
         INSTANCE;
 
         @Override
-        public MediaReader<ImageFrame> createReader(File media, String format) throws IOException {
+        public MediaReader<ImageFrameOld> createReader(File media, String format) throws IOException {
             return new WebPImageReader(media, format);
         }
 
         @Override
-        public MediaReader<ImageFrame> createReader(InputStream media, String format) throws IOException {
+        public MediaReader<ImageFrameOld> createReader(InputStream media, String format) throws IOException {
             return new WebPImageReader(media, format);
         }
     }
 
-    private class Iterator implements ClosableIterator<ImageFrame> {
+    private class Iterator implements ClosableIteratorOld<ImageFrameOld> {
 
         private int index = 0;
         private long timestamp = 0;
@@ -167,10 +167,10 @@ public class WebPImageReader extends BaseMediaReader<ImageFrame> {
         }
 
         @Override
-        public ImageFrame next() {
+        public ImageFrameOld next() {
             try {
                 var duration = frameInfos.get(index).duration();
-                var frame = new ImageFrame(
+                var frame = new ImageFrameOld(
                     read(index),
                     duration,
                     timestamp
@@ -188,7 +188,7 @@ public class WebPImageReader extends BaseMediaReader<ImageFrame> {
         }
     }
 
-    private class Reversed extends BaseMediaReader<ImageFrame> {
+    private class Reversed extends BaseMediaReader<ImageFrameOld> {
 
         private final List<IndexedFrameInfo> reversedFrameInfo;
 
@@ -216,11 +216,11 @@ public class WebPImageReader extends BaseMediaReader<ImageFrame> {
         }
 
         @Override
-        public ImageFrame readFrame(long timestamp) throws IOException {
+        public ImageFrameOld readFrame(long timestamp) throws IOException {
             var circularTimestamp = timestamp % Math.max(duration, 1);
             var index = MediaUtil.findIndex(circularTimestamp, new MappedList<>(reversedFrameInfo, IndexedFrameInfo::timestamp));
             var frameInfo = reversedFrameInfo.get(index);
-            return new ImageFrame(
+            return new ImageFrameOld(
                 read(frameInfo.index()),
                 frameInfo.duration(),
                 circularTimestamp
@@ -228,12 +228,12 @@ public class WebPImageReader extends BaseMediaReader<ImageFrame> {
         }
 
         @Override
-        public MediaReader<ImageFrame> reversed() {
+        public MediaReader<ImageFrameOld> reversed() {
             return WebPImageReader.this;
         }
 
         @Override
-        public ClosableIterator<ImageFrame> iterator() {
+        public ClosableIteratorOld<ImageFrameOld> iterator() {
             return new ReversedIterator();
         }
 
@@ -245,7 +245,7 @@ public class WebPImageReader extends BaseMediaReader<ImageFrame> {
         private record IndexedFrameInfo(double duration, long timestamp, int index) {
         }
 
-        private class ReversedIterator implements ClosableIterator<ImageFrame> {
+        private class ReversedIterator implements ClosableIteratorOld<ImageFrameOld> {
 
             private final java.util.Iterator<IndexedFrameInfo> iterator = reversedFrameInfo.iterator();
 
@@ -255,11 +255,11 @@ public class WebPImageReader extends BaseMediaReader<ImageFrame> {
             }
 
             @Override
-            public ImageFrame next() {
+            public ImageFrameOld next() {
                 var frameInfo = iterator.next();
                 try {
                     var image = read(frameInfo.index());
-                    return new ImageFrame(
+                    return new ImageFrameOld(
                         image,
                         frameInfo.duration(),
                         frameInfo.timestamp()

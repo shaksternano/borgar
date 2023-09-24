@@ -1,7 +1,7 @@
-package io.github.shaksternano.borgar.core.media.reader;
+package io.github.shaksternano.borgar.core.media.readerold;
 
-import io.github.shaksternano.borgar.core.collect.ClosableIterator;
-import io.github.shaksternano.borgar.core.collect.ClosableSpliterator;
+import io.github.shaksternano.borgar.core.collect.ClosableIteratorOld;
+import io.github.shaksternano.borgar.core.collect.ClosableSpliteratorOld;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -65,8 +65,8 @@ public interface MediaReader<E> extends Iterable<E>, Closeable {
     MediaReader<E> reversed() throws IOException;
 
     @Override
-    ClosableIterator<E> iterator();
+    ClosableIteratorOld<E> iterator();
 
     @Override
-    ClosableSpliterator<E> spliterator();
+    ClosableSpliteratorOld<E> spliterator();
 }

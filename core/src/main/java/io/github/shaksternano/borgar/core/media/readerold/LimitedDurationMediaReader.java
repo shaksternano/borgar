@@ -1,13 +1,13 @@
-package io.github.shaksternano.borgar.core.media.reader;
+package io.github.shaksternano.borgar.core.media.readerold;
 
-import io.github.shaksternano.borgar.core.collect.ClosableIterator;
-import io.github.shaksternano.borgar.core.media.VideoFrame;
+import io.github.shaksternano.borgar.core.collect.ClosableIteratorOld;
+import io.github.shaksternano.borgar.core.media.VideoFrameOld;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.NoSuchElementException;
 
-public class LimitedDurationMediaReader<E extends VideoFrame<?, E>> extends BaseMediaReader<E> {
+public class LimitedDurationMediaReader<E extends VideoFrameOld<?, E>> extends BaseMediaReader<E> {
 
     private final MediaReader<E> reader;
     @Nullable
@@ -63,7 +63,7 @@ public class LimitedDurationMediaReader<E extends VideoFrame<?, E>> extends Base
     }
 
     @Override
-    public ClosableIterator<E> iterator() {
+    public ClosableIteratorOld<E> iterator() {
         return new Iterator();
     }
 
@@ -72,9 +72,9 @@ public class LimitedDurationMediaReader<E extends VideoFrame<?, E>> extends Base
         reader.close();
     }
 
-    private class Iterator implements ClosableIterator<E> {
+    private class Iterator implements ClosableIteratorOld<E> {
 
-        private final ClosableIterator<E> delegate = reader.iterator();
+        private final ClosableIteratorOld<E> delegate = reader.iterator();
         private long currentTimestamp = 0;
 
         @Override

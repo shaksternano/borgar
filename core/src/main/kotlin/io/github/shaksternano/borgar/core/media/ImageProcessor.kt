@@ -9,8 +9,6 @@ interface ImageProcessor<T> : Closeable {
 
     val speed: Float
         get() = 1.0F
-    val absoluteSpeed: Float
-        get() = abs(speed)
 
     fun transformImage(frame: ImageFrame, constantData: T): BufferedImage
 
@@ -39,7 +37,9 @@ interface ImageProcessor<T> : Closeable {
     }
 }
 
-abstract class DualImageProcessor<T> : ImageProcessor<T> {
+val ImageProcessor<*>.absoluteSpeed: Float
+    get() = abs(speed)
 
+abstract class DualImageProcessor<T> : ImageProcessor<T> {
     lateinit var frame2: ImageFrame
 }

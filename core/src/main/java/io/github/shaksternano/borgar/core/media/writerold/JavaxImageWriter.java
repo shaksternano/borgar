@@ -1,6 +1,6 @@
-package io.github.shaksternano.borgar.core.media.writer;
+package io.github.shaksternano.borgar.core.media.writerold;
 
-import io.github.shaksternano.borgar.core.media.ImageFrame;
+import io.github.shaksternano.borgar.core.media.ImageFrameOld;
 import io.github.shaksternano.borgar.core.media.ImageUtil;
 import io.github.shaksternano.borgar.core.media.MediaUtil;
 
@@ -21,7 +21,7 @@ public class JavaxImageWriter implements NoAudioWriter {
     }
 
     @Override
-    public void writeImageFrame(ImageFrame frame) throws IOException {
+    public void writeImageFrame(ImageFrameOld frame) throws IOException {
         if (!written) {
             written = true;
             BufferedImage image;

@@ -2,7 +2,7 @@ package io.github.shaksternano.borgar.core.command;
 
 import com.google.common.collect.ListMultimap;
 import io.github.shaksternano.borgar.core.io.NamedFile;
-import io.github.shaksternano.borgar.core.media.ImageFrame;
+import io.github.shaksternano.borgar.core.media.ImageFrameOld;
 import io.github.shaksternano.borgar.core.media.ImageUtil;
 import io.github.shaksternano.borgar.core.media.MediaReaders;
 import io.github.shaksternano.borgar.core.media.MediaUtil;
@@ -94,7 +94,7 @@ public class TemplateCommand extends OptionalFileInputFileCommand {
     ) implements DualImageProcessor<ImageContentData> {
 
         @Override
-        public BufferedImage transformImage(ImageFrame contentFrame, ImageFrame templateFrame, ImageContentData constantData) {
+        public BufferedImage transformImage(ImageFrameOld contentFrame, ImageFrameOld templateFrame, ImageContentData constantData) {
             var transformedContentImage = ImageUtil.rotate(
                 ImageUtil.fit(
                     contentFrame.getContent(),
@@ -179,7 +179,7 @@ public class TemplateCommand extends OptionalFileInputFileCommand {
     ) implements SingleImageProcessor<TextDrawData> {
 
         @Override
-        public BufferedImage transformImage(ImageFrame frame, @Nullable TextDrawData constantData) throws IOException {
+        public BufferedImage transformImage(ImageFrameOld frame, @Nullable TextDrawData constantData) throws IOException {
             if (constantData == null) {
                 return frame.getContent();
             }

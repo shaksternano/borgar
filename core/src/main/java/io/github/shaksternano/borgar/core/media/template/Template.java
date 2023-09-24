@@ -1,11 +1,11 @@
 package io.github.shaksternano.borgar.core.media.template;
 
-import io.github.shaksternano.borgar.core.media.AudioFrame;
-import io.github.shaksternano.borgar.core.media.ImageFrame;
+import io.github.shaksternano.borgar.core.media.AudioFrameOld;
+import io.github.shaksternano.borgar.core.media.ImageFrameOld;
 import io.github.shaksternano.borgar.core.media.graphics.Position;
 import io.github.shaksternano.borgar.core.media.graphics.TextAlignment;
 import io.github.shaksternano.borgar.core.media.graphics.drawable.Drawable;
-import io.github.shaksternano.borgar.core.media.reader.MediaReader;
+import io.github.shaksternano.borgar.core.media.readerold.MediaReader;
 
 import java.awt.*;
 import java.io.IOException;
@@ -14,9 +14,9 @@ import java.util.function.Function;
 
 public interface Template {
 
-    MediaReader<ImageFrame> getImageReader() throws IOException;
+    MediaReader<ImageFrameOld> getImageReader() throws IOException;
 
-    MediaReader<AudioFrame> getAudioReader() throws IOException;
+    MediaReader<AudioFrameOld> getAudioReader() throws IOException;
 
     String getFormat();
 

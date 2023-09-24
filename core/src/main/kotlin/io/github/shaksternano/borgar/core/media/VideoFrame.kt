@@ -1,6 +1,18 @@
 package io.github.shaksternano.borgar.core.media
 
-interface VideoFrame<T, V : VideoFrame<T, V>> {
+import org.bytedeco.javacv.Frame
+import java.awt.image.BufferedImage
+
+data class VideoFrame<T>(
+    val content: T,
+    val duration: Double,
+    val timestamp: Long,
+)
+
+typealias ImageFrame = VideoFrame<BufferedImage>
+typealias AudioFrame = VideoFrame<Frame>
+
+interface VideoFrameOld<T, V : VideoFrameOld<T, V>> {
 
     /**
      * The content of the frame.

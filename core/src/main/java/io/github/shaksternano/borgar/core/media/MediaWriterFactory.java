@@ -1,6 +1,6 @@
 package io.github.shaksternano.borgar.core.media;
 
-import io.github.shaksternano.borgar.core.media.writer.MediaWriter;
+import io.github.shaksternano.borgar.core.media.writerold.MediaWriter;
 
 import java.io.File;
 import java.io.IOException;

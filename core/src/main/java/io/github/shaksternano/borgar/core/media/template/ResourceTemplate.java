@@ -2,15 +2,15 @@ package io.github.shaksternano.borgar.core.media.template;
 
 import io.github.shaksternano.borgar.core.Main;
 import io.github.shaksternano.borgar.core.io.FileUtil;
-import io.github.shaksternano.borgar.core.media.AudioFrame;
-import io.github.shaksternano.borgar.core.media.ImageFrame;
+import io.github.shaksternano.borgar.core.media.AudioFrameOld;
+import io.github.shaksternano.borgar.core.media.ImageFrameOld;
 import io.github.shaksternano.borgar.core.media.ImageUtil;
 import io.github.shaksternano.borgar.core.media.MediaReaders;
 import io.github.shaksternano.borgar.core.media.graphics.GraphicsUtil;
 import io.github.shaksternano.borgar.core.media.graphics.Position;
 import io.github.shaksternano.borgar.core.media.graphics.TextAlignment;
 import io.github.shaksternano.borgar.core.media.graphics.drawable.Drawable;
-import io.github.shaksternano.borgar.core.media.reader.MediaReader;
+import io.github.shaksternano.borgar.core.media.readerold.MediaReader;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
@@ -338,13 +338,13 @@ public enum ResourceTemplate implements Template {
     }
 
     @Override
-    public MediaReader<ImageFrame> getImageReader() throws IOException {
+    public MediaReader<ImageFrameOld> getImageReader() throws IOException {
         var inputStream = FileUtil.getResourceInRootPackage(imagePath);
         return MediaReaders.createImageReader(inputStream, format);
     }
 
     @Override
-    public MediaReader<AudioFrame> getAudioReader() throws IOException {
+    public MediaReader<AudioFrameOld> getAudioReader() throws IOException {
         var inputStream = FileUtil.getResourceInRootPackage(imagePath);
         return MediaReaders.createAudioReader(inputStream, format);
     }

@@ -1,6 +1,6 @@
 package io.github.shaksternano.borgar.core.media.imageprocessor;
 
-import io.github.shaksternano.borgar.core.media.ImageFrame;
+import io.github.shaksternano.borgar.core.media.ImageFrameOld;
 import io.github.shaksternano.borgar.core.util.Pair;
 
 import java.awt.image.BufferedImage;
@@ -9,7 +9,7 @@ import java.util.function.UnaryOperator;
 
 public interface SingleImageProcessor<T> extends ImageProcessor<T> {
 
-    BufferedImage transformImage(ImageFrame frame, T constantData) throws IOException;
+    BufferedImage transformImage(ImageFrameOld frame, T constantData) throws IOException;
 
     /**
      * Calculates data that remains constant for all frames,
@@ -25,7 +25,7 @@ public interface SingleImageProcessor<T> extends ImageProcessor<T> {
     default <V> SingleImageProcessor<Pair<T, V>> andThen(SingleImageProcessor<V> after) {
         return new SingleImageProcessor<>() {
             @Override
-            public BufferedImage transformImage(ImageFrame frame, Pair<T, V> constantData) throws IOException {
+            public BufferedImage transformImage(ImageFrameOld frame, Pair<T, V> constantData) throws IOException {
                 var firstTransformed = frame.transform(
                     SingleImageProcessor.this.transformImage(frame, constantData.first())
                 );
@@ -58,7 +58,7 @@ public interface SingleImageProcessor<T> extends ImageProcessor<T> {
         return new SingleImageProcessor<>() {
 
             @Override
-            public BufferedImage transformImage(ImageFrame frame, T constantData) throws IOException {
+            public BufferedImage transformImage(ImageFrameOld frame, T constantData) throws IOException {
                 var firstTransformed = SingleImageProcessor.this.transformImage(frame, constantData);
                 return after.apply(firstTransformed);
             }

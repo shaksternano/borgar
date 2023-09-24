@@ -1,7 +1,9 @@
 package io.github.shaksternano.borgar.core.media
 
 import io.github.shaksternano.borgar.core.io.*
-import io.github.shaksternano.borgar.core.media.reader.MediaReader
+import io.github.shaksternano.borgar.core.media.reader.AudioReader
+import io.github.shaksternano.borgar.core.media.reader.ImageReader
+import io.github.shaksternano.borgar.core.media.reader.ZippedImageReaderIterator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.nio.file.Path
@@ -13,7 +15,7 @@ class MediaProcessConfig(
     val processor: ImageProcessor<out Any>,
     val outputName: String,
     val outputFormat: (String) -> String = { it },
-    val modifyImageReader: (MediaReader<ImageFrame>) -> MediaReader<ImageFrame> = { it },
+    val modifyImageReader: (ImageReader) -> ImageReader = { it },
 ) {
 
     infix fun then(after: MediaProcessConfig): MediaProcessConfig {
@@ -32,14 +34,15 @@ class MediaProcessConfig(
 }
 
 suspend fun processMedia(
-    input: Path,
+    input: DataSource,
     config: MediaProcessConfig,
     maxFileSize: Long,
 ): FileDataSource {
-    val inputFormat = mediaFormat(input) ?: input.extension
-    val inputFile = input.toFile()
+    val fileInput = input.getOrWriteFile()
+    val path = fileInput.path
+    val inputFormat = mediaFormat(path) ?: path.extension
     val (imageReader, audioReader) = withContext(Dispatchers.IO) {
-        MediaReaders.createImageReader(inputFile, inputFormat) to MediaReaders.createAudioReader(inputFile, inputFormat)
+        createImageReader(fileInput, inputFormat) to createAudioReader(fileInput, inputFormat)
     }
     val outputFormat = config.outputFormat(inputFormat)
     val output = processMedia(
@@ -58,23 +61,21 @@ suspend fun processMedia(
 }
 
 suspend fun <T : Any> processMedia(
-    imageReader: MediaReader<ImageFrame>,
-    audioReader: MediaReader<AudioFrame>,
+    imageReader: ImageReader,
+    audioReader: AudioReader,
     output: Path,
     outputFormat: String,
     processor: ImageProcessor<T>,
     maxFileSize: Long,
 ): Path {
-    val newImageReader: MediaReader<ImageFrame>
-    val newAudioReader: MediaReader<AudioFrame>
-    if (processor.speed < 0) {
-        newImageReader = imageReader.reversed()
-        newAudioReader = audioReader.reversed()
+    val (newImageReader, newAudioReader) = if (processor.speed < 0) {
+        imageReader.reversed to audioReader.reversed
     } else {
-        newImageReader = imageReader
-        newAudioReader = audioReader
+        imageReader to audioReader
     }
     useAll(newImageReader, newAudioReader, processor) { _, _, _ ->
+        newImageReader.start()
+        newAudioReader.start()
         var outputSize: Long
         var resizeRatio = 1F
         val maxResizeAttempts = 3
@@ -84,15 +85,15 @@ suspend fun <T : Any> processMedia(
                 newImageReader.iterator(),
                 newAudioReader.iterator(),
                 withContext(Dispatchers.IO) {
-                    MediaWriters.createWriter(
-                        output.toFile(),
+                    createWriter(
+                        output,
                         outputFormat,
-                        newImageReader.loopCount(),
-                        newAudioReader.audioChannels(),
-                        newAudioReader.audioSampleRate(),
-                        newAudioReader.audioBitrate(),
+                        newImageReader.loopCount,
+                        newAudioReader.audioChannels,
+                        newAudioReader.audioSampleRate,
+                        newAudioReader.audioBitrate,
                         maxFileSize,
-                        newImageReader.duration()
+                        newImageReader.duration
                     )
                 }
             ) { imageIterator, audioIterator, writer ->
@@ -100,27 +101,34 @@ suspend fun <T : Any> processMedia(
                 var constantDataSet = false
                 while (imageIterator.hasNext()) {
                     val imageFrame = imageIterator.next()
+                    if (imageIterator is ZippedImageReaderIterator && processor is DualImageProcessor<T>) {
+                        processor.frame2 = imageIterator.next2()
+                    }
                     if (!constantDataSet) {
                         constantFrameDataValue = processor.constantData(imageFrame.content)
                         constantDataSet = true
                     }
                     writer.writeImageFrame(
-                        imageFrame.transform(
-                            ImageUtil.resize(
+                        imageFrame.copy(
+                            content = ImageUtil.resize(
                                 processor.transformImage(imageFrame, constantFrameDataValue),
                                 resizeRatio
                             ),
-                            processor.absoluteSpeed
+                            duration = imageFrame.duration / processor.absoluteSpeed
                         )
                     )
-                    if (writer.isStatic()) {
+                    if (writer.isStatic) {
                         break
                     }
                 }
-                if (writer.supportsAudio()) {
+                if (writer.supportsAudio) {
                     while (audioIterator.hasNext()) {
                         val audioFrame = audioIterator.next()
-                        writer.writeAudioFrame(audioFrame.transform(processor.absoluteSpeed))
+                        writer.writeAudioFrame(
+                            audioFrame.copy(
+                                duration = audioFrame.duration / processor.absoluteSpeed
+                            )
+                        )
                     }
                 }
             }
