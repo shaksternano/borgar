@@ -55,7 +55,7 @@ interface MediaReader<T : VideoFrame<*>> : CloseableIterable<T>, SizedIterable<T
             )
         return CloseableSpliterator.create(
             iterator(),
-            frameCount,
+            size.toLong(),
             characteristics,
         )
     }
@@ -64,10 +64,8 @@ interface MediaReader<T : VideoFrame<*>> : CloseableIterable<T>, SizedIterable<T
 typealias ImageReader = MediaReader<ImageFrame>
 typealias AudioReader = MediaReader<AudioFrame>
 
-val MediaReader<*>.frameCount: Long
-    get() = size
 val MediaReader<*>.isEmpty: Boolean
-    get() = size == 0L
+    get() = size == 0
 val MediaReader<*>.isAnimated: Boolean
     get() = size > 1
 val <T : VideoFrame<*>> MediaReader<T>.first: T

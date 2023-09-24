@@ -8,7 +8,7 @@ import io.github.shaksternano.borgar.core.media.VideoFrame
 
 abstract class BaseMediaReader<T : VideoFrame<*>> : MediaReader<T> {
 
-    final override val reversed: MediaReader<T> by lazy(::createReversed)
+    override val reversed: MediaReader<T> by lazy(::createReversed)
 
     protected abstract fun createReversed(): MediaReader<T>
 

@@ -9,7 +9,7 @@ import java.util.function.Consumer
 
 object NoAudioReader : BaseAudioReader() {
 
-    override val size: Long = 0
+    override val size: Int = 0
     override val frameRate: Double = 0.0
     override val duration: Double = 0.0
     override val frameDuration: Double = 0.0

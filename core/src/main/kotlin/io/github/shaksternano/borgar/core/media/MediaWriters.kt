@@ -3,10 +3,12 @@ package io.github.shaksternano.borgar.core.media
 import io.github.shaksternano.borgar.core.collect.putAllKeys
 import io.github.shaksternano.borgar.core.media.writer.JavaxImageWriter
 import io.github.shaksternano.borgar.core.media.writer.MediaWriter
+import io.github.shaksternano.borgar.core.media.writer.ScrimageGifWriter
 import java.nio.file.Path
 
 private val writerFactories: Map<String, MediaWriterFactory> = buildMap {
     registerFactory(JavaxImageWriter.Factory)
+    registerFactory(ScrimageGifWriter.Factory)
 }
 
 private fun MutableMap<String, MediaWriterFactory>.registerFactory(

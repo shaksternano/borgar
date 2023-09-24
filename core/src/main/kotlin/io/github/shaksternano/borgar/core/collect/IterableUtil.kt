@@ -39,9 +39,9 @@ fun Iterable<*>.hashElements(): Int = CloseableIterator.wrap(iterator()).use { i
     return hash
 }
 
-private val Iterable<*>.size: Long?
+private val Iterable<*>.size: Int?
     get() = when (this) {
-        is Collection<*> -> size.toLong()
+        is Collection<*> -> size
         is SizedIterable<*> -> size
         else -> null
     }

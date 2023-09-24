@@ -1,10 +1,12 @@
 package io.github.shaksternano.borgar.core.media
 
+import io.github.shaksternano.borgar.core.collect.MappedList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.InputStream
 import java.nio.file.Path
 import javax.imageio.ImageIO
+import kotlin.math.max
 
 suspend fun mediaFormat(path: Path): String? = mediaFormatImpl(path.toFile())
 
@@ -26,4 +28,45 @@ private suspend fun mediaFormatImpl(input: Any): String? {
             null
         }
     }
+}
+
+fun <E : VideoFrame<*>> frameAtTime(timestamp: Double, frames: List<E>, duration: Double): E {
+    val circularTimestamp = timestamp % max(duration, 1.0)
+    val index = findIndex(circularTimestamp, MappedList(frames, VideoFrame<*>::timestamp))
+    return frames[index]
+}
+
+/**
+ * Finds the index of the frame with the given timestamp.
+ * If there is no frame with the given timestamp, the index of the frame
+ * with the highest timestamp smaller than the given timestamp is returned.
+ *
+ * @param timeStamp  The timestamp in microseconds.
+ * @param timestamps The frame timestamps.
+ * @return The index of the frame with the given timestamp.
+ */
+fun findIndex(timeStamp: Double, timestamps: List<Double>): Int {
+    return if (timestamps.isEmpty()) throw IllegalArgumentException("Timestamp list is empty")
+    else if (timeStamp < 0) throw IllegalArgumentException("Timestamp must not be negative")
+    else if (timeStamp < timestamps[0]) throw IllegalArgumentException("Timestamp must not be smaller than the first timestamp")
+    else if (timeStamp == timestamps[0]) 0
+    else if (timeStamp < timestamps[timestamps.size - 1]) findIndexBinarySearch(timeStamp, timestamps)
+    else
+    // If the timestamp is equal to or greater than the last timestamp.
+        timestamps.size - 1
+}
+
+private fun findIndexBinarySearch(timeStamp: Double, timestamps: List<Double>): Int {
+    var low = 0
+    var high = timestamps.size - 1
+    while (low <= high) {
+        val mid = low + (high - low) / 2
+        if (timestamps[mid] == timeStamp
+            || (timestamps[mid] < timeStamp
+                && timestamps[mid + 1] > timeStamp)
+        ) return mid
+        else if (timestamps[mid] < timeStamp) low = mid + 1
+        else high = mid - 1
+    }
+    throw IllegalStateException("This should never be reached. Timestamp: $timeStamp, all timestamps: $timestamps")
 }

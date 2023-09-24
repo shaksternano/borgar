@@ -18,14 +18,15 @@ class ZippedImageReader(
         max(firstReader.duration, secondReader.duration)
     }
     override val frameDuration: Double = ifFirstControllingOrElse(firstReader.frameDuration, secondReader.frameDuration)
-    override val size: Long = ifEmptyOrElse(0) {
-        (duration / frameDuration).toLong()
+    override val size: Int = ifEmptyOrElse(0) {
+        (duration / frameDuration).toInt()
     }
     override val width: Int = ifFirstControllingOrElse(firstReader.width, secondReader.width)
     override val height: Int = ifFirstControllingOrElse(firstReader.height, secondReader.height)
     override val loopCount: Int =
         if (firstReader.loopCount == 0 || secondReader.loopCount == 0) 0
         else max(firstReader.loopCount, secondReader.loopCount)
+    override var reversed: MediaReader<ImageFrame> = super.reversed
 
     private fun <T> ifEmptyOrElse(ifEmpty: T, ifNotEmpty: () -> T): T =
         if (firstReader.isEmpty || secondReader.isEmpty) ifEmpty
@@ -39,8 +40,11 @@ class ZippedImageReader(
 
     fun readFrame2(timestamp: Double): ImageFrame = secondReader.readFrame(timestamp)
 
-    override fun createReversed(): ImageReader =
-        ZippedImageReader(firstReader.reversed, secondReader.reversed)
+    override fun createReversed(): ImageReader {
+        val reader = ZippedImageReader(firstReader.reversed, secondReader.reversed)
+        reader.reversed = this
+        return reader
+    }
 
     override fun iterator(): ZippedImageReaderIterator =
         ZippedImageReaderIterator(firstReader, secondReader, firstControlling)
