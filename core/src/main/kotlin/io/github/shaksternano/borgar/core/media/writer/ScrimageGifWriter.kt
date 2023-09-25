@@ -7,12 +7,12 @@ import io.github.shaksternano.borgar.core.media.*
 import java.awt.Color
 import java.awt.image.BufferedImage
 import java.nio.file.Path
-import java.time.Duration
-import java.time.temporal.ChronoUnit
-import kotlin.math.max
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.toJavaDuration
 
-private const val GIF_MINIMUM_FRAME_DURATION = 20000
-private const val MAX_DIMENSION = 500
+private val GIF_MINIMUM_FRAME_DURATION: Duration = 20.milliseconds
+private const val MAX_DIMENSION: Int = 500
 
 class ScrimageGifWriter(
     output: Path,
@@ -36,7 +36,7 @@ class ScrimageGifWriter(
      * The [previousImage] after transparency optimisation.
      */
     private var pendingWrite: BufferedImage? = null
-    private var pendingDuration: Double = 0.0
+    private var pendingDuration: Duration = Duration.ZERO
     private var pendingDisposeMethod: DisposeMethod = DisposeMethod.NONE
 
     private var closed = false
@@ -180,13 +180,15 @@ class ScrimageGifWriter(
     private fun writeFrame(
         gif: GifStream,
         image: BufferedImage,
-        duration: Double,
+        duration: Duration,
         disposeMethod: DisposeMethod
     ) {
         val immutableImage = ImmutableImage.wrapAwt(image)
-        val frameDuration = Duration.of(
-            max(duration, GIF_MINIMUM_FRAME_DURATION.toDouble()).toLong(), ChronoUnit.MICROS
-        )
+        val frameDuration = if (duration > GIF_MINIMUM_FRAME_DURATION) {
+            duration
+        } else {
+            GIF_MINIMUM_FRAME_DURATION
+        }.toJavaDuration()
         gif.writeFrame(immutableImage, frameDuration, disposeMethod)
     }
 
@@ -219,7 +221,7 @@ class ScrimageGifWriter(
             audioSampleRate: Int,
             audioBitrate: Int,
             maxFileSize: Long,
-            maxDuration: Double
+            maxDuration: Duration
         ): MediaWriter = ScrimageGifWriter(output, loopCount)
     }
 }

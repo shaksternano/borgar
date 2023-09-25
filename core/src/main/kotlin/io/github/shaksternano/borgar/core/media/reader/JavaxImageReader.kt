@@ -10,6 +10,8 @@ import java.awt.image.BufferedImage
 import java.io.IOException
 import java.util.function.Consumer
 import javax.imageio.ImageIO
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 
 class JavaxImageReader(
     input: DataSource,
@@ -22,19 +24,19 @@ class JavaxImageReader(
             val image = ImageIO.read(it) ?: throw IOException("Failed to read image")
             // For some reason some images have a greyscale type, even though they have color
             val converted = ImageUtil.convertType(image, BufferedImage.TYPE_INT_ARGB)
-            ImageFrame(converted, 1.0, 0.0)
+            ImageFrame(converted, 1.milliseconds, Duration.ZERO)
         }
     }
 
     override val size: Int = 1
     override val frameRate: Double = 1.0
-    override val duration: Double = 1.0
-    override val frameDuration: Double = 1.0
+    override val duration: Duration = 1.milliseconds
+    override val frameDuration: Duration = 1.milliseconds
     override val width: Int = frame.content.width
     override val height: Int = frame.content.height
     override val loopCount: Int = 0
 
-    override fun readFrame(timestamp: Double): ImageFrame = frame
+    override fun readFrame(timestamp: Duration): ImageFrame = frame
 
     override fun createReversed(): ImageReader = this
 
@@ -58,6 +60,6 @@ class JavaxImageReader(
             "tiff",
         )
 
-        override fun create(input: DataSource): ImageReader = JavaxImageReader(input)
+        override suspend fun create(input: DataSource): ImageReader = JavaxImageReader(input)
     }
 }

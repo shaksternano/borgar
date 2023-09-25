@@ -100,7 +100,7 @@ suspend fun <T : Any> processMedia(
                         newAudioReader.audioSampleRate,
                         newAudioReader.audioBitrate,
                         maxFileSize,
-                        newImageReader.duration
+                        newImageReader.duration,
                     )
                 }
             ) { imageIterator, audioIterator, writer ->
@@ -121,7 +121,7 @@ suspend fun <T : Any> processMedia(
                                 processor.transformImage(imageFrame, constantFrameDataValue),
                                 resizeRatio
                             ),
-                            duration = imageFrame.duration / processor.absoluteSpeed
+                            duration = imageFrame.duration / processor.absoluteSpeed.toDouble()
                         )
                     )
                     if (writer.isStatic) {
@@ -133,7 +133,7 @@ suspend fun <T : Any> processMedia(
                         val audioFrame = audioIterator.next()
                         writer.writeAudioFrame(
                             audioFrame.copy(
-                                duration = audioFrame.duration / processor.absoluteSpeed
+                                duration = audioFrame.duration / processor.absoluteSpeed.toDouble()
                             )
                         )
                     }

@@ -23,9 +23,8 @@ import kotlin.io.path.appendBytes
 import kotlin.io.path.createTempFile
 import kotlin.io.use
 
-suspend fun createTemporaryFile(fileName: String): Path {
-    return createTemporaryFile(filenameWithoutExtension(fileName), fileExtension(fileName))
-}
+suspend fun createTemporaryFile(fileName: String): Path =
+    createTemporaryFile(filenameWithoutExtension(fileName), fileExtension(fileName))
 
 suspend fun createTemporaryFile(nameWithoutExtension: String, extension: String): Path {
     val extensionWithDot = if (extension.isBlank()) "" else ".$extension"
@@ -95,10 +94,8 @@ private suspend inline fun HttpResponse.readBytes(block: (ByteArray) -> Unit) {
     }
 }
 
-suspend fun Path.write(inputStream: InputStream) {
-    withContext(Dispatchers.IO) {
-        FileUtils.copyInputStreamToFile(inputStream, toFile())
-    }
+suspend fun Path.write(inputStream: InputStream) = withContext(Dispatchers.IO) {
+    FileUtils.copyInputStreamToFile(inputStream, toFile())
 }
 
 suspend fun DataSource.fileFormat(): String {

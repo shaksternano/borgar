@@ -8,6 +8,8 @@ import io.github.shaksternano.borgar.core.media.ImageFrame
 import io.github.shaksternano.borgar.core.media.ImageReaderFactory
 import io.github.shaksternano.borgar.core.media.frameAtTime
 import java.io.IOException
+import kotlin.time.Duration
+import kotlin.time.toKotlinDuration
 
 class ScrimageGifReader(
     input: DataSource,
@@ -15,8 +17,8 @@ class ScrimageGifReader(
 
     override val size: Int
     override val frameRate: Double
-    override val duration: Double
-    override val frameDuration: Double
+    override val duration: Duration
+    override val frameDuration: Duration
     override val width: Int
     override val height: Int
     override val loopCount: Int
@@ -27,22 +29,21 @@ class ScrimageGifReader(
         val gif = AnimatedGifReader.read(imageSource)
         size = gif.frameCount
         if (size <= 0) throw IOException("Could not read any frames")
-        val totalDuration = (0 until size).fold(0.0) { total, i ->
+        duration = (0 until size).fold(Duration.ZERO) { total, i ->
             val image = gif.getFrame(i).awt()
-            val frameDuration = gif.getDelay(i).toMillis() * 1000
-            frames.add(ImageFrame(image, frameDuration.toDouble(), total))
+            val frameDuration = gif.getDelay(i).toKotlinDuration()
+            frames.add(ImageFrame(image, frameDuration, total))
             total + frameDuration
         }
-        duration = totalDuration
         frameDuration = duration / size
-        frameRate = 1000000 / frameDuration
+        frameRate = 1000.0 / frameDuration.inWholeMilliseconds
         val dimensions = gif.dimensions
         width = dimensions.width
         height = dimensions.height
         loopCount = gif.loopCount
     }
 
-    override fun readFrame(timestamp: Double): ImageFrame =
+    override fun readFrame(timestamp: Duration): ImageFrame =
         frameAtTime(timestamp, frames, duration)
 
     override fun createReversed(): ImageReader = Reversed(this)
@@ -53,37 +54,25 @@ class ScrimageGifReader(
 
     private class Reversed(
         private val reader: ScrimageGifReader,
-    ) : BaseImageReader() {
+    ) : ReversedImageReader(reader) {
 
-        override val size: Int = reader.size
-        override val frameRate: Double = reader.frameRate
-        override val duration: Double = reader.duration
-        override val frameDuration: Double = reader.frameDuration
-        override val width: Int = reader.width
-        override val height: Int = reader.height
-        override val loopCount: Int = reader.loopCount
-        override val reversed: MediaReader<ImageFrame> = reader
         private val reversedFrames = buildList {
-            reader.frames.reversed().fold(0.0) { timestamp, frame ->
+            reader.frames.reversed().fold(Duration.ZERO) { timestamp, frame ->
                 add(ImageFrame(frame.content, frame.duration, timestamp))
                 timestamp + frame.duration
             }
         }
 
-        override fun readFrame(timestamp: Double): ImageFrame =
+        override fun readFrame(timestamp: Duration): ImageFrame =
             frameAtTime(timestamp, reversedFrames, duration)
-
-        override fun createReversed(): ImageReader = reader
 
         override fun iterator(): CloseableIterator<ImageFrame> =
             CloseableIterator.wrap(reversedFrames.iterator())
-
-        override fun close() = reader.close()
     }
 
     object Factory : ImageReaderFactory {
         override val supportedFormats: Set<String> = setOf("gif")
 
-        override fun create(input: DataSource): ImageReader = ScrimageGifReader(input)
+        override suspend fun create(input: DataSource): ImageReader = ScrimageGifReader(input)
     }
 }

@@ -2,7 +2,7 @@ package io.github.shaksternano.borgar.core.media.readerold;
 
 import io.github.shaksternano.borgar.core.collect.ClosableIteratorOld;
 import io.github.shaksternano.borgar.core.collect.MappedList;
-import io.github.shaksternano.borgar.core.media.FrameInfo;
+import io.github.shaksternano.borgar.core.media.FrameInfoOld;
 import io.github.shaksternano.borgar.core.media.ImageFrameOld;
 import io.github.shaksternano.borgar.core.media.MediaReaderFactoryOld;
 import io.github.shaksternano.borgar.core.media.MediaUtil;
@@ -24,7 +24,7 @@ public class WebPImageReader extends BaseMediaReader<ImageFrameOld> {
 
     private final ImageInputStream input;
     private final ImageReader reader;
-    private final List<FrameInfo> frameInfos = new ArrayList<>();
+    private final List<FrameInfoOld> frameInfos = new ArrayList<>();
     @Nullable
     private Reversed reversed;
 
@@ -78,14 +78,14 @@ public class WebPImageReader extends BaseMediaReader<ImageFrameOld> {
             animationFrames = (List<?>) framesField.get(reader);
             for (var animationFrame : animationFrames) {
                 var frameDuration = (int) durationField.get(animationFrame) * 1000;
-                frameInfos.add(new FrameInfo(frameDuration, totalDuration));
+                frameInfos.add(new FrameInfoOld(frameDuration, totalDuration));
                 totalDuration += frameDuration;
             }
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
         if (frameInfos.isEmpty()) {
-            frameInfos.add(new FrameInfo(1, 0));
+            frameInfos.add(new FrameInfoOld(1, 0));
         }
 
         duration = totalDuration;
@@ -98,7 +98,7 @@ public class WebPImageReader extends BaseMediaReader<ImageFrameOld> {
     @Override
     public ImageFrameOld readFrame(long timestamp) throws IOException {
         var circularTimestamp = timestamp % Math.max(duration, 1);
-        var index = MediaUtil.findIndex(circularTimestamp, new MappedList<>(frameInfos, FrameInfo::timestamp));
+        var index = MediaUtil.findIndex(circularTimestamp, new MappedList<>(frameInfos, FrameInfoOld::timestamp));
         return new ImageFrameOld(
             read(index),
             frameInfos.get(index).duration(),
@@ -204,7 +204,7 @@ public class WebPImageReader extends BaseMediaReader<ImageFrameOld> {
             reversedFrameInfo = reverseFrameInfos(WebPImageReader.this.frameInfos);
         }
 
-        private static List<IndexedFrameInfo> reverseFrameInfos(List<FrameInfo> frameInfos) {
+        private static List<IndexedFrameInfo> reverseFrameInfos(List<FrameInfoOld> frameInfos) {
             List<IndexedFrameInfo> reversed = new ArrayList<>(frameInfos.size());
             double timestamp = 0;
             for (var i = frameInfos.size() - 1; i >= 0; i--) {

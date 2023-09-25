@@ -7,6 +7,7 @@ import io.github.shaksternano.borgar.core.media.AudioFrame
 import io.github.shaksternano.borgar.core.media.ImageFrame
 import io.github.shaksternano.borgar.core.media.VideoFrame
 import java.util.*
+import kotlin.time.Duration
 
 interface MediaReader<T : VideoFrame<*>> : CloseableIterable<T>, SizedIterable<T> {
 
@@ -16,14 +17,14 @@ interface MediaReader<T : VideoFrame<*>> : CloseableIterable<T>, SizedIterable<T
     val frameRate: Double
 
     /**
-     * The duration in microseconds.
+     * The total media duration.
      */
-    val duration: Double
+    val duration: Duration
 
     /**
-     * The duration of each frame in microseconds.
+     * The duration of each frame.
      */
-    val frameDuration: Double
+    val frameDuration: Duration
 
     val audioChannels: Int
     val audioSampleRate: Int
@@ -40,10 +41,10 @@ interface MediaReader<T : VideoFrame<*>> : CloseableIterable<T>, SizedIterable<T
      * If the timestamp is larger than the duration of the media,
      * the reader will wrap around to the beginning.
      *
-     * @param timestamp The timestamp in microseconds.
+     * @param timestamp The timestamp.
      * @return The frame at the given timestamp.
      */
-    fun readFrame(timestamp: Double): T
+    fun readFrame(timestamp: Duration): T
 
     override fun spliterator(): CloseableSpliterator<T> {
         val characteristics = (
@@ -69,4 +70,4 @@ val MediaReader<*>.isEmpty: Boolean
 val MediaReader<*>.isAnimated: Boolean
     get() = size > 1
 val <T : VideoFrame<*>> MediaReader<T>.first: T
-    get() = readFrame(0.0)
+    get() = readFrame(Duration.ZERO)

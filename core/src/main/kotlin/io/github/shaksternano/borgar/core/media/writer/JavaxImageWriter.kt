@@ -7,6 +7,7 @@ import io.github.shaksternano.borgar.core.media.convertType
 import java.awt.image.BufferedImage
 import java.nio.file.Path
 import javax.imageio.ImageIO
+import kotlin.time.Duration
 
 class JavaxImageWriter(
     private val output: Path,
@@ -51,7 +52,7 @@ class JavaxImageWriter(
             audioSampleRate: Int,
             audioBitrate: Int,
             maxFileSize: Long,
-            maxDuration: Double
+            maxDuration: Duration
         ): MediaWriter = JavaxImageWriter(output, outputFormat)
     }
 }

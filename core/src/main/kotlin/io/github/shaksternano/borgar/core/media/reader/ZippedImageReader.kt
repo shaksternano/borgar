@@ -4,6 +4,7 @@ import io.github.shaksternano.borgar.core.collect.CloseableIterator
 import io.github.shaksternano.borgar.core.io.closeAll
 import io.github.shaksternano.borgar.core.media.ImageFrame
 import kotlin.math.max
+import kotlin.time.Duration
 
 class ZippedImageReader(
     private val firstReader: MediaReader<ImageFrame>,
@@ -14,10 +15,12 @@ class ZippedImageReader(
         firstReader.isAnimated &&
             (!secondReader.isAnimated || firstReader.frameDuration <= secondReader.frameDuration)
     override val frameRate: Double = ifFirstControllingOrElse(firstReader.frameRate, secondReader.frameRate)
-    override val duration: Double = ifEmptyOrElse(0.0) {
-        max(firstReader.duration, secondReader.duration)
+    override val duration: Duration = ifEmptyOrElse(Duration.ZERO) {
+        if (firstReader.duration > secondReader.duration) firstReader.duration
+        else secondReader.duration
     }
-    override val frameDuration: Double = ifFirstControllingOrElse(firstReader.frameDuration, secondReader.frameDuration)
+    override val frameDuration: Duration =
+        ifFirstControllingOrElse(firstReader.frameDuration, secondReader.frameDuration)
     override val size: Int = ifEmptyOrElse(0) {
         (duration / frameDuration).toInt()
     }
@@ -36,9 +39,9 @@ class ZippedImageReader(
         if (firstControlling) ifFirstControlling
         else ifSecondControlling
 
-    override fun readFrame(timestamp: Double): ImageFrame = firstReader.readFrame(timestamp)
+    override fun readFrame(timestamp: Duration): ImageFrame = firstReader.readFrame(timestamp)
 
-    fun readFrame2(timestamp: Double): ImageFrame = secondReader.readFrame(timestamp)
+    fun readFrame2(timestamp: Duration): ImageFrame = secondReader.readFrame(timestamp)
 
     override fun createReversed(): ImageReader {
         val reader = ZippedImageReader(firstReader.reversed, secondReader.reversed)
@@ -84,7 +87,7 @@ class ZippedImageReaderIterator(
         val secondIterator = this.secondIterator
         return if (firstIterator != null) {
             val first = firstIterator.next()
-            val timestamp = first.timestamp + loops * firstReader.duration
+            val timestamp = firstReader.duration * loops + first.timestamp
             val second = secondReader.readFrame(timestamp)
             if (!firstIterator.hasNext() && timestamp + first.duration < secondReader.duration) {
                 firstIterator.close()
@@ -95,7 +98,7 @@ class ZippedImageReaderIterator(
             first
         } else if (secondIterator != null) {
             val second = secondIterator.next()
-            val timestamp = second.timestamp + loops * secondReader.duration
+            val timestamp = secondReader.duration * loops + second.timestamp
             val first = firstReader.readFrame(timestamp)
             if (!secondIterator.hasNext() && timestamp + second.duration < firstReader.duration) {
                 secondIterator.close()

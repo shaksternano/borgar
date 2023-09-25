@@ -65,7 +65,7 @@ private class CaptionProcessor(
             graphics,
             constantData.padding,
             captionY + constantData.padding,
-            frame.timestamp.toLong()
+            frame.timestamp.inWholeMicroseconds
         )
 
         graphics.dispose()

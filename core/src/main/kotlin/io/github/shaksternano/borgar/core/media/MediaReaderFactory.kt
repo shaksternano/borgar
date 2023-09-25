@@ -9,13 +9,13 @@ interface MediaReaderFactory<T : VideoFrame<*>> {
 
     val supportedFormats: Set<String>
 
-    fun create(input: DataSource): MediaReader<T>
+    suspend fun create(input: DataSource): MediaReader<T>
 }
 
 interface ImageReaderFactory : MediaReaderFactory<ImageFrame> {
-    override fun create(input: DataSource): ImageReader
+    override suspend fun create(input: DataSource): ImageReader
 }
 
 interface AudioReaderFactory : MediaReaderFactory<AudioFrame> {
-    override fun create(input: DataSource): AudioReader
+    override suspend fun create(input: DataSource): AudioReader
 }

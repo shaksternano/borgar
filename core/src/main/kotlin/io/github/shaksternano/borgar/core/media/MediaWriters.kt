@@ -5,6 +5,7 @@ import io.github.shaksternano.borgar.core.media.writer.JavaxImageWriter
 import io.github.shaksternano.borgar.core.media.writer.MediaWriter
 import io.github.shaksternano.borgar.core.media.writer.ScrimageGifWriter
 import java.nio.file.Path
+import kotlin.time.Duration
 
 private val writerFactories: Map<String, MediaWriterFactory> = buildMap {
     registerFactory(JavaxImageWriter.Factory)
@@ -26,7 +27,7 @@ fun createWriter(
     audioSampleRate: Int,
     audioBitrate: Int,
     maxFileSize: Long,
-    maxDuration: Double
+    maxDuration: Duration,
 ): MediaWriter {
     val factory = writerFactories.getOrDefault(outputFormat, JavaxImageWriter.Factory)
     return factory.create(

@@ -2,6 +2,7 @@ package io.github.shaksternano.borgar.core.media
 
 import io.github.shaksternano.borgar.core.media.writer.MediaWriter
 import java.nio.file.Path
+import kotlin.time.Duration
 
 interface MediaWriterFactory {
 
@@ -15,6 +16,6 @@ interface MediaWriterFactory {
         audioSampleRate: Int,
         audioBitrate: Int,
         maxFileSize: Long,
-        maxDuration: Double,
+        maxDuration: Duration,
     ): MediaWriter
 }

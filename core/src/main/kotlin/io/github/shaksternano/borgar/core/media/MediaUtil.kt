@@ -7,6 +7,8 @@ import java.io.InputStream
 import java.nio.file.Path
 import javax.imageio.ImageIO
 import kotlin.math.max
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 
 suspend fun mediaFormat(path: Path): String? = mediaFormatImpl(path.toFile())
 
@@ -30,8 +32,8 @@ private suspend fun mediaFormatImpl(input: Any): String? {
     }
 }
 
-fun <E : VideoFrame<*>> frameAtTime(timestamp: Double, frames: List<E>, duration: Double): E {
-    val circularTimestamp = timestamp % max(duration, 1.0)
+fun <E : VideoFrame<*>> frameAtTime(timestamp: Duration, frames: List<E>, duration: Duration): E {
+    val circularTimestamp = (timestamp.inWholeMilliseconds % max(duration.inWholeMilliseconds, 1)).milliseconds
     val index = findIndex(circularTimestamp, MappedList(frames, VideoFrame<*>::timestamp))
     return frames[index]
 }
@@ -42,12 +44,12 @@ fun <E : VideoFrame<*>> frameAtTime(timestamp: Double, frames: List<E>, duration
  * with the highest timestamp smaller than the given timestamp is returned.
  *
  * @param timeStamp  The timestamp in microseconds.
- * @param timestamps The frame timestamps.
+ * @param timestamps The frame timestamps in microseconds.
  * @return The index of the frame with the given timestamp.
  */
-fun findIndex(timeStamp: Double, timestamps: List<Double>): Int {
+fun findIndex(timeStamp: Duration, timestamps: List<Duration>): Int {
     return if (timestamps.isEmpty()) throw IllegalArgumentException("Timestamp list is empty")
-    else if (timeStamp < 0) throw IllegalArgumentException("Timestamp must not be negative")
+    else if (timeStamp < Duration.ZERO) throw IllegalArgumentException("Timestamp must not be negative")
     else if (timeStamp < timestamps[0]) throw IllegalArgumentException("Timestamp must not be smaller than the first timestamp")
     else if (timeStamp == timestamps[0]) 0
     else if (timeStamp < timestamps[timestamps.size - 1]) findIndexBinarySearch(timeStamp, timestamps)
@@ -56,7 +58,7 @@ fun findIndex(timeStamp: Double, timestamps: List<Double>): Int {
         timestamps.size - 1
 }
 
-private fun findIndexBinarySearch(timeStamp: Double, timestamps: List<Double>): Int {
+private fun findIndexBinarySearch(timeStamp: Duration, timestamps: List<Duration>): Int {
     var low = 0
     var high = timestamps.size - 1
     while (low <= high) {

@@ -7,6 +7,7 @@ import io.github.shaksternano.borgar.core.media.reader.*
 private val mediaReaderFactories: Map<String, ImageReaderFactory> = buildMap {
     registerFactory(JavaxImageReader.Factory)
     registerFactory(ScrimageGifReader.Factory)
+    registerFactory(WebPImageReader.Factory)
 }
 
 private val audioReaderFactories: Map<String, AudioReaderFactory> = buildMap {
@@ -27,12 +28,12 @@ private fun MutableMap<String, AudioReaderFactory>.registerFactory(
     factory,
 )
 
-fun createImageReader(input: DataSource, format: String): ImageReader {
+suspend fun createImageReader(input: DataSource, format: String): ImageReader {
     val factory = mediaReaderFactories.getOrDefault(format, JavaxImageReader.Factory)
     return factory.create(input)
 }
 
-fun createAudioReader(input: DataSource, format: String): AudioReader {
+suspend fun createAudioReader(input: DataSource, format: String): AudioReader {
     val factory = audioReaderFactories.getOrDefault(format, NoAudioReader.Factory)
     return factory.create(input)
 }
