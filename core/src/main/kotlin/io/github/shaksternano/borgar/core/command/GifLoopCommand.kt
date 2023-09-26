@@ -7,7 +7,6 @@ import io.github.shaksternano.borgar.core.command.util.CommandResponse
 import io.github.shaksternano.borgar.core.io.*
 import io.github.shaksternano.borgar.core.util.MessageUtil
 import io.ktor.client.*
-import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.utils.io.errors.*
@@ -59,7 +58,7 @@ object GifLoopCommand : KotlinCommand<Path>(
             .getOrElse {
                 return CommandResponse("No media found!")
             }
-        HttpClient(CIO).use { client ->
+        HttpClient().use { client ->
             val response = client.get(url)
             val contentLength = response.contentLength() ?: 0
             if (contentLength > Message.MAX_FILE_SIZE) {

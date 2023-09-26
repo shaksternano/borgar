@@ -6,7 +6,6 @@ import io.github.shaksternano.borgar.core.command.util.CommandResponse
 import io.github.shaksternano.borgar.core.util.MessageUtil
 import io.ktor.client.*
 import io.ktor.client.call.*
-import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.coroutines.future.await
@@ -37,7 +36,7 @@ class ChangeExtensionCommand(
         if (oldExtension == newExtension) {
             return CommandResponse("File already has the extension `.$newExtension`!")
         }
-        HttpClient(CIO).use { client ->
+        HttpClient().use { client ->
             val response = client.get(url)
             val contentLength = response.contentLength() ?: 0
             if (contentLength > Message.MAX_FILE_SIZE) {

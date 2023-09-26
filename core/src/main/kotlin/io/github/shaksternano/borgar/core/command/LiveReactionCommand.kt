@@ -14,7 +14,6 @@ import io.github.shaksternano.borgar.core.media.imageprocessor.BasicImageProcess
 import io.github.shaksternano.borgar.core.util.DiscordUtil
 import io.github.shaksternano.borgar.core.util.MessageUtil
 import io.ktor.client.*
-import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.coroutines.future.await
@@ -41,7 +40,7 @@ object LiveReactionCommand : KotlinCommand<Path>(
             .getOrElse {
                 return CommandResponse("No media found!")
             }
-        HttpClient(CIO).use { client ->
+        HttpClient().use { client ->
             val response = client.get(url)
             val urlNoQueryParams = url.split('?', limit = 2).first()
             val fileNameWithoutExtension = Files.getNameWithoutExtension(urlNoQueryParams)

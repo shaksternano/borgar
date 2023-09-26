@@ -4,7 +4,6 @@ import com.google.common.io.Closer
 import com.google.common.io.Files
 import io.github.shaksternano.borgar.core.media.mediaFormat
 import io.ktor.client.*
-import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
@@ -35,7 +34,7 @@ suspend fun createTemporaryFile(filenameWithoutExtension: String, extension: Str
     return path
 }
 
-fun HttpClient(json: Boolean = false): HttpClient = HttpClient(CIO) {
+fun configuredHttpClient(json: Boolean = false): HttpClient = HttpClient {
     if (json) {
         install(ContentNegotiation) {
             json(Json {
@@ -56,7 +55,7 @@ fun HttpClient(json: Boolean = false): HttpClient = HttpClient(CIO) {
 }
 
 inline fun <T> useHttpClient(json: Boolean = false, block: (HttpClient) -> T) =
-    HttpClient(json).use(block)
+    configuredHttpClient(json).use(block)
 
 suspend fun download(url: String, path: Path) = useHttpClient { client ->
     val response = client.get(url)

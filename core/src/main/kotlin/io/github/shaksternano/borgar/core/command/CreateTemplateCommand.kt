@@ -17,7 +17,6 @@ import io.github.shaksternano.borgar.core.util.MessageUtil
 import io.github.shaksternano.borgar.core.util.StringUtil
 import io.ktor.client.*
 import io.ktor.client.call.*
-import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.coroutines.future.await
@@ -201,7 +200,7 @@ object CreateTemplateCommand : KotlinCommand<Unit>(
 
     private suspend fun isUrlValid(url: String): Boolean {
         return try {
-            HttpClient(CIO).use { client ->
+            HttpClient().use { client ->
                 client.head(url).status.isSuccess()
             }
         } catch (e: Exception) {
@@ -311,7 +310,7 @@ object CreateTemplateCommand : KotlinCommand<Unit>(
 
     private suspend fun format(url: String): String {
         return try {
-            HttpClient(CIO).use { client ->
+            HttpClient().use { client ->
                 client.get(url).body<InputStream>().use {
                     ImageUtil.getImageFormat(it)
                 }
