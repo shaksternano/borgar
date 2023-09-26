@@ -11,6 +11,7 @@ import java.io.InputStream
 import java.nio.file.Path
 import kotlin.io.path.fileSize
 import kotlin.io.path.inputStream
+import kotlin.io.path.readBytes
 
 interface DataSource {
 
@@ -22,6 +23,12 @@ interface DataSource {
 
     fun newStreamBlocking(): InputStream = runBlocking {
         newStream()
+    }
+
+    suspend fun toByteArray(): ByteArray = newStream().use {
+        withContext(Dispatchers.IO) {
+            it.readAllBytes()
+        }
     }
 
     suspend fun size(): Long = withContext(Dispatchers.IO) {
@@ -99,6 +106,10 @@ data class FileDataSource(
 
     override fun newStreamBlocking(): InputStream = path.inputStream()
 
+    override suspend fun toByteArray(): ByteArray = withContext(Dispatchers.IO) {
+        path.readBytes()
+    }
+
     override suspend fun size(): Long = withContext(Dispatchers.IO) {
         path.fileSize()
     }
@@ -134,6 +145,11 @@ data class UrlDataSource(
     override suspend fun newStream(): InputStream = useHttpClient { client ->
         val response = client.get(url)
         response.body<InputStream>()
+    }
+
+    override suspend fun toByteArray(): ByteArray = useHttpClient { client ->
+        val response = client.get(url)
+        response.body<ByteArray>()
     }
 
     override suspend fun size(): Long = useHttpClient { client ->
@@ -173,6 +189,8 @@ private data class BytesDataSource(
     override suspend fun newStream(): InputStream = bytes.inputStream()
 
     override fun newStreamBlocking(): InputStream = bytes.inputStream()
+
+    override suspend fun toByteArray(): ByteArray = bytes
 
     override suspend fun size(): Long = bytes.size.toLong()
 

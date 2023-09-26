@@ -1,5 +1,6 @@
 package io.github.shaksternano.borgar.core.media.reader
 
+import com.sksamuel.scrimage.nio.AnimatedGif
 import com.sksamuel.scrimage.nio.AnimatedGifReader
 import com.sksamuel.scrimage.nio.ImageSource
 import io.github.shaksternano.borgar.core.collect.CloseableIterator
@@ -12,7 +13,7 @@ import kotlin.time.Duration
 import kotlin.time.toKotlinDuration
 
 class ScrimageGifReader(
-    input: DataSource,
+    gif: AnimatedGif,
 ) : BaseImageReader() {
 
     override val size: Int
@@ -25,8 +26,6 @@ class ScrimageGifReader(
     private val frames: MutableList<ImageFrame> = mutableListOf()
 
     init {
-        val imageSource = ImageSource.of(input.newStreamBlocking())
-        val gif = AnimatedGifReader.read(imageSource)
         size = gif.frameCount
         if (size <= 0) throw IOException("Could not read any frames")
         duration = (0 until size).fold(Duration.ZERO) { total, i ->
@@ -73,6 +72,11 @@ class ScrimageGifReader(
     object Factory : ImageReaderFactory {
         override val supportedFormats: Set<String> = setOf("gif")
 
-        override suspend fun create(input: DataSource): ImageReader = ScrimageGifReader(input)
+        override suspend fun create(input: DataSource): ImageReader {
+            val bytes = input.toByteArray()
+            val imageSource = ImageSource.of(bytes)
+            val gif = AnimatedGifReader.read(imageSource)
+            return ScrimageGifReader(gif)
+        }
     }
 }

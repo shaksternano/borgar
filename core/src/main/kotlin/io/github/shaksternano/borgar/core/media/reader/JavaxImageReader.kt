@@ -6,6 +6,8 @@ import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.media.ImageFrame
 import io.github.shaksternano.borgar.core.media.ImageReaderFactory
 import io.github.shaksternano.borgar.core.media.convertType
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.awt.image.BufferedImage
 import java.io.IOException
 import java.util.function.Consumer
@@ -14,11 +16,10 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
 class JavaxImageReader(
-    input: DataSource,
+    image: BufferedImage,
 ) : BaseImageReader() {
 
-    private val frame: ImageFrame = input.newStreamBlocking().use {
-        val image = ImageIO.read(it) ?: throw IOException("Failed to read image")
+    private val frame: ImageFrame = run {
         // For some reason some images have a greyscale type, even though they have color
         val converted = image.convertType(BufferedImage.TYPE_INT_ARGB)
         ImageFrame(converted, 1.milliseconds, Duration.ZERO)
@@ -56,6 +57,11 @@ class JavaxImageReader(
             "tiff",
         )
 
-        override suspend fun create(input: DataSource): ImageReader = JavaxImageReader(input)
+        override suspend fun create(input: DataSource): ImageReader = input.newStream().use {
+            val image = withContext(Dispatchers.IO) {
+                ImageIO.read(it) ?: throw IOException("Failed to read image")
+            }
+            JavaxImageReader(image)
+        }
     }
 }

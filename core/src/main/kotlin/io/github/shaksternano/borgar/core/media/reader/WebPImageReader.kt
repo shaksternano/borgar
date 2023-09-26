@@ -8,6 +8,8 @@ import io.github.shaksternano.borgar.core.media.FrameInfo
 import io.github.shaksternano.borgar.core.media.ImageFrame
 import io.github.shaksternano.borgar.core.media.ImageReaderFactory
 import io.github.shaksternano.borgar.core.media.findIndex
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.awt.image.BufferedImage
 import java.io.Closeable
 import java.nio.file.Path
@@ -20,6 +22,8 @@ import kotlin.time.Duration.Companion.milliseconds
 
 class WebPImageReader(
     private val input: Path,
+    private val imageInput: ImageInputStream,
+    private val reader: javax.imageio.ImageReader,
     private val deleteInputOnClose: Boolean = false,
 ) : BaseImageReader() {
 
@@ -30,16 +34,9 @@ class WebPImageReader(
     override var width: Int
     override var height: Int
     override val loopCount: Int = 0
-    private val imageInput: ImageInputStream
-    private val reader: javax.imageio.ImageReader
     private val frameInfos: List<FrameInfo>
 
     init {
-        imageInput = ImageIO.createImageInputStream(input.toFile())
-        val readers = ImageIO.getImageReaders(imageInput)
-        require(readers.hasNext()) { "No WebP reader found" }
-        reader = readers.next()
-
         val webPReaderClass = Class.forName("com.twelvemonkeys.imageio.plugins.webp.WebPImageReader")
         val animationFrameClass = Class.forName("com.twelvemonkeys.imageio.plugins.webp.AnimationFrame")
 
@@ -202,7 +199,19 @@ class WebPImageReader(
 
         override suspend fun create(input: DataSource): ImageReader {
             val isTempFile = input.path == null
-            return WebPImageReader(input.getOrWriteFile().path, isTempFile)
+            val path = input.getOrWriteFile().path
+            val (imageInput, reader) = withContext(Dispatchers.IO) {
+                val imageInput = ImageIO.createImageInputStream(path.toFile())
+                val readers = ImageIO.getImageReaders(imageInput)
+                require(readers.hasNext()) { "No WebP reader found" }
+                imageInput to readers.next()
+            }
+            return WebPImageReader(
+                path,
+                imageInput,
+                reader,
+                isTempFile,
+            )
         }
     }
 }
