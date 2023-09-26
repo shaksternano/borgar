@@ -7,9 +7,6 @@ import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.io.task.FileTask
 import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.core.util.asSingletonList
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import kotlin.io.path.deleteIfExists
 
 abstract class FileCommand : BaseCommand() {
 
@@ -23,7 +20,7 @@ abstract class FileCommand : BaseCommand() {
         return FileExecutable(
             this,
             createTask(arguments, event, maxFileSize),
-            files.toMutableList(),
+            files,
             maxFileSize,
             event.manager.maxFilesPerMessage,
         )
@@ -35,7 +32,7 @@ abstract class FileCommand : BaseCommand() {
 private data class FileExecutable(
     override val command: Command,
     private val task: FileTask,
-    private val inputs: MutableList<DataSource>,
+    private val inputs: List<DataSource>,
     private val maxFileSize: Long,
     private val maxFilesPerMessage: Int,
 ) : Executable {
@@ -68,15 +65,7 @@ private data class FileExecutable(
         }
     }
 
-    override suspend fun cleanup() {
-        withContext(Dispatchers.IO) {
-            inputs.forEach {
-                it.path?.deleteIfExists()
-            }
-        }
-        inputs.clear()
-        task.cleanup()
-    }
+    override suspend fun cleanup() = task.cleanup()
 
     override fun then(after: Executable): Executable {
         return if (after is FileExecutable) {

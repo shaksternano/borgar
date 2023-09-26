@@ -14,15 +14,8 @@ private val audioReaderFactories: Map<String, AudioReaderFactory> = buildMap {
 
 }
 
-private fun MutableMap<String, ImageReaderFactory>.registerFactory(
-    factory: ImageReaderFactory,
-) = putAllKeys(
-    factory.supportedFormats,
-    factory,
-)
-
-private fun MutableMap<String, AudioReaderFactory>.registerFactory(
-    factory: AudioReaderFactory,
+private fun <T : MediaReaderFactory<*>> MutableMap<String, T>.registerFactory(
+    factory: T,
 ) = putAllKeys(
     factory.supportedFormats,
     factory,

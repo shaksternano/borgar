@@ -23,13 +23,13 @@ import kotlin.io.path.appendBytes
 import kotlin.io.path.createTempFile
 import kotlin.io.use
 
-suspend fun createTemporaryFile(fileName: String): Path =
-    createTemporaryFile(filenameWithoutExtension(fileName), fileExtension(fileName))
+suspend fun createTemporaryFile(filename: String): Path =
+    createTemporaryFile(filenameWithoutExtension(filename), fileExtension(filename))
 
-suspend fun createTemporaryFile(nameWithoutExtension: String, extension: String): Path {
+suspend fun createTemporaryFile(filenameWithoutExtension: String, extension: String): Path {
     val extensionWithDot = if (extension.isBlank()) "" else ".$extension"
     val path = withContext(Dispatchers.IO) {
-        createTempFile(nameWithoutExtension, extensionWithDot)
+        createTempFile(filenameWithoutExtension, extensionWithDot)
     }
     path.toFile().deleteOnExit()
     return path
@@ -58,30 +58,25 @@ fun HttpClient(json: Boolean = false): HttpClient = HttpClient(CIO) {
 inline fun <T> useHttpClient(json: Boolean = false, block: (HttpClient) -> T) =
     HttpClient(json).use(block)
 
-suspend fun download(url: String, path: Path) {
-    useHttpClient { client ->
-        val response = client.get(url)
-        response.download(path)
+suspend fun download(url: String, path: Path) = useHttpClient { client ->
+    val response = client.get(url)
+    response.download(path)
+}
+
+suspend fun HttpResponse.download(path: Path) = readBytes {
+    withContext(Dispatchers.IO) {
+        path.appendBytes(it)
     }
 }
 
-suspend fun HttpResponse.download(path: Path) {
-    readBytes {
-        withContext(Dispatchers.IO) {
-            path.appendBytes(it)
-        }
-    }
-}
-
-suspend fun HttpResponse.size(): Long {
-    return headers["Content-Length"]?.toLongOrNull() ?: let {
+suspend fun HttpResponse.size(): Long =
+    headers["Content-Length"]?.toLongOrNull() ?: let {
         var size = 0L
         readBytes {
             size += it.size
         }
         size
     }
-}
 
 private suspend inline fun HttpResponse.readBytes(block: (ByteArray) -> Unit) {
     val channel = bodyAsChannel()
@@ -103,66 +98,61 @@ suspend fun DataSource.fileFormat(): String {
     return mediaFormat ?: fileExtension()
 }
 
-fun removeQueryParams(url: String): String {
-    return url.split('?').first()
-}
+fun removeQueryParams(url: String): String =
+    url.split('?').first()
 
-fun filename(url: String): String {
-    return Files.getNameWithoutExtension(removeQueryParams(url))
-}
+fun filename(url: String): String =
+    Files.getNameWithoutExtension(removeQueryParams(url))
 
 fun filename(nameWithoutExtension: String, extension: String): String {
     val extensionWithDot = if (extension.isBlank()) "" else ".$extension"
     return nameWithoutExtension + extensionWithDot
 }
 
-fun filenameWithoutExtension(fileName: String): String {
-    return Files.getNameWithoutExtension(removeQueryParams(fileName))
-}
+fun filenameWithoutExtension(fileName: String): String =
+    Files.getNameWithoutExtension(removeQueryParams(fileName))
 
-fun fileExtension(fileName: String): String {
-    return Files.getFileExtension(removeQueryParams(fileName))
-}
+fun fileExtension(fileName: String): String =
+    Files.getFileExtension(removeQueryParams(fileName))
 
 fun DataSource.filenameWithoutExtension(): String = filenameWithoutExtension(filename)
 
 fun DataSource.fileExtension(): String = fileExtension(filename)
 
-fun toMb(bytes: Long): Long {
-    return bytes / 1024 / 1024
-}
+fun toMb(bytes: Long): Long =
+    bytes / 1024 / 1024
 
-fun closeAll(vararg closeables: Closeable?) {
+fun closeAll(vararg closeables: Closeable?) =
     closeAll(closeables.asIterable())
-}
 
-fun closeAll(closeables: Iterable<Closeable?>) {
+fun closeAll(closeables: Iterable<Closeable?>) =
     Closer.create().use {
         for (closeable in closeables) {
             it.register(closeable)
         }
     }
-}
 
-inline fun <A : Closeable?, B : Closeable?, R> useAll(closeable1: A, closeable2: B, block: (A, B) -> R): R {
-    return closeable1.use {
+inline fun <A : Closeable?, B : Closeable?, R> useAll(
+    closeable1: A,
+    closeable2: B,
+    block: (A, B) -> R,
+): R =
+    closeable1.use {
         closeable2.use {
             block(closeable1, closeable2)
         }
     }
-}
 
 inline fun <A : Closeable?, B : Closeable?, C : Closeable?, R> useAll(
     closeable1: A,
     closeable2: B,
     closeable3: C,
-    block: (A, B, C) -> R
-): R {
-    return closeable1.use {
+    block: (A, B, C) -> R,
+): R =
+    closeable1.use {
         closeable2.use {
             closeable3.use {
                 block(closeable1, closeable2, closeable3)
             }
         }
     }
-}

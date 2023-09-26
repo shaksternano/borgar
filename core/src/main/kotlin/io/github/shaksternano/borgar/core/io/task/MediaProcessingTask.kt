@@ -10,10 +10,8 @@ abstract class MediaProcessingTask(
 
     protected abstract val config: MediaProcessConfig
 
-    final override suspend fun process(input: DataSource): DataSource {
-        val fileInput = input.getOrWriteFile()
-        return processMedia(fileInput, config, maxFileSize)
-    }
+    final override suspend fun process(input: DataSource): DataSource =
+        processMedia(input, config, maxFileSize)
 
     override fun then(after: FileTask): FileTask {
         return if (after is MediaProcessingTask) {

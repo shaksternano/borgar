@@ -3,20 +3,24 @@ package io.github.shaksternano.borgar.core.media.reader
 import io.github.shaksternano.borgar.core.collect.CloseableIterator
 import io.github.shaksternano.borgar.core.collect.MappedList
 import io.github.shaksternano.borgar.core.io.DataSource
+import io.github.shaksternano.borgar.core.io.closeAll
 import io.github.shaksternano.borgar.core.media.FrameInfo
 import io.github.shaksternano.borgar.core.media.ImageFrame
 import io.github.shaksternano.borgar.core.media.ImageReaderFactory
 import io.github.shaksternano.borgar.core.media.findIndex
 import java.awt.image.BufferedImage
+import java.io.Closeable
 import java.nio.file.Path
 import javax.imageio.ImageIO
 import javax.imageio.stream.ImageInputStream
+import kotlin.io.path.deleteIfExists
 import kotlin.math.max
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
 class WebPImageReader(
-    input: Path,
+    private val input: Path,
+    private val deleteInputOnClose: Boolean = false,
 ) : BaseImageReader() {
 
     override val size: Int
@@ -99,10 +103,11 @@ class WebPImageReader(
 
     override fun iterator(): CloseableIterator<ImageFrame> = WebpIterator(this)
 
-    override fun close() {
-        reader.dispose()
-        imageInput.close()
-    }
+    override fun close() = closeAll(
+        Closeable(reader::dispose),
+        imageInput,
+        Closeable { if (deleteInputOnClose) input.deleteIfExists() },
+    )
 
     private data class IndexedFrameInfo(
         val duration: Duration,
@@ -195,7 +200,9 @@ class WebPImageReader(
     object Factory : ImageReaderFactory {
         override val supportedFormats: Set<String> = setOf("webp")
 
-        override suspend fun create(input: DataSource): ImageReader =
-            WebPImageReader(input.getOrWriteFile().path)
+        override suspend fun create(input: DataSource): ImageReader {
+            val isTempFile = input.path == null
+            return WebPImageReader(input.getOrWriteFile().path, isTempFile)
+        }
     }
 }

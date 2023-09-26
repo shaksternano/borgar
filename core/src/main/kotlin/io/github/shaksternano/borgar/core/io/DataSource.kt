@@ -73,17 +73,11 @@ interface DataSource {
             return UrlDataSource(filename, url)
         }
 
-        fun fromBytes(bytes: ByteArray, name: String): DataSource = BytesDataSource(name, bytes)
+        fun fromBytes(bytes: ByteArray, name: String): DataSource =
+            BytesDataSource(name, bytes)
 
-        fun fromStreamSupplier(name: String, streamSupplier: suspend () -> InputStream): DataSource {
-            return object : DataSource {
-                override val filename: String = name
-                override val path: Path? = null
-                override val url: String? = null
-
-                override suspend fun newStream(): InputStream = streamSupplier()
-            }
-        }
+        fun fromStreamSupplier(name: String, streamSupplier: suspend () -> InputStream): DataSource =
+            StreamSupplierDataSource(name, streamSupplier)
     }
 }
 
@@ -110,6 +104,24 @@ data class FileDataSource(
     }
 
     override fun rename(newName: String): FileDataSource = copy(filename = newName)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (kClass != other?.kClass) return false
+        other as FileDataSource
+        if (filename != other.filename) return false
+        if (path != other.path) return false
+        return true
+    }
+
+    override fun hashCode(): Int = hash(
+        filename,
+        path,
+    )
+
+    override fun toString(): String {
+        return "FileDataSource(filename='$filename', path=$path)"
+    }
 }
 
 data class UrlDataSource(
@@ -119,21 +131,35 @@ data class UrlDataSource(
 
     override val path: Path? = null
 
-    override suspend fun newStream(): InputStream {
-        return useHttpClient { client ->
-            val response = client.get(url)
-            response.body<InputStream>()
-        }
+    override suspend fun newStream(): InputStream = useHttpClient { client ->
+        val response = client.get(url)
+        response.body<InputStream>()
     }
 
-    override suspend fun size(): Long {
-        return useHttpClient { client ->
-            val response = client.get(url)
-            response.size()
-        }
+    override suspend fun size(): Long = useHttpClient { client ->
+        val response = client.get(url)
+        response.size()
     }
 
     override fun rename(newName: String): UrlDataSource = copy(filename = newName)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (kClass != other?.kClass) return false
+        other as UrlDataSource
+        if (filename != other.filename) return false
+        if (url != other.url) return false
+        return true
+    }
+
+    override fun hashCode(): Int = hash(
+        filename,
+        url,
+    )
+
+    override fun toString(): String {
+        return "UrlDataSource(filename='$filename', url='$url')"
+    }
 }
 
 private data class BytesDataSource(
@@ -167,5 +193,35 @@ private data class BytesDataSource(
     )
 
     override fun toString(): String =
-        "BytesDataSource(filename=$filename, bytes=${bytes.contentToString()})"
+        "BytesDataSource(filename='$filename', bytes=${bytes.contentToString()})"
+}
+
+private data class StreamSupplierDataSource(
+    override val filename: String,
+    private val streamSupplier: suspend () -> InputStream,
+) : DataSource {
+    override val path: Path? = null
+    override val url: String? = null
+
+    override suspend fun newStream(): InputStream = streamSupplier()
+
+    override fun rename(newName: String): DataSource = copy(filename = newName)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (kClass != other?.kClass) return false
+        other as StreamSupplierDataSource
+        if (filename != other.filename) return false
+        if (streamSupplier != other.streamSupplier) return false
+        return true
+    }
+
+    override fun hashCode(): Int = hash(
+        filename,
+        streamSupplier,
+    )
+
+    override fun toString(): String {
+        return "StreamSupplierDataSource(filename='$filename', streamSupplier=$streamSupplier)"
+    }
 }

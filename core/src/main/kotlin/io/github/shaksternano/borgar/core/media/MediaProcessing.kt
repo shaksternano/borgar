@@ -7,6 +7,7 @@ import io.github.shaksternano.borgar.core.media.reader.ZippedImageReaderIterator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.nio.file.Path
+import kotlin.io.path.deleteIfExists
 import kotlin.io.path.extension
 import kotlin.io.path.fileSize
 import kotlin.math.min
@@ -46,6 +47,7 @@ suspend fun processMedia(
     config: MediaProcessConfig,
     maxFileSize: Long,
 ): FileDataSource {
+    val isTempFile = input.path == null
     val fileInput = input.getOrWriteFile()
     val path = fileInput.path
     val inputFormat = mediaFormat(path) ?: path.extension
@@ -62,6 +64,11 @@ suspend fun processMedia(
         config.processor,
         maxFileSize,
     )
+    if (isTempFile) {
+        withContext(Dispatchers.IO) {
+            path.deleteIfExists()
+        }
+    }
     val filename = filename(outputName, outputFormat)
     return DataSource.fromFile(
         output,

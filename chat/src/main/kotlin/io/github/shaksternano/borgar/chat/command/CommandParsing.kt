@@ -94,7 +94,7 @@ private suspend fun contentStripped(message: Message): String {
 private fun handleError(throwable: Throwable): String = when (throwable) {
     is NonChainableCommandException -> "Cannot chain ${throwable.command1.name} with ${throwable.command2.name}!"
     is CommandException -> {
-        logger.error("Error executing command ${throwable.command}", throwable)
+        logger.error("Error executing command ${throwable.command.name}", throwable)
         "An error occurred!"
     }
 

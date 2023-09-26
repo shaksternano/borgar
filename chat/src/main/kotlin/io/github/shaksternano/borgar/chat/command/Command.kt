@@ -2,7 +2,6 @@ package io.github.shaksternano.borgar.chat.command
 
 import io.github.shaksternano.borgar.chat.entity.Message
 import io.github.shaksternano.borgar.chat.event.CommandEvent
-import io.github.shaksternano.borgar.core.util.kClass
 
 interface Command {
 
@@ -41,14 +40,12 @@ interface Executable {
 
 abstract class BaseCommand : Command {
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (kClass != other?.kClass) return false
-        other as Command
-        return name == other.name
-    }
-
-    override fun hashCode(): Int = name.hashCode()
+    override fun toString(): String =
+        "Command(" +
+            "name='$name'," +
+            "description='$description'," +
+            "defaultArgumentKey=$defaultArgumentKey," +
+            "argumentData=$argumentData)"
 }
 
 abstract class NonChainableCommand : BaseCommand() {

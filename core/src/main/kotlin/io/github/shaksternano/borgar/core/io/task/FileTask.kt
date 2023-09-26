@@ -38,17 +38,17 @@ abstract class BaseFileTask(
     final override val requireInput: Boolean,
 ) : FileTask {
 
-    private val outputs: MutableList<Path> = mutableListOf()
+    private val toDelete: MutableList<Path> = mutableListOf()
 
-    protected fun addOutput(path: Path) = outputs.add(path)
+    protected fun markToDelete(path: Path) = toDelete.add(path)
 
     override suspend fun cleanup() {
-        withContext(Dispatchers.IO) {
-            outputs.forEach {
+        toDelete.forEach {
+            withContext(Dispatchers.IO) {
                 it.deleteIfExists()
             }
         }
-        outputs.clear()
+        toDelete.clear()
     }
 }
 
@@ -58,7 +58,7 @@ abstract class MappedFileTask(
 
     final override suspend fun run(input: List<DataSource>): List<DataSource> = input.map {
         val output = process(it)
-        output.path?.let(this::addOutput)
+        output.path?.let(this::markToDelete)
         output
     }
 
