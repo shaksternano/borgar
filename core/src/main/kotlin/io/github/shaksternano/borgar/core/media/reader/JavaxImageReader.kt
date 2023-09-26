@@ -5,7 +5,7 @@ import io.github.shaksternano.borgar.core.collect.CloseableSpliterator
 import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.media.ImageFrame
 import io.github.shaksternano.borgar.core.media.ImageReaderFactory
-import io.github.shaksternano.borgar.core.media.ImageUtil
+import io.github.shaksternano.borgar.core.media.convertType
 import java.awt.image.BufferedImage
 import java.io.IOException
 import java.util.function.Consumer
@@ -17,15 +17,11 @@ class JavaxImageReader(
     input: DataSource,
 ) : BaseImageReader() {
 
-    private val frame: ImageFrame
-
-    init {
-        frame = input.newStreamBlocking().use {
-            val image = ImageIO.read(it) ?: throw IOException("Failed to read image")
-            // For some reason some images have a greyscale type, even though they have color
-            val converted = ImageUtil.convertType(image, BufferedImage.TYPE_INT_ARGB)
-            ImageFrame(converted, 1.milliseconds, Duration.ZERO)
-        }
+    private val frame: ImageFrame = input.newStreamBlocking().use {
+        val image = ImageIO.read(it) ?: throw IOException("Failed to read image")
+        // For some reason some images have a greyscale type, even though they have color
+        val converted = image.convertType(BufferedImage.TYPE_INT_ARGB)
+        ImageFrame(converted, 1.milliseconds, Duration.ZERO)
     }
 
     override val size: Int = 1
