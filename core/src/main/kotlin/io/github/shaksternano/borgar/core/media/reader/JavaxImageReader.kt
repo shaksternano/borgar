@@ -6,6 +6,8 @@ import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.media.ImageFrame
 import io.github.shaksternano.borgar.core.media.ImageReaderFactory
 import io.github.shaksternano.borgar.core.media.convertType
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.awt.image.BufferedImage
@@ -24,6 +26,7 @@ class JavaxImageReader(
         val converted = image.convertType(BufferedImage.TYPE_INT_ARGB)
         ImageFrame(converted, 1.milliseconds, Duration.ZERO)
     }
+    private val frameDeferred: Deferred<ImageFrame> = CompletableDeferred(frame)
 
     override val size: Int = 1
     override val frameRate: Double = 1.0
@@ -33,15 +36,16 @@ class JavaxImageReader(
     override val height: Int = frame.content.height
     override val loopCount: Int = 0
 
-    override fun readFrame(timestamp: Duration): ImageFrame = frame
+    override suspend fun readFrame(timestamp: Duration): ImageFrame = frame
 
     override fun createReversed(): ImageReader = this
 
-    override fun iterator(): CloseableIterator<ImageFrame> = CloseableIterator.singleton(frame)
+    override fun iterator(): CloseableIterator<Deferred<ImageFrame>> = CloseableIterator.singleton(frameDeferred)
 
-    override fun forEach(action: Consumer<in ImageFrame>) = action.accept(frame)
+    override fun forEach(action: Consumer<in Deferred<ImageFrame>>) = action.accept(frameDeferred)
 
-    override fun spliterator(): CloseableSpliterator<ImageFrame> = CloseableSpliterator.singleton(frame)
+    override fun spliterator(): CloseableSpliterator<Deferred<ImageFrame>> =
+        CloseableSpliterator.singleton(frameDeferred)
 
     override fun close() = Unit
 

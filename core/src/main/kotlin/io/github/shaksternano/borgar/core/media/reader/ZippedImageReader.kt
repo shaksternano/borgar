@@ -1,8 +1,10 @@
 package io.github.shaksternano.borgar.core.media.reader
 
+import io.github.shaksternano.borgar.core.collect.AsyncCloseableIterator
 import io.github.shaksternano.borgar.core.collect.CloseableIterator
 import io.github.shaksternano.borgar.core.io.closeAll
 import io.github.shaksternano.borgar.core.media.ImageFrame
+import kotlinx.coroutines.*
 import kotlin.math.max
 import kotlin.time.Duration
 
@@ -39,9 +41,9 @@ class ZippedImageReader(
         if (firstControlling) ifFirstControlling
         else ifSecondControlling
 
-    override fun readFrame(timestamp: Duration): ImageFrame = firstReader.readFrame(timestamp)
+    override suspend fun readFrame(timestamp: Duration): ImageFrame = firstReader.readFrame(timestamp)
 
-    fun readFrame2(timestamp: Duration): ImageFrame = secondReader.readFrame(timestamp)
+    suspend fun readFrame2(timestamp: Duration): ImageFrame = secondReader.readFrame(timestamp)
 
     override fun createReversed(): ImageReader {
         val reader = ZippedImageReader(firstReader.reversed, secondReader.reversed)
@@ -61,10 +63,10 @@ class ZippedImageReaderIterator(
     private val firstReader: MediaReader<ImageFrame>,
     private val secondReader: MediaReader<ImageFrame>,
     firstControlling: Boolean,
-) : CloseableIterator<ImageFrame> {
+) : AsyncCloseableIterator<ImageFrame>(CoroutineScope(Dispatchers.IO)) {
 
-    private var firstIterator: CloseableIterator<ImageFrame>? = null
-    private var secondIterator: CloseableIterator<ImageFrame>? = null
+    private var firstIterator: CloseableIterator<Deferred<ImageFrame>>? = null
+    private var secondIterator: CloseableIterator<Deferred<ImageFrame>>? = null
     private var loops: Int = 0
     private lateinit var second: ImageFrame
 
@@ -82,41 +84,43 @@ class ZippedImageReaderIterator(
         return firstIterator?.hasNext() ?: (secondIterator?.hasNext() ?: false)
     }
 
-    override fun next(): ImageFrame {
+    override fun next(): Deferred<ImageFrame> {
         val firstIterator = this.firstIterator
         val secondIterator = this.secondIterator
-        return if (firstIterator != null) {
-            val first = firstIterator.next()
-            val timestamp = firstReader.duration * loops + first.timestamp
-            val second = secondReader.readFrame(timestamp)
-            if (!firstIterator.hasNext() && timestamp + first.duration < secondReader.duration) {
-                firstIterator.close()
-                this.firstIterator = firstReader.iterator()
-                loops++
+        return async {
+            if (firstIterator != null) {
+                val first = firstIterator.next().await()
+                val timestamp = firstReader.duration * loops + first.timestamp
+                val second = secondReader.readFrame(timestamp)
+                if (!firstIterator.hasNext() && timestamp + first.duration < secondReader.duration) {
+                    firstIterator.close()
+                    this@ZippedImageReaderIterator.firstIterator = firstReader.iterator()
+                    loops++
+                }
+                this@ZippedImageReaderIterator.second = second
+                first
+            } else if (secondIterator != null) {
+                val second = secondIterator.next().await()
+                val timestamp = secondReader.duration * loops + second.timestamp
+                val first = firstReader.readFrame(timestamp)
+                if (!secondIterator.hasNext() && timestamp + second.duration < firstReader.duration) {
+                    secondIterator.close()
+                    this@ZippedImageReaderIterator.secondIterator = secondReader.iterator()
+                    loops++
+                }
+                this@ZippedImageReaderIterator.second = second
+                first
+            } else {
+                throw IllegalStateException("Both iterators are null")
             }
-            this.second = second
-            first
-        } else if (secondIterator != null) {
-            val second = secondIterator.next()
-            val timestamp = secondReader.duration * loops + second.timestamp
-            val first = firstReader.readFrame(timestamp)
-            if (!secondIterator.hasNext() && timestamp + second.duration < firstReader.duration) {
-                secondIterator.close()
-                this.secondIterator = secondReader.iterator()
-                loops++
-            }
-            this.second = second
-            first
-        } else {
-            throw IllegalStateException("Both iterators are null")
         }
     }
 
-    fun next2(): ImageFrame {
+    fun next2(): Deferred<ImageFrame> {
         if (!::second.isInitialized) {
             throw IllegalStateException("next() must be called before next2()")
         }
-        return second
+        return CompletableDeferred(second)
     }
 
     override fun close() = closeAll(firstReader, secondReader)

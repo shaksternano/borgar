@@ -4,6 +4,7 @@ import com.google.common.io.Closer
 import com.google.common.io.Files
 import io.github.shaksternano.borgar.core.media.mediaFormat
 import io.ktor.client.*
+import io.ktor.client.engine.apache5.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
@@ -34,7 +35,7 @@ suspend fun createTemporaryFile(filenameWithoutExtension: String, extension: Str
     return path
 }
 
-fun configuredHttpClient(json: Boolean = false): HttpClient = HttpClient {
+fun configuredHttpClient(json: Boolean = false): HttpClient = HttpClient(Apache5) {
     if (json) {
         install(ContentNegotiation) {
             json(Json {

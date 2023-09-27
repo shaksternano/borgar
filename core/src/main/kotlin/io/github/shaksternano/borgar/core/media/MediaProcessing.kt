@@ -114,9 +114,9 @@ suspend fun <T : Any> processMedia(
                 lateinit var constantFrameDataValue: T
                 var constantDataSet = false
                 while (imageIterator.hasNext()) {
-                    val imageFrame = imageIterator.next()
+                    val imageFrame = imageIterator.next().await()
                     if (imageIterator is ZippedImageReaderIterator && processor is DualImageProcessor<T>) {
-                        processor.frame2 = imageIterator.next2()
+                        processor.frame2 = imageIterator.next2().await()
                     }
                     if (!constantDataSet) {
                         constantFrameDataValue = processor.constantData(imageFrame.content)
@@ -137,7 +137,7 @@ suspend fun <T : Any> processMedia(
                 }
                 if (writer.supportsAudio) {
                     while (audioIterator.hasNext()) {
-                        val audioFrame = audioIterator.next()
+                        val audioFrame = audioIterator.next().await()
                         writer.writeAudioFrame(
                             audioFrame.copy(
                                 duration = audioFrame.duration / processor.absoluteSpeed.toDouble()

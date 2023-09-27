@@ -6,10 +6,11 @@ import io.github.shaksternano.borgar.core.collect.SizedIterable
 import io.github.shaksternano.borgar.core.media.AudioFrame
 import io.github.shaksternano.borgar.core.media.ImageFrame
 import io.github.shaksternano.borgar.core.media.VideoFrame
+import kotlinx.coroutines.Deferred
 import java.util.*
 import kotlin.time.Duration
 
-interface MediaReader<T : VideoFrame<*>> : CloseableIterable<T>, SizedIterable<T> {
+interface MediaReader<T : VideoFrame<*>> : CloseableIterable<Deferred<T>>, SizedIterable<Deferred<T>> {
 
     /**
      * The frame rate in frames per second.
@@ -44,9 +45,9 @@ interface MediaReader<T : VideoFrame<*>> : CloseableIterable<T>, SizedIterable<T
      * @param timestamp The timestamp.
      * @return The frame at the given timestamp.
      */
-    fun readFrame(timestamp: Duration): T
+    suspend fun readFrame(timestamp: Duration): T
 
-    override fun spliterator(): CloseableSpliterator<T> {
+    override fun spliterator(): CloseableSpliterator<Deferred<T>> {
         val characteristics = (
             Spliterator.ORDERED
                 or Spliterator.DISTINCT
@@ -69,5 +70,6 @@ val MediaReader<*>.isEmpty: Boolean
     get() = size == 0
 val MediaReader<*>.isAnimated: Boolean
     get() = size > 1
-val <T : VideoFrame<*>> MediaReader<T>.first: T
-    get() = readFrame(Duration.ZERO)
+
+suspend fun <T : VideoFrame<*>> MediaReader<T>.first(): T =
+    readFrame(Duration.ZERO)

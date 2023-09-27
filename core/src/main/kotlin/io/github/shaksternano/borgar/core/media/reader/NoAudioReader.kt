@@ -5,6 +5,7 @@ import io.github.shaksternano.borgar.core.collect.CloseableSpliterator
 import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.media.AudioFrame
 import io.github.shaksternano.borgar.core.media.AudioReaderFactory
+import kotlinx.coroutines.Deferred
 import java.util.function.Consumer
 import kotlin.time.Duration
 
@@ -19,15 +20,16 @@ object NoAudioReader : BaseAudioReader() {
     override val audioBitrate: Int = 0
     override val loopCount: Int = 0
 
-    override fun readFrame(timestamp: Duration): AudioFrame = throw UnsupportedOperationException("No audio available")
+    override suspend fun readFrame(timestamp: Duration): AudioFrame =
+        throw UnsupportedOperationException("No audio available")
 
     override fun createReversed(): AudioReader = this
 
-    override fun iterator(): CloseableIterator<AudioFrame> = CloseableIterator.empty()
+    override fun iterator(): CloseableIterator<Deferred<AudioFrame>> = CloseableIterator.empty()
 
-    override fun forEach(action: Consumer<in AudioFrame>) = Unit
+    override fun forEach(action: Consumer<in Deferred<AudioFrame>>) = Unit
 
-    override fun spliterator(): CloseableSpliterator<AudioFrame> = CloseableSpliterator.empty()
+    override fun spliterator(): CloseableSpliterator<Deferred<AudioFrame>> = CloseableSpliterator.empty()
 
     override fun close() = Unit
 
