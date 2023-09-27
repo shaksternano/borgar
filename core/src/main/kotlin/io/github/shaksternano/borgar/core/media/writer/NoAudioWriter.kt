@@ -6,5 +6,5 @@ abstract class NoAudioWriter : MediaWriter {
 
     final override val supportsAudio: Boolean = false
 
-    final override fun writeAudioFrame(frame: AudioFrame) = Unit
+    final override suspend fun writeAudioFrame(frame: AudioFrame) = Unit
 }

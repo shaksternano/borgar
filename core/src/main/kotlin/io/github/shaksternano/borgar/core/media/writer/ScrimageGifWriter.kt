@@ -4,6 +4,8 @@ import com.sksamuel.scrimage.DisposeMethod
 import com.sksamuel.scrimage.ImmutableImage
 import com.sksamuel.scrimage.nio.StreamingGifWriter.GifStream
 import io.github.shaksternano.borgar.core.media.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.awt.Color
 import java.awt.image.BufferedImage
 import java.nio.file.Path
@@ -19,12 +21,10 @@ class ScrimageGifWriter(
     loopCount: Int,
 ) : NoAudioWriter() {
 
-    private val gif: GifStream
-
-    init {
+    private val gif: GifStream = run {
         val infiniteLoop = loopCount == 0
         val writer = FixedLoopingGifWriter().withInfiniteLoop(infiniteLoop)
-        gif = writer.prepareStream(output, BufferedImage.TYPE_INT_ARGB)
+        writer.prepareStream(output, BufferedImage.TYPE_INT_ARGB)
     }
 
     override val isStatic: Boolean = false
@@ -41,7 +41,7 @@ class ScrimageGifWriter(
 
     private var closed = false
 
-    override fun writeImageFrame(frame: ImageFrame) {
+    override suspend fun writeImageFrame(frame: ImageFrame) {
         val currentImage = frame.content
             .bound(MAX_DIMENSION)
             .convertType(BufferedImage.TYPE_INT_ARGB)
@@ -51,9 +51,11 @@ class ScrimageGifWriter(
             pendingDuration += frame.duration
         } else {
             // Write the previous frame if it exists and the duration is long enough.
-            if (pendingWrite != null && pendingDuration >= GIF_MINIMUM_FRAME_DURATION) {
-                writeFrame()
-                pendingWrite = null
+            pendingWrite?.let {
+                if (pendingDuration >= GIF_MINIMUM_FRAME_DURATION) {
+                    writeFrame(it, pendingDuration, pendingDisposeMethod)
+                    pendingWrite = null
+                }
             }
 
             // Optimise transparency.
@@ -80,23 +82,24 @@ class ScrimageGifWriter(
                     cannotOptimiseNext = true
                 }
             }
-            val frameDuration = frame.duration
+
+            val pendingWrite = pendingWrite
             if (pendingWrite == null) {
                 this.previousImage = currentImage
-                pendingWrite = toWrite
-                pendingDuration = frameDuration
+                this.pendingWrite = toWrite
+                pendingDuration = frame.duration
                 pendingDisposeMethod = disposeMethod
             } else {
                 // Handle the minimum frame duration.
                 val remainingDuration = GIF_MINIMUM_FRAME_DURATION - pendingDuration
-                if (remainingDuration < frameDuration) {
-                    writeFrame()
+                if (remainingDuration < frame.duration) {
+                    writeFrame(pendingWrite, pendingDuration, pendingDisposeMethod)
                     this.previousImage = currentImage
-                    pendingWrite = toWrite
-                    pendingDuration = frameDuration - remainingDuration
+                    this.pendingWrite = toWrite
+                    pendingDuration = frame.duration - remainingDuration
                     pendingDisposeMethod = disposeMethod
                 } else {
-                    pendingDuration += frameDuration
+                    pendingDuration += frame.duration
                 }
             }
         }
@@ -164,20 +167,30 @@ class ScrimageGifWriter(
         return filterPixels(image) { color: Color -> color.alpha == 0 }
     }
 
-    private fun writeFrame() {
-        pendingWrite?.let { writeFrame(gif, it, pendingDuration, pendingDisposeMethod) }
-            ?: throw IllegalStateException("No frame to write")
+    private suspend fun writeFrame(image: BufferedImage, duration: Duration, disposeMethod: DisposeMethod) =
+        writeFrame(gif, image, duration, disposeMethod)
+
+    private suspend fun writeFrame(
+        gif: GifStream,
+        image: BufferedImage,
+        duration: Duration,
+        disposeMethod: DisposeMethod
+    ) {
+        val immutableImage = ImmutableImage.wrapAwt(image)
+        val frameDuration = if (duration > GIF_MINIMUM_FRAME_DURATION) {
+            duration
+        } else {
+            GIF_MINIMUM_FRAME_DURATION
+        }.toJavaDuration()
+        withContext(Dispatchers.IO) {
+            gif.writeFrame(immutableImage, frameDuration, disposeMethod)
+        }
     }
 
-    /**
-     * Write a frame to the GIF.
-     *
-     * @param gif           The GIF to write to.
-     * @param image         The image to write.
-     * @param duration      The duration of the frame in microseconds.
-     * @param disposeMethod The dispose method to use.
-     */
-    private fun writeFrame(
+    private fun writeFrameBlocking(image: BufferedImage, duration: Duration, disposeMethod: DisposeMethod) =
+        writeFrameBlocking(gif, image, duration, disposeMethod)
+
+    private fun writeFrameBlocking(
         gif: GifStream,
         image: BufferedImage,
         duration: Duration,
@@ -195,8 +208,8 @@ class ScrimageGifWriter(
     override fun close() {
         if (closed) return
         closed = true
-        if (pendingWrite != null) {
-            writeFrame()
+        pendingWrite?.let {
+            writeFrameBlocking(it, pendingDuration, pendingDisposeMethod)
         }
         gif.close()
     }

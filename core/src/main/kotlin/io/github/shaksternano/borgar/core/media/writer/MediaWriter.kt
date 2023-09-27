@@ -9,7 +9,7 @@ interface MediaWriter : Closeable {
     val isStatic: Boolean
     val supportsAudio: Boolean
 
-    fun writeImageFrame(frame: ImageFrame)
+    suspend fun writeImageFrame(frame: ImageFrame)
 
-    fun writeAudioFrame(frame: AudioFrame)
+    suspend fun writeAudioFrame(frame: AudioFrame)
 }
