@@ -1,6 +1,7 @@
 package io.github.shaksternano.borgar.core.media
 
 import io.github.shaksternano.borgar.core.collect.putAllKeys
+import io.github.shaksternano.borgar.core.media.writer.Image4jIcoWriter
 import io.github.shaksternano.borgar.core.media.writer.JavaxImageWriter
 import io.github.shaksternano.borgar.core.media.writer.MediaWriter
 import io.github.shaksternano.borgar.core.media.writer.ScrimageGifWriter
@@ -10,6 +11,7 @@ import kotlin.time.Duration
 private val writerFactories: Map<String, MediaWriterFactory> = buildMap {
     registerFactory(JavaxImageWriter.Factory)
     registerFactory(ScrimageGifWriter.Factory)
+    registerFactory(Image4jIcoWriter.Factory)
 }
 
 private fun MutableMap<String, MediaWriterFactory>.registerFactory(
