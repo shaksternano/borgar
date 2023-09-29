@@ -2,6 +2,7 @@ package io.github.shaksternano.borgar.core.media.writer
 
 import com.sksamuel.scrimage.DisposeMethod
 import com.sksamuel.scrimage.ImmutableImage
+import com.sksamuel.scrimage.nio.StreamingGifWriter
 import com.sksamuel.scrimage.nio.StreamingGifWriter.GifStream
 import io.github.shaksternano.borgar.core.media.*
 import kotlinx.coroutines.Dispatchers
@@ -23,7 +24,7 @@ class ScrimageGifWriter(
 
     private val gif: GifStream = run {
         val infiniteLoop = loopCount == 0
-        val writer = FixedLoopingGifWriter().withInfiniteLoop(infiniteLoop)
+        val writer = StreamingGifWriter().withInfiniteLoop(infiniteLoop)
         writer.prepareStream(output, BufferedImage.TYPE_INT_ARGB)
     }
 
