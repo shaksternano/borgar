@@ -17,7 +17,7 @@ val postgreSqlVersion: String by project
 val junitVersion: String by project
 
 plugins {
-    kotlin("plugin.serialization") version "1.9.0"
+    kotlin("plugin.serialization") version "1.9.10"
 }
 
 dependencies {
@@ -79,9 +79,7 @@ dependencies {
 /**
  * Exclude unused native libraries in order to reduce the JAR size.
  */
-fun ModuleDependency.excludeJavaCpp(vararg modules: String) {
-    modules.forEach {
-        exclude(group = "org.bytedeco", module = it)
-        exclude(group = "org.bytedeco", module = "$it-platform")
-    }
+fun ModuleDependency.excludeJavaCpp(vararg modules: String) = modules.forEach {
+    exclude(group = "org.bytedeco", module = it)
+    exclude(group = "org.bytedeco", module = "$it-platform")
 }
