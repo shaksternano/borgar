@@ -1,7 +1,5 @@
 package io.github.shaksternano.borgar.core.media.reader
 
-import io.github.shaksternano.borgar.core.collect.elementsEqual
-import io.github.shaksternano.borgar.core.collect.hashElements
 import io.github.shaksternano.borgar.core.media.AudioFrame
 import io.github.shaksternano.borgar.core.media.ImageFrame
 import io.github.shaksternano.borgar.core.media.VideoFrame
@@ -12,14 +10,6 @@ abstract class BaseMediaReader<T : VideoFrame<*>> : MediaReader<T> {
     override val reversed: MediaReader<T> by lazy(::createReversed)
 
     protected abstract fun createReversed(): MediaReader<T>
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other is MediaReader<*>) return elementsEqual(other)
-        return false
-    }
-
-    override fun hashCode(): Int = hashElements()
 }
 
 abstract class BaseImageReader : BaseMediaReader<ImageFrame>() {
@@ -40,7 +30,7 @@ abstract class ReversedReader<T : VideoFrame<*>>(
     private val reader: MediaReader<T>,
 ) : BaseMediaReader<T>() {
 
-    final override val size: Int = reader.size
+    final override val frameCount: Int = reader.frameCount
     final override val frameRate: Double = reader.frameRate
     final override val duration: Duration = reader.duration
     final override val frameDuration: Duration = reader.frameDuration
@@ -54,7 +44,7 @@ abstract class ReversedReader<T : VideoFrame<*>>(
 
     final override fun createReversed(): MediaReader<T> = reader
 
-    override fun close() = reader.close()
+    override suspend fun close() = reader.close()
 }
 
 abstract class ReversedImageReader(

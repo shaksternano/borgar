@@ -23,11 +23,11 @@ import kotlin.math.pow
 object GifLoopCommand : KotlinCommand<Path>(
     "loop",
     "Changes the number of times a GIF loops. Required arguments: [" +
-        "The number of times to loop the GIF. " +
-        "In other words, the loop count + 1 is the number of times the GIF will play. " +
-        "Use 0 to remove looping. " +
-        "Use -1 to make the GIF loop forever." +
-        "]"
+            "The number of times to loop the GIF. " +
+            "In other words, the loop count + 1 is the number of times the GIF will play. " +
+            "Use 0 to remove looping. " +
+            "Use -1 to make the GIF loop forever." +
+            "]"
 ) {
 
     override suspend fun executeSuspend(

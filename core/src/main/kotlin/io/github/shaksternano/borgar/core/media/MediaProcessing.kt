@@ -3,8 +3,9 @@ package io.github.shaksternano.borgar.core.media
 import io.github.shaksternano.borgar.core.io.*
 import io.github.shaksternano.borgar.core.media.reader.AudioReader
 import io.github.shaksternano.borgar.core.media.reader.ImageReader
-import io.github.shaksternano.borgar.core.media.reader.ZippedImageReaderIterator
+import io.github.shaksternano.borgar.core.media.reader.first
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.withContext
 import java.nio.file.Path
 import kotlin.io.path.deleteIfExists
@@ -89,34 +90,34 @@ suspend fun <T : Any> processMedia(
     } else {
         imageReader to audioReader
     }
-    useAll(newImageReader, newAudioReader, processor) { _, _, _ ->
+    return useAllIgnored(newImageReader, newAudioReader, processor) {
         var outputSize: Long
         var resizeRatio = 1F
         val maxResizeAttempts = 3
         var attempts = 0
         do {
-            useAll(
-                newImageReader.iterator(),
-                newAudioReader.iterator(),
-                withContext(Dispatchers.IO) {
-                    createWriter(
-                        output,
-                        outputFormat,
-                        newImageReader.loopCount,
-                        newAudioReader.audioChannels,
-                        newAudioReader.audioSampleRate,
-                        newAudioReader.audioBitrate,
-                        maxFileSize,
-                        newImageReader.duration,
-                    )
+            createWriter(
+                output,
+                outputFormat,
+                newImageReader.loopCount,
+                newAudioReader.audioChannels,
+                newAudioReader.audioSampleRate,
+                newAudioReader.audioBitrate,
+                maxFileSize,
+                newImageReader.duration,
+            ).use { writer ->
+                val imageFlow = if (writer.isStatic) {
+                    flowOf(newImageReader.first())
+                } else {
+                    newImageReader.asFlow()
                 }
-            ) { imageIterator, audioIterator, writer ->
                 lateinit var constantFrameDataValue: T
                 var constantDataSet = false
-                while (imageIterator.hasNext()) {
-                    val imageFrame = imageIterator.next().await()
-                    if (imageIterator is ZippedImageReaderIterator && processor is DualImageProcessor<T>) {
-                        processor.frame2 = imageIterator.next2().await()
+                imageFlow.collect { imageFrame ->
+                    if (imageFrame.content is DualBufferedImage && processor is DualImageProcessor<T>) {
+                        processor.frame2 = imageFrame.copy(
+                            content = imageFrame.content.second
+                        )
                     }
                     if (!constantDataSet) {
                         constantFrameDataValue = processor.constantData(imageFrame.content)
@@ -124,20 +125,14 @@ suspend fun <T : Any> processMedia(
                     }
                     writer.writeImageFrame(
                         imageFrame.copy(
-                            content = ImageUtil.resize(
-                                processor.transformImage(imageFrame, constantFrameDataValue),
-                                resizeRatio
-                            ),
+                            content = processor.transformImage(imageFrame, constantFrameDataValue).resize(resizeRatio),
                             duration = imageFrame.duration / processor.absoluteSpeed.toDouble()
                         )
                     )
-                    if (writer.isStatic) {
-                        break
-                    }
                 }
+
                 if (writer.supportsAudio) {
-                    while (audioIterator.hasNext()) {
-                        val audioFrame = audioIterator.next().await()
+                    newAudioReader.asFlow().collect { audioFrame ->
                         writer.writeAudioFrame(
                             audioFrame.copy(
                                 duration = audioFrame.duration / processor.absoluteSpeed.toDouble()
@@ -152,6 +147,6 @@ suspend fun <T : Any> processMedia(
             resizeRatio = min((maxFileSize.toDouble() / outputSize), 0.9).toFloat()
             attempts++
         } while (maxFileSize in 1..<outputSize && attempts < maxResizeAttempts)
-        return output
+        output
     }
 }

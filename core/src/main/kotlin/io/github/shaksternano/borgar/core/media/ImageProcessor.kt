@@ -1,11 +1,11 @@
 package io.github.shaksternano.borgar.core.media
 
+import io.github.shaksternano.borgar.core.io.SuspendCloseable
 import io.github.shaksternano.borgar.core.io.closeAll
 import java.awt.image.BufferedImage
-import java.io.Closeable
 import kotlin.math.abs
 
-interface ImageProcessor<T> : Closeable {
+interface ImageProcessor<T> : SuspendCloseable {
 
     val speed: Float
         get() = 1.0F
@@ -27,14 +27,14 @@ interface ImageProcessor<T> : Closeable {
                 return this@ImageProcessor.constantData(image) to after.constantData(image)
             }
 
-            override fun close() {
-                closeAll(this@ImageProcessor, after)
-            }
+            override suspend fun close() = closeAll(
+                this@ImageProcessor,
+                after,
+            )
         }
     }
 
-    override fun close() {
-    }
+    override suspend fun close() = Unit
 }
 
 val ImageProcessor<*>.absoluteSpeed: Float

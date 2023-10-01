@@ -18,15 +18,8 @@ private val GIF_MINIMUM_FRAME_DURATION: Duration = 20.milliseconds
 private const val MAX_DIMENSION: Int = 500
 
 class ScrimageGifWriter(
-    output: Path,
-    loopCount: Int,
+    private val gif: GifStream,
 ) : NoAudioWriter() {
-
-    private val gif: GifStream = run {
-        val infiniteLoop = loopCount == 0
-        val writer = StreamingGifWriter().withInfiniteLoop(infiniteLoop)
-        writer.prepareStream(output, BufferedImage.TYPE_INT_ARGB)
-    }
 
     override val isStatic: Boolean = false
     private var previousImage: BufferedImage? = null
@@ -227,7 +220,7 @@ class ScrimageGifWriter(
     object Factory : MediaWriterFactory {
         override val supportedFormats: Set<String> = setOf("gif")
 
-        override fun create(
+        override suspend fun create(
             output: Path,
             outputFormat: String,
             loopCount: Int,
@@ -236,6 +229,13 @@ class ScrimageGifWriter(
             audioBitrate: Int,
             maxFileSize: Long,
             maxDuration: Duration
-        ): MediaWriter = ScrimageGifWriter(output, loopCount)
+        ): MediaWriter {
+            val infiniteLoop = loopCount == 0
+            val writer = StreamingGifWriter().withInfiniteLoop(infiniteLoop)
+            val gif = withContext(Dispatchers.IO) {
+                writer.prepareStream(output, BufferedImage.TYPE_INT_ARGB)
+            }
+            return ScrimageGifWriter(gif)
+        }
     }
 }

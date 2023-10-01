@@ -107,7 +107,7 @@ private class CaptionProcessor(
         return CaptionData(font, fillHeight, padding, paragraph)
     }
 
-    override fun close() = closeAll(nonTextParts.values)
+    override suspend fun close() = closeAll(nonTextParts.values)
 }
 
 private class CaptionData(

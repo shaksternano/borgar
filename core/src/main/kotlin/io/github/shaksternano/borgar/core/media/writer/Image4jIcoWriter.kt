@@ -34,7 +34,7 @@ class Image4jIcoWriter(
             "ico",
         )
 
-        override fun create(
+        override suspend fun create(
             output: Path,
             outputFormat: String,
             loopCount: Int,

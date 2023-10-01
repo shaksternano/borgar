@@ -1,16 +1,15 @@
 package io.github.shaksternano.borgar.core.media.reader
 
-import io.github.shaksternano.borgar.core.collect.CloseableIterable
-import io.github.shaksternano.borgar.core.collect.CloseableSpliterator
-import io.github.shaksternano.borgar.core.collect.SizedIterable
+import io.github.shaksternano.borgar.core.io.SuspendCloseable
 import io.github.shaksternano.borgar.core.media.AudioFrame
 import io.github.shaksternano.borgar.core.media.ImageFrame
 import io.github.shaksternano.borgar.core.media.VideoFrame
-import kotlinx.coroutines.Deferred
-import java.util.*
+import kotlinx.coroutines.flow.Flow
 import kotlin.time.Duration
 
-interface MediaReader<T : VideoFrame<*>> : CloseableIterable<Deferred<T>>, SizedIterable<Deferred<T>> {
+interface MediaReader<T : VideoFrame<*>> : SuspendCloseable {
+
+    val frameCount: Int
 
     /**
      * The frame rate in frames per second.
@@ -47,29 +46,16 @@ interface MediaReader<T : VideoFrame<*>> : CloseableIterable<Deferred<T>>, Sized
      */
     suspend fun readFrame(timestamp: Duration): T
 
-    override fun spliterator(): CloseableSpliterator<Deferred<T>> {
-        val characteristics = (
-            Spliterator.ORDERED
-                or Spliterator.DISTINCT
-                or Spliterator.SORTED
-                or Spliterator.NONNULL
-                or Spliterator.IMMUTABLE
-            )
-        return CloseableSpliterator.create(
-            iterator(),
-            size.toLong(),
-            characteristics,
-        )
-    }
+    fun asFlow(): Flow<T>
 }
 
 typealias ImageReader = MediaReader<ImageFrame>
 typealias AudioReader = MediaReader<AudioFrame>
 
 val MediaReader<*>.isEmpty: Boolean
-    get() = size == 0
+    get() = frameCount == 0
 val MediaReader<*>.isAnimated: Boolean
-    get() = size > 1
+    get() = frameCount > 1
 
 suspend fun <T : VideoFrame<*>> MediaReader<T>.first(): T =
     readFrame(Duration.ZERO)

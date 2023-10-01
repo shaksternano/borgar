@@ -65,7 +65,7 @@ private fun findIndexBinarySearch(timeStamp: Duration, timestamps: List<Duration
         val mid = low + (high - low) / 2
         if (timestamps[mid] == timeStamp
             || (timestamps[mid] < timeStamp
-                && timestamps[mid + 1] > timeStamp)
+                    && timestamps[mid + 1] > timeStamp)
         ) return mid
         else if (timestamps[mid] < timeStamp) low = mid + 1
         else high = mid - 1

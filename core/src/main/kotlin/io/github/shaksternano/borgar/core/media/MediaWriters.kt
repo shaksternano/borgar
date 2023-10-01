@@ -21,7 +21,7 @@ private fun MutableMap<String, MediaWriterFactory>.registerFactory(
     factory,
 )
 
-fun createWriter(
+suspend fun createWriter(
     output: Path,
     outputFormat: String,
     loopCount: Int,

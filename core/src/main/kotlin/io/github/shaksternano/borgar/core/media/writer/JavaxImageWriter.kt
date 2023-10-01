@@ -31,7 +31,7 @@ class JavaxImageWriter(
         val supportedFormat = withContext(Dispatchers.IO) {
             ImageIO.write(image, outputFormat, output.toFile())
         }
-        if (!supportedFormat) throw IllegalArgumentException("Unsupported image format: $outputFormat")
+        require(supportedFormat) { "Unsupported image format: $outputFormat" }
     }
 
     override fun close() = Unit
@@ -48,7 +48,7 @@ class JavaxImageWriter(
             "tiff",
         )
 
-        override fun create(
+        override suspend fun create(
             output: Path,
             outputFormat: String,
             loopCount: Int,

@@ -1,7 +1,5 @@
 package io.github.shaksternano.borgar.core.media.reader
 
-import io.github.shaksternano.borgar.core.collect.CloseableIterator
-import io.github.shaksternano.borgar.core.collect.CloseableSpliterator
 import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.media.ImageFrame
 import io.github.shaksternano.borgar.core.media.ImageReaderFactory
@@ -9,10 +7,10 @@ import io.github.shaksternano.borgar.core.media.convertType
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.withContext
 import java.awt.image.BufferedImage
-import java.io.IOException
-import java.util.function.Consumer
 import javax.imageio.ImageIO
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
@@ -28,7 +26,7 @@ class JavaxImageReader(
     }
     private val frameDeferred: Deferred<ImageFrame> = CompletableDeferred(frame)
 
-    override val size: Int = 1
+    override val frameCount: Int = 1
     override val frameRate: Double = 1.0
     override val duration: Duration = 1.milliseconds
     override val frameDuration: Duration = 1.milliseconds
@@ -38,16 +36,11 @@ class JavaxImageReader(
 
     override suspend fun readFrame(timestamp: Duration): ImageFrame = frame
 
+    override fun asFlow(): Flow<ImageFrame> = flowOf(frame)
+
     override fun createReversed(): ImageReader = this
 
-    override fun iterator(): CloseableIterator<Deferred<ImageFrame>> = CloseableIterator.singleton(frameDeferred)
-
-    override fun forEach(action: Consumer<in Deferred<ImageFrame>>) = action.accept(frameDeferred)
-
-    override fun spliterator(): CloseableSpliterator<Deferred<ImageFrame>> =
-        CloseableSpliterator.singleton(frameDeferred)
-
-    override fun close() = Unit
+    override suspend fun close() = Unit
 
     object Factory : ImageReaderFactory {
         override val supportedFormats: Set<String> = setOf(
@@ -63,8 +56,8 @@ class JavaxImageReader(
 
         override suspend fun create(input: DataSource): ImageReader = input.newStream().use {
             val image = withContext(Dispatchers.IO) {
-                ImageIO.read(it) ?: throw IOException("Failed to read image")
-            }
+                ImageIO.read(it)
+            } ?: throw IllegalArgumentException("Failed to read image")
             JavaxImageReader(image)
         }
     }

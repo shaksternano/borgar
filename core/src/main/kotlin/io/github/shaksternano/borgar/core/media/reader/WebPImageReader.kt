@@ -1,18 +1,18 @@
 package io.github.shaksternano.borgar.core.media.reader
 
-import io.github.shaksternano.borgar.core.collect.AsyncCloseableIterator
-import io.github.shaksternano.borgar.core.collect.AsyncIterator
-import io.github.shaksternano.borgar.core.collect.CloseableIterator
 import io.github.shaksternano.borgar.core.collect.MappedList
 import io.github.shaksternano.borgar.core.io.DataSource
+import io.github.shaksternano.borgar.core.io.SuspendCloseable
 import io.github.shaksternano.borgar.core.io.closeAll
 import io.github.shaksternano.borgar.core.media.FrameInfo
 import io.github.shaksternano.borgar.core.media.ImageFrame
 import io.github.shaksternano.borgar.core.media.ImageReaderFactory
 import io.github.shaksternano.borgar.core.media.findIndex
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.withContext
 import java.awt.image.BufferedImage
-import java.io.Closeable
 import java.nio.file.Path
 import javax.imageio.ImageIO
 import javax.imageio.stream.ImageInputStream
@@ -25,8 +25,8 @@ class WebPImageReader(
     private val input: Path,
     private val imageInput: ImageInputStream,
     private val reader: javax.imageio.ImageReader,
-    override val size: Int,
-    private val deleteInputOnClose: Boolean = false,
+    override val frameCount: Int,
+    private val deleteInputOnClose: Boolean,
 ) : BaseImageReader() {
 
     override var frameRate: Double
@@ -64,7 +64,7 @@ class WebPImageReader(
         if (frameInfos.isEmpty()) {
             frameInfos.add(FrameInfo(1.milliseconds, Duration.ZERO))
         }
-        frameDuration = duration / size
+        frameDuration = duration / frameCount
         frameRate = 1000.0 / frameDuration.inWholeMilliseconds
         width = reader.getWidth(0)
         height = reader.getHeight(0)
@@ -78,6 +78,18 @@ class WebPImageReader(
             frameInfos[index].duration,
             circularTimestamp,
         )
+    }
+
+    override fun asFlow(): Flow<ImageFrame> = flow {
+        frameInfos.foldIndexed(Duration.ZERO) { i, timestamp, frameInfo ->
+            val frame = ImageFrame(
+                read(i),
+                frameInfo.duration,
+                timestamp,
+            )
+            emit(frame)
+            timestamp + frameInfo.duration
+        }
     }
 
     private suspend fun read(index: Int): BufferedImage {
@@ -100,12 +112,14 @@ class WebPImageReader(
 
     override fun createReversed(): ImageReader = Reversed(this)
 
-    override fun iterator(): CloseableIterator<Deferred<ImageFrame>> = WebpIterator(this)
-
-    override fun close() = closeAll(
-        Closeable(reader::dispose),
-        imageInput,
-        Closeable { if (deleteInputOnClose) input.deleteIfExists() },
+    override suspend fun close() = closeAll(
+        SuspendCloseable(reader::dispose),
+        SuspendCloseable.fromBlocking(imageInput),
+        SuspendCloseable.fromBlocking {
+            if (deleteInputOnClose) {
+                input.deleteIfExists()
+            }
+        }
     )
 
     private data class IndexedFrameInfo(
@@ -124,7 +138,7 @@ class WebPImageReader(
                     IndexedFrameInfo(
                         frameInfo.duration,
                         timestamp,
-                        reversed.size,
+                        reversed.frameCount,
                     )
                 )
                 timestamp + frameInfo.duration
@@ -148,76 +162,39 @@ class WebPImageReader(
             )
         }
 
-        override fun iterator(): CloseableIterator<Deferred<ImageFrame>> = ReversedIterator(this)
-
-        private class ReversedIterator(
-            private val reversed: Reversed,
-        ) : AsyncIterator<ImageFrame>(CoroutineScope(Dispatchers.IO)), CloseableIterator<Deferred<ImageFrame>> {
-
-            private val iterator: Iterator<IndexedFrameInfo> = reversed.reversedFrameInfo.iterator()
-
-            override fun hasNext(): Boolean = iterator.hasNext()
-
-            override fun next(): Deferred<ImageFrame> {
-                val frameInfo = iterator.next()
-                return async {
-                    val image = reversed.reader.read(frameInfo.index)
-                    ImageFrame(
-                        image,
-                        frameInfo.duration,
-                        frameInfo.timestamp,
-                    )
-                }
-            }
-
-            override fun close() = Unit
-        }
-    }
-
-    private class WebpIterator(
-        private val reader: WebPImageReader,
-    ) : AsyncCloseableIterator<ImageFrame>(CoroutineScope(Dispatchers.IO)) {
-
-        private var index: Int = 0
-        private var timestamp: Duration = Duration.ZERO
-
-        override fun hasNext(): Boolean = index < reader.size
-
-        override fun next(): Deferred<ImageFrame> {
-            val duration = reader.frameInfos[index].duration
-            return async {
+        override fun asFlow(): Flow<ImageFrame> = flow {
+            reversedFrameInfo.forEach {
+                val image = reader.read(it.index)
                 val frame = ImageFrame(
-                    reader.read(index),
-                    duration,
-                    timestamp,
+                    image,
+                    it.duration,
+                    it.timestamp,
                 )
-                index++
-                timestamp += duration
-                frame
+                emit(frame)
             }
         }
-
-        override fun close() = Unit
     }
 
     object Factory : ImageReaderFactory {
         override val supportedFormats: Set<String> = setOf("webp")
 
-        override suspend fun create(input: DataSource): ImageReader = withContext(Dispatchers.IO) {
+        override suspend fun create(input: DataSource): ImageReader {
             val isTempFile = input.path == null
             val path = input.getOrWriteFile().path
-            val imageInput = ImageIO.createImageInputStream(path.toFile())
-            val readers = ImageIO.getImageReaders(imageInput)
-            require(readers.hasNext()) { "No WebP reader found" }
-            val reader = readers.next()
-            val size = reader.getNumImages(true)
-            WebPImageReader(
-                path,
-                imageInput,
-                reader,
-                size,
-                isTempFile,
-            )
+            return withContext(Dispatchers.IO) {
+                val imageInput = ImageIO.createImageInputStream(path.toFile())
+                val readers = ImageIO.getImageReaders(imageInput)
+                require(readers.hasNext()) { "No WebP reader found" }
+                val reader = readers.next()
+                val size = reader.getNumImages(true)
+                WebPImageReader(
+                    path,
+                    imageInput,
+                    reader,
+                    size,
+                    isTempFile,
+                )
+            }
         }
     }
 }

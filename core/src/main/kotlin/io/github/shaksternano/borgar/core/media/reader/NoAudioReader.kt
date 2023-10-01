@@ -1,17 +1,15 @@
 package io.github.shaksternano.borgar.core.media.reader
 
-import io.github.shaksternano.borgar.core.collect.CloseableIterator
-import io.github.shaksternano.borgar.core.collect.CloseableSpliterator
 import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.media.AudioFrame
 import io.github.shaksternano.borgar.core.media.AudioReaderFactory
-import kotlinx.coroutines.Deferred
-import java.util.function.Consumer
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlin.time.Duration
 
 object NoAudioReader : BaseAudioReader() {
 
-    override val size: Int = 0
+    override val frameCount: Int = 0
     override val frameRate: Double = 0.0
     override val duration: Duration = Duration.ZERO
     override val frameDuration: Duration = Duration.ZERO
@@ -23,15 +21,11 @@ object NoAudioReader : BaseAudioReader() {
     override suspend fun readFrame(timestamp: Duration): AudioFrame =
         throw UnsupportedOperationException("No audio available")
 
+    override fun asFlow(): Flow<AudioFrame> = emptyFlow()
+
     override fun createReversed(): AudioReader = this
 
-    override fun iterator(): CloseableIterator<Deferred<AudioFrame>> = CloseableIterator.empty()
-
-    override fun forEach(action: Consumer<in Deferred<AudioFrame>>) = Unit
-
-    override fun spliterator(): CloseableSpliterator<Deferred<AudioFrame>> = CloseableSpliterator.empty()
-
-    override fun close() = Unit
+    override suspend fun close() = Unit
 
     object Factory : AudioReaderFactory {
         override val supportedFormats: Set<String> = emptySet()

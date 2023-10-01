@@ -8,7 +8,7 @@ interface MediaWriterFactory {
 
     val supportedFormats: Set<String>
 
-    fun create(
+    suspend fun create(
         output: Path,
         outputFormat: String,
         loopCount: Int,

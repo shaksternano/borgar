@@ -40,3 +40,6 @@ fun BufferedImage.bound(maxDimension: Int): BufferedImage {
         ImageUtil.resize(this, resizeRatio, true)
     }
 }
+
+fun BufferedImage.resize(resizeMultiplier: Float): BufferedImage =
+    ImageUtil.resize(this, resizeMultiplier, false)
