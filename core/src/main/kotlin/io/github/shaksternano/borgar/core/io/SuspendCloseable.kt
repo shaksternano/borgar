@@ -2,7 +2,6 @@ package io.github.shaksternano.borgar.core.io
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.io.Closeable
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -11,7 +10,7 @@ fun interface SuspendCloseable {
     suspend fun close()
 
     companion object {
-        fun fromBlocking(closeable: Closeable): SuspendCloseable = SuspendCloseable {
+        fun fromBlocking(closeable: AutoCloseable): SuspendCloseable = SuspendCloseable {
             withContext(Dispatchers.IO) {
                 closeable.close()
             }
@@ -24,6 +23,9 @@ fun interface SuspendCloseable {
         }
     }
 }
+
+fun SuspendCloseable(closeable: AutoCloseable): SuspendCloseable =
+    SuspendCloseable(closeable::close)
 
 /**
  * Executes the given [block] function on this resource and then closes it down correctly whether an exception

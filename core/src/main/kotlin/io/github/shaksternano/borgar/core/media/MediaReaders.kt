@@ -22,11 +22,11 @@ private fun <T : MediaReaderFactory<*>> MutableMap<String, T>.registerFactory(
 )
 
 suspend fun createImageReader(input: DataSource, format: String): ImageReader {
-    val factory = mediaReaderFactories.getOrDefault(format, JavaxImageReader.Factory)
+    val factory = mediaReaderFactories.getOrDefault(format, FFmpegImageReader.Factory)
     return factory.create(input)
 }
 
 suspend fun createAudioReader(input: DataSource, format: String): AudioReader {
-    val factory = audioReaderFactories.getOrDefault(format, NoAudioReader.Factory)
+    val factory = audioReaderFactories.getOrDefault(format, FFmpegAudioReader.Factory)
     return factory.create(input)
 }
