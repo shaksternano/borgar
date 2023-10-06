@@ -1,10 +1,7 @@
 package io.github.shaksternano.borgar.core.media
 
 import io.github.shaksternano.borgar.core.collect.putAllKeys
-import io.github.shaksternano.borgar.core.media.writer.Image4jIcoWriter
-import io.github.shaksternano.borgar.core.media.writer.JavaxImageWriter
-import io.github.shaksternano.borgar.core.media.writer.MediaWriter
-import io.github.shaksternano.borgar.core.media.writer.ScrimageGifWriter
+import io.github.shaksternano.borgar.core.media.writer.*
 import java.nio.file.Path
 import kotlin.time.Duration
 
@@ -31,7 +28,7 @@ suspend fun createWriter(
     maxFileSize: Long,
     maxDuration: Duration,
 ): MediaWriter {
-    val factory = writerFactories.getOrDefault(outputFormat, JavaxImageWriter.Factory)
+    val factory = writerFactories.getOrDefault(outputFormat, FFmpegVideoWriter.Factory)
     return factory.create(
         output,
         outputFormat,
