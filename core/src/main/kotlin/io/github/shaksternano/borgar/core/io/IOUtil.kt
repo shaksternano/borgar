@@ -101,8 +101,12 @@ suspend fun DataSource.fileFormat(): String {
 fun removeQueryParams(url: String): String =
     url.split('?').first()
 
-fun filename(url: String): String =
-    Files.getNameWithoutExtension(removeQueryParams(url))
+fun filename(url: String): String {
+    val noQueryParams = removeQueryParams(url)
+    val nameWithoutExtension = Files.getNameWithoutExtension(noQueryParams)
+    val extension = Files.getFileExtension(noQueryParams)
+    return filename(nameWithoutExtension, extension)
+}
 
 fun filename(nameWithoutExtension: String, extension: String): String {
     val extensionWithDot = if (extension.isBlank()) "" else ".$extension"
