@@ -27,9 +27,9 @@ object NoAudioReader : BaseAudioReader() {
 
     override suspend fun close() = Unit
 
-    object Factory : AudioReaderFactory {
-        override val supportedFormats: Set<String> = emptySet()
-
+    class Factory(
+        override val supportedFormats: Set<String>
+    ) : AudioReaderFactory {
         override suspend fun create(input: DataSource): AudioReader = NoAudioReader
     }
 }

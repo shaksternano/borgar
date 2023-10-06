@@ -4,25 +4,36 @@ import io.github.shaksternano.borgar.core.collect.putAllKeys
 import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.media.reader.*
 
-private val mediaReaderFactories: Map<String, ImageReaderFactory> = buildMap {
-    registerFactory(JavaxImageReader.Factory)
-    registerFactory(ScrimageGifReader.Factory)
-    registerFactory(WebPImageReader.Factory)
+private val imageReaderFactories: MutableMap<String, ImageReaderFactory> = mutableMapOf()
+
+private val audioReaderFactories: MutableMap<String, AudioReaderFactory> = mutableMapOf()
+
+@Suppress("unused")
+private val init = run {
+    registerImageOnlyFactory(JavaxImageReader.Factory)
+    registerImageOnlyFactory(ScrimageGifReader.Factory)
+    registerImageOnlyFactory(WebPImageReader.Factory)
 }
 
-private val audioReaderFactories: Map<String, AudioReaderFactory> = buildMap {
+private fun registerImageFactory(factory: ImageReaderFactory) =
+    imageReaderFactories.putAllKeys(
+        factory.supportedFormats,
+        factory,
+    )
 
+private fun registerAudioFactory(factory: AudioReaderFactory) =
+    audioReaderFactories.putAllKeys(
+        factory.supportedFormats,
+        factory,
+    )
+
+private fun registerImageOnlyFactory(factory: ImageReaderFactory) {
+    registerImageFactory(factory)
+    registerAudioFactory(NoAudioReader.Factory(factory.supportedFormats))
 }
-
-private fun <T : MediaReaderFactory<*>> MutableMap<String, T>.registerFactory(
-    factory: T,
-) = putAllKeys(
-    factory.supportedFormats,
-    factory,
-)
 
 suspend fun createImageReader(input: DataSource, format: String): ImageReader {
-    val factory = mediaReaderFactories.getOrDefault(format, FFmpegImageReader.Factory)
+    val factory = imageReaderFactories.getOrDefault(format, FFmpegImageReader.Factory)
     return factory.create(input)
 }
 
