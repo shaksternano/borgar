@@ -1,10 +1,10 @@
 package io.github.shaksternano.borgar.core.media.writer
 
+import io.github.shaksternano.borgar.core.io.SuspendCloseable
 import io.github.shaksternano.borgar.core.media.AudioFrame
 import io.github.shaksternano.borgar.core.media.ImageFrame
-import java.io.Closeable
 
-interface MediaWriter : Closeable {
+interface MediaWriter : SuspendCloseable {
 
     val isStatic: Boolean
     val supportsAudio: Boolean

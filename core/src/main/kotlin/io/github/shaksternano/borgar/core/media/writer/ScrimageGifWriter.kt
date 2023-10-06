@@ -181,31 +181,15 @@ class ScrimageGifWriter(
         }
     }
 
-    private fun writeFrameBlocking(image: BufferedImage, duration: Duration, disposeMethod: DisposeMethod) =
-        writeFrameBlocking(gif, image, duration, disposeMethod)
-
-    private fun writeFrameBlocking(
-        gif: GifStream,
-        image: BufferedImage,
-        duration: Duration,
-        disposeMethod: DisposeMethod
-    ) {
-        val immutableImage = ImmutableImage.wrapAwt(image)
-        val frameDuration = if (duration > GIF_MINIMUM_FRAME_DURATION) {
-            duration
-        } else {
-            GIF_MINIMUM_FRAME_DURATION
-        }.toJavaDuration()
-        gif.writeFrame(immutableImage, frameDuration, disposeMethod)
-    }
-
-    override fun close() {
+    override suspend fun close() {
         if (closed) return
         closed = true
         pendingWrite?.let {
-            writeFrameBlocking(it, pendingDuration, pendingDisposeMethod)
+            writeFrame(it, pendingDuration, pendingDisposeMethod)
         }
-        gif.close()
+        withContext(Dispatchers.IO) {
+            gif.close()
+        }
     }
 
     private data class Position(val x: Int, val y: Int)

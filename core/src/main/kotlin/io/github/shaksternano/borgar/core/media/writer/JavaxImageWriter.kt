@@ -34,7 +34,7 @@ class JavaxImageWriter(
         require(supportedFormat) { "Unsupported image format: $outputFormat" }
     }
 
-    override fun close() = Unit
+    override suspend fun close() = Unit
 
     object Factory : MediaWriterFactory {
         override val supportedFormats: Set<String> = setOf(

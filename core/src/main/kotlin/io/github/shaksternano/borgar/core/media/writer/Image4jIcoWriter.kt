@@ -27,7 +27,7 @@ class Image4jIcoWriter(
         }
     }
 
-    override fun close() = Unit
+    override suspend fun close() = Unit
 
     object Factory : MediaWriterFactory {
         override val supportedFormats: Set<String> = setOf(
