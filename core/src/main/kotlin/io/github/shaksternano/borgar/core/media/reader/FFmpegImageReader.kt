@@ -111,15 +111,15 @@ class FFmpegImageReader(
         override val supportedFormats: Set<String> = setOf()
 
         override suspend fun create(input: DataSource): ImageReader =
-            createReader(input) { path, isTempFile, grabber, frameCount, frameRate, duration ->
+            createReader(input) { path, isTempFile, grabber, frameCount, frameRate, frameDuration ->
                 FFmpegImageReader(
                     path,
                     isTempFile,
                     grabber,
                     frameCount,
                     frameRate,
-                    duration,
                     grabber.timestamp.microseconds,
+                    frameDuration,
                     grabber.imageWidth,
                     grabber.imageHeight,
                 )

@@ -101,15 +101,15 @@ class FFmpegAudioReader(
         override val supportedFormats: Set<String> = setOf()
 
         override suspend fun create(input: DataSource): AudioReader =
-            createReader(input) { path, isTempFile, grabber, frameCount, frameRate, duration ->
+            createReader(input) { path, isTempFile, grabber, frameCount, frameRate, frameDuration ->
                 FFmpegAudioReader(
                     path,
                     isTempFile,
                     grabber,
                     frameCount,
                     frameRate,
-                    duration,
                     grabber.timestamp.microseconds,
+                    frameDuration,
                     grabber.audioChannels,
                     grabber.sampleRate,
                     grabber.audioBitrate,

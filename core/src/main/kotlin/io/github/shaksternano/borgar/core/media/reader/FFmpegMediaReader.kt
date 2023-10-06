@@ -99,13 +99,14 @@ abstract class FFmpegMediaReader<T : VideoFrame<*>>(
 }
 
 suspend fun <T : FFmpegMediaReader<*>> createReader(
-    input: DataSource, factory: (
+    input: DataSource,
+    factory: (
         input: Path,
         isTempFile: Boolean,
         grabber: FFmpegFrameGrabber,
         frameCount: Int,
         frameRate: Double,
-        duration: Duration,
+        frameDuration: Duration,
     ) -> T
 ): T {
     val isTempFile = input.path == null
