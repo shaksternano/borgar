@@ -7,8 +7,6 @@ import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.media.ImageFrame
 import io.github.shaksternano.borgar.core.media.ImageReaderFactory
 import io.github.shaksternano.borgar.core.media.frameAtTime
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import java.io.IOException
@@ -45,10 +43,6 @@ class ScrimageGifReader(
         width = dimensions.width
         height = dimensions.height
         loopCount = gif.loopCount
-    }
-
-    private val deferredFrames: List<Deferred<ImageFrame>> by lazy {
-        frames.map { CompletableDeferred(it) }
     }
 
     override suspend fun readFrame(timestamp: Duration): ImageFrame =

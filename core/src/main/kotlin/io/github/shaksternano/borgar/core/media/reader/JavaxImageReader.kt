@@ -4,8 +4,6 @@ import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.media.ImageFrame
 import io.github.shaksternano.borgar.core.media.ImageReaderFactory
 import io.github.shaksternano.borgar.core.media.convertType
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -24,7 +22,6 @@ class JavaxImageReader(
         val converted = image.convertType(BufferedImage.TYPE_INT_ARGB)
         ImageFrame(converted, 1.milliseconds, Duration.ZERO)
     }
-    private val frameDeferred: Deferred<ImageFrame> = CompletableDeferred(frame)
 
     override val frameCount: Int = 1
     override val frameRate: Double = 1.0
