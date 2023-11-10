@@ -39,6 +39,8 @@ class ImageDrawable internal constructor(
             )
         }
     }
+
+    override suspend fun close() = reader.close()
 }
 
 suspend fun ImageDrawable(
