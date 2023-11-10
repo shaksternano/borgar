@@ -10,7 +10,7 @@ interface ImageProcessor<T> : SuspendCloseable {
     val speed: Float
         get() = 1.0F
 
-    fun transformImage(frame: ImageFrame, constantData: T): BufferedImage
+    suspend fun transformImage(frame: ImageFrame, constantData: T): BufferedImage
 
     suspend fun constantData(image: BufferedImage): T
 
@@ -18,7 +18,7 @@ interface ImageProcessor<T> : SuspendCloseable {
         return object : ImageProcessor<Pair<T, V>> {
             override val speed: Float = this@ImageProcessor.speed * after.speed
 
-            override fun transformImage(frame: ImageFrame, constantData: Pair<T, V>): BufferedImage {
+            override suspend fun transformImage(frame: ImageFrame, constantData: Pair<T, V>): BufferedImage {
                 val firstTransformed = this@ImageProcessor.transformImage(frame, constantData.first)
                 return after.transformImage(frame.copy(content = firstTransformed), constantData.second)
             }

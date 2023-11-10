@@ -1,11 +1,11 @@
 package io.github.shaksternano.borgar.core.io.task
 
+import io.github.shaksternano.borgar.core.graphics.drawable.Drawable
+import io.github.shaksternano.borgar.core.graphics.drawable.ParagraphCompositeDrawable
+import io.github.shaksternano.borgar.core.graphics.fitFontWidth
 import io.github.shaksternano.borgar.core.io.closeAll
 import io.github.shaksternano.borgar.core.media.*
-import io.github.shaksternano.borgar.core.media.graphics.GraphicsUtil
 import io.github.shaksternano.borgar.core.media.graphics.TextAlignment
-import io.github.shaksternano.borgar.core.media.graphics.drawable.Drawable
-import io.github.shaksternano.borgar.core.media.graphics.drawable.ParagraphCompositeDrawable
 import io.github.shaksternano.borgar.core.util.splitWords
 import java.awt.Color
 import java.awt.Font
@@ -36,7 +36,7 @@ private class CaptionProcessor(
 
     private val words = caption.splitWords()
 
-    override fun transformImage(frame: ImageFrame, constantData: CaptionData): BufferedImage {
+    override suspend fun transformImage(frame: ImageFrame, constantData: CaptionData): BufferedImage {
         val image = frame.content
         val captionedImage = BufferedImage(
             image.width,
@@ -65,7 +65,7 @@ private class CaptionProcessor(
             graphics,
             constantData.padding,
             captionY + constantData.padding,
-            frame.timestamp.inWholeMicroseconds
+            frame.timestamp
         )
 
         graphics.dispose()
@@ -97,12 +97,12 @@ private class CaptionProcessor(
         }
 
         val paragraph = ParagraphCompositeDrawable.Builder(nonTextParts)
-            .addWords(null, words)
+            .addWords(words)
             .build(textAlignment, maxWidth)
 
-        GraphicsUtil.fontFitWidth(maxWidth, paragraph, graphics)
+        graphics.fitFontWidth(maxWidth, paragraph)
         font = graphics.font
-        val fillHeight = paragraph.getHeight(graphics) + padding * 2
+        val fillHeight = paragraph.height(graphics) + padding * 2
         graphics.dispose()
         return CaptionData(font, fillHeight, padding, paragraph)
     }

@@ -144,7 +144,7 @@ class ParagraphCompositeDrawable(
         fun addWords(
             words: Iterable<String>,
             customTextDrawableFactory: ((String) -> Drawable)? = null,
-        ) {
+        ): Builder = apply {
             words.forEach {
                 addWord(it, customTextDrawableFactory)
             }
