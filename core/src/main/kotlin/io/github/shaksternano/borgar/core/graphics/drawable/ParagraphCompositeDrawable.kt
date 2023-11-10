@@ -2,6 +2,7 @@ package io.github.shaksternano.borgar.core.graphics.drawable
 
 import io.github.shaksternano.borgar.core.media.graphics.TextAlignment
 import java.awt.Graphics2D
+import java.util.*
 import kotlin.math.max
 import kotlin.time.Duration
 
@@ -124,4 +125,84 @@ class ParagraphCompositeDrawable(
     }
 
     override fun resizeToHeight(height: Int): Drawable? = null
+
+    class Builder(
+        nonTextParts: Map<String, Drawable>,
+    ) {
+
+        private val words: MutableList<Drawable> = mutableListOf()
+
+        private val nonTextParts: Map<String, Drawable> = TreeMap<String, Drawable>(
+            Comparator
+                .comparingInt(String::length)
+                .reversed()
+                .thenComparing(Comparator.naturalOrder())
+        ).also {
+            it.putAll(nonTextParts)
+        }
+
+        fun addWords(
+            words: Iterable<String>,
+            customTextDrawableFactory: ((String) -> Drawable)? = null,
+        ) {
+            words.forEach {
+                addWord(it, customTextDrawableFactory)
+            }
+        }
+
+        private fun addWord(
+            word: String,
+            customTextDrawableFactory: ((String) -> Drawable)? = null,
+        ) {
+            if (nonTextParts.isEmpty()) {
+                val textPart =
+                    if (customTextDrawableFactory == null) TextDrawable(word)
+                    else customTextDrawableFactory(word)
+                words.add(textPart)
+            } else {
+                val compositeWord = HorizontalCompositeDrawable()
+                val actualWordBuilder = StringBuilder()
+                var index = 0
+                while (index < word.length) {
+                    val subWord = word.substring(index)
+                    var foundImage = false
+                    for ((key, part) in nonTextParts) {
+                        val keyLength = key.length
+                        if (subWord.startsWith(key)) {
+                            if (actualWordBuilder.isNotEmpty()) {
+                                val text = actualWordBuilder.toString()
+                                val textPart =
+                                    if (customTextDrawableFactory == null) TextDrawable(text)
+                                    else customTextDrawableFactory(text)
+                                compositeWord.parts.add(textPart)
+                                actualWordBuilder.clear()
+                            }
+                            compositeWord.parts.add(part)
+                            index += keyLength
+                            foundImage = true
+                            break
+                        }
+                    }
+                    if (!foundImage) {
+                        actualWordBuilder.append(subWord[0])
+                        index++
+                    }
+                }
+                if (actualWordBuilder.isNotEmpty()) {
+                    val text = actualWordBuilder.toString()
+                    val textPart =
+                        if (customTextDrawableFactory == null) TextDrawable(text)
+                        else customTextDrawableFactory(text)
+                    compositeWord.parts.add(textPart)
+                }
+                words.add(compositeWord)
+            }
+        }
+
+        fun build(alignment: TextAlignment, maxWidth: Int): ParagraphCompositeDrawable {
+            val paragraph = ParagraphCompositeDrawable(alignment, maxWidth)
+            paragraph.parts.addAll(words)
+            return paragraph
+        }
+    }
 }
