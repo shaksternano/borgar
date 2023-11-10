@@ -43,3 +43,12 @@ fun BufferedImage.bound(maxDimension: Int): BufferedImage {
 
 fun BufferedImage.resize(resizeMultiplier: Float): BufferedImage =
     ImageUtil.resize(this, resizeMultiplier, false)
+
+fun BufferedImage.resize(maxWidth: Int, maxHeight: Int): BufferedImage =
+    ImmutableImage.wrapAwt(this).max(maxWidth, maxHeight).awt()
+
+fun BufferedImage.resizeWidth(width: Int): BufferedImage =
+    ImmutableImage.wrapAwt(this).scaleToWidth(width).awt()
+
+fun BufferedImage.resizeHeight(height: Int): BufferedImage =
+    ImmutableImage.wrapAwt(this).scaleToHeight(height).awt()

@@ -5,6 +5,7 @@ import io.github.shaksternano.borgar.core.media.AudioFrame
 import io.github.shaksternano.borgar.core.media.ImageFrame
 import io.github.shaksternano.borgar.core.media.VideoFrame
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlin.time.Duration
 
 interface MediaReader<T : VideoFrame<*>> : SuspendCloseable {
@@ -59,3 +60,9 @@ val MediaReader<*>.isAnimated: Boolean
 
 suspend fun <T : VideoFrame<*>> MediaReader<T>.first(): T =
     readFrame(Duration.ZERO)
+
+suspend fun <E, T : VideoFrame<E>> MediaReader<T>.firstContent(): E =
+    first().content
+
+suspend fun <E, T : VideoFrame<E>> MediaReader<T>.readContent(timestamp: Duration): E =
+    readFrame(timestamp).content
