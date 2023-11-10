@@ -22,9 +22,9 @@ class ImageDrawable internal constructor(
         graphics.drawImage(image, x, y, null)
     }
 
-    override fun width(graphicsContext: Graphics2D): Int = width
+    override fun getWidth(graphicsContext: Graphics2D): Int = width
 
-    override fun height(graphicsContext: Graphics2D): Int = height
+    override fun getHeight(graphicsContext: Graphics2D): Int = height
 
     override fun resizeToHeight(height: Int): Drawable {
         return if (height == this.height) {

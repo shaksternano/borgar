@@ -41,13 +41,13 @@ class OutlinedTextDrawable(
         graphics.translate(-actualX, -actualY)
     }
 
-    override fun width(graphicsContext: Graphics2D): Int {
+    override fun getWidth(graphicsContext: Graphics2D): Int {
         val font = graphicsContext.font
         val textOutlineWidth = font.size2D * outlineWidthRatio
         return (graphicsContext.bounds(text).width + textOutlineWidth * 2).toInt()
     }
 
-    override fun height(graphicsContext: Graphics2D): Int {
+    override fun getHeight(graphicsContext: Graphics2D): Int {
         val font = graphicsContext.font
         val textOutlineWidth: Float = font.size2D * outlineWidthRatio
         return (graphicsContext.bounds(text).height + textOutlineWidth * 2).toInt()

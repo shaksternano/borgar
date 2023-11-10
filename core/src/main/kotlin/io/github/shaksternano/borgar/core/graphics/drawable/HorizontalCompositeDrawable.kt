@@ -10,18 +10,18 @@ class HorizontalCompositeDrawable : CompositeDrawable() {
         var drawableX = x
         parts.forEach {
             it.draw(graphics, drawableX, y, timestamp)
-            drawableX += it.width(graphics)
+            drawableX += it.getWidth(graphics)
         }
     }
 
-    override fun width(graphicsContext: Graphics2D): Int =
+    override fun getWidth(graphicsContext: Graphics2D): Int =
         parts.fold(0) { width, part ->
-            width + part.width(graphicsContext)
+            width + part.getWidth(graphicsContext)
         }
 
-    override fun height(graphicsContext: Graphics2D): Int =
+    override fun getHeight(graphicsContext: Graphics2D): Int =
         parts.fold(0) { height, part ->
-            max(height, part.height(graphicsContext))
+            max(height, part.getHeight(graphicsContext))
         }
 
     override fun resizeToHeight(height: Int): Drawable {

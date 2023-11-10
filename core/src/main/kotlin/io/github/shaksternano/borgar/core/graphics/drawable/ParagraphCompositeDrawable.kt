@@ -27,8 +27,8 @@ class ParagraphCompositeDrawable(
             val resizedPart = part.resizeToHeight(lineHeight)?.also {
                 parts[i] = it
             } ?: part
-            val partWidth = resizedPart.width(graphics)
-            var spaceWidth = SPACE.width(graphics)
+            val partWidth = resizedPart.getWidth(graphics)
+            var spaceWidth = SPACE.getWidth(graphics)
             var newLineWidth = lineWidth + partWidth
             if (lineWidth > 0) {
                 newLineWidth += spaceWidth
@@ -43,7 +43,7 @@ class ParagraphCompositeDrawable(
                 }
                 currentLine.forEach {
                     it.draw(graphics, lineX, lineY, timestamp)
-                    lineX += it.width(graphics) + spaceWidth
+                    lineX += it.getWidth(graphics) + spaceWidth
                 }
                 currentLine.clear()
                 currentLine.add(resizedPart)
@@ -55,7 +55,7 @@ class ParagraphCompositeDrawable(
         var lineX = calculateTextXPosition(alignment, x, lineWidth, maxWidth)
         currentLine.forEach {
             it.draw(graphics, lineX, lineY, timestamp)
-            lineX += it.width(graphics) + SPACE.width(graphics)
+            lineX += it.getWidth(graphics) + SPACE.getWidth(graphics)
         }
     }
 
@@ -66,7 +66,7 @@ class ParagraphCompositeDrawable(
             else -> x
         }
 
-    override fun width(graphicsContext: Graphics2D): Int {
+    override fun getWidth(graphicsContext: Graphics2D): Int {
         val metrics = graphicsContext.fontMetrics
         val lineHeight = metrics.ascent + metrics.descent
         var lineWidth = 0
@@ -75,8 +75,8 @@ class ParagraphCompositeDrawable(
         var currentLineIsEmpty = true
         parts.forEach {
             val resizedPart = it.resizeToHeight(lineHeight) ?: it
-            val partWidth = resizedPart.width(graphicsContext)
-            val spaceWidth = SPACE.width(graphicsContext)
+            val partWidth = resizedPart.getWidth(graphicsContext)
+            val spaceWidth = SPACE.getWidth(graphicsContext)
             var newLineWidth = lineWidth + partWidth
             if (lineWidth > 0) {
                 newLineWidth += spaceWidth
@@ -94,7 +94,7 @@ class ParagraphCompositeDrawable(
         return maxLineWidth
     }
 
-    override fun height(graphicsContext: Graphics2D): Int {
+    override fun getHeight(graphicsContext: Graphics2D): Int {
         val metrics = graphicsContext.fontMetrics
         val lineHeight = metrics.ascent + metrics.descent
         val lineSpace = metrics.leading
@@ -104,8 +104,8 @@ class ParagraphCompositeDrawable(
         var currentLineIsEmpty = true
         parts.forEach {
             val resizedPart = it.resizeToHeight(lineHeight) ?: it
-            val partWidth = resizedPart.width(graphicsContext)
-            val spaceWidth = SPACE.width(graphicsContext)
+            val partWidth = resizedPart.getWidth(graphicsContext)
+            val spaceWidth = SPACE.getWidth(graphicsContext)
             var newLineWidth = lineWidth + partWidth
             if (lineWidth > 0) {
                 newLineWidth += spaceWidth

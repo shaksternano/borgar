@@ -5,12 +5,12 @@ import java.awt.Graphics2D
 
 fun Graphics2D.fitFontWidth(maxWidth: Int, text: Drawable): Int {
     var font = this.font
-    var textWidth = text.width(this)
+    var textWidth = text.getWidth(this)
     while (textWidth > maxWidth) {
         val sizeRatio = textWidth.toFloat() / maxWidth
         font = font.deriveFont(font.size - sizeRatio)
         this.font = font
-        textWidth = text.width(this)
+        textWidth = text.getWidth(this)
     }
     return textWidth
 }

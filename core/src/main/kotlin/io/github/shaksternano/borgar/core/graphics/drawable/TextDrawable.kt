@@ -10,10 +10,10 @@ class TextDrawable(
     override suspend fun draw(graphics: Graphics2D, x: Int, y: Int, timestamp: Duration) =
         graphics.drawString(text, x, y + graphics.fontMetrics.ascent)
 
-    override fun width(graphicsContext: Graphics2D): Int =
+    override fun getWidth(graphicsContext: Graphics2D): Int =
         graphicsContext.fontMetrics.stringWidth(text)
 
-    override fun height(graphicsContext: Graphics2D): Int {
+    override fun getHeight(graphicsContext: Graphics2D): Int {
         val metrics = graphicsContext.fontMetrics
         return metrics.ascent + metrics.descent
     }

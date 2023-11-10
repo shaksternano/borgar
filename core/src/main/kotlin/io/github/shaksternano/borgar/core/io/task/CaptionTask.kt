@@ -102,7 +102,7 @@ private class CaptionProcessor(
 
         graphics.fitFontWidth(maxWidth, paragraph)
         font = graphics.font
-        val fillHeight = paragraph.height(graphics) + padding * 2
+        val fillHeight = paragraph.getHeight(graphics) + padding * 2
         graphics.dispose()
         return CaptionData(font, fillHeight, padding, paragraph)
     }
