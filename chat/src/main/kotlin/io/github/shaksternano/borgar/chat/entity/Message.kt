@@ -20,6 +20,8 @@ interface Message : Entity {
     val mentionedChannelIds: Set<Mentionable>
     val mentionedRoleIds: Set<Mentionable>
 
+    val customEmojis: List<CustomEmoji>
+
     suspend fun getAuthor(): User
 
     suspend fun getChannel(): MessageChannel

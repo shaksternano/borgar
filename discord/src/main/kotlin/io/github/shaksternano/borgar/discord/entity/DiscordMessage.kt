@@ -27,12 +27,21 @@ data class DiscordMessage(
     } else {
         null
     }
-    private val referencedMessage: Message? = discordMessage.referencedMessage?.let { DiscordMessage(it) }
+    private val referencedMessage: Message? = discordMessage.referencedMessage
+        ?.let { DiscordMessage(it) }
 
-    private val mentionedUsersSet: Set<User> = discordMessage.mentions.users.map { DiscordUser(it) }.toSet()
-    private val mentionedChannelsSet: Set<Channel> =
-        discordMessage.mentions.channels.map { DiscordChannel.create(it) }.toSet()
-    private val mentionedRolesSet: Set<Role> = discordMessage.mentions.roles.map { DiscordRole(it) }.toSet()
+    private val mentionedUsersSet: Set<User> = discordMessage.mentions
+        .users
+        .map { DiscordUser(it) }
+        .toSet()
+    private val mentionedChannelsSet: Set<Channel> = discordMessage.mentions
+        .channels
+        .map { DiscordChannel.create(it) }
+        .toSet()
+    private val mentionedRolesSet: Set<Role> = discordMessage.mentions
+        .roles
+        .map { DiscordRole(it) }
+        .toSet()
 
     override val mentionedUsers: Flow<User> = mentionedUsersSet.asFlow()
     override val mentionedChannels: Flow<Channel> = mentionedChannelsSet.asFlow()
@@ -41,6 +50,10 @@ data class DiscordMessage(
     override val mentionedUserIds: Set<Mentionable> = mentionedUsersSet
     override val mentionedChannelIds: Set<Mentionable> = mentionedChannelsSet
     override val mentionedRoleIds: Set<Mentionable> = mentionedRolesSet
+
+    override val customEmojis: List<CustomEmoji> = discordMessage.mentions
+        .customEmojis
+        .map { DiscordCustomEmoji(it, discordMessage.jda) }
 
     override suspend fun getAuthor(): User = author
 
