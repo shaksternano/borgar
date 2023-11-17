@@ -17,7 +17,7 @@ data class MessageCommandEvent(
 
     private var replied: Boolean = false
 
-    override suspend fun getUser(): User = event.getAuthor()
+    override suspend fun getAuthor(): User = event.getAuthor()
 
     override suspend fun getChannel(): MessageChannel = event.getChannel()
 
@@ -44,7 +44,7 @@ data class MessageCommandEvent(
             override val embeds: List<MessageEmbed> = event.message.embeds
             override val customEmojis: List<CustomEmoji> = manager.getCustomEmojis(content)
 
-            override suspend fun getUser(): User = this@MessageCommandEvent.getUser()
+            override suspend fun getAuthor(): User = this@MessageCommandEvent.getAuthor()
 
             override suspend fun getChannel(): MessageChannel = this@MessageCommandEvent.getChannel()
 

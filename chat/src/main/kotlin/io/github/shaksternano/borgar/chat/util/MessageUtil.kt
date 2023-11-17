@@ -14,8 +14,8 @@ import kotlin.math.min
 
 private const val MAX_PAST_MESSAGES_TO_CHECK = 50
 
-suspend fun CommandMessageIntersection.getUrls(): List<UrlInfo> {
-    return search {
+suspend fun CommandMessageIntersection.getUrls(): List<UrlInfo> =
+    search {
         val urls = buildList {
             addAll(
                 it.attachments.map { attachment ->
@@ -38,7 +38,6 @@ suspend fun CommandMessageIntersection.getUrls(): List<UrlInfo> {
             null
         }
     } ?: emptyList()
-}
 
 suspend fun CommandMessageIntersection.getEmojiDrawables(): Map<String, Drawable> = getEmojiUrls()
     .mapValues {
@@ -124,14 +123,13 @@ private suspend fun CommandMessageIntersection.getEmojiUrls(onlyGetFirst: Boolea
     return emojiUrls
 }
 
-suspend fun <T> CommandMessageIntersection.search(find: suspend (CommandMessageIntersection) -> T?): T? {
-    return searchVisitors(
+suspend fun <T> CommandMessageIntersection.search(find: suspend (CommandMessageIntersection) -> T?): T? =
+    searchVisitors(
         find,
         CommandMessageIntersection::searchReferencedMessage,
         CommandMessageIntersection::searchSelf,
         CommandMessageIntersection::searchPreviousMessages,
     )
-}
 
 @Suppress("SameParameterValue")
 private suspend fun <T> CommandMessageIntersection.searchVisitors(
@@ -141,24 +139,20 @@ private suspend fun <T> CommandMessageIntersection.searchVisitors(
     it(find)
 }
 
-private suspend fun <T> CommandMessageIntersection.searchReferencedMessage(find: suspend (CommandMessageIntersection) -> T?): T? {
-    return getReferencedMessage()?.let {
-        find(it.asCommandIntersection())
+private suspend fun <T> CommandMessageIntersection.searchReferencedMessage(find: suspend (CommandMessageIntersection) -> T?): T? =
+    getReferencedMessage()?.let {
+        find(it)
     }
-}
 
-private suspend fun <T> CommandMessageIntersection.searchSelf(find: suspend (CommandMessageIntersection) -> T?): T? {
-    return find(this)
-}
+private suspend fun <T> CommandMessageIntersection.searchSelf(find: suspend (CommandMessageIntersection) -> T?): T? =
+    find(this)
 
-private suspend fun <T> CommandMessageIntersection.searchPreviousMessages(find: suspend (CommandMessageIntersection) -> T?): T? {
-    val previousMessages = getPreviousMessages(MAX_PAST_MESSAGES_TO_CHECK)
-    return previousMessages.map {
-        find(it.asCommandIntersection())
+private suspend fun <T> CommandMessageIntersection.searchPreviousMessages(find: suspend (CommandMessageIntersection) -> T?): T? =
+    getPreviousMessages(MAX_PAST_MESSAGES_TO_CHECK).map {
+        find(it)
     }.firstOrNull {
         it != null
     }
-}
 
 data class UrlInfo(
     val url: String,

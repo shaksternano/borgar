@@ -11,7 +11,7 @@ interface CommandMessageIntersection : Entity {
     val embeds: List<MessageEmbed>
     val customEmojis: List<CustomEmoji>
 
-    suspend fun getUser(): User
+    suspend fun getAuthor(): User
 
     suspend fun getChannel(): MessageChannel
 

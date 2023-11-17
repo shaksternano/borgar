@@ -13,7 +13,7 @@ interface CommandEvent : Managed {
 
     val id: String
 
-    suspend fun getUser(): User
+    suspend fun getAuthor(): User
 
     suspend fun getChannel(): MessageChannel
 

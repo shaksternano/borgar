@@ -19,7 +19,7 @@ object HelpCommand : NonChainableCommand() {
         arguments: CommandArguments,
         event: CommandEvent
     ): List<CommandResponse> {
-        val entityId = event.getGuild()?.id ?: event.getUser().id
+        val entityId = event.getGuild()?.id ?: event.getAuthor().id
         return getHelpMessages(entityId, event.manager.maxMessageContentLength).map(::CommandResponse)
     }
 
