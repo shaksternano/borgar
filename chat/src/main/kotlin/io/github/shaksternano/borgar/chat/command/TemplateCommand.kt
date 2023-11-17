@@ -17,7 +17,7 @@ class TemplateCommand(
         customTemplate
     )
 
-    override fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {
+    override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {
         TODO("Not yet implemented")
     }
 }

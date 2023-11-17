@@ -1,5 +1,6 @@
 package io.github.shaksternano.borgar.core.media
 
+import io.github.shaksternano.borgar.core.exception.UnreadableFileException
 import io.github.shaksternano.borgar.core.io.*
 import io.github.shaksternano.borgar.core.media.reader.AudioReader
 import io.github.shaksternano.borgar.core.media.reader.ImageReader
@@ -8,7 +9,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.withContext
 import java.nio.file.Path
-import kotlin.io.path.deleteIfExists
 import kotlin.io.path.extension
 import kotlin.io.path.fileSize
 import kotlin.math.min
@@ -51,30 +51,35 @@ suspend fun processMedia(
     val isTempFile = input.path == null
     val fileInput = input.getOrWriteFile()
     val path = fileInput.path
-    val inputFormat = mediaFormat(path) ?: path.extension
-    val (imageReader, audioReader) = withContext(Dispatchers.IO) {
-        createImageReader(fileInput, inputFormat) to createAudioReader(fileInput, inputFormat)
-    }
-    val outputFormat = config.transformOutputFormat(inputFormat)
-    val outputName = config.outputName ?: fileInput.filenameWithoutExtension()
-    val output = processMedia(
-        config.transformImageReader(imageReader),
-        audioReader,
-        createTemporaryFile(outputName, outputFormat),
-        outputFormat,
-        config.processor,
-        maxFileSize,
-    )
-    if (isTempFile) {
-        withContext(Dispatchers.IO) {
-            path.deleteIfExists()
+    return try {
+        val inputFormat = mediaFormat(path) ?: path.extension
+        val (imageReader, audioReader) = try {
+            withContext(Dispatchers.IO) {
+                createImageReader(fileInput, inputFormat) to createAudioReader(fileInput, inputFormat)
+            }
+        } catch (t: Throwable) {
+            throw UnreadableFileException(t)
+        }
+        val outputFormat = config.transformOutputFormat(inputFormat)
+        val outputName = config.outputName ?: fileInput.filenameWithoutExtension()
+        val output = processMedia(
+            config.transformImageReader(imageReader),
+            audioReader,
+            createTemporaryFile(outputName, outputFormat),
+            outputFormat,
+            config.processor,
+            maxFileSize,
+        )
+        val filename = filename(outputName, outputFormat)
+        DataSource.fromFile(
+            output,
+            filename,
+        )
+    } finally {
+        if (isTempFile) {
+            path.deleteSilently()
         }
     }
-    val filename = filename(outputName, outputFormat)
-    return DataSource.fromFile(
-        output,
-        filename,
-    )
 }
 
 suspend fun <T : Any> processMedia(

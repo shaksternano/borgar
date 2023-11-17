@@ -26,7 +26,11 @@ abstract class FileCommand : BaseCommand() {
         )
     }
 
-    protected abstract fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask
+    protected abstract suspend fun createTask(
+        arguments: CommandArguments,
+        event: CommandEvent,
+        maxFileSize: Long
+    ): FileTask
 }
 
 private data class FileExecutable(

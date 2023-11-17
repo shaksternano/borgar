@@ -46,3 +46,5 @@ interface CommandArguments {
 
     fun getAttachmentList(key: String): List<Attachment>
 }
+
+fun CommandArguments.getDefaultStringOrEmpty(): String = defaultKey?.let(::getString) ?: ""

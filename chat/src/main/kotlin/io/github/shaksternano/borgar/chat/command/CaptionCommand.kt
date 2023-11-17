@@ -1,6 +1,7 @@
 package io.github.shaksternano.borgar.chat.command
 
 import io.github.shaksternano.borgar.chat.event.CommandEvent
+import io.github.shaksternano.borgar.chat.util.getEmojiDrawables
 import io.github.shaksternano.borgar.core.io.task.CaptionTask
 import io.github.shaksternano.borgar.core.io.task.FileTask
 
@@ -23,11 +24,11 @@ sealed class CaptionCommand(
         true,
     )
 
-    override fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {
+    override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {
         return CaptionTask(
-            arguments.getString("caption") ?: "",
+            arguments.getDefaultStringOrEmpty(),
             isCaption2,
-            emptyMap(),
+            event.asMessageIntersection(arguments).getEmojiDrawables(),
             maxFileSize,
         )
     }

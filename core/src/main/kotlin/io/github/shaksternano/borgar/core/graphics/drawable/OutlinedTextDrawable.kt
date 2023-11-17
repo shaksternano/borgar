@@ -1,7 +1,10 @@
 package io.github.shaksternano.borgar.core.graphics.drawable
 
 import io.github.shaksternano.borgar.core.media.ImageUtil
-import java.awt.*
+import java.awt.BasicStroke
+import java.awt.Color
+import java.awt.Graphics2D
+import java.awt.Shape
 import java.awt.geom.Rectangle2D
 import kotlin.time.Duration
 

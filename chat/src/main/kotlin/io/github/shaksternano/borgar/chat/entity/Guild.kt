@@ -12,5 +12,7 @@ interface Guild : Entity {
     suspend fun isMember(user: User): Boolean =
         isMember(user.id)
 
+    fun getCustomEmojis(): List<CustomEmoji>
+
     suspend fun getMaxFileSize(): Long
 }

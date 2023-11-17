@@ -11,8 +11,10 @@ data class DiscordCustomEmoji(
     private val jda: JDA,
 ) : CustomEmoji, BaseEntity() {
 
+    override val name: String = discordEmoji.name
     override val imageUrl: String = discordEmoji.imageUrl
     override val asMention: String = discordEmoji.asMention
     override val id: String = discordEmoji.id
     override val manager: BotManager = DiscordManager.get(jda)
+    override val asBasicMention: String = ":${name}:"
 }

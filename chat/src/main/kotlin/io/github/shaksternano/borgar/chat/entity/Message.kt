@@ -36,6 +36,7 @@ interface Message : Entity {
         override val content: String = this@Message.content
         override val attachments: List<Attachment> = this@Message.attachments
         override val embeds: List<MessageEmbed> = this@Message.embeds
+        override val customEmojis: List<CustomEmoji> = this@Message.customEmojis
 
         override suspend fun getUser(): User = getAuthor()
 

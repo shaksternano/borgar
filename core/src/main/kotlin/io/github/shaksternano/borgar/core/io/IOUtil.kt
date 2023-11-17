@@ -21,6 +21,7 @@ import java.io.InputStream
 import java.nio.file.Path
 import kotlin.io.path.appendBytes
 import kotlin.io.path.createTempFile
+import kotlin.io.path.deleteIfExists
 import kotlin.io.use
 
 suspend fun createTemporaryFile(filename: String): Path =
@@ -33,6 +34,14 @@ suspend fun createTemporaryFile(filenameWithoutExtension: String, extension: Str
     }
     path.toFile().deleteOnExit()
     return path
+}
+
+suspend fun Path.deleteSilently() {
+    runCatching {
+        withContext(Dispatchers.IO) {
+            deleteIfExists()
+        }
+    }
 }
 
 fun configuredHttpClient(json: Boolean = false): HttpClient = HttpClient(Apache5) {

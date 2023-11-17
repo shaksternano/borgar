@@ -1,6 +1,7 @@
 package io.github.shaksternano.borgar.core
 
 import io.github.shaksternano.borgar.core.data.connectToDatabase
+import io.github.shaksternano.borgar.core.emoji.EmojiUtil
 import io.github.shaksternano.borgar.core.util.Environment
 import io.github.shaksternano.borgar.core.util.Fonts
 import org.bytedeco.ffmpeg.global.avutil
@@ -15,6 +16,8 @@ fun initCore() {
     Environment.load(File(envFileName))
     connectToPostgreSql()
     Fonts.registerFonts()
+    EmojiUtil.initEmojiUnicodeSet()
+    EmojiUtil.initEmojiShortCodesToUrlsMap()
     avutil.av_log_set_level(avutil.AV_LOG_PANIC)
 }
 

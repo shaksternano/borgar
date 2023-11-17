@@ -4,6 +4,7 @@ import io.github.shaksternano.borgar.chat.BotManager
 import io.github.shaksternano.borgar.chat.command.CommandArguments
 import io.github.shaksternano.borgar.chat.command.CommandMessageIntersection
 import io.github.shaksternano.borgar.chat.command.CommandResponse
+import io.github.shaksternano.borgar.chat.command.getDefaultStringOrEmpty
 import io.github.shaksternano.borgar.chat.entity.*
 import io.github.shaksternano.borgar.chat.entity.channel.MessageChannel
 
@@ -38,9 +39,10 @@ data class MessageCommandEvent(
         object : CommandMessageIntersection {
             override val id: String = this@MessageCommandEvent.id
             override val manager: BotManager = this@MessageCommandEvent.manager
-            override val content: String = arguments.defaultKey?.let(arguments::getString) ?: ""
+            override val content: String = arguments.getDefaultStringOrEmpty()
             override val attachments: List<Attachment> = event.message.attachments
             override val embeds: List<MessageEmbed> = event.message.embeds
+            override val customEmojis: List<CustomEmoji> = manager.getCustomEmojis(content)
 
             override suspend fun getUser(): User = this@MessageCommandEvent.getUser()
 

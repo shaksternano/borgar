@@ -5,7 +5,6 @@ import io.github.shaksternano.borgar.core.media.AudioFrame
 import io.github.shaksternano.borgar.core.media.ImageFrame
 import io.github.shaksternano.borgar.core.media.VideoFrame
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import kotlin.time.Duration
 
 interface MediaReader<T : VideoFrame<*>> : SuspendCloseable {
