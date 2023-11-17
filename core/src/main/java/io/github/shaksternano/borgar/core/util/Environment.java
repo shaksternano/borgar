@@ -5,6 +5,7 @@ import io.github.shaksternano.borgar.core.Main;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -13,8 +14,8 @@ public class Environment {
 
     private static final Map<String, String> customEnvVars = new HashMap<>();
 
-    public static void load(File file) throws IOException {
-        for (var line : Files.readAllLines(file.toPath())) {
+    public static void load(Path path) throws IOException {
+        for (var line : Files.readAllLines(path)) {
             if (!line.isBlank()) {
                 var envVar = line.split("=", 2);
                 if (envVar.length == 2) {
@@ -24,6 +25,10 @@ public class Environment {
                 }
             }
         }
+    }
+
+    public static void load(File file) throws IOException {
+        load(file.toPath());
     }
 
     public static Optional<String> getEnvVar(String key) {

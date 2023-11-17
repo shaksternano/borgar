@@ -1,20 +1,27 @@
 package io.github.shaksternano.borgar.chat.command
 
 import io.github.shaksternano.borgar.chat.event.CommandEvent
+import io.github.shaksternano.borgar.chat.util.UrlInfo
 import io.github.shaksternano.borgar.chat.util.getUrls
 import io.github.shaksternano.borgar.core.exception.ErrorResponseException
 import io.github.shaksternano.borgar.core.io.DataSource
+import io.github.shaksternano.borgar.core.io.filename
 import io.github.shaksternano.borgar.core.io.task.FileTask
 import io.github.shaksternano.borgar.core.logger
+import io.github.shaksternano.borgar.core.util.TenorMediaType
 import io.github.shaksternano.borgar.core.util.asSingletonList
+import io.github.shaksternano.borgar.core.util.retrieveTenorMediaUrl
 
 abstract class FileCommand : BaseCommand() {
 
     final override suspend fun run(arguments: CommandArguments, event: CommandEvent): Executable {
-        val convertable = arguments.getAttachment("file")
-            ?: arguments.getString("url")
-                ?.let { DataSource.fromUrl(it).asConvertable() }
-            ?: event.asMessageIntersection(arguments).getUrls().firstOrNull()
+        val convertable = arguments.getAttachment("file") ?: run {
+            val urlInfo = arguments.getString("url")?.let {
+                UrlInfo(it, filename(it))
+            } ?: event.asMessageIntersection(arguments).getUrls().firstOrNull()
+            val tenorUrl = urlInfo?.let { retrieveTenorMediaUrl(it.url, TenorMediaType.GIF_NORMAL) }
+            tenorUrl?.let { UrlInfo(it, filename(it)) } ?: urlInfo
+        }
         val files = convertable?.asDataSource()?.asSingletonList() ?: emptyList()
         val maxFileSize = event.getChannel().getMaxFileSize()
         return FileExecutable(

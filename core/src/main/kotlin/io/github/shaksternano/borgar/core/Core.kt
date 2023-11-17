@@ -7,13 +7,14 @@ import io.github.shaksternano.borgar.core.util.Fonts
 import org.bytedeco.ffmpeg.global.avutil
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.io.File
+import java.nio.file.Path
+import kotlin.jvm.optionals.getOrElse
 
 val logger: Logger = createLogger("Borgar")
 
 fun initCore() {
     val envFileName = ".env"
-    Environment.load(File(envFileName))
+    Environment.load(Path.of(envFileName))
     connectToPostgreSql()
     Fonts.registerFonts()
     EmojiUtil.initEmojiUnicodeSet()
@@ -22,10 +23,22 @@ fun initCore() {
 }
 
 private fun connectToPostgreSql() {
+    val url = Environment.getEnvVar("POSTGRESQL_URL").getOrElse {
+        logger.warn("POSTGRESQL_URL environment variable not found!")
+        return
+    }
+    val username = Environment.getEnvVar("POSTGRESQL_USERNAME").getOrElse {
+        logger.warn("POSTGRESQL_USERNAME environment variable not found!")
+        return
+    }
+    val password = Environment.getEnvVar("POSTGRESQL_PASSWORD").getOrElse {
+        logger.warn("POSTGRESQL_PASSWORD environment variable not found!")
+        return
+    }
     connectToDatabase(
-        Environment.getEnvVar("POSTGRESQL_URL").orElseThrow(),
-        Environment.getEnvVar("POSTGRESQL_USERNAME").orElseThrow(),
-        Environment.getEnvVar("POSTGRESQL_PASSWORD").orElseThrow(),
+        url,
+        username,
+        password,
         "org.postgresql.Driver"
     )
 }

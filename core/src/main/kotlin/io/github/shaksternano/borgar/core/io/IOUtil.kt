@@ -4,6 +4,7 @@ import com.google.common.io.Closer
 import com.google.common.io.Files
 import io.github.shaksternano.borgar.core.media.mediaFormat
 import io.ktor.client.*
+import io.ktor.client.call.*
 import io.ktor.client.engine.apache5.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -66,6 +67,10 @@ fun configuredHttpClient(json: Boolean = false): HttpClient = HttpClient(Apache5
 
 inline fun <T> useHttpClient(json: Boolean = false, block: (HttpClient) -> T) =
     configuredHttpClient(json).use(block)
+
+suspend inline fun <reified T> httpGet(url: String) = useHttpClient(true) {
+    it.get(url).body<T>()
+}
 
 suspend fun download(url: String, path: Path) = useHttpClient { client ->
     val response = client.get(url)
