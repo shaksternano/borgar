@@ -20,18 +20,31 @@ suspend fun parseAndExecuteCommand(event: MessageReceiveEvent) {
     if (!contentStripped.startsWith(COMMAND_PREFIX)) return
     val commandConfigs = parseCommands(event.message)
     if (commandConfigs.isEmpty()) return
+    val channel = event.getChannel()
     try {
-        event.getChannel().sendTyping()
+        channel.sendTyping()
     } catch (t: Throwable) {
         logger.error("Failed to send typing indicator", t)
     }
     val commandEvent = MessageCommandEvent(event)
     val (responses, executable) = try {
-        val executables = commandConfigs.map {
+        val executables = commandConfigs.mapIndexed { i, (command, arguments) ->
+            val guild = event.getGuild()
+            if (guild == null && command.guildOnly) return
+            if (guild != null) {
+                val requiredPermissions = command.requiredPermissions
+                val permissionHolder = guild.getMember(event.getAuthor()) ?: guild.getPublicRole()
+                val hasPermission = permissionHolder.hasPermission(requiredPermissions, channel)
+                if (!hasPermission) {
+                    if (i == 0) return
+                    else throw InsufficientPermissionsException(command, requiredPermissions)
+                }
+            }
+
             try {
-                it.command.run(it.arguments, commandEvent)
+                command.run(arguments, commandEvent)
             } catch (t: Throwable) {
-                throw CommandException(it.command, t)
+                throw CommandException(command, t)
             }
         }
         val chained = executables.reduce { executable1, executable2 ->
@@ -92,11 +105,20 @@ private suspend fun contentStripped(message: Message): String {
 }
 
 private fun handleError(throwable: Throwable): String = when (throwable) {
-    is NonChainableCommandException -> "Cannot chain ${throwable.command1.name} with ${throwable.command2.name}!"
+    is NonChainableCommandException ->
+        "Cannot chain ${throwable.command1.name} with ${throwable.command2.name}!"
+
     is CommandException -> {
         logger.error("Error executing command ${throwable.command.name}", throwable)
         "An error occurred!"
     }
+
+    is InsufficientPermissionsException ->
+        "Command ${throwable.command.nameWithPrefix} requires permissions:\n${
+            throwable.requiredPermissions.joinToString(
+                "\n"
+            ) { it.displayedName }
+        }!"
 
     else -> {
         logger.error("An error occurred", throwable)
@@ -110,9 +132,9 @@ private suspend fun userDetails(user: User, guild: Guild?): DisplayedUser {
 
 private suspend fun parseCommands(message: Message): List<CommandConfig> {
     return parseRawCommands(message.content)
-        .mapIndexed { index, rawCommandExecutable ->
-            val command = COMMANDS[rawCommandExecutable.command] ?: getCustomTemplateCommand(
-                rawCommandExecutable.command,
+        .mapIndexed { index, (commandString, rawArguments, defaultArgument) ->
+            val command = COMMANDS[commandString] ?: getCustomTemplateCommand(
+                commandString,
                 message
             )
             if (index > 0 && command == null) {
@@ -121,8 +143,8 @@ private suspend fun parseCommands(message: Message): List<CommandConfig> {
                 return emptyList()
             }
             val arguments = MessageCommandArguments(
-                rawCommandExecutable.arguments,
-                rawCommandExecutable.defaultArgument,
+                rawArguments,
+                defaultArgument,
                 command.defaultArgumentKey,
                 message
             )
@@ -179,12 +201,12 @@ private suspend fun getCustomTemplateCommand(commandName: String, message: Messa
     return template?.let { TemplateCommand(it) }
 }
 
-private class CommandConfig(
+private data class CommandConfig(
     val command: Command,
     val arguments: CommandArguments,
 )
 
-internal class RawCommandConfig(
+internal data class RawCommandConfig(
     val command: String,
     val arguments: Map<String, String>,
     val defaultArgument: String,
@@ -202,3 +224,8 @@ private class CommandException(
     val command: Command,
     override val cause: Throwable,
 ) : Exception(cause)
+
+private class InsufficientPermissionsException(
+    val command: Command,
+    val requiredPermissions: Iterable<Permission>,
+) : Exception()

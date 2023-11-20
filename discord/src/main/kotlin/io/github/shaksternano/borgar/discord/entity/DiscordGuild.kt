@@ -2,10 +2,7 @@ package io.github.shaksternano.borgar.discord.entity
 
 import dev.minn.jda.ktx.coroutines.await
 import io.github.shaksternano.borgar.chat.BotManager
-import io.github.shaksternano.borgar.chat.entity.BaseEntity
-import io.github.shaksternano.borgar.chat.entity.CustomEmoji
-import io.github.shaksternano.borgar.chat.entity.Guild
-import io.github.shaksternano.borgar.chat.entity.Member
+import io.github.shaksternano.borgar.chat.entity.*
 import io.github.shaksternano.borgar.discord.DiscordManager
 
 data class DiscordGuild(
@@ -26,4 +23,7 @@ data class DiscordGuild(
 
     override suspend fun getMaxFileSize(): Long =
         discordGuild.boostTier.maxFileSize
+
+    override suspend fun getPublicRole(): Role =
+        DiscordRole(discordGuild.publicRole)
 }

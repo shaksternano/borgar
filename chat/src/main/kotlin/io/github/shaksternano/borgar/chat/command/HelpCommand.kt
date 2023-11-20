@@ -19,16 +19,17 @@ object HelpCommand : NonChainableCommand() {
         arguments: CommandArguments,
         event: CommandEvent
     ): List<CommandResponse> {
-        val entityId = event.getGuild()?.id ?: event.getAuthor().id
-        return getHelpMessages(entityId, event.manager.maxMessageContentLength).map(::CommandResponse)
+        val guild = event.getGuild()
+        val entityId = guild?.id ?: event.getAuthor().id
+        return getHelpMessages(entityId, event.manager.maxMessageContentLength, guild != null).map(::CommandResponse)
     }
 
-    suspend fun getHelpMessages(entityId: String, maxContentLength: Int): List<String> {
+    suspend fun getHelpMessages(entityId: String, maxContentLength: Int, fromGuild: Boolean): List<String> {
         val cached = cachedCommandInfos.getIfPresent(entityId)
         if (cached != null) {
             return cached.splitChunks(maxContentLength)
         }
-        val commandInfos = getCommandInfo(entityId)
+        val commandInfos = getCommandInfo(entityId, fromGuild)
         val helpMessage = createHelpMessage(commandInfos)
         cachedCommandInfos.put(entityId, helpMessage)
         return helpMessage.splitChunks(maxContentLength)
@@ -42,9 +43,11 @@ object HelpCommand : NonChainableCommand() {
         return "Commands:\n\n$commandDescriptions"
     }
 
-    private suspend fun getCommandInfo(entityId: String): List<CommandInfo> = buildList {
+    private suspend fun getCommandInfo(entityId: String, fromGuild: Boolean): List<CommandInfo> = buildList {
         COMMANDS.values.forEach {
-            add(CommandInfo(it.nameWithPrefix, it.description))
+            if (fromGuild || !it.guildOnly) {
+                add(CommandInfo(it.nameWithPrefix, it.description))
+            }
         }
         val templates = TemplateRepository.readAll(entityId)
         templates.forEach {

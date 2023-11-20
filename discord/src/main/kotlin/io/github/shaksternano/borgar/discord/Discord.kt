@@ -63,7 +63,7 @@ private fun JDA.onSlashCommand(
 
 private suspend fun handleHelpCommand(event: SlashCommandInteractionEvent) {
     val entityId = event.guild?.id ?: event.user.id
-    val helpMessages = HelpCommand.getHelpMessages(entityId, Message.MAX_CONTENT_LENGTH)
+    val helpMessages = HelpCommand.getHelpMessages(entityId, Message.MAX_CONTENT_LENGTH, event.isFromGuild)
     helpMessages.forEachIndexed { index, message ->
         if (index == 0) {
             event.reply(message)

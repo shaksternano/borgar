@@ -10,7 +10,7 @@ import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
 
 open class DiscordChannel(
-    private val discordChannel: net.dv8tion.jda.api.entities.channel.Channel
+    internal val discordChannel: net.dv8tion.jda.api.entities.channel.Channel
 ) : BaseEntity(), Channel {
 
     companion object {

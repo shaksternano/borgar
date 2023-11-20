@@ -15,4 +15,6 @@ interface Guild : Entity {
     fun getCustomEmojis(): List<CustomEmoji>
 
     suspend fun getMaxFileSize(): Long
+
+    suspend fun getPublicRole(): Role
 }

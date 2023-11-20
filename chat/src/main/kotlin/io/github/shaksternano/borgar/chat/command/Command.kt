@@ -11,6 +11,10 @@ interface Command {
         get() = null
     val argumentData: Set<CommandArgumentData>
         get() = emptySet()
+    val guildOnly: Boolean
+        get() = false
+    val requiredPermissions: Set<Permission>
+        get() = emptySet()
 
     suspend fun run(arguments: CommandArguments, event: CommandEvent): Executable
 }

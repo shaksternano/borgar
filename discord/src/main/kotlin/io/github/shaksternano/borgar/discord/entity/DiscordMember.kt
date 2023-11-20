@@ -1,7 +1,6 @@
 package io.github.shaksternano.borgar.discord.entity
 
 import io.github.shaksternano.borgar.chat.BotManager
-import io.github.shaksternano.borgar.chat.entity.BaseEntity
 import io.github.shaksternano.borgar.chat.entity.Guild
 import io.github.shaksternano.borgar.chat.entity.Member
 import io.github.shaksternano.borgar.chat.entity.User
@@ -9,7 +8,7 @@ import io.github.shaksternano.borgar.discord.DiscordManager
 
 data class DiscordMember(
     private val discordMember: net.dv8tion.jda.api.entities.Member
-) : BaseEntity(), Member {
+) : DiscordPermissionHolder(discordMember), Member {
 
     override val id: String = discordMember.id
     override val manager: BotManager = DiscordManager.get(discordMember.jda)
