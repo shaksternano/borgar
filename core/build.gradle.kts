@@ -1,7 +1,6 @@
 val kotlinCoroutinesVersion: String by project
 val ktorVersion: String by project
-val log4j2Version: String by project
-val disruptorVersion: String by project
+val logbackVersion: String by project
 val guavaVersion: String by project
 val gsonVersion: String by project
 val commonsIoVersion: String by project
@@ -17,7 +16,7 @@ val postgreSqlVersion: String by project
 val junitVersion: String by project
 
 plugins {
-    kotlin("plugin.serialization") version "1.9.10"
+    kotlin("plugin.serialization") version "1.9.22"
 }
 
 dependencies {
@@ -28,8 +27,7 @@ dependencies {
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
 
-    implementation("org.apache.logging.log4j:log4j-slf4j-impl:$log4j2Version")
-    runtimeOnly("com.lmax:disruptor:$disruptorVersion")
+    implementation("ch.qos.logback:logback-classic:$logbackVersion")
 
     implementation("com.google.guava:guava:$guavaVersion-jre")
     implementation("com.google.code.gson:gson:$gsonVersion")

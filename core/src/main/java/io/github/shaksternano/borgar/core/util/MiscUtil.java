@@ -22,7 +22,6 @@ public class MiscUtil {
     }
 
     public static Logger createLogger(String name) {
-        System.setProperty("log4j2.contextSelector", "org.apache.logging.log4j.core.async.AsyncLoggerContextSelector");
         return LoggerFactory.getLogger(name);
     }
 

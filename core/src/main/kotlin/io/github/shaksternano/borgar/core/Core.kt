@@ -43,7 +43,5 @@ private fun connectToPostgreSql() {
     )
 }
 
-fun createLogger(name: String): Logger {
-    System.setProperty("log4j2.contextSelector", "org.apache.logging.log4j.core.async.AsyncLoggerContextSelector")
-    return LoggerFactory.getLogger(name)
-}
+fun createLogger(name: String): Logger =
+    LoggerFactory.getLogger(name)

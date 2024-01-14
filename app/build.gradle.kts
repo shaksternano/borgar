@@ -1,4 +1,4 @@
-val log4j2Version: String by project
+val logbackVersion: String by project
 
 plugins {
     id("com.github.johnrengelman.shadow") version "8.1.1"
@@ -10,7 +10,7 @@ dependencies {
     implementation(project(":core"))
     implementation(project(":discord"))
 
-    implementation("org.apache.logging.log4j:log4j-slf4j-impl:$log4j2Version")
+    implementation("ch.qos.logback:logback-classic:$logbackVersion")
 
     testImplementation(kotlin("test"))
 }
