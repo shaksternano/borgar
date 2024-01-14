@@ -13,7 +13,7 @@ import kotlin.io.path.fileSize
 import kotlin.io.path.inputStream
 import kotlin.io.path.readBytes
 
-interface DataSource {
+interface DataSource : DataSourceConvertable {
 
     val filename: String
     val path: Path?
@@ -65,9 +65,7 @@ interface DataSource {
         override suspend fun newStream(): InputStream = this@DataSource.newStream()
     }
 
-    fun asConvertable(): DataSourceConvertable = DataSourceConvertable {
-        this
-    }
+    override fun asDataSource(): DataSource = this
 
     companion object {
         fun fromFile(path: Path, name: String? = null): FileDataSource {
