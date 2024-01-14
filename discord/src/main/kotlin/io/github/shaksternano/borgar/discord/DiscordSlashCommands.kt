@@ -1,7 +1,7 @@
 package io.github.shaksternano.borgar.discord
 
 import dev.minn.jda.ktx.events.listener
-import dev.minn.jda.ktx.interactions.commands.slash
+import dev.minn.jda.ktx.interactions.commands.Command
 import dev.minn.jda.ktx.interactions.commands.updateCommands
 import io.github.shaksternano.borgar.chat.command.*
 import io.github.shaksternano.borgar.chat.event.CommandEvent
@@ -14,21 +14,23 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.OptionData
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 
 fun JDA.registerSlashCommands() {
     listener<SlashCommandInteractionEvent> {
         handleCommand(it)
     }
     updateCommands {
-        COMMANDS.values.fold(this) { updateAction, command ->
-            updateAction.slash(command.name, command.description) {
-                isGuildOnly = command.guildOnly
-                val discordPermissions = command.requiredPermissions.map { getDiscordPermission(it) }
-                defaultPermissions = DefaultMemberPermissions.enabledFor(discordPermissions)
-                addOptions(command.argumentData.map(CommandArgumentData::toOption))
-            }
-        }.queue()
-    }
+        val slashCommands = COMMANDS.values.map(Command::toSlash)
+        addCommands(slashCommands)
+    }.queue()
+}
+
+private fun Command.toSlash(): SlashCommandData = Command(name, description) {
+    isGuildOnly = guildOnly
+    val discordPermissions = requiredPermissions.map { getDiscordPermission(it) }
+    defaultPermissions = DefaultMemberPermissions.enabledFor(discordPermissions)
+    addOptions(argumentData.map(CommandArgumentData::toOption))
 }
 
 private suspend fun handleCommand(event: SlashCommandInteractionEvent) {
