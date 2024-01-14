@@ -15,7 +15,7 @@ data class MessageCommandEvent(
     override val id: String = event.messageId
     override val manager: BotManager = event.manager
 
-    private var replied: Boolean = false
+    private var responded: Boolean = false
 
     override suspend fun getAuthor(): User = event.getAuthor()
 
@@ -27,10 +27,10 @@ data class MessageCommandEvent(
 
     override suspend fun respond(response: CommandResponse): Message = event.getChannel().createMessage {
         fromCommandResponse(response)
-        referencedMessageId = if (replied) {
+        referencedMessageId = if (responded) {
             null
         } else {
-            replied = true
+            responded = true
             event.messageId
         }
     }

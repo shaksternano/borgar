@@ -1,6 +1,7 @@
 package io.github.shaksternano.borgar.core.data.repository
 
 import io.github.shaksternano.borgar.core.data.databaseConnection
+import io.github.shaksternano.borgar.core.logger
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.Table
@@ -10,8 +11,12 @@ import org.jetbrains.exposed.sql.transactions.transaction
 abstract class Repository<T : Table> {
 
     init {
-        transaction(databaseConnection()) {
-            SchemaUtils.create(table())
+        try {
+            transaction(databaseConnection()) {
+                SchemaUtils.create(table())
+            }
+        } catch (t: Throwable) {
+            logger.error("Failed to create table", t)
         }
     }
 

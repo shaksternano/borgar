@@ -1,0 +1,75 @@
+package io.github.shaksternano.borgar.discord.event
+
+import dev.minn.jda.ktx.coroutines.await
+import dev.minn.jda.ktx.messages.MessageCreateBuilder
+import io.github.shaksternano.borgar.chat.BotManager
+import io.github.shaksternano.borgar.chat.command.*
+import io.github.shaksternano.borgar.chat.entity.*
+import io.github.shaksternano.borgar.chat.entity.channel.MessageChannel
+import io.github.shaksternano.borgar.chat.event.CommandEvent
+import io.github.shaksternano.borgar.core.io.DataSource
+import io.github.shaksternano.borgar.discord.DiscordManager
+import io.github.shaksternano.borgar.discord.entity.DiscordGuild
+import io.github.shaksternano.borgar.discord.entity.DiscordMessage
+import io.github.shaksternano.borgar.discord.entity.DiscordUser
+import io.github.shaksternano.borgar.discord.entity.channel.DiscordMessageChannel
+import io.github.shaksternano.borgar.discord.toFileUpload
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
+
+class SlashCommandEvent(
+    private val event: SlashCommandInteractionEvent
+) : CommandEvent {
+
+    override val id: String = event.id
+    override val manager: BotManager = DiscordManager.get(event.jda)
+
+    private val user: User = DiscordUser(event.user)
+    private val channel: MessageChannel = DiscordMessageChannel(event.channel)
+    private val guild: Guild? = event.guild?.let { DiscordGuild(it) }
+
+    private var responded = false
+
+    override suspend fun getAuthor(): User = user
+
+    override suspend fun getChannel(): MessageChannel = channel
+
+    override suspend fun getGuild(): Guild? = guild
+
+    override suspend fun getReferencedMessage(): Message? = null
+
+    override suspend fun respond(response: CommandResponse): Message {
+        val responseBuilder = MessageCreateBuilder(
+            content = response.content,
+            files = response.files.map(DataSource::toFileUpload),
+        ).build()
+        val discordResponseMessage = if (responded) {
+            event.channel.sendMessage(responseBuilder)
+                .setSuppressEmbeds(response.suppressEmbeds)
+                .await()
+        } else {
+            responded = true
+            event.hook.sendMessage(responseBuilder)
+                .setSuppressEmbeds(response.suppressEmbeds)
+                .await()
+        }
+        return DiscordMessage(discordResponseMessage)
+    }
+
+    override fun asMessageIntersection(arguments: CommandArguments): CommandMessageIntersection =
+        object : CommandMessageIntersection {
+            override val id: String = this@SlashCommandEvent.id
+            override val manager: BotManager = this@SlashCommandEvent.manager
+            override val content: String = arguments.getDefaultStringOrEmpty()
+            override val attachments: List<Attachment> = listOfNotNull(arguments.getDefaultAttachment())
+            override val embeds: List<MessageEmbed> = listOf()
+            override val customEmojis: List<CustomEmoji> = manager.getCustomEmojis(content)
+
+            override suspend fun getAuthor(): User = this@SlashCommandEvent.getAuthor()
+
+            override suspend fun getChannel(): MessageChannel = this@SlashCommandEvent.getChannel()
+
+            override suspend fun getGuild(): Guild? = this@SlashCommandEvent.getGuild()
+
+            override suspend fun getReferencedMessage(): Message? = null
+        }
+}

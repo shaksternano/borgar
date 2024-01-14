@@ -7,10 +7,12 @@ data class MessageCreateBuilder(
     var content: String = "",
     val files: MutableList<DataSource> = mutableListOf(),
     var referencedMessageId: String? = null,
+    var suppressEmbeds: Boolean = false,
 ) {
 
     fun fromCommandResponse(response: CommandResponse) {
         content = response.content
         files.addAll(response.files)
+        suppressEmbeds = response.suppressEmbeds
     }
 }

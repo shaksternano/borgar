@@ -1,3 +1,4 @@
+val kotlinCoroutinesVersion: String by project
 val jdaVersion: String by project
 val jdaKtxVersion: String by project
 val discordWebhooksVersion: String by project
@@ -6,6 +7,8 @@ val log4j2Version: String by project
 dependencies {
     implementation(project(":core"))
     implementation(project(":chat"))
+
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion")
 
     implementation("net.dv8tion:JDA:$jdaVersion") {
         exclude(module = "opus-java")

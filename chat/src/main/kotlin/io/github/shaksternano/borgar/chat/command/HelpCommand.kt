@@ -4,6 +4,7 @@ import com.google.common.cache.Cache
 import com.google.common.cache.CacheBuilder
 import io.github.shaksternano.borgar.chat.event.CommandEvent
 import io.github.shaksternano.borgar.core.data.repository.TemplateRepository
+import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.core.util.splitChunks
 
 object HelpCommand : NonChainableCommand() {
@@ -21,10 +22,12 @@ object HelpCommand : NonChainableCommand() {
     ): List<CommandResponse> {
         val guild = event.getGuild()
         val entityId = guild?.id ?: event.getAuthor().id
-        return getHelpMessages(entityId, event.manager.maxMessageContentLength, guild != null).map(::CommandResponse)
+        return getHelpMessages(entityId, event.manager.maxMessageContentLength, guild != null).map {
+            CommandResponse(it, suppressEmbeds = true)
+        }
     }
 
-    suspend fun getHelpMessages(entityId: String, maxContentLength: Int, fromGuild: Boolean): List<String> {
+    private suspend fun getHelpMessages(entityId: String, maxContentLength: Int, fromGuild: Boolean): List<String> {
         val cached = cachedCommandInfos.getIfPresent(entityId)
         if (cached != null) {
             return cached.splitChunks(maxContentLength)
@@ -49,7 +52,12 @@ object HelpCommand : NonChainableCommand() {
                 add(CommandInfo(it.nameWithPrefix, it.description))
             }
         }
-        val templates = TemplateRepository.readAll(entityId)
+        val templates = try {
+            TemplateRepository.readAll(entityId)
+        } catch (t: Throwable) {
+            logger.error("Failed to read templates", t)
+            emptyList()
+        }
         templates.forEach {
             add(CommandInfo(COMMAND_PREFIX + it.commandName, it.description))
         }

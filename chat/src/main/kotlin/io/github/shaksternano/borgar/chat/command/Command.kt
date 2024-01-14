@@ -7,10 +7,10 @@ interface Command {
 
     val name: String
     val description: String
-    val defaultArgumentKey: String?
-        get() = null
     val argumentData: Set<CommandArgumentData>
         get() = emptySet()
+    val defaultArgumentKey: String?
+        get() = argumentData.firstOrNull()?.key
     val guildOnly: Boolean
         get() = false
     val requiredPermissions: Set<Permission>

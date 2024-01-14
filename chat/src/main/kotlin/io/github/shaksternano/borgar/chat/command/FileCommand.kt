@@ -15,8 +15,8 @@ import io.github.shaksternano.borgar.core.util.retrieveTenorMediaUrl
 abstract class FileCommand : BaseCommand() {
 
     final override suspend fun run(arguments: CommandArguments, event: CommandEvent): Executable {
-        val convertable = arguments.getAttachment("file") ?: run {
-            val urlInfo = arguments.getString("url")?.let {
+        val convertable = arguments.getDefaultAttachment() ?: run {
+            val urlInfo = arguments.getDefaultUrl()?.let {
                 UrlInfo(it, filename(it))
             } ?: event.asMessageIntersection(arguments).getUrls().firstOrNull()
             val tenorUrl = urlInfo?.let { retrieveTenorMediaUrl(it.url, TenorMediaType.GIF_NORMAL) }

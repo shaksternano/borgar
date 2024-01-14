@@ -4,8 +4,10 @@ import io.github.shaksternano.borgar.chat.entity.DisplayedUser
 import io.github.shaksternano.borgar.chat.entity.Guild
 import io.github.shaksternano.borgar.chat.entity.Message
 import io.github.shaksternano.borgar.chat.entity.User
+import io.github.shaksternano.borgar.chat.event.CommandEvent
 import io.github.shaksternano.borgar.chat.event.MessageCommandEvent
 import io.github.shaksternano.borgar.chat.event.MessageReceiveEvent
+import io.github.shaksternano.borgar.chat.exception.CommandException
 import io.github.shaksternano.borgar.core.data.repository.TemplateRepository
 import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.core.util.endOfWord
@@ -64,6 +66,10 @@ suspend fun parseAndExecuteCommand(event: MessageReceiveEvent) {
         val responseContent = handleError(t)
         listOf(CommandResponse(responseContent)) to null
     }
+    sendResponse(responses, executable, commandEvent)
+}
+
+suspend fun sendResponse(responses: List<CommandResponse>, executable: Executable?, commandEvent: CommandEvent) {
     responses.forEachIndexed { index, response ->
         try {
             val sent = commandEvent.respond(response)
@@ -218,11 +224,6 @@ private class NonChainableCommandException(
     val command1: Command,
     val command2: Command,
     cause: Throwable,
-) : Exception(cause)
-
-private class CommandException(
-    val command: Command,
-    override val cause: Throwable,
 ) : Exception(cause)
 
 private class InsufficientPermissionsException(

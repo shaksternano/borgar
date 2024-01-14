@@ -11,8 +11,15 @@ sealed class CaptionCommand(
 ) : FileCommand() {
 
     override val description: String =
-        "Captions a media file. Optional arguments: [Caption text]"
-    override val defaultArgumentKey: String = "caption"
+        "Captions a media file."
+    override val argumentData: Set<CommandArgumentData> = setOf(
+        CommandArgumentData(
+            "caption",
+            "The caption text",
+            CommandArgumentType.STRING,
+            false
+        )
+    )
 
     object Caption : CaptionCommand(
         "caption",
