@@ -5,7 +5,7 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.future.future
 import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.selectAll
 import java.util.*
 import java.util.concurrent.CompletableFuture
 
@@ -32,7 +32,7 @@ object SavedUrlRepository : Repository<SavedUrlRepository.SavedUrlTable>() {
     }.thenAccept { }
 
     suspend fun readAliasUrl(url: String): String? = dbQuery {
-        select { SavedUrlTable.url eq url }
+        selectAll().where { SavedUrlTable.url eq url }
             .map { it[aliasUrl] }
             .firstOrNull()
     }

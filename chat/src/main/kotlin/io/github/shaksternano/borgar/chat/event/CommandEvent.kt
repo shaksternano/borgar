@@ -21,9 +21,9 @@ interface CommandEvent : Managed {
 
     suspend fun getReferencedMessage(): Message?
 
-    suspend fun respond(response: CommandResponse): Message
+    suspend fun reply(response: CommandResponse): Message
 
-    suspend fun respond(content: String): Message = respond(CommandResponse(content))
+    suspend fun reply(content: String): Message = reply(CommandResponse(content))
 
     fun asMessageIntersection(arguments: CommandArguments): CommandMessageIntersection
 }

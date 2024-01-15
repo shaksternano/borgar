@@ -9,6 +9,7 @@ import io.github.shaksternano.borgar.chat.event.MessageCommandEvent
 import io.github.shaksternano.borgar.chat.event.MessageReceiveEvent
 import io.github.shaksternano.borgar.chat.exception.CommandException
 import io.github.shaksternano.borgar.core.data.repository.TemplateRepository
+import io.github.shaksternano.borgar.core.exception.FailedOperationException
 import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.core.util.endOfWord
 import io.github.shaksternano.borgar.core.util.indexesOfPrefix
@@ -72,7 +73,7 @@ suspend fun parseAndExecuteCommand(event: MessageReceiveEvent) {
 suspend fun sendResponse(responses: List<CommandResponse>, executable: Executable?, commandEvent: CommandEvent) {
     responses.forEachIndexed { index, response ->
         try {
-            val sent = commandEvent.respond(response)
+            val sent = commandEvent.reply(response)
             try {
                 executable?.onResponseSend(
                     response,
@@ -83,7 +84,7 @@ suspend fun sendResponse(responses: List<CommandResponse>, executable: Executabl
                 )
             } catch (t: Throwable) {
                 logger.error("An error occurred", t)
-                commandEvent.respond("An error occurred!")
+                commandEvent.reply("An error occurred!")
             }
         } catch (t: Throwable) {
             logger.error("Failed to send response", t)
@@ -110,13 +111,18 @@ private suspend fun contentStripped(message: Message): String {
     return stripped
 }
 
-private fun handleError(throwable: Throwable): String = when (throwable) {
+fun handleError(throwable: Throwable): String = when (throwable) {
     is NonChainableCommandException ->
         "Cannot chain ${throwable.command1.name} with ${throwable.command2.name}!"
 
-    is CommandException -> {
-        logger.error("Error executing command ${throwable.command.name}", throwable)
-        "An error occurred!"
+    is CommandException -> when (val cause = throwable.cause) {
+        is FailedOperationException ->
+            cause.message
+
+        else -> {
+            logger.error("Error executing command ${throwable.command.name}", throwable)
+            "An error occurred!"
+        }
     }
 
     is InsufficientPermissionsException ->
@@ -167,7 +173,9 @@ internal fun parseRawCommands(message: String): List<RawCommandConfig> {
             .associate {
                 val argumentNameEndIndex = it.endOfWord(ARGUMENT_PREFIX.length)
                 val argumentName = it.substring(ARGUMENT_PREFIX.length, argumentNameEndIndex)
-                val argumentValue = it.substring(argumentNameEndIndex).trim()
+                val argumentValue = it.substring(argumentNameEndIndex)
+                    .trim()
+                    .ifBlank { "true" } // Flag argument
                 argumentName to argumentValue
             }
         val defaultArgument = if (argumentPrefixIndexes.isEmpty()) {

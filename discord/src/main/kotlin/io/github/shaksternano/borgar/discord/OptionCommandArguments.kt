@@ -1,11 +1,12 @@
 package io.github.shaksternano.borgar.discord
 
+import io.github.shaksternano.borgar.chat.command.CommandArgumentType
 import io.github.shaksternano.borgar.chat.command.CommandArguments
+import io.github.shaksternano.borgar.chat.command.SimpleCommandArgumentType
+import io.github.shaksternano.borgar.chat.command.SuspendingCommandArgumentType
 import io.github.shaksternano.borgar.chat.entity.Attachment
-import io.github.shaksternano.borgar.chat.entity.Mentionable
-import io.github.shaksternano.borgar.chat.entity.Role
-import io.github.shaksternano.borgar.chat.entity.User
-import io.github.shaksternano.borgar.chat.entity.channel.Channel
+import io.github.shaksternano.borgar.core.util.hash
+import io.github.shaksternano.borgar.core.util.kClass
 import io.github.shaksternano.borgar.discord.entity.DiscordMentionable
 import io.github.shaksternano.borgar.discord.entity.DiscordRole
 import io.github.shaksternano.borgar.discord.entity.DiscordUser
@@ -17,62 +18,72 @@ class OptionCommandArguments(
     override val defaultKey: String?
 ) : CommandArguments {
 
-    override fun hasKey(key: String): Boolean =
+    override fun contains(key: String): Boolean =
         interaction.getOption(key) != null
 
-    override fun getString(key: String): String? =
-        interaction.getOption(key)?.asString
+    override fun <T> get(key: String, argumentType: SimpleCommandArgumentType<T>): T? =
+        getValue(key, argumentType)
 
-    override fun getLong(key: String): Long? =
-        interaction.getOption(key)
-            ?.runCatching { asLong }
-            ?.getOrNull()
+    override suspend fun <T> getSuspend(key: String, argumentType: CommandArgumentType<T>): T? =
+        getValue(key, argumentType)
 
-    override fun getDouble(key: String): Double? =
-        interaction.getOption(key)
-            ?.runCatching { asDouble }
-            ?.getOrNull()
+    private fun <T> getValue(key: String, argumentType: CommandArgumentType<T>): T? {
+        val optionMapping = interaction.getOption(key) ?: return null
+        @Suppress("IMPLICIT_CAST_TO_ANY", "UNCHECKED_CAST")
+        return when (argumentType) {
+            SimpleCommandArgumentType.STRING -> optionMapping.asString
+            SimpleCommandArgumentType.LONG -> runCatching { optionMapping.asLong }
+                .getOrNull()
 
-    override fun getBoolean(key: String): Boolean? =
-        interaction.getOption(key)
-            ?.runCatching { asBoolean }
-            ?.getOrNull()
+            SimpleCommandArgumentType.DOUBLE -> runCatching { optionMapping.asDouble }
+                .getOrNull()
 
-    override suspend fun getUser(key: String): User? =
-        interaction.getOption(key)
-            ?.runCatching { asUser }
-            ?.map { DiscordUser(it) }
-            ?.getOrNull()
+            SimpleCommandArgumentType.BOOLEAN -> runCatching { optionMapping.asBoolean }
+                .getOrNull()
 
-    override suspend fun getChannel(key: String): Channel? =
-        interaction.getOption(key)
-            ?.runCatching { asChannel }
-            ?.map { DiscordChannel.create(it) }
-            ?.getOrNull()
+            SuspendingCommandArgumentType.USER -> runCatching { optionMapping.asUser }
+                .map { DiscordUser(it) }
+                .getOrNull()
 
-    override suspend fun getRole(key: String): Role? =
-        interaction.getOption(key)
-            ?.runCatching { asRole }
-            ?.map { DiscordRole(it) }
-            ?.getOrNull()
+            SuspendingCommandArgumentType.CHANNEL -> runCatching { optionMapping.asChannel }
+                .map { DiscordChannel.create(it) }
+                .getOrNull()
 
-    override fun getMentionable(key: String): Mentionable? =
-        interaction.getOption(key)
-            ?.runCatching { asMentionable }
-            ?.map { DiscordMentionable.create(it, interaction.jda) }
-            ?.getOrNull()
+            SuspendingCommandArgumentType.ROLE -> runCatching { optionMapping.asRole }
+                .map { DiscordRole(it) }
+                .getOrNull()
 
-    override fun getAttachment(key: String): Attachment? =
-        interaction.getOption(key)
-            ?.runCatching { asAttachment }
-            ?.map {
-                Attachment(
-                    id = it.id,
-                    url = it.url,
-                    proxyUrl = it.proxyUrl,
-                    fileName = it.fileName,
-                    manager = DiscordManager.get(interaction.jda)
-                )
-            }
-            ?.getOrNull()
+            SimpleCommandArgumentType.MENTIONABLE -> runCatching { optionMapping.asMentionable }
+                .map { DiscordMentionable.create(it, interaction.jda) }
+                .getOrNull()
+
+            SimpleCommandArgumentType.ATTACHMENT -> runCatching { optionMapping.asAttachment }
+                .map {
+                    Attachment(
+                        id = it.id,
+                        url = it.url,
+                        proxyUrl = it.proxyUrl,
+                        fileName = it.fileName,
+                        manager = DiscordManager.get(interaction.jda)
+                    )
+                }.getOrNull()
+        } as T?
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (kClass != other?.kClass) return false
+
+        other as OptionCommandArguments
+
+        if (interaction != other.interaction) return false
+        if (defaultKey != other.defaultKey) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int = hash(
+        interaction,
+        defaultKey,
+    )
 }

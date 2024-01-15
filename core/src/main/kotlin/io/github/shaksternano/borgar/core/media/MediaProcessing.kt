@@ -1,16 +1,12 @@
 package io.github.shaksternano.borgar.core.media
 
-import io.github.shaksternano.borgar.core.exception.FailedOperationException
 import io.github.shaksternano.borgar.core.io.*
 import io.github.shaksternano.borgar.core.media.reader.AudioReader
 import io.github.shaksternano.borgar.core.media.reader.ImageReader
 import io.github.shaksternano.borgar.core.media.reader.first
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.fold
 import kotlinx.coroutines.withContext
-import java.awt.Rectangle
-import java.awt.image.BufferedImage
 import java.nio.file.Path
 import kotlin.io.path.extension
 import kotlin.io.path.fileSize
@@ -44,12 +40,7 @@ interface MediaProcessConfig {
 class SimpleMediaProcessConfig(
     override val processor: ImageProcessor<out Any>,
     override val outputName: String?,
-) : MediaProcessConfig {
-    constructor(
-        outputName: String?,
-        transform: suspend (BufferedImage) -> BufferedImage,
-    ) : this(SimpleImageProcessor(transform), outputName)
-}
+) : MediaProcessConfig
 
 suspend fun processMedia(
     input: DataSource,
@@ -126,7 +117,7 @@ suspend fun <T : Any> processMedia(
                         )
                     }
                     if (!constantDataSet) {
-                        constantFrameDataValue = processor.constantData(imageFrame.content)
+                        constantFrameDataValue = processor.constantData(imageFrame.content, imageFlow)
                         constantDataSet = true
                     }
                     writer.writeImageFrame(
@@ -154,70 +145,5 @@ suspend fun <T : Any> processMedia(
             attempts++
         } while (maxFileSize in 1..<outputSize && attempts < maxResizeAttempts)
         output
-    }
-}
-
-suspend fun cropMedia(
-    input: DataSource,
-    onlyCheckFirst: Boolean,
-    outputName: String,
-    maxFileSize: Long,
-    failureMessage: String,
-    cropKeepAreaFinder: (BufferedImage) -> Rectangle,
-): FileDataSource {
-    val isTempFile = input.path == null
-    val fileInput = input.getOrWriteFile()
-    val path = fileInput.path
-    return try {
-        val inputFormat = mediaFormat(path) ?: path.extension
-        val imageReader = createImageReader(fileInput, inputFormat)
-        useAllIgnored(imageReader) {
-            val width = imageReader.width
-            val height = imageReader.height
-            val imageFlow = if (onlyCheckFirst) {
-                flowOf(imageReader.first())
-            } else {
-                imageReader.asFlow()
-            }
-
-            val toKeep = imageFlow.fold(Rectangle()) { keepArea, frame ->
-                val image = frame.content
-                val mayKeepArea = cropKeepAreaFinder(image)
-                if ((mayKeepArea.x != 0
-                        || mayKeepArea.y != 0
-                        || mayKeepArea.width != width
-                        || mayKeepArea.height != height)
-                    && (mayKeepArea.width > 0)
-                    && (mayKeepArea.height > 0)
-                ) {
-                    keepArea.union(mayKeepArea)
-                } else {
-                    keepArea
-                }
-            }
-
-            if (toKeep.x == 0
-                && toKeep.y == 0
-                && toKeep.width == width
-                && toKeep.height == height
-            ) {
-                throw FailedOperationException(failureMessage)
-            } else {
-                processMedia(
-                    fileInput,
-                    SimpleMediaProcessConfig(outputName) {
-                        it.getSubimage(
-                            toKeep.x,
-                            toKeep.y,
-                            toKeep.width,
-                            toKeep.height
-                        )
-                    },
-                    maxFileSize,
-                )
-            }
-        }
-    } finally {
-        if (isTempFile) path.deleteSilently()
     }
 }

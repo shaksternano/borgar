@@ -2,8 +2,9 @@ package io.github.shaksternano.borgar.core.util
 
 import net.dv8tion.jda.api.utils.SplitUtil
 
-private val URL_REGEX = "\\b((?:https?|ftp|file)://[-a-zA-Z\\d+&@#/%?=~_|!:, .;]*[-a-zA-Z\\d+&@#/%=~_|])".toRegex()
-private val WHITE_SPACE_REGEX = "\\s+".toRegex()
+private val URL_REGEX: Regex =
+    "\\b((?:https?|ftp|file)://[-a-zA-Z\\d+&@#/%?=~_|!:, .;]*[-a-zA-Z\\d+&@#/%=~_|])".toRegex()
+private val WHITE_SPACE_REGEX: Regex = "\\s+".toRegex()
 
 fun CharSequence.getUrls(): List<String> {
     return URL_REGEX.findAll(this).map { it.value }.toList()

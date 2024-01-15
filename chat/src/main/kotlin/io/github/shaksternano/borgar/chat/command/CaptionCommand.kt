@@ -10,17 +10,6 @@ sealed class CaptionCommand(
     private val isCaption2: Boolean,
 ) : FileCommand() {
 
-    override val description: String =
-        "Captions a media file."
-    override val argumentData: Set<CommandArgumentData> = setOf(
-        CommandArgumentData(
-            "caption",
-            "The caption text",
-            CommandArgumentType.STRING,
-            false
-        )
-    )
-
     object Caption : CaptionCommand(
         "caption",
         false,
@@ -31,12 +20,22 @@ sealed class CaptionCommand(
         true,
     )
 
-    override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {
-        return CaptionTask(
+    override val description: String =
+        "Captions a media file."
+    override val argumentInfo: Set<CommandArgumentInfo<*>> = setOf(
+        CommandArgumentInfo(
+            key = "caption",
+            description = "The caption text",
+            type = SimpleCommandArgumentType.STRING,
+            required = false,
+        )
+    )
+
+    override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask =
+        CaptionTask(
             arguments.getDefaultStringOrEmpty(),
             isCaption2,
             event.asMessageIntersection(arguments).getEmojiDrawables(),
             maxFileSize,
         )
-    }
 }

@@ -1,38 +1,22 @@
 package io.github.shaksternano.borgar.chat.command
 
 import io.github.shaksternano.borgar.chat.entity.Attachment
-import io.github.shaksternano.borgar.chat.entity.Mentionable
-import io.github.shaksternano.borgar.chat.entity.Role
-import io.github.shaksternano.borgar.chat.entity.User
-import io.github.shaksternano.borgar.chat.entity.channel.Channel
 
 interface CommandArguments {
 
     val defaultKey: String?
 
-    fun hasKey(key: String): Boolean
+    operator fun contains(key: String): Boolean
 
-    fun getString(key: String): String?
+    operator fun <T> get(key: String, argumentType: SimpleCommandArgumentType<T>): T?
 
-    fun getLong(key: String): Long?
-
-    fun getDouble(key: String): Double?
-
-    fun getBoolean(key: String): Boolean?
-
-    suspend fun getUser(key: String): User?
-
-    suspend fun getChannel(key: String): Channel?
-
-    suspend fun getRole(key: String): Role?
-
-    fun getMentionable(key: String): Mentionable?
-
-    fun getAttachment(key: String): Attachment?
+    suspend fun <T> getSuspend(key: String, argumentType: CommandArgumentType<T>): T?
 }
 
-fun CommandArguments.getDefaultStringOrEmpty(): String = defaultKey?.let(::getString) ?: ""
+fun CommandArguments.getDefaultStringOrEmpty(): String = defaultKey?.let {
+    this[it, SimpleCommandArgumentType.STRING]
+} ?: ""
 
-fun CommandArguments.getDefaultAttachment(): Attachment? = getAttachment("file")
+fun CommandArguments.getDefaultAttachment(): Attachment? = this["file", SimpleCommandArgumentType.ATTACHMENT]
 
-fun CommandArguments.getDefaultUrl(): String? = getString("url")
+fun CommandArguments.getDefaultUrl(): String? = this["url", SimpleCommandArgumentType.STRING]

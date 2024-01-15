@@ -1,6 +1,7 @@
 package io.github.shaksternano.borgar.chat.event
 
 import io.github.shaksternano.borgar.chat.BotManager
+import io.github.shaksternano.borgar.chat.builder.MessageCreateBuilder
 import io.github.shaksternano.borgar.chat.entity.Guild
 import io.github.shaksternano.borgar.chat.entity.Message
 import io.github.shaksternano.borgar.chat.entity.User
@@ -18,4 +19,8 @@ class MessageReceiveEvent(
     suspend fun getChannel(): MessageChannel = message.getChannel()
 
     suspend fun getGuild(): Guild? = message.getGuild()
+
+    suspend fun reply(content: String): Message = message.reply(content)
+
+    suspend fun reply(block: MessageCreateBuilder.() -> Unit): Message = message.reply(block)
 }

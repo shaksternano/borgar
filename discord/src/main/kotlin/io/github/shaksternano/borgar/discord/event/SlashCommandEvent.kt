@@ -27,7 +27,7 @@ class SlashCommandEvent(
     private val channel: MessageChannel = DiscordMessageChannel(event.channel)
     private val guild: Guild? = event.guild?.let { DiscordGuild(it) }
 
-    private var responded = false
+    private var replied = false
 
     override suspend fun getAuthor(): User = user
 
@@ -37,18 +37,18 @@ class SlashCommandEvent(
 
     override suspend fun getReferencedMessage(): Message? = null
 
-    override suspend fun respond(response: CommandResponse): Message {
-        val responseBuilder = MessageCreateBuilder(
+    override suspend fun reply(response: CommandResponse): Message {
+        val replyBuilder = MessageCreateBuilder(
             content = response.content,
             files = response.files.map(DataSource::toFileUpload),
         ).build()
-        val discordResponseMessage = if (responded) {
-            event.channel.sendMessage(responseBuilder)
+        val discordResponseMessage = if (replied) {
+            event.channel.sendMessage(replyBuilder)
                 .setSuppressEmbeds(response.suppressEmbeds)
                 .await()
         } else {
-            responded = true
-            event.hook.sendMessage(responseBuilder)
+            replied = true
+            event.hook.sendMessage(replyBuilder)
                 .setSuppressEmbeds(response.suppressEmbeds)
                 .await()
         }

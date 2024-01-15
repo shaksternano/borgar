@@ -119,9 +119,7 @@ object TemplateRepository : Repository<TemplateRepository.TemplateTable>() {
     }
 
     suspend fun read(commandName: String, entityId: String): CustomTemplate? = dbQuery {
-        select {
-            TemplateTable.commandName eq commandName and (TemplateTable.entityId eq entityId)
-        }.map {
+        selectAll().where { TemplateTable.commandName eq commandName and (TemplateTable.entityId eq entityId) }.map {
             it.read()
         }.firstOrNull()
     }
@@ -136,9 +134,7 @@ object TemplateRepository : Repository<TemplateRepository.TemplateTable>() {
     }
 
     suspend fun readAll(entityId: String): List<CustomTemplate> = dbQuery {
-        select {
-            TemplateTable.entityId eq entityId
-        }.map {
+        selectAll().where { TemplateTable.entityId eq entityId }.map {
             it.read()
         }
     }
@@ -150,7 +146,7 @@ object TemplateRepository : Repository<TemplateRepository.TemplateTable>() {
     }
 
     suspend fun exists(commandName: String, entityId: String): Boolean = dbQuery {
-        select { TemplateTable.commandName eq commandName and (TemplateTable.entityId eq entityId) }.any()
+        selectAll().where { TemplateTable.commandName eq commandName and (TemplateTable.entityId eq entityId) }.any()
     }
 
     suspend fun delete(commandName: String, entityId: String): Unit = dbQuery {

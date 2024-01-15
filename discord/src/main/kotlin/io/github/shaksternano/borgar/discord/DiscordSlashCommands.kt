@@ -30,7 +30,7 @@ private fun Command.toSlash(): SlashCommandData = Command(name, description) {
     isGuildOnly = guildOnly
     val discordPermissions = requiredPermissions.map { getDiscordPermission(it) }
     defaultPermissions = DefaultMemberPermissions.enabledFor(discordPermissions)
-    addOptions(argumentData.map(CommandArgumentData::toOption))
+    addOptions(argumentInfo.map(CommandArgumentInfo<*>::toOption))
 }
 
 private suspend fun handleCommand(event: SlashCommandInteractionEvent) {
@@ -53,36 +53,44 @@ private suspend fun executeCommand(
     slashEvent: SlashCommandInteractionEvent
 ) {
     val deferReply = slashEvent.deferReply().submit()
-    val executable = try {
-        command.run(arguments, commandEvent)
+    val (responses, executable) = try {
+        val executable = try {
+            command.run(arguments, commandEvent)
+        } catch (t: Throwable) {
+            throw CommandException(command, t)
+        }
+        val result = try {
+            executable.execute()
+        } catch (t: Throwable) {
+            throw CommandException(command, t)
+        }
+        result to executable
     } catch (t: Throwable) {
-        throw CommandException(command, t)
+        val responseContent = handleError(t)
+        listOf(CommandResponse(responseContent)) to null
     }
-    val responses = try {
-        executable.execute()
-    } catch (t: Throwable) {
-        throw CommandException(command, t)
+    runCatching {
+        deferReply.await()
     }
-    deferReply.await()
     sendResponse(responses, executable, commandEvent)
 }
 
-private fun CommandArgumentData.toOption(): OptionData = OptionData(
+private fun CommandArgumentInfo<*>.toOption(): OptionData = OptionData(
     type.toOptionType(),
     key,
     description,
     required,
 )
 
-private fun CommandArgumentType.toOptionType(): OptionType = when (this) {
-    CommandArgumentType.STRING -> OptionType.STRING
-    CommandArgumentType.LONG -> OptionType.INTEGER
-    CommandArgumentType.DOUBLE -> OptionType.NUMBER
-    CommandArgumentType.BOOLEAN -> OptionType.BOOLEAN
-    CommandArgumentType.USER -> OptionType.USER
-    CommandArgumentType.CHANNEL -> OptionType.CHANNEL
-    CommandArgumentType.ROLE -> OptionType.ROLE
-    CommandArgumentType.MENTIONABLE -> OptionType.MENTIONABLE
-    CommandArgumentType.ATTACHMENT -> OptionType.STRING
+private fun CommandArgumentType<*>.toOptionType(): OptionType = when (this) {
+    SimpleCommandArgumentType.STRING -> OptionType.STRING
+    SimpleCommandArgumentType.LONG -> OptionType.INTEGER
+    SimpleCommandArgumentType.DOUBLE -> OptionType.NUMBER
+    SimpleCommandArgumentType.BOOLEAN -> OptionType.BOOLEAN
+    SuspendingCommandArgumentType.USER -> OptionType.USER
+    SuspendingCommandArgumentType.CHANNEL -> OptionType.CHANNEL
+    SuspendingCommandArgumentType.ROLE -> OptionType.ROLE
+    SimpleCommandArgumentType.MENTIONABLE -> OptionType.MENTIONABLE
+    SimpleCommandArgumentType.ATTACHMENT -> OptionType.STRING
     else -> OptionType.UNKNOWN
 }

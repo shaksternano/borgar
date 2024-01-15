@@ -8,6 +8,7 @@ import io.github.shaksternano.borgar.core.io.closeAll
 import io.github.shaksternano.borgar.core.media.*
 import io.github.shaksternano.borgar.core.media.graphics.TextAlignment
 import io.github.shaksternano.borgar.core.util.splitWords
+import kotlinx.coroutines.flow.Flow
 import java.awt.Color
 import java.awt.Font
 import java.awt.image.BufferedImage
@@ -74,9 +75,9 @@ private class CaptionProcessor(
         return captionedImage
     }
 
-    override suspend fun constantData(image: BufferedImage): CaptionData {
-        val width = image.width
-        val height = image.height
+    override suspend fun constantData(firstImage: BufferedImage, imageSource: Flow<ImageFrame>): CaptionData {
+        val width = firstImage.width
+        val height = firstImage.height
 
         val averageDimension = (width + height) / 2
 
@@ -84,7 +85,7 @@ private class CaptionProcessor(
         val fontRatio = (if (isCaption2) 9 else 7).toFloat()
         var font = Font(fontName, Font.PLAIN, (averageDimension / fontRatio).toInt())
         val padding = (averageDimension * 0.04f).toInt()
-        val graphics = image.createGraphics()
+        val graphics = firstImage.createGraphics()
 
         graphics.font = font
         ImageUtil.configureTextDrawQuality(graphics)

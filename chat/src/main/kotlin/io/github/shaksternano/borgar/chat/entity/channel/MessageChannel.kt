@@ -8,10 +8,8 @@ interface MessageChannel : Channel {
 
     suspend fun sendTyping()
 
-    suspend fun createMessage(content: String): Message {
-        return createMessage {
-            this.content = content
-        }
+    suspend fun createMessage(content: String): Message = createMessage {
+        this.content = content
     }
 
     suspend fun createMessage(block: MessageCreateBuilder.() -> Unit): Message
