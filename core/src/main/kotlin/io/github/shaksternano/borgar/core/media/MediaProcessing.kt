@@ -172,7 +172,6 @@ suspend fun cropMedia(
         val inputFormat = mediaFormat(path) ?: path.extension
         val imageReader = createImageReader(fileInput, inputFormat)
         useAllIgnored(imageReader) {
-            val imageDimensions = Rectangle(0, 0, imageReader.width, imageReader.height)
             val width = imageReader.width
             val height = imageReader.height
             val imageFlow = if (onlyCheckFirst) {
@@ -181,7 +180,7 @@ suspend fun cropMedia(
                 imageReader.asFlow()
             }
 
-            val toKeep = imageFlow.fold(imageDimensions) { keepArea, frame ->
+            val toKeep = imageFlow.fold(Rectangle()) { keepArea, frame ->
                 val image = frame.content
                 val mayKeepArea = cropKeepAreaFinder(image)
                 if ((mayKeepArea.x != 0
