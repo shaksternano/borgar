@@ -42,9 +42,8 @@ fun CharSequence.endOfWord(startIndex: Int): Int {
     return endIndex
 }
 
-fun CharSequence.splitWords(): List<String> {
-    return split(WHITE_SPACE_REGEX)
-}
+fun CharSequence.splitWords(): List<String> =
+    split(WHITE_SPACE_REGEX)
 
 fun String.splitChunks(limit: Int): List<String> = SplitUtil.split(
     this,

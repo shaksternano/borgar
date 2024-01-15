@@ -2,6 +2,30 @@ package io.github.shaksternano.borgar.core.graphics
 
 import io.github.shaksternano.borgar.core.graphics.drawable.Drawable
 import java.awt.Graphics2D
+import java.awt.RenderingHints
+
+fun Graphics2D.configureTextDrawQuality() {
+    setRenderingHint(
+        RenderingHints.KEY_FRACTIONALMETRICS,
+        RenderingHints.VALUE_FRACTIONALMETRICS_ON
+    )
+
+    setRenderingHint(
+        RenderingHints.KEY_TEXT_ANTIALIASING,
+        RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB
+    )
+
+    setRenderingHint(
+        RenderingHints.KEY_ANTIALIASING,
+        RenderingHints.VALUE_ANTIALIAS_ON
+
+    )
+
+    setRenderingHint(
+        RenderingHints.KEY_RENDERING,
+        RenderingHints.VALUE_RENDER_QUALITY
+    )
+}
 
 fun Graphics2D.fitFontWidth(maxWidth: Int, text: Drawable): Int {
     var font = this.font

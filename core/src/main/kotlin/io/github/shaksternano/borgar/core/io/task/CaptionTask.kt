@@ -1,5 +1,6 @@
 package io.github.shaksternano.borgar.core.io.task
 
+import io.github.shaksternano.borgar.core.graphics.configureTextDrawQuality
 import io.github.shaksternano.borgar.core.graphics.drawable.Drawable
 import io.github.shaksternano.borgar.core.graphics.drawable.ParagraphCompositeDrawable
 import io.github.shaksternano.borgar.core.graphics.fitFontWidth
@@ -44,7 +45,7 @@ private class CaptionProcessor(
             image.typeNoCustom,
         )
         val graphics = captionedImage.createGraphics()
-        ImageUtil.configureTextDrawQuality(graphics)
+        graphics.configureTextDrawQuality()
 
         val imageY = if (isCaption2) 0 else constantData.fillHeight
         val captionY = if (isCaption2) image.height else 0
