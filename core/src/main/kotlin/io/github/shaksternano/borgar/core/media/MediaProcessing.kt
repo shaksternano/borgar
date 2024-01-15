@@ -1,7 +1,6 @@
 package io.github.shaksternano.borgar.core.media
 
 import io.github.shaksternano.borgar.core.exception.FailedOperationException
-import io.github.shaksternano.borgar.core.exception.UnreadableFileException
 import io.github.shaksternano.borgar.core.io.*
 import io.github.shaksternano.borgar.core.media.reader.AudioReader
 import io.github.shaksternano.borgar.core.media.reader.ImageReader
@@ -62,11 +61,8 @@ suspend fun processMedia(
     val path = fileInput.path
     return try {
         val inputFormat = mediaFormat(path) ?: path.extension
-        val (imageReader, audioReader) = try {
-            createImageReader(fileInput, inputFormat) to createAudioReader(fileInput, inputFormat)
-        } catch (t: Throwable) {
-            throw UnreadableFileException(t)
-        }
+        val imageReader = createImageReader(fileInput, inputFormat)
+        val audioReader = createAudioReader(fileInput, inputFormat)
         val outputFormat = config.transformOutputFormat(inputFormat)
         val outputName = config.outputName ?: fileInput.filenameWithoutExtension()
         val output = processMedia(
@@ -174,11 +170,7 @@ suspend fun cropMedia(
     val path = fileInput.path
     return try {
         val inputFormat = mediaFormat(path) ?: path.extension
-        val imageReader = try {
-            createImageReader(fileInput, inputFormat)
-        } catch (t: Throwable) {
-            throw UnreadableFileException(t)
-        }
+        val imageReader = createImageReader(fileInput, inputFormat)
         useAllIgnored(imageReader) {
             val imageDimensions = Rectangle(0, 0, imageReader.width, imageReader.height)
             val width = imageReader.width
