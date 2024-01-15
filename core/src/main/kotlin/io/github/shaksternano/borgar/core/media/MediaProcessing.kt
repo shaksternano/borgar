@@ -8,6 +8,7 @@ import io.github.shaksternano.borgar.core.media.reader.ImageReader
 import io.github.shaksternano.borgar.core.media.reader.first
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.fold
 import kotlinx.coroutines.withContext
 import java.awt.Rectangle
 import java.awt.image.BufferedImage
@@ -179,21 +180,17 @@ suspend fun cropMedia(
             throw UnreadableFileException(t)
         }
         useAllIgnored(imageReader) {
-            var toKeep: Rectangle? = null
-            var width = -1
-            var height = -1
+            val imageDimensions = Rectangle(0, 0, imageReader.width, imageReader.height)
+            val width = imageReader.width
+            val height = imageReader.height
             val imageFlow = if (onlyCheckFirst) {
                 flowOf(imageReader.first())
             } else {
                 imageReader.asFlow()
             }
-            imageFlow.collect { frame ->
-                val image = frame.content
-                if (width < 0) {
-                    width = image.width
-                    height = image.height
-                }
 
+            val toKeep = imageFlow.fold(imageDimensions) { keepArea, frame ->
+                val image = frame.content
                 val mayKeepArea = cropKeepAreaFinder(image)
                 if ((mayKeepArea.x != 0
                         || mayKeepArea.y != 0
@@ -202,16 +199,16 @@ suspend fun cropMedia(
                     && (mayKeepArea.width > 0)
                     && (mayKeepArea.height > 0)
                 ) {
-                    toKeep = toKeep?.union(mayKeepArea) ?: mayKeepArea
+                    keepArea.union(mayKeepArea)
+                } else {
+                    keepArea
                 }
             }
 
-            val finalToKeep = toKeep
-            if (finalToKeep == null
-                || (finalToKeep.x == 0
-                    && finalToKeep.y == 0
-                    && finalToKeep.width == width
-                    && finalToKeep.height == height)
+            if (toKeep.x == 0
+                && toKeep.y == 0
+                && toKeep.width == width
+                && toKeep.height == height
             ) {
                 throw FailedOperationException(failureMessage)
             } else {
@@ -219,10 +216,10 @@ suspend fun cropMedia(
                     fileInput,
                     SimpleMediaProcessConfig(outputName) {
                         it.getSubimage(
-                            finalToKeep.x,
-                            finalToKeep.y,
-                            finalToKeep.width,
-                            finalToKeep.height
+                            toKeep.x,
+                            toKeep.y,
+                            toKeep.width,
+                            toKeep.height
                         )
                     },
                     maxFileSize,
