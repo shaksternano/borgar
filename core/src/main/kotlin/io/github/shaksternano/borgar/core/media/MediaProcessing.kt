@@ -1,5 +1,6 @@
 package io.github.shaksternano.borgar.core.media
 
+import io.github.shaksternano.borgar.core.exception.FailedOperationException
 import io.github.shaksternano.borgar.core.exception.UnreadableFileException
 import io.github.shaksternano.borgar.core.io.*
 import io.github.shaksternano.borgar.core.media.reader.AudioReader
@@ -8,6 +9,8 @@ import io.github.shaksternano.borgar.core.media.reader.first
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.withContext
+import java.awt.Rectangle
+import java.awt.image.BufferedImage
 import java.nio.file.Path
 import kotlin.io.path.extension
 import kotlin.io.path.fileSize
@@ -38,10 +41,15 @@ interface MediaProcessConfig {
     }
 }
 
-class BasicMediaProcessConfig(
+class SimpleMediaProcessConfig(
     override val processor: ImageProcessor<out Any>,
     override val outputName: String?,
-) : MediaProcessConfig
+) : MediaProcessConfig {
+    constructor(
+        outputName: String?,
+        transform: suspend (BufferedImage) -> BufferedImage,
+    ) : this(SimpleImageProcessor(transform), outputName)
+}
 
 suspend fun processMedia(
     input: DataSource,
@@ -54,9 +62,7 @@ suspend fun processMedia(
     return try {
         val inputFormat = mediaFormat(path) ?: path.extension
         val (imageReader, audioReader) = try {
-            withContext(Dispatchers.IO) {
-                createImageReader(fileInput, inputFormat) to createAudioReader(fileInput, inputFormat)
-            }
+            createImageReader(fileInput, inputFormat) to createAudioReader(fileInput, inputFormat)
         } catch (t: Throwable) {
             throw UnreadableFileException(t)
         }
@@ -76,9 +82,7 @@ suspend fun processMedia(
             filename,
         )
     } finally {
-        if (isTempFile) {
-            path.deleteSilently()
-        }
+        if (isTempFile) path.deleteSilently()
     }
 }
 
@@ -153,5 +157,79 @@ suspend fun <T : Any> processMedia(
             attempts++
         } while (maxFileSize in 1..<outputSize && attempts < maxResizeAttempts)
         output
+    }
+}
+
+suspend fun cropMedia(
+    input: DataSource,
+    onlyCheckFirst: Boolean,
+    outputName: String,
+    maxFileSize: Long,
+    failureMessage: String,
+    cropKeepAreaFinder: (BufferedImage) -> Rectangle,
+): FileDataSource {
+    val isTempFile = input.path == null
+    val fileInput = input.getOrWriteFile()
+    val path = fileInput.path
+    return try {
+        val inputFormat = mediaFormat(path) ?: path.extension
+        val imageReader = try {
+            createImageReader(fileInput, inputFormat)
+        } catch (t: Throwable) {
+            throw UnreadableFileException(t)
+        }
+        useAllIgnored(imageReader) {
+            var toKeep: Rectangle? = null
+            var width = -1
+            var height = -1
+            val imageFlow = if (onlyCheckFirst) {
+                flowOf(imageReader.first())
+            } else {
+                imageReader.asFlow()
+            }
+            imageFlow.collect { frame ->
+                val image = frame.content
+                if (width < 0) {
+                    width = image.width
+                    height = image.height
+                }
+
+                val mayKeepArea = cropKeepAreaFinder(image)
+                if ((mayKeepArea.x != 0
+                        || mayKeepArea.y != 0
+                        || mayKeepArea.width != width
+                        || mayKeepArea.height != height)
+                    && (mayKeepArea.width > 0)
+                    && (mayKeepArea.height > 0)
+                ) {
+                    toKeep = toKeep?.union(mayKeepArea) ?: mayKeepArea
+                }
+            }
+
+            val finalToKeep = toKeep
+            if (finalToKeep == null
+                || (finalToKeep.x == 0
+                    && finalToKeep.y == 0
+                    && finalToKeep.width == width
+                    && finalToKeep.height == height)
+            ) {
+                throw FailedOperationException(failureMessage)
+            } else {
+                processMedia(
+                    fileInput,
+                    SimpleMediaProcessConfig(outputName) {
+                        it.getSubimage(
+                            finalToKeep.x,
+                            finalToKeep.y,
+                            finalToKeep.width,
+                            finalToKeep.height
+                        )
+                    },
+                    maxFileSize,
+                )
+            }
+        }
+    } finally {
+        if (isTempFile) path.deleteSilently()
     }
 }
