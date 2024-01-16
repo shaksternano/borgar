@@ -60,3 +60,10 @@ class SimpleImageProcessor(
 
     override suspend fun constantData(firstImage: BufferedImage, imageSource: Flow<ImageFrame>) = Unit
 }
+
+object IdentityImageProcessor : ImageProcessor<Unit> {
+
+    override suspend fun transformImage(frame: ImageFrame, constantData: Unit): BufferedImage = frame.content
+
+    override suspend fun constantData(firstImage: BufferedImage, imageSource: Flow<ImageFrame>) = Unit
+}

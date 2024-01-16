@@ -13,6 +13,11 @@ val COMMANDS: Map<String, Command> = registerCommands(
     CropCommand,
     FlipCommand,
     ChangeExtensionCommand("gif"),
+    TranscodeCommand.PNG,
+    TranscodeCommand.JPG,
+    TranscodeCommand.GIF,
+    TranscodeCommand.MP4,
+    TranscodeCommand.ICO,
     UrlFileCommand.HAEMA,
     UrlFileCommand.TULIN,
 )

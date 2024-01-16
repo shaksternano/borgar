@@ -116,8 +116,7 @@ object HelpCommand : NonChainableCommand() {
         if (requiredPermissions.isNotEmpty()) {
             argumentsMessage += "\nRequired permissions:\n${getPermissionsMessage(requiredPermissions, manager)}"
         }
-        argumentsMessage += getExtraInfoMessage(commandEntityId, guildOnly, fromGuild, manager)
-        return argumentsMessage
+        return argumentsMessage + getExtraInfoMessage(commandEntityId, guildOnly, fromGuild, manager)
     }
 
     private fun getArgumentsMessage(
