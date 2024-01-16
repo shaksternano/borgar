@@ -7,10 +7,12 @@ import io.github.shaksternano.borgar.core.io.task.UrlFileTask
 class UrlFileCommand(
     override val name: String,
     override val description: String,
-    private val url: String,
+    url: String,
 ) : FileCommand(
     requireInput = false,
 ) {
+
+    private val task: FileTask = UrlFileTask(url)
 
     companion object {
         val HAEMA = UrlFileCommand(
@@ -27,5 +29,5 @@ class UrlFileCommand(
     }
 
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask =
-        UrlFileTask(url)
+        task
 }

@@ -75,9 +75,9 @@ interface DataSource : DataSourceConvertable {
             return FileDataSource(filename, path)
         }
 
-        fun fromUrl(url: String, name: String? = null): UrlDataSource {
+        fun fromUrl(url: String, name: String? = null, sendUrl: Boolean = false): UrlDataSource {
             val filename = name ?: filename(url)
-            return UrlDataSource(filename, url)
+            return UrlDataSource(filename, url, sendUrl)
         }
 
         fun fromBytes(bytes: ByteArray, name: String): DataSource =
