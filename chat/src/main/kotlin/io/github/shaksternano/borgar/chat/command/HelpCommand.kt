@@ -95,7 +95,8 @@ object HelpCommand : NonChainableCommand() {
             } else {
                 commandName to entityId
             }
-            runCatching { TemplateRepository.read(newCommandName, newEntityId) }.getOrNull()?.let { TemplateCommand(it) }
+            runCatching { TemplateRepository.read(newCommandName, newEntityId) }.getOrNull()
+                ?.let { TemplateCommand(it) }
         } ?: return "Command `$commandName` not found!"
         val argumentInfo = command.argumentInfo
         val defaultArgumentKey = command.defaultArgumentKey

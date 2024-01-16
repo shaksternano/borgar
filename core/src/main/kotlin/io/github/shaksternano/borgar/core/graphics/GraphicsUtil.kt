@@ -2,6 +2,7 @@ package io.github.shaksternano.borgar.core.graphics
 
 import io.github.shaksternano.borgar.core.graphics.drawable.Drawable
 import java.awt.Graphics2D
+import java.awt.Rectangle
 import java.awt.RenderingHints
 
 fun Graphics2D.configureTextDrawQuality() {
@@ -38,3 +39,9 @@ fun Graphics2D.fitFontWidth(maxWidth: Int, text: Drawable): Int {
     }
     return textWidth
 }
+
+fun Graphics2D.fillRect(rectangle: Rectangle) {
+    fillRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height)
+}
+
+data class Position(val x: Int, val y: Int)

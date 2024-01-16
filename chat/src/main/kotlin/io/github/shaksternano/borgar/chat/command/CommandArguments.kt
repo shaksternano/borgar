@@ -13,9 +13,11 @@ interface CommandArguments {
     suspend fun <T> getSuspend(key: String, argumentType: CommandArgumentType<T>): T?
 }
 
-fun CommandArguments.getDefaultStringOrEmpty(): String = defaultKey?.let {
-    this[it, SimpleCommandArgumentType.STRING]
-} ?: ""
+fun CommandArguments.getDefaultStringOrEmpty(): String =
+    defaultKey?.let { getStringOrEmpty(it) } ?: ""
+
+fun CommandArguments.getStringOrEmpty(key: String): String =
+    this[key, SimpleCommandArgumentType.STRING] ?: ""
 
 fun CommandArguments.getDefaultAttachment(): Attachment? = this["file", SimpleCommandArgumentType.ATTACHMENT]
 

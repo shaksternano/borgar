@@ -1,5 +1,6 @@
 package io.github.shaksternano.borgar.core.graphics.drawable
 
+import io.github.shaksternano.borgar.core.graphics.Position
 import io.github.shaksternano.borgar.core.io.SuspendCloseable
 import java.awt.Graphics2D
 import kotlin.time.Duration
@@ -30,4 +31,8 @@ interface Drawable : SuspendCloseable {
     fun resizeToHeight(height: Int): Drawable?
 
     override suspend fun close() = Unit
+}
+
+suspend fun Drawable.draw(graphics: Graphics2D, position: Position, timestamp: Duration) {
+    draw(graphics, position.x, position.y, timestamp)
 }

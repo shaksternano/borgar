@@ -8,6 +8,7 @@ val COMMANDS: Map<String, Command> = registerCommands(
     HelpCommand,
     CaptionCommand.Caption,
     CaptionCommand.Caption2,
+    DemotivateCommand,
     AutoCropCommand,
     CropCommand,
     ChangeExtensionCommand("gif"),
