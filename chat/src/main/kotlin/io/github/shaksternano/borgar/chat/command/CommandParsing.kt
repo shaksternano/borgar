@@ -16,32 +16,36 @@ import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.core.util.endOfWord
 import io.github.shaksternano.borgar.core.util.indexesOfPrefix
 import io.github.shaksternano.borgar.core.util.split
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.fold
+import kotlinx.coroutines.launch
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
-suspend fun parseAndExecuteCommand(event: MessageReceiveEvent) {
+suspend fun parseAndExecuteCommand(event: MessageReceiveEvent) = coroutineScope {
     val contentStripped = contentStripped(event.message).trim()
-    if (!contentStripped.startsWith(COMMAND_PREFIX)) return
+    if (!contentStripped.startsWith(COMMAND_PREFIX)) return@coroutineScope
     val commandConfigs = parseCommands(event.message)
-    if (commandConfigs.isEmpty()) return
+    if (commandConfigs.isEmpty()) return@coroutineScope
     val channel = event.getChannel()
-    try {
-        channel.sendTyping()
-    } catch (t: Throwable) {
-        logger.error("Failed to send typing indicator", t)
+    val typing = launch {
+        try {
+            channel.sendTyping()
+        } catch (t: Throwable) {
+            logger.error("Failed to send typing indicator", t)
+        }
     }
     val commandEvent = MessageCommandEvent(event)
     val (responses, executable) = try {
         val executables = commandConfigs.mapIndexed { i, (command, arguments) ->
             val guild = event.getGuild()
-            if (guild == null && command.guildOnly) return
+            if (guild == null && command.guildOnly) return@coroutineScope
             if (guild != null) {
                 val requiredPermissions = command.requiredPermissions
                 val permissionHolder = guild.getMember(event.getAuthor()) ?: guild.getPublicRole()
                 val hasPermission = permissionHolder.hasPermission(requiredPermissions, channel)
                 if (!hasPermission) {
-                    if (i == 0) return
+                    if (i == 0) return@coroutineScope
                     else throw InsufficientPermissionsException(command, requiredPermissions)
                 }
             }
@@ -49,7 +53,7 @@ suspend fun parseAndExecuteCommand(event: MessageReceiveEvent) {
             try {
                 command.run(arguments, commandEvent)
             } catch (t: Throwable) {
-                throw CommandException(command, t)
+                throw CommandException(command, cause = t)
             }
         }
         val chained = executables.reduce { executable1, executable2 ->
@@ -62,13 +66,22 @@ suspend fun parseAndExecuteCommand(event: MessageReceiveEvent) {
         val result = try {
             chained.execute()
         } catch (t: Throwable) {
-            throw CommandException(chained.command, t)
+            throw CommandException(chained.command, cause = t)
+        }
+        if (result.isEmpty()) {
+            throw CommandException(chained.command, "No command responses were returned")
+        }
+        result.forEach {
+            if (it.content.isBlank() && it.files.isEmpty()) {
+                throw CommandException(chained.command, "Command response is empty")
+            }
         }
         result to chained
     } catch (t: Throwable) {
         val responseContent = handleError(t, event.manager)
         listOf(CommandResponse(responseContent)) to null
     }
+    typing.join()
     sendResponse(responses, executable, commandEvent)
 }
 

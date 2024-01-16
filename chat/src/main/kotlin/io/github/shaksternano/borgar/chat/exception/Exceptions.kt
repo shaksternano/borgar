@@ -4,8 +4,9 @@ import io.github.shaksternano.borgar.chat.command.Command
 
 class CommandException(
     val command: Command,
-    override val cause: Throwable,
-) : Exception(cause)
+    override val message: String = "",
+    override val cause: Throwable? = null,
+) : Exception(message, cause)
 
 class MissingArgumentException(
     override val message: String,

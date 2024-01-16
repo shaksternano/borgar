@@ -18,6 +18,7 @@ interface DataSource : DataSourceConvertable {
     val filename: String
     val path: Path?
     val url: String?
+    val sendUrl: Boolean
 
     suspend fun newStream(): InputStream
 
@@ -61,6 +62,7 @@ interface DataSource : DataSourceConvertable {
         override val filename: String = newName
         override val path: Path? = this@DataSource.path
         override val url: String? = this@DataSource.url
+        override val sendUrl: Boolean = false
 
         override suspend fun newStream(): InputStream = this@DataSource.newStream()
     }
@@ -97,6 +99,7 @@ data class FileDataSource(
 ) : DataSource {
 
     override val url: String? = null
+    override val sendUrl: Boolean = false
 
     override suspend fun newStream(): InputStream = withContext(Dispatchers.IO) {
         path.inputStream()
@@ -136,6 +139,7 @@ data class FileDataSource(
 data class UrlDataSource(
     override val filename: String,
     override val url: String,
+    override val sendUrl: Boolean = false,
 ) : DataSource {
 
     override val path: Path? = null
@@ -172,7 +176,7 @@ data class UrlDataSource(
     )
 
     override fun toString(): String {
-        return "UrlDataSource(filename='$filename', url='$url')"
+        return "UrlDataSource(filename='$filename', url='$url', sendUrl=$sendUrl)"
     }
 }
 
@@ -183,6 +187,7 @@ private data class BytesDataSource(
 
     override val path: Path? = null
     override val url: String? = null
+    override val sendUrl: Boolean = false
 
     override suspend fun newStream(): InputStream = bytes.inputStream()
 
@@ -216,8 +221,10 @@ private data class StreamSupplierDataSource(
     override val filename: String,
     private val streamSupplier: suspend () -> InputStream,
 ) : DataSource {
+
     override val path: Path? = null
     override val url: String? = null
+    override val sendUrl: Boolean = false
 
     override suspend fun newStream(): InputStream = streamSupplier()
 

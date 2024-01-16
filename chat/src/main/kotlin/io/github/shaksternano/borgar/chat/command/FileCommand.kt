@@ -3,6 +3,7 @@ package io.github.shaksternano.borgar.chat.command
 import io.github.shaksternano.borgar.chat.event.CommandEvent
 import io.github.shaksternano.borgar.chat.util.UrlInfo
 import io.github.shaksternano.borgar.chat.util.getUrls
+import io.github.shaksternano.borgar.core.collect.addAll
 import io.github.shaksternano.borgar.core.exception.ErrorResponseException
 import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.io.filename
@@ -13,23 +14,31 @@ import io.github.shaksternano.borgar.core.util.asSingletonList
 import io.github.shaksternano.borgar.core.util.retrieveTenorMediaUrl
 
 abstract class FileCommand(
-    vararg argumentInfo: CommandArgumentInfo<*>
+    vararg argumentInfo: CommandArgumentInfo<*>,
+    requireInput: Boolean = true,
 ) : BaseCommand() {
 
-    final override val argumentInfo: Set<CommandArgumentInfo<*>> = argumentInfo.toSet() + setOf(
-        CommandArgumentInfo(
-            key = "file",
-            description = "The file to use",
-            type = SimpleCommandArgumentType.ATTACHMENT,
-            required = false,
-        ),
-        CommandArgumentInfo(
-            key = "url",
-            description = "The URL to use",
-            type = SimpleCommandArgumentType.STRING,
-            required = false,
-        ),
-    )
+    final override val argumentInfo: Set<CommandArgumentInfo<*>> = if (requireInput) {
+        val argumentInfoBuilder = mutableSetOf<CommandArgumentInfo<*>>()
+        argumentInfoBuilder.addAll(argumentInfo)
+        argumentInfoBuilder.addAll(
+            CommandArgumentInfo(
+                key = "attachment",
+                description = "The attachment to use",
+                type = SimpleCommandArgumentType.ATTACHMENT,
+                required = false,
+            ),
+            CommandArgumentInfo(
+                key = "url",
+                description = "The URL to use",
+                type = SimpleCommandArgumentType.STRING,
+                required = false,
+            ),
+        )
+        argumentInfoBuilder
+    } else {
+        argumentInfo.toSet()
+    }
 
     final override suspend fun run(arguments: CommandArguments, event: CommandEvent): Executable {
         val convertable = arguments.getDefaultAttachment() ?: run {
@@ -79,16 +88,21 @@ private data class FileExecutable(
             return CommandResponse("An error occurred!").asSingletonList()
         }
         val canUpload = output.filter {
-            it.size() <= maxFileSize
+            it.sendUrl || it.size() <= maxFileSize
         }
         return canUpload.chunked(maxFilesPerMessage).mapIndexed { index, files ->
+            val partitioned = files.partition {
+                it.sendUrl && it.url != null
+            }
+            val urls = partitioned.first.joinToString("\n") { it.url!! }
+            val attachments = partitioned.second
             CommandResponse(
                 content = when {
                     index == 0 && canUpload.isEmpty() -> "Files are too large to upload."
                     index == 0 && canUpload.size < output.size -> "Some files are too large to upload."
-                    else -> ""
+                    else -> urls
                 },
-                files = files,
+                files = attachments,
             )
         }
     }

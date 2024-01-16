@@ -57,12 +57,12 @@ private suspend fun executeCommand(
         val executable = try {
             command.run(arguments, commandEvent)
         } catch (t: Throwable) {
-            throw CommandException(command, t)
+            throw CommandException(command, cause = t)
         }
         val result = try {
             executable.execute()
         } catch (t: Throwable) {
-            throw CommandException(command, t)
+            throw CommandException(command, cause = t)
         }
         result to executable
     } catch (t: Throwable) {

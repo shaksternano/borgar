@@ -13,6 +13,8 @@ val COMMANDS: Map<String, Command> = registerCommands(
     CropCommand,
     FlipCommand,
     ChangeExtensionCommand("gif"),
+    UrlFileCommand.HAEMA,
+    UrlFileCommand.TULIN,
 )
 
 private fun registerCommands(vararg commands: Command): Map<String, Command> = buildMap {

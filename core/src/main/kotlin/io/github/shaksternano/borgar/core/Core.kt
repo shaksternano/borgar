@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import kotlin.jvm.optionals.getOrElse
 
-val logger: Logger = createLogger("Borgar")
+val logger: Logger = LoggerFactory.getLogger("Borgar")
 
 fun initCore() {
     val envFileName = ".env"
@@ -42,6 +42,3 @@ private fun connectToPostgreSql() {
         "org.postgresql.Driver"
     )
 }
-
-fun createLogger(name: String): Logger =
-    LoggerFactory.getLogger(name)
