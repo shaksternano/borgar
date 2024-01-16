@@ -23,15 +23,15 @@ abstract class FileCommand(
         argumentInfoBuilder.addAll(argumentInfo)
         argumentInfoBuilder.addAll(
             CommandArgumentInfo(
-                key = "attachment",
-                description = "The attachment to use",
-                type = SimpleCommandArgumentType.ATTACHMENT,
-                required = false,
-            ),
-            CommandArgumentInfo(
                 key = "url",
                 description = "The URL to use",
                 type = SimpleCommandArgumentType.STRING,
+                required = false,
+            ),
+            CommandArgumentInfo(
+                key = "attachment",
+                description = "The attachment to use",
+                type = SimpleCommandArgumentType.ATTACHMENT,
                 required = false,
             ),
         )
