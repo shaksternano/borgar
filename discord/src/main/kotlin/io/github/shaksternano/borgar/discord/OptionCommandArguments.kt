@@ -86,4 +86,11 @@ class OptionCommandArguments(
         interaction,
         defaultKey,
     )
+
+    override fun toString(): String {
+        return "OptionCommandArguments(" +
+            "interaction=$interaction," +
+            "defaultKey=$defaultKey" +
+            ")"
+    }
 }

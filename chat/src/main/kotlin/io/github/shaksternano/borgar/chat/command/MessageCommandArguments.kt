@@ -12,7 +12,7 @@ class MessageCommandArguments(
 ) : CommandArguments {
 
     private val arguments: Map<String, String> = buildMap {
-        if (defaultKey != null) {
+        if (defaultKey != null && defaultArgument.isNotBlank()) {
             put(defaultKey, defaultArgument)
         }
         putAll(arguments)
@@ -47,4 +47,12 @@ class MessageCommandArguments(
         message,
         arguments
     )
+
+    override fun toString(): String {
+        return "MessageCommandArguments(" +
+            "defaultKey=$defaultKey," +
+            "message=$message," +
+            "arguments=$arguments" +
+            ")"
+    }
 }
