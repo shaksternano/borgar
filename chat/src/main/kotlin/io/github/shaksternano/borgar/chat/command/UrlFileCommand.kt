@@ -17,7 +17,7 @@ class UrlFileCommand(
     companion object {
         val HAEMA = UrlFileCommand(
             "haema",
-            "https://www.curseforge.com/minecraft/mc-mods/haema",
+            "https://modrinth.com/mod/haema",
             "https://media.discordapp.net/attachments/964551969509347331/1134818935829712987/YOU_SHOULD_DOWNLOAD_HAEMA_NOW.gif",
         )
 
