@@ -5,45 +5,43 @@ import io.github.shaksternano.borgar.chat.exception.MissingArgumentException
 import io.github.shaksternano.borgar.core.io.task.CropTask
 import io.github.shaksternano.borgar.core.io.task.FileTask
 
-object CropCommand : FileCommand() {
+object CropCommand : FileCommand(
+    CommandArgumentInfo(
+        key = "top",
+        description = "Top crop ratio.",
+        type = SimpleCommandArgumentType.DOUBLE,
+        required = false,
+        defaultValue = 0.0,
+        validator = ZERO_TO_ONE_VALIDATOR,
+    ),
+    CommandArgumentInfo(
+        key = "bottom",
+        description = "Bottom crop ratio.",
+        type = SimpleCommandArgumentType.DOUBLE,
+        required = false,
+        defaultValue = 0.0,
+        validator = ZERO_TO_ONE_VALIDATOR,
+    ),
+    CommandArgumentInfo(
+        key = "left",
+        description = "Left crop ratio.",
+        type = SimpleCommandArgumentType.DOUBLE,
+        required = false,
+        defaultValue = 0.0,
+        validator = ZERO_TO_ONE_VALIDATOR,
+    ),
+    CommandArgumentInfo(
+        key = "right",
+        description = "Right crop ratio.",
+        type = SimpleCommandArgumentType.DOUBLE,
+        required = false,
+        defaultValue = 0.0,
+        validator = ZERO_TO_ONE_VALIDATOR,
+    ),
+) {
 
     override val name: String = "crop"
     override val description: String = "Crops media."
-
-    override val argumentInfo: Set<CommandArgumentInfo<*>> = setOf(
-        CommandArgumentInfo(
-            key = "top",
-            description = "Top crop ratio.",
-            type = SimpleCommandArgumentType.DOUBLE,
-            required = false,
-            defaultValue = 0.0,
-            validator = ZERO_TO_ONE_VALIDATOR,
-        ),
-        CommandArgumentInfo(
-            key = "bottom",
-            description = "Bottom crop ratio.",
-            type = SimpleCommandArgumentType.DOUBLE,
-            required = false,
-            defaultValue = 0.0,
-            validator = ZERO_TO_ONE_VALIDATOR,
-        ),
-        CommandArgumentInfo(
-            key = "left",
-            description = "Left crop ratio.",
-            type = SimpleCommandArgumentType.DOUBLE,
-            required = false,
-            defaultValue = 0.0,
-            validator = ZERO_TO_ONE_VALIDATOR,
-        ),
-        CommandArgumentInfo(
-            key = "right",
-            description = "Right crop ratio.",
-            type = SimpleCommandArgumentType.DOUBLE,
-            required = false,
-            defaultValue = 0.0,
-            validator = ZERO_TO_ONE_VALIDATOR,
-        ),
-    )
 
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {
         val topRatio = getRequiredArgument("top", SimpleCommandArgumentType.DOUBLE, arguments, event)

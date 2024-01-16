@@ -5,25 +5,23 @@ import io.github.shaksternano.borgar.chat.util.getEmojiDrawables
 import io.github.shaksternano.borgar.core.io.task.DemotivateTask
 import io.github.shaksternano.borgar.core.io.task.FileTask
 
-object DemotivateCommand : FileCommand() {
+object DemotivateCommand : FileCommand(
+    CommandArgumentInfo(
+        key = "text",
+        description = "The text to put on the image",
+        type = SimpleCommandArgumentType.STRING,
+        required = false,
+    ),
+    CommandArgumentInfo(
+        key = "sub",
+        description = "The subtext to put on the image",
+        type = SimpleCommandArgumentType.STRING,
+        required = false,
+    )
+) {
 
     override val name: String = "demotiv"
     override val description: String = "Puts image in demotivate meme."
-
-    override val argumentInfo: Set<CommandArgumentInfo<*>> = setOf(
-        CommandArgumentInfo(
-            key = "text",
-            description = "The text to put on the image",
-            type = SimpleCommandArgumentType.STRING,
-            required = false,
-        ),
-        CommandArgumentInfo(
-            key = "sub",
-            description = "The subtext to put on the image",
-            type = SimpleCommandArgumentType.STRING,
-            required = false,
-        )
-    )
 
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask =
         DemotivateTask(

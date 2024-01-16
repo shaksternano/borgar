@@ -115,7 +115,7 @@ private suspend fun contentStripped(message: Message): String {
 
 fun handleError(throwable: Throwable, manager: BotManager): String = when (throwable) {
     is NonChainableCommandException ->
-        "Cannot chain ${throwable.command1.name} with ${throwable.command2.name}!"
+        "Cannot chain `${throwable.command1.name}` with `${throwable.command2.name}`!"
 
     is CommandException -> when (val cause = throwable.cause) {
         is FailedOperationException ->

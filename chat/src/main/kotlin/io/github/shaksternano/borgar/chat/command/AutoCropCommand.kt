@@ -5,34 +5,32 @@ import io.github.shaksternano.borgar.core.io.task.AutoCropTask
 import io.github.shaksternano.borgar.core.io.task.FileTask
 import java.awt.Color
 
-object AutoCropCommand : FileCommand() {
+object AutoCropCommand : FileCommand(
+    CommandArgumentInfo(
+        key = "tolerance",
+        description = "Background crop colour tolerance.",
+        type = SimpleCommandArgumentType.DOUBLE,
+        required = false,
+        defaultValue = 0.2,
+        validator = ZERO_TO_ONE_VALIDATOR,
+    ),
+    CommandArgumentInfo(
+        key = "rgb",
+        description = "Background color to crop out. By default it is the color of the top left pixel.",
+        type = SimpleCommandArgumentType.LONG,
+        required = false,
+    ),
+    CommandArgumentInfo(
+        key = "onlycheckfirst",
+        description = "Whether to only check the first frame or not.",
+        type = SimpleCommandArgumentType.BOOLEAN,
+        required = false,
+        defaultValue = false,
+    ),
+) {
 
     override val name: String = "autocrop"
     override val description: String = "Automatically crops out background color."
-
-    override val argumentInfo: Set<CommandArgumentInfo<*>> = setOf(
-        CommandArgumentInfo(
-            key = "tolerance",
-            description = "Background crop colour tolerance.",
-            type = SimpleCommandArgumentType.DOUBLE,
-            required = false,
-            defaultValue = 0.2,
-            validator = ZERO_TO_ONE_VALIDATOR,
-        ),
-        CommandArgumentInfo(
-            key = "rgb",
-            description = "Background color to crop out. By default it is the color of the top left pixel.",
-            type = SimpleCommandArgumentType.LONG,
-            required = false,
-        ),
-        CommandArgumentInfo(
-            key = "onlycheckfirst",
-            description = "Whether to only check the first frame or not.",
-            type = SimpleCommandArgumentType.BOOLEAN,
-            required = false,
-            defaultValue = false,
-        ),
-    )
 
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {
         val cropColor =

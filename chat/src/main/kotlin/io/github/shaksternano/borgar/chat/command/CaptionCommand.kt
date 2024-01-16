@@ -8,7 +8,14 @@ import io.github.shaksternano.borgar.core.io.task.FileTask
 sealed class CaptionCommand(
     override val name: String,
     private val isCaption2: Boolean,
-) : FileCommand() {
+) : FileCommand(
+    CommandArgumentInfo(
+        key = "caption",
+        description = "The caption text",
+        type = SimpleCommandArgumentType.STRING,
+        required = false,
+    )
+) {
 
     object Caption : CaptionCommand(
         "caption",
@@ -22,14 +29,6 @@ sealed class CaptionCommand(
 
     override val description: String =
         "Captions a media file."
-    override val argumentInfo: Set<CommandArgumentInfo<*>> = setOf(
-        CommandArgumentInfo(
-            key = "caption",
-            description = "The caption text",
-            type = SimpleCommandArgumentType.STRING,
-            required = false,
-        )
-    )
 
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask =
         CaptionTask(

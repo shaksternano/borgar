@@ -12,7 +12,24 @@ import io.github.shaksternano.borgar.core.util.TenorMediaType
 import io.github.shaksternano.borgar.core.util.asSingletonList
 import io.github.shaksternano.borgar.core.util.retrieveTenorMediaUrl
 
-abstract class FileCommand : BaseCommand() {
+abstract class FileCommand(
+    vararg argumentInfo: CommandArgumentInfo<*>
+) : BaseCommand() {
+
+    final override val argumentInfo: Set<CommandArgumentInfo<*>> = argumentInfo.toSet() + setOf(
+        CommandArgumentInfo(
+            key = "file",
+            description = "The file to use",
+            type = SimpleCommandArgumentType.ATTACHMENT,
+            required = false,
+        ),
+        CommandArgumentInfo(
+            key = "url",
+            description = "The URL to use",
+            type = SimpleCommandArgumentType.STRING,
+            required = false,
+        ),
+    )
 
     final override suspend fun run(arguments: CommandArguments, event: CommandEvent): Executable {
         val convertable = arguments.getDefaultAttachment() ?: run {

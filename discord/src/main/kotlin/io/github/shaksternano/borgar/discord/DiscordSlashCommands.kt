@@ -91,6 +91,6 @@ private fun CommandArgumentType<*>.toOptionType(): OptionType = when (this) {
     SuspendingCommandArgumentType.CHANNEL -> OptionType.CHANNEL
     SuspendingCommandArgumentType.ROLE -> OptionType.ROLE
     SimpleCommandArgumentType.MENTIONABLE -> OptionType.MENTIONABLE
-    SimpleCommandArgumentType.ATTACHMENT -> OptionType.STRING
+    SimpleCommandArgumentType.ATTACHMENT -> OptionType.ATTACHMENT
     else -> OptionType.UNKNOWN
 }
