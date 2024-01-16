@@ -52,3 +52,9 @@ fun BufferedImage.resizeWidth(width: Int): BufferedImage =
 
 fun BufferedImage.resizeHeight(height: Int): BufferedImage =
     ImmutableImage.wrapAwt(this).scaleToHeight(height).awt()
+
+fun BufferedImage.flipX(): BufferedImage =
+    ImmutableImage.wrapAwt(this).flipX().awt()
+
+fun BufferedImage.flipY(): BufferedImage =
+    ImmutableImage.wrapAwt(this).flipY().awt()

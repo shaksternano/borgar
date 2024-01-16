@@ -11,6 +11,7 @@ val COMMANDS: Map<String, Command> = registerCommands(
     DemotivateCommand,
     AutoCropCommand,
     CropCommand,
+    FlipCommand,
     ChangeExtensionCommand("gif"),
 )
 

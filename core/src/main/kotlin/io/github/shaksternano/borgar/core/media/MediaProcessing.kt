@@ -7,6 +7,7 @@ import io.github.shaksternano.borgar.core.media.reader.first
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.withContext
+import java.awt.image.BufferedImage
 import java.nio.file.Path
 import kotlin.io.path.extension
 import kotlin.io.path.fileSize
@@ -40,7 +41,15 @@ interface MediaProcessConfig {
 class SimpleMediaProcessConfig(
     override val processor: ImageProcessor<out Any>,
     override val outputName: String?,
-) : MediaProcessConfig
+) : MediaProcessConfig {
+    constructor(
+        outputName: String?,
+        transform: (ImageFrame) -> BufferedImage,
+    ) : this(
+        SimpleImageProcessor(transform),
+        outputName,
+    )
+}
 
 suspend fun processMedia(
     input: DataSource,

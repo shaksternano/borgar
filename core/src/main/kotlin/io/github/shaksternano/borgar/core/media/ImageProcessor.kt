@@ -50,3 +50,13 @@ val ImageProcessor<*>.absoluteSpeed: Float
 abstract class DualImageProcessor<T> : ImageProcessor<T> {
     lateinit var frame2: ImageFrame
 }
+
+class SimpleImageProcessor(
+    private val transform: (ImageFrame) -> BufferedImage,
+) : ImageProcessor<Unit> {
+
+    override suspend fun transformImage(frame: ImageFrame, constantData: Unit): BufferedImage =
+        transform(frame)
+
+    override suspend fun constantData(firstImage: BufferedImage, imageSource: Flow<ImageFrame>) = Unit
+}
