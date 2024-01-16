@@ -16,15 +16,15 @@ class UrlFileCommand(
 
     companion object {
         val HAEMA = UrlFileCommand(
-            "haema",
-            "https://modrinth.com/mod/haema",
-            "https://media.discordapp.net/attachments/964551969509347331/1134818935829712987/YOU_SHOULD_DOWNLOAD_HAEMA_NOW.gif",
+            name = "haema",
+            description = "https://modrinth.com/mod/haema",
+            url = "https://media.discordapp.net/attachments/964551969509347331/1134818935829712987/YOU_SHOULD_DOWNLOAD_HAEMA_NOW.gif",
         )
 
         val TULIN = UrlFileCommand(
-            "tulin",
-            "The best character in The Legend of Zelda: Breath of the Wild.",
-            "https://media.discordapp.net/attachments/964551969509347331/1119756264633798729/BotW_Tulin_Model.gif",
+            name = "tulin",
+            description = "The best character in The Legend of Zelda: Breath of the Wild.",
+            url = "https://media.discordapp.net/attachments/964551969509347331/1119756264633798729/BotW_Tulin_Model.gif",
         )
     }
 
