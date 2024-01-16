@@ -39,7 +39,7 @@ object HelpCommand : NonChainableCommand() {
                 CommandResponse(it, suppressEmbeds = true)
             }
         } else {
-            val detailedCommandMessage = getDetailedCommandMessage(commandName, entityId, guild != null, event.manager)
+            val detailedCommandMessage = getDetailedCommandMessage(commandName, entityId, guild != null, event)
             detailedCommandMessage.splitChunks(event.manager.maxMessageContentLength).map {
                 CommandResponse(it, suppressEmbeds = true)
             }
@@ -86,24 +86,32 @@ object HelpCommand : NonChainableCommand() {
         commandName: String,
         entityId: String,
         fromGuild: Boolean,
-        manager: BotManager
+        event: CommandEvent
     ): String {
+        val manager = event.manager
         val command = COMMANDS[commandName] ?: run {
             val entityIdSplit = commandName.split(ENTITY_ID_SEPARATOR, limit = 2)
-            val (newCommandName, newEntityId) = if (entityIdSplit.size == 2) {
+            val externalGuild = entityIdSplit.size == 2
+            val (newCommandName, newEntityId) = if (externalGuild) {
                 entityIdSplit[0] to entityIdSplit[1]
             } else {
                 commandName to entityId
             }
+            if (externalGuild && fromGuild) {
+                val guild = manager.getGuild(newEntityId)
+                if (guild == null || !guild.isMember(event.getAuthor())) {
+                    return@run null
+                }
+            }
             runCatching { TemplateRepository.read(newCommandName, newEntityId) }.getOrNull()
                 ?.let { TemplateCommand(it) }
-        } ?: return "Command `$commandName` not found!"
+        } ?: return "Command **$commandName** not found!"
         val argumentInfo = command.argumentInfo
         val defaultArgumentKey = command.defaultArgumentKey
         val guildOnly = command.guildOnly
         val requiredPermissions = command.requiredPermissions
         val commandEntityId = command.entityId
-        var argumentsMessage = "`${command.name}` - ${command.description}" +
+        var argumentsMessage = "**${command.nameWithPrefix}** - ${command.description}" +
             "\n\nArguments:\n${getArgumentsMessage(argumentInfo, defaultArgumentKey)}"
         if (requiredPermissions.isNotEmpty()) {
             argumentsMessage += "\nRequired permissions:\n${getPermissionsMessage(requiredPermissions, manager)}"
@@ -117,7 +125,7 @@ object HelpCommand : NonChainableCommand() {
         defaultArgumentKey: String?
     ): String =
         argumentInfo.joinToString(separator = "\n") {
-            var argumentMessage = "    `${it.key}`"
+            var argumentMessage = "    **${it.keyWithPrefix}**"
             var extraInfo = ""
             if (!it.required) {
                 extraInfo += "optional"

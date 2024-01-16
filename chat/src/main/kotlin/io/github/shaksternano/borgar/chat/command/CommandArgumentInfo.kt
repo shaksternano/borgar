@@ -22,6 +22,9 @@ data class CommandArgumentInfo<T>(
     override fun hashCode(): Int = key.hashCode()
 }
 
+val CommandArgumentInfo<*>.keyWithPrefix: String
+    get() = ARGUMENT_PREFIX + key
+
 interface Validator<T> {
     fun validate(value: T): Boolean
 
