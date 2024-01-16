@@ -6,6 +6,7 @@ import io.github.shaksternano.borgar.chat.BotManager
 import io.github.shaksternano.borgar.chat.event.CommandEvent
 import io.github.shaksternano.borgar.core.data.repository.TemplateRepository
 import io.github.shaksternano.borgar.core.logger
+import io.github.shaksternano.borgar.core.util.formatted
 import io.github.shaksternano.borgar.core.util.splitChunks
 
 object HelpCommand : NonChainableCommand() {
@@ -134,7 +135,7 @@ object HelpCommand : NonChainableCommand() {
             argumentMessage += "\n        Description: ${it.description}"
             argumentMessage += "\n        Type: ${it.type.name}"
             it.defaultValue?.let { defaultValue ->
-                argumentMessage += "\n        Default value: $defaultValue"
+                argumentMessage += "\n        Default value: ${defaultValue.formatted}"
             }
             argumentMessage
         }
