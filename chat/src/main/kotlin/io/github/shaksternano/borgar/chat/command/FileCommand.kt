@@ -23,15 +23,15 @@ abstract class FileCommand(
         argumentInfoBuilder.addAll(argumentInfo)
         argumentInfoBuilder.addAll(
             CommandArgumentInfo(
-                key = "url",
-                description = "The URL to use",
-                type = SimpleCommandArgumentType.STRING,
-                required = false,
-            ),
-            CommandArgumentInfo(
                 key = "attachment",
                 description = "The attachment to use",
                 type = SimpleCommandArgumentType.ATTACHMENT,
+                required = false,
+            ),
+            CommandArgumentInfo(
+                key = "url",
+                description = "The URL to use",
+                type = SimpleCommandArgumentType.STRING,
                 required = false,
             ),
         )
@@ -39,6 +39,9 @@ abstract class FileCommand(
     } else {
         argumentInfo.toSet()
     }
+    override val defaultArgumentKey: String? =
+        if (this.argumentInfo.size == 2) "url"
+        else super.defaultArgumentKey
 
     final override suspend fun run(arguments: CommandArguments, event: CommandEvent): Executable {
         val convertable = arguments.getDefaultAttachment() ?: run {
