@@ -8,6 +8,7 @@ import io.github.shaksternano.borgar.chat.event.CommandEvent
 import io.github.shaksternano.borgar.chat.event.MessageCommandEvent
 import io.github.shaksternano.borgar.chat.event.MessageReceiveEvent
 import io.github.shaksternano.borgar.chat.exception.CommandException
+import io.github.shaksternano.borgar.chat.exception.MissingArgumentException
 import io.github.shaksternano.borgar.core.data.repository.TemplateRepository
 import io.github.shaksternano.borgar.core.exception.FailedOperationException
 import io.github.shaksternano.borgar.core.logger
@@ -117,6 +118,9 @@ fun handleError(throwable: Throwable): String = when (throwable) {
 
     is CommandException -> when (val cause = throwable.cause) {
         is FailedOperationException ->
+            cause.message
+
+        is MissingArgumentException ->
             cause.message
 
         else -> {

@@ -2,7 +2,7 @@ package io.github.shaksternano.borgar.chat.command
 
 import io.github.shaksternano.borgar.chat.entity.Message
 import io.github.shaksternano.borgar.chat.event.CommandEvent
-import io.github.shaksternano.borgar.core.exception.MissingArgumentException
+import io.github.shaksternano.borgar.chat.exception.MissingArgumentException
 
 interface Command {
 
@@ -55,28 +55,26 @@ abstract class BaseCommand : Command {
         argumentInfo: CommandArgumentInfo<*>,
         arguments: CommandArguments
     ): ArgumentRetrievalResult<T> {
-        if (argumentInfo.type != type) return ArgumentRetrievalResult(
-            null,
-            "Argument `$key` is not of type `${type.name}`."
-        )
+        if (argumentInfo.type != type) throw IllegalArgumentException("Expected argument type $type for key $key, but got ${argumentInfo.type}")
         @Suppress("UNCHECKED_CAST")
         argumentInfo as CommandArgumentInfo<T>
         val value = arguments.getSuspend(key, type)
         return if (value == null) {
-            val errorMessage = if (argumentInfo.defaultValue == null && argumentInfo.required) {
-                "Missing argument `$key`."
+            if (key in arguments) {
+                ArgumentRetrievalResult(null, "The argument `$key` is not a `${type.name}`.")
+            } else if (argumentInfo.defaultValue == null && argumentInfo.required) {
+                ArgumentRetrievalResult(null, "Missing argument `$key`.")
             } else {
-                ""
+                ArgumentRetrievalResult(argumentInfo.defaultValue, "")
             }
-            ArgumentRetrievalResult(argumentInfo.defaultValue, errorMessage)
         } else {
             val validator = argumentInfo.validator
             if (validator.validate(value)) {
                 ArgumentRetrievalResult(value, "")
             } else {
                 ArgumentRetrievalResult(
-                    argumentInfo.defaultValue,
-                    validator.errorMessage(value, argumentInfo.defaultValue, key)
+                    null,
+                    validator.errorMessage(value, key)
                 )
             }
         }
@@ -98,14 +96,18 @@ abstract class BaseCommand : Command {
         event: CommandEvent
     ): T {
         val argumentResult = getArgument(key, type, arguments)
-        return argumentResult.value ?: run {
-            val errorMessage = if (argumentResult.errorMessage.isNotBlank()) {
-                argumentResult.errorMessage
-            } else {
+        val value = argumentResult.value
+        return if (value == null) {
+            val errorMessage = argumentResult.errorMessage.ifBlank {
                 "Missing argument `$key`."
             }
-            event.reply(errorMessage)
-            throw MissingArgumentException()
+            throw MissingArgumentException(errorMessage)
+        } else {
+            val errorMessage = argumentResult.errorMessage
+            if (errorMessage.isNotBlank()) {
+                event.reply(errorMessage)
+            }
+            value
         }
     }
 
@@ -130,7 +132,7 @@ abstract class BaseCommand : Command {
             "argumentData=$argumentInfo)"
 }
 
-data class ArgumentRetrievalResult<T>(
+private class ArgumentRetrievalResult<T>(
     val value: T?,
     val errorMessage: String,
 )

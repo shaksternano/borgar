@@ -25,13 +25,13 @@ data class CommandArgumentInfo<T>(
 interface Validator<T> {
     fun validate(value: T): Boolean
 
-    fun errorMessage(value: T, default: T?, key: String): String
+    fun errorMessage(value: T, key: String): String
 }
 
 private class AllowAllValidator<T> : Validator<T> {
     override fun validate(value: T): Boolean = true
 
-    override fun errorMessage(value: T, default: T?, key: String): String = ""
+    override fun errorMessage(value: T, key: String): String = ""
 }
 
 class LongRangeValidator(
@@ -40,7 +40,7 @@ class LongRangeValidator(
 
     override fun validate(value: Long): Boolean = value in range
 
-    override fun errorMessage(value: Long, default: Long?, key: String): String =
+    override fun errorMessage(value: Long, key: String): String =
         "Value for `$key` must be in range ${range.first}..${range.last}."
 }
 
@@ -50,10 +50,8 @@ class DoubleRangeValidator(
 
     override fun validate(value: Double): Boolean = value in range
 
-    override fun errorMessage(value: Double, default: Double?, key: String): String =
-        "Value for `$key` must be in range ${range.start.formatted}..${range.endInclusive.formatted}." + if (default == null) {
-            ""
-        } else {
-            " Using default value ${default.formatted}."
-        }
+    override fun errorMessage(value: Double, key: String): String =
+        "The value for `$key` must be in range the ${range.start.formatted} to ${range.endInclusive.formatted}."
 }
+
+val ZERO_TO_ONE_VALIDATOR: Validator<Double> = DoubleRangeValidator(0.0..1.0)

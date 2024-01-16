@@ -17,7 +17,7 @@ object AutoCropCommand : FileCommand() {
             type = SimpleCommandArgumentType.DOUBLE,
             required = false,
             defaultValue = 0.2,
-            validator = DoubleRangeValidator(0.0..1.0),
+            validator = ZERO_TO_ONE_VALIDATOR,
         ),
         CommandArgumentInfo(
             key = "rgb",
