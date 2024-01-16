@@ -103,8 +103,8 @@ object HelpCommand : NonChainableCommand() {
         val guildOnly = command.guildOnly
         val requiredPermissions = command.requiredPermissions
         val commandEntityId = command.entityId
-        var argumentsMessage = "`${command.name}` - ${command.description}"
-        argumentsMessage += "\n\nArguments:\n${getArgumentsMessage(argumentInfo, defaultArgumentKey)}"
+        var argumentsMessage = "`${command.name}` - ${command.description}" +
+            "\n\nArguments:\n${getArgumentsMessage(argumentInfo, defaultArgumentKey)}"
         if (requiredPermissions.isNotEmpty()) {
             argumentsMessage += "\nRequired permissions:\n${getPermissionsMessage(requiredPermissions, manager)}"
         }
@@ -132,9 +132,9 @@ object HelpCommand : NonChainableCommand() {
             if (extraInfo.isNotBlank()) {
                 argumentMessage += " ($extraInfo)"
             }
-            argumentMessage += ":"
-            argumentMessage += "\n        Description: ${it.description}"
-            argumentMessage += "\n        Type: ${it.type.name}"
+            argumentMessage += ":" +
+                "\n        Description: ${it.description}" +
+                "\n        Type: ${it.type.name}"
             it.defaultValue?.let { defaultValue ->
                 argumentMessage += "\n        Default value: ${defaultValue.formatted}"
             }
