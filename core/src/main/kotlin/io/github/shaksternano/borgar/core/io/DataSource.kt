@@ -159,7 +159,10 @@ data class UrlDataSource(
         response.size()
     }
 
-    override fun rename(newName: String): UrlDataSource = copy(filename = newName)
+    override fun rename(newName: String): UrlDataSource = copy(
+        filename = newName,
+        sendUrl = false,
+    )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
