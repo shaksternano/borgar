@@ -2,6 +2,8 @@ package io.github.shaksternano.borgar.chat.entity
 
 interface Guild : Entity {
 
+    val name: String
+
     suspend fun getMember(userId: String): Member?
 
     suspend fun getMember(user: User): Member? = getMember(user.id)

@@ -16,6 +16,8 @@ interface Command {
         get() = false
     val requiredPermissions: Set<Permission>
         get() = emptySet()
+    val entityId: String?
+        get() = null
 
     suspend fun run(arguments: CommandArguments, event: CommandEvent): Executable
 }

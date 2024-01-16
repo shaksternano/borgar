@@ -9,12 +9,14 @@ class TemplateCommand(
     override val name: String,
     override val description: String,
     private val template: Template,
+    override val entityId: String?
 ) : FileCommand() {
 
     constructor(customTemplate: CustomTemplate) : this(
         customTemplate.commandName,
         customTemplate.description,
-        customTemplate
+        customTemplate,
+        customTemplate.entityId
     )
 
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {

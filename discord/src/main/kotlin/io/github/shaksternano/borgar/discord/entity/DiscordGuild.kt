@@ -11,6 +11,7 @@ data class DiscordGuild(
 
     override val id: String = discordGuild.id
     override val manager: BotManager = DiscordManager.get(discordGuild.jda)
+    override val name: String = discordGuild.name
 
     override suspend fun getMember(userId: String): Member? {
         return discordGuild.runCatching {

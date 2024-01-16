@@ -66,7 +66,7 @@ private suspend fun executeCommand(
         }
         result to executable
     } catch (t: Throwable) {
-        val responseContent = handleError(t)
+        val responseContent = handleError(t, commandEvent.manager)
         listOf(CommandResponse(responseContent)) to null
     }
     runCatching {

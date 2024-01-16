@@ -1,5 +1,6 @@
 package io.github.shaksternano.borgar.chat.command
 
+import io.github.shaksternano.borgar.chat.BotManager
 import io.github.shaksternano.borgar.chat.entity.DisplayedUser
 import io.github.shaksternano.borgar.chat.entity.Guild
 import io.github.shaksternano.borgar.chat.entity.Message
@@ -65,7 +66,7 @@ suspend fun parseAndExecuteCommand(event: MessageReceiveEvent) {
         }
         result to chained
     } catch (t: Throwable) {
-        val responseContent = handleError(t)
+        val responseContent = handleError(t, event.manager)
         listOf(CommandResponse(responseContent)) to null
     }
     sendResponse(responses, executable, commandEvent)
@@ -112,7 +113,7 @@ private suspend fun contentStripped(message: Message): String {
     return stripped
 }
 
-fun handleError(throwable: Throwable): String = when (throwable) {
+fun handleError(throwable: Throwable, manager: BotManager): String = when (throwable) {
     is NonChainableCommandException ->
         "Cannot chain ${throwable.command1.name} with ${throwable.command2.name}!"
 
@@ -133,7 +134,7 @@ fun handleError(throwable: Throwable): String = when (throwable) {
         "Command ${throwable.command.nameWithPrefix} requires permissions:\n${
             throwable.requiredPermissions.joinToString(
                 "\n"
-            ) { it.displayedName }
+            ) { manager.getPermissionName(it) }
         }!"
 
     else -> {
