@@ -23,6 +23,8 @@ object HelpCommand : NonChainableCommand() {
         )
     )
 
+    override val ephemeral: Boolean = true
+
     private val cachedCommandInfos: Cache<String, String> = CacheBuilder.newBuilder()
         .maximumSize(100)
         .build()
@@ -38,8 +40,8 @@ object HelpCommand : NonChainableCommand() {
             .lowercase()
         return if (commandName.isBlank()) {
             getHelpMessages(
-                entityId = entityId,
-                maxContentLength = event.manager.maxMessageContentLength,
+                entityId,
+                event.manager.maxMessageContentLength,
                 fromGuild = guild != null
             ).map {
                 CommandResponse(it, suppressEmbeds = true)

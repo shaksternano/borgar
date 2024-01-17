@@ -48,9 +48,26 @@ class SlashCommandEvent(
                 .await()
         } else {
             replied = true
-            event.hook.sendMessage(replyBuilder)
-                .setSuppressEmbeds(response.suppressEmbeds)
-                .await()
+            if (response.deferReply) {
+                event.hook.sendMessage(replyBuilder)
+                    .setSuppressEmbeds(response.suppressEmbeds)
+                    .await()
+            } else {
+                val interactionHook = event.reply(replyBuilder)
+                    .setEphemeral(response.ephemeral)
+                    .setSuppressEmbeds(response.suppressEmbeds)
+                    .await()
+                if (response.ephemeral) {
+                    return FakeMessage(
+                        interactionHook.id,
+                        manager,
+                        response.content,
+                        manager.getSelf(),
+                        channel,
+                    )
+                }
+                interactionHook.retrieveOriginal().await()
+            }
         }
         return DiscordMessage(discordResponseMessage)
     }

@@ -18,6 +18,8 @@ abstract class FileCommand(
     requireInput: Boolean = true,
 ) : BaseCommand() {
 
+    override val deferReply: Boolean = true
+
     final override val argumentInfo: Set<CommandArgumentInfo<*>> = if (requireInput) {
         val argumentInfoBuilder = mutableSetOf<CommandArgumentInfo<*>>()
         argumentInfoBuilder.addAll(argumentInfo)

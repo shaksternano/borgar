@@ -19,6 +19,9 @@ interface Command {
         get() = false
     val requiredPermissions: Set<Permission>
         get() = emptySet()
+    val deferReply: Boolean
+    val ephemeral: Boolean
+        get() = false
     val entityId: String?
         get() = null
 
@@ -147,6 +150,8 @@ private class ArgumentRetrievalResult<T>(
 )
 
 abstract class NonChainableCommand : BaseCommand() {
+
+    override val deferReply: Boolean = false
 
     final override suspend fun run(arguments: CommandArguments, event: CommandEvent): Executable = object : Executable {
         override val command: Command = this@NonChainableCommand

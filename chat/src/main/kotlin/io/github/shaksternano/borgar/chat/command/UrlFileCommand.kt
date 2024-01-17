@@ -12,6 +12,7 @@ class UrlFileCommand(
     requireInput = false,
 ) {
 
+    override val deferReply: Boolean = false
     private val task: FileTask = UrlFileTask(url)
 
     companion object {

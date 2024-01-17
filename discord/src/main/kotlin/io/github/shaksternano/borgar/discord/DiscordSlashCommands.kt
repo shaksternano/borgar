@@ -3,20 +3,16 @@ package io.github.shaksternano.borgar.discord
 import dev.minn.jda.ktx.events.listener
 import dev.minn.jda.ktx.interactions.commands.Command
 import dev.minn.jda.ktx.interactions.commands.updateCommands
-import io.github.shaksternano.borgar.chat.BotManager
 import io.github.shaksternano.borgar.chat.command.*
 import io.github.shaksternano.borgar.chat.entity.*
-import io.github.shaksternano.borgar.chat.entity.channel.Channel
-import io.github.shaksternano.borgar.chat.entity.channel.MessageChannel
 import io.github.shaksternano.borgar.chat.event.CommandEvent
 import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.core.util.asSingletonList
 import io.github.shaksternano.borgar.core.util.splitWords
 import io.github.shaksternano.borgar.discord.entity.DiscordUser
+import io.github.shaksternano.borgar.chat.entity.FakeMessage
 import io.github.shaksternano.borgar.discord.entity.channel.DiscordMessageChannel
 import io.github.shaksternano.borgar.discord.event.SlashCommandEvent
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.future.await
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
@@ -89,9 +85,21 @@ private suspend fun executeCommand(
     } else {
         slashCommandConfig
     }
-    val deferReply = slashEvent.deferReply().submit()
-    val (responses, executable) = executeCommands(commandConfigs, commandEvent)
-    deferReply.await()
+    val deferReply =
+        if (command.deferReply) slashEvent.deferReply()
+            .setEphemeral(command.ephemeral)
+            .submit()
+        else null
+    val result = executeCommands(commandConfigs, commandEvent)
+    val responses = result.first.map {
+        val singleResponse = result.first.size == 1
+        it.copy(
+            ephemeral = command.ephemeral && singleResponse,
+            deferReply = command.deferReply
+        )
+    }
+    val executable = result.second
+    deferReply?.await()
     sendResponse(responses, executable, commandEvent)
 }
 
@@ -101,7 +109,7 @@ private suspend fun getAfterCommandConfigs(
     slashEvent: SlashCommandInteractionEvent,
 ): List<CommandConfig> {
     val configs = parseCommands(
-        DummyMessage(
+        FakeMessage(
             commandEvent.id,
             commandEvent.manager,
             afterCommands,
@@ -135,37 +143,4 @@ private fun CommandArgumentType<*>.toOptionType(): OptionType = when (this) {
     CommandArgumentType.ROLE -> OptionType.ROLE
     CommandArgumentType.MENTIONABLE -> OptionType.MENTIONABLE
     CommandArgumentType.ATTACHMENT -> OptionType.ATTACHMENT
-}
-
-private class DummyMessage(
-    override val id: String,
-    override val manager: BotManager,
-    override val content: String,
-    private val author: User,
-    private val channel: MessageChannel,
-) : Message {
-
-    private val mentionedUsersSet: Set<User> = manager.getMentionedUsers(content).toSet()
-    private val mentionedChannelsSet: Set<Channel> = manager.getMentionedChannels(content).toSet()
-    private val mentionedRolesSet: Set<Role> = manager.getMentionedRoles(content).toSet()
-
-    override val mentionedUsers: Flow<User> = mentionedUsersSet.asFlow()
-    override val mentionedChannels: Flow<Channel> = mentionedChannelsSet.asFlow()
-    override val mentionedRoles: Flow<Role> = mentionedRolesSet.asFlow()
-
-    override val mentionedUserIds: Set<Mentionable> = mentionedUsersSet
-    override val mentionedChannelIds: Set<Mentionable> = mentionedChannelsSet
-    override val mentionedRoleIds: Set<Mentionable> = mentionedRolesSet
-
-    override val attachments: List<Attachment> = listOf()
-    override val embeds: List<MessageEmbed> = listOf()
-    override val customEmojis: List<CustomEmoji> = manager.getCustomEmojis(content)
-
-    override suspend fun getAuthor(): User = author
-
-    override suspend fun getChannel(): MessageChannel = channel
-
-    override suspend fun getGuild(): Guild? = channel.getGuild()
-
-    override suspend fun getReferencedMessage(): Message? = null
 }

@@ -42,6 +42,9 @@ class DiscordManager(
     override val maxFilesPerMessage: Int = Message.MAX_FILE_AMOUNT
     override val emojiTypedPattern: Regex = ":[A-Za-z0-9]+:".toRegex()
 
+    override suspend fun getSelf(): User =
+        DiscordUser(jda.selfUser)
+
     override suspend fun getGuild(id: String): Guild? =
         jda.getGuildById(id)?.let { DiscordGuild(it) }
 
