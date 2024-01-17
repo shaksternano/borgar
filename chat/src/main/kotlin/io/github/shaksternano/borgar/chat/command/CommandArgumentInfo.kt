@@ -49,7 +49,7 @@ class LongRangeValidator(
     override fun validate(value: Long): Boolean = value in range
 
     override fun errorMessage(value: Long, key: String): String =
-        "Value for `$key` must be in range ${range.first}..${range.last}."
+        "The value for **$key** must be in range ${range.first}..${range.last}."
 }
 
 class DoubleRangeValidator(
@@ -59,7 +59,15 @@ class DoubleRangeValidator(
     override fun validate(value: Double): Boolean = value in range
 
     override fun errorMessage(value: Double, key: String): String =
-        "The value for `$key` must be in range the ${range.start.formatted} to ${range.endInclusive.formatted}."
+        "The value for **$key** must be in range the ${range.start.formatted} to ${range.endInclusive.formatted}."
 }
 
 val ZERO_TO_ONE_VALIDATOR: Validator<Double> = DoubleRangeValidator(0.0..1.0)
+
+object PositiveLongValidator : Validator<Long> {
+
+    override fun validate(value: Long): Boolean = value > 0
+
+    override fun errorMessage(value: Long, key: String): String =
+        "The value for **$key** must be positive."
+}

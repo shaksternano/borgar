@@ -3,6 +3,7 @@ package io.github.shaksternano.borgar.chat.command
 import io.github.shaksternano.borgar.chat.entity.Message
 import io.github.shaksternano.borgar.chat.event.CommandEvent
 import io.github.shaksternano.borgar.chat.exception.MissingArgumentException
+import io.github.shaksternano.borgar.core.util.startsWithVowel
 
 interface Command {
 
@@ -63,9 +64,14 @@ abstract class BaseCommand : Command {
         val value = arguments.getSuspend(key, type)
         return if (value == null) {
             if (key in arguments) {
-                ArgumentRetrievalResult(null, "The argument `$key` is not a `${type.name}`.")
+                var errorMessage = "The argument **$key** is not a"
+                if (type.name.startsWithVowel()) {
+                    errorMessage += "n"
+                }
+                errorMessage += " ${type.name}."
+                ArgumentRetrievalResult(null, errorMessage)
             } else if (argumentInfo.defaultValue == null && argumentInfo.required) {
-                ArgumentRetrievalResult(null, "Missing argument `$key`.")
+                ArgumentRetrievalResult(null, "Missing argument **$key**.")
             } else {
                 ArgumentRetrievalResult(argumentInfo.defaultValue, "")
             }
@@ -94,8 +100,7 @@ abstract class BaseCommand : Command {
     protected suspend fun <T> getRequiredArgument(
         key: String,
         type: CommandArgumentType<T>,
-        arguments: CommandArguments,
-        event: CommandEvent
+        arguments: CommandArguments
     ): T {
         val argumentResult = getArgument(key, type, arguments)
         val value = argumentResult.value
@@ -106,24 +111,19 @@ abstract class BaseCommand : Command {
             throw MissingArgumentException(errorMessage)
         } else {
             val errorMessage = argumentResult.errorMessage
-            if (errorMessage.isNotBlank()) {
-                event.reply(errorMessage)
-            }
-            value
+            if (errorMessage.isNotBlank()) throw MissingArgumentException(errorMessage)
+            else value
         }
     }
 
     protected suspend fun <T> getOptionalArgument(
         key: String,
         type: CommandArgumentType<T>,
-        arguments: CommandArguments,
-        event: CommandEvent
+        arguments: CommandArguments
     ): T? {
         val argumentResult = getArgument(key, type, arguments)
-        if (argumentResult.errorMessage.isNotBlank()) {
-            event.reply(argumentResult.errorMessage)
-        }
-        return argumentResult.value
+        return if (argumentResult.errorMessage.isNotBlank()) throw MissingArgumentException(argumentResult.errorMessage)
+        else argumentResult.value
     }
 
     override fun toString(): String =

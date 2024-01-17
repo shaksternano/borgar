@@ -44,10 +44,10 @@ object CropCommand : FileCommand(
     override val description: String = "Crops media."
 
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {
-        val topRatio = getRequiredArgument("top", CommandArgumentType.DOUBLE, arguments, event)
-        val bottomRatio = getRequiredArgument("bottom", CommandArgumentType.DOUBLE, arguments, event)
-        val leftRatio = getRequiredArgument("left", CommandArgumentType.DOUBLE, arguments, event)
-        val rightRatio = getRequiredArgument("right", CommandArgumentType.DOUBLE, arguments, event)
+        val topRatio = getRequiredArgument("top", CommandArgumentType.DOUBLE, arguments)
+        val bottomRatio = getRequiredArgument("bottom", CommandArgumentType.DOUBLE, arguments)
+        val leftRatio = getRequiredArgument("left", CommandArgumentType.DOUBLE, arguments)
+        val rightRatio = getRequiredArgument("right", CommandArgumentType.DOUBLE, arguments)
         return if (topRatio == 0.0 && bottomRatio == 0.0 && leftRatio == 0.0 && rightRatio == 0.0) {
             throw MissingArgumentException("At least one crop ratio must be specified.")
         } else {

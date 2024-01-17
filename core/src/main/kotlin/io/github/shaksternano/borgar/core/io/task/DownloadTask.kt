@@ -21,13 +21,23 @@ private val VIDEO_QUALITIES: List<Int> = listOf(
 class DownloadTask(
     private val url: String,
     private val audioOnly: Boolean,
+    private val fileNumber: Int?,
     private val maxFileSize: Long,
 ) : BaseFileTask(
     requireInput = false,
 ) {
 
     override suspend fun run(input: List<DataSource>): List<DataSource> = try {
-        download(url, 0, audioOnly, maxFileSize)
+        val fileIndex: Int? = fileNumber?.let { it - 1 }
+        download(url, 0, audioOnly, fileIndex, maxFileSize)
+    } catch (e: InvalidFileNumberException) {
+        var message = "File number is too large, there "
+        message += if (e.maxFiles == 1) "is"
+        else "are"
+        message += " only ${e.maxFiles} file"
+        if (e.maxFiles != 1) message += "s"
+        message += "!"
+        throw ErrorResponseException(message)
     } catch (e: FileTooLargeException) {
         throw ErrorResponseException("File is too large!")
     } catch (e: Throwable) {
@@ -38,10 +48,11 @@ class DownloadTask(
         url: String,
         videoQualityIndex: Int,
         audioOnly: Boolean,
+        fileIndex: Int?,
         maxFileSize: Long,
     ): List<DataSource> {
         val videoQuality = VIDEO_QUALITIES[videoQualityIndex]
-        val downloadUrls = getDownloadUrls(url, videoQuality, audioOnly)
+        val downloadUrls = getDownloadUrls(url, videoQuality, audioOnly, fileIndex)
         return downloadUrls.map { downloadUrl ->
             val filename = useHttpClient { client ->
                 val headResponse = client.head(downloadUrl)
@@ -52,6 +63,7 @@ class DownloadTask(
                             url,
                             videoQualityIndex + 1,
                             audioOnly,
+                            fileIndex,
                             maxFileSize
                         )
                     } else {
@@ -67,7 +79,8 @@ class DownloadTask(
     private suspend fun getDownloadUrls(
         url: String,
         videoQuality: Int,
-        audioOnly: Boolean
+        audioOnly: Boolean,
+        fileIndex: Int?
     ): List<String> {
         val cobaltApiDomain = getEnvVar("COBALT_API_DOMAIN") ?: "https://co.wuk.sh"
         val requestUrl = "$cobaltApiDomain/api/json"
@@ -93,8 +106,14 @@ class DownloadTask(
             }.getOrDefault(responseBodyString)
             throw IllegalStateException("Invalid Cobalt response body:\n$prettyPrint", it)
         }
-        return if (responseBody.url != null) responseBody.url.asSingletonList()
-        else if (responseBody.picker != null) responseBody.picker.map { it.url }
+        return if (responseBody.url != null)
+            if (fileIndex != null && fileIndex != 0) throw InvalidFileNumberException(1)
+            else responseBody.url.asSingletonList()
+        else if (responseBody.picker != null)
+            if (fileIndex != null)
+                if (fileIndex >= responseBody.picker.size) throw InvalidFileNumberException(responseBody.picker.size)
+                else responseBody.picker[fileIndex].url.asSingletonList()
+            else responseBody.picker.map { it.url }
         else throw IllegalStateException("Missing url and picker fields. Response body:\n$responseBodyString")
     }
 
@@ -142,4 +161,8 @@ class DownloadTask(
     }
 
     private class FileTooLargeException : Exception()
+
+    private class InvalidFileNumberException(
+        val maxFiles: Int
+    ) : Exception()
 }

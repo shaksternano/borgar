@@ -34,9 +34,9 @@ object AutoCropCommand : FileCommand(
 
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {
         val cropColor =
-            getOptionalArgument("rgb", CommandArgumentType.LONG, arguments, event)?.let { Color(it.toInt()) }
-        val tolerance = getRequiredArgument("tolerance", CommandArgumentType.DOUBLE, arguments, event)
-        val onlyCheckFirst = getRequiredArgument("onlycheckfirst", CommandArgumentType.BOOLEAN, arguments, event)
+            getOptionalArgument("rgb", CommandArgumentType.LONG, arguments)?.let { Color(it.toInt()) }
+        val tolerance = getRequiredArgument("tolerance", CommandArgumentType.DOUBLE, arguments)
+        val onlyCheckFirst = getRequiredArgument("onlycheckfirst", CommandArgumentType.BOOLEAN, arguments)
         return AutoCropTask(cropColor, tolerance, onlyCheckFirst, maxFileSize)
     }
 }

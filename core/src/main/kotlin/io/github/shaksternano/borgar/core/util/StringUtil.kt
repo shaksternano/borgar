@@ -8,6 +8,10 @@ private val URL_REGEX: Regex =
     "\\b((?:https?|ftp|file)://[-a-zA-Z\\d+&@#/%?=~_|!:, .;]*[-a-zA-Z\\d+&@#/%=~_|])".toRegex()
 private val WHITE_SPACE_REGEX: Regex = "\\s+".toRegex()
 
+fun CharSequence.startsWithVowel(): Boolean {
+    return isNotEmpty() && first().lowercaseChar() in VOWELS
+}
+
 fun CharSequence.getUrls(): List<String> {
     return URL_REGEX.findAll(this).map { it.value }.toList()
 }

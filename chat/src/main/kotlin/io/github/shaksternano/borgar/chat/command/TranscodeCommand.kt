@@ -3,7 +3,7 @@ package io.github.shaksternano.borgar.chat.command
 import io.github.shaksternano.borgar.chat.event.CommandEvent
 import io.github.shaksternano.borgar.core.io.task.FileTask
 import io.github.shaksternano.borgar.core.io.task.TranscodeTask
-import io.github.shaksternano.borgar.core.util.VOWELS
+import io.github.shaksternano.borgar.core.util.startsWithVowel
 
 class TranscodeCommand(
     private val format: String,
@@ -20,8 +20,7 @@ class TranscodeCommand(
     override val name: String = format
     override val description: String = run {
         var transcodeDescription = "Converts media to a"
-        val firstCharacter = format.getOrElse(0) { ' ' }.lowercaseChar()
-        if (firstCharacter in VOWELS) {
+        if (format.startsWithVowel()) {
             transcodeDescription += "n"
         }
         transcodeDescription + " ${format.uppercase()} file."

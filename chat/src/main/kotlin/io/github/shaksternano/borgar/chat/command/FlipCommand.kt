@@ -18,7 +18,7 @@ object FlipCommand : FileCommand(
     override val description: String = "Flips media horizontally or vertically."
 
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {
-        val vertical = getRequiredArgument("v", CommandArgumentType.BOOLEAN, arguments, event)
+        val vertical = getRequiredArgument("v", CommandArgumentType.BOOLEAN, arguments)
         return FlipTask(vertical, maxFileSize)
     }
 }

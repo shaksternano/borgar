@@ -18,6 +18,13 @@ object DownloadCommand : FileCommand(
         required = false,
         defaultValue = false,
     ),
+    CommandArgumentInfo(
+        key = "n",
+        description = "The file to download. If not specified, all files will be downloaded.",
+        type = CommandArgumentType.LONG,
+        required = false,
+        validator = PositiveLongValidator,
+    ),
     requireInput = false,
 ) {
 
@@ -26,8 +33,9 @@ object DownloadCommand : FileCommand(
         "Downloads a file from a social media website, for example, a video from YouTube."
 
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {
-        val url = getRequiredArgument("url", CommandArgumentType.STRING, arguments, event)
-        val audioOnly = getRequiredArgument("a", CommandArgumentType.BOOLEAN, arguments, event)
-        return DownloadTask(url, audioOnly, maxFileSize)
+        val url = getRequiredArgument("url", CommandArgumentType.STRING, arguments)
+        val audioOnly = getRequiredArgument("a", CommandArgumentType.BOOLEAN, arguments)
+        val fileNumber = getOptionalArgument("n", CommandArgumentType.LONG, arguments)?.toInt()
+        return DownloadTask(url, audioOnly, fileNumber, maxFileSize)
     }
 }
