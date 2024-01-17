@@ -9,7 +9,7 @@ data class CommandArgumentInfo<T>(
     val type: CommandArgumentType<T>,
     val required: Boolean = true,
     val defaultValue: T? = null,
-    val validator: Validator<T> = AllowAllValidator(),
+    val validator: Validator<T> = allowAllValidator(),
 ) {
 
     override fun equals(other: Any?): Boolean {
@@ -31,10 +31,15 @@ interface Validator<T> {
     fun errorMessage(value: T, key: String): String
 }
 
-private class AllowAllValidator<T> : Validator<T> {
-    override fun validate(value: T): Boolean = true
+private fun <T> allowAllValidator(): Validator<T> {
+    @Suppress("UNCHECKED_CAST")
+    return AllowAllValidator as Validator<T>
+}
 
-    override fun errorMessage(value: T, key: String): String = ""
+private object AllowAllValidator : Validator<Nothing> {
+    override fun validate(value: Nothing): Boolean = true
+
+    override fun errorMessage(value: Nothing, key: String): String = ""
 }
 
 class LongRangeValidator(
