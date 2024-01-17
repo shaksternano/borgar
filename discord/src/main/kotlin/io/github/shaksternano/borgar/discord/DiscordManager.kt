@@ -5,11 +5,16 @@ import io.github.shaksternano.borgar.chat.BotManager
 import io.github.shaksternano.borgar.chat.command.Permission
 import io.github.shaksternano.borgar.chat.entity.CustomEmoji
 import io.github.shaksternano.borgar.chat.entity.Guild
+import io.github.shaksternano.borgar.chat.entity.Role
 import io.github.shaksternano.borgar.chat.entity.User
+import io.github.shaksternano.borgar.chat.entity.channel.Channel
 import io.github.shaksternano.borgar.discord.entity.DiscordCustomEmoji
 import io.github.shaksternano.borgar.discord.entity.DiscordGuild
+import io.github.shaksternano.borgar.discord.entity.DiscordRole
 import io.github.shaksternano.borgar.discord.entity.DiscordUser
+import io.github.shaksternano.borgar.discord.entity.channel.DiscordChannel
 import net.dv8tion.jda.api.JDA
+import net.dv8tion.jda.api.entities.Mentions
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.utils.data.DataArray
 import net.dv8tion.jda.internal.JDAImpl
@@ -44,17 +49,33 @@ class DiscordManager(
         jda.retrieveUserById(id).await()?.let { DiscordUser(it) }
     }.getOrNull()
 
+    private fun getMentions(content: String): Mentions = MessageMentionsImpl(
+        jda as JDAImpl,
+        null,
+        content,
+        false,
+        DataArray.empty(),
+        DataArray.empty(),
+    )
+
     override fun getCustomEmojis(content: String): List<CustomEmoji> {
         if (content.isBlank()) return emptyList()
-        val mentions = MessageMentionsImpl(
-            jda as JDAImpl,
-            null,
-            content,
-            false,
-            DataArray.empty(),
-            DataArray.empty(),
-        )
-        return mentions.customEmojis.map { DiscordCustomEmoji(it, jda) }
+        return getMentions(content).customEmojis.map { DiscordCustomEmoji(it, jda) }
+    }
+
+    override fun getMentionedUsers(content: String): List<User> {
+        if (content.isBlank()) return emptyList()
+        return getMentions(content).users.map { DiscordUser(it) }
+    }
+
+    override fun getMentionedChannels(content: String): List<Channel> {
+        if (content.isBlank()) return emptyList()
+        return getMentions(content).channels.map { DiscordChannel.create(it) }
+    }
+
+    override fun getMentionedRoles(content: String): List<Role> {
+        if (content.isBlank()) return emptyList()
+        return getMentions(content).roles.map { DiscordRole(it) }
     }
 
     override fun getEmojiName(typedEmoji: String): String = typedEmoji.removeSurrounding(":")

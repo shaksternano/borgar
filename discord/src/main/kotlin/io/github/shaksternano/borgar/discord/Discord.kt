@@ -6,6 +6,7 @@ import dev.minn.jda.ktx.jdabuilder.intents
 import io.github.shaksternano.borgar.chat.command.parseAndExecuteCommand
 import io.github.shaksternano.borgar.chat.event.MessageReceiveEvent
 import io.github.shaksternano.borgar.core.io.DataSource
+import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.discord.entity.DiscordMessage
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.requests.GatewayIntent
@@ -22,9 +23,11 @@ fun initDiscord(token: String) {
     jda.registerSlashCommands()
 }
 
-private suspend fun handleMessageEvent(event: MessageReceivedEvent) {
+private suspend fun handleMessageEvent(event: MessageReceivedEvent) = runCatching {
     val convertedEvent = event.convert()
     parseAndExecuteCommand(convertedEvent)
+}.onFailure {
+    logger.error("Error while handling message event", it)
 }
 
 fun MessageReceivedEvent.convert(): MessageReceiveEvent {

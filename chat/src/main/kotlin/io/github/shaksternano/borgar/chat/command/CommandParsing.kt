@@ -25,64 +25,76 @@ import java.util.regex.Pattern
 suspend fun parseAndExecuteCommand(event: MessageReceiveEvent) = coroutineScope {
     val contentStripped = contentStripped(event.message).trim()
     if (!contentStripped.startsWith(COMMAND_PREFIX)) return@coroutineScope
-    val commandConfigs = parseCommands(event.message)
+    val commandConfigs = try {
+        parseCommands(event.message)
+    } catch (e: CommandNotFoundException) {
+        event.reply("The command **$COMMAND_PREFIX${e.command}** does not exist!")
+        return@coroutineScope
+    }
     if (commandConfigs.isEmpty()) return@coroutineScope
     val channel = event.getChannel()
     val typing = launch {
-        try {
-            channel.sendTyping()
-        } catch (t: Throwable) {
-            logger.error("Failed to send typing indicator", t)
-        }
+        channel.sendTyping()
     }
     val commandEvent = MessageCommandEvent(event)
-    val (responses, executable) = try {
-        val executables = commandConfigs.mapIndexed { i, (command, arguments) ->
-            val guild = event.getGuild()
-            if (guild == null && command.guildOnly) return@coroutineScope
-            if (guild != null) {
-                val requiredPermissions = command.requiredPermissions
-                val permissionHolder = guild.getMember(event.getAuthor()) ?: guild.getPublicRole()
-                val hasPermission = permissionHolder.hasPermission(requiredPermissions, channel)
-                if (!hasPermission) {
-                    if (i == 0) return@coroutineScope
-                    else throw InsufficientPermissionsException(command, requiredPermissions)
-                }
-            }
-
-            try {
-                command.run(arguments, commandEvent)
-            } catch (t: Throwable) {
-                throw CommandException(command, cause = t)
-            }
-        }
-        val chained = executables.reduce { executable1, executable2 ->
-            try {
-                executable1 then executable2
-            } catch (e: UnsupportedOperationException) {
-                throw NonChainableCommandException(executable1.command, executable2.command, e)
-            }
-        }
-        val result = try {
-            chained.execute()
-        } catch (t: Throwable) {
-            throw CommandException(chained.command, cause = t)
-        }
-        if (result.isEmpty()) {
-            throw CommandException(chained.command, "No command responses were returned")
-        }
-        result.forEach {
-            if (it.content.isBlank() && it.files.isEmpty()) {
-                throw CommandException(chained.command, "Command response is empty")
-            }
-        }
-        result to chained
-    } catch (t: Throwable) {
-        val responseContent = handleError(t, event.manager)
-        listOf(CommandResponse(responseContent)) to null
+    val (responses, executable) = executeCommands(commandConfigs, commandEvent) {
+        return@coroutineScope
     }
     typing.join()
     sendResponse(responses, executable, commandEvent)
+}
+
+suspend inline fun executeCommands(
+    commandConfigs: List<CommandConfig>,
+    event: CommandEvent,
+    firstCommandError: () -> Unit = {}
+): Pair<List<CommandResponse>, Executable?> = try {
+    val executables = commandConfigs.mapIndexed { i, (command, arguments) ->
+        val guild = event.getGuild()
+        if (guild == null && command.guildOnly) {
+            if (i == 0) firstCommandError()
+            throw GuildOnlyCommandException(command)
+        }
+        if (guild != null) {
+            val requiredPermissions = command.requiredPermissions
+            val permissionHolder = guild.getMember(event.getAuthor()) ?: guild.getPublicRole()
+            val hasPermission = permissionHolder.hasPermission(requiredPermissions, event.getChannel())
+            if (!hasPermission) {
+                if (i == 0) firstCommandError()
+                throw InsufficientPermissionsException(command, requiredPermissions)
+            }
+        }
+
+        try {
+            command.run(arguments, event)
+        } catch (t: Throwable) {
+            throw CommandException(command, cause = t)
+        }
+    }
+    val chained = executables.reduce { executable1, executable2 ->
+        try {
+            executable1 then executable2
+        } catch (e: UnsupportedOperationException) {
+            throw NonChainableCommandException(executable1.command, executable2.command, e)
+        }
+    }
+    val result = try {
+        chained.execute()
+    } catch (t: Throwable) {
+        throw CommandException(chained.command, cause = t)
+    }
+    if (result.isEmpty()) {
+        throw CommandException(chained.command, "No command responses were returned")
+    }
+    result.forEach {
+        if (it.content.isBlank() && it.files.isEmpty()) {
+            throw CommandException(chained.command, "Command response is empty")
+        }
+    }
+    result to chained
+} catch (t: Throwable) {
+    val responseContent = handleError(t, event.manager)
+    listOf(CommandResponse(responseContent)) to null
 }
 
 suspend fun sendResponse(responses: List<CommandResponse>, executable: Executable?, commandEvent: CommandEvent) {
@@ -144,11 +156,14 @@ fun handleError(throwable: Throwable, manager: BotManager): String = when (throw
     }
 
     is InsufficientPermissionsException ->
-        "Command ${throwable.command.nameWithPrefix} requires permissions:\n${
+        "**${throwable.command.nameWithPrefix}** requires permissions:\n${
             throwable.requiredPermissions.joinToString(
                 "\n"
             ) { manager.getPermissionName(it) }
         }!"
+
+    is GuildOnlyCommandException ->
+        "**${throwable.command.nameWithPrefix}** can only be used in a guild!"
 
     else -> {
         logger.error("An error occurred", throwable)
@@ -160,17 +175,19 @@ private suspend fun userDetails(user: User, guild: Guild?): DisplayedUser {
     return guild?.getMember(user)?.user ?: user
 }
 
-private suspend fun parseCommands(message: Message): List<CommandConfig> {
+suspend fun parseCommands(message: Message): List<CommandConfig> {
     return parseRawCommands(message.content)
         .mapIndexed { index, (commandString, rawArguments, defaultArgument) ->
             val command = COMMANDS[commandString] ?: getCustomTemplateCommand(
                 commandString,
                 message
             )
-            if (index > 0 && command == null) {
-                throw CommandNotFoundException()
-            } else if (command == null) {
-                return emptyList()
+            if (command == null) {
+                if (index > 0) {
+                    throw CommandNotFoundException(commandString)
+                } else {
+                    return emptyList()
+                }
             }
             val arguments = MessageCommandArguments(
                 rawArguments,
@@ -233,7 +250,7 @@ private suspend fun getCustomTemplateCommand(commandName: String, message: Messa
     return template?.let { TemplateCommand(it) }
 }
 
-private data class CommandConfig(
+data class CommandConfig(
     val command: Command,
     val arguments: CommandArguments,
 )
@@ -244,15 +261,21 @@ internal data class RawCommandConfig(
     val defaultArgument: String,
 )
 
-private class CommandNotFoundException : Exception()
+class CommandNotFoundException(
+    val command: String,
+) : Exception()
 
-private class NonChainableCommandException(
+class NonChainableCommandException(
     val command1: Command,
     val command2: Command,
     cause: Throwable,
 ) : Exception(cause)
 
-private class InsufficientPermissionsException(
+class GuildOnlyCommandException(
+    val command: Command,
+) : Exception()
+
+class InsufficientPermissionsException(
     val command: Command,
     val requiredPermissions: Iterable<Permission>,
 ) : Exception()
