@@ -75,10 +75,10 @@ private suspend fun executeCommand(
         else if (!it.startsWith(COMMAND_PREFIX)) "$COMMAND_PREFIX$it"
         else it
     }
-    val slashCommandConfig = CommandConfig(command, arguments)
-    val commandConfigs = slashCommandConfig.asSingletonList() + if (afterCommands.isNotBlank()) {
+    val slashCommandConfig = CommandConfig(command, arguments).asSingletonList()
+    val commandConfigs = if (afterCommands.isNotBlank()) {
         try {
-            getAfterCommandConfigs(afterCommands, commandEvent, slashEvent)
+            slashCommandConfig + getAfterCommandConfigs(afterCommands, commandEvent, slashEvent)
         } catch (e: CommandNotFoundException) {
             slashEvent.reply("The command **$COMMAND_PREFIX${e.command}** does not exist!")
                 .setEphemeral(true)
@@ -86,7 +86,7 @@ private suspend fun executeCommand(
             return
         }
     } else {
-        emptyList()
+        slashCommandConfig
     }
     val deferReply = slashEvent.deferReply().submit()
     val (responses, executable) = executeCommands(commandConfigs, commandEvent)
