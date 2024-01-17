@@ -18,7 +18,7 @@ object HelpCommand : NonChainableCommand() {
         CommandArgumentInfo(
             key = "command",
             description = "Get detailed information about a command.",
-            type = SimpleCommandArgumentType.STRING,
+            type = CommandArgumentType.STRING,
             required = false,
         )
     )

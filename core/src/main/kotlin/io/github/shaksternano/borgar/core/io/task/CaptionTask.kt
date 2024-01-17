@@ -36,7 +36,7 @@ private class CaptionProcessor(
     private val nonTextParts: Map<String, Drawable>,
 ) : ImageProcessor<CaptionData> {
 
-    private val words = caption.splitWords()
+    private val words: List<String> = caption.splitWords()
 
     override suspend fun transformImage(frame: ImageFrame, constantData: CaptionData): BufferedImage {
         val image = frame.content
@@ -82,9 +82,9 @@ private class CaptionProcessor(
         val averageDimension = (width + height) / 2
 
         val fontName = if (isCaption2) "Helvetica Neue" else "Futura-CondensedExtraBold"
-        val fontRatio = (if (isCaption2) 9 else 7).toFloat()
-        var font = Font(fontName, Font.PLAIN, (averageDimension / fontRatio).toInt())
-        val padding = (averageDimension * 0.04f).toInt()
+        val fontRatio = if (isCaption2) 9 else 7
+        var font = Font(fontName, Font.PLAIN, averageDimension / fontRatio)
+        val padding = (averageDimension * 0.04).toInt()
         val graphics = firstImage.createGraphics()
 
         graphics.font = font

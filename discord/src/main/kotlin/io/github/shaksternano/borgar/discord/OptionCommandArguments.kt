@@ -3,7 +3,6 @@ package io.github.shaksternano.borgar.discord
 import io.github.shaksternano.borgar.chat.command.CommandArgumentType
 import io.github.shaksternano.borgar.chat.command.CommandArguments
 import io.github.shaksternano.borgar.chat.command.SimpleCommandArgumentType
-import io.github.shaksternano.borgar.chat.command.SuspendingCommandArgumentType
 import io.github.shaksternano.borgar.chat.entity.Attachment
 import io.github.shaksternano.borgar.core.util.hash
 import io.github.shaksternano.borgar.core.util.kClass
@@ -31,33 +30,33 @@ class OptionCommandArguments(
         val optionMapping = interaction.getOption(key) ?: return null
         @Suppress("IMPLICIT_CAST_TO_ANY", "UNCHECKED_CAST")
         return when (argumentType) {
-            SimpleCommandArgumentType.STRING -> optionMapping.asString
-            SimpleCommandArgumentType.LONG -> runCatching { optionMapping.asLong }
+            CommandArgumentType.STRING -> optionMapping.asString
+            CommandArgumentType.LONG -> runCatching { optionMapping.asLong }
                 .getOrNull()
 
-            SimpleCommandArgumentType.DOUBLE -> runCatching { optionMapping.asDouble }
+            CommandArgumentType.DOUBLE -> runCatching { optionMapping.asDouble }
                 .getOrNull()
 
-            SimpleCommandArgumentType.BOOLEAN -> runCatching { optionMapping.asBoolean }
+            CommandArgumentType.BOOLEAN -> runCatching { optionMapping.asBoolean }
                 .getOrNull()
 
-            SuspendingCommandArgumentType.USER -> runCatching { optionMapping.asUser }
+            CommandArgumentType.USER -> runCatching { optionMapping.asUser }
                 .map { DiscordUser(it) }
                 .getOrNull()
 
-            SuspendingCommandArgumentType.CHANNEL -> runCatching { optionMapping.asChannel }
+            CommandArgumentType.CHANNEL -> runCatching { optionMapping.asChannel }
                 .map { DiscordChannel.create(it) }
                 .getOrNull()
 
-            SuspendingCommandArgumentType.ROLE -> runCatching { optionMapping.asRole }
+            CommandArgumentType.ROLE -> runCatching { optionMapping.asRole }
                 .map { DiscordRole(it) }
                 .getOrNull()
 
-            SimpleCommandArgumentType.MENTIONABLE -> runCatching { optionMapping.asMentionable }
+            CommandArgumentType.MENTIONABLE -> runCatching { optionMapping.asMentionable }
                 .map { DiscordMentionable.create(it, interaction.jda) }
                 .getOrNull()
 
-            SimpleCommandArgumentType.ATTACHMENT -> runCatching { optionMapping.asAttachment }
+            CommandArgumentType.ATTACHMENT -> runCatching { optionMapping.asAttachment }
                 .map {
                     Attachment(
                         id = it.id,

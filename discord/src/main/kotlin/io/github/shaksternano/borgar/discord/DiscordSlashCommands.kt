@@ -126,15 +126,15 @@ private fun CommandArgumentInfo<*>.toOption(): OptionData = OptionData(
 )
 
 private fun CommandArgumentType<*>.toOptionType(): OptionType = when (this) {
-    SimpleCommandArgumentType.STRING -> OptionType.STRING
-    SimpleCommandArgumentType.LONG -> OptionType.INTEGER
-    SimpleCommandArgumentType.DOUBLE -> OptionType.NUMBER
-    SimpleCommandArgumentType.BOOLEAN -> OptionType.BOOLEAN
-    SuspendingCommandArgumentType.USER -> OptionType.USER
-    SuspendingCommandArgumentType.CHANNEL -> OptionType.CHANNEL
-    SuspendingCommandArgumentType.ROLE -> OptionType.ROLE
-    SimpleCommandArgumentType.MENTIONABLE -> OptionType.MENTIONABLE
-    SimpleCommandArgumentType.ATTACHMENT -> OptionType.ATTACHMENT
+    CommandArgumentType.STRING -> OptionType.STRING
+    CommandArgumentType.LONG -> OptionType.INTEGER
+    CommandArgumentType.DOUBLE -> OptionType.NUMBER
+    CommandArgumentType.BOOLEAN -> OptionType.BOOLEAN
+    CommandArgumentType.USER -> OptionType.USER
+    CommandArgumentType.CHANNEL -> OptionType.CHANNEL
+    CommandArgumentType.ROLE -> OptionType.ROLE
+    CommandArgumentType.MENTIONABLE -> OptionType.MENTIONABLE
+    CommandArgumentType.ATTACHMENT -> OptionType.ATTACHMENT
 }
 
 private class DummyMessage(

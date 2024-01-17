@@ -9,13 +9,13 @@ object DemotivateCommand : FileCommand(
     CommandArgumentInfo(
         key = "text",
         description = "The text to put on the image",
-        type = SimpleCommandArgumentType.STRING,
+        type = CommandArgumentType.STRING,
         required = false,
     ),
     CommandArgumentInfo(
         key = "sub",
         description = "The subtext to put on the image",
-        type = SimpleCommandArgumentType.STRING,
+        type = CommandArgumentType.STRING,
         required = false,
     )
 ) {

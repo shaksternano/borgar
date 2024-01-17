@@ -25,13 +25,13 @@ abstract class FileCommand(
             CommandArgumentInfo(
                 key = "attachment",
                 description = "The attachment to use",
-                type = SimpleCommandArgumentType.ATTACHMENT,
+                type = CommandArgumentType.ATTACHMENT,
                 required = false,
             ),
             CommandArgumentInfo(
                 key = "url",
                 description = "The URL to use",
-                type = SimpleCommandArgumentType.STRING,
+                type = CommandArgumentType.STRING,
                 required = false,
             ),
         )

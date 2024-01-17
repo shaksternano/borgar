@@ -1,8 +1,8 @@
 package io.github.shaksternano.borgar.core.io.task
 
+import io.github.shaksternano.borgar.core.graphics.Position
 import io.github.shaksternano.borgar.core.graphics.drawable.Drawable
 import io.github.shaksternano.borgar.core.graphics.drawable.ParagraphCompositeDrawable
-import io.github.shaksternano.borgar.core.graphics.Position
 import io.github.shaksternano.borgar.core.graphics.drawable.draw
 import io.github.shaksternano.borgar.core.graphics.fillRect
 import io.github.shaksternano.borgar.core.io.closeAll
@@ -12,7 +12,6 @@ import io.github.shaksternano.borgar.core.util.splitWords
 import kotlinx.coroutines.flow.Flow
 import java.awt.Color
 import java.awt.Font
-import java.awt.Graphics2D
 import java.awt.Rectangle
 import java.awt.image.BufferedImage
 import kotlin.math.max
@@ -67,7 +66,6 @@ private class DemotivateProcessor(
         graphics.fillRect(constantData.leftBorder)
         graphics.fillRect(constantData.rightBorder)
 
-
         // Draw text
         graphics.font = constantData.font
         ImageUtil.configureTextDrawQuality(graphics)
@@ -94,7 +92,7 @@ private class DemotivateProcessor(
 
         val demotivateImagePadding = (contentAverageDimension * 0.2).toInt()
 
-        val graphics: Graphics2D = firstImage.createGraphics()
+        val graphics = firstImage.createGraphics()
 
         val font = Font("Times", Font.PLAIN, contentAverageDimension / 6)
         val subFont = font.deriveFont(font.size / 3F)
