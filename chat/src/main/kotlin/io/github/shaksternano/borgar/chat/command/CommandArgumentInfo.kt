@@ -36,10 +36,10 @@ private fun <T> allowAllValidator(): Validator<T> {
     return AllowAllValidator as Validator<T>
 }
 
-private object AllowAllValidator : Validator<Nothing> {
-    override fun validate(value: Nothing): Boolean = true
+private object AllowAllValidator : Validator<Any?> {
+    override fun validate(value: Any?): Boolean = true
 
-    override fun errorMessage(value: Nothing, key: String): String = ""
+    override fun errorMessage(value: Any?, key: String): String = ""
 }
 
 class LongRangeValidator(
