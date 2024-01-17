@@ -15,7 +15,7 @@ public class ShapeFilesGenerator {
 
     private static final Logger LOGGER = MiscUtil.createLogger("Shape Files Generator");
 
-    private static final String SHAPE_FILES_DIRECTORY = "src/main/resources/" + FileUtil.getResourcePathInRootPackage("shape");
+    private static final String SHAPE_FILES_DIRECTORY = "src/main/resources/shape";
 
     public static void main(String[] args) {
         generateShapeFileFromImage("image/containerimage/thinking_bubble_edge_trimmed.png", new Coordinate(10, 120), new Coordinate(30, 90), new Coordinate(70, 40));
@@ -29,7 +29,7 @@ public class ShapeFilesGenerator {
         File directory = new File(SHAPE_FILES_DIRECTORY);
         directory.mkdirs();
         if (directory.isDirectory()) {
-            try (InputStream inputStream = FileUtil.getResourceInRootPackage(imageResourcePath)) {
+            try (InputStream inputStream = FileUtil.getResource(imageResourcePath)) {
                 BufferedImage image = ImageIO.read(inputStream);
                 for (Coordinate fillStartPosition : fillStartPositions) {
                     image = ImageUtil.floodFill(image, fillStartPosition.x(), fillStartPosition.y(), Color.WHITE);

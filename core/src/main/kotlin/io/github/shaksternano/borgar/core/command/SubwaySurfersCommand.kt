@@ -30,7 +30,7 @@ object SubwaySurfersCommand : FileCommand(
     ): NamedFile {
         val resultName = "subway_surfers"
         val subwaySurfersPath = "media/overlay/subway_surfers_gameplay.mp4"
-        val inputStream = FileUtil.getResourceInRootPackage(subwaySurfersPath)
+        val inputStream = FileUtil.getResource(subwaySurfersPath)
         val reader = MediaReaders.createImageReader(inputStream, "mp4")
         return NamedFile(
             MediaUtil.processMedia(

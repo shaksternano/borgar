@@ -36,7 +36,7 @@ public class GraphicsUtil {
     }
 
     public static Shape loadShape(String resourcePath) throws IOException {
-        try (ObjectInputStream input = new ObjectInputStream(FileUtil.getResourceInRootPackage(resourcePath))) {
+        try (ObjectInputStream input = new ObjectInputStream(FileUtil.getResource(resourcePath))) {
             Object parsedObject = input.readObject();
             if (parsedObject instanceof Shape shape) {
                 return shape;

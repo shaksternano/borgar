@@ -125,7 +125,7 @@ public class SpeechBubbleCommand extends FileCommand {
                 : "media/overlay/speech_bubble_1_partial.png";
             BufferedImage speechBubble;
             try (
-                var inputStream = FileUtil.getResourceInRootPackage(speechBubblePath);
+                var inputStream = FileUtil.getResource(speechBubblePath);
                 var reader = MediaReaders.createImageReader(inputStream, "png")
             ) {
                 speechBubble = reader.first().getContent();

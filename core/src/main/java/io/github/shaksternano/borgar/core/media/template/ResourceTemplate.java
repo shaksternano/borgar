@@ -330,7 +330,7 @@ public enum ResourceTemplate implements Template {
     }
 
     private String determineFormat() {
-        try (var inputStream = FileUtil.getResourceInRootPackage(imagePath)) {
+        try (var inputStream = FileUtil.getResource(imagePath)) {
             return ImageUtil.getImageFormat(inputStream);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -339,13 +339,13 @@ public enum ResourceTemplate implements Template {
 
     @Override
     public MediaReader<ImageFrameOld> getImageReader() throws IOException {
-        var inputStream = FileUtil.getResourceInRootPackage(imagePath);
+        var inputStream = FileUtil.getResource(imagePath);
         return MediaReaders.createImageReader(inputStream, format);
     }
 
     @Override
     public MediaReader<AudioFrameOld> getAudioReader() throws IOException {
-        var inputStream = FileUtil.getResourceInRootPackage(imagePath);
+        var inputStream = FileUtil.getResource(imagePath);
         return MediaReaders.createAudioReader(inputStream, format);
     }
 
@@ -466,7 +466,7 @@ public enum ResourceTemplate implements Template {
             Main.getLogger().error("Image resource path in " + containerImageInfo.getClass().getSimpleName() + " \"" + containerImageInfo + "\" is null!");
         } else {
             try {
-                FileUtil.validateResourcePathInRootPackage(containerImageInfo.imagePath);
+                FileUtil.validateResourcePath(containerImageInfo.imagePath);
 
                 try (
                     @SuppressWarnings("unused")
@@ -504,7 +504,7 @@ public enum ResourceTemplate implements Template {
     private static void validateContentClip(ResourceTemplate containerImageInfo) {
         if (containerImageInfo.contentClipShapeFilePath != null) {
             try {
-                FileUtil.validateResourcePathInRootPackage(containerImageInfo.contentClipShapeFilePath);
+                FileUtil.validateResourcePath(containerImageInfo.contentClipShapeFilePath);
 
                 try {
                     GraphicsUtil.loadShape(containerImageInfo.contentClipShapeFilePath);

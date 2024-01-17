@@ -17,12 +17,12 @@ import java.util.stream.Collectors;
 
 public class EmojiUtil {
 
-    public static final String EMOJI_FILES_DIRECTORY = "src/main/resources/" + FileUtil.getResourcePathInRootPackage("emoji");
+    public static final String EMOJI_FILES_DIRECTORY = "src/main/resources/emoji";
     private static Set<String> emojiUnicodeSet = ImmutableSet.of();
     private static Map<String, String> emojiShortcodesToUrls = ImmutableMap.of();
 
     public static void initEmojiUnicodeSet() {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(FileUtil.getResourceInRootPackage("emoji/emoji_unicodes.txt")))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(FileUtil.getResource("emoji/emoji_unicodes.txt")))) {
             ImmutableSet.Builder<String> builder = ImmutableSet.builder();
             String line;
             while ((line = reader.readLine()) != null) {
@@ -35,7 +35,7 @@ public class EmojiUtil {
     }
 
     public static void initEmojiShortCodesToUrlsMap() {
-        try (Reader reader = new InputStreamReader(FileUtil.getResourceInRootPackage("emoji/emojis.json"))) {
+        try (Reader reader = new InputStreamReader(FileUtil.getResource("emoji/emojis.json"))) {
             JsonElement emojiNamesElement = JsonParser.parseReader(reader);
             if (emojiNamesElement instanceof JsonObject emojiNamesObject) {
                 emojiShortcodesToUrls = emojiNamesObject.entrySet()

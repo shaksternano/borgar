@@ -32,8 +32,6 @@ import java.util.regex.Pattern;
  */
 public class FileUtil {
 
-    private static final String ROOT_RESOURCE_DIRECTORY = Main.getRootPackage().replace(".", "/") + "/";
-
     /**
      * The maximum file size that is allowed to be downloaded, 100MB.
      */
@@ -46,10 +44,6 @@ public class FileUtil {
         return file;
     }
 
-    public static String getResourcePathInRootPackage(String resourcePath) {
-        return ROOT_RESOURCE_DIRECTORY + resourcePath;
-    }
-
     /**
      * Gets a resource bundled with the program.
      *
@@ -57,11 +51,7 @@ public class FileUtil {
      * @return The resource as an {@link InputStream}.
      * @throws FileNotFoundException If the resource could not be found.
      */
-    public static InputStream getResourceInRootPackage(String resourcePath) throws FileNotFoundException {
-        return getResource(getResourcePathInRootPackage(resourcePath));
-    }
-
-    private static InputStream getResource(String resourcePath) throws FileNotFoundException {
+    public static InputStream getResource(String resourcePath) throws FileNotFoundException {
         InputStream inputStream = FileUtil.class.getClassLoader().getResourceAsStream(resourcePath);
         if (inputStream == null) {
             throw new FileNotFoundException("Resource not found: " + resourcePath + "!");
@@ -100,7 +90,7 @@ public class FileUtil {
     public static void downloadFile(String url, File file) throws IOException {
         try (
             var outputStream = new FileOutputStream(file);
-            var readableByteChannel = Channels.newChannel(new URL(url).openStream())
+            var readableByteChannel = Channels.newChannel(URI.create(url).toURL().openStream())
         ) {
             outputStream.getChannel().transferFrom(readableByteChannel, 0, MAXIMUM_FILE_SIZE_TO_DOWNLOAD);
         }
@@ -137,11 +127,11 @@ public class FileUtil {
         }
     }
 
-    public static void validateResourcePathInRootPackage(String resourcePath) throws IOException {
+    public static void validateResourcePath(String resourcePath) throws IOException {
         if (resourcePath == null || resourcePath.isBlank()) {
             throw new IllegalArgumentException("File path cannot be null or blank!");
         } else {
-            try (InputStream inputStream = ResourceTemplate.class.getClassLoader().getResourceAsStream(getResourcePathInRootPackage(resourcePath))) {
+            try (InputStream inputStream = ResourceTemplate.class.getClassLoader().getResourceAsStream(resourcePath)) {
                 if (inputStream == null) {
                     throw new FileNotFoundException("File path not found: " + resourcePath);
                 }
@@ -159,7 +149,7 @@ public class FileUtil {
     public static void forEachResource(String directory, BiConsumer<String, InputStream> operation) {
         // Remove trailing forward slashes
         String trimmedDirectory = directory.trim().replaceAll("/$", "");
-        String packageName = Main.getRootPackage() + "." + trimmedDirectory.replaceAll(Pattern.quote("/"), ".");
+        String packageName = trimmedDirectory.replaceAll(Pattern.quote("/"), ".");
         Set<String> resourcePaths = getResourcePaths(packageName);
         for (String resourcePath : resourcePaths) {
             try (InputStream inputStream = getResource(resourcePath)) {

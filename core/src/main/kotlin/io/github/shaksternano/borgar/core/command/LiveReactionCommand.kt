@@ -54,7 +54,7 @@ object LiveReactionCommand : KotlinCommand<Path>(
             val imageReader = MediaReaders.createImageReader(file, fileFormat)
             val audioReader = MediaReaders.createAudioReader(file, fileFormat)
             val liveReactionReader = MediaReaders.createImageReader(
-                FileUtil.getResourceInRootPackage("media/background/live_reaction.png"),
+                FileUtil.getResource("media/background/live_reaction.png"),
                 "png",
             )
             val liveReactionImage = liveReactionReader.first().content
