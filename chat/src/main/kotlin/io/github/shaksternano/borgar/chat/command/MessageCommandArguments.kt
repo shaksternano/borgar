@@ -6,16 +6,28 @@ import io.github.shaksternano.borgar.core.util.kClass
 
 class MessageCommandArguments(
     arguments: Map<String, String>,
-    defaultArgument: String,
     override val defaultKey: String?,
+    defaultArgumentValue: String,
+    argumentInfo: Iterable<CommandArgumentInfo<*>>,
     private val message: Message,
 ) : CommandArguments {
 
     private val arguments: Map<String, String> = buildMap {
-        if (defaultKey != null && defaultArgument.isNotBlank()) {
-            put(defaultKey, defaultArgument)
+        if (defaultKey != null && defaultArgumentValue.isNotBlank()) {
+            this[defaultKey] = defaultArgumentValue
         }
-        putAll(arguments)
+        val argumentNames = argumentInfo.map(CommandArgumentInfo<*>::key).toSet()
+        val aliases = argumentInfo.flatMap { argumentInfo ->
+            argumentInfo.aliases.map { alias ->
+                alias to argumentInfo.key
+            }
+        }.toMap()
+        arguments.forEach { (key, value) ->
+            val argumentKey = aliases[key] ?: key
+            if (argumentKey in argumentNames) {
+                this[argumentKey] = value
+            }
+        }
     }
 
     override fun contains(key: String): Boolean =

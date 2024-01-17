@@ -5,6 +5,7 @@ import io.github.shaksternano.borgar.core.util.kClass
 
 data class CommandArgumentInfo<T>(
     val key: String,
+    val aliases: Set<String> = emptySet(),
     val description: String = "",
     val type: CommandArgumentType<T>,
     val required: Boolean = true,

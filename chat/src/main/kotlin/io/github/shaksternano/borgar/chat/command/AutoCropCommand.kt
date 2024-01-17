@@ -8,6 +8,7 @@ import java.awt.Color
 object AutoCropCommand : FileCommand(
     CommandArgumentInfo(
         key = "tolerance",
+        aliases = setOf("t"),
         description = "Background crop colour tolerance.",
         type = CommandArgumentType.DOUBLE,
         required = false,
@@ -22,6 +23,7 @@ object AutoCropCommand : FileCommand(
     ),
     CommandArgumentInfo(
         key = "first",
+        aliases = setOf("f"),
         description = "Whether to only check the background in the first frame or not.",
         type = CommandArgumentType.BOOLEAN,
         required = false,

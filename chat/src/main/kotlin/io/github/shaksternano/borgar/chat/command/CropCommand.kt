@@ -8,6 +8,7 @@ import io.github.shaksternano.borgar.core.io.task.FileTask
 object CropCommand : FileCommand(
     CommandArgumentInfo(
         key = "top",
+        aliases = setOf("t"),
         description = "Top crop ratio.",
         type = CommandArgumentType.DOUBLE,
         required = false,
@@ -16,6 +17,7 @@ object CropCommand : FileCommand(
     ),
     CommandArgumentInfo(
         key = "bottom",
+        aliases = setOf("b"),
         description = "Bottom crop ratio.",
         type = CommandArgumentType.DOUBLE,
         required = false,
@@ -24,6 +26,7 @@ object CropCommand : FileCommand(
     ),
     CommandArgumentInfo(
         key = "left",
+        aliases = setOf("l"),
         description = "Left crop ratio.",
         type = CommandArgumentType.DOUBLE,
         required = false,
@@ -32,6 +35,7 @@ object CropCommand : FileCommand(
     ),
     CommandArgumentInfo(
         key = "right",
+        aliases = setOf("r"),
         description = "Right crop ratio.",
         type = CommandArgumentType.DOUBLE,
         required = false,

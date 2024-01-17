@@ -6,7 +6,8 @@ import io.github.shaksternano.borgar.core.io.task.FlipTask
 
 object FlipCommand : FileCommand(
     CommandArgumentInfo(
-        key = "v",
+        key = "vertical",
+        aliases = setOf("v"),
         description = "Whether to flip vertically or not.",
         type = CommandArgumentType.BOOLEAN,
         required = false,
@@ -18,7 +19,7 @@ object FlipCommand : FileCommand(
     override val description: String = "Flips media horizontally or vertically."
 
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {
-        val vertical = getRequiredArgument("v", CommandArgumentType.BOOLEAN, arguments)
+        val vertical = getRequiredArgument("vertical", CommandArgumentType.BOOLEAN, arguments)
         return FlipTask(vertical, maxFileSize)
     }
 }

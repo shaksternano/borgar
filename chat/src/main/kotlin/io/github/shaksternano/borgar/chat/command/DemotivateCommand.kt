@@ -13,7 +13,8 @@ object DemotivateCommand : FileCommand(
         required = false,
     ),
     CommandArgumentInfo(
-        key = "sub",
+        key = "subtext",
+        aliases = setOf("sub"),
         description = "The subtext to put on the image",
         type = CommandArgumentType.STRING,
         required = false,
@@ -26,7 +27,7 @@ object DemotivateCommand : FileCommand(
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask =
         DemotivateTask(
             arguments.getDefaultStringOrEmpty(),
-            arguments.getStringOrEmpty("sub"),
+            arguments.getStringOrEmpty("subtext"),
             event.asMessageIntersection(arguments).getEmojiDrawables(),
             maxFileSize,
         )

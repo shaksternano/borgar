@@ -12,14 +12,16 @@ object DownloadCommand : FileCommand(
         required = true,
     ),
     CommandArgumentInfo(
-        key = "a",
+        key = "audioonly",
+        aliases = setOf("a"),
         description = "Whether to only download audio or not. Not all websites support this.",
         type = CommandArgumentType.BOOLEAN,
         required = false,
         defaultValue = false,
     ),
     CommandArgumentInfo(
-        key = "n",
+        key = "filenumber",
+        aliases = setOf("n"),
         description = "The file to download. If not specified, all files will be downloaded.",
         type = CommandArgumentType.LONG,
         required = false,
@@ -29,16 +31,14 @@ object DownloadCommand : FileCommand(
 ) {
 
     override val name: String = "download"
-    override val aliases: Set<String> = setOf(
-        "dl",
-    )
+    override val aliases: Set<String> = setOf("dl")
     override val description: String =
         "Downloads a file from a social media website, for example, a video from YouTube."
 
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {
         val url = getRequiredArgument("url", CommandArgumentType.STRING, arguments)
-        val audioOnly = getRequiredArgument("a", CommandArgumentType.BOOLEAN, arguments)
-        val fileNumber = getOptionalArgument("n", CommandArgumentType.LONG, arguments)?.toInt()
+        val audioOnly = getRequiredArgument("audioonly", CommandArgumentType.BOOLEAN, arguments)
+        val fileNumber = getOptionalArgument("filenumber", CommandArgumentType.LONG, arguments)?.toInt()
         return DownloadTask(url, audioOnly, fileNumber, maxFileSize)
     }
 }
