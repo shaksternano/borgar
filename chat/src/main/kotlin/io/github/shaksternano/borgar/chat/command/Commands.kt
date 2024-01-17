@@ -24,10 +24,22 @@ val COMMANDS: Map<String, Command> = registerCommands(
     DownloadCommand,
 )
 
+val COMMANDS_AND_ALIASES: Map<String, Command> = buildMap {
+    putAll(COMMANDS)
+    COMMANDS.values.forEach { command ->
+        command.aliases.forEach { alias ->
+            if (containsKey(alias)) throw IllegalArgumentException(
+                "A command with the name or alias $alias already exists. Existing command: ${get(alias)}. New command: $command"
+            )
+            put(alias, command)
+        }
+    }
+}
+
 private fun registerCommands(vararg commands: Command): Map<String, Command> = buildMap {
     commands.forEach {
         if (containsKey(it.name)) throw IllegalArgumentException(
-            "Command with name ${it.name} already exists. Existing command: ${get(it.name)}. New command: $it"
+            "A command with the name ${it.name} already exists. Existing command: ${get(it.name)}. New command: $it"
         )
         put(it.name, it)
     }

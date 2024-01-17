@@ -28,7 +28,10 @@ object DownloadCommand : FileCommand(
     requireInput = false,
 ) {
 
-    override val name: String = "dl"
+    override val name: String = "download"
+    override val aliases: Set<String> = setOf(
+        "dl",
+    )
     override val description: String =
         "Downloads a file from a social media website, for example, a video from YouTube."
 

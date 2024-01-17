@@ -178,7 +178,7 @@ private suspend fun userDetails(user: User, guild: Guild?): DisplayedUser {
 suspend fun parseCommands(message: Message): List<CommandConfig> {
     return parseRawCommands(message.content)
         .mapIndexed { index, (commandString, rawArguments, defaultArgument) ->
-            val command = COMMANDS[commandString] ?: getCustomTemplateCommand(
+            val command = COMMANDS_AND_ALIASES[commandString] ?: getCustomTemplateCommand(
                 commandString,
                 message
             )

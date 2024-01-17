@@ -8,6 +8,8 @@ import io.github.shaksternano.borgar.core.util.startsWithVowel
 interface Command {
 
     val name: String
+    val aliases: Set<String>
+        get() = emptySet()
     val description: String
     val argumentInfo: Set<CommandArgumentInfo<*>>
         get() = emptySet()
@@ -129,9 +131,14 @@ abstract class BaseCommand : Command {
     override fun toString(): String =
         "Command(" +
             "name='$name'," +
+            "aliases=$aliases," +
             "description='$description'," +
+            "argumentInfo=$argumentInfo," +
             "defaultArgumentKey=$defaultArgumentKey," +
-            "argumentData=$argumentInfo)"
+            "guildOnly=$guildOnly," +
+            "requiredPermissions=$requiredPermissions," +
+            "entityId=$entityId" +
+            ")"
 }
 
 private class ArgumentRetrievalResult<T>(
