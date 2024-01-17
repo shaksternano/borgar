@@ -8,6 +8,10 @@ class ChangeExtensionCommand(
     private val newExtension: String
 ) : FileCommand() {
 
+    companion object {
+        val GIF: Command = ChangeExtensionCommand("gif")
+    }
+
     override val name: String = "${newExtension}2"
     override val description: String = "Changes the extension of a file to `.$newExtension`."
 
