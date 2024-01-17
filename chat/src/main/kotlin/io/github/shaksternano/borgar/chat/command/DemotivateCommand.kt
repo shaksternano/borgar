@@ -10,7 +10,6 @@ object DemotivateCommand : FileCommand(
         key = "text",
         description = "The text to put on the image",
         type = CommandArgumentType.STRING,
-        required = false,
     ),
     CommandArgumentInfo(
         key = "subtext",

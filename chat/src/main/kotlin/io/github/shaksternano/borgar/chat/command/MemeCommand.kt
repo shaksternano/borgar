@@ -10,7 +10,6 @@ object MemeCommand : FileCommand(
         key = "text",
         description = "The text to put on the top of the image.",
         type = CommandArgumentType.STRING,
-        required = false,
     ),
     CommandArgumentInfo(
         key = "bottom",

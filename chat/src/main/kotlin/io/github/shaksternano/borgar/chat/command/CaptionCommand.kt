@@ -13,7 +13,6 @@ sealed class CaptionCommand(
         key = "caption",
         description = "The caption text",
         type = CommandArgumentType.STRING,
-        required = false,
     )
 ) {
 
