@@ -11,6 +11,7 @@ import io.github.shaksternano.borgar.chat.entity.channel.MessageChannel
 import io.github.shaksternano.borgar.chat.event.CommandEvent
 import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.core.util.asSingletonList
+import io.github.shaksternano.borgar.core.util.splitWords
 import io.github.shaksternano.borgar.discord.entity.DiscordUser
 import io.github.shaksternano.borgar.discord.entity.channel.DiscordMessageChannel
 import io.github.shaksternano.borgar.discord.event.SlashCommandEvent
@@ -109,7 +110,9 @@ private suspend fun getAfterCommandConfigs(
         )
     )
     if (configs.isEmpty()) {
-        val firstCommand = afterCommands.split(" ", limit = 2).first().substring(1)
+        val firstCommand = afterCommands.splitWords(limit = 2)
+            .first()
+            .substring(1)
         throw CommandNotFoundException(firstCommand)
     }
     return configs
