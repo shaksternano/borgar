@@ -12,7 +12,7 @@ class OutlinedTextDrawable(
     private val text: String,
     private val fillColor: Color,
     private val outlineColor: Color,
-    private val outlineWidthRatio: Float,
+    private val outlineWidthRatio: Double,
 ) : Drawable {
 
     override suspend fun draw(graphics: Graphics2D, x: Int, y: Int, timestamp: Duration) {
@@ -20,7 +20,7 @@ class OutlinedTextDrawable(
         val textOutlineWidth = font.size2D * outlineWidthRatio
         val actualX = x + textOutlineWidth.toInt()
         val actualY = y + graphics.fontMetrics.ascent
-        val outlineStroke = BasicStroke(textOutlineWidth)
+        val outlineStroke = BasicStroke(textOutlineWidth.toFloat())
 
         val originalColor = graphics.color
         val originalStroke = graphics.stroke
@@ -52,7 +52,7 @@ class OutlinedTextDrawable(
 
     override fun getHeight(graphicsContext: Graphics2D): Int {
         val font = graphicsContext.font
-        val textOutlineWidth: Float = font.size2D * outlineWidthRatio
+        val textOutlineWidth = font.size2D * outlineWidthRatio
         return (graphicsContext.bounds(text).height + textOutlineWidth * 2).toInt()
     }
 
