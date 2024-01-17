@@ -14,7 +14,7 @@ import io.github.shaksternano.borgar.core.data.repository.TemplateRepository
 import io.github.shaksternano.borgar.core.exception.FailedOperationException
 import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.core.util.endOfWord
-import io.github.shaksternano.borgar.core.util.indexesOfPrefix
+import io.github.shaksternano.borgar.core.util.indicesOfPrefix
 import io.github.shaksternano.borgar.core.util.split
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.fold
@@ -203,7 +203,10 @@ internal fun parseRawCommands(message: String): List<RawCommandConfig> {
     return parseCommandStrings(message).map { commandString ->
         val commandEndIndex = commandString.endOfWord(COMMAND_PREFIX.length)
         val command = commandString.substring(COMMAND_PREFIX.length, commandEndIndex)
-        val argumentPrefixIndexes = commandString.indexesOfPrefix(ARGUMENT_PREFIX)
+        val argumentPrefixIndexes = commandString.indicesOfPrefix(ARGUMENT_PREFIX) {
+            // Ignore if the prefix is followed by a digit to allow negative number arguments
+            !it.isDigit()
+        }
         val arguments = commandString.split(argumentPrefixIndexes)
             .associate {
                 val argumentNameEndIndex = it.endOfWord(ARGUMENT_PREFIX.length)
@@ -223,7 +226,7 @@ internal fun parseRawCommands(message: String): List<RawCommandConfig> {
 }
 
 internal fun parseCommandStrings(message: String): List<String> {
-    val commandPrefixIndexes = message.indexesOfPrefix(COMMAND_PREFIX)
+    val commandPrefixIndexes = message.indicesOfPrefix(COMMAND_PREFIX)
     return message.split(commandPrefixIndexes).map { it.trim() }
 }
 

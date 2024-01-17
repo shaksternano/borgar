@@ -8,38 +8,37 @@ private val URL_REGEX: Regex =
     "\\b((?:https?|ftp|file)://[-a-zA-Z\\d+&@#/%?=~_|!:, .;]*[-a-zA-Z\\d+&@#/%=~_|])".toRegex()
 private val WHITE_SPACE_REGEX: Regex = "\\s+".toRegex()
 
-fun CharSequence.startsWithVowel(): Boolean {
-    return isNotEmpty() && first().lowercaseChar() in VOWELS
-}
+fun CharSequence.startsWithVowel(): Boolean =
+    isNotEmpty() && first().lowercaseChar() in VOWELS
 
-fun CharSequence.getUrls(): List<String> {
-    return URL_REGEX.findAll(this).map { it.value }.toList()
-}
+fun CharSequence.getUrls(): List<String> =
+    URL_REGEX.findAll(this).map { it.value }.toList()
 
-fun CharSequence.indexesOfPrefix(prefix: String, ignoreCase: Boolean = false): List<Int> {
-    return indexesOf(prefix, ignoreCase)
-        .filter {
-            val isStart = it == 0 || this[it - 1].isWhitespace()
-            val prefixEndIndex = it + prefix.length
-            val endsWithWord = prefixEndIndex < length && !this[prefixEndIndex].isWhitespace()
-            isStart && endsWithWord
-        }
-}
+fun CharSequence.indicesOfPrefix(
+    prefix: String,
+    ignoreCase: Boolean = false,
+    afterPrefixPredicate: (Char) -> Boolean = { true }
+): List<Int> = indicesOf(prefix, ignoreCase)
+    .filter {
+        val isStart = it == 0 || this[it - 1].isWhitespace()
+        val prefixEndIndex = it + prefix.length
+        val endsWithWord = prefixEndIndex < length && !this[prefixEndIndex].isWhitespace()
+        isStart && endsWithWord && afterPrefixPredicate(this[prefixEndIndex])
+    }
 
-fun CharSequence.indexesOf(substr: String, ignoreCase: Boolean = false): List<Int> {
+fun CharSequence.indicesOf(substr: String, ignoreCase: Boolean = false): List<Int> {
     val regex = if (ignoreCase) Regex(substr, RegexOption.IGNORE_CASE) else Regex(substr)
     return regex.findAll(this).map { it.range.first }.toList()
 }
 
-fun CharSequence.split(indexes: Iterable<Int>): List<String> {
-    return indexes.windowed(2, partialWindows = true) {
+fun CharSequence.split(indices: Iterable<Int>): List<String> =
+    indices.windowed(2, partialWindows = true) {
         if (it.size == 2) {
             substring(it[0], it[1])
         } else {
             substring(it[0])
         }
     }
-}
 
 fun CharSequence.endOfWord(startIndex: Int): Int {
     var endIndex = startIndex
