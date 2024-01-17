@@ -23,6 +23,7 @@ import net.dv8tion.jda.internal.entities.MessageMentionsImpl
 class DiscordManager(
     private val jda: JDA,
 ) : BotManager {
+
     companion object {
         private val managers: MutableMap<JDA, BotManager> = mutableMapOf()
 
@@ -30,11 +31,10 @@ class DiscordManager(
             managers[jda] = DiscordManager(jda)
         }
 
-        fun get(jda: JDA): BotManager {
-            return managers.getOrElse(jda) {
+        fun get(jda: JDA): BotManager =
+            managers.getOrElse(jda) {
                 throw IllegalArgumentException("No manager for $jda")
             }
-        }
     }
 
     override val maxMessageContentLength: Int = Message.MAX_CONTENT_LENGTH
@@ -58,25 +58,21 @@ class DiscordManager(
         DataArray.empty(),
     )
 
-    override fun getCustomEmojis(content: String): List<CustomEmoji> {
-        if (content.isBlank()) return emptyList()
-        return getMentions(content).customEmojis.map { DiscordCustomEmoji(it, jda) }
-    }
+    override fun getCustomEmojis(content: String): List<CustomEmoji> =
+        if (content.isBlank()) emptyList()
+        else getMentions(content).customEmojis.map { DiscordCustomEmoji(it, jda) }
 
-    override fun getMentionedUsers(content: String): List<User> {
-        if (content.isBlank()) return emptyList()
-        return getMentions(content).users.map { DiscordUser(it) }
-    }
+    override fun getMentionedUsers(content: String): List<User> =
+        if (content.isBlank()) emptyList()
+        else getMentions(content).users.map { DiscordUser(it) }
 
-    override fun getMentionedChannels(content: String): List<Channel> {
-        if (content.isBlank()) return emptyList()
-        return getMentions(content).channels.map { DiscordChannel.create(it) }
-    }
+    override fun getMentionedChannels(content: String): List<Channel> =
+        if (content.isBlank()) emptyList()
+        else getMentions(content).channels.map { DiscordChannel.create(it) }
 
-    override fun getMentionedRoles(content: String): List<Role> {
-        if (content.isBlank()) return emptyList()
-        return getMentions(content).roles.map { DiscordRole(it) }
-    }
+    override fun getMentionedRoles(content: String): List<Role> =
+        if (content.isBlank()) emptyList()
+        else getMentions(content).roles.map { DiscordRole(it) }
 
     override fun getEmojiName(typedEmoji: String): String = typedEmoji.removeSurrounding(":")
 
@@ -84,9 +80,4 @@ class DiscordManager(
 
     override fun getPermissionName(permission: Permission): String =
         permission.toDiscord().getName()
-
-    private fun Permission.toDiscord(): net.dv8tion.jda.api.Permission = when (this) {
-        Permission.MANAGE_GUILD_EXPRESSIONS -> net.dv8tion.jda.api.Permission.MANAGE_GUILD_EXPRESSIONS
-        else -> net.dv8tion.jda.api.Permission.UNKNOWN
-    }
 }

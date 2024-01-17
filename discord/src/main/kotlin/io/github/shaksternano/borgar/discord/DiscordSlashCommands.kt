@@ -36,7 +36,7 @@ fun JDA.registerSlashCommands() {
 
 private fun Command.toSlash(): SlashCommandData = Command(name, description) {
     isGuildOnly = guildOnly
-    val discordPermissions = requiredPermissions.map { getDiscordPermission(it) }
+    val discordPermissions = requiredPermissions.map { it.toDiscord() }
     defaultPermissions = DefaultMemberPermissions.enabledFor(discordPermissions)
     addOptions(argumentInfo.map(CommandArgumentInfo<*>::toOption))
     if (this@toSlash is FileCommand) {
@@ -132,7 +132,6 @@ private fun CommandArgumentType<*>.toOptionType(): OptionType = when (this) {
     SuspendingCommandArgumentType.ROLE -> OptionType.ROLE
     SimpleCommandArgumentType.MENTIONABLE -> OptionType.MENTIONABLE
     SimpleCommandArgumentType.ATTACHMENT -> OptionType.ATTACHMENT
-    else -> OptionType.UNKNOWN
 }
 
 private class DummyMessage(
