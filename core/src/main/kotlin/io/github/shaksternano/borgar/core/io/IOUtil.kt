@@ -92,14 +92,13 @@ suspend fun HttpResponse.size(): Long =
         size
     }
 
-fun HttpResponse.filename(): String? = headers["Content-Length"]?.let {
-    val headerParts = it.split("filename=")
-    if (headerParts.size < 2) null
-    else {
+fun HttpResponse.filename(): String? = headers["Content-Disposition"]?.let {
+    val headerParts = it.split("filename=", limit = 2)
+    if (headerParts.size == 2) {
         val filename = headerParts[1].trim()
             .removeSurrounding("\"")
         filename.ifBlank { null }
-    }
+    } else null
 }
 
 private suspend inline fun HttpResponse.readBytes(block: (ByteArray) -> Unit) {
