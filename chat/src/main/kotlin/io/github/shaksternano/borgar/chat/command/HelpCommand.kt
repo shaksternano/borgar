@@ -33,9 +33,15 @@ object HelpCommand : NonChainableCommand() {
     ): List<CommandResponse> {
         val guild = event.getGuild()
         val entityId = guild?.id ?: event.getAuthor().id
-        val commandName = arguments.getDefaultStringOrEmpty().lowercase()
+        val commandName = arguments.getDefaultStringOrEmpty()
+            .removePrefix(COMMAND_PREFIX)
+            .lowercase()
         return if (commandName.isBlank()) {
-            getHelpMessages(entityId, event.manager.maxMessageContentLength, guild != null).map {
+            getHelpMessages(
+                entityId = entityId,
+                maxContentLength = event.manager.maxMessageContentLength,
+                fromGuild = guild != null
+            ).map {
                 CommandResponse(it, suppressEmbeds = true)
             }
         } else {
@@ -89,7 +95,7 @@ object HelpCommand : NonChainableCommand() {
         event: CommandEvent
     ): String {
         val manager = event.manager
-        val command = COMMANDS[commandName] ?: run {
+        val command = COMMANDS_AND_ALIASES[commandName] ?: run {
             val entityIdSplit = commandName.split(ENTITY_ID_SEPARATOR, limit = 2)
             val externalGuild = entityIdSplit.size == 2
             val (newCommandName, newEntityId) = if (externalGuild) {
@@ -106,30 +112,32 @@ object HelpCommand : NonChainableCommand() {
             runCatching { TemplateRepository.read(newCommandName, newEntityId) }.getOrNull()
                 ?.let { TemplateCommand(it) }
         } ?: return "Command **$commandName** not found!"
-        val argumentInfo = command.argumentInfo
-        val defaultArgumentKey = command.defaultArgumentKey
-        val guildOnly = command.guildOnly
-        val requiredPermissions = command.requiredPermissions
-        val commandEntityId = command.entityId
-        var argumentsMessage = "**${command.nameWithPrefix}** - ${command.description}" +
-            "\n\nArguments:\n${getArgumentsMessage(argumentInfo, defaultArgumentKey)}"
-        if (requiredPermissions.isNotEmpty()) {
-            argumentsMessage += "\nRequired permissions:\n${getPermissionsMessage(requiredPermissions, manager)}"
-        }
-        return argumentsMessage + getExtraInfoMessage(commandEntityId, guildOnly, fromGuild, manager)
+        return "**${command.nameWithPrefix}** - ${command.description}\n" +
+            getCommandAliasesMessage(command) +
+            getArgumentsMessage(command) +
+            getPermissionsMessage(command, manager) +
+            getExtraInfoMessage(command, fromGuild, manager)
     }
 
-    private fun getArgumentsMessage(
-        argumentInfo: Iterable<CommandArgumentInfo<*>>,
-        defaultArgumentKey: String?
-    ): String =
-        argumentInfo.joinToString(separator = "\n") {
-            var argumentMessage = "    **${it.keyWithPrefix}**"
+    private fun getCommandAliasesMessage(command: Command): String {
+        if (command.aliases.isEmpty()) return ""
+        var message = "\nAliases:"
+        command.aliases.forEach {
+            message += "\n    **${it}**"
+        }
+        return message
+    }
+
+    private fun getArgumentsMessage(command: Command): String {
+        if (command.argumentInfo.isEmpty()) return ""
+        var message = "\nArguments:"
+        command.argumentInfo.forEach {
+            message += "\n    **${it.keyWithPrefix}**"
             var extraInfo = ""
             if (!it.required) {
                 extraInfo += "optional"
             }
-            if (it.key == defaultArgumentKey) {
+            if (it.key == command.defaultArgumentKey) {
                 if (extraInfo.isNotBlank()) {
                     extraInfo += ", "
                 }
@@ -137,33 +145,44 @@ object HelpCommand : NonChainableCommand() {
             }
 
             if (extraInfo.isNotBlank()) {
-                argumentMessage += " ($extraInfo)"
+                message += " ($extraInfo)"
             }
-            argumentMessage += ":" +
+            message += ":"
+            if (it.aliases.isNotEmpty()) {
+                message += "\n        Aliases:"
+                it.aliases.forEach { alias ->
+                    message += "\n            **$ARGUMENT_PREFIX${alias}**"
+                }
+            }
+            message +=
                 "\n        Description: ${it.description}" +
-                "\n        Type: ${it.type.name}"
+                    "\n        Type: ${it.type.name}"
             it.defaultValue?.let { defaultValue ->
-                argumentMessage += "\n        Default value: ${defaultValue.formatted}"
+                message += "\n        Default value: ${defaultValue.formatted}"
             }
-            argumentMessage
         }
+        return message
+    }
 
-    private fun getPermissionsMessage(requiredPermissions: Iterable<Permission>, manager: BotManager): String =
-        requiredPermissions.joinToString(separator = "\n") {
-            "    `${manager.getPermissionName(it)}`"
+    private fun getPermissionsMessage(command: Command, manager: BotManager): String {
+        if (command.requiredPermissions.isEmpty()) return ""
+        var message = "\nRequired permissions:"
+        command.requiredPermissions.forEach {
+            message += "\n    ${manager.getPermissionName(it)}"
         }
+        return message
+    }
 
     private suspend fun getExtraInfoMessage(
-        entityId: String?,
-        guildOnly: Boolean,
+        command: Command,
         fromGuild: Boolean,
         manager: BotManager
     ): String {
         var extraInfo = ""
-        if (guildOnly) {
+        if (command.guildOnly) {
             extraInfo += "\n    Server only"
         }
-        entityId?.let {
+        command.entityId?.let {
             if (fromGuild) {
                 manager.getGuild(it)?.let { guild ->
                     extraInfo += "\n    From the ${guild.name} server"
