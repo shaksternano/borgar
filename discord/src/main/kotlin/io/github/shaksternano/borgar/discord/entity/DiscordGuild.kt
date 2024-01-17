@@ -6,7 +6,7 @@ import io.github.shaksternano.borgar.chat.entity.*
 import io.github.shaksternano.borgar.discord.DiscordManager
 
 data class DiscordGuild(
-    val discordGuild: net.dv8tion.jda.api.entities.Guild
+    private val discordGuild: net.dv8tion.jda.api.entities.Guild
 ) : BaseEntity(), Guild {
 
     override val id: String = discordGuild.id
