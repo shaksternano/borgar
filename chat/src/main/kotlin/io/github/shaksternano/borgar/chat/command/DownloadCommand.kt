@@ -13,7 +13,7 @@ object DownloadCommand : FileCommand(
     ),
     CommandArgumentInfo(
         key = "a",
-        description = "Whether to only download audio or not.",
+        description = "Whether to only download audio or not. Not all websites support this.",
         type = CommandArgumentType.BOOLEAN,
         required = false,
         defaultValue = false,
