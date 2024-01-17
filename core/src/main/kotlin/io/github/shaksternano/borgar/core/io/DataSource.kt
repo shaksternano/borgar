@@ -2,7 +2,6 @@ package io.github.shaksternano.borgar.core.io
 
 import io.github.shaksternano.borgar.core.util.hash
 import io.github.shaksternano.borgar.core.util.kClass
-import io.ktor.client.call.*
 import io.ktor.client.request.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -144,15 +143,11 @@ data class UrlDataSource(
 
     override val path: Path? = null
 
-    override suspend fun newStream(): InputStream = useHttpClient { client ->
-        val response = client.get(url)
-        response.body<InputStream>()
-    }
+    override suspend fun newStream(): InputStream =
+        httpGet<InputStream>(url)
 
-    override suspend fun toByteArray(): ByteArray = useHttpClient { client ->
-        val response = client.get(url)
-        response.body<ByteArray>()
-    }
+    override suspend fun toByteArray(): ByteArray =
+        httpGet<ByteArray>(url)
 
     override suspend fun size(): Long = useHttpClient { client ->
         val response = client.get(url)

@@ -21,6 +21,7 @@ val COMMANDS: Map<String, Command> = registerCommands(
     ChangeExtensionCommand.GIF,
     UrlFileCommand.HAEMA,
     UrlFileCommand.TULIN,
+    DownloadCommand,
 )
 
 private fun registerCommands(vararg commands: Command): Map<String, Command> = buildMap {

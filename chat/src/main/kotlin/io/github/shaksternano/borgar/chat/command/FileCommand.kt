@@ -22,25 +22,15 @@ abstract class FileCommand(
         val argumentInfoBuilder = mutableSetOf<CommandArgumentInfo<*>>()
         argumentInfoBuilder.addAll(argumentInfo)
         argumentInfoBuilder.addAll(
-            CommandArgumentInfo(
-                key = "attachment",
-                description = "The attachment to use",
-                type = CommandArgumentType.ATTACHMENT,
-                required = false,
-            ),
-            CommandArgumentInfo(
-                key = "url",
-                description = "The URL to use",
-                type = CommandArgumentType.STRING,
-                required = false,
-            ),
+            ATTACHMENT_ARGUMENT_INFO,
+            URL_ARGUMENT_INFO,
         )
         argumentInfoBuilder
     } else {
         argumentInfo.toSet()
     }
     override val defaultArgumentKey: String? =
-        if (this.argumentInfo.size == 2) "url"
+        if (requireInput && this.argumentInfo.size == 2) "url"
         else super.defaultArgumentKey
 
     final override suspend fun run(arguments: CommandArguments, event: CommandEvent): Executable {
@@ -69,6 +59,20 @@ abstract class FileCommand(
     ): FileTask
 }
 
+private val ATTACHMENT_ARGUMENT_INFO = CommandArgumentInfo(
+    key = "attachment",
+    description = "The attachment to use.",
+    type = CommandArgumentType.ATTACHMENT,
+    required = false,
+)
+
+private val URL_ARGUMENT_INFO = CommandArgumentInfo(
+    key = "url",
+    description = "The URL to use.",
+    type = CommandArgumentType.STRING,
+    required = false,
+)
+
 private data class FileExecutable(
     override val command: Command,
     private val task: FileTask,
@@ -84,6 +88,7 @@ private data class FileExecutable(
         val output = try {
             task.run(inputs)
         } catch (e: ErrorResponseException) {
+            e.cause?.let { logger.error("Error executing command ${command.name}", it) }
             return CommandResponse(e.message).asSingletonList()
         }
         if (output.isEmpty()) {

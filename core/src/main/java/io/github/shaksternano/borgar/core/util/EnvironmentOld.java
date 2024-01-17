@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-public class Environment {
+public class EnvironmentOld {
 
     private static final Map<String, String> customEnvVars = new HashMap<>();
 

@@ -39,7 +39,7 @@ abstract class ApiFilesCommand(
                 (1..Message.MAX_FILE_AMOUNT).bound(it)
             }
         }
-        return useHttpClient(true) { client ->
+        return useHttpClient { client ->
             val files = (1..fileCount)
                 .parallelMap {
                     try {

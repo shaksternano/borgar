@@ -7,7 +7,7 @@ import io.github.shaksternano.borgar.core.Main;
 import io.github.shaksternano.borgar.core.command.util.CommandResponse;
 import io.github.shaksternano.borgar.core.io.FileUtil;
 import io.github.shaksternano.borgar.core.util.DiscordUtil;
-import io.github.shaksternano.borgar.core.util.Environment;
+import io.github.shaksternano.borgar.core.util.EnvironmentOld;
 import io.github.shaksternano.borgar.core.util.MessageUtil;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -16,7 +16,6 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
@@ -108,7 +107,7 @@ public class DownloadCommand extends BaseCommand<InputStream> {
                     }
                     var fileName = getFileName(headers, audioOnly);
                     try {
-                        var inputStream = new URL(streamUrl).openStream();
+                        var inputStream = URI.create(streamUrl).toURL().openStream();
                         return new CommandResponse<InputStream>(inputStream, fileName)
                             .withResponseData(inputStream)
                             .asFuture();
@@ -130,7 +129,7 @@ public class DownloadCommand extends BaseCommand<InputStream> {
         if (host != null && host.equalsIgnoreCase("vxtwitter.com")) {
             url = uri.getScheme() + "://twitter.com" + uri.getPath();
         }
-        var cobaltApiDomain = Environment.getEnvVar("COBALT_API_DOMAIN")
+        var cobaltApiDomain = EnvironmentOld.getEnvVar("COBALT_API_DOMAIN")
             .orElse("https://co.wuk.sh");
         var body = new JsonObject();
         body.addProperty("url", url);

@@ -25,6 +25,8 @@ import kotlin.io.path.createTempFile
 import kotlin.io.path.deleteIfExists
 import kotlin.io.use
 
+fun Path(first: String, vararg more: String): Path = Path.of(first, *more)
+
 suspend fun createTemporaryFile(filename: String): Path =
     createTemporaryFile(filenameWithoutExtension(filename), fileExtension(filename))
 
@@ -45,13 +47,11 @@ suspend fun Path.deleteSilently() {
     }
 }
 
-fun configuredHttpClient(json: Boolean = false): HttpClient = HttpClient(Apache5) {
-    if (json) {
-        install(ContentNegotiation) {
-            json(Json {
-                ignoreUnknownKeys = true
-            })
-        }
+fun configuredHttpClient(): HttpClient = HttpClient(Apache5) {
+    install(ContentNegotiation) {
+        json(Json {
+            ignoreUnknownKeys = true
+        })
     }
     install(HttpRequestRetry) {
         maxRetries = 3
@@ -65,10 +65,10 @@ fun configuredHttpClient(json: Boolean = false): HttpClient = HttpClient(Apache5
     }
 }
 
-inline fun <T> useHttpClient(json: Boolean = false, block: (HttpClient) -> T) =
-    configuredHttpClient(json).use(block)
+inline fun <T> useHttpClient(block: (HttpClient) -> T): T =
+    configuredHttpClient().use(block)
 
-suspend inline fun <reified T> httpGet(url: String) = useHttpClient(true) {
+suspend inline fun <reified T> httpGet(url: String): T = useHttpClient {
     it.get(url).body<T>()
 }
 
@@ -84,13 +84,23 @@ suspend fun HttpResponse.download(path: Path) = readBytes {
 }
 
 suspend fun HttpResponse.size(): Long =
-    headers["Content-Length"]?.toLongOrNull() ?: let {
+    contentLength() ?: let {
         var size = 0L
         readBytes {
             size += it.size
         }
         size
     }
+
+fun HttpResponse.filename(): String? = headers["Content-Length"]?.let {
+    val headerParts = it.split("filename=")
+    if (headerParts.size < 2) null
+    else {
+        val filename = headerParts[1].trim()
+            .removeSurrounding("\"")
+        filename.ifBlank { null }
+    }
+}
 
 private suspend inline fun HttpResponse.readBytes(block: (ByteArray) -> Unit) {
     val channel = bodyAsChannel()

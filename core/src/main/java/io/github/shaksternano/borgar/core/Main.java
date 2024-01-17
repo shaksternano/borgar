@@ -6,7 +6,7 @@ import io.github.shaksternano.borgar.core.emoji.EmojiUtil;
 import io.github.shaksternano.borgar.core.listener.CommandListener;
 import io.github.shaksternano.borgar.core.logging.DiscordLogger;
 import io.github.shaksternano.borgar.core.media.template.ResourceTemplate;
-import io.github.shaksternano.borgar.core.util.Environment;
+import io.github.shaksternano.borgar.core.util.EnvironmentOld;
 import io.github.shaksternano.borgar.core.util.Fonts;
 import io.github.shaksternano.borgar.core.util.MiscUtil;
 import net.dv8tion.jda.api.JDA;
@@ -74,7 +74,7 @@ public class Main {
 
         var envFileName = ".env";
         try {
-            Environment.load(new File(envFileName));
+            EnvironmentOld.load(new File(envFileName));
         } catch (NoSuchFileException e) {
             getLogger().error("\"" + envFileName + "\" file not found!");
             shutdown(1);
@@ -112,7 +112,7 @@ public class Main {
      * @return The Discord bot token.
      */
     private static String initDiscordBotToken() {
-        var tokenOptional = Environment.getEnvVar(DISCORD_BOT_TOKEN_ARGUMENT_NAME);
+        var tokenOptional = EnvironmentOld.getEnvVar(DISCORD_BOT_TOKEN_ARGUMENT_NAME);
         return tokenOptional.orElseThrow(() -> {
             getLogger().error("Please provide a Discord bot token under the " + DISCORD_BOT_TOKEN_ARGUMENT_NAME + " variable!");
             Main.shutdown(1);
@@ -121,7 +121,7 @@ public class Main {
     }
 
     private static void initDiscordLogger() {
-        var channelIdOptional = Environment.getEnvVar(DISCORD_LOG_CHANNEL_ID_ARGUMENT_NAME);
+        var channelIdOptional = EnvironmentOld.getEnvVar(DISCORD_LOG_CHANNEL_ID_ARGUMENT_NAME);
         channelIdOptional.ifPresentOrElse(logChannelIdString -> {
             try {
                 var logChannelIdLong = Long.parseLong(logChannelIdString);
@@ -137,7 +137,7 @@ public class Main {
      * Sets the Tenor API key from the program arguments or the environment variable.
      */
     private static void initTenorApiKey() {
-        var apiKeyOptional = Environment.getEnvVar(TENOR_API_KEY_ARGUMENT_NAME);
+        var apiKeyOptional = EnvironmentOld.getEnvVar(TENOR_API_KEY_ARGUMENT_NAME);
         apiKeyOptional.ifPresentOrElse(tenorApiKey -> {
             if (tenorApiKey.equals(Main.getTenorApiKey())) {
                 getLogger().warn("Tenor API key provided is the same as the default, restricted, rate limited example key (" + getTenorApiKey() + ")!");
@@ -184,9 +184,9 @@ public class Main {
 
     private static void connectToPostgreSql() {
         DatabaseConnectionKt.connectToDatabase(
-            Environment.getEnvVar("POSTGRESQL_URL").orElseThrow(),
-            Environment.getEnvVar("POSTGRESQL_USERNAME").orElseThrow(),
-            Environment.getEnvVar("POSTGRESQL_PASSWORD").orElseThrow(),
+            EnvironmentOld.getEnvVar("POSTGRESQL_URL").orElseThrow(),
+            EnvironmentOld.getEnvVar("POSTGRESQL_USERNAME").orElseThrow(),
+            EnvironmentOld.getEnvVar("POSTGRESQL_PASSWORD").orElseThrow(),
             "org.postgresql.Driver"
         );
     }
@@ -231,9 +231,5 @@ public class Main {
      */
     public static String getTenorApiKey() {
         return tenorApiKey;
-    }
-
-    public static String getRootPackage() {
-        return Main.class.getPackageName();
     }
 }

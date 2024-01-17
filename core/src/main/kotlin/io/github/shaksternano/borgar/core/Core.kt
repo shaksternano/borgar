@@ -2,19 +2,19 @@ package io.github.shaksternano.borgar.core
 
 import io.github.shaksternano.borgar.core.data.connectToDatabase
 import io.github.shaksternano.borgar.core.emoji.EmojiUtil
-import io.github.shaksternano.borgar.core.util.Environment
+import io.github.shaksternano.borgar.core.io.Path
 import io.github.shaksternano.borgar.core.util.Fonts
+import io.github.shaksternano.borgar.core.util.getEnvVar
+import io.github.shaksternano.borgar.core.util.loadEnv
 import org.bytedeco.ffmpeg.global.avutil
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.nio.file.Path
-import kotlin.jvm.optionals.getOrElse
 
 val logger: Logger = LoggerFactory.getLogger("Borgar")
 
 fun initCore() {
     val envFileName = ".env"
-    Environment.load(Path.of(envFileName))
+    loadEnv(Path(envFileName))
     connectToPostgreSql()
     Fonts.registerFonts()
     EmojiUtil.initEmojiUnicodeSet()
@@ -23,15 +23,15 @@ fun initCore() {
 }
 
 private fun connectToPostgreSql() {
-    val url = Environment.getEnvVar("POSTGRESQL_URL").getOrElse {
+    val url = getEnvVar("POSTGRESQL_URL") ?: run {
         logger.warn("POSTGRESQL_URL environment variable not found!")
         return
     }
-    val username = Environment.getEnvVar("POSTGRESQL_USERNAME").getOrElse {
+    val username = getEnvVar("POSTGRESQL_USERNAME") ?: run {
         logger.warn("POSTGRESQL_USERNAME environment variable not found!")
         return
     }
-    val password = Environment.getEnvVar("POSTGRESQL_PASSWORD").getOrElse {
+    val password = getEnvVar("POSTGRESQL_PASSWORD") ?: run {
         logger.warn("POSTGRESQL_PASSWORD environment variable not found!")
         return
     }

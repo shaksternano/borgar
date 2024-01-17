@@ -3,7 +3,6 @@ package io.github.shaksternano.borgar.core.util
 import io.github.shaksternano.borgar.core.io.httpGet
 import kotlinx.serialization.Serializable
 import java.net.URI
-import kotlin.jvm.optionals.getOrDefault
 
 private const val DEFAULT_TENOR_API_KEY: String = "LIVDSRZULELA"
 
@@ -12,7 +11,7 @@ suspend fun retrieveTenorMediaUrl(url: String, mediaType: TenorMediaType): Strin
     val host = uri.host
     if (host == null || !host.contains("tenor.com") || !uri.getPath().startsWith("/view/"))
         return null
-    val apiKey = Environment.getEnvVar("TENOR_API_KEY").getOrDefault(DEFAULT_TENOR_API_KEY)
+    val apiKey = getEnvVar("TENOR_API_KEY") ?: DEFAULT_TENOR_API_KEY
     val mediaId = url.substring(url.lastIndexOf("-") + 1)
     val requestUrl = "https://g.tenor.com/v1/gifs?key=$apiKey&ids=$mediaId"
     val responseBody = httpGet<TenorResponse>(requestUrl)
