@@ -246,7 +246,9 @@ private suspend fun getCustomTemplateCommand(commandName: String, message: Messa
             }
         }
     }
-    val template = entityId?.runCatching { TemplateRepository.read(templateName, this) }?.getOrNull()
+    val template = entityId?.runCatching {
+        TemplateRepository.read(templateName, this)
+    }?.getOrNull()
     return template?.let { TemplateCommand(it) }
 }
 
