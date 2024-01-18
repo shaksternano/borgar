@@ -4,8 +4,6 @@ import io.github.shaksternano.borgar.chat.event.CommandEvent
 import io.github.shaksternano.borgar.core.io.task.FileTask
 
 abstract class ApiFilesCommand(
-    override val name: String,
-    override val description: String,
     private val fileCount: Int,
 ) : FileCommand(
     CommandArgumentInfo(

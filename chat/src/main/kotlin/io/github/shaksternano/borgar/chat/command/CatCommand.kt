@@ -8,8 +8,6 @@ class CatCommand(
     override val description: String,
     fileCount: Int,
 ) : ApiFilesCommand(
-    name,
-    description,
     fileCount,
 ) {
 
