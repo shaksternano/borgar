@@ -66,6 +66,17 @@ interface DataSource : DataSourceConvertable {
         override suspend fun newStream(): InputStream = this@DataSource.newStream()
     }
 
+    fun withSendUrl(sendUrl: Boolean): DataSource =
+        if (url == null) this
+        else object : DataSource {
+            override val filename: String = this@DataSource.filename
+            override val path: Path? = this@DataSource.path
+            override val url: String? = this@DataSource.url
+            override val sendUrl: Boolean = sendUrl
+
+            override suspend fun newStream(): InputStream = this@DataSource.newStream()
+        }
+
     override fun asDataSource(): DataSource = this
 
     companion object {
@@ -158,6 +169,8 @@ data class UrlDataSource(
         filename = newName,
         sendUrl = false,
     )
+
+    override fun withSendUrl(sendUrl: Boolean): DataSource = copy(sendUrl = sendUrl)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
