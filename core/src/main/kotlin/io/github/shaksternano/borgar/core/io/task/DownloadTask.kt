@@ -7,7 +7,7 @@ import io.github.shaksternano.borgar.core.io.useHttpClient
 import io.github.shaksternano.borgar.core.util.JSON
 import io.github.shaksternano.borgar.core.util.asSingletonList
 import io.github.shaksternano.borgar.core.util.getEnvVar
-import io.github.shaksternano.borgar.core.util.prettyPrintJson
+import io.github.shaksternano.borgar.core.util.prettyPrintJsonCatching
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -88,7 +88,7 @@ class DownloadTask(
             url,
             videoQuality,
             audioOnly,
-            true
+            isNoTTWatermark = true,
         )
         val responseBodyString = useHttpClient { client ->
             val response = client.post(requestUrl) {
@@ -101,9 +101,7 @@ class DownloadTask(
         val responseBody = runCatching {
             JSON.decodeFromString<CobaltResponseBody>(responseBodyString)
         }.getOrElse {
-            val prettyPrint = runCatching {
-                prettyPrintJson(responseBodyString)
-            }.getOrDefault(responseBodyString)
+            val prettyPrint = prettyPrintJsonCatching(responseBodyString)
             throw IllegalStateException("Invalid Cobalt response body:\n$prettyPrint", it)
         }
         return if (responseBody.url != null)
@@ -114,7 +112,10 @@ class DownloadTask(
                 if (fileIndex >= responseBody.picker.size) throw InvalidFileNumberException(responseBody.picker.size)
                 else responseBody.picker[fileIndex].url.asSingletonList()
             else responseBody.picker.map { it.url }
-        else throw IllegalStateException("Missing url and picker fields. Response body:\n$responseBodyString")
+        else {
+            val prettyPrint = prettyPrintJsonCatching(responseBodyString)
+            throw IllegalStateException("Missing url and picker fields. Response body:\n$prettyPrint")
+        }
     }
 
     @Serializable

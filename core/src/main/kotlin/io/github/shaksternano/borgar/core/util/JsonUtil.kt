@@ -12,3 +12,7 @@ fun prettyPrintJson(json: String): String {
     val jsonElement = Json.parseToJsonElement(json)
     return JSON.encodeToString(JsonElement.serializer(), jsonElement)
 }
+
+fun prettyPrintJsonCatching(json: String): String = runCatching {
+    prettyPrintJson(json)
+}.getOrDefault(json)
