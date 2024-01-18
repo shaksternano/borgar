@@ -14,7 +14,9 @@ import io.ktor.http.*
 import kotlinx.serialization.Serializable
 
 private val VIDEO_QUALITIES: List<Int> = listOf(
+    1080,
     720,
+    480,
     360,
 )
 
@@ -58,8 +60,8 @@ class DownloadTask(
                 val headResponse = client.head(downloadUrl)
                 val contentLength = headResponse.contentLength() ?: 0
                 if (contentLength > maxFileSize) {
-                    if (videoQualityIndex < VIDEO_QUALITIES.size - 1) {
-                        return download(
+                    return if (videoQualityIndex < VIDEO_QUALITIES.size - 1) {
+                        download(
                             url,
                             videoQualityIndex + 1,
                             audioOnly,
@@ -80,7 +82,7 @@ class DownloadTask(
         url: String,
         videoQuality: Int,
         audioOnly: Boolean,
-        fileIndex: Int?
+        fileIndex: Int?,
     ): List<String> {
         val cobaltApiDomain = getEnvVar("COBALT_API_DOMAIN") ?: "https://co.wuk.sh"
         val requestUrl = "$cobaltApiDomain/api/json"
@@ -164,6 +166,6 @@ class DownloadTask(
     private class FileTooLargeException : Exception()
 
     private class InvalidFileNumberException(
-        val maxFiles: Int
+        val maxFiles: Int,
     ) : Exception()
 }
