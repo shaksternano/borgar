@@ -41,7 +41,7 @@ suspend fun CommandMessageIntersection.getUrls(): List<UrlInfo> =
 
 suspend fun CommandMessageIntersection.getEmojiDrawables(): Map<String, Drawable> = getEmojiUrls()
     .mapValues {
-        val dataSource = DataSource.fromUrl(it.value)
+        val dataSource = DataSource.fromUrl(url = it.value)
         ImageDrawable(dataSource, dataSource.fileFormat())
     }
 
@@ -161,5 +161,5 @@ data class UrlInfo(
 
     constructor(url: String) : this(url, filename(url))
 
-    override fun asDataSource(): UrlDataSource = DataSource.fromUrl(url, fileName)
+    override fun asDataSource(): UrlDataSource = DataSource.fromUrl(fileName, url)
 }

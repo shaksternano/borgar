@@ -23,6 +23,10 @@ val COMMANDS: Map<String, Command> = registerCommands(
     UrlFileCommand.TULIN,
     UrlFileCommand.SURE_BUD,
     DownloadCommand,
+    CatCommand.CAT,
+    CatCommand.CAT_BOMB,
+    PonyCommand.PONY,
+    PonyCommand.PONY_BOMB,
 )
 
 val COMMANDS_AND_ALIASES: Map<String, Command> = buildMap {
