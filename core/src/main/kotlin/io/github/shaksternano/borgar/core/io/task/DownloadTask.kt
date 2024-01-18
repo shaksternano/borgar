@@ -21,7 +21,6 @@ private val VIDEO_QUALITIES: List<Int> = listOf(
 )
 
 class DownloadTask(
-    private val url: String,
     private val audioOnly: Boolean,
     private val fileNumber: Int?,
     private val maxFileSize: Long,
@@ -30,6 +29,7 @@ class DownloadTask(
 ) {
 
     override suspend fun run(input: List<DataSource>): List<DataSource> = try {
+        val url = input.firstOrNull()?.url ?: throw ErrorResponseException("No URL specified!")
         val fileIndex: Int? = fileNumber?.let { it - 1 }
         download(url, 0, audioOnly, fileIndex, maxFileSize)
     } catch (e: InvalidFileNumberException) {
