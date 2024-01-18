@@ -15,6 +15,7 @@ import io.github.shaksternano.borgar.discord.entity.DiscordUser
 import io.github.shaksternano.borgar.discord.entity.channel.DiscordMessageChannel
 import io.github.shaksternano.borgar.discord.toFileUpload
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
+import java.time.OffsetDateTime
 
 class SlashCommandEvent(
     private val event: SlashCommandInteractionEvent
@@ -22,6 +23,7 @@ class SlashCommandEvent(
 
     override val id: String = event.id
     override val manager: BotManager = DiscordManager.get(event.jda)
+    override val timeCreated: OffsetDateTime = event.timeCreated
 
     private val user: User = DiscordUser(event.user)
     private val channel: MessageChannel = DiscordMessageChannel(event.channel)

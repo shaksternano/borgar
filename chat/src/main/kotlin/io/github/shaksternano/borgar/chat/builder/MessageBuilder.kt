@@ -16,3 +16,8 @@ data class MessageCreateBuilder(
         suppressEmbeds = response.suppressEmbeds
     }
 }
+
+data class MessageEditBuilder(
+    var content: String? = null,
+    val files: MutableList<DataSource>? = mutableListOf(),
+)

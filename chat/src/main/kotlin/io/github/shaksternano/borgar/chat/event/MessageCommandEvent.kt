@@ -7,6 +7,7 @@ import io.github.shaksternano.borgar.chat.command.CommandResponse
 import io.github.shaksternano.borgar.chat.command.getDefaultStringOrEmpty
 import io.github.shaksternano.borgar.chat.entity.*
 import io.github.shaksternano.borgar.chat.entity.channel.MessageChannel
+import java.time.OffsetDateTime
 
 data class MessageCommandEvent(
     private val event: MessageReceiveEvent,
@@ -14,6 +15,7 @@ data class MessageCommandEvent(
 
     override val id: String = event.messageId
     override val manager: BotManager = event.manager
+    override val timeCreated: OffsetDateTime = event.message.timeCreated
 
     private var replied: Boolean = false
 

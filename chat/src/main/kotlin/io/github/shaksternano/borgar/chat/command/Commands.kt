@@ -27,6 +27,7 @@ val COMMANDS: Map<String, Command> = registerCommands(
     CatCommand.CAT_BOMB,
     PonyCommand.PONY,
     PonyCommand.PONY_BOMB,
+    PingCommand,
 )
 
 val COMMANDS_AND_ALIASES: Map<String, Command> = buildMap {

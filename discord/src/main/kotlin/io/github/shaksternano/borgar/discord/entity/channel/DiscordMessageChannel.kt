@@ -23,11 +23,11 @@ data class DiscordMessageChannel(
     override suspend fun createMessage(block: MessageCreateBuilder.() -> Unit): Message {
         val builder = MessageCreateBuilder().apply(block)
         val message = builder.convert()
-        val jdaMessage = discordMessageChannel.sendMessage(message)
+        val discordMessage = discordMessageChannel.sendMessage(message)
             .setMessageReference(builder.referencedMessageId)
             .setSuppressEmbeds(builder.suppressEmbeds)
             .await()
-        return DiscordMessage(jdaMessage)
+        return DiscordMessage(discordMessage)
     }
 
     override fun getPreviousMessages(beforeId: String, limit: Int): Flow<Message> {
@@ -37,7 +37,7 @@ data class DiscordMessageChannel(
     private fun MessageCreateBuilder.convert(): MessageCreateData {
         val builder = net.dv8tion.jda.api.utils.messages.MessageCreateBuilder()
         builder.setContent(content)
-        builder.addFiles(files.map(DataSource::toFileUpload))
+        builder.setFiles(files.map(DataSource::toFileUpload))
         return builder.build()
     }
 }

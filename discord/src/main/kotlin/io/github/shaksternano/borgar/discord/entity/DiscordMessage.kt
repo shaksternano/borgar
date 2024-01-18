@@ -1,14 +1,20 @@
 package io.github.shaksternano.borgar.discord.entity
 
+import dev.minn.jda.ktx.coroutines.await
 import io.github.shaksternano.borgar.chat.BotManager
+import io.github.shaksternano.borgar.chat.builder.MessageEditBuilder
 import io.github.shaksternano.borgar.chat.entity.*
 import io.github.shaksternano.borgar.chat.entity.channel.Channel
 import io.github.shaksternano.borgar.chat.entity.channel.MessageChannel
+import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.discord.DiscordManager
 import io.github.shaksternano.borgar.discord.entity.channel.DiscordChannel
 import io.github.shaksternano.borgar.discord.entity.channel.DiscordMessageChannel
+import io.github.shaksternano.borgar.discord.toFileUpload
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
+import net.dv8tion.jda.api.utils.messages.MessageEditData
+import java.time.OffsetDateTime
 
 data class DiscordMessage(
     private val discordMessage: net.dv8tion.jda.api.entities.Message,
@@ -16,6 +22,7 @@ data class DiscordMessage(
 
     override val id: String = discordMessage.id
     override val manager: BotManager = DiscordManager.get(discordMessage.jda)
+    override val timeCreated: OffsetDateTime = discordMessage.timeCreated
     override val content: String = discordMessage.contentRaw
     override val attachments: List<Attachment> = discordMessage.attachments.map { it.convert() }
     override val embeds: List<MessageEmbed> = discordMessage.embeds.map { it.convert() }
@@ -63,28 +70,38 @@ data class DiscordMessage(
 
     override suspend fun getReferencedMessage(): Message? = referencedMessage
 
-    private fun net.dv8tion.jda.api.entities.Message.Attachment.convert(): Attachment {
-        return Attachment(
-            id,
-            url,
-            proxyUrl,
-            fileName,
-            manager,
-        )
+    override suspend fun edit(block: MessageEditBuilder.() -> Unit): Message {
+        val builder = MessageEditBuilder().apply(block)
+        val editRequest = builder.convert()
+        val editedMessage = discordMessage.editMessage(editRequest).await()
+        return DiscordMessage(editedMessage)
     }
 
-    private fun net.dv8tion.jda.api.entities.MessageEmbed.convert(): MessageEmbed {
-        return MessageEmbed(
-            image?.let {
-                MessageEmbed.ImageInfo(
-                    it.url,
-                )
-            },
-            videoInfo?.let {
-                MessageEmbed.VideoInfo(
-                    it.url,
-                )
-            },
-        )
+    private fun net.dv8tion.jda.api.entities.Message.Attachment.convert(): Attachment = Attachment(
+        id,
+        url,
+        proxyUrl,
+        fileName,
+        manager,
+    )
+
+    private fun net.dv8tion.jda.api.entities.MessageEmbed.convert(): MessageEmbed = MessageEmbed(
+        image?.let {
+            MessageEmbed.ImageInfo(
+                it.url,
+            )
+        },
+        videoInfo?.let {
+            MessageEmbed.VideoInfo(
+                it.url,
+            )
+        },
+    )
+
+    private fun MessageEditBuilder.convert(): MessageEditData {
+        val builder = net.dv8tion.jda.api.utils.messages.MessageEditBuilder()
+        content?.let { builder.setContent(it) }
+        files?.let { builder.setFiles(it.map(DataSource::toFileUpload)) }
+        return builder.build()
     }
 }
