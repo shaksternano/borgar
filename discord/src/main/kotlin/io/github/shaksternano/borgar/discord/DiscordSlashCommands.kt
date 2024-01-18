@@ -8,6 +8,7 @@ import io.github.shaksternano.borgar.chat.entity.*
 import io.github.shaksternano.borgar.chat.event.CommandEvent
 import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.core.util.asSingletonList
+import io.github.shaksternano.borgar.core.util.kClass
 import io.github.shaksternano.borgar.core.util.splitWords
 import io.github.shaksternano.borgar.discord.entity.DiscordUser
 import io.github.shaksternano.borgar.discord.entity.channel.DiscordMessageChannel
@@ -137,12 +138,39 @@ private suspend fun getAfterCommandConfigs(
     return configs
 }
 
-private fun CommandArgumentInfo<*>.toOption(): OptionData = OptionData(
-    type.toOptionType(),
-    key,
-    description,
-    required,
-)
+private fun CommandArgumentInfo<*>.toOption(): OptionData {
+    val optionData = OptionData(
+        type.toOptionType(),
+        key,
+        description,
+        required,
+    )
+    optionData.setRequiredRange(validator)
+    optionData.setMinValue(validator)
+    return optionData
+}
+
+private fun OptionData.setRequiredRange(validator: Validator<*>) {
+    if (validator is RangeValidator<*>) {
+        val range = validator.range
+        val start = range.start
+        val end = range.endInclusive
+        when (start.kClass) {
+            Long::class -> setRequiredRange(start as Long, end as Long)
+            Double::class -> setRequiredRange(start as Double, end as Double)
+        }
+    }
+}
+
+private fun OptionData.setMinValue(validator: Validator<*>) {
+    if (validator is MinValueValidator<*>) {
+        val minValue = validator.minValue
+        when (minValue.kClass) {
+            Long::class -> setMinValue(minValue as Long)
+            Double::class -> setMinValue(minValue as Double)
+        }
+    }
+}
 
 private fun CommandArgumentType<*>.toOptionType(): OptionType = when (this) {
     CommandArgumentType.STRING -> OptionType.STRING

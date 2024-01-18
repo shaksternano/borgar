@@ -43,29 +43,32 @@ private object AllowAllValidator : Validator<Any?> {
     override fun errorMessage(value: Any?, key: String): String = ""
 }
 
-class LongRangeValidator(
-    private val range: LongRange,
-) : Validator<Long> {
+class RangeValidator<T : Comparable<T>>(
+    val range: ClosedRange<T>,
+) : Validator<T> {
 
-    override fun validate(value: Long): Boolean = value in range
+    override fun validate(value: T): Boolean = value in range
 
-    override fun errorMessage(value: Long, key: String): String =
-        "The value for **$key** must be in range ${range.first}..${range.last}."
+    override fun errorMessage(value: T, key: String): String =
+        "The value for **$key** must be between ${range.start.formatted} and ${range.endInclusive.formatted}."
 }
 
-class DoubleRangeValidator(
-    private val range: ClosedFloatingPointRange<Double>,
-) : Validator<Double> {
 
-    override fun validate(value: Double): Boolean = value in range
+val ZERO_TO_ONE_VALIDATOR: Validator<Double> = RangeValidator(0.0..1.0)
 
-    override fun errorMessage(value: Double, key: String): String =
-        "The value for **$key** must be in range the ${range.start.formatted} to ${range.endInclusive.formatted}."
+open class MinValueValidator<T : Comparable<T>>(
+    val minValue: T,
+) : Validator<T> {
+
+    override fun validate(value: T): Boolean = value >= minValue
+
+    override fun errorMessage(value: T, key: String): String =
+        "The value for **$key** must be greater than or equal to ${minValue.formatted}."
 }
 
-val ZERO_TO_ONE_VALIDATOR: Validator<Double> = DoubleRangeValidator(0.0..1.0)
-
-object PositiveLongValidator : Validator<Long> {
+object PositiveLongValidator : MinValueValidator<Long>(
+    minValue = 1,
+) {
 
     override fun validate(value: Long): Boolean = value > 0
 
