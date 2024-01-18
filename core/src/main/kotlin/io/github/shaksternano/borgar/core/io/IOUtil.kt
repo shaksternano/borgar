@@ -5,7 +5,7 @@ import com.google.common.io.Files
 import io.github.shaksternano.borgar.core.media.mediaFormat
 import io.ktor.client.*
 import io.ktor.client.call.*
-import io.ktor.client.engine.apache5.*
+import io.ktor.client.engine.jetty.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
@@ -47,7 +47,9 @@ suspend fun Path.deleteSilently() {
     }
 }
 
-fun configuredHttpClient(): HttpClient = HttpClient(Apache5) {
+fun httpClient(block: HttpClientConfig<*>.() -> Unit = {}): HttpClient = HttpClient(Jetty, block)
+
+fun configuredHttpClient(): HttpClient = httpClient {
     install(ContentNegotiation) {
         json(Json {
             ignoreUnknownKeys = true
