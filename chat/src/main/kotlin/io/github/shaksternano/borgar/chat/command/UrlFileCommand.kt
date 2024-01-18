@@ -12,9 +12,6 @@ class UrlFileCommand(
     requireInput = false,
 ) {
 
-    override val deferReply: Boolean = false
-    private val task: FileTask = UrlFileTask(url)
-
     companion object {
         val HAEMA: Command = UrlFileCommand(
             name = "haema",
@@ -34,6 +31,9 @@ class UrlFileCommand(
             url = "https://media.discordapp.net/attachments/927613139116249181/1186837192182595584/captioned.gif?ex=6594b344&is=65823e44&hm=b3e6b745db0f64ea07eee65d7958d639b17893b2b291d046e968b03ba6b387b8&",
         )
     }
+
+    override val deferReply: Boolean = false
+    private val task: FileTask = UrlFileTask(url)
 
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask =
         task
