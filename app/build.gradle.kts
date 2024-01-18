@@ -7,10 +7,7 @@ plugins {
 base.archivesName.set("borgar")
 
 dependencies {
-    implementation(project(":core"))
-    implementation(project(":discord"))
-
-    implementation("ch.qos.logback:logback-classic:$logbackVersion")
+    api(project(":discord"))
 
     testImplementation(kotlin("test"))
 }
@@ -26,7 +23,7 @@ tasks {
         manifest {
             attributes(
                 mapOf(
-                    "Main-Class" to "${project.group}.Main",
+                    "Main-Class" to "${project.group}.app.AppKt",
                 )
             )
         }

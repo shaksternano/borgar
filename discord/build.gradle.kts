@@ -5,10 +5,7 @@ val discordWebhooksVersion: String by project
 val logbackVersion: String by project
 
 dependencies {
-    implementation(project(":core"))
-    implementation(project(":chat"))
-
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion")
+    api(project(":chat"))
 
     implementation("net.dv8tion:JDA:$jdaVersion") {
         exclude(module = "opus-java")
@@ -16,8 +13,6 @@ dependencies {
     implementation("com.github.minndevelopment:jda-ktx:${jdaKtxVersion}")
     @Suppress
     implementation("club.minnced:discord-webhooks:$discordWebhooksVersion")
-
-    implementation("ch.qos.logback:logback-classic:$logbackVersion")
 
     testImplementation(kotlin("test"))
 }

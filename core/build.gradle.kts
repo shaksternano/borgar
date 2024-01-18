@@ -20,18 +20,18 @@ plugins {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion")
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion")
 
-    implementation("io.ktor:ktor-client-core:$ktorVersion")
+    api("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-client-jetty:$ktorVersion")
-    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+    api("io.ktor:ktor-client-content-negotiation:$ktorVersion")
+    api("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
 
-    implementation("ch.qos.logback:logback-classic:$logbackVersion")
+    api("ch.qos.logback:logback-classic:$logbackVersion")
 
-    implementation("com.google.guava:guava:$guavaVersion-jre")
-    implementation("com.google.code.gson:gson:$gsonVersion")
-    implementation("commons-io:commons-io:$commonsIoVersion")
+    api("com.google.guava:guava:$guavaVersion-jre")
+    api("com.google.code.gson:gson:$gsonVersion")
+    api("commons-io:commons-io:$commonsIoVersion")
     implementation("org.reflections:reflections:$reflectionsVersion")
     // For utility classes such as SplitUtil
     implementation("net.dv8tion:JDA:$jdaVersion") {
