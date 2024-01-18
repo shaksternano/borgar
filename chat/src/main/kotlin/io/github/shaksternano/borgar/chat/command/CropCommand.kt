@@ -13,7 +13,7 @@ object CropCommand : FileCommand(
         type = CommandArgumentType.DOUBLE,
         required = false,
         defaultValue = 0.0,
-        validator = ZERO_TO_ONE_VALIDATOR,
+        validator = RangeValidator.ZERO_TO_ONE,
     ),
     CommandArgumentInfo(
         key = "bottom",
@@ -22,7 +22,7 @@ object CropCommand : FileCommand(
         type = CommandArgumentType.DOUBLE,
         required = false,
         defaultValue = 0.0,
-        validator = ZERO_TO_ONE_VALIDATOR,
+        validator = RangeValidator.ZERO_TO_ONE,
     ),
     CommandArgumentInfo(
         key = "left",
@@ -31,7 +31,7 @@ object CropCommand : FileCommand(
         type = CommandArgumentType.DOUBLE,
         required = false,
         defaultValue = 0.0,
-        validator = ZERO_TO_ONE_VALIDATOR,
+        validator = RangeValidator.ZERO_TO_ONE,
     ),
     CommandArgumentInfo(
         key = "right",
@@ -40,7 +40,7 @@ object CropCommand : FileCommand(
         type = CommandArgumentType.DOUBLE,
         required = false,
         defaultValue = 0.0,
-        validator = ZERO_TO_ONE_VALIDATOR,
+        validator = RangeValidator.ZERO_TO_ONE,
     ),
 ) {
 

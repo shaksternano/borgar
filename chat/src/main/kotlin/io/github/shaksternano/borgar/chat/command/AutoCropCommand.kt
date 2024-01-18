@@ -13,7 +13,7 @@ object AutoCropCommand : FileCommand(
         type = CommandArgumentType.DOUBLE,
         required = false,
         defaultValue = 0.2,
-        validator = ZERO_TO_ONE_VALIDATOR,
+        validator = RangeValidator.ZERO_TO_ONE,
     ),
     CommandArgumentInfo(
         key = "rgb",
