@@ -23,9 +23,9 @@ abstract class ApiFilesTask(
     override suspend fun run(input: List<DataSource>): List<DataSource> = useHttpClient { client ->
         val files = (1..fileCount)
             .parallelMap {
-                try {
+                runCatching {
                     response(client, tags)
-                } catch (e: Exception) {
+                }.getOrElse {
                     return@parallelMap null
                 }
             }
@@ -34,9 +34,9 @@ abstract class ApiFilesTask(
                 it.id
             }
             .parallelMap {
-                val response = try {
+                val response = runCatching {
                     client.get(it.url)
-                } catch (e: Exception) {
+                }.getOrElse {
                     return@parallelMap null
                 }
                 val contentLength = response.contentLength() ?: 0
