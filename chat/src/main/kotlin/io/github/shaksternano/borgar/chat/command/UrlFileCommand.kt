@@ -28,7 +28,7 @@ class UrlFileCommand(
         val SURE_BUD: Command = UrlFileCommand(
             name = "surebud",
             description = "Sure bud.",
-            url = "https://media.discordapp.net/attachments/927613139116249181/1186837192182595584/captioned.gif?ex=6594b344&is=65823e44&hm=b3e6b745db0f64ea07eee65d7958d639b17893b2b291d046e968b03ba6b387b8&",
+            url = "https://media.discordapp.net/attachments/927613139116249181/1186837192182595584/captioned.gif",
         )
     }
 
