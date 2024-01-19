@@ -59,9 +59,9 @@ abstract class MappedFileTask(
 ) : BaseFileTask(requireInput) {
 
     final override suspend fun run(input: List<DataSource>): List<DataSource> = input.map {
-        val output = process(it)
-        output.path?.let(this::markToDelete)
-        output
+        process(it).also { output ->
+            output.path?.let(this::markToDelete)
+        }
     }
 
     abstract suspend fun process(input: DataSource): DataSource
