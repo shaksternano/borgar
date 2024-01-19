@@ -9,10 +9,9 @@ class UrlFileTask(
     requireInput = false,
 ) {
 
-    override suspend fun run(input: List<DataSource>): List<DataSource> {
-        return DataSource.fromUrl(
+    override suspend fun run(input: List<DataSource>): List<DataSource> =
+        DataSource.fromUrl(
             url = url,
             sendUrl = true
         ).asSingletonList()
-    }
 }
