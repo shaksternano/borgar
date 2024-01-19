@@ -1,12 +1,14 @@
 package io.github.shaksternano.borgar.core.io.task
 
 import io.github.shaksternano.borgar.core.io.DataSource
+import io.github.shaksternano.borgar.core.io.SuspendCloseable
+import io.github.shaksternano.borgar.core.io.closeAll
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.nio.file.Path
 import kotlin.io.path.deleteIfExists
 
-interface FileTask {
+interface FileTask : SuspendCloseable {
 
     val requireInput: Boolean
 
@@ -24,14 +26,14 @@ interface FileTask {
                 return after.run(firstOutput)
             }
 
-            override suspend fun cleanup() {
-                this@FileTask.cleanup()
-                after.cleanup()
-            }
+            override suspend fun close() = closeAll(
+                this@FileTask,
+                after,
+            )
         }
     }
 
-    suspend fun cleanup() = Unit
+    override suspend fun close() = Unit
 }
 
 abstract class BaseFileTask(
@@ -42,7 +44,7 @@ abstract class BaseFileTask(
 
     protected fun markToDelete(path: Path) = toDelete.add(path)
 
-    override suspend fun cleanup() {
+    override suspend fun close() {
         toDelete.forEach {
             withContext(Dispatchers.IO) {
                 it.deleteIfExists()

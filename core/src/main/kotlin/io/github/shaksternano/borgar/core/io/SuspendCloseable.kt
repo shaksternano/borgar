@@ -7,7 +7,6 @@ import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
 fun interface SuspendCloseable {
-    suspend fun close()
 
     companion object {
         fun fromBlocking(closeable: AutoCloseable): SuspendCloseable = SuspendCloseable {
@@ -22,6 +21,8 @@ fun interface SuspendCloseable {
             }
         }
     }
+
+    suspend fun close()
 }
 
 fun SuspendCloseable(closeable: AutoCloseable): SuspendCloseable =

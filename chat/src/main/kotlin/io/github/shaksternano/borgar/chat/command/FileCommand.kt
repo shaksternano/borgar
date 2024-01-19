@@ -117,8 +117,6 @@ private data class FileExecutable(
         }
     }
 
-    override suspend fun cleanup() = task.cleanup()
-
     override fun then(after: Executable): Executable {
         return if (after is FileExecutable) {
             copy(
@@ -129,4 +127,6 @@ private data class FileExecutable(
             super.then(after)
         }
     }
+
+    override suspend fun close() = task.close()
 }

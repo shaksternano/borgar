@@ -3,6 +3,7 @@ package io.github.shaksternano.borgar.chat.command
 import io.github.shaksternano.borgar.chat.entity.Message
 import io.github.shaksternano.borgar.chat.event.CommandEvent
 import io.github.shaksternano.borgar.chat.exception.MissingArgumentException
+import io.github.shaksternano.borgar.core.io.SuspendCloseable
 import io.github.shaksternano.borgar.core.util.startsWithVowel
 
 interface Command {
@@ -31,7 +32,7 @@ interface Command {
 val Command.nameWithPrefix: String
     get() = COMMAND_PREFIX + name
 
-interface Executable {
+interface Executable : SuspendCloseable {
 
     val command: Command
 
@@ -45,10 +46,10 @@ interface Executable {
         event: CommandEvent,
     ) = Unit
 
-    suspend fun cleanup() = Unit
-
     infix fun then(after: Executable): Executable =
         throw UnsupportedOperationException("Cannot chain ${command.name} with ${after.command.name}")
+
+    override suspend fun close() = Unit
 }
 
 abstract class BaseCommand : Command {

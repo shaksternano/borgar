@@ -117,7 +117,7 @@ suspend fun sendResponse(responses: List<CommandResponse>, executable: Executabl
             logger.error("Failed to send response", t)
         }
     }
-    executable?.cleanup()
+    executable?.close()
 }
 
 private suspend fun contentStripped(message: Message): String {
