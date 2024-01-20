@@ -91,9 +91,8 @@ private suspend fun executeCommand(
         else null
     val result = executeCommands(commandConfigs, commandEvent)
     val responses = result.first.map {
-        val singleResponse = result.first.size == 1
         it.copy(
-            ephemeral = command.ephemeral && singleResponse,
+            ephemeral = command.ephemeral,
             deferReply = command.deferReply
         )
     }
