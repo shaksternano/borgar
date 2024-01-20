@@ -18,6 +18,7 @@ abstract class FileCommand(
     requireInput: Boolean = true,
 ) : BaseCommand() {
 
+    override val chainable: Boolean = true
     override val deferReply: Boolean = true
 
     final override val argumentInfo: Set<CommandArgumentInfo<*>> = if (requireInput) {

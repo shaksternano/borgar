@@ -16,6 +16,7 @@ interface Command {
         get() = emptySet()
     val defaultArgumentKey: String?
         get() = argumentInfo.firstOrNull()?.key
+    val chainable: Boolean
     val guildOnly: Boolean
         get() = false
     val requiredPermissions: Set<Permission>
@@ -150,6 +151,7 @@ private class ArgumentRetrievalResult<T>(
 
 abstract class NonChainableCommand : BaseCommand() {
 
+    override val chainable: Boolean = false
     override val deferReply: Boolean = false
 
     final override suspend fun run(arguments: CommandArguments, event: CommandEvent): Executable = object : Executable {

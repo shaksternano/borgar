@@ -36,16 +36,14 @@ private fun Command.toSlash(): SlashCommandData = Command(name, description) {
     val discordPermissions = requiredPermissions.map { it.toDiscord() }
     defaultPermissions = DefaultMemberPermissions.enabledFor(discordPermissions)
     addOptions(argumentInfo.map(CommandArgumentInfo<*>::toOption))
-    if (this@toSlash is FileCommand) {
-        addOptions(
-            OptionData(
-                OptionType.STRING,
-                "aftercommands",
-                "The commands to run after this one.",
-                false,
-            )
-        )
-    }
+    if (this@toSlash.chainable) addOptions(
+        OptionData(
+            OptionType.STRING,
+            "aftercommands",
+            "The commands to run after this one.",
+            false,
+        ),
+    )
 }
 
 private suspend fun handleCommand(event: SlashCommandInteractionEvent) {
