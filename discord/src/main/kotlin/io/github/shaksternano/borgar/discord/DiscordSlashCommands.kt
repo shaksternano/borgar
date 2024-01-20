@@ -90,24 +90,12 @@ private suspend fun executeCommand(
             .submit()
         else null
     val result = executeCommands(commandConfigs, commandEvent)
-    val ephemeralWithFile = command.ephemeral && result.first.any {
-        it.files.isNotEmpty()
-    }
-    val responses = if (ephemeralWithFile) {
-        logger.error("Command ${command.name} tried to send a file in an ephemeral Discord message")
-        CommandResponse(
-            content = "An error occurred!",
-            ephemeral = true,
-            deferReply = command.deferReply,
-        ).asSingletonList()
-    } else {
-        result.first.map {
-            val singleResponse = result.first.size == 1
-            it.copy(
-                ephemeral = command.ephemeral && singleResponse,
-                deferReply = command.deferReply
-            )
-        }
+    val responses = result.first.map {
+        val singleResponse = result.first.size == 1
+        it.copy(
+            ephemeral = command.ephemeral && singleResponse,
+            deferReply = command.deferReply
+        )
     }
     val executable = result.second
     deferReply?.await()
