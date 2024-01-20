@@ -155,6 +155,7 @@ abstract class NonChainableCommand : BaseCommand() {
     override val deferReply: Boolean = false
 
     final override suspend fun run(arguments: CommandArguments, event: CommandEvent): Executable = object : Executable {
+
         override val command: Command = this@NonChainableCommand
 
         override suspend fun execute(): List<CommandResponse> = runDirect(arguments, event)

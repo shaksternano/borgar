@@ -23,8 +23,6 @@ object HelpCommand : NonChainableCommand() {
         )
     )
 
-    override val ephemeral: Boolean = true
-
     private val cachedCommandInfos: Cache<String, String> = CacheBuilder.newBuilder()
         .maximumSize(100)
         .build()
