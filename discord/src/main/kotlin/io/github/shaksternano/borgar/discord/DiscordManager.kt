@@ -19,6 +19,8 @@ import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.utils.data.DataArray
 import net.dv8tion.jda.internal.JDAImpl
 import net.dv8tion.jda.internal.entities.MessageMentionsImpl
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 class DiscordManager(
     private val jda: JDA,
@@ -41,6 +43,7 @@ class DiscordManager(
     override val maxFileSize: Long = Message.MAX_FILE_SIZE.toLong()
     override val maxFilesPerMessage: Int = Message.MAX_FILE_AMOUNT
     override val emojiTypedPattern: Regex = ":[A-Za-z0-9]+:".toRegex()
+    override val typingDuration: Duration = 5.seconds
 
     override suspend fun getSelf(): User =
         DiscordUser(jda.selfUser)

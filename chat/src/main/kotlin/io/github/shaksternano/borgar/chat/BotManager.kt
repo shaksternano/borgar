@@ -6,6 +6,7 @@ import io.github.shaksternano.borgar.chat.entity.Guild
 import io.github.shaksternano.borgar.chat.entity.Role
 import io.github.shaksternano.borgar.chat.entity.User
 import io.github.shaksternano.borgar.chat.entity.channel.Channel
+import kotlin.time.Duration
 
 interface BotManager {
 
@@ -13,6 +14,7 @@ interface BotManager {
     val maxFileSize: Long
     val maxFilesPerMessage: Int
     val emojiTypedPattern: Regex
+    val typingDuration: Duration
 
     suspend fun getSelf(): User
 

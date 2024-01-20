@@ -5,6 +5,7 @@ import io.github.shaksternano.borgar.chat.entity.DisplayedUser
 import io.github.shaksternano.borgar.chat.entity.Guild
 import io.github.shaksternano.borgar.chat.entity.Message
 import io.github.shaksternano.borgar.chat.entity.User
+import io.github.shaksternano.borgar.chat.entity.channel.MessageChannel
 import io.github.shaksternano.borgar.chat.event.CommandEvent
 import io.github.shaksternano.borgar.chat.event.MessageCommandEvent
 import io.github.shaksternano.borgar.chat.event.MessageReceiveEvent
@@ -16,38 +17,53 @@ import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.core.util.endOfWord
 import io.github.shaksternano.borgar.core.util.indicesOfPrefix
 import io.github.shaksternano.borgar.core.util.split
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.fold
 import kotlinx.coroutines.launch
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
-suspend fun parseAndExecuteCommand(event: MessageReceiveEvent) = coroutineScope {
+suspend fun parseAndExecuteCommand(event: MessageReceiveEvent) {
     val contentStripped = contentStripped(event.message).trim()
-    if (!contentStripped.startsWith(COMMAND_PREFIX)) return@coroutineScope
+    if (!contentStripped.startsWith(COMMAND_PREFIX)) return
     val commandConfigs = try {
         parseCommands(event.message)
     } catch (e: CommandNotFoundException) {
         event.reply("The command **$COMMAND_PREFIX${e.command}** does not exist!")
-        return@coroutineScope
+        return
     }
-    if (commandConfigs.isEmpty()) return@coroutineScope
-    val channel = event.getChannel()
-    val typing = launch {
-        channel.sendTyping()
-    }
+    if (commandConfigs.isEmpty()) return
     val commandEvent = MessageCommandEvent(event)
-    val (responses, executable) = executeCommands(commandConfigs, commandEvent) {
-        return@coroutineScope
+    val (responses, executable) = sendTypingUntilDone(event.getChannel()) {
+        executeCommands(commandConfigs, commandEvent)
     }
-    typing.join()
-    sendResponse(responses, executable, commandEvent)
+    responses.send(executable, commandEvent)
+}
+
+private suspend fun <T> sendTypingUntilDone(
+    channel: MessageChannel,
+    block: suspend () -> T,
+): T = coroutineScope {
+    var sendTyping = true
+    val typingDuration = channel.manager.typingDuration
+    val typing = launch {
+        while (sendTyping) {
+            channel.sendTyping()
+            delay(typingDuration)
+        }
+    }
+    val result = block()
+    sendTyping = false
+    typing.cancelAndJoin()
+    result
 }
 
 suspend inline fun executeCommands(
     commandConfigs: List<CommandConfig>,
     event: CommandEvent,
-    firstCommandError: () -> Unit = {}
+    firstCommandError: () -> Unit = {},
 ): Pair<List<CommandResponse>, Executable?> = try {
     val executables = commandConfigs.mapIndexed { i, (command, arguments) ->
         val guild = event.getGuild()
@@ -97,15 +113,18 @@ suspend inline fun executeCommands(
     listOf(CommandResponse(responseContent)) to null
 }
 
-suspend fun sendResponse(responses: List<CommandResponse>, executable: Executable?, commandEvent: CommandEvent) {
-    responses.forEachIndexed { index, response ->
+suspend fun List<CommandResponse>.send(
+    executable: Executable?,
+    commandEvent: CommandEvent,
+) {
+    forEachIndexed { index, response ->
         try {
             val sent = commandEvent.reply(response)
             try {
                 executable?.onResponseSend(
                     response,
                     index + 1,
-                    responses.size,
+                    size,
                     sent,
                     commandEvent
                 )
