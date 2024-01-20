@@ -22,14 +22,12 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.fold
 import kotlinx.coroutines.launch
-import java.util.regex.Matcher
-import java.util.regex.Pattern
 
 suspend fun parseAndExecuteCommand(event: MessageReceiveEvent) {
     val contentStripped = contentStripped(event.message).trim()
     if (!contentStripped.startsWith(COMMAND_PREFIX)) return
     val commandConfigs = try {
-        parseCommands(event.message)
+        parseCommands(contentStripped, event.message)
     } catch (e: CommandNotFoundException) {
         event.reply("The command **$COMMAND_PREFIX${e.command}** does not exist!")
         return
@@ -144,8 +142,8 @@ private suspend fun contentStripped(message: Message): String {
     stripped = message.mentionedUsers.fold(stripped) { content, user ->
         val details = userDetails(user, message.getGuild())
         content.replace(
-            "<@!?${Pattern.quote(user.id)}>".toRegex(),
-            "@${Matcher.quoteReplacement(details.effectiveName)}"
+            "<@!?${user.id}>".toRegex(),
+            "@${details.effectiveName}"
         )
     }
     stripped = message.mentionedChannels.fold(stripped) { content, channel ->
@@ -194,8 +192,8 @@ private suspend fun userDetails(user: User, guild: Guild?): DisplayedUser {
     return guild?.getMember(user)?.user ?: user
 }
 
-suspend fun parseCommands(message: Message): List<CommandConfig> {
-    return parseRawCommands(message.content)
+suspend fun parseCommands(messageContent: String, message: Message): List<CommandConfig> {
+    return parseRawCommands(messageContent)
         .mapIndexed { index, (commandString, rawArguments, defaultArgumentValue) ->
             val command = COMMANDS_AND_ALIASES[commandString] ?: getCustomTemplateCommand(
                 commandString,

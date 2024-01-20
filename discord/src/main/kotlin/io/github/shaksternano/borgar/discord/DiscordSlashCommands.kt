@@ -120,13 +120,14 @@ private suspend fun getAfterCommandConfigs(
     slashEvent: SlashCommandInteractionEvent,
 ): List<CommandConfig> {
     val configs = parseCommands(
+        afterCommands,
         FakeMessage(
             commandEvent.id,
             commandEvent.manager,
             afterCommands,
             DiscordUser(slashEvent.user),
             DiscordMessageChannel(slashEvent.channel),
-        )
+        ),
     )
     if (configs.isEmpty()) {
         val firstCommand = afterCommands.splitWords(limit = 2)
