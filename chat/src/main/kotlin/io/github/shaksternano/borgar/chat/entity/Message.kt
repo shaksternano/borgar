@@ -6,7 +6,7 @@ import io.github.shaksternano.borgar.chat.command.CommandMessageIntersection
 import io.github.shaksternano.borgar.chat.entity.channel.Channel
 import kotlinx.coroutines.flow.Flow
 
-interface Message : CommandMessageIntersection, Timed {
+interface Message : CommandMessageIntersection, TimeStamped {
 
     val mentionedUsers: Flow<User>
     val mentionedChannels: Flow<Channel>

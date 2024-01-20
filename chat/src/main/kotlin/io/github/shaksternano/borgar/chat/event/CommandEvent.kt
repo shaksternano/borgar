@@ -6,7 +6,7 @@ import io.github.shaksternano.borgar.chat.command.CommandResponse
 import io.github.shaksternano.borgar.chat.entity.*
 import io.github.shaksternano.borgar.chat.entity.channel.MessageChannel
 
-interface CommandEvent : Managed, Timed {
+interface CommandEvent : Managed, TimeStamped {
 
     val id: String
 
