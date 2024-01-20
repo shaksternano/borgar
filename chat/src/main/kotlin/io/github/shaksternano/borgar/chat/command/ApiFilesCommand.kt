@@ -21,6 +21,7 @@ abstract class ApiFilesCommand(
                 type = CommandArgumentType.LONG,
                 required = false,
                 defaultValue = 1,
+                validator = RangeValidator(1L..10L),
             ),
         )
     } else {
