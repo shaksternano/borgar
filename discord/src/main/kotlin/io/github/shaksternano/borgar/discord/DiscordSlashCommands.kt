@@ -8,6 +8,7 @@ import io.github.shaksternano.borgar.chat.entity.*
 import io.github.shaksternano.borgar.chat.event.CommandEvent
 import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.core.util.asSingletonList
+import io.github.shaksternano.borgar.core.util.formatted
 import io.github.shaksternano.borgar.core.util.kClass
 import io.github.shaksternano.borgar.core.util.splitWords
 import io.github.shaksternano.borgar.discord.entity.DiscordUser
@@ -137,6 +138,9 @@ private suspend fun getAfterCommandConfigs(
 }
 
 private fun CommandArgumentInfo<*>.toOption(): OptionData {
+    val description = description + (defaultValue?.let {
+        " Default value: ${it.formatted}"
+    } ?: "")
     val optionData = OptionData(
         type.toOptionType(),
         key,
