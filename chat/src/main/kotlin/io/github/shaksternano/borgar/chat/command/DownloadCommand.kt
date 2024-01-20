@@ -36,8 +36,8 @@ object DownloadCommand : FileCommand(
         "Downloads a file from a social media website, for example, a video from YouTube."
 
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {
-        val audioOnly = getRequiredArgument("audioonly", CommandArgumentType.BOOLEAN, arguments)
-        val fileNumber = getOptionalArgument("filenumber", CommandArgumentType.LONG, arguments)?.toInt()
+        val audioOnly = arguments.getRequired("audioonly", CommandArgumentType.BOOLEAN)
+        val fileNumber = arguments.getOptional("filenumber", CommandArgumentType.LONG)?.toInt()
         return DownloadTask(audioOnly, fileNumber, maxFileSize)
     }
 }

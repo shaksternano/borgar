@@ -75,7 +75,11 @@ private class CaptionProcessor(
         return captionedImage
     }
 
-    override suspend fun constantData(firstImage: BufferedImage, imageSource: Flow<ImageFrame>): CaptionData {
+    override suspend fun constantData(
+        firstImage: BufferedImage,
+        imageSource: Flow<ImageFrame>,
+        outputFormat: String
+    ): CaptionData {
         val width = firstImage.width
         val height = firstImage.height
 

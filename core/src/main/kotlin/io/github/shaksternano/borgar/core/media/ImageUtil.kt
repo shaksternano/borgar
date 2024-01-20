@@ -1,8 +1,13 @@
 package io.github.shaksternano.borgar.core.media
 
 import com.sksamuel.scrimage.ImmutableImage
+import java.awt.Color
 import java.awt.image.BufferedImage
 import java.awt.image.ColorConvertOp
+import kotlin.math.abs
+import kotlin.math.cos
+import kotlin.math.floor
+import kotlin.math.sin
 
 val BufferedImage.typeNoCustom: Int
     get() {
@@ -58,3 +63,32 @@ fun BufferedImage.flipX(): BufferedImage =
 
 fun BufferedImage.flipY(): BufferedImage =
     ImmutableImage.wrapAwt(this).flipY().awt()
+
+fun BufferedImage.rotate(
+    radians: Double,
+    resultType: Int = typeNoCustom,
+    backgroundColor: Color? = null,
+    newWidth: Int? = null,
+    newHeight: Int? = null,
+): BufferedImage {
+    val sin = abs(sin(radians))
+    val cos = abs(cos(radians))
+
+    val resultWidth = newWidth ?: floor(width * cos + height * sin).toInt()
+    val resultHeight = newHeight ?: floor(height * cos + width * sin).toInt()
+
+    val rotated = BufferedImage(resultWidth, resultHeight, resultType)
+    val graphics = rotated.createGraphics()
+
+    if (backgroundColor != null) {
+        graphics.color = backgroundColor
+        graphics.fillRect(0, 0, resultWidth, resultHeight)
+    }
+
+    graphics.translate((resultWidth - width) / 2, (resultHeight - height) / 2)
+    graphics.rotate(radians, (width / 2f).toDouble(), (height / 2f).toDouble())
+    graphics.drawRenderedImage(this, null)
+    graphics.dispose()
+
+    return rotated
+}

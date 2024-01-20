@@ -1,8 +1,10 @@
 package io.github.shaksternano.borgar.core.media
 
 import io.github.shaksternano.borgar.core.collect.MappedList
+import io.github.shaksternano.borgar.core.util.equalsAnyIgnoreCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.awt.image.BufferedImage
 import java.io.InputStream
 import java.nio.file.Path
 import javax.imageio.ImageIO
@@ -71,4 +73,30 @@ private fun findIndexBinarySearch(timeStamp: Duration, timestamps: List<Duration
         else high = mid - 1
     }
     throw IllegalStateException("This should never be reached. Timestamp: $timeStamp, all timestamps: $timestamps")
+}
+
+fun BufferedImage.supportedTransparentImageType(format: String): Int =
+    if (supportsTransparency(format)) BufferedImage.TYPE_INT_ARGB
+    else typeNoCustom
+
+fun supportsTransparency(format: String): Boolean = format.equalsAnyIgnoreCase(
+    "bmp",
+    "png",
+    "gif",
+    "tif",
+    "tiff",
+)
+
+fun equivalentTransparentFormat(format: String): String =
+    if (isJpg(format)) {
+        "png"
+    } else {
+        format
+    }
+
+private fun isJpg(format: String): Boolean {
+    return format.equalsAnyIgnoreCase(
+        "jpg",
+        "jpeg",
+    )
 }

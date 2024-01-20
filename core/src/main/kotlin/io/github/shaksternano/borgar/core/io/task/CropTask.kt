@@ -38,7 +38,11 @@ private class CropProcessor(
     override suspend fun transformImage(frame: ImageFrame, constantData: CropData): BufferedImage =
         frame.content.getSubimage(constantData.x, constantData.y, constantData.width, constantData.height)
 
-    override suspend fun constantData(firstImage: BufferedImage, imageSource: Flow<ImageFrame>): CropData {
+    override suspend fun constantData(
+        firstImage: BufferedImage,
+        imageSource: Flow<ImageFrame>,
+        outputFormat: String
+    ): CropData {
         val width = firstImage.width
         val height = firstImage.height
         val x = min(width * leftRatio, width - 1.0).toInt()

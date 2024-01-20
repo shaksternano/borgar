@@ -32,10 +32,9 @@ abstract class ApiFilesCommand(
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {
         val tags = arguments.getStringOrEmpty("tags")
         val fileCount = if (fileCount == 1)
-            getRequiredArgument(
+            arguments.getRequired(
                 "filecount",
                 CommandArgumentType.LONG,
-                arguments,
             ).toInt()
         else fileCount
         return createApiFilesTask(tags, fileCount, maxFileSize)

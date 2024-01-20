@@ -115,10 +115,10 @@ object HelpCommand : NonChainableCommand() {
                 ?.let { TemplateCommand(it) }
         } ?: return "Command **$commandName** not found!"
         return "**${command.nameWithPrefix}** - ${command.description}\n" +
-            getCommandAliasesMessage(command) +
-            getArgumentsMessage(command) +
-            getPermissionsMessage(command, manager) +
-            getExtraInfoMessage(command, fromGuild, manager)
+                getCommandAliasesMessage(command) +
+                getArgumentsMessage(command) +
+                getPermissionsMessage(command, manager) +
+                getExtraInfoMessage(command, fromGuild, manager)
     }
 
     private fun getCommandAliasesMessage(command: Command): String {
@@ -158,7 +158,7 @@ object HelpCommand : NonChainableCommand() {
             }
             message +=
                 "\n        Description: ${it.description}" +
-                    "\n        Type: ${it.type.name}"
+                        "\n        Type: ${it.type.name}"
             it.defaultValue?.let { defaultValue ->
                 message += "\n        Default value: ${defaultValue.formatted}"
             }

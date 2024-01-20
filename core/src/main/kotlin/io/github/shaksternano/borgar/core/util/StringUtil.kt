@@ -59,3 +59,7 @@ fun String.splitChunks(limit: Int): List<String> = SplitUtil.split(
     SplitUtil.Strategy.WHITESPACE,
     SplitUtil.Strategy.ANYWHERE
 )
+
+fun String.equalsAnyIgnoreCase(vararg toCompare: String): Boolean = toCompare.any {
+    equals(it, ignoreCase = true)
+}

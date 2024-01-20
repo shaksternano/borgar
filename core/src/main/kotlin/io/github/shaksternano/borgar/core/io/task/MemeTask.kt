@@ -69,7 +69,11 @@ private class MemeProcessor(
         return result
     }
 
-    override suspend fun constantData(firstImage: BufferedImage, imageSource: Flow<ImageFrame>): MemeData {
+    override suspend fun constantData(
+        firstImage: BufferedImage,
+        imageSource: Flow<ImageFrame>,
+        outputFormat: String
+    ): MemeData {
         val imageWidth = firstImage.width
         val imageHeight = firstImage.height
 

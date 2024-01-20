@@ -35,10 +35,10 @@ object AutoCropCommand : FileCommand(
     override val description: String = "Automatically crops out background color."
 
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {
-        val cropColor =
-            getOptionalArgument("rgb", CommandArgumentType.LONG, arguments)?.let { Color(it.toInt()) }
-        val tolerance = getRequiredArgument("tolerance", CommandArgumentType.DOUBLE, arguments)
-        val onlyCheckFirst = getRequiredArgument("onlycheckfirst", CommandArgumentType.BOOLEAN, arguments)
+        val cropColor = arguments.getOptional("rgb", CommandArgumentType.LONG)
+            ?.let { Color(it.toInt()) }
+        val tolerance = arguments.getRequired("tolerance", CommandArgumentType.DOUBLE)
+        val onlyCheckFirst = arguments.getRequired("onlycheckfirst", CommandArgumentType.BOOLEAN)
         return AutoCropTask(cropColor, tolerance, onlyCheckFirst, maxFileSize)
     }
 }

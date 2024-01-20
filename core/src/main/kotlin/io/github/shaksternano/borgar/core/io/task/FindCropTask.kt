@@ -42,7 +42,11 @@ private class FindCropProcessor(
         return image.getSubimage(toKeep.x, toKeep.y, toKeep.width, toKeep.height)
     }
 
-    override suspend fun constantData(firstImage: BufferedImage, imageSource: Flow<ImageFrame>): FindCropData {
+    override suspend fun constantData(
+        firstImage: BufferedImage,
+        imageSource: Flow<ImageFrame>,
+        outputFormat: String
+    ): FindCropData {
         val width = firstImage.width
         val height = firstImage.height
         val newImageSource = if (onlyCheckFirst) {
@@ -54,9 +58,9 @@ private class FindCropProcessor(
             val image = frame.content
             val mayKeepArea = findCropArea(image)
             if ((mayKeepArea.x != 0
-                    || mayKeepArea.y != 0
-                    || mayKeepArea.width != width
-                    || mayKeepArea.height != height)
+                        || mayKeepArea.y != 0
+                        || mayKeepArea.width != width
+                        || mayKeepArea.height != height)
                 && (mayKeepArea.width > 0)
                 && (mayKeepArea.height > 0)
                 && keepArea.width != 0

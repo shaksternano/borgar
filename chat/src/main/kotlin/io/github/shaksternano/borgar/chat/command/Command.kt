@@ -58,18 +58,54 @@ abstract class BaseCommand : Command {
         argumentInfo.associateBy(CommandArgumentInfo<*>::key)
     }
 
-    private suspend fun <T> getArgument(
+    protected suspend fun <T> CommandArguments.getRequired(
+        key: String,
+        type: CommandArgumentType<T>,
+    ): T {
+        val argumentResult = getArgument(key, type)
+        val value = argumentResult.value
+        return if (value == null) {
+            val errorMessage = argumentResult.errorMessage.ifBlank {
+                "Missing argument `$key`."
+            }
+            throw MissingArgumentException(errorMessage)
+        } else {
+            val errorMessage = argumentResult.errorMessage
+            if (errorMessage.isNotBlank()) throw MissingArgumentException(errorMessage)
+            else value
+        }
+    }
+
+    protected suspend fun <T> CommandArguments.getOptional(
+        key: String,
+        type: CommandArgumentType<T>,
+    ): T? {
+        val argumentResult = getArgument(key, type)
+        return if (argumentResult.errorMessage.isNotBlank())
+            throw MissingArgumentException(argumentResult.errorMessage)
+        else argumentResult.value
+    }
+
+    private suspend fun <T> CommandArguments.getArgument(
+        key: String,
+        type: CommandArgumentType<T>,
+    ): ArgumentRetrievalResult<T> {
+        val argumentInfo = argumentInfoMap[key] ?: throw IllegalArgumentException("Argument `$key` is not registered.")
+        return getArgument(key, type, argumentInfo)
+    }
+
+    private suspend fun <T> CommandArguments.getArgument(
         key: String,
         type: CommandArgumentType<T>,
         argumentInfo: CommandArgumentInfo<*>,
-        arguments: CommandArguments
     ): ArgumentRetrievalResult<T> {
-        if (argumentInfo.type != type) throw IllegalArgumentException("Expected argument type $type for key $key, but got ${argumentInfo.type}")
+        if (argumentInfo.type != type)
+            throw IllegalArgumentException("Expected argument type $type for key $key, but got ${argumentInfo.type}")
         @Suppress("UNCHECKED_CAST")
         argumentInfo as CommandArgumentInfo<T>
-        val value = arguments.getSuspend(key, type)
+        val value = getSuspend(key, type)
         return if (value == null) {
-            if (key in arguments) {
+            if (key in this) {
                 var errorMessage = "The argument **$key** is not a"
                 if (type.name.startsWithVowel()) {
                     errorMessage += "n"
@@ -94,55 +130,17 @@ abstract class BaseCommand : Command {
         }
     }
 
-    private suspend fun <T> getArgument(
-        key: String,
-        type: CommandArgumentType<T>,
-        arguments: CommandArguments
-    ): ArgumentRetrievalResult<T> {
-        val argumentInfo = argumentInfoMap[key] ?: throw IllegalArgumentException("Argument `$key` is not registered.")
-        return getArgument(key, type, argumentInfo, arguments)
-    }
-
-    protected suspend fun <T> getRequiredArgument(
-        key: String,
-        type: CommandArgumentType<T>,
-        arguments: CommandArguments
-    ): T {
-        val argumentResult = getArgument(key, type, arguments)
-        val value = argumentResult.value
-        return if (value == null) {
-            val errorMessage = argumentResult.errorMessage.ifBlank {
-                "Missing argument `$key`."
-            }
-            throw MissingArgumentException(errorMessage)
-        } else {
-            val errorMessage = argumentResult.errorMessage
-            if (errorMessage.isNotBlank()) throw MissingArgumentException(errorMessage)
-            else value
-        }
-    }
-
-    protected suspend fun <T> getOptionalArgument(
-        key: String,
-        type: CommandArgumentType<T>,
-        arguments: CommandArguments
-    ): T? {
-        val argumentResult = getArgument(key, type, arguments)
-        return if (argumentResult.errorMessage.isNotBlank()) throw MissingArgumentException(argumentResult.errorMessage)
-        else argumentResult.value
-    }
-
     override fun toString(): String =
         "Command(" +
-            "name='$name'," +
-            "aliases=$aliases," +
-            "description='$description'," +
-            "argumentInfo=$argumentInfo," +
-            "defaultArgumentKey=$defaultArgumentKey," +
-            "guildOnly=$guildOnly," +
-            "requiredPermissions=$requiredPermissions," +
-            "entityId=$entityId" +
-            ")"
+                "name='$name'," +
+                "aliases=$aliases," +
+                "description='$description'," +
+                "argumentInfo=$argumentInfo," +
+                "defaultArgumentKey=$defaultArgumentKey," +
+                "guildOnly=$guildOnly," +
+                "requiredPermissions=$requiredPermissions," +
+                "entityId=$entityId" +
+                ")"
 }
 
 private class ArgumentRetrievalResult<T>(
