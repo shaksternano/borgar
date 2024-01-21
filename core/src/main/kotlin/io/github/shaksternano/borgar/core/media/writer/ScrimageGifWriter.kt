@@ -4,6 +4,8 @@ import com.sksamuel.scrimage.DisposeMethod
 import com.sksamuel.scrimage.ImmutableImage
 import com.sksamuel.scrimage.nio.StreamingGifWriter
 import com.sksamuel.scrimage.nio.StreamingGifWriter.GifStream
+import io.github.shaksternano.borgar.core.io.SuspendCloseable
+import io.github.shaksternano.borgar.core.io.closeAll
 import io.github.shaksternano.borgar.core.media.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -109,13 +111,13 @@ class ScrimageGifWriter(
 
     private fun optimiseTransparency(
         previousImage: BufferedImage,
-        currentImage: BufferedImage
+        currentImage: BufferedImage,
     ): BufferedImage {
         if (previousImage.width != currentImage.width || previousImage.height != currentImage.height) {
             throw PreviousTransparentException()
         }
         val colorTolerance = 10
-        val similarPixels: MutableList<Position> = mutableListOf()
+        val similarPixels = mutableListOf<Position>()
         for (x in 0 until previousImage.width) {
             for (y in 0 until previousImage.height) {
                 val previousPixelColor = Color(previousImage.getRGB(x, y), true)
@@ -123,7 +125,7 @@ class ScrimageGifWriter(
                 if (currentPixelColor.alpha == 0 && previousPixelColor.alpha != 0) {
                     throw PreviousTransparentException()
                 } else {
-                    val colorDistance = ImageUtil.colorDistance(previousPixelColor, currentPixelColor)
+                    val colorDistance = previousPixelColor distanceTo currentPixelColor
                     if (colorDistance <= colorTolerance) {
                         similarPixels.add(Position(x, y))
                     }
@@ -134,7 +136,7 @@ class ScrimageGifWriter(
     }
 
     private fun removePixels(image: BufferedImage, toRemove: Iterable<Position>): BufferedImage {
-        val newImage = ImageUtil.copy(image)
+        val newImage = image.copy()
         toRemove.forEach { (x, y) ->
             newImage.setRGB(x, y, 0)
         }
@@ -168,7 +170,7 @@ class ScrimageGifWriter(
         gif: GifStream,
         image: BufferedImage,
         duration: Duration,
-        disposeMethod: DisposeMethod
+        disposeMethod: DisposeMethod,
     ) {
         val immutableImage = ImmutableImage.wrapAwt(image)
         val frameDuration = if (duration > GIF_MINIMUM_FRAME_DURATION) {
@@ -184,12 +186,14 @@ class ScrimageGifWriter(
     override suspend fun close() {
         if (closed) return
         closed = true
-        pendingWrite?.let {
-            writeFrame(it, pendingDuration, pendingDisposeMethod)
-        }
-        withContext(Dispatchers.IO) {
-            gif.close()
-        }
+        closeAll(
+            SuspendCloseable {
+                pendingWrite?.let {
+                    writeFrame(it, pendingDuration, pendingDisposeMethod)
+                }
+            },
+            SuspendCloseable.fromBlocking(gif),
+        )
     }
 
     private data class Position(val x: Int, val y: Int)
@@ -212,7 +216,7 @@ class ScrimageGifWriter(
             audioSampleRate: Int,
             audioBitrate: Int,
             maxFileSize: Long,
-            maxDuration: Duration
+            maxDuration: Duration,
         ): MediaWriter {
             val infiniteLoop = loopCount == 0
             val writer = StreamingGifWriter().withInfiniteLoop(infiniteLoop)

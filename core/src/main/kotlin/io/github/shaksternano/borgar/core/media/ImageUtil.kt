@@ -4,10 +4,7 @@ import com.sksamuel.scrimage.ImmutableImage
 import java.awt.Color
 import java.awt.image.BufferedImage
 import java.awt.image.ColorConvertOp
-import kotlin.math.abs
-import kotlin.math.cos
-import kotlin.math.floor
-import kotlin.math.sin
+import kotlin.math.*
 
 val BufferedImage.typeNoCustom: Int
     get() {
@@ -92,3 +89,38 @@ fun BufferedImage.rotate(
 
     return rotated
 }
+
+fun BufferedImage.copy(): BufferedImage {
+    val copy = copySize()
+    val graphics = copy.createGraphics()
+    graphics.drawImage(this, 0, 0, null)
+    graphics.dispose()
+    return copy
+}
+
+private fun BufferedImage.copySize(): BufferedImage =
+    BufferedImage(width, height, typeNoCustom)
+
+/**
+ * Gets the distance between two colors.
+ *
+ * @return A value between 0 and 765 representing the distance between the two colors.
+ */
+infix fun Color.distanceTo(other: Color): Double =
+    if (this == other) {
+        0.0
+    } else {
+        val red1 = red
+        val red2 = other.red
+        val redMean = (red1 + red2) / 2
+        val redDifference = red1 - red2
+        val greenDifference = green - other.green
+        val blueDifference = blue - other.blue
+        sqrt(
+            (
+                (((512 + redMean) * redDifference * redDifference) shr 8)
+                    + (4 * greenDifference * greenDifference)
+                    + (((767 - redMean) * blueDifference * blueDifference) shr 8)
+                ).toDouble()
+        )
+    }

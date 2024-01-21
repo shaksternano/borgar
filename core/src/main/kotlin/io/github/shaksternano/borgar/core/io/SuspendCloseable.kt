@@ -78,7 +78,7 @@ suspend fun closeAll(closeables: Iterable<SuspendCloseable?>) {
         try {
             it?.close()
         } catch (e: Throwable) {
-            throwable?.let(e::addSuppressed) ?: run {
+            throwable?.addSuppressed(e) ?: run {
                 throwable = e
             }
         }
