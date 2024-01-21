@@ -133,15 +133,15 @@ abstract class BaseCommand : Command {
 
     override fun toString(): String =
         "Command(" +
-                "name='$name'," +
-                "aliases=$aliases," +
-                "description='$description'," +
-                "argumentInfo=$argumentInfo," +
-                "defaultArgumentKey=$defaultArgumentKey," +
-                "guildOnly=$guildOnly," +
-                "requiredPermissions=$requiredPermissions," +
-                "entityId=$entityId" +
-                ")"
+            "name='$name'," +
+            "aliases=$aliases," +
+            "description='$description'," +
+            "argumentInfo=$argumentInfo," +
+            "defaultArgumentKey=$defaultArgumentKey," +
+            "guildOnly=$guildOnly," +
+            "requiredPermissions=$requiredPermissions," +
+            "entityId=$entityId" +
+            ")"
 }
 
 private class ArgumentRetrievalResult<T>(

@@ -146,8 +146,11 @@ private fun OptionData.setRequiredRange(validator: Validator<*>) {
         val start = range.start
         val end = range.endInclusive
         when (start.kClass) {
+            Int::class -> setRequiredRange((start as Int).toLong(), (end as Int).toLong())
             Long::class -> setRequiredRange(start as Long, end as Long)
+            Float::class -> setRequiredRange((start as Float).toDouble(), (end as Float).toDouble())
             Double::class -> setRequiredRange(start as Double, end as Double)
+            Number::class -> setRequiredRange((start as Number).toDouble(), (end as Number).toDouble())
         }
     }
 }
@@ -156,14 +159,18 @@ private fun OptionData.setMinValue(validator: Validator<*>) {
     if (validator is MinValueValidator<*>) {
         val minValue = validator.minValue
         when (minValue.kClass) {
+            Int::class -> setMinValue((minValue as Int).toLong())
             Long::class -> setMinValue(minValue as Long)
+            Float::class -> setMinValue((minValue as Float).toDouble())
             Double::class -> setMinValue(minValue as Double)
+            Number::class -> setMinValue((minValue as Number).toDouble())
         }
     }
 }
 
 private fun CommandArgumentType<*>.toOptionType(): OptionType = when (this) {
     CommandArgumentType.STRING -> OptionType.STRING
+    CommandArgumentType.INTEGER -> OptionType.INTEGER
     CommandArgumentType.LONG -> OptionType.INTEGER
     CommandArgumentType.DOUBLE -> OptionType.NUMBER
     CommandArgumentType.BOOLEAN -> OptionType.BOOLEAN

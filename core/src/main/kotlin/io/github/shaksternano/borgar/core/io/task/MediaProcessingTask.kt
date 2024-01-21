@@ -6,7 +6,9 @@ import io.github.shaksternano.borgar.core.media.processMedia
 
 abstract class MediaProcessingTask(
     private val maxFileSize: Long,
-) : MappedFileTask(true) {
+) : MappedFileTask(
+    requireInput = true,
+) {
 
     protected abstract val config: MediaProcessConfig
 

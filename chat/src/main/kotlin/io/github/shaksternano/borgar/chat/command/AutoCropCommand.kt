@@ -18,7 +18,7 @@ object AutoCropCommand : FileCommand(
     CommandArgumentInfo(
         key = "rgb",
         description = "Background color to crop out. By default it is the color of the top left pixel.",
-        type = CommandArgumentType.LONG,
+        type = CommandArgumentType.INTEGER,
         required = false,
     ),
     CommandArgumentInfo(
@@ -35,8 +35,8 @@ object AutoCropCommand : FileCommand(
     override val description: String = "Automatically crops out background color."
 
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {
-        val cropColor = arguments.getOptional("rgb", CommandArgumentType.LONG)
-            ?.let { Color(it.toInt()) }
+        val cropColor = arguments.getOptional("rgb", CommandArgumentType.INTEGER)
+            ?.let { Color(it) }
         val tolerance = arguments.getRequired("tolerance", CommandArgumentType.DOUBLE)
         val onlyCheckFirst = arguments.getRequired("onlycheckfirst", CommandArgumentType.BOOLEAN)
         return AutoCropTask(cropColor, tolerance, onlyCheckFirst, maxFileSize)

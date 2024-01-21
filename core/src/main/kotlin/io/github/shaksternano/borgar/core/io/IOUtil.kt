@@ -23,12 +23,16 @@ import java.nio.file.Path
 import kotlin.io.path.appendBytes
 import kotlin.io.path.createTempFile
 import kotlin.io.path.deleteIfExists
+import kotlin.io.path.inputStream
 import kotlin.io.use
 
 fun Path(first: String, vararg more: String): Path = Path.of(first, *more)
 
-suspend fun createTemporaryFile(filename: String): Path =
-    createTemporaryFile(filenameWithoutExtension(filename), fileExtension(filename))
+suspend fun createTemporaryFile(filename: String): Path = createTemporaryFile(
+    filenameWithoutExtension(filename),
+    fileExtension(filename),
+)
+
 
 suspend fun createTemporaryFile(filenameWithoutExtension: String, extension: String): Path {
     val extensionWithDot = if (extension.isBlank()) "" else ".$extension"
@@ -118,6 +122,10 @@ suspend fun Path.write(inputStream: InputStream) = withContext(Dispatchers.IO) {
     FileUtils.copyInputStreamToFile(inputStream, toFile())
 }
 
+suspend fun Path.inputStreamSuspend(): InputStream = withContext(Dispatchers.IO) {
+    inputStream()
+}
+
 suspend fun DataSource.fileFormat(): String {
     val mediaFormat = path?.let { mediaFormat(it) } ?: mediaFormat(newStream())
     return mediaFormat ?: fileExtension()
@@ -185,3 +193,15 @@ inline fun <A : Closeable?, B : Closeable?, C : Closeable?, R> useAll(
             }
         }
     }
+
+suspend fun InputStream.readSuspend(): Int = withContext(Dispatchers.IO) {
+    read()
+}
+
+suspend fun InputStream.readNBytesSuspend(n: Int): ByteArray = withContext(Dispatchers.IO) {
+    readNBytes(n)
+}
+
+suspend fun InputStream.skipNBytesSuspend(n: Long) = withContext(Dispatchers.IO) {
+    skipNBytes(n)
+}

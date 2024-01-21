@@ -62,9 +62,9 @@ class MessageCommandArguments(
 
     override fun toString(): String {
         return "MessageCommandArguments(" +
-                "defaultKey=$defaultKey," +
-                "message=$message," +
-                "arguments=$arguments" +
-                ")"
+            "defaultKey=$defaultKey," +
+            "message=$message," +
+            "arguments=$arguments" +
+            ")"
     }
 }

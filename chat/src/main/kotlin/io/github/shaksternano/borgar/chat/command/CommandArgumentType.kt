@@ -13,6 +13,14 @@ sealed interface CommandArgumentType<T> {
         override fun parse(value: String, message: Message): String = value
     }
 
+    data object INTEGER : SimpleCommandArgumentType<Int> {
+
+        override val name: String = "integer"
+
+        override fun parse(value: String, message: Message): Int? =
+            LONG.parse(value, message)?.toInt()
+    }
+
     data object LONG : SimpleCommandArgumentType<Long> {
 
         override val name: String = "integer"

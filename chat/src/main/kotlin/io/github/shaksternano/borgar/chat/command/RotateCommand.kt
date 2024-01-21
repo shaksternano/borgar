@@ -16,8 +16,8 @@ object RotateCommand : FileCommand(
     CommandArgumentInfo(
         key = "backgroundrgb",
         aliases = setOf("bg"),
-        description = "Background RGB color to fill in the empty space.",
-        type = CommandArgumentType.LONG,
+        description = "Background RGB color to fill in the empty space. By default it is transparent.",
+        type = CommandArgumentType.INTEGER,
         required = false,
     ),
 ) {
@@ -27,7 +27,7 @@ object RotateCommand : FileCommand(
 
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {
         val degrees = arguments.getRequired("degrees", CommandArgumentType.DOUBLE)
-        val backgroundRgb = arguments.getOptional("backgroundrgb", CommandArgumentType.LONG)?.toInt()
+        val backgroundRgb = arguments.getOptional("backgroundrgb", CommandArgumentType.INTEGER)
         val backgroundColor = backgroundRgb?.let { Color(it) }
         return RotateTask(degrees, backgroundColor, maxFileSize)
     }

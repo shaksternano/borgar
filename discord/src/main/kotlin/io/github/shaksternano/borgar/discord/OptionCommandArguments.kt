@@ -31,6 +31,8 @@ class OptionCommandArguments(
         @Suppress("IMPLICIT_CAST_TO_ANY", "UNCHECKED_CAST")
         return when (argumentType) {
             CommandArgumentType.STRING -> optionMapping.asString
+            CommandArgumentType.INTEGER -> runCatching { optionMapping.asLong.toInt() }
+                .getOrNull()
             CommandArgumentType.LONG -> runCatching { optionMapping.asLong }
                 .getOrNull()
 

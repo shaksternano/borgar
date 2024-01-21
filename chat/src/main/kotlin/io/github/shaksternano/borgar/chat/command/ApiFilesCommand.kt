@@ -18,10 +18,10 @@ abstract class ApiFilesCommand(
                 key = "filecount",
                 aliases = setOf("n"),
                 description = "The number of images to send.",
-                type = CommandArgumentType.LONG,
+                type = CommandArgumentType.INTEGER,
                 required = false,
                 defaultValue = 1,
-                validator = RangeValidator(1L..10L),
+                validator = RangeValidator(1..10),
             ),
         )
     } else {
@@ -35,8 +35,8 @@ abstract class ApiFilesCommand(
         val fileCount = if (fileCount == 1)
             arguments.getRequired(
                 "filecount",
-                CommandArgumentType.LONG,
-            ).toInt()
+                CommandArgumentType.INTEGER,
+            )
         else fileCount
         return createApiFilesTask(tags, fileCount, maxFileSize)
     }

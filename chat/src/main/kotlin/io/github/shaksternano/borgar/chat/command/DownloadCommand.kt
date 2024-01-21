@@ -23,9 +23,9 @@ object DownloadCommand : FileCommand(
         key = "filenumber",
         aliases = setOf("n"),
         description = "The file to download. If not specified, all files will be downloaded.",
-        type = CommandArgumentType.LONG,
+        type = CommandArgumentType.INTEGER,
         required = false,
-        validator = PositiveLongValidator,
+        validator = PositiveIntValidator,
     ),
     requireInput = false,
 ) {
@@ -37,7 +37,7 @@ object DownloadCommand : FileCommand(
 
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {
         val audioOnly = arguments.getRequired("audioonly", CommandArgumentType.BOOLEAN)
-        val fileNumber = arguments.getOptional("filenumber", CommandArgumentType.LONG)?.toInt()
+        val fileNumber = arguments.getOptional("filenumber", CommandArgumentType.INTEGER)
         return DownloadTask(audioOnly, fileNumber, maxFileSize)
     }
 }

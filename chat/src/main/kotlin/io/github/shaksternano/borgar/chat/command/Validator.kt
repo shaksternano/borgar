@@ -43,12 +43,12 @@ open class MinValueValidator<T : Comparable<T>>(
         "The value for **$key** must be greater than or equal to ${minValue.formatted}."
 }
 
-object PositiveLongValidator : MinValueValidator<Long>(
+object PositiveIntValidator : MinValueValidator<Int>(
     minValue = 1,
 ) {
 
-    override fun validate(value: Long): Boolean = value > 0
+    override fun validate(value: Int): Boolean = value > 0
 
-    override fun errorMessage(value: Long, key: String): String =
+    override fun errorMessage(value: Int, key: String): String =
         "The value for **$key** must be positive."
 }
