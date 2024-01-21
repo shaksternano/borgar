@@ -124,3 +124,11 @@ infix fun Color.distanceTo(other: Color): Double =
                 ).toDouble()
         )
     }
+
+inline fun BufferedImage.forEachPixel(action: (x: Int, y: Int) -> Unit) {
+    for (y in 0..<height) {
+        for (x in 0..<width) {
+            action(x, y)
+        }
+    }
+}

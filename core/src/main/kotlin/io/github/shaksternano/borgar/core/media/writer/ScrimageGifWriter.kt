@@ -101,13 +101,12 @@ class ScrimageGifWriter(
         }
     }
 
-    private fun isSimilar(image1: BufferedImage, image2: BufferedImage): Boolean {
-        return try {
+    private fun isSimilar(image1: BufferedImage, image2: BufferedImage): Boolean =
+        try {
             isFullyTransparent(optimiseTransparency(image1, image2))
         } catch (e: PreviousTransparentException) {
             false
         }
-    }
 
     private fun optimiseTransparency(
         previousImage: BufferedImage,
@@ -118,17 +117,15 @@ class ScrimageGifWriter(
         }
         val colorTolerance = 10
         val similarPixels = mutableListOf<Position>()
-        for (x in 0 until previousImage.width) {
-            for (y in 0 until previousImage.height) {
-                val previousPixelColor = Color(previousImage.getRGB(x, y), true)
-                val currentPixelColor = Color(currentImage.getRGB(x, y), true)
-                if (currentPixelColor.alpha == 0 && previousPixelColor.alpha != 0) {
-                    throw PreviousTransparentException()
-                } else {
-                    val colorDistance = previousPixelColor distanceTo currentPixelColor
-                    if (colorDistance <= colorTolerance) {
-                        similarPixels.add(Position(x, y))
-                    }
+        previousImage.forEachPixel { x, y ->
+            val previousPixelColor = Color(previousImage.getRGB(x, y), true)
+            val currentPixelColor = Color(currentImage.getRGB(x, y), true)
+            if (currentPixelColor.alpha == 0 && previousPixelColor.alpha != 0) {
+                throw PreviousTransparentException()
+            } else {
+                val colorDistance = previousPixelColor distanceTo currentPixelColor
+                if (colorDistance <= colorTolerance) {
+                    similarPixels.add(Position(x, y))
                 }
             }
         }
@@ -144,24 +141,20 @@ class ScrimageGifWriter(
     }
 
     private fun filterPixels(image: BufferedImage, predicate: (Color) -> Boolean): Boolean {
-        for (x in 0 until image.width) {
-            for (y in 0 until image.height) {
-                val pixelColor = Color(image.getRGB(x, y), true)
-                if (!predicate(pixelColor)) {
-                    return false
-                }
+        image.forEachPixel { x, y ->
+            val pixelColor = Color(image.getRGB(x, y), true)
+            if (!predicate(pixelColor)) {
+                return false
             }
         }
         return true
     }
 
-    private fun isFullyOpaque(image: BufferedImage): Boolean {
-        return filterPixels(image) { color: Color -> color.alpha == 255 }
-    }
+    private fun isFullyOpaque(image: BufferedImage): Boolean =
+        filterPixels(image) { color -> color.alpha == 255 }
 
-    private fun isFullyTransparent(image: BufferedImage): Boolean {
-        return filterPixels(image) { color: Color -> color.alpha == 0 }
-    }
+    private fun isFullyTransparent(image: BufferedImage): Boolean =
+        filterPixels(image) { color -> color.alpha == 0 }
 
     private suspend fun writeFrame(image: BufferedImage, duration: Duration, disposeMethod: DisposeMethod) =
         writeFrame(gif, image, duration, disposeMethod)
