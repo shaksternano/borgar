@@ -21,30 +21,39 @@ fun BufferedImage.convertType(type: Int): BufferedImage {
     return convertOp.filter(this, newType)
 }
 
-fun BufferedImage.bound(width: Int, height: Int): BufferedImage {
-    return ImmutableImage.wrapAwt(this).bound(width, height).awt()
-}
+fun BufferedImage.bound(width: Int, height: Int): BufferedImage =
+    ImmutableImage.wrapAwt(this).bound(width, height).awt()
 
-fun BufferedImage.bound(maxDimension: Int): BufferedImage {
-    return try {
+fun BufferedImage.bound(maxDimension: Int): BufferedImage =
+    runCatching {
         bound(maxDimension, maxDimension)
-    } catch (e: Exception) {
-        val width: Int = width
-        val height: Int = height
+    }.getOrElse {
         if (width <= maxDimension && height <= maxDimension) {
-            return this
-        }
-        val resizeRatio: Float = if (width > height) {
-            maxDimension.toFloat() / width
+            this
         } else {
-            maxDimension.toFloat() / height
+            val maxDimensionDouble = maxDimension.toDouble()
+            val resizeRatio = if (width > height) {
+                maxDimensionDouble / width
+            } else {
+                maxDimensionDouble / height
+            }
+            resize(resizeRatio, true)
         }
-        ImageUtil.resize(this, resizeRatio, true)
     }
-}
 
-fun BufferedImage.resize(resizeMultiplier: Float): BufferedImage =
-    ImageUtil.resize(this, resizeMultiplier, false)
+fun BufferedImage.resize(resizeMultiplier: Double): BufferedImage =
+    resize(resizeMultiplier, false)
+
+fun BufferedImage.resize(resizeMultiplier: Double, raw: Boolean): BufferedImage =
+    if (resizeMultiplier == 1.0) {
+        this
+    } else {
+        stretch(
+            (width * resizeMultiplier).toInt(),
+            (height * resizeMultiplier).toInt(),
+            raw,
+        )
+    }
 
 fun BufferedImage.resize(maxWidth: Int, maxHeight: Int): BufferedImage =
     ImmutableImage.wrapAwt(this).max(maxWidth, maxHeight).awt()
@@ -54,6 +63,40 @@ fun BufferedImage.resizeWidth(width: Int): BufferedImage =
 
 fun BufferedImage.resizeHeight(height: Int): BufferedImage =
     ImmutableImage.wrapAwt(this).scaleToHeight(height).awt()
+
+/**
+ * Stretches an image.
+ *
+ * @param targetWidth  The width to stretch the image to.
+ * @param targetHeight The height to stretch the image to.
+ * @param raw          If false, extra processing is done to smoothen the resulting image.
+ *                     If true, no extra processing is done.
+ * @return The stretched image.
+ */
+fun BufferedImage.stretch(targetWidth: Int, targetHeight: Int, raw: Boolean): BufferedImage {
+    if (width == targetWidth && height == targetHeight) return this
+    val newTargetWidth = max(targetWidth, 1)
+    val newTargetHeight = max(targetHeight, 1)
+    return if (raw) {
+        stretchRaw(newTargetWidth, newTargetHeight)
+    } else {
+        runCatching {
+            ImmutableImage.wrapAwt(this)
+                .scaleTo(newTargetWidth, newTargetHeight)
+                .awt()
+        }.getOrElse {
+            stretchRaw(newTargetWidth, newTargetHeight)
+        }
+    }
+}
+
+private fun BufferedImage.stretchRaw(targetWidth: Int, targetHeight: Int): BufferedImage {
+    val stretchedImage = BufferedImage(targetWidth, targetHeight, typeNoCustom)
+    val graphics = stretchedImage.createGraphics()
+    graphics.drawImage(this, 0, 0, targetWidth, targetHeight, null)
+    graphics.dispose()
+    return stretchedImage
+}
 
 fun BufferedImage.flipX(): BufferedImage =
     ImmutableImage.wrapAwt(this).flipX().awt()
@@ -83,7 +126,7 @@ fun BufferedImage.rotate(
     }
 
     graphics.translate((resultWidth - width) / 2, (resultHeight - height) / 2)
-    graphics.rotate(radians, (width / 2f).toDouble(), (height / 2f).toDouble())
+    graphics.rotate(radians, width / 2.0, height / 2.0)
     graphics.drawRenderedImage(this, null)
     graphics.dispose()
 

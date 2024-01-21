@@ -98,7 +98,7 @@ suspend fun <T : Any> processMedia(
     }
     return useAllIgnored(newImageReader, newAudioReader, processor) {
         var outputSize: Long
-        var resizeRatio = 1F
+        var resizeRatio = 1.0
         val maxResizeAttempts = 3
         var attempts = 0
         do {
@@ -150,7 +150,7 @@ suspend fun <T : Any> processMedia(
             outputSize = withContext(Dispatchers.IO) {
                 output.fileSize()
             }
-            resizeRatio = min((maxFileSize.toDouble() / outputSize), 0.9).toFloat()
+            resizeRatio = min((maxFileSize.toDouble() / outputSize), 0.9)
             attempts++
         } while (maxFileSize in 1..<outputSize && attempts < maxResizeAttempts)
         output
