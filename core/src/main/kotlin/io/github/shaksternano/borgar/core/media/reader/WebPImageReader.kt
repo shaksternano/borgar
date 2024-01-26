@@ -51,8 +51,10 @@ class WebPImageReader(
 
         val animationFrames = framesField[reader] as List<*>
         frameInfos = mutableListOf()
+        var shortestDuration = Duration.INFINITE
         duration = animationFrames.fold(Duration.ZERO) { total, animationFrame ->
             val frameDuration = (durationField[animationFrame] as Int).milliseconds
+            if (frameDuration < shortestDuration) shortestDuration = frameDuration
             frameInfos.add(
                 FrameInfo(
                     frameDuration,
@@ -64,7 +66,7 @@ class WebPImageReader(
         if (frameInfos.isEmpty()) {
             frameInfos.add(FrameInfo(1.milliseconds, Duration.ZERO))
         }
-        frameDuration = duration / frameCount
+        frameDuration = shortestDuration
         frameRate = 1000.0 / frameDuration.inWholeMilliseconds
         width = reader.getWidth(0)
         height = reader.getHeight(0)

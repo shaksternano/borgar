@@ -17,32 +17,32 @@ class ScrimageGifReader(
     gif: AnimatedGif,
 ) : BaseImageReader() {
 
-    override val frameCount: Int
+    override val frameCount: Int = gif.frameCount
     override val frameRate: Double
     override val duration: Duration
     override val frameDuration: Duration
     override val width: Int
     override val height: Int
-    override val loopCount: Int
+    override val loopCount: Int = gif.loopCount
     private val frames: List<ImageFrame>
 
     init {
-        frameCount = gif.frameCount
         if (frameCount <= 0) throw IOException("Could not read any frames")
         val frames = mutableListOf<ImageFrame>()
+        var shortestDuration = Duration.INFINITE
         duration = (0 until frameCount).fold(Duration.ZERO) { total, i ->
             val image = gif.getFrame(i).awt()
             val frameDuration = gif.getDelay(i).toKotlinDuration()
+            if (frameDuration < shortestDuration) shortestDuration = frameDuration
             frames.add(ImageFrame(image, frameDuration, total))
             total + frameDuration
         }
         this.frames = frames
-        frameDuration = duration / frameCount
+        frameDuration = shortestDuration
         frameRate = 1000.0 / frameDuration.inWholeMilliseconds
         val dimensions = gif.dimensions
         width = dimensions.width
         height = dimensions.height
-        loopCount = gif.loopCount
     }
 
     override suspend fun readFrame(timestamp: Duration): ImageFrame =
