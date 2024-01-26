@@ -26,8 +26,6 @@ import kotlin.io.path.deleteIfExists
 import kotlin.io.path.inputStream
 import kotlin.io.use
 
-fun Path(first: String, vararg more: String): Path = Path.of(first, *more)
-
 suspend fun createTemporaryFile(filename: String): Path = createTemporaryFile(
     filenameWithoutExtension(filename),
     fileExtension(filename),
