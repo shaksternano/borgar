@@ -52,3 +52,13 @@ object PositiveIntValidator : MinValueValidator<Int>(
     override fun errorMessage(value: Int, key: String): String =
         "The value for **$key** must be positive."
 }
+
+object GreaterThanOneValidator : MinValueValidator<Double>(
+    minValue = 1.0,
+) {
+
+    override fun validate(value: Double): Boolean = value > 1.0
+
+    override fun errorMessage(value: Double, key: String): String =
+        "The value for **$key** must be greater than 1."
+}
