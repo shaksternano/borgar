@@ -15,13 +15,12 @@ abstract class MediaProcessingTask(
     final override suspend fun process(input: DataSource): DataSource =
         processMedia(input, config, maxFileSize)
 
-    override fun then(after: FileTask): FileTask {
-        return if (after is MediaProcessingTask) {
+    override fun then(after: FileTask): FileTask =
+        if (after is MediaProcessingTask) {
             object : MediaProcessingTask(maxFileSize) {
                 override val config: MediaProcessConfig = this@MediaProcessingTask.config then after.config
             }
         } else {
             super.then(after)
         }
-    }
 }
