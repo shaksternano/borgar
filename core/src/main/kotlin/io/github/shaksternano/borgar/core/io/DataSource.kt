@@ -51,7 +51,7 @@ interface DataSource : DataSourceConvertable {
         return fromFile(filename, path)
     }
 
-    suspend fun writeToPath(path: Path) {
+    private suspend fun writeToPath(path: Path) {
         url?.let {
             download(it, path)
         } ?: path.write(newStream())
