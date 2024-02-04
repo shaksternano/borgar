@@ -3,10 +3,8 @@ package io.github.shaksternano.borgar.core.io.task
 import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.io.SuspendCloseable
 import io.github.shaksternano.borgar.core.io.closeAll
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import io.github.shaksternano.borgar.core.io.deleteSilently
 import java.nio.file.Path
-import kotlin.io.path.deleteIfExists
 
 interface FileTask : SuspendCloseable {
 
@@ -46,9 +44,7 @@ abstract class BaseFileTask(
 
     override suspend fun close() {
         toDelete.forEach {
-            withContext(Dispatchers.IO) {
-                it.deleteIfExists()
-            }
+            it.deleteSilently()
         }
         toDelete.clear()
     }
