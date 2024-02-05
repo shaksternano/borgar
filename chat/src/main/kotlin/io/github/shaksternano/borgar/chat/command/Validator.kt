@@ -14,6 +14,7 @@ fun <T> allowAllValidator(): Validator<T> {
 }
 
 private object AllowAllValidator : Validator<Any?> {
+
     override fun validate(value: Any?): Boolean = true
 
     override fun errorMessage(value: Any?, key: String): String = ""
@@ -50,6 +51,16 @@ object PositiveIntValidator : MinValueValidator<Int>(
     override fun validate(value: Int): Boolean = value > 0
 
     override fun errorMessage(value: Int, key: String): String =
+        "The value for **$key** must be positive."
+}
+
+object PositiveDoubleValidator : MinValueValidator<Double>(
+    minValue = 0.0,
+) {
+
+    override fun validate(value: Double): Boolean = value > 0.0
+
+    override fun errorMessage(value: Double, key: String): String =
         "The value for **$key** must be positive."
 }
 

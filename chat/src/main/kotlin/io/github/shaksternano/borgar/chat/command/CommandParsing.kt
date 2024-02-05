@@ -52,10 +52,10 @@ private suspend fun <T> sendTypingUntilDone(
             delay(typingDuration)
         }
     }
-    val result = block()
-    sendTyping = false
-    typing.cancelAndJoin()
-    result
+    block().also {
+        sendTyping = false
+        typing.cancelAndJoin()
+    }
 }
 
 suspend inline fun executeCommands(
