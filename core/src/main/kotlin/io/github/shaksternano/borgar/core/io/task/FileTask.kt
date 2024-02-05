@@ -1,10 +1,13 @@
 package io.github.shaksternano.borgar.core.io.task
 
+import io.github.shaksternano.borgar.core.collect.parallelForEach
+import io.github.shaksternano.borgar.core.collect.parallelMap
 import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.io.SuspendCloseable
 import io.github.shaksternano.borgar.core.io.closeAll
 import io.github.shaksternano.borgar.core.io.deleteSilently
 import java.nio.file.Path
+import java.util.concurrent.ConcurrentLinkedQueue
 
 interface FileTask : SuspendCloseable {
 
@@ -38,14 +41,14 @@ abstract class BaseFileTask(
     final override val requireInput: Boolean,
 ) : FileTask {
 
-    private val toDelete: MutableList<Path> = mutableListOf()
+    private val toDelete: MutableCollection<Path> = ConcurrentLinkedQueue()
 
-    protected fun markToDelete(path: Path) = toDelete.add(path)
+    protected fun markToDelete(path: Path) {
+        toDelete.add(path)
+    }
 
     override suspend fun close() {
-        toDelete.forEach {
-            it.deleteSilently()
-        }
+        toDelete.parallelForEach(Path::deleteSilently)
         toDelete.clear()
     }
 }
@@ -54,7 +57,7 @@ abstract class MappedFileTask(
     requireInput: Boolean,
 ) : BaseFileTask(requireInput) {
 
-    final override suspend fun run(input: List<DataSource>): List<DataSource> = input.map {
+    final override suspend fun run(input: List<DataSource>): List<DataSource> = input.parallelMap {
         process(it).also { output ->
             output.path?.let(this::markToDelete)
         }

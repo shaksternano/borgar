@@ -11,6 +11,10 @@ suspend fun <T, R> Iterable<T>.parallelMap(transform: suspend (T) -> R): List<R>
     map { async { transform(it) } }.awaitAll()
 }
 
+suspend fun <T> Iterable<T>.parallelForEach(action: suspend (T) -> Unit) {
+    parallelMap(action)
+}
+
 fun <K, V> MutableMap<K, V>.putAllKeys(keys: Iterable<K>, value: V) = keys.forEach {
     put(it, value)
 }
