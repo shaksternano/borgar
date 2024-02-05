@@ -1,11 +1,11 @@
 package io.github.shaksternano.borgar.discord.entity.channel
 
-import dev.minn.jda.ktx.coroutines.asFlow
-import dev.minn.jda.ktx.coroutines.await
 import io.github.shaksternano.borgar.chat.builder.MessageCreateBuilder
 import io.github.shaksternano.borgar.chat.entity.Message
 import io.github.shaksternano.borgar.chat.entity.channel.MessageChannel
 import io.github.shaksternano.borgar.core.io.DataSource
+import io.github.shaksternano.borgar.discord.asFlow
+import io.github.shaksternano.borgar.discord.await
 import io.github.shaksternano.borgar.discord.entity.DiscordMessage
 import io.github.shaksternano.borgar.discord.toFileUpload
 import kotlinx.coroutines.flow.Flow

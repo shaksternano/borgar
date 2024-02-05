@@ -8,11 +8,17 @@ import io.github.shaksternano.borgar.chat.event.MessageReceiveEvent
 import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.discord.entity.DiscordMessage
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.future.await
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.events.session.ReadyEvent
 import net.dv8tion.jda.api.requests.GatewayIntent
+import net.dv8tion.jda.api.requests.RestAction
+import net.dv8tion.jda.api.requests.restaction.pagination.PaginationAction
 import net.dv8tion.jda.api.utils.FileUpload
+import java.util.*
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -48,8 +54,41 @@ fun DataSource.toFileUpload(): FileUpload =
         newStreamBlocking()
     }
 
-private suspend fun JDA.awaitReadySuspend() = suspendCoroutine { continuation ->
-    listener<ReadyEvent> {
-        continuation.resume(Unit)
+private suspend fun JDA.awaitReadySuspend() {
+    if (status == JDA.Status.CONNECTED) return
+    suspendCoroutine { continuation ->
+        listener<ReadyEvent> {
+            continuation.resume(Unit)
+        }
+    }
+}
+
+/**
+ * Awaits the result of this RestAction
+ *
+ * @return Result
+ */
+suspend fun <T> RestAction<T>.await(): T = submit().await()
+
+/**
+ * Converts this PaginationAction to a [Flow]
+ *
+ * This is the same as
+ * ```kotlin
+ * flow {
+ *   emitAll(produce())
+ * }
+ * ```
+ *
+ * @return[Flow] instance
+ */
+fun <T, M : PaginationAction<T, M>> M.asFlow(): Flow<T> = flow {
+    cache(false)
+    val queue: Queue<T> = LinkedList(await())
+    while (queue.isNotEmpty()) {
+        while (queue.isNotEmpty()) {
+            emit(queue.poll())
+        }
+        queue.addAll(await())
     }
 }

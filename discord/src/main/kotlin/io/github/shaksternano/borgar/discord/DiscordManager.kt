@@ -1,6 +1,5 @@
 package io.github.shaksternano.borgar.discord
 
-import dev.minn.jda.ktx.coroutines.await
 import io.github.shaksternano.borgar.chat.BotManager
 import io.github.shaksternano.borgar.chat.command.Permission
 import io.github.shaksternano.borgar.chat.entity.CustomEmoji

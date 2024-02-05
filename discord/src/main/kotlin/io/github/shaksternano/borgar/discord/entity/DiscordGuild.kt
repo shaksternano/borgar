@@ -1,9 +1,9 @@
 package io.github.shaksternano.borgar.discord.entity
 
-import dev.minn.jda.ktx.coroutines.await
 import io.github.shaksternano.borgar.chat.BotManager
 import io.github.shaksternano.borgar.chat.entity.*
 import io.github.shaksternano.borgar.discord.DiscordManager
+import io.github.shaksternano.borgar.discord.await
 
 data class DiscordGuild(
     private val discordGuild: net.dv8tion.jda.api.entities.Guild
