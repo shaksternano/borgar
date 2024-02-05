@@ -8,11 +8,15 @@ import io.github.shaksternano.borgar.chat.event.MessageReceiveEvent
 import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.discord.entity.DiscordMessage
+import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
+import net.dv8tion.jda.api.events.session.ReadyEvent
 import net.dv8tion.jda.api.requests.GatewayIntent
 import net.dv8tion.jda.api.utils.FileUpload
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
-fun initDiscord(token: String) {
+suspend fun initDiscord(token: String) {
     val jda = default(token, enableCoroutines = true) {
         intents += GatewayIntent.MESSAGE_CONTENT
     }
@@ -21,6 +25,7 @@ fun initDiscord(token: String) {
         handleMessageEvent(it)
     }
     jda.registerSlashCommands()
+    jda.awaitReadySuspend()
 }
 
 private suspend fun handleMessageEvent(event: MessageReceivedEvent) = runCatching {
@@ -42,3 +47,9 @@ fun DataSource.toFileUpload(): FileUpload =
     FileUpload.fromStreamSupplier(filename) {
         newStreamBlocking()
     }
+
+private suspend fun JDA.awaitReadySuspend() = suspendCoroutine { continuation ->
+    listener<ReadyEvent> {
+        continuation.resume(Unit)
+    }
+}
