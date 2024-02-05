@@ -24,6 +24,7 @@ val COMMANDS: Map<String, Command> = registerCommands(
     TranscodeCommand.ICO,
     ChangeExtensionCommand.GIF,
     LoopCommand,
+    EmojiImageCommand,
     UrlFileCommand.HAEMA,
     UrlFileCommand.TULIN,
     UrlFileCommand.SURE_BUD,

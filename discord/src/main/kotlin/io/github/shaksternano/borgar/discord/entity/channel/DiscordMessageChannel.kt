@@ -30,8 +30,11 @@ data class DiscordMessageChannel(
         return DiscordMessage(discordMessage)
     }
 
-    override fun getPreviousMessages(beforeId: String, limit: Int): Flow<Message> {
-        return discordMessageChannel.iterableHistory.skipTo(beforeId.toLong()).asFlow().map { DiscordMessage(it) }
+    override fun getPreviousMessages(beforeId: String): Flow<Message> {
+        return discordMessageChannel.iterableHistory
+            .skipTo(beforeId.toLong())
+            .asFlow()
+            .map { DiscordMessage(it) }
     }
 
     private fun MessageCreateBuilder.convert(): MessageCreateData {

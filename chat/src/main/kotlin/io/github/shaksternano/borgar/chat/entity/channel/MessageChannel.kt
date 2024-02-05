@@ -14,8 +14,8 @@ interface MessageChannel : Channel {
 
     suspend fun createMessage(block: MessageCreateBuilder.() -> Unit): Message
 
-    fun getPreviousMessages(beforeId: String, limit: Int): Flow<Message>
+    fun getPreviousMessages(beforeId: String): Flow<Message>
 
-    fun getPreviousMessages(before: Message, limit: Int): Flow<Message> =
-        getPreviousMessages(before.id, limit)
+    fun getPreviousMessages(before: Message): Flow<Message> =
+        getPreviousMessages(before.id)
 }

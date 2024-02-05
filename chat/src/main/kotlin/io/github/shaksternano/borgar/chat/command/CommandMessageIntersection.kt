@@ -19,6 +19,6 @@ interface CommandMessageIntersection : Entity {
 
     suspend fun getReferencedMessage(): Message?
 
-    suspend fun getPreviousMessages(limit: Int): Flow<Message> =
-        getChannel().getPreviousMessages(id, limit)
+    suspend fun getPreviousMessages(): Flow<Message> =
+        getChannel().getPreviousMessages(id)
 }

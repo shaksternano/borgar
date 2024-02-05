@@ -9,6 +9,7 @@ import io.github.shaksternano.borgar.core.io.*
 import io.github.shaksternano.borgar.core.util.getUrls
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.take
 import kotlin.jvm.optionals.getOrNull
 import kotlin.math.min
 
@@ -131,7 +132,6 @@ suspend fun <T> CommandMessageIntersection.search(find: suspend (CommandMessageI
         CommandMessageIntersection::searchPreviousMessages,
     )
 
-@Suppress("SameParameterValue")
 private suspend fun <T> CommandMessageIntersection.searchVisitors(
     find: suspend (CommandMessageIntersection) -> T?,
     vararg messageVisitors: suspend CommandMessageIntersection.(suspend (CommandMessageIntersection) -> T?) -> T?,
@@ -148,18 +148,21 @@ private suspend fun <T> CommandMessageIntersection.searchSelf(find: suspend (Com
     find(this)
 
 private suspend fun <T> CommandMessageIntersection.searchPreviousMessages(find: suspend (CommandMessageIntersection) -> T?): T? =
-    getPreviousMessages(MAX_PAST_MESSAGES_TO_CHECK).map {
-        find(it)
-    }.firstOrNull {
-        it != null
-    }
+    getPreviousMessages()
+        .take(MAX_PAST_MESSAGES_TO_CHECK)
+        .map {
+            find(it)
+        }
+        .firstOrNull {
+            it != null
+        }
 
 data class UrlInfo(
     val url: String,
-    val fileName: String,
+    val filename: String,
 ) : DataSourceConvertable {
 
     constructor(url: String) : this(url, filename(url))
 
-    override fun asDataSource(): UrlDataSource = DataSource.fromUrl(fileName, url)
+    override fun asDataSource(): UrlDataSource = DataSource.fromUrl(filename, url)
 }
