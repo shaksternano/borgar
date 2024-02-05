@@ -4,14 +4,15 @@ import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.util.asSingletonList
 
 class UrlFileTask(
-    private val url: String,
+    url: String,
 ) : BaseFileTask(
     requireInput = false,
 ) {
 
-    override suspend fun run(input: List<DataSource>): List<DataSource> =
-        DataSource.fromUrl(
-            url = url,
-            sendUrl = true
-        ).asSingletonList()
+    private val urls = DataSource.fromUrl(
+        url = url,
+        sendUrl = true
+    ).asSingletonList()
+
+    override suspend fun run(input: List<DataSource>): List<DataSource> = urls
 }
