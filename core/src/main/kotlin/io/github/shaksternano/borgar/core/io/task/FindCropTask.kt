@@ -20,9 +20,9 @@ abstract class FindCropTask(
 
     override val config: MediaProcessConfig = SimpleMediaProcessConfig(
         processor = FindCropProcessor(
-            ::findCropArea,
             onlyCheckFirst,
             failureMessage,
+            ::findCropArea,
         ),
         outputName = outputName
     )
@@ -31,9 +31,9 @@ abstract class FindCropTask(
 }
 
 private class FindCropProcessor(
-    private val findCropArea: (BufferedImage) -> Rectangle,
     private val onlyCheckFirst: Boolean,
     private val failureMessage: String,
+    private val findCropArea: (BufferedImage) -> Rectangle,
 ) : ImageProcessor<FindCropData> {
 
     override suspend fun transformImage(frame: ImageFrame, constantData: FindCropData): BufferedImage {
