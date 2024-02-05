@@ -5,18 +5,18 @@ import io.github.shaksternano.borgar.chat.command.CommandMessageIntersection
 import io.github.shaksternano.borgar.chat.command.CommandResponse
 import io.github.shaksternano.borgar.chat.entity.*
 import io.github.shaksternano.borgar.chat.entity.channel.MessageChannel
+import kotlinx.coroutines.flow.Flow
 
 interface CommandEvent : Managed, TimeStamped {
 
     val id: String
+    val referencedMessages: Flow<Message>
 
     suspend fun getAuthor(): User
 
     suspend fun getChannel(): MessageChannel
 
     suspend fun getGuild(): Guild?
-
-    suspend fun getReferencedMessage(): Message?
 
     suspend fun reply(response: CommandResponse): Message
 

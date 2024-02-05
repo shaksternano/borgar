@@ -10,14 +10,13 @@ interface CommandMessageIntersection : Entity {
     val attachments: List<Attachment>
     val embeds: List<MessageEmbed>
     val customEmojis: List<CustomEmoji>
+    val referencedMessages: Flow<Message>
 
     suspend fun getAuthor(): User
 
     suspend fun getChannel(): MessageChannel
 
     suspend fun getGuild(): Guild?
-
-    suspend fun getReferencedMessage(): Message?
 
     suspend fun getPreviousMessages(): Flow<Message> =
         getChannel().getPreviousMessages(id)

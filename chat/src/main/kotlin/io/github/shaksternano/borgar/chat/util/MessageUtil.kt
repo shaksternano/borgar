@@ -127,7 +127,7 @@ private suspend fun CommandMessageIntersection.getEmojiUrls(onlyGetFirst: Boolea
 suspend fun <T> CommandMessageIntersection.search(find: suspend (CommandMessageIntersection) -> T?): T? =
     searchVisitors(
         find,
-        CommandMessageIntersection::searchReferencedMessage,
+        CommandMessageIntersection::searchReferencedMessages,
         CommandMessageIntersection::searchSelf,
         CommandMessageIntersection::searchPreviousMessages,
     )
@@ -139,10 +139,14 @@ private suspend fun <T> CommandMessageIntersection.searchVisitors(
     it(find)
 }
 
-private suspend fun <T> CommandMessageIntersection.searchReferencedMessage(find: suspend (CommandMessageIntersection) -> T?): T? =
-    getReferencedMessage()?.let {
-        find(it)
-    }
+private suspend fun <T> CommandMessageIntersection.searchReferencedMessages(find: suspend (CommandMessageIntersection) -> T?): T? =
+    referencedMessages
+        .map {
+            find(it)
+        }
+        .firstOrNull {
+            it != null
+        }
 
 private suspend fun <T> CommandMessageIntersection.searchSelf(find: suspend (CommandMessageIntersection) -> T?): T? =
     find(this)

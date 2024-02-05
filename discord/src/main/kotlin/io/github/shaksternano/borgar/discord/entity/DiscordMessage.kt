@@ -13,6 +13,8 @@ import io.github.shaksternano.borgar.discord.entity.channel.DiscordMessageChanne
 import io.github.shaksternano.borgar.discord.toFileUpload
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flowOf
 import net.dv8tion.jda.api.utils.messages.MessageEditData
 import java.time.OffsetDateTime
 
@@ -26,6 +28,12 @@ data class DiscordMessage(
     override val content: String = discordMessage.contentRaw
     override val attachments: List<Attachment> = discordMessage.attachments.map { it.convert() }
     override val embeds: List<MessageEmbed> = discordMessage.embeds.map { it.convert() }
+    override val customEmojis: List<CustomEmoji> = discordMessage.mentions
+        .customEmojis
+        .map { DiscordCustomEmoji(it, discordMessage.jda) }
+    override val referencedMessages: Flow<Message> = discordMessage.referencedMessage
+        ?.let { flowOf(DiscordMessage(it)) }
+        ?: emptyFlow()
 
     private val author: User = DiscordUser(discordMessage.author)
     private val channel: MessageChannel = DiscordMessageChannel(discordMessage.channel)
@@ -34,8 +42,6 @@ data class DiscordMessage(
     } else {
         null
     }
-    private val referencedMessage: Message? = discordMessage.referencedMessage
-        ?.let { DiscordMessage(it) }
 
     private val mentionedUsersSet: Set<User> = discordMessage.mentions
         .users
@@ -58,17 +64,11 @@ data class DiscordMessage(
     override val mentionedChannelIds: Set<Mentionable> = mentionedChannelsSet
     override val mentionedRoleIds: Set<Mentionable> = mentionedRolesSet
 
-    override val customEmojis: List<CustomEmoji> = discordMessage.mentions
-        .customEmojis
-        .map { DiscordCustomEmoji(it, discordMessage.jda) }
-
     override suspend fun getAuthor(): User = author
 
     override suspend fun getChannel(): MessageChannel = channel
 
     override suspend fun getGuild(): Guild? = guild
-
-    override suspend fun getReferencedMessage(): Message? = referencedMessage
 
     override suspend fun edit(block: MessageEditBuilder.() -> Unit): Message {
         val builder = MessageEditBuilder().apply(block)

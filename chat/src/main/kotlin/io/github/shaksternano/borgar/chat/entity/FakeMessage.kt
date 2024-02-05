@@ -6,6 +6,7 @@ import io.github.shaksternano.borgar.chat.entity.channel.Channel
 import io.github.shaksternano.borgar.chat.entity.channel.MessageChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.emptyFlow
 import java.time.OffsetDateTime
 
 data class FakeMessage(
@@ -16,6 +17,8 @@ data class FakeMessage(
     private val channel: MessageChannel,
     override val timeCreated: OffsetDateTime = OffsetDateTime.now(),
 ) : Message {
+
+    override val referencedMessages: Flow<Message> = emptyFlow()
 
     private val mentionedUsersSet: Set<User> = manager.getMentionedUsers(content).toSet()
     private val mentionedChannelsSet: Set<Channel> = manager.getMentionedChannels(content).toSet()
@@ -38,8 +41,6 @@ data class FakeMessage(
     override suspend fun getChannel(): MessageChannel = channel
 
     override suspend fun getGuild(): Guild? = channel.getGuild()
-
-    override suspend fun getReferencedMessage(): Message? = null
 
     override suspend fun edit(block: MessageEditBuilder.() -> Unit): Message {
         val builder = MessageEditBuilder().apply(block)

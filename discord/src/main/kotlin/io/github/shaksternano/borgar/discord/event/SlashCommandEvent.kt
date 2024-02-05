@@ -14,6 +14,8 @@ import io.github.shaksternano.borgar.discord.entity.DiscordMessage
 import io.github.shaksternano.borgar.discord.entity.DiscordUser
 import io.github.shaksternano.borgar.discord.entity.channel.DiscordMessageChannel
 import io.github.shaksternano.borgar.discord.toFileUpload
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import java.time.OffsetDateTime
 
@@ -24,6 +26,7 @@ class SlashCommandEvent(
     override val id: String = event.id
     override val manager: BotManager = DiscordManager.get(event.jda)
     override val timeCreated: OffsetDateTime = event.timeCreated
+    override val referencedMessages: Flow<Message> = emptyFlow()
 
     private val user: User = DiscordUser(event.user)
     private val channel: MessageChannel = DiscordMessageChannel(event.channel)
@@ -36,8 +39,6 @@ class SlashCommandEvent(
     override suspend fun getChannel(): MessageChannel = channel
 
     override suspend fun getGuild(): Guild? = guild
-
-    override suspend fun getReferencedMessage(): Message? = null
 
     override suspend fun reply(response: CommandResponse): Message {
         val replyBuilder = MessageCreateBuilder(
@@ -82,13 +83,12 @@ class SlashCommandEvent(
             override val attachments: List<Attachment> = listOfNotNull(arguments.getDefaultAttachment())
             override val embeds: List<MessageEmbed> = listOf()
             override val customEmojis: List<CustomEmoji> = manager.getCustomEmojis(content)
+            override val referencedMessages: Flow<Message> = emptyFlow()
 
             override suspend fun getAuthor(): User = this@SlashCommandEvent.getAuthor()
 
             override suspend fun getChannel(): MessageChannel = this@SlashCommandEvent.getChannel()
 
             override suspend fun getGuild(): Guild? = this@SlashCommandEvent.getGuild()
-
-            override suspend fun getReferencedMessage(): Message? = null
         }
 }
