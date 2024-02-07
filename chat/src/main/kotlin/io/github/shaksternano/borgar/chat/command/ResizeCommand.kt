@@ -10,7 +10,7 @@ object ResizeCommand : FileCommand(
         aliases = setOf("r", "resize"),
         description = "Resize multiplier.",
         type = CommandArgumentType.DOUBLE,
-        validator = Validator,
+        validator = ResizeValidator,
     ),
     CommandArgumentInfo(
         key = "raw",
@@ -29,18 +29,18 @@ object ResizeCommand : FileCommand(
         val raw = arguments.getRequired("raw", CommandArgumentType.BOOLEAN)
         return StretchTask(resizeMultiplier, resizeMultiplier, raw, maxFileSize)
     }
+}
 
-    private object Validator : MinValueValidator<Double>(
-        minValue = 0.0,
-    ) {
+private object ResizeValidator : MinValueValidator<Double>(
+    minValue = 0.0,
+) {
 
-        override fun validate(value: Double): Boolean = value != 1.0 && value > 0.0
+    override fun validate(value: Double): Boolean = value != 1.0 && value > 0.0
 
-        override fun errorMessage(value: Double, key: String): String =
-            if (value == 1.0) {
-                "The value for **$key** must not be 1."
-            } else {
-                "The value for **$key** must be positive."
-            }
-    }
+    override fun errorMessage(value: Double, key: String): String =
+        if (value == 1.0) {
+            "The value for **$key** must not be 1."
+        } else {
+            "The value for **$key** must be positive."
+        }
 }
