@@ -3,6 +3,7 @@ package io.github.shaksternano.borgar.core.io.task
 import io.github.shaksternano.borgar.core.media.IdentityImageProcessor
 import io.github.shaksternano.borgar.core.media.ImageProcessor
 import io.github.shaksternano.borgar.core.media.MediaProcessConfig
+import io.github.shaksternano.borgar.core.media.reader.AudioReader
 import io.github.shaksternano.borgar.core.media.reader.ImageReader
 
 class ReverseTask(
@@ -19,4 +20,7 @@ private object ReverseConfig : MediaProcessConfig {
 
     override fun transformImageReader(imageReader: ImageReader): ImageReader =
         imageReader.reversed
+
+    override fun transformAudioReader(audioReader: AudioReader): AudioReader =
+        audioReader.reversed
 }

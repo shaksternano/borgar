@@ -79,19 +79,23 @@ class FFmpegAudioReader(
                     reverseFilter.push(it.content)
                     if (sampleRate < 0) sampleRate = it.content.sampleRate
                 }
-                val reversedFrames = mutableListOf<AudioFrame>()
-                var reversedFrame: Frame
-                while (reverseFilter.pull().also { reversedFrame = it } != null) {
-                    reversedFrame.sampleRate = sampleRate
-                    reversedFrames.add(
-                        AudioFrame(
-                            reversedFrame.clone(),
-                            frameDuration,
-                            reversedFrame.timestamp.microseconds,
+                // Without this, pull() will always return null
+                reverseFilter.push(null)
+                reversedFrames = buildList {
+                    var reversedFrame = reverseFilter.pull()
+                    while (reversedFrame != null) {
+                        // The sample rate gets messed up by the filter, so we reset it
+                        reversedFrame.sampleRate = sampleRate
+                        add(
+                            AudioFrame(
+                                reversedFrame.clone(),
+                                frameDuration,
+                                reversedFrame.timestamp.microseconds,
+                            )
                         )
-                    )
+                        reversedFrame = reverseFilter.pull()
+                    }
                 }
-                this.reversedFrames = reversedFrames
             }
         }
     }
