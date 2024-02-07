@@ -25,6 +25,7 @@ interface MediaProcessConfig {
     fun transformAudioReader(audioReader: AudioReader): AudioReader = audioReader
 
     infix fun then(after: MediaProcessConfig): MediaProcessConfig = object : MediaProcessConfig {
+
         override val processor: ImageProcessor<out Any> = this@MediaProcessConfig.processor then after.processor
         override val outputName: String? = after.outputName ?: this@MediaProcessConfig.outputName
 
@@ -36,6 +37,11 @@ interface MediaProcessConfig {
         override fun transformImageReader(imageReader: ImageReader): ImageReader {
             val firstReader = this@MediaProcessConfig.transformImageReader(imageReader)
             return after.transformImageReader(firstReader)
+        }
+
+        override fun transformAudioReader(audioReader: AudioReader): AudioReader {
+            val firstReader = this@MediaProcessConfig.transformAudioReader(audioReader)
+            return after.transformAudioReader(firstReader)
         }
     }
 }
