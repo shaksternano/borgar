@@ -8,9 +8,7 @@ import kotlin.math.pow
 
 class LoopTask(
     loopCount: Int,
-) : MappedFileTask(
-    requireInput = true,
-) {
+) : MappedFileTask() {
 
     private val loopCount: Int = when (loopCount) { // Swap 0 and -1
         // Remove looping

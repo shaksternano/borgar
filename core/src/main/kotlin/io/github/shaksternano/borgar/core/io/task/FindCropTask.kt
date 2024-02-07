@@ -58,9 +58,9 @@ private class FindCropProcessor(
             val image = frame.content
             val mayKeepArea = findCropArea(image)
             if ((mayKeepArea.x != 0
-                        || mayKeepArea.y != 0
-                        || mayKeepArea.width != width
-                        || mayKeepArea.height != height)
+                    || mayKeepArea.y != 0
+                    || mayKeepArea.width != width
+                    || mayKeepArea.height != height)
                 && (mayKeepArea.width > 0)
                 && (mayKeepArea.height > 0)
                 && keepArea.width != 0

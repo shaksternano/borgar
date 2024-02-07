@@ -6,7 +6,7 @@ import io.github.shaksternano.borgar.core.io.*
 class ChangeExtensionTask(
     private val newExtension: String,
     private val maxFileSize: Long,
-) : MappedFileTask(true) {
+) : MappedFileTask() {
 
     override suspend fun process(input: DataSource): DataSource {
         if (input.fileExtension() == newExtension && !input.sendUrl && input.url != null) {

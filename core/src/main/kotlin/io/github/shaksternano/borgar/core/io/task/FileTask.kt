@@ -53,9 +53,9 @@ abstract class BaseFileTask(
     }
 }
 
-abstract class MappedFileTask(
-    requireInput: Boolean,
-) : BaseFileTask(requireInput) {
+abstract class MappedFileTask : BaseFileTask(
+    requireInput = true,
+) {
 
     final override suspend fun run(input: List<DataSource>): List<DataSource> = input.parallelMap {
         process(it).also { output ->

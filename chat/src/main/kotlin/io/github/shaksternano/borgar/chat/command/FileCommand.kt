@@ -8,6 +8,8 @@ import io.github.shaksternano.borgar.core.exception.ErrorResponseException
 import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.io.filename
 import io.github.shaksternano.borgar.core.io.task.FileTask
+import io.github.shaksternano.borgar.core.io.task.MediaProcessingTask
+import io.github.shaksternano.borgar.core.io.task.TranscodeTask
 import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.core.util.TenorMediaType
 import io.github.shaksternano.borgar.core.util.asSingletonList
@@ -37,18 +39,31 @@ abstract class FileCommand(
         else super.defaultArgumentKey
 
     final override suspend fun run(arguments: CommandArguments, event: CommandEvent): Executable {
+        val maxFileSize = event.getChannel().getMaxFileSize()
+        val task = createTask(arguments, event, maxFileSize)
+        val isMediaProcessing = task is MediaProcessingTask
+
+        var isTenor = false
         val convertable = arguments.getDefaultAttachment() ?: run {
             val urlInfo = arguments.getDefaultUrl()?.let {
                 UrlInfo(it, filename(it))
             } ?: event.asMessageIntersection(arguments).getUrls().firstOrNull()
-            val tenorUrl = urlInfo?.let { retrieveTenorMediaUrl(it.url, TenorMediaType.GIF_NORMAL) }
+            val tenorMediaFormat =
+                if (!isMediaProcessing && task.requireInput) TenorMediaType.GIF_LARGE
+                else TenorMediaType.MP4_NORMAL
+            val tenorUrl = urlInfo?.let { retrieveTenorMediaUrl(it.url, tenorMediaFormat) }
+            isTenor = tenorUrl != null
             tenorUrl?.let { UrlInfo(it, filename(it)) } ?: urlInfo
         }
+
+        val modifiedOutputFormatTask = if (isTenor && isMediaProcessing)
+            TranscodeTask("gif", maxFileSize) then task
+        else task
         val files = convertable?.asDataSource()?.asSingletonList() ?: emptyList()
-        val maxFileSize = event.getChannel().getMaxFileSize()
+
         return FileExecutable(
             this,
-            createTask(arguments, event, maxFileSize),
+            modifiedOutputFormatTask,
             files,
             maxFileSize,
             event.manager.maxFilesPerMessage,
