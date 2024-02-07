@@ -1,9 +1,7 @@
 package io.github.shaksternano.borgar.core.io.task
 
 import io.github.shaksternano.borgar.core.exception.ErrorResponseException
-import io.github.shaksternano.borgar.core.io.DataSource
-import io.github.shaksternano.borgar.core.io.filename
-import io.github.shaksternano.borgar.core.io.useHttpClient
+import io.github.shaksternano.borgar.core.io.*
 import io.github.shaksternano.borgar.core.util.JSON
 import io.github.shaksternano.borgar.core.util.asSingletonList
 import io.github.shaksternano.borgar.core.util.getEnvVar
@@ -72,7 +70,7 @@ class DownloadTask(
                         throw FileTooLargeException()
                     }
                 }
-                getFilename(headResponse)
+                getFilename(headResponse, downloadUrl)
             }
             DataSource.fromUrl(filename, downloadUrl)
         }
@@ -151,16 +149,24 @@ class DownloadTask(
         val url: String,
     )
 
-    private fun getFilename(headResponse: HttpResponse): String {
+    private fun getFilename(headResponse: HttpResponse, url: String): String {
         val filename = headResponse.filename()
         if (filename != null) return filename
+        val urlExtension = fileExtension(url)
+        if (urlExtension.isNotBlank()) return filename(url)
+        val filenameWithoutExtension = filenameWithoutExtension(url)
         val contentType = headResponse.contentType()
-        if (contentType != null) return filename(contentType.contentType, contentType.contentSubtype)
-        return if (audioOnly) {
-            "audio.mp3"
+        val extension = if (contentType != null && contentType.contentSubtype.isNotBlank()) {
+            contentType.contentSubtype.let {
+                if (it.equals("jpeg", ignoreCase = true)) "jpg"
+                else it
+            }
+        } else if (audioOnly) {
+            "mp3"
         } else {
-            "video.mp4"
+            "mp4"
         }
+        return filename(filenameWithoutExtension, extension)
     }
 
     private class FileTooLargeException : Exception()
