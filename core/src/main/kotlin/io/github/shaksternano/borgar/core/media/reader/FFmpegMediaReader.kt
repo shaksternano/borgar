@@ -29,7 +29,9 @@ abstract class FFmpegMediaReader<T : VideoFrame<*>>(
     override suspend fun readFrame(timestamp: Duration): T = readFrame(timestamp, grabber)
 
     protected suspend fun readFrame(timestamp: Duration, grabber: FFmpegFrameGrabber): T {
-        val circularTimestamp = (timestamp.inWholeMicroseconds % max(duration.inWholeMicroseconds, 1)).microseconds
+        val circularTimestamp =
+            if (timestamp == duration) timestamp
+            else (timestamp.inWholeMicroseconds % max(duration.inWholeMicroseconds, 1)).microseconds
         return readFrameNonCircular(circularTimestamp, grabber)
     }
 
