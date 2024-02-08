@@ -9,8 +9,8 @@ import kotlin.math.abs
 
 interface ImageProcessor<T> : SuspendCloseable {
 
-    val speed: Float
-        get() = 1.0F
+    val speed: Double
+        get() = 1.0
 
     suspend fun transformImage(frame: ImageFrame, constantData: T): BufferedImage
 
@@ -18,7 +18,7 @@ interface ImageProcessor<T> : SuspendCloseable {
 
     infix fun <V> then(after: ImageProcessor<V>): ImageProcessor<Pair<T, V>> {
         return object : ImageProcessor<Pair<T, V>> {
-            override val speed: Float = this@ImageProcessor.speed * after.speed
+            override val speed: Double = this@ImageProcessor.speed * after.speed
 
             override suspend fun transformImage(frame: ImageFrame, constantData: Pair<T, V>): BufferedImage {
                 val firstTransformed = this@ImageProcessor.transformImage(frame, constantData.first)
@@ -48,7 +48,7 @@ interface ImageProcessor<T> : SuspendCloseable {
     override suspend fun close() = Unit
 }
 
-val ImageProcessor<*>.absoluteSpeed: Float
+val ImageProcessor<*>.absoluteSpeed: Double
     get() = abs(speed)
 
 abstract class DualImageProcessor<T> : ImageProcessor<T> {

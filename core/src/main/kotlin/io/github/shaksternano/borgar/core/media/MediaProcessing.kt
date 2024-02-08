@@ -140,16 +140,17 @@ suspend fun <T : Any> processMedia(
                     writer.writeImageFrame(
                         imageFrame.copy(
                             content = processor.transformImage(imageFrame, constantFrameDataValue).resize(resizeRatio),
-                            duration = imageFrame.duration / processor.absoluteSpeed.toDouble()
+                            duration = imageFrame.duration / processor.absoluteSpeed
                         )
                     )
                 }
 
                 if (writer.supportsAudio) {
                     newAudioReader.asFlow().collect { audioFrame ->
+                        audioFrame.content.sampleRate = (audioFrame.content.sampleRate * processor.absoluteSpeed).toInt()
                         writer.writeAudioFrame(
                             audioFrame.copy(
-                                duration = audioFrame.duration / processor.absoluteSpeed.toDouble()
+                                duration = audioFrame.duration / processor.absoluteSpeed
                             )
                         )
                     }
