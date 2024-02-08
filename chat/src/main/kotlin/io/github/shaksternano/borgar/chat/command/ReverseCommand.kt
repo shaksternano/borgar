@@ -2,7 +2,7 @@ package io.github.shaksternano.borgar.chat.command
 
 import io.github.shaksternano.borgar.chat.event.CommandEvent
 import io.github.shaksternano.borgar.core.io.task.FileTask
-import io.github.shaksternano.borgar.core.io.task.ReverseTask
+import io.github.shaksternano.borgar.core.io.task.SpeedTask
 
 object ReverseCommand : FileCommand() {
 
@@ -10,5 +10,5 @@ object ReverseCommand : FileCommand() {
     override val description: String = "Reverses animated media."
 
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask =
-        ReverseTask(maxFileSize)
+        SpeedTask(-1.0, maxFileSize)
 }

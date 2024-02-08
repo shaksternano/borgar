@@ -47,6 +47,8 @@ interface MediaReader<T : VideoFrame<*>> : SuspendCloseable {
     suspend fun readFrame(timestamp: Duration): T
 
     fun asFlow(): Flow<T>
+
+    fun changeSpeed(speedMultiplier: Double): MediaReader<T>
 }
 
 typealias ImageReader = MediaReader<ImageFrame>

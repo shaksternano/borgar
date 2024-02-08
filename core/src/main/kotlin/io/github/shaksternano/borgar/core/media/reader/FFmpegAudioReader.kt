@@ -52,6 +52,9 @@ class FFmpegAudioReader(
 
     override fun createReversed(): MediaReader<AudioFrame> = Reversed(this)
 
+    override fun createChangedSpeed(speedMultiplier: Double): MediaReader<AudioFrame> =
+        ChangedSpeedAudioReader(this, speedMultiplier)
+
     private class Reversed(
         private val reader: FFmpegAudioReader,
     ) : ReversedAudioReader(reader) {

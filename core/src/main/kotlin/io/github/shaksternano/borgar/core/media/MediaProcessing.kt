@@ -99,11 +99,8 @@ suspend fun <T : Any> processMedia(
     processor: ImageProcessor<T>,
     maxFileSize: Long,
 ): Path {
-    val (newImageReader, newAudioReader) = if (processor.speed < 0) {
-        imageReader.reversed to audioReader.reversed
-    } else {
-        imageReader to audioReader
-    }
+    val newImageReader = imageReader.changeSpeed(processor.speed)
+    val newAudioReader = audioReader.changeSpeed(processor.speed)
     return useAllIgnored(newImageReader, newAudioReader, processor) {
         var outputSize: Long
         var resizeRatio = 1.0
@@ -140,19 +137,13 @@ suspend fun <T : Any> processMedia(
                     writer.writeImageFrame(
                         imageFrame.copy(
                             content = processor.transformImage(imageFrame, constantFrameDataValue).resize(resizeRatio),
-                            duration = imageFrame.duration / processor.absoluteSpeed
                         )
                     )
                 }
 
                 if (writer.supportsAudio) {
                     newAudioReader.asFlow().collect { audioFrame ->
-                        audioFrame.content.sampleRate = (audioFrame.content.sampleRate * processor.absoluteSpeed).toInt()
-                        writer.writeAudioFrame(
-                            audioFrame.copy(
-                                duration = audioFrame.duration / processor.absoluteSpeed
-                            )
-                        )
+                        writer.writeAudioFrame(audioFrame)
                     }
                 }
             }
