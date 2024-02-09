@@ -22,8 +22,8 @@ object AutoCropCommand : FileCommand(
         required = false,
     ),
     CommandArgumentInfo(
-        key = "first",
-        aliases = setOf("f"),
+        key = "onlycheckfirst",
+        aliases = setOf("first", "f"),
         description = "Whether to only check the background in the first frame or not.",
         type = CommandArgumentType.BOOLEAN,
         required = false,

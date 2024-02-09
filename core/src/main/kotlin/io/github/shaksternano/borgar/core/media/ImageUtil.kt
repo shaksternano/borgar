@@ -168,6 +168,14 @@ infix fun Color.distanceTo(other: Color): Double =
         )
     }
 
+val Color.isGreyScale: Boolean
+    get() {
+        val tolerance = 40
+        return abs((red - green).toDouble()) <= tolerance
+            && abs((red - blue).toDouble()) <= tolerance
+            && abs((green - blue).toDouble()) <= tolerance
+    }
+
 inline fun BufferedImage.forEachPixel(action: (x: Int, y: Int) -> Unit) {
     for (y in 0..<height) {
         for (x in 0..<width) {
