@@ -15,6 +15,6 @@ data class DiscordCustomEmoji(
     override val imageUrl: String = discordEmoji.imageUrl
     override val asMention: String = discordEmoji.asMention
     override val id: String = discordEmoji.id
-    override val manager: BotManager = DiscordManager.get(jda)
+    override val manager: BotManager = DiscordManager[jda]
     override val asBasicMention: String = ":${name}:"
 }

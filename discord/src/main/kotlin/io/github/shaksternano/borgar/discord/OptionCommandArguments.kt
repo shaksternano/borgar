@@ -33,6 +33,7 @@ class OptionCommandArguments(
             CommandArgumentType.STRING -> optionMapping.asString
             CommandArgumentType.INTEGER -> runCatching { optionMapping.asLong.toInt() }
                 .getOrNull()
+
             CommandArgumentType.LONG -> runCatching { optionMapping.asLong }
                 .getOrNull()
 
@@ -65,7 +66,7 @@ class OptionCommandArguments(
                         url = it.url,
                         proxyUrl = it.proxyUrl,
                         fileName = it.fileName,
-                        manager = DiscordManager.get(interaction.jda)
+                        manager = DiscordManager[interaction.jda]
                     )
                 }.getOrNull()
         } as T?

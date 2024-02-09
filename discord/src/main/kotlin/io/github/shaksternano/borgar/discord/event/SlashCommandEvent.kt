@@ -24,7 +24,7 @@ class SlashCommandEvent(
 ) : CommandEvent {
 
     override val id: String = event.id
-    override val manager: BotManager = DiscordManager.get(event.jda)
+    override val manager: BotManager = DiscordManager[event.jda]
     override val timeCreated: OffsetDateTime = event.timeCreated
     override val referencedMessages: Flow<Message> = emptyFlow()
 
@@ -83,6 +83,7 @@ class SlashCommandEvent(
             override val attachments: List<Attachment> = listOfNotNull(arguments.getDefaultAttachment())
             override val embeds: List<MessageEmbed> = listOf()
             override val customEmojis: List<CustomEmoji> = manager.getCustomEmojis(content)
+            override val stickers: List<Sticker> = listOf()
             override val referencedMessages: Flow<Message> = emptyFlow()
 
             override suspend fun getAuthor(): User = this@SlashCommandEvent.getAuthor()

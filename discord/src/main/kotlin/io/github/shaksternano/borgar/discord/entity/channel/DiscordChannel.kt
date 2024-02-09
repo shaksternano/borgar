@@ -21,7 +21,7 @@ open class DiscordChannel(
     }
 
     override val id: String = discordChannel.id
-    override val manager: BotManager = DiscordManager.get(discordChannel.jda)
+    override val manager: BotManager = DiscordManager[discordChannel.jda]
     override val asMention: String = discordChannel.asMention
     override val name: String = discordChannel.name
 

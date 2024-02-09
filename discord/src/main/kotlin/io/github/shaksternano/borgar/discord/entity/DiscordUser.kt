@@ -10,7 +10,7 @@ data class DiscordUser(
 ) : BaseEntity(), User {
 
     override val id: String = discordUser.id
-    override val manager: BotManager = DiscordManager.get(discordUser.jda)
+    override val manager: BotManager = DiscordManager[discordUser.jda]
     override val effectiveName: String = discordUser.effectiveName
     override val effectiveAvatarUrl: String = discordUser.effectiveAvatarUrl
     override val isSelf: Boolean = discordUser.jda.selfUser == discordUser

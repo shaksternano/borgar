@@ -10,6 +10,7 @@ interface CommandMessageIntersection : Entity {
     val attachments: List<Attachment>
     val embeds: List<MessageEmbed>
     val customEmojis: List<CustomEmoji>
+    val stickers: List<Sticker>
     val referencedMessages: Flow<Message>
 
     suspend fun getAuthor(): User

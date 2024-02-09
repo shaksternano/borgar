@@ -23,7 +23,7 @@ data class DiscordMessage(
 ) : BaseEntity(), Message {
 
     override val id: String = discordMessage.id
-    override val manager: BotManager = DiscordManager.get(discordMessage.jda)
+    override val manager: BotManager = DiscordManager[discordMessage.jda]
     override val timeCreated: OffsetDateTime = discordMessage.timeCreated
     override val content: String = discordMessage.contentRaw
     override val attachments: List<Attachment> = discordMessage.attachments.map { it.convert() }
@@ -31,6 +31,8 @@ data class DiscordMessage(
     override val customEmojis: List<CustomEmoji> = discordMessage.mentions
         .customEmojis
         .map { DiscordCustomEmoji(it, discordMessage.jda) }
+    override val stickers: List<Sticker> = discordMessage.stickers
+        .map { DiscordSticker(it, discordMessage.jda) }
     override val referencedMessages: Flow<Message> = discordMessage.referencedMessage
         ?.let { flowOf(DiscordMessage(it)) }
         ?: emptyFlow()

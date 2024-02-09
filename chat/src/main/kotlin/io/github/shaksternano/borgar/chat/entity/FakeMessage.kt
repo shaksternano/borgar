@@ -35,6 +35,7 @@ data class FakeMessage(
     override val attachments: List<Attachment> = listOf()
     override val embeds: List<MessageEmbed> = listOf()
     override val customEmojis: List<CustomEmoji> = manager.getCustomEmojis(content)
+    override val stickers: List<Sticker> = listOf()
 
     override suspend fun getAuthor(): User = author
 

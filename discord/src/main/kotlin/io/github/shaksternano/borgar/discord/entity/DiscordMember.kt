@@ -11,7 +11,7 @@ data class DiscordMember(
 ) : DiscordPermissionHolder(discordMember), Member {
 
     override val id: String = discordMember.id
-    override val manager: BotManager = DiscordManager.get(discordMember.jda)
+    override val manager: BotManager = DiscordManager[discordMember.jda]
     override val user: User = DiscordUser(discordMember.user)
     override val guild: Guild = DiscordGuild(discordMember.guild)
     override val effectiveName: String = discordMember.effectiveName

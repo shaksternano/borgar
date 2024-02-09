@@ -9,7 +9,7 @@ data class DiscordRole(
 ) : DiscordPermissionHolder(discordRole), Role {
 
     override val id: String = discordRole.id
-    override val manager: BotManager = DiscordManager.get(discordRole.jda)
+    override val manager: BotManager = DiscordManager[discordRole.jda]
     override val name: String = discordRole.name
     override val asMention: String = discordRole.asMention
 }

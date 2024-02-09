@@ -32,7 +32,7 @@ class DiscordManager(
             managers[jda] = DiscordManager(jda)
         }
 
-        fun get(jda: JDA): BotManager =
+        operator fun get(jda: JDA): BotManager =
             managers.getOrElse(jda) {
                 throw IllegalArgumentException("No manager for $jda")
             }

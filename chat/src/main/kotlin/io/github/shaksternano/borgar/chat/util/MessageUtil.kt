@@ -3,6 +3,7 @@ package io.github.shaksternano.borgar.chat.util
 import io.github.shaksternano.borgar.chat.command.CommandMessageIntersection
 import io.github.shaksternano.borgar.chat.entity.CustomEmoji
 import io.github.shaksternano.borgar.core.emoji.EmojiUtil
+import io.github.shaksternano.borgar.core.exception.FailedOperationException
 import io.github.shaksternano.borgar.core.graphics.drawable.Drawable
 import io.github.shaksternano.borgar.core.graphics.drawable.ImageDrawable
 import io.github.shaksternano.borgar.core.io.*
@@ -13,7 +14,7 @@ import kotlinx.coroutines.flow.take
 import kotlin.jvm.optionals.getOrNull
 import kotlin.math.min
 
-private const val MAX_PAST_MESSAGES_TO_CHECK = 50
+private const val MAX_PAST_MESSAGES_TO_CHECK: Int = 100
 
 suspend fun CommandMessageIntersection.getUrls(): List<UrlInfo> =
     search {
@@ -131,6 +132,11 @@ suspend fun <T> CommandMessageIntersection.search(find: suspend (CommandMessageI
         CommandMessageIntersection::searchSelf,
         CommandMessageIntersection::searchPreviousMessages,
     )
+
+suspend fun <T> CommandMessageIntersection.searchOrThrow(
+    errorMessage: String,
+    find: suspend (CommandMessageIntersection) -> T?,
+): T = search(find) ?: throw FailedOperationException(errorMessage)
 
 private suspend fun <T> CommandMessageIntersection.searchVisitors(
     find: suspend (CommandMessageIntersection) -> T?,

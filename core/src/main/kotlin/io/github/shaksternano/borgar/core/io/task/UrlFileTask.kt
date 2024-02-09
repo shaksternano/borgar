@@ -11,7 +11,7 @@ class UrlFileTask(
 
     private val urls = DataSource.fromUrl(
         url = url,
-        sendUrl = true
+        sendUrl = true,
     ).asSingletonList()
 
     override suspend fun run(input: List<DataSource>): List<DataSource> = urls
