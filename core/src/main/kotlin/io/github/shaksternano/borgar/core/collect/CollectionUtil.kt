@@ -27,3 +27,14 @@ suspend fun <T> Iterable<T>.parallelForEach(action: suspend (T) -> Unit) {
 fun <K, V> MutableMap<K, V>.putAllKeys(keys: Iterable<K>, value: V) = keys.forEach {
     put(it, value)
 }
+
+inline fun <T> forEachNotNull(
+    supplier: () -> T?,
+    action: (T) -> Unit,
+) {
+    var value = supplier()
+    while (value != null) {
+        action(value)
+        value = supplier()
+    }
+}

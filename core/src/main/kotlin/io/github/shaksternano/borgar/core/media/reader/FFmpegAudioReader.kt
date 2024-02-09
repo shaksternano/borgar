@@ -1,5 +1,6 @@
 package io.github.shaksternano.borgar.core.media.reader
 
+import io.github.shaksternano.borgar.core.collect.forEachNotNull
 import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.media.AudioFrame
 import io.github.shaksternano.borgar.core.media.AudioReaderFactory
@@ -56,49 +57,62 @@ class FFmpegAudioReader(
         ChangedSpeedAudioReader(this, speedMultiplier)
 
     private class Reversed(
-        private val reader: FFmpegAudioReader,
+        private val reader: AudioReader,
     ) : ReversedAudioReader(reader) {
 
         private lateinit var reversedFrames: List<AudioFrame>
 
+        private suspend fun init() {
+            if (!::reversedFrames.isInitialized)
+                reversedFrames = filterAudioFrames(reader, "areverse", audioChannels, frameDuration)
+        }
+
         override suspend fun readFrame(timestamp: Duration): AudioFrame {
-            createReversedFrames()
+            init()
             return frameAtTime(timestamp, reversedFrames, duration)
         }
 
         override fun asFlow(): Flow<AudioFrame> = flow {
-            createReversedFrames()
+            init()
             reversedFrames.forEach {
                 emit(it)
             }
         }
 
-        private suspend fun createReversedFrames() {
-            if (::reversedFrames.isInitialized) return
-            FFmpegFrameFilter("areverse", audioChannels).use { reverseFilter ->
-                reverseFilter.start()
-                var sampleRate = -1
-                reader.asFlow().collect {
-                    reverseFilter.push(it.content)
-                    if (sampleRate < 0) sampleRate = it.content.sampleRate
-                }
-                // Without this, pull() will always return null
-                reverseFilter.push(null)
-                reversedFrames = buildList {
-                    var reversedFrame = reverseFilter.pull()
-                    while (reversedFrame != null) {
-                        // The sample rate gets messed up by the filter, so we reset it
-                        reversedFrame.sampleRate = sampleRate
-                        add(
-                            AudioFrame(
-                                reversedFrame.clone(),
-                                frameDuration,
-                                reversedFrame.timestamp.microseconds,
-                            )
+        override fun createChangedSpeed(speedMultiplier: Double): MediaReader<AudioFrame> =
+            ChangedSpeedAudioReader(this, speedMultiplier)
+    }
+
+    private class ChangedSpeedAudioReader(
+        reader: AudioReader,
+        speedMultiplier: Double,
+    ) : ChangedSpeedReader<AudioFrame>(
+        reader,
+        speedMultiplier,
+    ) {
+
+        private lateinit var changedSpeedFrames: List<AudioFrame>
+
+        private suspend fun init() {
+            if (!::changedSpeedFrames.isInitialized)
+                changedSpeedFrames = filterAudioFrames(reader, "atempo=$speedMultiplier", audioChannels, frameDuration)
+                    .map {
+                        it.copy(
+                            timestamp = it.timestamp / speedMultiplier,
+                            duration = it.duration / speedMultiplier,
                         )
-                        reversedFrame = reverseFilter.pull()
                     }
-                }
+        }
+
+        override suspend fun readFrame(timestamp: Duration): AudioFrame {
+            init()
+            return frameAtTime(timestamp, changedSpeedFrames, duration)
+        }
+
+        override fun asFlow(): Flow<AudioFrame> = flow {
+            init()
+            changedSpeedFrames.forEach {
+                emit(it)
             }
         }
     }
@@ -124,3 +138,33 @@ class FFmpegAudioReader(
             }
     }
 }
+
+private suspend fun filterAudioFrames(
+    reader: AudioReader,
+    filter: String,
+    audioChannels: Int,
+    frameDuration: Duration
+): List<AudioFrame> =
+    FFmpegFrameFilter(filter, audioChannels).use { frameFilter ->
+        frameFilter.start()
+        var sampleRate = -1
+        reader.asFlow().collect {
+            frameFilter.push(it.content)
+            if (sampleRate < 0)
+                sampleRate = it.content.sampleRate
+        }
+        // Without this, pull() will always return null
+        frameFilter.push(null)
+        buildList {
+            forEachNotNull(frameFilter::pull) {
+                it.sampleRate = sampleRate
+                add(
+                    AudioFrame(
+                        it.clone(),
+                        frameDuration,
+                        it.timestamp.microseconds,
+                    )
+                )
+            }
+        }
+    }

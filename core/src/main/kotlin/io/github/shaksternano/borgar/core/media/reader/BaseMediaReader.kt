@@ -25,7 +25,7 @@ abstract class BaseMediaReader<T : VideoFrame<*>> : MediaReader<T> {
 }
 
 open class ChangedSpeedReader<T : VideoFrame<*>>(
-    private val reader: MediaReader<T>,
+    protected val reader: MediaReader<T>,
     protected val speedMultiplier: Double,
 ) : MediaReader<T> by reader {
 
@@ -39,8 +39,13 @@ open class ChangedSpeedReader<T : VideoFrame<*>>(
     }
 
     override suspend fun readFrame(timestamp: Duration): T {
-        val newTimestamp = timestamp / speedMultiplier
-        return reader.readFrame(newTimestamp)
+        val newTimestamp = timestamp * speedMultiplier
+        val frame = reader.readFrame(newTimestamp)
+        @Suppress("UNCHECKED_CAST")
+        return frame.copy(
+            timestamp = frame.timestamp / speedMultiplier,
+            duration = frame.duration / speedMultiplier,
+        ) as T
     }
 
     override fun asFlow(): Flow<T> =
@@ -72,34 +77,6 @@ abstract class BaseAudioReader : BaseMediaReader<AudioFrame>() {
     final override val height: Int = 0
 
     abstract override fun createReversed(): AudioReader
-
-    override fun createChangedSpeed(speedMultiplier: Double): MediaReader<AudioFrame> =
-        ChangedSpeedAudioReader(this, speedMultiplier)
-}
-
-class ChangedSpeedAudioReader(
-    reader: AudioReader,
-    speedMultiplier: Double,
-) : ChangedSpeedReader<AudioFrame>(
-    reader,
-    speedMultiplier,
-) {
-
-    override suspend fun readFrame(timestamp: Duration): AudioFrame =
-        super.readFrame(timestamp).also {
-            it.changeSampleRate(speedMultiplier)
-        }
-
-    override fun asFlow(): Flow<AudioFrame> =
-        super.asFlow()
-            .map {
-                it.changeSampleRate(speedMultiplier)
-            }
-}
-
-private fun AudioFrame.changeSampleRate(speedMultiplier: Double): AudioFrame {
-    content.sampleRate = (content.sampleRate * speedMultiplier).toInt()
-    return this
 }
 
 abstract class ReversedReader<T : VideoFrame<*>>(
@@ -129,8 +106,4 @@ abstract class ReversedImageReader(
 
 abstract class ReversedAudioReader(
     reader: AudioReader,
-) : ReversedReader<AudioFrame>(reader), AudioReader {
-
-    override fun createChangedSpeed(speedMultiplier: Double): MediaReader<AudioFrame> =
-        ChangedSpeedAudioReader(this, speedMultiplier)
-}
+) : ReversedReader<AudioFrame>(reader), AudioReader
