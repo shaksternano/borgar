@@ -1,5 +1,6 @@
 package io.github.shaksternano.borgar.core.media.reader
 
+import io.github.shaksternano.borgar.core.collect.forEachNotNull
 import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.io.SuspendCloseable
 import io.github.shaksternano.borgar.core.io.closeAll
@@ -53,13 +54,9 @@ abstract class FFmpegMediaReader<T : VideoFrame<*>>(
             if (newFrame == null || newFrame.timestamp.microseconds > timestamp) {
                 return correctFrame
             }
-            withContext(Dispatchers.IO) {
-                correctFrame.close()
-            }
+            correctFrame.close()
             val copy = newFrame.clone()
-            withContext(Dispatchers.IO) {
-                newFrame.close()
-            }
+            newFrame.close()
             correctFrame = copy
         }
         return correctFrame
@@ -87,14 +84,14 @@ abstract class FFmpegMediaReader<T : VideoFrame<*>>(
 
     override fun asFlow(): Flow<T> = flow {
         val grabber = FFmpegFrameGrabber(input.toFile())
-        withContext(Dispatchers.IO) {
-            grabber.start()
-        }
         SuspendCloseable.fromBlocking(grabber).use {
-            var nextFrame = grabConvertedFrame(grabber)
-            while (nextFrame != null) {
-                emit(nextFrame)
-                nextFrame = grabConvertedFrame(grabber)
+            withContext(Dispatchers.IO) {
+                grabber.start()
+            }
+            forEachNotNull({
+                grabConvertedFrame(grabber)
+            }) {
+                emit(it)
             }
         }
     }
@@ -114,22 +111,27 @@ suspend fun <T : FFmpegMediaReader<*>> createReader(
     val isTempFile = input.path == null
     val path = input.getOrWriteFile().path
     val grabber = FFmpegFrameGrabber(path.toFile())
-    return withContext(Dispatchers.IO) {
+    withContext(Dispatchers.IO) {
         grabber.start()
-        var frameCount = 0
-        var frame: Frame?
-        while (grabber.grabImage().also { frame = it } != null) {
-            frameCount++
-            frame?.close()
-        }
-        val frameRate = grabber.frameRate
-        factory(
-            path,
-            isTempFile,
-            grabber,
-            frameCount,
-            frameRate,
-            (1 / frameRate).seconds,
-        )
     }
+    var frameCount = 0
+    forEachNotNull({
+        withContext(Dispatchers.IO) {
+            grabber.grabImage()
+        }
+    }) {
+        frameCount++
+        it.close()
+    }
+    val frameRate = withContext(Dispatchers.IO) {
+        grabber.frameRate
+    }
+    return factory(
+        path,
+        isTempFile,
+        grabber,
+        frameCount,
+        frameRate,
+        (1 / frameRate).seconds,
+    )
 }

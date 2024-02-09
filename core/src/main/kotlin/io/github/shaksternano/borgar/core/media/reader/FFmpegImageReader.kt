@@ -3,6 +3,7 @@ package io.github.shaksternano.borgar.core.media.reader
 import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.io.SuspendCloseable
 import io.github.shaksternano.borgar.core.io.closeAll
+import io.github.shaksternano.borgar.core.io.use
 import io.github.shaksternano.borgar.core.media.FrameInfo
 import io.github.shaksternano.borgar.core.media.ImageFrame
 import io.github.shaksternano.borgar.core.media.ImageReaderFactory
@@ -65,7 +66,7 @@ class FFmpegImageReader(
     override fun createReversed(): MediaReader<ImageFrame> = Reversed(this)
 
     override suspend fun close() = closeAll(
-        SuspendCloseable { super.close() },
+        { super.close() },
         SuspendCloseable(converter),
     )
 
@@ -85,16 +86,18 @@ class FFmpegImageReader(
         }
 
         override fun asFlow(): Flow<ImageFrame> = flow {
-            val grabber = FFmpegFrameGrabber(reader.input.toFile())
-            withContext(Dispatchers.IO) {
-                grabber.start()
-            }
             if (!::reversedFrameInfo.isInitialized) {
                 reversedFrameInfo = createReversedFrameInfo()
             }
-            reversedFrameInfo.forEach {
-                val frame = reader.readFrame(it.timestamp, grabber)
-                emit(frame)
+            val grabber = FFmpegFrameGrabber(reader.input.toFile())
+            SuspendCloseable.fromBlocking(grabber).use {
+                withContext(Dispatchers.IO) {
+                    grabber.start()
+                }
+                reversedFrameInfo.forEach {
+                    val frame = reader.readFrame(it.timestamp, grabber)
+                    emit(frame)
+                }
             }
         }
 
