@@ -68,7 +68,7 @@ class FFmpegAudioReader(
 
         private suspend fun init() {
             if (!::reversedFrames.isInitialized)
-                reversedFrames = filterAudioFrames(reader, "areverse", audioChannels, frameDuration)
+                reversedFrames = filterAudioFrames(reader, "areverse")
         }
 
         override suspend fun readFrame(timestamp: Duration): AudioFrame {
@@ -99,11 +99,11 @@ class FFmpegAudioReader(
 
         private suspend fun init() {
             if (!::changedSpeedFrames.isInitialized)
-                changedSpeedFrames = filterAudioFrames(reader, "atempo=$speedMultiplier", audioChannels, frameDuration)
+                changedSpeedFrames = filterAudioFrames(reader, "atempo=$speedMultiplier")
                     .map {
                         it.copy(
-                            timestamp = it.timestamp / speedMultiplier,
                             duration = it.duration / speedMultiplier,
+                            timestamp = it.timestamp / speedMultiplier,
                         )
                     }
         }
@@ -143,30 +143,39 @@ class FFmpegAudioReader(
     }
 }
 
+/**
+ * Applies an FFmpeg audio filter to the audio frames.
+ *
+ * @param reader        The audio reader to read the audio frames from.
+ * @param filter        The FFmpeg audio filter to apply.
+ * @return The filtered audio frames.
+ */
 private suspend fun filterAudioFrames(
     reader: AudioReader,
     filter: String,
-    audioChannels: Int,
-    frameDuration: Duration
 ): List<AudioFrame> =
-    FFmpegFrameFilter(filter, audioChannels).use { frameFilter ->
+    FFmpegFrameFilter(filter, reader.audioChannels).use { frameFilter ->
         frameFilter.start()
         var sampleRate = -1
+        // Pass the audio frames through the filter
         reader.asFlow().collect {
             frameFilter.push(it.content)
+            // Remember the original sample rate
             if (sampleRate < 0)
                 sampleRate = it.content.sampleRate
         }
         // Without this, pull() will always return null
         frameFilter.push(null)
         buildList {
+            // Retrieve the filtered audio frames
             forEachNotNull(frameFilter::pull) {
+                // The sample rate gets messed up by the filter, so we reset it
                 it.sampleRate = sampleRate
                 add(
                     AudioFrame(
-                        it.clone(),
-                        frameDuration,
-                        it.timestamp.microseconds,
+                        content = it.clone(),
+                        duration = reader.frameDuration,
+                        timestamp = it.timestamp.microseconds,
                     )
                 )
             }
