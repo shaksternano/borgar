@@ -84,16 +84,18 @@ private suspend fun executeCommand(
     } else {
         slashCommandConfig
     }
+    val anyDefer = commandConfigs.any { it.command.deferReply }
+    val anyEphemeral = commandConfigs.any { it.command.ephemeral }
     val deferReply =
-        if (command.deferReply) slashEvent.deferReply()
-            .setEphemeral(command.ephemeral)
+        if (anyDefer) slashEvent.deferReply()
+            .setEphemeral(anyEphemeral)
             .submit()
         else null
     val result = executeCommands(commandConfigs, commandEvent)
     val responses = result.first.map {
         it.copy(
-            ephemeral = command.ephemeral,
-            deferReply = command.deferReply
+            deferReply = anyDefer,
+            ephemeral = anyEphemeral,
         )
     }
     val executable = result.second
