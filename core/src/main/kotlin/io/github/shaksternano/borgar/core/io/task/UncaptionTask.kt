@@ -18,15 +18,16 @@ class UncaptionTask(
 ) {
 
     override fun findCropArea(image: BufferedImage): Rectangle {
-        var nonCaptionArea = Rectangle(0, 0, image.width, image.height)
+        val fullImageArea = Rectangle(0, 0, image.width, image.height)
         val nonTopCaptionArea =
             if (coloredCaption) findNonCaptionAreaColored(image, true)
             else findNonCaptionArea(image, true)
-        nonCaptionArea = nonCaptionArea.intersection(nonTopCaptionArea)
         val nonBottomCaptionArea =
             if (coloredCaption) findNonCaptionAreaColored(image, false)
             else findNonCaptionArea(image, false)
-        return nonCaptionArea.intersection(nonBottomCaptionArea)
+        return fullImageArea
+            .intersection(nonTopCaptionArea)
+            .intersection(nonBottomCaptionArea)
     }
 
     private fun findNonCaptionArea(image: BufferedImage, topCaption: Boolean): Rectangle {
