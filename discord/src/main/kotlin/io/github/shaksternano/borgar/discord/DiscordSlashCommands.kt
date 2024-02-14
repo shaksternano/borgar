@@ -22,14 +22,14 @@ import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.OptionData
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 
-fun JDA.registerSlashCommands() {
+suspend fun JDA.registerSlashCommands() {
     listener<SlashCommandInteractionEvent> {
         handleCommand(it)
     }
     updateCommands {
         val slashCommands = COMMANDS.values.map(Command::toSlash)
         addCommands(slashCommands)
-    }.queue()
+    }.await()
 }
 
 private fun Command.toSlash(): SlashCommandData = Command(name, description) {
@@ -52,7 +52,7 @@ private suspend fun handleCommand(event: SlashCommandInteractionEvent) {
     val command = COMMANDS[name]
     if (command == null) {
         logger.error("Unknown command: $name")
-        event.reply("Unknown command!").queue()
+        event.reply("Unknown command!").await()
         return
     }
     val arguments = OptionCommandArguments(event, command.defaultArgumentKey)
@@ -78,7 +78,7 @@ private suspend fun executeCommand(
         } catch (e: CommandNotFoundException) {
             slashEvent.reply("The command **$COMMAND_PREFIX${e.command}** does not exist!")
                 .setEphemeral(true)
-                .queue()
+                .await()
             return
         }
     } else {

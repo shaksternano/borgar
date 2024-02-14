@@ -8,9 +8,11 @@ import io.github.shaksternano.borgar.chat.event.MessageReceiveEvent
 import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.discord.entity.DiscordMessage
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.future.await
+import kotlinx.coroutines.launch
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.events.session.ReadyEvent
@@ -22,7 +24,7 @@ import java.util.*
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-suspend fun initDiscord(token: String) {
+suspend fun initDiscord(token: String) = coroutineScope {
     val jda = default(token, enableCoroutines = true) {
         intents += GatewayIntent.MESSAGE_CONTENT
     }
@@ -30,8 +32,12 @@ suspend fun initDiscord(token: String) {
     jda.listener<MessageReceivedEvent> {
         handleMessageEvent(it)
     }
-    jda.registerSlashCommands()
-    jda.awaitReadySuspend()
+    launch {
+        jda.registerSlashCommands()
+    }
+    launch {
+        jda.awaitReadySuspend()
+    }
 }
 
 private suspend fun handleMessageEvent(event: MessageReceivedEvent) = runCatching {

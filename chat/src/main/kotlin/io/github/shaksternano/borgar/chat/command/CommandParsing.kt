@@ -17,7 +17,6 @@ import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.core.util.endOfWord
 import io.github.shaksternano.borgar.core.util.indicesOfPrefix
 import io.github.shaksternano.borgar.core.util.split
-import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.fold
@@ -54,7 +53,7 @@ private suspend fun <T> sendTypingUntilDone(
     }
     block().also {
         sendTyping = false
-        typing.cancelAndJoin()
+        typing.cancel()
     }
 }
 
@@ -114,21 +113,27 @@ suspend inline fun executeCommands(
 suspend fun List<CommandResponse>.send(
     executable: Executable?,
     commandEvent: CommandEvent,
-) {
+) = coroutineScope {
+    var sendHandleResponseErrorMessage = true
     forEachIndexed { index, response ->
         try {
             val sent = commandEvent.reply(response)
-            try {
-                executable?.onResponseSend(
-                    response,
-                    index + 1,
-                    size,
-                    sent,
-                    commandEvent
-                )
-            } catch (t: Throwable) {
-                logger.error("An error occurred", t)
-                commandEvent.reply("An error occurred!")
+            launch {
+                try {
+                    executable?.onResponseSend(
+                        response,
+                        index + 1,
+                        size,
+                        sent,
+                        commandEvent
+                    )
+                } catch (t: Throwable) {
+                    logger.error("An error occurred", t)
+                    if (sendHandleResponseErrorMessage) {
+                        commandEvent.reply("An error occurred!")
+                        sendHandleResponseErrorMessage = false
+                    }
+                }
             }
         } catch (t: Throwable) {
             logger.error("Failed to send response", t)
