@@ -1,19 +1,18 @@
 package io.github.shaksternano.borgar.chat.command
 
+import io.github.shaksternano.borgar.chat.entity.getContent
 import io.github.shaksternano.borgar.chat.event.CommandEvent
-import io.github.shaksternano.borgar.chat.util.UrlInfo
 import io.github.shaksternano.borgar.chat.util.getUrls
 import io.github.shaksternano.borgar.core.collect.addAll
 import io.github.shaksternano.borgar.core.exception.ErrorResponseException
 import io.github.shaksternano.borgar.core.io.DataSource
-import io.github.shaksternano.borgar.core.io.filename
+import io.github.shaksternano.borgar.core.io.UrlInfo
 import io.github.shaksternano.borgar.core.io.task.FileTask
 import io.github.shaksternano.borgar.core.io.task.MediaProcessingTask
 import io.github.shaksternano.borgar.core.io.task.TranscodeTask
 import io.github.shaksternano.borgar.core.logger
-import io.github.shaksternano.borgar.core.util.TenorMediaType
 import io.github.shaksternano.borgar.core.util.asSingletonList
-import io.github.shaksternano.borgar.core.util.retrieveTenorMediaUrl
+import io.github.shaksternano.borgar.core.util.getTenorUrlOrDefault
 
 abstract class FileCommand(
     vararg argumentInfo: CommandArgumentInfo<*>,
@@ -41,26 +40,16 @@ abstract class FileCommand(
     final override suspend fun run(arguments: CommandArguments, event: CommandEvent): Executable {
         val maxFileSize = event.getChannel().getMaxFileSize()
         val task = createTask(arguments, event, maxFileSize)
-        val isMediaProcessing = task is MediaProcessingTask
-
-        var isTenor = false
-        val convertable = arguments.getDefaultAttachment() ?: run {
-            val urlInfo = arguments.getDefaultUrl()?.let {
-                UrlInfo(it, filename(it))
-            } ?: event.asMessageIntersection(arguments).getUrls().firstOrNull()
-            val tenorMediaFormat =
-                if (!isMediaProcessing && task.requireInput) TenorMediaType.GIF_LARGE
-                else TenorMediaType.MP4_NORMAL
-            val tenorUrl = urlInfo?.let { retrieveTenorMediaUrl(it.url, tenorMediaFormat) }
-            isTenor = tenorUrl != null
-            tenorUrl?.let { UrlInfo(it, filename(it)) } ?: urlInfo
-        }
-
-        val modifiedOutputFormatTask = if (isTenor && isMediaProcessing)
-            TranscodeTask("gif", maxFileSize) then task
+        var gifv = false
+        val convertable = arguments.getDefaultAttachment()
+            ?: getFileUrl(arguments, event, task).also {
+                if (it != null)
+                    gifv = it.gifv
+            }
+        val modifiedOutputFormatTask = if (gifv && task is MediaProcessingTask)
+            task then TranscodeTask("gif", maxFileSize)
         else task
         val files = convertable?.asDataSource()?.asSingletonList() ?: emptyList()
-
         return FileExecutable(
             this,
             modifiedOutputFormatTask,
@@ -68,6 +57,18 @@ abstract class FileCommand(
             maxFileSize,
             event.manager.maxFilesPerMessage,
         )
+    }
+
+    private suspend fun getFileUrl(arguments: CommandArguments, event: CommandEvent, task: FileTask): UrlInfo? {
+        val messageIntersection = event.asMessageIntersection(arguments)
+        val embed = messageIntersection.embeds.firstOrNull()
+        val getGif = task.requireInput && task !is MediaProcessingTask
+        val embedContent = embed?.getContent(getGif)
+        if (embedContent != null) return embedContent
+        val argumentUrlInfo = arguments.getDefaultUrl()?.let {
+            getTenorUrlOrDefault(it, getGif)
+        }
+        return argumentUrlInfo ?: messageIntersection.getUrls(getGif).firstOrNull()
     }
 
     protected abstract suspend fun createTask(

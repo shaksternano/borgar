@@ -65,7 +65,7 @@ class OptionCommandArguments(
                         id = it.id,
                         url = it.url,
                         proxyUrl = it.proxyUrl,
-                        fileName = it.fileName,
+                        filename = it.fileName,
                         manager = DiscordManager[interaction.jda]
                     )
                 }.getOrNull()

@@ -88,14 +88,23 @@ data class DiscordMessage(
     )
 
     private fun net.dv8tion.jda.api.entities.MessageEmbed.convert(): MessageEmbed = MessageEmbed(
-        image?.let {
+        url = url,
+        image = image?.let {
             MessageEmbed.ImageInfo(
+                it.url,
+                it.proxyUrl,
+            )
+        },
+        video = videoInfo?.let {
+            MessageEmbed.VideoInfo(
+                it.url,
                 it.url,
             )
         },
-        videoInfo?.let {
-            MessageEmbed.VideoInfo(
+        thumbnail = thumbnail?.let {
+            MessageEmbed.ThumbnailInfo(
                 it.url,
+                it.proxyUrl,
             )
         },
     )

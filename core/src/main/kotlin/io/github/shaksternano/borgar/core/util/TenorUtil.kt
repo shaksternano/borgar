@@ -1,16 +1,26 @@
 package io.github.shaksternano.borgar.core.util
 
+import io.github.shaksternano.borgar.core.io.UrlInfo
 import io.github.shaksternano.borgar.core.io.httpGet
 import kotlinx.serialization.Serializable
 import java.net.URI
 
 private const val DEFAULT_TENOR_API_KEY: String = "LIVDSRZULELA"
 
+suspend fun getTenorUrlOrDefault(url: String, getGif: Boolean): UrlInfo {
+    val tenorGifUrl = if (getGif)
+        retrieveTenorMediaUrl(url, TenorMediaType.GIF_LARGE)
+    else null
+    val tenorUrl = if (getGif) tenorGifUrl
+    else retrieveTenorMediaUrl(url, TenorMediaType.MP4_NORMAL)
+    return UrlInfo(
+        url = tenorUrl ?: url,
+        gifv = tenorGifUrl == null && isTenorUrl(url)
+    )
+}
+
 suspend fun retrieveTenorMediaUrl(url: String, mediaType: TenorMediaType): String? {
-    val uri = runCatching { URI(url) }.getOrElse { return null }
-    val host = uri.host
-    if (host == null || !host.contains("tenor.com") || !uri.getPath().startsWith("/view/"))
-        return null
+    if (!isTenorUrl(url)) return null
     val apiKey = getEnvVar("TENOR_API_KEY") ?: DEFAULT_TENOR_API_KEY
     val mediaId = url.substring(url.lastIndexOf("-") + 1)
     val requestUrl = "https://g.tenor.com/v1/gifs?key=$apiKey&ids=$mediaId"
@@ -22,6 +32,12 @@ suspend fun retrieveTenorMediaUrl(url: String, mediaType: TenorMediaType): Strin
     }.getOrElse {
         throw IllegalStateException("Error parsing Tenor response", it)
     }
+}
+
+fun isTenorUrl(url: String): Boolean {
+    val uri = runCatching { URI(url) }.getOrElse { return false }
+    val host = uri.host
+    return host != null && host.contains("tenor.com") && uri.getPath().startsWith("/view/")
 }
 
 /**

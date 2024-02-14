@@ -2,11 +2,15 @@ package io.github.shaksternano.borgar.chat.util
 
 import io.github.shaksternano.borgar.chat.command.CommandMessageIntersection
 import io.github.shaksternano.borgar.chat.entity.CustomEmoji
+import io.github.shaksternano.borgar.chat.entity.getContent
 import io.github.shaksternano.borgar.core.emoji.EmojiUtil
 import io.github.shaksternano.borgar.core.exception.FailedOperationException
 import io.github.shaksternano.borgar.core.graphics.drawable.Drawable
 import io.github.shaksternano.borgar.core.graphics.drawable.ImageDrawable
-import io.github.shaksternano.borgar.core.io.*
+import io.github.shaksternano.borgar.core.io.DataSource
+import io.github.shaksternano.borgar.core.io.UrlInfo
+import io.github.shaksternano.borgar.core.io.fileFormat
+import io.github.shaksternano.borgar.core.util.getTenorUrlOrDefault
 import io.github.shaksternano.borgar.core.util.getUrls
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
@@ -16,23 +20,22 @@ import kotlin.math.min
 
 private const val MAX_PAST_MESSAGES_TO_CHECK: Int = 100
 
-suspend fun CommandMessageIntersection.getUrls(): List<UrlInfo> =
+suspend fun CommandMessageIntersection.getUrls(getGif: Boolean): List<UrlInfo> =
     search {
         val urls = buildList {
             addAll(
                 it.attachments.map { attachment ->
-                    UrlInfo(attachment.url, attachment.fileName)
-                }
-            )
-            addAll(
-                it.content.getUrls().map {
-                    UrlInfo(it)
+                    UrlInfo(attachment.proxyUrl, attachment.filename)
                 }
             )
             addAll(
                 it.embeds.mapNotNull {
-                    val url = it.image?.url ?: it.video?.url
-                    url?.let(::UrlInfo)
+                    it.getContent(getGif)
+                }
+            )
+            addAll(
+                it.content.getUrls().map {
+                    getTenorUrlOrDefault(it, getGif)
                 }
             )
         }
@@ -166,13 +169,3 @@ private suspend fun <T> CommandMessageIntersection.searchPreviousMessages(find: 
         .firstOrNull {
             it != null
         }
-
-data class UrlInfo(
-    val url: String,
-    val filename: String,
-) : DataSourceConvertable {
-
-    constructor(url: String) : this(url, filename(url))
-
-    override fun asDataSource(): UrlDataSource = DataSource.fromUrl(filename, url)
-}

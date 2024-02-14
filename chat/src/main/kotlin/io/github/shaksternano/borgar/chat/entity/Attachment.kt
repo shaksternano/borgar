@@ -9,9 +9,9 @@ data class Attachment(
     override val id: String,
     val url: String,
     val proxyUrl: String,
-    val fileName: String,
+    val filename: String,
     override val manager: BotManager,
 ) : BaseEntity(), DataSourceConvertable {
 
-    override fun asDataSource(): UrlDataSource = DataSource.fromUrl(fileName, url)
+    override fun asDataSource(): UrlDataSource = DataSource.fromUrl(filename, proxyUrl)
 }
