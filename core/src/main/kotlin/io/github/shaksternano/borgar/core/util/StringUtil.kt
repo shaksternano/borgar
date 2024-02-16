@@ -16,14 +16,13 @@ fun CharSequence.getUrls(): List<String> =
 
 fun CharSequence.indicesOfPrefix(
     prefix: String,
-    ignoreCase: Boolean = false,
-    afterPrefixPredicate: (Char) -> Boolean = { true }
+    ignoreCase: Boolean = false
 ): List<Int> = indicesOf(prefix, ignoreCase)
     .filter {
         val isStart = it == 0 || this[it - 1].isWhitespace()
         val prefixEndIndex = it + prefix.length
         val endsWithWord = prefixEndIndex < length && !this[prefixEndIndex].isWhitespace()
-        isStart && endsWithWord && afterPrefixPredicate(this[prefixEndIndex])
+        isStart && endsWithWord
     }
 
 fun CharSequence.indicesOf(substr: String, ignoreCase: Boolean = false): List<Int> {

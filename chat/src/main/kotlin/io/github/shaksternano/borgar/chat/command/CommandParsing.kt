@@ -226,10 +226,7 @@ internal fun parseRawCommands(message: String): List<RawCommandConfig> {
     return parseCommandStrings(message).map { commandString ->
         val commandEndIndex = commandString.endOfWord(COMMAND_PREFIX.length)
         val command = commandString.substring(COMMAND_PREFIX.length, commandEndIndex)
-        val argumentPrefixIndexes = commandString.indicesOfPrefix(ARGUMENT_PREFIX) {
-            // Ignore if the prefix is followed by a digit to allow negative number arguments
-            !it.isDigit()
-        }
+        val argumentPrefixIndexes = commandString.indicesOfPrefix(ARGUMENT_PREFIX)
         val arguments = commandString.split(argumentPrefixIndexes)
             .associate {
                 val argumentNameEndIndex = it.endOfWord(ARGUMENT_PREFIX.length)
