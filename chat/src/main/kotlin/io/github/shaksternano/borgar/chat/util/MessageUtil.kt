@@ -45,9 +45,18 @@ suspend fun CommandMessageIntersection.getUrlsExceptSelf(getGif: Boolean): List<
         }
     } ?: emptyList()
 
-suspend fun CommandMessageIntersection.getEmojiAndUrlDrawables(): Map<String, Drawable> {
+suspend fun CommandMessageIntersection.getEmojiAndUrlDrawables(): Map<String, Drawable> =
+    getEmojiDrawables() + getUrlDrawables()
+
+private suspend fun CommandMessageIntersection.getEmojiDrawables(): Map<String, Drawable> =
+    getEmojiUrls().mapValues {
+        val dataSource = DataSource.fromUrl(url = it.value)
+        ImageDrawable(dataSource)
+    }
+
+private suspend fun CommandMessageIntersection.getUrlDrawables(): Map<String, Drawable> {
     val embeds = embeds.associateBy { it.url }
-    val urlDrawables = content.getUrls()
+    return content.getUrls()
         .associateBy { it }
         .mapNotNull { entry ->
             val url = embeds[entry.key]?.getContent(false)?.url
@@ -58,14 +67,7 @@ suspend fun CommandMessageIntersection.getEmojiAndUrlDrawables(): Map<String, Dr
                 ImageDrawable(dataSource)
             }.map { entry.key to it }.getOrNull()
         }.associate { it }
-    return getEmojiDrawables() + urlDrawables
 }
-
-suspend fun CommandMessageIntersection.getEmojiDrawables(): Map<String, Drawable> = getEmojiUrls()
-    .mapValues {
-        val dataSource = DataSource.fromUrl(url = it.value)
-        ImageDrawable(dataSource)
-    }
 
 suspend fun CommandMessageIntersection.getEmojiUrls(): Map<String, String> =
     getEmojiUrls(false)
