@@ -148,8 +148,8 @@ private suspend fun CommandMessageIntersection.getEmojiUrls(onlyGetFirst: Boolea
 suspend fun <T> CommandMessageIntersection.search(find: suspend (CommandMessageIntersection) -> T?): T? =
     searchVisitors(
         find,
-        CommandMessageIntersection::searchReferencedMessages,
         CommandMessageIntersection::searchSelf,
+        CommandMessageIntersection::searchReferencedMessages,
         CommandMessageIntersection::searchPreviousMessages,
     )
 

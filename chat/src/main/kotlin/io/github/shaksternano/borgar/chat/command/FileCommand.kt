@@ -41,15 +41,15 @@ abstract class FileCommand(
         val maxFileSize = event.getChannel().getMaxFileSize()
         val task = createTask(arguments, event, maxFileSize)
         var gifv = false
-        val convertable = arguments.getDefaultAttachment()
-            ?: getFileUrl(arguments, event, task).also {
-                if (it != null)
-                    gifv = it.gifv
+        val dataSource = getFileUrl(arguments, event, task)
+            ?.also {
+                gifv = it.gifv
             }
+            ?.asDataSource()
         val modifiedOutputFormatTask = if (gifv && task is MediaProcessingTask)
             task then TranscodeTask("gif", maxFileSize)
         else task
-        val files = convertable?.asDataSource()?.asSingletonList() ?: emptyList()
+        val files = dataSource?.asSingletonList() ?: emptyList()
         return FileExecutable(
             this,
             modifiedOutputFormatTask,
@@ -60,6 +60,13 @@ abstract class FileCommand(
     }
 
     private suspend fun getFileUrl(arguments: CommandArguments, event: CommandEvent, task: FileTask): UrlInfo? {
+        arguments.getDefaultAttachment()?.let {
+            return UrlInfo(
+                it.proxyUrl,
+                it.filename,
+                false,
+            )
+        }
         val messageIntersection = event.asMessageIntersection(arguments)
         val getGif = task.requireInput && task !is MediaProcessingTask
         val url = arguments.getDefaultUrl()
