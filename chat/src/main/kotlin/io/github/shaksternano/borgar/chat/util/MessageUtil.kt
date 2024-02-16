@@ -9,9 +9,10 @@ import io.github.shaksternano.borgar.core.graphics.drawable.Drawable
 import io.github.shaksternano.borgar.core.graphics.drawable.ImageDrawable
 import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.io.UrlInfo
-import io.github.shaksternano.borgar.core.io.fileFormat
+import io.github.shaksternano.borgar.core.util.TenorMediaType
 import io.github.shaksternano.borgar.core.util.getTenorUrlOrDefault
 import io.github.shaksternano.borgar.core.util.getUrls
+import io.github.shaksternano.borgar.core.util.retrieveTenorMediaUrl
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.take
@@ -20,8 +21,8 @@ import kotlin.math.min
 
 private const val MAX_PAST_MESSAGES_TO_CHECK: Int = 100
 
-suspend fun CommandMessageIntersection.getUrls(getGif: Boolean): List<UrlInfo> =
-    search {
+suspend fun CommandMessageIntersection.getUrlsExceptSelf(getGif: Boolean): List<UrlInfo> =
+    searchExceptSelf {
         val urls = buildList {
             addAll(
                 it.attachments.map { attachment ->
@@ -44,10 +45,26 @@ suspend fun CommandMessageIntersection.getUrls(getGif: Boolean): List<UrlInfo> =
         }
     } ?: emptyList()
 
+suspend fun CommandMessageIntersection.getEmojiAndUrlDrawables(): Map<String, Drawable> {
+    val embeds = embeds.associateBy { it.url }
+    val urlDrawables = content.getUrls()
+        .associateBy { it }
+        .mapNotNull { entry ->
+            val url = embeds[entry.key]?.getContent(false)?.url
+                ?: retrieveTenorMediaUrl(entry.key, TenorMediaType.MP4_NORMAL)
+                ?: entry.key
+            val dataSource = DataSource.fromUrl(url)
+            runCatching {
+                ImageDrawable(dataSource)
+            }.map { entry.key to it }.getOrNull()
+        }.associate { it }
+    return getEmojiDrawables() + urlDrawables
+}
+
 suspend fun CommandMessageIntersection.getEmojiDrawables(): Map<String, Drawable> = getEmojiUrls()
     .mapValues {
         val dataSource = DataSource.fromUrl(url = it.value)
-        ImageDrawable(dataSource, dataSource.fileFormat())
+        ImageDrawable(dataSource)
     }
 
 suspend fun CommandMessageIntersection.getEmojiUrls(): Map<String, String> =
@@ -133,6 +150,13 @@ suspend fun <T> CommandMessageIntersection.search(find: suspend (CommandMessageI
         find,
         CommandMessageIntersection::searchReferencedMessages,
         CommandMessageIntersection::searchSelf,
+        CommandMessageIntersection::searchPreviousMessages,
+    )
+
+suspend fun <T> CommandMessageIntersection.searchExceptSelf(find: suspend (CommandMessageIntersection) -> T?): T? =
+    searchVisitors(
+        find,
+        CommandMessageIntersection::searchReferencedMessages,
         CommandMessageIntersection::searchPreviousMessages,
     )
 

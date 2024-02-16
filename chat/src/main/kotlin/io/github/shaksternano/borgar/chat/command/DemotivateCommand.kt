@@ -1,7 +1,7 @@
 package io.github.shaksternano.borgar.chat.command
 
 import io.github.shaksternano.borgar.chat.event.CommandEvent
-import io.github.shaksternano.borgar.chat.util.getEmojiDrawables
+import io.github.shaksternano.borgar.chat.util.getEmojiAndUrlDrawables
 import io.github.shaksternano.borgar.core.io.task.DemotivateTask
 import io.github.shaksternano.borgar.core.io.task.FileTask
 
@@ -27,7 +27,7 @@ object DemotivateCommand : FileCommand(
         DemotivateTask(
             arguments.getDefaultStringOrEmpty(),
             arguments.getStringOrEmpty("subtext"),
-            event.asMessageIntersection(arguments).getEmojiDrawables(),
+            event.asMessageIntersection(arguments).getEmojiAndUrlDrawables(),
             maxFileSize,
         )
 }

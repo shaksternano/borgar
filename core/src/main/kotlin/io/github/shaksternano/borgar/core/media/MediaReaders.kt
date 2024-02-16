@@ -3,6 +3,7 @@ package io.github.shaksternano.borgar.core.media
 import io.github.shaksternano.borgar.core.collect.putAllKeys
 import io.github.shaksternano.borgar.core.exception.UnreadableFileException
 import io.github.shaksternano.borgar.core.io.DataSource
+import io.github.shaksternano.borgar.core.io.fileFormat
 import io.github.shaksternano.borgar.core.media.reader.*
 
 private val imageReaderFactories: MutableMap<String, ImageReaderFactory> = mutableMapOf()
@@ -33,6 +34,9 @@ private fun registerImageOnlyFactory(factory: ImageReaderFactory) {
     registerAudioFactory(NoAudioReader.Factory(factory.supportedFormats))
 }
 
+suspend fun createImageReader(input: DataSource): ImageReader =
+    createImageReader(input, input.fileFormat())
+
 suspend fun createImageReader(input: DataSource, format: String): ImageReader {
     val factory = imageReaderFactories.getOrDefault(format, FFmpegImageReader.Factory)
     return try {
@@ -41,6 +45,9 @@ suspend fun createImageReader(input: DataSource, format: String): ImageReader {
         throw UnreadableFileException(t)
     }
 }
+
+suspend fun createAudioReader(input: DataSource): AudioReader =
+    createAudioReader(input, input.fileFormat())
 
 suspend fun createAudioReader(input: DataSource, format: String): AudioReader {
     val factory = audioReaderFactories.getOrDefault(format, FFmpegAudioReader.Factory)

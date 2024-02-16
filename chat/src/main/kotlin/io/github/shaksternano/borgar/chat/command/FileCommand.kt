@@ -2,7 +2,7 @@ package io.github.shaksternano.borgar.chat.command
 
 import io.github.shaksternano.borgar.chat.entity.getContent
 import io.github.shaksternano.borgar.chat.event.CommandEvent
-import io.github.shaksternano.borgar.chat.util.getUrls
+import io.github.shaksternano.borgar.chat.util.getUrlsExceptSelf
 import io.github.shaksternano.borgar.core.collect.addAll
 import io.github.shaksternano.borgar.core.exception.ErrorResponseException
 import io.github.shaksternano.borgar.core.io.DataSource
@@ -61,14 +61,13 @@ abstract class FileCommand(
 
     private suspend fun getFileUrl(arguments: CommandArguments, event: CommandEvent, task: FileTask): UrlInfo? {
         val messageIntersection = event.asMessageIntersection(arguments)
-        val embed = messageIntersection.embeds.firstOrNull()
         val getGif = task.requireInput && task !is MediaProcessingTask
+        val url = arguments.getDefaultUrl()
+            ?: return messageIntersection.getUrlsExceptSelf(getGif).firstOrNull()
+        val embed = messageIntersection.embeds.firstOrNull { it.url == url }
         val embedContent = embed?.getContent(getGif)
         if (embedContent != null) return embedContent
-        val argumentUrlInfo = arguments.getDefaultUrl()?.let {
-            getTenorUrlOrDefault(it, getGif)
-        }
-        return argumentUrlInfo ?: messageIntersection.getUrls(getGif).firstOrNull()
+        return getTenorUrlOrDefault(url, getGif)
     }
 
     protected abstract suspend fun createTask(

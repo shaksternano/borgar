@@ -41,6 +41,9 @@ suspend fun createTemporaryFile(filenameWithoutExtension: String, extension: Str
     return path
 }
 
+val Path.filename: String
+    get() = fileName?.toString() ?: throw IllegalArgumentException("Invalid path")
+
 suspend fun Path.deleteSilently() {
     runCatching {
         withContext(Dispatchers.IO) {

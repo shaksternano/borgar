@@ -1,6 +1,7 @@
 package io.github.shaksternano.borgar.core.graphics.drawable
 
 import io.github.shaksternano.borgar.core.io.DataSource
+import io.github.shaksternano.borgar.core.io.fileFormat
 import io.github.shaksternano.borgar.core.media.createImageReader
 import io.github.shaksternano.borgar.core.media.reader.ImageReader
 import io.github.shaksternano.borgar.core.media.reader.firstContent
@@ -45,9 +46,8 @@ class ImageDrawable internal constructor(
 
 suspend fun ImageDrawable(
     input: DataSource,
-    format: String,
 ): ImageDrawable {
-    val reader = createImageReader(input, format)
+    val reader = createImageReader(input, input.fileFormat())
     return ImageDrawable(
         reader,
         reader.firstContent(),

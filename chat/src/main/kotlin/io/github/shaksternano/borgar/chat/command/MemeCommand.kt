@@ -1,7 +1,7 @@
 package io.github.shaksternano.borgar.chat.command
 
 import io.github.shaksternano.borgar.chat.event.CommandEvent
-import io.github.shaksternano.borgar.chat.util.getEmojiDrawables
+import io.github.shaksternano.borgar.chat.util.getEmojiAndUrlDrawables
 import io.github.shaksternano.borgar.core.io.task.FileTask
 import io.github.shaksternano.borgar.core.io.task.MemeTask
 
@@ -26,7 +26,7 @@ object MemeCommand : FileCommand(
         MemeTask(
             topWords = arguments.getDefaultStringOrEmpty(),
             bottomWords = arguments.getStringOrEmpty("bottom"),
-            nonTextParts = event.asMessageIntersection(arguments).getEmojiDrawables(),
+            nonTextParts = event.asMessageIntersection(arguments).getEmojiAndUrlDrawables(),
             maxFileSize = maxFileSize,
         )
 }

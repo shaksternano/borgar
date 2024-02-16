@@ -1,7 +1,7 @@
 package io.github.shaksternano.borgar.chat.command
 
 import io.github.shaksternano.borgar.chat.event.CommandEvent
-import io.github.shaksternano.borgar.chat.util.getEmojiDrawables
+import io.github.shaksternano.borgar.chat.util.getEmojiAndUrlDrawables
 import io.github.shaksternano.borgar.core.io.task.CaptionTask
 import io.github.shaksternano.borgar.core.io.task.FileTask
 
@@ -33,7 +33,7 @@ sealed class CaptionCommand(
         CaptionTask(
             arguments.getDefaultStringOrEmpty(),
             isCaption2,
-            event.asMessageIntersection(arguments).getEmojiDrawables(),
+            event.asMessageIntersection(arguments).getEmojiAndUrlDrawables(),
             maxFileSize,
         )
 }

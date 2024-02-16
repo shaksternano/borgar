@@ -6,5 +6,5 @@ data class UrlInfo(
     val gifv: Boolean = false,
 ) : DataSourceConvertable {
 
-    override fun asDataSource(): UrlDataSource = DataSource.fromUrl(filename, url)
+    override fun asDataSource(): UrlDataSource = DataSource.fromUrl(url, filename)
 }

@@ -72,7 +72,7 @@ class DownloadTask(
                 }
                 getFilename(headResponse, downloadUrl)
             }
-            DataSource.fromUrl(filename, downloadUrl)
+            DataSource.fromUrl(downloadUrl, filename)
         }
     }
 

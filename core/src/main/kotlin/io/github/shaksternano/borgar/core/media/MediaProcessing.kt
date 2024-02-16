@@ -83,8 +83,8 @@ suspend fun processMedia(
         )
         val filename = filename(outputName, outputFormat)
         DataSource.fromFile(
-            filename,
             output,
+            filename,
         )
     } finally {
         if (isTempFile) path.deleteSilently()
