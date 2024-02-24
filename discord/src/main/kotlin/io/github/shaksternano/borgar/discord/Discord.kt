@@ -20,7 +20,6 @@ import net.dv8tion.jda.api.requests.GatewayIntent
 import net.dv8tion.jda.api.requests.RestAction
 import net.dv8tion.jda.api.requests.restaction.pagination.PaginationAction
 import net.dv8tion.jda.api.utils.FileUpload
-import java.util.*
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -90,10 +89,10 @@ suspend fun <T> RestAction<T>.await(): T = submit().await()
  */
 fun <T, M : PaginationAction<T, M>> M.asFlow(): Flow<T> = flow {
     cache(false)
-    val queue: Queue<T> = LinkedList(await())
+    val queue = ArrayDeque(await())
     while (queue.isNotEmpty()) {
         while (queue.isNotEmpty()) {
-            emit(queue.poll())
+            emit(queue.removeFirst())
         }
         queue.addAll(await())
     }
