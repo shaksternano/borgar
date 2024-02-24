@@ -2,16 +2,16 @@ package io.github.shaksternano.borgar.chat.command
 
 import io.github.shaksternano.borgar.chat.event.CommandEvent
 import io.github.shaksternano.borgar.core.io.task.FileTask
-import io.github.shaksternano.borgar.core.io.task.RotateTask
+import io.github.shaksternano.borgar.core.io.task.SpinTask
 import java.awt.Color
 
-object RotateCommand : FileCommand(
+object SpinCommand : FileCommand(
     CommandArgumentInfo(
-        key = "degrees",
-        description = "Degrees to rotate by.",
+        key = "speed",
+        description = "The spin speed.",
         type = CommandArgumentType.DOUBLE,
-        defaultValue = 90.0,
         required = false,
+        defaultValue = 1.0
     ),
     CommandArgumentInfo(
         key = "backgroundrgb",
@@ -22,13 +22,13 @@ object RotateCommand : FileCommand(
     ),
 ) {
 
-    override val name: String = "rotate"
-    override val description: String = "Rotates media."
+    override val name: String = "spin"
+    override val description: String = "Spins a media file."
 
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {
-        val degrees = arguments.getRequired("degrees", CommandArgumentType.DOUBLE)
+        val spinSpeed = arguments.getRequired("speed", CommandArgumentType.DOUBLE)
         val backgroundRgb = arguments.getOptional("backgroundrgb", CommandArgumentType.INTEGER)
         val backgroundColor = backgroundRgb?.let { Color(it) }
-        return RotateTask(degrees, backgroundColor, maxFileSize)
+        return SpinTask(spinSpeed, backgroundColor, maxFileSize)
     }
 }

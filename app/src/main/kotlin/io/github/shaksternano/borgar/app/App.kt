@@ -17,5 +17,5 @@ suspend fun main() {
     }
     initDiscord(discordToken)
     val timeTaken = System.currentTimeMillis() - time
-    logger.info("Finished loading in $timeTaken ms")
+    logger.info("Finished loading in ${timeTaken}ms")
 }

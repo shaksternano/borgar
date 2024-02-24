@@ -19,6 +19,7 @@ val COMMANDS: Map<String, Command> = registerCommands(
     PixelateCommand,
     StretchCommand,
     ResizeCommand,
+    SpinCommand,
     SpeedCommand,
     ReverseCommand,
     TranscodeCommand.PNG,

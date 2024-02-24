@@ -94,9 +94,19 @@ fun equivalentTransparentFormat(format: String): String =
         format
     }
 
-private fun isJpg(format: String): Boolean {
-    return format.equalsAnyIgnoreCase(
+private fun isJpg(format: String): Boolean =
+    format.equalsAnyIgnoreCase(
         "jpg",
         "jpeg",
     )
-}
+
+fun isStaticOnly(format: String): Boolean =
+    format.equalsAnyIgnoreCase(
+        "bmp",
+        "jpeg",
+        "jpg",
+        "wbmp",
+        "png",
+        "tif",
+        "tiff",
+    )
