@@ -12,6 +12,7 @@ data class DiscordGuild(
     override val id: String = discordGuild.id
     override val manager: BotManager = DiscordManager[discordGuild.jda]
     override val name: String = discordGuild.name
+    override val iconUrl: String? = discordGuild.iconUrl?.let { "$it?size=1024" }
 
     override suspend fun getMember(userId: String): Member? {
         return discordGuild.runCatching {

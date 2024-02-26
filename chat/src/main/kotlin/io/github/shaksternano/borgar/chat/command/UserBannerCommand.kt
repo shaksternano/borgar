@@ -22,6 +22,6 @@ object UserBannerCommand : FileCommand(
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {
         val user = getReferencedUser(arguments, event)
         val bannerUrl = user.getBannerUrl() ?: throw FailedOperationException("**${user.effectiveName}** has no banner.")
-        return UrlFileTask("$bannerUrl?size=1024")
+        return UrlFileTask(bannerUrl)
     }
 }

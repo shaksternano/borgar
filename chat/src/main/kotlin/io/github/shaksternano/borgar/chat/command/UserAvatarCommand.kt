@@ -37,6 +37,6 @@ object UserAvatarCommand : FileCommand(
             }
             user.effectiveAvatarUrl
         }
-        return UrlFileTask("$avatarUrl?size=1024")
+        return UrlFileTask(avatarUrl)
     }
 }

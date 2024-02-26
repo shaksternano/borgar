@@ -13,7 +13,7 @@ data class DiscordUser(
     override val id: String = discordUser.id
     override val manager: BotManager = DiscordManager[discordUser.jda]
     override val effectiveName: String = discordUser.effectiveName
-    override val effectiveAvatarUrl: String = discordUser.effectiveAvatarUrl
+    override val effectiveAvatarUrl: String = "${discordUser.effectiveAvatarUrl}?size=1024"
     override val isSelf: Boolean = discordUser.jda.selfUser == discordUser
     override val asMention: String = discordUser.asMention
     override val asBasicMention: String = "@${discordUser.effectiveName}"
@@ -23,4 +23,7 @@ data class DiscordUser(
             .useCache(false)
             .await()
             .bannerUrl
+            ?.let {
+                "$it?size=1024"
+            }
 }

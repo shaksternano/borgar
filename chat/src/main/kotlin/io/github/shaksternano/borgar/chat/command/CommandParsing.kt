@@ -60,12 +60,10 @@ private suspend fun <T> sendTypingUntilDone(
 suspend inline fun executeCommands(
     commandConfigs: List<CommandConfig>,
     event: CommandEvent,
-    firstCommandError: () -> Unit = {},
 ): Pair<List<CommandResponse>, Executable?> = try {
     val executables = commandConfigs.mapIndexed { i, (command, arguments) ->
         val guild = event.getGuild()
         if (guild == null && command.guildOnly) {
-            if (i == 0) firstCommandError()
             throw GuildOnlyCommandException(command)
         }
         if (guild != null) {
@@ -73,7 +71,6 @@ suspend inline fun executeCommands(
             val permissionHolder = guild.getMember(event.getAuthor()) ?: guild.getPublicRole()
             val hasPermission = permissionHolder.hasPermission(requiredPermissions, event.getChannel())
             if (!hasPermission) {
-                if (i == 0) firstCommandError()
                 throw InsufficientPermissionsException(command, requiredPermissions)
             }
         }
@@ -195,7 +192,7 @@ fun handleError(throwable: Throwable, manager: BotManager): String = when (throw
         }!"
 
     is GuildOnlyCommandException ->
-        "**${throwable.command.nameWithPrefix}** can only be used in a guild!"
+        "**${throwable.command.nameWithPrefix}** can only be used in a server!"
 
     else -> {
         logger.error("An error occurred", throwable)
