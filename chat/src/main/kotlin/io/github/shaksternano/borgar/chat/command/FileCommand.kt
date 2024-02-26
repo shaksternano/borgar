@@ -5,7 +5,7 @@ import io.github.shaksternano.borgar.chat.event.CommandEvent
 import io.github.shaksternano.borgar.chat.util.getUrlsExceptSelf
 import io.github.shaksternano.borgar.core.collect.addAll
 import io.github.shaksternano.borgar.core.exception.ErrorResponseException
-import io.github.shaksternano.borgar.core.io.DataSource
+import io.github.shaksternano.borgar.core.io.SuspendCloseable
 import io.github.shaksternano.borgar.core.io.UrlInfo
 import io.github.shaksternano.borgar.core.io.task.FileTask
 import io.github.shaksternano.borgar.core.io.task.MediaProcessingTask
@@ -16,7 +16,7 @@ import io.github.shaksternano.borgar.core.util.getTenorUrlOrDefault
 
 abstract class FileCommand(
     vararg argumentInfo: CommandArgumentInfo<*>,
-    requireInput: Boolean = true,
+    private val requireInput: Boolean = true,
 ) : BaseCommand() {
 
     override val chainable: Boolean = true
@@ -37,45 +37,20 @@ abstract class FileCommand(
         if (requireInput && this.argumentInfo.size == 2) "url"
         else super.defaultArgumentKey
 
-    final override suspend fun run(arguments: CommandArguments, event: CommandEvent): Executable {
-        val maxFileSize = event.getChannel().getMaxFileSize()
-        val task = createTask(arguments, event, maxFileSize)
-        var gifv = false
-        val dataSource = getFileUrl(arguments, event, task)
-            ?.also {
-                gifv = it.gifv
-            }
-            ?.asDataSource()
-        val modifiedOutputFormatTask = if (gifv && task is MediaProcessingTask)
-            task then TranscodeTask("gif", maxFileSize)
-        else task
-        val files = dataSource?.asSingletonList() ?: emptyList()
-        return FileExecutable(
-            this,
-            modifiedOutputFormatTask,
-            files,
-            maxFileSize,
+    final override fun run(arguments: CommandArguments, event: CommandEvent): Executable =
+        FileExecutable(
+            commands = listOf(this),
+            arguments,
+            event,
+            requireInput,
             event.manager.maxFilesPerMessage,
-        )
-    }
-
-    private suspend fun getFileUrl(arguments: CommandArguments, event: CommandEvent, task: FileTask): UrlInfo? {
-        arguments.getDefaultAttachment()?.let {
-            return UrlInfo(
-                it.proxyUrl,
-                it.filename,
-                false,
+        ) {
+            createTask(
+                arguments,
+                event,
+                event.getChannel().getMaxFileSize()
             )
         }
-        val messageIntersection = event.asMessageIntersection(arguments)
-        val getGif = task.requireInput && task !is MediaProcessingTask
-        val url = arguments.getDefaultUrl()
-            ?: return messageIntersection.getUrlsExceptSelf(getGif).firstOrNull()
-        val embed = messageIntersection.embeds.firstOrNull { it.url == url }
-        val embedContent = embed?.getContent(getGif)
-        if (embedContent != null) return embedContent
-        return getTenorUrlOrDefault(url, getGif)
-    }
 
     protected abstract suspend fun createTask(
         arguments: CommandArguments,
@@ -99,25 +74,53 @@ private val URL_ARGUMENT_INFO = CommandArgumentInfo(
 )
 
 private data class FileExecutable(
-    override val command: Command,
-    private val task: FileTask,
-    private val inputs: List<DataSource>,
-    private val maxFileSize: Long,
+    override val commands: List<Command>,
+    private val arguments: CommandArguments,
+    private val event: CommandEvent,
+    private val requireInput: Boolean,
     private val maxFilesPerMessage: Int,
+    private val taskSupplier: suspend () -> FileTask,
 ) : Executable {
 
+    private var toClose: SuspendCloseable? = null
+
     override suspend fun execute(): List<CommandResponse> {
-        if (inputs.isEmpty()) {
-            return CommandResponse("No files found!").asSingletonList()
+        val maxFileSize = event.getChannel().getMaxFileSize()
+        val task = taskSupplier()
+        toClose = task
+        var gifv = false
+        val input = if (requireInput) {
+            getFileUrl(arguments, event, task)
+                ?.also {
+                    gifv = it.gifv
+                }
+                ?.asDataSource()
+                ?.asSingletonList()
+                ?: return CommandResponse("No files found!").asSingletonList()
+        } else {
+            emptyList()
         }
+
+        val modifiedOutputFormatTask = if (gifv && task is MediaProcessingTask)
+            task then TranscodeTask("gif", maxFileSize)
+        else task
         val output = try {
-            task.run(inputs)
+            modifiedOutputFormatTask.run(input)
         } catch (e: ErrorResponseException) {
-            e.cause?.let { logger.error("Error executing command ${command.name}", it) }
+            e.cause?.let { throwable ->
+                logger.error(
+                    "Error executing command ${
+                        commands.joinToString(", ") {
+                            it.name
+                        }
+                    }", throwable
+                )
+            }
             return CommandResponse(e.message).asSingletonList()
         }
+
         if (output.isEmpty()) {
-            logger.error("No files were outputted by ${command.name}")
+            logger.error("No files were outputted by ${commands.last().name}")
             return CommandResponse("An error occurred!").asSingletonList()
         }
         val canUpload = output.filter {
@@ -140,16 +143,36 @@ private data class FileExecutable(
         }
     }
 
+    private suspend fun getFileUrl(arguments: CommandArguments, event: CommandEvent, task: FileTask): UrlInfo? {
+        arguments.getDefaultAttachment()?.let {
+            return UrlInfo(
+                it.proxyUrl,
+                it.filename,
+                false,
+            )
+        }
+        val messageIntersection = event.asMessageIntersection(arguments)
+        val getGif = task.requireInput && task !is MediaProcessingTask
+        val url = arguments.getDefaultUrl()
+            ?: return messageIntersection.getUrlsExceptSelf(getGif).firstOrNull()
+        val embed = messageIntersection.embeds.firstOrNull { it.url == url }
+        val embedContent = embed?.getContent(getGif)
+        if (embedContent != null) return embedContent
+        return getTenorUrlOrDefault(url, getGif)
+    }
+
     override fun then(after: Executable): Executable {
         return if (after is FileExecutable) {
             copy(
-                command = after.command,
-                task = task then after.task,
+                commands = commands + after.commands,
+                taskSupplier = { taskSupplier() then after.taskSupplier() },
             )
         } else {
             super.then(after)
         }
     }
 
-    override suspend fun close() = task.close()
+    override suspend fun close() {
+        toClose?.close()
+    }
 }

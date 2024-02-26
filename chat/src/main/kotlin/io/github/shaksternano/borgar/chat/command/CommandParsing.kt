@@ -81,27 +81,31 @@ suspend inline fun executeCommands(
         try {
             command.run(arguments, event)
         } catch (t: Throwable) {
-            throw CommandException(command, cause = t)
+            throw CommandException(listOf(command), cause = t)
         }
     }
     val chained = executables.reduce { executable1, executable2 ->
         try {
             executable1 then executable2
         } catch (e: UnsupportedOperationException) {
-            throw NonChainableCommandException(executable1.command, executable2.command, e)
+            throw NonChainableCommandException(
+                executable1.commands.last(),
+                executable2.commands.first(),
+                e,
+            )
         }
     }
     val result = try {
         chained.execute()
     } catch (t: Throwable) {
-        throw CommandException(chained.command, cause = t)
+        throw CommandException(chained.commands, cause = t)
     }
     if (result.isEmpty()) {
-        throw CommandException(chained.command, "No command responses were returned")
+        throw CommandException(chained.commands, "No command responses were returned")
     }
     result.forEach {
         if (it.content.isBlank() && it.files.isEmpty()) {
-            throw CommandException(chained.command, "Command response is empty")
+            throw CommandException(chained.commands, "Command response is empty")
         }
     }
     result to chained
@@ -172,7 +176,13 @@ fun handleError(throwable: Throwable, manager: BotManager): String = when (throw
             cause.message
 
         else -> {
-            logger.error("Error executing command ${throwable.command.name}", throwable)
+            logger.error(
+                "Error executing commands ${
+                    throwable.commands.joinToString(", ") {
+                        it.name
+                    }
+                }", throwable
+            )
             "An error occurred!"
         }
     }
@@ -293,7 +303,7 @@ class CommandNotFoundException(
 class NonChainableCommandException(
     val command1: Command,
     val command2: Command,
-    cause: Throwable,
+    override val cause: Throwable,
 ) : Exception(cause)
 
 class GuildOnlyCommandException(

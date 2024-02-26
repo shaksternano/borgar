@@ -3,7 +3,7 @@ package io.github.shaksternano.borgar.chat.exception
 import io.github.shaksternano.borgar.chat.command.Command
 
 class CommandException(
-    val command: Command,
+    val commands: List<Command>,
     override val message: String = "",
     override val cause: Throwable? = null,
 ) : Exception(message, cause)

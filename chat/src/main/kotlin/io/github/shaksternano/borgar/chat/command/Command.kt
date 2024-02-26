@@ -27,7 +27,7 @@ interface Command {
     val entityId: String?
         get() = null
 
-    suspend fun run(arguments: CommandArguments, event: CommandEvent): Executable
+    fun run(arguments: CommandArguments, event: CommandEvent): Executable
 }
 
 val Command.nameWithPrefix: String
@@ -35,7 +35,11 @@ val Command.nameWithPrefix: String
 
 interface Executable : SuspendCloseable {
 
-    val command: Command
+    /**
+     * The commands that produced this executable.
+     * Should always have at least one element.
+     */
+    val commands: List<Command>
 
     suspend fun execute(): List<CommandResponse>
 
@@ -48,7 +52,7 @@ interface Executable : SuspendCloseable {
     ) = Unit
 
     infix fun then(after: Executable): Executable =
-        throw UnsupportedOperationException("Cannot chain ${command.name} with ${after.command.name}")
+        throw UnsupportedOperationException("Cannot chain ${commands.last().name} with ${after.commands.first().name}")
 
     override suspend fun close() = Unit
 }
@@ -154,9 +158,9 @@ abstract class NonChainableCommand : BaseCommand() {
     override val chainable: Boolean = false
     override val deferReply: Boolean = false
 
-    final override suspend fun run(arguments: CommandArguments, event: CommandEvent): Executable = object : Executable {
+    final override fun run(arguments: CommandArguments, event: CommandEvent): Executable = object : Executable {
 
-        override val command: Command = this@NonChainableCommand
+        override val commands: List<Command> = listOf(this@NonChainableCommand)
 
         override suspend fun execute(): List<CommandResponse> = runDirect(arguments, event)
 
