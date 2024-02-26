@@ -12,7 +12,7 @@ import io.github.shaksternano.borgar.core.io.task.MediaProcessingTask
 import io.github.shaksternano.borgar.core.io.task.TranscodeTask
 import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.core.util.asSingletonList
-import io.github.shaksternano.borgar.core.util.getTenorUrlOrDefault
+import io.github.shaksternano.borgar.core.util.retrieveTenorUrlOrDefault
 
 abstract class FileCommand(
     vararg argumentInfo: CommandArgumentInfo<*>,
@@ -62,14 +62,14 @@ abstract class FileCommand(
 private val ATTACHMENT_ARGUMENT_INFO = CommandArgumentInfo(
     key = "attachment",
     description = "The attachment to use.",
-    type = CommandArgumentType.ATTACHMENT,
+    type = CommandArgumentType.Attachment,
     required = false,
 )
 
 private val URL_ARGUMENT_INFO = CommandArgumentInfo(
     key = "url",
     description = "The URL to use.",
-    type = CommandArgumentType.STRING,
+    type = CommandArgumentType.String,
     required = false,
 )
 
@@ -158,7 +158,7 @@ private data class FileExecutable(
         val embed = messageIntersection.embeds.firstOrNull { it.url == url }
         val embedContent = embed?.getContent(getGif)
         if (embedContent != null) return embedContent
-        return getTenorUrlOrDefault(url, getGif)
+        return retrieveTenorUrlOrDefault(url, getGif)
     }
 
     override fun then(after: Executable): Executable {

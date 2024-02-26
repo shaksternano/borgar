@@ -10,7 +10,7 @@ object CropCommand : FileCommand(
         key = "top",
         aliases = setOf("t"),
         description = "Top crop ratio.",
-        type = CommandArgumentType.DOUBLE,
+        type = CommandArgumentType.Double,
         required = false,
         defaultValue = 0.0,
         validator = RangeValidator.ZERO_TO_ONE,
@@ -19,7 +19,7 @@ object CropCommand : FileCommand(
         key = "bottom",
         aliases = setOf("b"),
         description = "Bottom crop ratio.",
-        type = CommandArgumentType.DOUBLE,
+        type = CommandArgumentType.Double,
         required = false,
         defaultValue = 0.0,
         validator = RangeValidator.ZERO_TO_ONE,
@@ -28,7 +28,7 @@ object CropCommand : FileCommand(
         key = "left",
         aliases = setOf("l"),
         description = "Left crop ratio.",
-        type = CommandArgumentType.DOUBLE,
+        type = CommandArgumentType.Double,
         required = false,
         defaultValue = 0.0,
         validator = RangeValidator.ZERO_TO_ONE,
@@ -37,7 +37,7 @@ object CropCommand : FileCommand(
         key = "right",
         aliases = setOf("r"),
         description = "Right crop ratio.",
-        type = CommandArgumentType.DOUBLE,
+        type = CommandArgumentType.Double,
         required = false,
         defaultValue = 0.0,
         validator = RangeValidator.ZERO_TO_ONE,
@@ -48,10 +48,10 @@ object CropCommand : FileCommand(
     override val description: String = "Crops media."
 
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {
-        val topRatio = arguments.getRequired("top", CommandArgumentType.DOUBLE)
-        val bottomRatio = arguments.getRequired("bottom", CommandArgumentType.DOUBLE)
-        val leftRatio = arguments.getRequired("left", CommandArgumentType.DOUBLE)
-        val rightRatio = arguments.getRequired("right", CommandArgumentType.DOUBLE)
+        val topRatio = arguments.getRequired("top", CommandArgumentType.Double)
+        val bottomRatio = arguments.getRequired("bottom", CommandArgumentType.Double)
+        val leftRatio = arguments.getRequired("left", CommandArgumentType.Double)
+        val rightRatio = arguments.getRequired("right", CommandArgumentType.Double)
         return if (topRatio == 0.0 && bottomRatio == 0.0 && leftRatio == 0.0 && rightRatio == 0.0) {
             throw MissingArgumentException("At least one crop ratio must be specified.")
         } else {

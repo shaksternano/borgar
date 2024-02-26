@@ -1,80 +1,93 @@
 package io.github.shaksternano.borgar.chat.command
 
-import io.github.shaksternano.borgar.chat.entity.*
-import io.github.shaksternano.borgar.chat.entity.channel.Channel
+import io.github.shaksternano.borgar.chat.entity.Message
+import io.github.shaksternano.borgar.core.util.Displayed
 import kotlinx.coroutines.flow.firstOrNull
+import kotlin.reflect.KClass
 
 sealed interface CommandArgumentType<T> {
 
-    data object STRING : SimpleCommandArgumentType<String> {
+    data object String : SimpleCommandArgumentType<kotlin.String> {
 
-        override val name: String = "string"
+        override val name: kotlin.String = "string"
 
-        override fun parse(value: String, message: Message): String = value
+        override fun parse(value: kotlin.String, message: Message): kotlin.String = value
     }
 
-    data object INTEGER : SimpleCommandArgumentType<Int> {
+    data object Integer : SimpleCommandArgumentType<Int> {
 
-        override val name: String = "integer"
+        override val name: kotlin.String = "integer"
 
-        override fun parse(value: String, message: Message): Int? =
-            LONG.parse(value, message)?.toInt()
+        override fun parse(value: kotlin.String, message: Message): Int? =
+            Long.parse(value, message)?.toInt()
     }
 
-    data object LONG : SimpleCommandArgumentType<Long> {
+    data object Long : SimpleCommandArgumentType<kotlin.Long> {
 
-        override val name: String = "integer"
+        override val name: kotlin.String = "integer"
 
-        override fun parse(value: String, message: Message): Long? = runCatching {
+        override fun parse(value: kotlin.String, message: Message): kotlin.Long? = runCatching {
             java.lang.Long.decode(value)
         }.getOrNull()
     }
 
-    data object DOUBLE : SimpleCommandArgumentType<Double> {
+    data object Double : SimpleCommandArgumentType<kotlin.Double> {
 
-        override val name: String = "number"
+        override val name: kotlin.String = "number"
 
-        override fun parse(value: String, message: Message): Double? =
+        override fun parse(value: kotlin.String, message: Message): kotlin.Double? =
             value.toDoubleOrNull()
     }
 
-    data object BOOLEAN : SimpleCommandArgumentType<Boolean> {
+    data object Boolean : SimpleCommandArgumentType<kotlin.Boolean> {
 
-        override val name: String = "boolean"
+        override val name: kotlin.String = "boolean"
 
-        override fun parse(value: String, message: Message): Boolean? =
+        override fun parse(value: kotlin.String, message: Message): kotlin.Boolean? =
             value.lowercase().toBooleanStrictOrNull()
     }
 
-    data object USER : SuspendingCommandArgumentType<User> {
+    data object User : SuspendingCommandArgumentType<io.github.shaksternano.borgar.chat.entity.User> {
 
-        override val name: String = "user"
+        override val name: kotlin.String = "user"
 
-        override suspend fun parse(value: String, message: Message): User? =
+        override suspend fun parse(
+            value: kotlin.String,
+            message: Message
+        ): io.github.shaksternano.borgar.chat.entity.User? =
             message.mentionedUsers.firstOrNull { it.asMention == value }
     }
 
-    data object CHANNEL : SuspendingCommandArgumentType<Channel> {
+    data object Channel : SuspendingCommandArgumentType<io.github.shaksternano.borgar.chat.entity.channel.Channel> {
 
-        override val name: String = "channel"
+        override val name: kotlin.String = "channel"
 
-        override suspend fun parse(value: String, message: Message): Channel? =
+        override suspend fun parse(
+            value: kotlin.String,
+            message: Message
+        ): io.github.shaksternano.borgar.chat.entity.channel.Channel? =
             message.mentionedChannels.firstOrNull { it.asMention == value }
     }
 
-    data object ROLE : SuspendingCommandArgumentType<Role> {
+    data object Role : SuspendingCommandArgumentType<io.github.shaksternano.borgar.chat.entity.Role> {
 
-        override val name: String = "role"
+        override val name: kotlin.String = "role"
 
-        override suspend fun parse(value: String, message: Message): Role? =
+        override suspend fun parse(
+            value: kotlin.String,
+            message: Message
+        ): io.github.shaksternano.borgar.chat.entity.Role? =
             message.mentionedRoles.firstOrNull { it.asMention == value }
     }
 
-    data object MENTIONABLE : SimpleCommandArgumentType<Mentionable> {
+    data object Mentionable : SimpleCommandArgumentType<io.github.shaksternano.borgar.chat.entity.Mentionable> {
 
-        override val name: String = "mentionable"
+        override val name: kotlin.String = "mentionable"
 
-        override fun parse(value: String, message: Message): Mentionable? {
+        override fun parse(
+            value: kotlin.String,
+            message: Message
+        ): io.github.shaksternano.borgar.chat.entity.Mentionable? {
             val mentions = message.mentionedUserIds + message.mentionedChannelIds + message.mentionedRoleIds
             return mentions.firstOrNull {
                 it.asMention == value
@@ -82,15 +95,29 @@ sealed interface CommandArgumentType<T> {
         }
     }
 
-    data object ATTACHMENT : SimpleCommandArgumentType<Attachment> {
+    data object Attachment : SimpleCommandArgumentType<io.github.shaksternano.borgar.chat.entity.Attachment> {
 
-        override val name: String = "attachment"
+        override val name: kotlin.String = "attachment"
 
-        override fun parse(value: String, message: Message): Attachment? =
+        override fun parse(
+            value: kotlin.String,
+            message: Message
+        ): io.github.shaksternano.borgar.chat.entity.Attachment? =
             message.attachments.firstOrNull()
     }
 
-    val name: String
+    class Enum<T>(
+        private val type: KClass<T>,
+        override val name: kotlin.String
+    ) : SimpleCommandArgumentType<T> where T : kotlin.Enum<T>, T : Displayed {
+
+        val values: List<T> = type.java.enumConstants.toList()
+
+        override fun parse(value: kotlin.String, message: Message): T? =
+            type.java.enumConstants.firstOrNull { it.displayName == value }
+    }
+
+    val name: kotlin.String
 }
 
 sealed interface SimpleCommandArgumentType<T> : CommandArgumentType<T> {

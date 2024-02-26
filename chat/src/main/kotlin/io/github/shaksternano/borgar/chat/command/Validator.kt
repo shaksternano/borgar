@@ -31,7 +31,7 @@ class RangeValidator<T : Comparable<T>>(
     override fun validate(value: T): Boolean = value in range
 
     override fun errorMessage(value: T, key: String): String =
-        "The value for **$key** must be between ${range.start.formatted} and ${range.endInclusive.formatted}."
+        "The argument **$key** must be between ${range.start.formatted} and ${range.endInclusive.formatted}."
 }
 
 open class MinValueValidator<T : Comparable<T>>(
@@ -41,7 +41,7 @@ open class MinValueValidator<T : Comparable<T>>(
     override fun validate(value: T): Boolean = value >= minValue
 
     override fun errorMessage(value: T, key: String): String =
-        "The value for **$key** must be greater than or equal to ${minValue.formatted}."
+        "The argument **$key** must be greater than or equal to ${minValue.formatted}."
 }
 
 object PositiveIntValidator : MinValueValidator<Int>(
@@ -51,7 +51,7 @@ object PositiveIntValidator : MinValueValidator<Int>(
     override fun validate(value: Int): Boolean = value > 0
 
     override fun errorMessage(value: Int, key: String): String =
-        "The value for **$key** must be positive."
+        "The argument **$key** must be positive."
 }
 
 object PositiveDoubleValidator : MinValueValidator<Double>(
@@ -61,7 +61,7 @@ object PositiveDoubleValidator : MinValueValidator<Double>(
     override fun validate(value: Double): Boolean = value > 0.0
 
     override fun errorMessage(value: Double, key: String): String =
-        "The value for **$key** must be positive."
+        "The argument **$key** must be positive."
 }
 
 object GreaterThanOneValidator : MinValueValidator<Double>(
@@ -71,5 +71,5 @@ object GreaterThanOneValidator : MinValueValidator<Double>(
     override fun validate(value: Double): Boolean = value > 1.0
 
     override fun errorMessage(value: Double, key: String): String =
-        "The value for **$key** must be greater than 1."
+        "The argument **$key** must be greater than 1."
 }

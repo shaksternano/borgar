@@ -9,7 +9,7 @@ object RotateCommand : FileCommand(
     CommandArgumentInfo(
         key = "degrees",
         description = "Degrees to rotate by.",
-        type = CommandArgumentType.DOUBLE,
+        type = CommandArgumentType.Double,
         defaultValue = 90.0,
         required = false,
     ),
@@ -17,7 +17,7 @@ object RotateCommand : FileCommand(
         key = "backgroundrgb",
         aliases = setOf("background", "bg"),
         description = "Background RGB color to fill in the empty space. By default it is transparent.",
-        type = CommandArgumentType.INTEGER,
+        type = CommandArgumentType.Integer,
         required = false,
     ),
 ) {
@@ -26,8 +26,8 @@ object RotateCommand : FileCommand(
     override val description: String = "Rotates media."
 
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {
-        val degrees = arguments.getRequired("degrees", CommandArgumentType.DOUBLE)
-        val backgroundRgb = arguments.getOptional("backgroundrgb", CommandArgumentType.INTEGER)
+        val degrees = arguments.getRequired("degrees", CommandArgumentType.Double)
+        val backgroundRgb = arguments.getOptional("backgroundrgb", CommandArgumentType.Integer)
         val backgroundColor = backgroundRgb?.let { Color(it) }
         return RotateTask(degrees, backgroundColor, maxFileSize)
     }

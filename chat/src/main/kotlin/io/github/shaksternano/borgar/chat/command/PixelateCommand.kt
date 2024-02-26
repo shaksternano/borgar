@@ -9,7 +9,7 @@ object PixelateCommand : FileCommand(
         key = "pixelationmultiplier",
         aliases = setOf("pm"),
         description = "Pixelation multiplier.",
-        type = CommandArgumentType.DOUBLE,
+        type = CommandArgumentType.Double,
         validator = GreaterThanOneValidator,
     ),
 ) {
@@ -19,7 +19,7 @@ object PixelateCommand : FileCommand(
     override val description: String = "Pixelates media."
 
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {
-        val pixelationMultiplier = arguments.getRequired("pixelationmultiplier", CommandArgumentType.DOUBLE)
+        val pixelationMultiplier = arguments.getRequired("pixelationmultiplier", CommandArgumentType.Double)
         return PixelateTask(pixelationMultiplier, maxFileSize)
     }
 }

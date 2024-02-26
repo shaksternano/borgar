@@ -10,9 +10,9 @@ import io.github.shaksternano.borgar.core.graphics.drawable.ImageDrawable
 import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.io.UrlInfo
 import io.github.shaksternano.borgar.core.util.TenorMediaType
-import io.github.shaksternano.borgar.core.util.getTenorUrlOrDefault
 import io.github.shaksternano.borgar.core.util.getUrls
 import io.github.shaksternano.borgar.core.util.retrieveTenorMediaUrl
+import io.github.shaksternano.borgar.core.util.retrieveTenorUrlOrDefault
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.take
@@ -36,7 +36,7 @@ suspend fun CommandMessageIntersection.getUrlsExceptSelf(getGif: Boolean): List<
             )
             addAll(
                 it.content.getUrls().map {
-                    getTenorUrlOrDefault(it, getGif)
+                    retrieveTenorUrlOrDefault(it, getGif)
                 }
             )
         }
@@ -166,6 +166,11 @@ suspend fun <T> CommandMessageIntersection.searchOrThrow(
     errorMessage: String,
     find: suspend (CommandMessageIntersection) -> T?,
 ): T = search(find) ?: throw FailedOperationException(errorMessage)
+
+suspend fun <T> CommandMessageIntersection.searchExceptSelfOrThrow(
+    errorMessage: String,
+    find: suspend (CommandMessageIntersection) -> T?,
+): T = searchExceptSelf(find) ?: throw FailedOperationException(errorMessage)
 
 private suspend fun <T> CommandMessageIntersection.searchVisitors(
     find: suspend (CommandMessageIntersection) -> T?,

@@ -9,7 +9,7 @@ object SpinCommand : FileCommand(
     CommandArgumentInfo(
         key = "speed",
         description = "The spin speed.",
-        type = CommandArgumentType.DOUBLE,
+        type = CommandArgumentType.Double,
         required = false,
         defaultValue = 1.0
     ),
@@ -17,7 +17,7 @@ object SpinCommand : FileCommand(
         key = "backgroundrgb",
         aliases = setOf("background", "bg"),
         description = "Background RGB color to fill in the empty space. By default it is transparent.",
-        type = CommandArgumentType.INTEGER,
+        type = CommandArgumentType.Integer,
         required = false,
     ),
 ) {
@@ -26,8 +26,8 @@ object SpinCommand : FileCommand(
     override val description: String = "Spins a media file."
 
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {
-        val spinSpeed = arguments.getRequired("speed", CommandArgumentType.DOUBLE)
-        val backgroundRgb = arguments.getOptional("backgroundrgb", CommandArgumentType.INTEGER)
+        val spinSpeed = arguments.getRequired("speed", CommandArgumentType.Double)
+        val backgroundRgb = arguments.getOptional("backgroundrgb", CommandArgumentType.Integer)
         val backgroundColor = backgroundRgb?.let { Color(it) }
         return SpinTask(spinSpeed, backgroundColor, maxFileSize)
     }

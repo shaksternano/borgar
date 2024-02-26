@@ -7,16 +7,14 @@ import io.github.shaksternano.borgar.chat.command.*
 import io.github.shaksternano.borgar.chat.entity.*
 import io.github.shaksternano.borgar.chat.event.CommandEvent
 import io.github.shaksternano.borgar.core.logger
-import io.github.shaksternano.borgar.core.util.asSingletonList
-import io.github.shaksternano.borgar.core.util.formatted
-import io.github.shaksternano.borgar.core.util.kClass
-import io.github.shaksternano.borgar.core.util.splitWords
+import io.github.shaksternano.borgar.core.util.*
 import io.github.shaksternano.borgar.discord.entity.DiscordUser
 import io.github.shaksternano.borgar.discord.entity.channel.DiscordMessageChannel
 import io.github.shaksternano.borgar.discord.event.SlashCommandEvent
 import kotlinx.coroutines.future.await
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
+import net.dv8tion.jda.api.interactions.commands.Command.Choice
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.OptionData
@@ -139,6 +137,14 @@ private fun CommandArgumentInfo<*>.toOption(): OptionData {
     )
     optionData.setRequiredRange(validator)
     optionData.setMinValue(validator)
+    val argumentType = type
+    if (argumentType is CommandArgumentType.Enum<*>) {
+        val choices = argumentType.values.map {
+            it as Displayed
+            Choice(it.displayName, it.ordinal.toLong())
+        }
+        optionData.addChoices(choices)
+    }
     return optionData
 }
 
@@ -171,14 +177,15 @@ private fun OptionData.setMinValue(validator: Validator<*>) {
 }
 
 private fun CommandArgumentType<*>.toOptionType(): OptionType = when (this) {
-    CommandArgumentType.STRING -> OptionType.STRING
-    CommandArgumentType.INTEGER -> OptionType.INTEGER
-    CommandArgumentType.LONG -> OptionType.INTEGER
-    CommandArgumentType.DOUBLE -> OptionType.NUMBER
-    CommandArgumentType.BOOLEAN -> OptionType.BOOLEAN
-    CommandArgumentType.USER -> OptionType.USER
-    CommandArgumentType.CHANNEL -> OptionType.CHANNEL
-    CommandArgumentType.ROLE -> OptionType.ROLE
-    CommandArgumentType.MENTIONABLE -> OptionType.MENTIONABLE
-    CommandArgumentType.ATTACHMENT -> OptionType.ATTACHMENT
+    CommandArgumentType.String -> OptionType.STRING
+    CommandArgumentType.Integer -> OptionType.INTEGER
+    CommandArgumentType.Long -> OptionType.INTEGER
+    CommandArgumentType.Double -> OptionType.NUMBER
+    CommandArgumentType.Boolean -> OptionType.BOOLEAN
+    CommandArgumentType.User -> OptionType.USER
+    CommandArgumentType.Channel -> OptionType.CHANNEL
+    CommandArgumentType.Role -> OptionType.ROLE
+    CommandArgumentType.Mentionable -> OptionType.MENTIONABLE
+    CommandArgumentType.Attachment -> OptionType.ATTACHMENT
+    is CommandArgumentType.Enum<*> -> OptionType.STRING
 }

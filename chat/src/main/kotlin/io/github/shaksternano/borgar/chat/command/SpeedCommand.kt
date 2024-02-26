@@ -9,7 +9,7 @@ object SpeedCommand : FileCommand(
         key = "multiplier",
         aliases = setOf("speed"),
         description = "Speed multiplier.",
-        type = CommandArgumentType.DOUBLE,
+        type = CommandArgumentType.Double,
         required = false,
         defaultValue = 2.0,
         validator = SpeedValidator,
@@ -20,7 +20,7 @@ object SpeedCommand : FileCommand(
     override val description: String = "Speeds up or slows down animated media."
 
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {
-        val speedMultiplier = arguments.getRequired("multiplier", CommandArgumentType.DOUBLE)
+        val speedMultiplier = arguments.getRequired("multiplier", CommandArgumentType.Double)
         return SpeedTask(speedMultiplier, maxFileSize)
     }
 }

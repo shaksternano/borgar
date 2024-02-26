@@ -9,12 +9,12 @@ object MemeCommand : FileCommand(
     CommandArgumentInfo(
         key = "text",
         description = "The text to put on the top of the image.",
-        type = CommandArgumentType.STRING,
+        type = CommandArgumentType.String,
     ),
     CommandArgumentInfo(
         key = "bottom",
         description = "The text to put on the bottom of the image.",
-        type = CommandArgumentType.STRING,
+        type = CommandArgumentType.String,
         required = false,
     ),
 ) {

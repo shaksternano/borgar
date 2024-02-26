@@ -30,45 +30,55 @@ class OptionCommandArguments(
         val optionMapping = interaction.getOption(key) ?: return null
         @Suppress("IMPLICIT_CAST_TO_ANY", "UNCHECKED_CAST")
         return when (argumentType) {
-            CommandArgumentType.STRING -> optionMapping.asString
-            CommandArgumentType.INTEGER -> runCatching { optionMapping.asLong.toInt() }
+            CommandArgumentType.String -> optionMapping.asString
+
+            CommandArgumentType.Integer -> runCatching { optionMapping.asLong.toInt() }
                 .getOrNull()
 
-            CommandArgumentType.LONG -> runCatching { optionMapping.asLong }
+            CommandArgumentType.Long -> runCatching { optionMapping.asLong }
                 .getOrNull()
 
-            CommandArgumentType.DOUBLE -> runCatching { optionMapping.asDouble }
+            CommandArgumentType.Double -> runCatching { optionMapping.asDouble }
                 .getOrNull()
 
-            CommandArgumentType.BOOLEAN -> runCatching { optionMapping.asBoolean }
+            CommandArgumentType.Boolean -> runCatching { optionMapping.asBoolean }
                 .getOrNull()
 
-            CommandArgumentType.USER -> runCatching { optionMapping.asUser }
-                .map { DiscordUser(it) }
-                .getOrNull()
+            CommandArgumentType.User -> runCatching {
+                val user = optionMapping.asUser
+                DiscordUser(user)
+            }.getOrNull()
 
-            CommandArgumentType.CHANNEL -> runCatching { optionMapping.asChannel }
-                .map { DiscordChannel.create(it) }
-                .getOrNull()
+            CommandArgumentType.Channel -> runCatching {
+                val channel = optionMapping.asChannel
+                DiscordChannel.create(channel)
+            }.getOrNull()
 
-            CommandArgumentType.ROLE -> runCatching { optionMapping.asRole }
-                .map { DiscordRole(it) }
-                .getOrNull()
+            CommandArgumentType.Role -> runCatching {
+                val role = optionMapping.asRole
+                DiscordRole(role)
+            }.getOrNull()
 
-            CommandArgumentType.MENTIONABLE -> runCatching { optionMapping.asMentionable }
-                .map { DiscordMentionable.create(it, interaction.jda) }
-                .getOrNull()
+            CommandArgumentType.Mentionable -> runCatching {
+                val mentionable = optionMapping.asMentionable
+                DiscordMentionable.create(mentionable, interaction.jda)
+            }.getOrNull()
 
-            CommandArgumentType.ATTACHMENT -> runCatching { optionMapping.asAttachment }
-                .map {
-                    Attachment(
-                        id = it.id,
-                        url = it.url,
-                        proxyUrl = it.proxyUrl,
-                        filename = it.fileName,
-                        manager = DiscordManager[interaction.jda]
-                    )
-                }.getOrNull()
+            CommandArgumentType.Attachment -> runCatching {
+                val attachment = optionMapping.asAttachment
+                Attachment(
+                    id = attachment.id,
+                    url = attachment.url,
+                    proxyUrl = attachment.proxyUrl,
+                    filename = attachment.fileName,
+                    manager = DiscordManager[interaction.jda]
+                )
+            }.getOrNull()
+
+            is CommandArgumentType.Enum<*> -> runCatching {
+                val ordinal = optionMapping.asLong.toInt()
+                argumentType.values[ordinal]
+            }.getOrNull()
         } as T?
     }
 

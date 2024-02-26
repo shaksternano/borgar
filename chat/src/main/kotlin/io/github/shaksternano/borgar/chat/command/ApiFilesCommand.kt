@@ -9,7 +9,7 @@ abstract class ApiFilesCommand(
     CommandArgumentInfo(
         key = "tags",
         description = "The tags to search for.",
-        type = CommandArgumentType.STRING,
+        type = CommandArgumentType.String,
         required = false,
     ),
     *if (fileCount == 1) {
@@ -18,7 +18,7 @@ abstract class ApiFilesCommand(
                 key = "filecount",
                 aliases = setOf("n"),
                 description = "The number of images to send.",
-                type = CommandArgumentType.INTEGER,
+                type = CommandArgumentType.Integer,
                 required = false,
                 defaultValue = 1,
                 validator = RangeValidator(1..10),
@@ -35,7 +35,7 @@ abstract class ApiFilesCommand(
         val fileCount = if (fileCount == 1)
             arguments.getRequired(
                 "filecount",
-                CommandArgumentType.INTEGER,
+                CommandArgumentType.Integer,
             )
         else fileCount
         return createApiFilesTask(tags, fileCount, maxFileSize)

@@ -10,7 +10,7 @@ object EmojiImageCommand : FileCommand(
     CommandArgumentInfo(
         key = "emoji",
         description = "The emoji to get the image of.",
-        type = CommandArgumentType.STRING,
+        type = CommandArgumentType.String,
         required = false,
     ),
     requireInput = false,

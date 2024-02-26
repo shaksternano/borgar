@@ -13,7 +13,7 @@ sealed class UncaptionCommand(
         key = "onlycheckfirst",
         aliases = setOf("first", "f"),
         description = "Whether to only check for a caption in the first frame or not.",
-        type = CommandArgumentType.BOOLEAN,
+        type = CommandArgumentType.Boolean,
         required = false,
         defaultValue = false,
     ),
@@ -32,7 +32,7 @@ sealed class UncaptionCommand(
     )
 
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {
-        val onlyCheckFirst = arguments.getRequired("onlycheckfirst", CommandArgumentType.BOOLEAN)
+        val onlyCheckFirst = arguments.getRequired("onlycheckfirst", CommandArgumentType.Boolean)
         return UncaptionTask(coloredCaption, onlyCheckFirst, maxFileSize)
     }
 }

@@ -7,7 +7,7 @@ import java.net.URI
 
 private const val DEFAULT_TENOR_API_KEY: String = "LIVDSRZULELA"
 
-suspend fun getTenorUrlOrDefault(url: String, getGif: Boolean): UrlInfo {
+suspend fun retrieveTenorUrlOrDefault(url: String, getGif: Boolean): UrlInfo {
     val tenorGifUrl = if (getGif)
         retrieveTenorMediaUrl(url, TenorMediaType.GIF_LARGE)
     else null
@@ -44,20 +44,23 @@ fun isTenorUrl(url: String): Boolean {
  * Contains Tenor string constants for different media types.
  */
 @Suppress("unused")
-enum class TenorMediaType(val key: String) {
-    GIF_EXTRA_SMALL("nanogif"),
-    GIF_SMALL("tinygif"),
-    GIF_NORMAL("gif"),
-    GIF_LARGE("mediumgif"),
+enum class TenorMediaType(
+    val key: String,
+    override val displayName: String
+) : Displayed {
+    GIF_EXTRA_SMALL("nanogif", "Extra small GIF"),
+    GIF_SMALL("tinygif", "Small GIF"),
+    GIF_NORMAL("gif", "Normal GIF"),
+    GIF_LARGE("mediumgif", "Large GIF"),
 
-    MP4_EXTRA_SMALL("nanomp4"),
-    MP4_SMALL("tinymp4"),
-    MP4_NORMAL("mp4"),
-    MP4_NORMAL_LOOPED("loopedmp4"),
+    MP4_EXTRA_SMALL("nanomp4", "Extra small MP4"),
+    MP4_SMALL("tinymp4", "Small MP4"),
+    MP4_NORMAL("mp4", "Normal MP4"),
+    MP4_NORMAL_LOOPED("loopedmp4", "Normal looped MP4"),
 
-    WEBM_EXTRA_SMALL("nanowebm"),
-    WEBM_SMALL("tinywebm"),
-    WEBM_NORMAL("webm"),
+    WEBM_EXTRA_SMALL("nanowebm", "Extra small WebM"),
+    WEBM_SMALL("tinywebm", "Small WebM"),
+    WEBM_NORMAL("webm", "Normal WebM"),
 }
 
 @Serializable

@@ -17,8 +17,8 @@ fun CommandArguments.getDefaultStringOrEmpty(): String =
     defaultKey?.let { getStringOrEmpty(it) } ?: ""
 
 fun CommandArguments.getStringOrEmpty(key: String): String =
-    this[key, CommandArgumentType.STRING] ?: ""
+    this[key, CommandArgumentType.String] ?: ""
 
-fun CommandArguments.getDefaultAttachment(): Attachment? = this["file", CommandArgumentType.ATTACHMENT]
+fun CommandArguments.getDefaultAttachment(): Attachment? = this["file", CommandArgumentType.Attachment]
 
-fun CommandArguments.getDefaultUrl(): String? = this["url", CommandArgumentType.STRING]
+fun CommandArguments.getDefaultUrl(): String? = this["url", CommandArgumentType.String]

@@ -9,7 +9,7 @@ import io.github.shaksternano.borgar.discord.entity.DiscordGuild
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
 
-open class DiscordChannel(
+open class DiscordChannel protected constructor(
     internal val discordChannel: net.dv8tion.jda.api.entities.channel.Channel
 ) : BaseEntity(), Channel {
 

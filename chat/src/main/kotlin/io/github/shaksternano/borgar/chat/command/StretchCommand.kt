@@ -9,7 +9,7 @@ object StretchCommand : FileCommand(
         key = "widthmultiplier",
         aliases = setOf("w", "width"),
         description = "Width stretch multiplier.",
-        type = CommandArgumentType.DOUBLE,
+        type = CommandArgumentType.Double,
         required = false,
         defaultValue = 2.0,
         validator = PositiveDoubleValidator,
@@ -18,7 +18,7 @@ object StretchCommand : FileCommand(
         key = "heightmultiplier",
         aliases = setOf("h", "height"),
         description = "Height stretch multiplier.",
-        type = CommandArgumentType.DOUBLE,
+        type = CommandArgumentType.Double,
         required = false,
         defaultValue = 1.0,
         validator = PositiveDoubleValidator,
@@ -26,7 +26,7 @@ object StretchCommand : FileCommand(
     CommandArgumentInfo(
         key = "raw",
         description = "Whether to stretch without extra processing.",
-        type = CommandArgumentType.BOOLEAN,
+        type = CommandArgumentType.Boolean,
         required = false,
         defaultValue = false,
     ),
@@ -36,9 +36,9 @@ object StretchCommand : FileCommand(
     override val description: String = "Stretches media."
 
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {
-        val widthMultiplier = arguments.getRequired("widthmultiplier", CommandArgumentType.DOUBLE)
-        val heightMultiplier = arguments.getRequired("heightmultiplier", CommandArgumentType.DOUBLE)
-        val raw = arguments.getRequired("raw", CommandArgumentType.BOOLEAN)
+        val widthMultiplier = arguments.getRequired("widthmultiplier", CommandArgumentType.Double)
+        val heightMultiplier = arguments.getRequired("heightmultiplier", CommandArgumentType.Double)
+        val raw = arguments.getRequired("raw", CommandArgumentType.Boolean)
         return StretchTask(widthMultiplier, heightMultiplier, raw, maxFileSize)
     }
 }

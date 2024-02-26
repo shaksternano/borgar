@@ -10,7 +10,7 @@ object AutoCropCommand : FileCommand(
         key = "tolerance",
         aliases = setOf("t"),
         description = "Background crop colour tolerance.",
-        type = CommandArgumentType.DOUBLE,
+        type = CommandArgumentType.Double,
         required = false,
         defaultValue = 0.2,
         validator = RangeValidator.ZERO_TO_ONE,
@@ -18,14 +18,14 @@ object AutoCropCommand : FileCommand(
     CommandArgumentInfo(
         key = "rgb",
         description = "Background color to crop out. By default it is the color of the top left pixel.",
-        type = CommandArgumentType.INTEGER,
+        type = CommandArgumentType.Integer,
         required = false,
     ),
     CommandArgumentInfo(
         key = "onlycheckfirst",
         aliases = setOf("first", "f"),
         description = "Whether to only check the background in the first frame or not.",
-        type = CommandArgumentType.BOOLEAN,
+        type = CommandArgumentType.Boolean,
         required = false,
         defaultValue = false,
     ),
@@ -35,10 +35,10 @@ object AutoCropCommand : FileCommand(
     override val description: String = "Automatically crops out background color."
 
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {
-        val cropColor = arguments.getOptional("rgb", CommandArgumentType.INTEGER)
+        val cropColor = arguments.getOptional("rgb", CommandArgumentType.Integer)
             ?.let { Color(it) }
-        val tolerance = arguments.getRequired("tolerance", CommandArgumentType.DOUBLE)
-        val onlyCheckFirst = arguments.getRequired("onlycheckfirst", CommandArgumentType.BOOLEAN)
+        val tolerance = arguments.getRequired("tolerance", CommandArgumentType.Double)
+        val onlyCheckFirst = arguments.getRequired("onlycheckfirst", CommandArgumentType.Boolean)
         return AutoCropTask(cropColor, tolerance, onlyCheckFirst, maxFileSize)
     }
 }
