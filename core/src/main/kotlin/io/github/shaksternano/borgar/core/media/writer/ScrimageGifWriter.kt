@@ -16,8 +16,8 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.toJavaDuration
 
+private const val MAX_DIMENSION: Int = 2000
 private val GIF_MINIMUM_FRAME_DURATION: Duration = 20.milliseconds
-private const val MAX_DIMENSION: Int = 500
 
 class ScrimageGifWriter(
     private val gif: GifStream,
