@@ -27,6 +27,8 @@ object SpeedCommand : FileCommand(
 
 private object SpeedValidator : Validator<Double> {
 
+    override val description: String = "Must not be 0 or 1."
+
     override fun validate(value: Double): Boolean =
         value != 0.0 && value != 1.0
 

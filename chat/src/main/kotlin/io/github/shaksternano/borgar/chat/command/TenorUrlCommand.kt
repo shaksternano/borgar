@@ -23,7 +23,7 @@ object TenorUrlCommand : FileCommand(
     ),
     CommandArgumentInfo(
         key = "url",
-        description = "The URL to use.",
+        description = "The tenor URL to use.",
         type = CommandArgumentType.String,
         required = false,
         validator = TenorUrlValidator,

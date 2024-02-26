@@ -6,6 +6,7 @@ import io.github.shaksternano.borgar.chat.BotManager
 import io.github.shaksternano.borgar.chat.event.CommandEvent
 import io.github.shaksternano.borgar.core.data.repository.TemplateRepository
 import io.github.shaksternano.borgar.core.logger
+import io.github.shaksternano.borgar.core.util.Displayed
 import io.github.shaksternano.borgar.core.util.formatted
 import io.github.shaksternano.borgar.core.util.splitChunks
 
@@ -143,10 +144,10 @@ object HelpCommand : NonChainableCommand() {
                 }
                 extraInfo += "default"
             }
-
             if (extraInfo.isNotBlank()) {
                 message += " ($extraInfo)"
             }
+
             message += ":"
             if (it.aliases.isNotEmpty()) {
                 message += "\n        Aliases:"
@@ -154,11 +155,26 @@ object HelpCommand : NonChainableCommand() {
                     message += "\n            **$ARGUMENT_PREFIX${alias}**"
                 }
             }
+
             message +=
                 "\n        Description: ${it.description}" +
                     "\n        Type: ${it.type.name}"
+
+            val type = it.type
+            if (type is CommandArgumentType.Enum<*>) {
+                message += "\n        Possible values:"
+                type.values.forEach { value ->
+                    value as Displayed
+                    message += "\n            ${value.displayName}"
+                }
+            }
+
             it.defaultValue?.let { defaultValue ->
                 message += "\n        Default value: ${defaultValue.formatted}"
+            }
+
+            if (it.validator.description.isNotBlank()) {
+                message += "\n        Constraints: ${it.validator.description}"
             }
         }
         return message

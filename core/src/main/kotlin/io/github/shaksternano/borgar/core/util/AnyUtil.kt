@@ -22,5 +22,6 @@ val Any.formatted: String
     get() = when (this) {
         is Float -> FLOAT_FORMAT.format(this)
         is Double -> FLOAT_FORMAT.format(this)
+        is Displayed -> displayName
         else -> toString()
     }
