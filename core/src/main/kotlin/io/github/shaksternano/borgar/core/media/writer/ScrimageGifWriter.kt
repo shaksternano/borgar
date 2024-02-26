@@ -25,7 +25,6 @@ class ScrimageGifWriter(
 
     override val isStatic: Boolean = false
     private var previousImage: BufferedImage? = null
-    private var cannotOptimiseNext: Boolean = false
 
     // For combining duplicate sequential frames, and dealing with the minimum frame duration.
     /**
@@ -55,27 +54,19 @@ class ScrimageGifWriter(
             }
 
             // Optimise transparency.
-            var toWrite: BufferedImage
-            var disposeMethod: DisposeMethod
-            if (previousImage == null) {
-                toWrite = currentImage
-                disposeMethod = DisposeMethod.NONE
-            } else if (cannotOptimiseNext) {
-                toWrite = currentImage
-                if (isFullyOpaque(currentImage)) {
-                    disposeMethod = DisposeMethod.NONE
-                    cannotOptimiseNext = false
+            val (toWrite, disposeMethod) = if (previousImage == null) {
+                // First frame
+                currentImage to if (isFullyOpaque(currentImage)) {
+                    DisposeMethod.DO_NOT_DISPOSE
                 } else {
-                    disposeMethod = DisposeMethod.RESTORE_TO_BACKGROUND_COLOR
+                    DisposeMethod.RESTORE_TO_BACKGROUND_COLOR
                 }
             } else {
+                // Subsequent frames
                 try {
-                    toWrite = optimiseTransparency(previousImage, currentImage)
-                    disposeMethod = DisposeMethod.DO_NOT_DISPOSE
-                } catch (e: PreviousTransparentException) {
-                    toWrite = currentImage
-                    disposeMethod = DisposeMethod.RESTORE_TO_BACKGROUND_COLOR
-                    cannotOptimiseNext = true
+                    optimiseTransparency(previousImage, currentImage) to DisposeMethod.DO_NOT_DISPOSE
+                } catch (e: CurrentTransparentException) {
+                    currentImage to DisposeMethod.RESTORE_TO_BACKGROUND_COLOR
                 }
             }
 
@@ -104,7 +95,7 @@ class ScrimageGifWriter(
     private fun isSimilar(image1: BufferedImage, image2: BufferedImage): Boolean =
         try {
             isFullyTransparent(optimiseTransparency(image1, image2))
-        } catch (e: PreviousTransparentException) {
+        } catch (e: CurrentTransparentException) {
             false
         }
 
@@ -113,7 +104,7 @@ class ScrimageGifWriter(
         currentImage: BufferedImage,
     ): BufferedImage {
         if (previousImage.width != currentImage.width || previousImage.height != currentImage.height) {
-            throw PreviousTransparentException()
+            throw CurrentTransparentException()
         }
         val colorTolerance = 10
         val similarPixels = mutableListOf<Position>()
@@ -121,7 +112,8 @@ class ScrimageGifWriter(
             val previousPixelColor = Color(previousImage.getRGB(x, y), true)
             val currentPixelColor = Color(currentImage.getRGB(x, y), true)
             if (currentPixelColor.alpha == 0 && previousPixelColor.alpha != 0) {
-                throw PreviousTransparentException()
+                // Current frame has a transparent pixel where the previous frame had an opaque pixel.
+                throw CurrentTransparentException()
             } else {
                 val colorDistance = previousPixelColor distanceTo currentPixelColor
                 if (colorDistance <= colorTolerance) {
@@ -192,13 +184,14 @@ class ScrimageGifWriter(
     private data class Position(val x: Int, val y: Int)
 
     /**
-     * Indicates that the previous frame had a transparent pixel
-     * at a position where the current frame has an opaque pixel,
+     * Indicates that the current frame had a transparent pixel
+     * at a position where the previous frame has an opaque pixel,
      * which means that the current frame cannot be optimised.
      */
-    private class PreviousTransparentException : Exception()
+    private class CurrentTransparentException : Exception()
 
     object Factory : MediaWriterFactory {
+
         override val supportedFormats: Set<String> = setOf("gif")
 
         override suspend fun create(
