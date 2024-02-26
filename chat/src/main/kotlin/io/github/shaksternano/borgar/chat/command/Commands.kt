@@ -32,6 +32,7 @@ val COMMANDS: Map<String, Command> = registerCommands(
     EmojiImageCommand,
     StickerImageCommand,
     TenorUrlCommand,
+    UserAvatarCommand,
     UrlFileCommand.HAEMA,
     UrlFileCommand.TULIN,
     UrlFileCommand.SURE_BUD,

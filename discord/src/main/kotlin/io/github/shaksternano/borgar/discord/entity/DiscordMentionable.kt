@@ -30,4 +30,5 @@ class DiscordMentionable(
     override val id: String = mentionable.id
     override val manager: BotManager = DiscordManager[jda]
     override val asMention: String = mentionable.asMention
+    override val asBasicMention: String = asMention
 }

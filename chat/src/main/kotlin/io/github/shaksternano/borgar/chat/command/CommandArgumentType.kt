@@ -55,7 +55,9 @@ sealed interface CommandArgumentType<T> {
             value: kotlin.String,
             message: Message
         ): io.github.shaksternano.borgar.chat.entity.User? =
-            message.mentionedUsers.firstOrNull { it.asMention == value }
+            message.mentionedUsers.firstOrNull {
+                value == it.asMention || value == it.asBasicMention
+            }
     }
 
     data object Channel : SuspendingCommandArgumentType<io.github.shaksternano.borgar.chat.entity.channel.Channel> {
@@ -66,7 +68,9 @@ sealed interface CommandArgumentType<T> {
             value: kotlin.String,
             message: Message
         ): io.github.shaksternano.borgar.chat.entity.channel.Channel? =
-            message.mentionedChannels.firstOrNull { it.asMention == value }
+            message.mentionedChannels.firstOrNull {
+                value == it.asMention || value == it.asBasicMention
+            }
     }
 
     data object Role : SuspendingCommandArgumentType<io.github.shaksternano.borgar.chat.entity.Role> {
@@ -77,7 +81,9 @@ sealed interface CommandArgumentType<T> {
             value: kotlin.String,
             message: Message
         ): io.github.shaksternano.borgar.chat.entity.Role? =
-            message.mentionedRoles.firstOrNull { it.asMention == value }
+            message.mentionedRoles.firstOrNull {
+                value == it.asMention || value == it.asBasicMention
+            }
     }
 
     data object Mentionable : SimpleCommandArgumentType<io.github.shaksternano.borgar.chat.entity.Mentionable> {
@@ -90,7 +96,7 @@ sealed interface CommandArgumentType<T> {
         ): io.github.shaksternano.borgar.chat.entity.Mentionable? {
             val mentions = message.mentionedUserIds + message.mentionedChannelIds + message.mentionedRoleIds
             return mentions.firstOrNull {
-                it.asMention == value
+                value == it.asMention || value == it.asBasicMention
             }
         }
     }
@@ -114,7 +120,7 @@ sealed interface CommandArgumentType<T> {
         val values: List<T> = type.java.enumConstants.toList()
 
         override fun parse(value: kotlin.String, message: Message): T? =
-            type.java.enumConstants.firstOrNull { it.displayName == value }
+            type.java.enumConstants.firstOrNull { value.equals(it.displayName, ignoreCase = true) }
     }
 
     val name: kotlin.String

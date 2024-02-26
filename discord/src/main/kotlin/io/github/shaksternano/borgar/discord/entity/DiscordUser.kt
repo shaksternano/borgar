@@ -15,4 +15,5 @@ data class DiscordUser(
     override val effectiveAvatarUrl: String = discordUser.effectiveAvatarUrl
     override val isSelf: Boolean = discordUser.jda.selfUser == discordUser
     override val asMention: String = discordUser.asMention
+    override val asBasicMention: String = "@${discordUser.effectiveName}"
 }

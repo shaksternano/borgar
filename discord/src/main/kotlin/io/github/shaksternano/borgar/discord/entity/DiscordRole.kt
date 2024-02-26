@@ -12,4 +12,5 @@ data class DiscordRole(
     override val manager: BotManager = DiscordManager[discordRole.jda]
     override val name: String = discordRole.name
     override val asMention: String = discordRole.asMention
+    override val asBasicMention: String = "@${discordRole.name}"
 }

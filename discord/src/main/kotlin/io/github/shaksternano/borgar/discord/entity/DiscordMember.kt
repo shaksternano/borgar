@@ -17,4 +17,5 @@ data class DiscordMember(
     override val effectiveName: String = discordMember.effectiveName
     override val effectiveAvatarUrl: String = discordMember.effectiveAvatarUrl
     override val asMention: String = discordMember.asMention
+    override val asBasicMention: String = "@${discordMember.effectiveName}"
 }
