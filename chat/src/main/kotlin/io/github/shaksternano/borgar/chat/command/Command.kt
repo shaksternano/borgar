@@ -1,10 +1,12 @@
 package io.github.shaksternano.borgar.chat.command
 
 import io.github.shaksternano.borgar.chat.entity.Message
+import io.github.shaksternano.borgar.chat.entity.User
 import io.github.shaksternano.borgar.chat.event.CommandEvent
 import io.github.shaksternano.borgar.chat.exception.MissingArgumentException
 import io.github.shaksternano.borgar.core.io.SuspendCloseable
 import io.github.shaksternano.borgar.core.util.startsWithVowel
+import kotlinx.coroutines.flow.firstOrNull
 
 interface Command {
 
@@ -132,6 +134,16 @@ abstract class BaseCommand : Command {
                     validator.errorMessage(value, key)
                 )
             }
+        }
+    }
+
+    protected suspend fun getReferencedUser(arguments: CommandArguments, event: CommandEvent): User {
+        val argumentUser = arguments.getOptional("user", CommandArgumentType.User)
+        return argumentUser ?: run {
+            val messageIntersection = event.asMessageIntersection(arguments)
+            val referencedMessage = messageIntersection.referencedMessages.firstOrNull()
+            val referencedUser = referencedMessage?.getAuthor()
+            referencedUser ?: event.getAuthor()
         }
     }
 

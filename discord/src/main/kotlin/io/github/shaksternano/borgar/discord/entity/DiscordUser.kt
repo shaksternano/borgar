@@ -4,6 +4,7 @@ import io.github.shaksternano.borgar.chat.BotManager
 import io.github.shaksternano.borgar.chat.entity.BaseEntity
 import io.github.shaksternano.borgar.chat.entity.User
 import io.github.shaksternano.borgar.discord.DiscordManager
+import io.github.shaksternano.borgar.discord.await
 
 data class DiscordUser(
     private val discordUser: net.dv8tion.jda.api.entities.User
@@ -16,4 +17,10 @@ data class DiscordUser(
     override val isSelf: Boolean = discordUser.jda.selfUser == discordUser
     override val asMention: String = discordUser.asMention
     override val asBasicMention: String = "@${discordUser.effectiveName}"
+
+    override suspend fun getBannerUrl(): String? =
+        discordUser.retrieveProfile()
+            .useCache(false)
+            .await()
+            .bannerUrl
 }
