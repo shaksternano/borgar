@@ -26,20 +26,20 @@ class ConstantFrameDurationMediaReader<T : VideoFrame<*>>(
     override val height: Int = reader.height
     override val loopCount: Int = reader.loopCount
 
-    @Suppress("UNCHECKED_CAST")
     override suspend fun readFrame(timestamp: Duration): T {
         val frameNumber = floor(timestamp / frameDuration)
         val newTimestamp = (frameDuration * frameNumber)
+        @Suppress("UNCHECKED_CAST")
         return reader.readFrame(timestamp).copy(
             duration = frameDuration,
             timestamp = newTimestamp,
         ) as T
     }
 
-    @Suppress("UNCHECKED_CAST")
     override fun asFlow(): Flow<T> = flow {
         var currentTimestamp = Duration.ZERO
         while (currentTimestamp < duration) {
+            @Suppress("UNCHECKED_CAST")
             val frame = reader.readFrame(currentTimestamp).copy(
                 duration = frameDuration,
                 timestamp = currentTimestamp,
