@@ -29,6 +29,6 @@ private class SpeedProcessor(
     override suspend fun transformImage(frame: ImageFrame, constantData: Unit): BufferedImage =
         frame.content
 
-    override suspend fun constantData(firstImage: BufferedImage, imageSource: Flow<ImageFrame>, outputFormat: String) =
+    override suspend fun constantData(firstFrame: ImageFrame, imageSource: Flow<ImageFrame>, outputFormat: String) =
         Unit
 }

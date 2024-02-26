@@ -80,14 +80,16 @@ private class SpinProcessor(
     }
 
     override suspend fun constantData(
-        firstImage: BufferedImage,
+        firstFrame: ImageFrame,
         imageSource: Flow<ImageFrame>,
         outputFormat: String
-    ): SpinData =
-        SpinData(
+    ): SpinData {
+        val firstImage = firstFrame.content
+        return SpinData(
             firstImage.supportedTransparentImageType(outputFormat),
             max(firstImage.width, firstImage.height),
         )
+    }
 }
 
 private class SpinData(

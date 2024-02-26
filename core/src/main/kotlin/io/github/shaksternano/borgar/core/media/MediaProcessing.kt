@@ -131,7 +131,7 @@ suspend fun <T : Any> processMedia(
                         )
                     }
                     if (!constantDataSet) {
-                        constantFrameDataValue = processor.constantData(imageFrame.content, imageFlow, outputFormat)
+                        constantFrameDataValue = processor.constantData(imageFrame, imageFlow, outputFormat)
                         constantDataSet = true
                     }
                     writer.writeImageFrame(

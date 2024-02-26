@@ -13,7 +13,7 @@ interface ImageProcessor<T> : SuspendCloseable {
 
     suspend fun transformImage(frame: ImageFrame, constantData: T): BufferedImage
 
-    suspend fun constantData(firstImage: BufferedImage, imageSource: Flow<ImageFrame>, outputFormat: String): T
+    suspend fun constantData(firstFrame: ImageFrame, imageSource: Flow<ImageFrame>, outputFormat: String): T
 
     infix fun <V> then(after: ImageProcessor<V>): ImageProcessor<Pair<T, V>> = object : ImageProcessor<Pair<T, V>> {
 
@@ -25,16 +25,19 @@ interface ImageProcessor<T> : SuspendCloseable {
         }
 
         override suspend fun constantData(
-            firstImage: BufferedImage,
+            firstFrame: ImageFrame,
             imageSource: Flow<ImageFrame>,
             outputFormat: String
         ): Pair<T, V> {
-            val firstConstantData = this@ImageProcessor.constantData(firstImage, imageSource, outputFormat)
+            val firstConstantData = this@ImageProcessor.constantData(firstFrame, imageSource, outputFormat)
+            val newFirstFrame = firstFrame.copy(
+                content = this@ImageProcessor.transformImage(firstFrame, firstConstantData)
+            )
             val newImageSource = imageSource.map {
                 val newImage = this@ImageProcessor.transformImage(it, firstConstantData)
                 it.copy(content = newImage)
             }
-            return firstConstantData to after.constantData(firstImage, newImageSource, outputFormat)
+            return firstConstantData to after.constantData(newFirstFrame, newImageSource, outputFormat)
         }
 
         override suspend fun close() = closeAll(
@@ -57,7 +60,7 @@ class SimpleImageProcessor(
     override suspend fun transformImage(frame: ImageFrame, constantData: Unit): BufferedImage =
         transform(frame)
 
-    override suspend fun constantData(firstImage: BufferedImage, imageSource: Flow<ImageFrame>, outputFormat: String) =
+    override suspend fun constantData(firstFrame: ImageFrame, imageSource: Flow<ImageFrame>, outputFormat: String) =
         Unit
 }
 
@@ -65,6 +68,6 @@ object IdentityImageProcessor : ImageProcessor<Unit> {
 
     override suspend fun transformImage(frame: ImageFrame, constantData: Unit): BufferedImage = frame.content
 
-    override suspend fun constantData(firstImage: BufferedImage, imageSource: Flow<ImageFrame>, outputFormat: String) =
+    override suspend fun constantData(firstFrame: ImageFrame, imageSource: Flow<ImageFrame>, outputFormat: String) =
         Unit
 }

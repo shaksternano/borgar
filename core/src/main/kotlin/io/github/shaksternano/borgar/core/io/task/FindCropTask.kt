@@ -43,10 +43,11 @@ private class FindCropProcessor(
     }
 
     override suspend fun constantData(
-        firstImage: BufferedImage,
+        firstFrame: ImageFrame,
         imageSource: Flow<ImageFrame>,
         outputFormat: String
     ): FindCropData {
+        val firstImage = firstFrame.content
         val width = firstImage.width
         val height = firstImage.height
         val newImageSource = if (onlyCheckFirst) {

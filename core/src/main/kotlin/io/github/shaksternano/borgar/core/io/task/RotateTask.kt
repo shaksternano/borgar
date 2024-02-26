@@ -40,10 +40,11 @@ private class RotateProcessor(
     }
 
     override suspend fun constantData(
-        firstImage: BufferedImage,
+        firstFrame: ImageFrame,
         imageSource: Flow<ImageFrame>,
         outputFormat: String
     ): RotateData {
+        val firstImage = firstFrame.content
         val resultType = firstImage.supportedTransparentImageType(outputFormat)
         return RotateData(resultType)
     }

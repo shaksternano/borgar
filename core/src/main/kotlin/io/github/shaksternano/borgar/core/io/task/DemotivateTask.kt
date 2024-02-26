@@ -86,10 +86,11 @@ private class DemotivateProcessor(
     }
 
     override suspend fun constantData(
-        firstImage: BufferedImage,
+        firstFrame: ImageFrame,
         imageSource: Flow<ImageFrame>,
         outputFormat: String
     ): DemotivateData {
+        val firstImage = firstFrame.content
         val imageWidth = firstImage.width
         val imageHeight = firstImage.height
         val contentAverageDimension = (imageWidth + imageHeight) / 2
