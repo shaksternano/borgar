@@ -13,15 +13,19 @@ data class DiscordGuild(
     override val manager: BotManager = DiscordManager[discordGuild.jda]
     override val name: String = discordGuild.name
     override val iconUrl: String? = discordGuild.iconUrl?.let { "$it?size=1024" }
+    override val bannerUrl: String? = discordGuild.bannerUrl?.let { "$it?size=4096" }
 
-    override suspend fun getMember(userId: String): Member? {
-        return discordGuild.runCatching {
+    override suspend fun getMember(userId: String): Member? =
+        discordGuild.runCatching {
             DiscordMember(retrieveMemberById(userId).await())
         }.getOrNull()
-    }
 
-    override fun getCustomEmojis(): List<CustomEmoji> =
-        discordGuild.emojiCache.map { DiscordCustomEmoji(it, discordGuild.jda) }
+    override suspend fun getCustomEmojis(): List<CustomEmoji> =
+        discordGuild.retrieveEmojis()
+            .await()
+            .map {
+                DiscordCustomEmoji(it, discordGuild.jda)
+            }
 
     override suspend fun getMaxFileSize(): Long =
         discordGuild.boostTier.maxFileSize

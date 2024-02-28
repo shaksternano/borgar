@@ -38,6 +38,7 @@ val COMMANDS: Map<String, Command> = registerCommands(
     UserAvatarCommand,
     UserBannerCommand,
     ServerIconCommand,
+    ServerBannerCommand,
     DownloadCommand,
     CatCommand.CAT,
     CatCommand.CAT_BOMB,

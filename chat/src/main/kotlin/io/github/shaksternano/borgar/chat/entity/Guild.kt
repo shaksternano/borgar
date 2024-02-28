@@ -4,6 +4,7 @@ interface Guild : Entity {
 
     val name: String
     val iconUrl: String?
+    val bannerUrl: String?
 
     suspend fun getMember(userId: String): Member?
 
@@ -15,7 +16,7 @@ interface Guild : Entity {
     suspend fun isMember(user: User): Boolean =
         isMember(user.id)
 
-    fun getCustomEmojis(): List<CustomEmoji>
+    suspend fun getCustomEmojis(): List<CustomEmoji>
 
     suspend fun getMaxFileSize(): Long
 
