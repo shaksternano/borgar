@@ -28,14 +28,16 @@ class DownloadTask(
 
     override suspend fun run(input: List<DataSource>): List<DataSource> = try {
         val url = input.firstOrNull()?.url ?: throw ErrorResponseException("No URL specified!")
-        val fileIndex: Int? = fileNumber?.let { it - 1 }
+        val fileIndex = fileNumber?.let { it - 1 }
         download(url, 0, audioOnly, fileIndex, maxFileSize)
     } catch (e: InvalidFileNumberException) {
         var message = "File number is too large, there "
-        message += if (e.maxFiles == 1) "is"
-        else "are"
+        message +=
+            if (e.maxFiles == 1) "is"
+            else "are"
         message += " only ${e.maxFiles} file"
-        if (e.maxFiles != 1) message += "s"
+        if (e.maxFiles != 1)
+            message += "s"
         message += "!"
         throw ErrorResponseException(message)
     } catch (e: FileTooLargeException) {
@@ -125,6 +127,7 @@ class DownloadTask(
         val isAudioOnly: Boolean,
         val isNoTTWatermark: Boolean,
     ) {
+
         constructor(
             url: String,
             vQuality: Int,
