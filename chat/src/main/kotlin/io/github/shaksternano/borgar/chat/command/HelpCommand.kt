@@ -28,7 +28,7 @@ object HelpCommand : NonChainableCommand() {
         .maximumSize(100)
         .build()
 
-    override suspend fun runDirect(
+    override suspend fun run(
         arguments: CommandArguments,
         event: CommandEvent
     ): List<CommandResponse> {

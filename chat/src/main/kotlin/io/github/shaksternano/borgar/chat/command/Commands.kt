@@ -46,6 +46,7 @@ val COMMANDS: Map<String, Command> = registerCommands(
     PonyCommand.PONY,
     PonyCommand.PONY_BOMB,
     PingCommand,
+    ShutdownCommand,
 )
 
 val COMMANDS_AND_ALIASES: Map<String, Command> = buildMap {

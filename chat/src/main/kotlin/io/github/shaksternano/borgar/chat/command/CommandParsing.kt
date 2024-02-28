@@ -76,7 +76,7 @@ suspend inline fun executeCommands(
         }
 
         try {
-            command.run(arguments, event)
+            command.createExecutable(arguments, event)
         } catch (t: Throwable) {
             throw CommandException(listOf(command), cause = t)
         }
@@ -93,17 +93,15 @@ suspend inline fun executeCommands(
         }
     }
     val result = try {
-        chained.execute()
+        chained.run()
     } catch (t: Throwable) {
         throw CommandException(chained.commands, cause = t)
     }
-    if (result.isEmpty()) {
+    if (result.isEmpty())
         throw CommandException(chained.commands, "No command responses were returned")
-    }
     result.forEach {
-        if (it.content.isBlank() && it.files.isEmpty()) {
+        if (it.content.isBlank() && it.files.isEmpty())
             throw CommandException(chained.commands, "Command response is empty")
-        }
     }
     result to chained
 } catch (t: Throwable) {

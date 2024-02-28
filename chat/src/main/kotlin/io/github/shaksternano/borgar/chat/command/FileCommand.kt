@@ -37,7 +37,7 @@ abstract class FileCommand(
         if (requireInput && this.argumentInfo.size == 2) "url"
         else super.defaultArgumentKey
 
-    final override fun run(arguments: CommandArguments, event: CommandEvent): Executable =
+    final override fun createExecutable(arguments: CommandArguments, event: CommandEvent): Executable =
         FileExecutable(
             commands = listOf(this),
             arguments,
@@ -84,7 +84,7 @@ private data class FileExecutable(
 
     private var toClose: SuspendCloseable? = null
 
-    override suspend fun execute(): List<CommandResponse> {
+    override suspend fun run(): List<CommandResponse> {
         val maxFileSize = event.getChannel().getMaxFileSize()
         val task = taskSupplier()
         toClose = task

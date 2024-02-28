@@ -29,7 +29,7 @@ interface Command {
     val entityId: String?
         get() = null
 
-    fun run(arguments: CommandArguments, event: CommandEvent): Executable
+    fun createExecutable(arguments: CommandArguments, event: CommandEvent): Executable
 }
 
 val Command.nameWithPrefix: String
@@ -43,7 +43,7 @@ interface Executable : SuspendCloseable {
      */
     val commands: List<Command>
 
-    suspend fun execute(): List<CommandResponse>
+    suspend fun run(): List<CommandResponse>
 
     suspend fun onResponseSend(
         response: CommandResponse,
@@ -170,11 +170,12 @@ abstract class NonChainableCommand : BaseCommand() {
     override val chainable: Boolean = false
     override val deferReply: Boolean = false
 
-    final override fun run(arguments: CommandArguments, event: CommandEvent): Executable = object : Executable {
+    final override fun createExecutable(arguments: CommandArguments, event: CommandEvent): Executable =
+        object : Executable {
 
         override val commands: List<Command> = listOf(this@NonChainableCommand)
 
-        override suspend fun execute(): List<CommandResponse> = runDirect(arguments, event)
+            override suspend fun run(): List<CommandResponse> = run(arguments, event)
 
         override suspend fun onResponseSend(
             response: CommandResponse,
@@ -191,7 +192,7 @@ abstract class NonChainableCommand : BaseCommand() {
         )
     }
 
-    abstract suspend fun runDirect(arguments: CommandArguments, event: CommandEvent): List<CommandResponse>
+    abstract suspend fun run(arguments: CommandArguments, event: CommandEvent): List<CommandResponse>
 
     open suspend fun onResponseSend(
         response: CommandResponse,

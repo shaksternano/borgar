@@ -23,13 +23,15 @@ import kotlin.time.Duration.Companion.seconds
 
 class DiscordManager(
     private val jda: JDA,
+    override val ownerId: String
 ) : BotManager {
 
     companion object {
         private val managers: MutableMap<JDA, BotManager> = mutableMapOf()
 
-        fun create(jda: JDA) {
-            managers[jda] = DiscordManager(jda)
+        suspend fun create(jda: JDA) {
+            val ownerId = jda.retrieveApplicationInfo().await().owner.id
+            managers[jda] = DiscordManager(jda, ownerId)
         }
 
         operator fun get(jda: JDA): BotManager =

@@ -8,4 +8,5 @@ data class CommandResponse(
     val suppressEmbeds: Boolean = false,
     val deferReply: Boolean = true,
     val ephemeral: Boolean = false,
+    val responseData: Any? = null,
 )

@@ -10,7 +10,7 @@ object PingCommand : NonChainableCommand() {
     override val name: String = "ping"
     override val description: String = "Checks the bot's latency."
 
-    override suspend fun runDirect(arguments: CommandArguments, event: CommandEvent): List<CommandResponse> =
+    override suspend fun run(arguments: CommandArguments, event: CommandEvent): List<CommandResponse> =
         CommandResponse("Ping: ...").asSingletonList()
 
     override suspend fun onResponseSend(
