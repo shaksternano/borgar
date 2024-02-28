@@ -6,7 +6,7 @@ import io.github.shaksternano.borgar.core.media.ImageFrame
 import io.github.shaksternano.borgar.core.media.ImageProcessor
 import io.github.shaksternano.borgar.core.media.VideoFrame
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlin.time.Duration
 
 interface MediaReader<T : VideoFrame<*>> : SuspendCloseable {
@@ -70,13 +70,18 @@ suspend fun <E, T : VideoFrame<E>> MediaReader<T>.firstContent(): E =
 suspend fun <E, T : VideoFrame<E>> MediaReader<T>.readContent(timestamp: Duration): E =
     readFrame(timestamp).content
 
-fun ImageReader.transform(processor: ImageProcessor<*>, outputFormat: String): ImageReader =
-    TransformedImageReader(this, processor, outputFormat)
+suspend fun ImageReader.transform(processor: ImageProcessor<*>, outputFormat: String): ImageReader =
+    transformImpl(processor, outputFormat)
+
+private suspend fun <T> ImageReader.transformImpl(processor: ImageProcessor<T>, outputFormat: String): ImageReader {
+    val constantData = processor.constantData(first(), asFlow(), outputFormat)
+    return TransformedImageReader(this, processor, constantData)
+}
 
 private class TransformedImageReader<T>(
     private val reader: ImageReader,
     private val processor: ImageProcessor<T>,
-    private val outputFormat: String,
+    private val constantData: T,
 ) : BaseImageReader() {
 
     override val frameCount: Int = reader.frameCount
@@ -88,29 +93,16 @@ private class TransformedImageReader<T>(
     override val loopCount: Int = reader.loopCount
 
     override suspend fun readFrame(timestamp: Duration): ImageFrame {
-        val firstFrame = reader.first()
-        val constantData = processor.constantData(firstFrame, reader.asFlow(), outputFormat)
-        val originalFrame =
-            if (timestamp == Duration.ZERO) firstFrame
-            else reader.readFrame(timestamp)
+        val originalFrame = reader.readFrame(timestamp)
         val transformedImage = processor.transformImage(originalFrame, constantData)
         return originalFrame.copy(content = transformedImage)
     }
 
-    override fun asFlow(): Flow<ImageFrame> = flow {
-        var constantData: T? = null
-        var constantDataSet = false
-        val readerFlow = reader.asFlow()
-        readerFlow.collect { frame ->
-            if (!constantDataSet) {
-                constantData = processor.constantData(frame, readerFlow, outputFormat)
-                constantDataSet = true
-            }
-            @Suppress("UNCHECKED_CAST")
-            val transformedImage = processor.transformImage(frame, constantData as T)
-            emit(frame.copy(content = transformedImage))
+    override fun asFlow(): Flow<ImageFrame> = reader.asFlow()
+        .map {
+            val transformedImage = processor.transformImage(it, constantData)
+            it.copy(content = transformedImage)
         }
-    }
 
     override suspend fun close() = reader.close()
 }
