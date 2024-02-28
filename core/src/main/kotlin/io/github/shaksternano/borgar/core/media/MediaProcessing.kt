@@ -22,7 +22,7 @@ interface MediaProcessConfig {
 
     suspend fun transformImageReader(imageReader: ImageReader, outputFormat: String): ImageReader = imageReader
 
-    suspend fun transformAudioReader(audioReader: AudioReader): AudioReader = audioReader
+    suspend fun transformAudioReader(audioReader: AudioReader, outputFormat: String): AudioReader = audioReader
 
     infix fun then(after: MediaProcessConfig): MediaProcessConfig = object : MediaProcessConfig {
 
@@ -38,9 +38,9 @@ interface MediaProcessConfig {
             return after.transformImageReader(firstReader, outputFormat)
         }
 
-        override suspend fun transformAudioReader(audioReader: AudioReader): AudioReader {
-            val firstReader = this@MediaProcessConfig.transformAudioReader(audioReader)
-            return after.transformAudioReader(firstReader)
+        override suspend fun transformAudioReader(audioReader: AudioReader, outputFormat: String): AudioReader {
+            val firstReader = this@MediaProcessConfig.transformAudioReader(audioReader, outputFormat)
+            return after.transformAudioReader(firstReader, outputFormat)
         }
     }
 }
@@ -78,7 +78,7 @@ suspend fun processMedia(
         val outputName = config.outputName ?: fileInput.filenameWithoutExtension()
         val output = processMedia(
             config.transformImageReader(imageReader, outputFormat),
-            config.transformAudioReader(audioReader),
+            config.transformAudioReader(audioReader, outputFormat),
             createTemporaryFile(outputName, outputFormat),
             outputFormat,
             maxFileSize,

@@ -21,6 +21,6 @@ private class SpeedConfig(
     override suspend fun transformImageReader(imageReader: ImageReader, outputFormat: String): ImageReader =
         imageReader.changeSpeed(speed)
 
-    override suspend fun transformAudioReader(audioReader: AudioReader): AudioReader =
+    override suspend fun transformAudioReader(audioReader: AudioReader, outputFormat: String): AudioReader =
         audioReader.changeSpeed(speed)
 }
