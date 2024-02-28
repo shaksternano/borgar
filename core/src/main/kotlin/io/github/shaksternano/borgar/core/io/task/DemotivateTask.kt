@@ -47,44 +47,6 @@ private class DemotivateProcessor(
         subText.splitWords()
     }
 
-    override suspend fun transformImage(frame: ImageFrame, constantData: DemotivateData): BufferedImage {
-        val image = frame.content
-        val result = BufferedImage(constantData.width, constantData.height, ImageUtil.getType(image))
-        val graphics = result.createGraphics()
-
-        // Draw background
-        graphics.color = Color.BLACK
-        graphics.fillRect(0, 0, constantData.width, constantData.height)
-
-        // Draw image
-        graphics.drawImage(image, constantData.imagePadding, constantData.imagePadding, null)
-
-        // Draw border
-        graphics.color = Color.WHITE
-        graphics.fillRect(constantData.topBorder)
-        graphics.fillRect(constantData.bottomBorder)
-        graphics.fillRect(constantData.leftBorder)
-        graphics.fillRect(constantData.rightBorder)
-
-        // Draw text
-        graphics.font = constantData.font
-        ImageUtil.configureTextDrawQuality(graphics)
-        constantData.paragraph.draw(
-            graphics,
-            constantData.paragraphPosition,
-            frame.timestamp
-        )
-        graphics.font = constantData.subFont
-        constantData.subParagraph.draw(
-            graphics,
-            constantData.subParagraphPosition,
-            frame.timestamp
-        )
-
-        graphics.dispose()
-        return result
-    }
-
     override suspend fun constantData(
         firstFrame: ImageFrame,
         imageSource: Flow<ImageFrame>,
@@ -177,6 +139,44 @@ private class DemotivateProcessor(
             leftBorder,
             rightBorder
         )
+    }
+
+    override suspend fun transformImage(frame: ImageFrame, constantData: DemotivateData): BufferedImage {
+        val image = frame.content
+        val result = BufferedImage(constantData.width, constantData.height, ImageUtil.getType(image))
+        val graphics = result.createGraphics()
+
+        // Draw background
+        graphics.color = Color.BLACK
+        graphics.fillRect(0, 0, constantData.width, constantData.height)
+
+        // Draw image
+        graphics.drawImage(image, constantData.imagePadding, constantData.imagePadding, null)
+
+        // Draw border
+        graphics.color = Color.WHITE
+        graphics.fillRect(constantData.topBorder)
+        graphics.fillRect(constantData.bottomBorder)
+        graphics.fillRect(constantData.leftBorder)
+        graphics.fillRect(constantData.rightBorder)
+
+        // Draw text
+        graphics.font = constantData.font
+        ImageUtil.configureTextDrawQuality(graphics)
+        constantData.paragraph.draw(
+            graphics,
+            constantData.paragraphPosition,
+            frame.timestamp
+        )
+        graphics.font = constantData.subFont
+        constantData.subParagraph.draw(
+            graphics,
+            constantData.subParagraphPosition,
+            frame.timestamp
+        )
+
+        graphics.dispose()
+        return result
     }
 
     override suspend fun close() = closeAll(nonTextParts.values)

@@ -56,12 +56,12 @@ private class ReversedReader<T : VideoFrame<*>>(
 
     override suspend fun readFrame(timestamp: Duration): T {
         val circularTimestamp = (timestamp.inWholeMilliseconds % max(duration.inWholeMilliseconds, 1)).milliseconds
-        val index = findIndex(circularTimestamp, reversedFrameInfo.map(ReversedFrameInfo::actualTimestamp))
-        val reversedTimestamp = reversedFrameInfo[index].reversedTimestamp
-        val frame = reader.readFrame(reversedTimestamp)
+        val index = findIndex(circularTimestamp, reversedFrameInfo.map(ReversedFrameInfo::reversedTimestamp))
+        val frameInfo = reversedFrameInfo[index]
+        val frame = reader.readFrame(frameInfo.actualTimestamp)
         @Suppress("UNCHECKED_CAST")
         return frame.copy(
-            timestamp = reversedTimestamp
+            timestamp = frameInfo.reversedTimestamp,
         ) as T
     }
 

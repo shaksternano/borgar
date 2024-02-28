@@ -4,6 +4,7 @@ import io.github.shaksternano.borgar.core.io.*
 import io.github.shaksternano.borgar.core.media.reader.AudioReader
 import io.github.shaksternano.borgar.core.media.reader.ImageReader
 import io.github.shaksternano.borgar.core.media.reader.first
+import io.github.shaksternano.borgar.core.media.reader.transform
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.withContext
@@ -15,18 +16,16 @@ import kotlin.math.min
 
 interface MediaProcessConfig {
 
-    val processor: ImageProcessor<out Any>
     val outputName: String?
 
     fun transformOutputFormat(inputFormat: String): String = inputFormat
 
-    fun transformImageReader(imageReader: ImageReader): ImageReader = imageReader
+    suspend fun transformImageReader(imageReader: ImageReader, outputFormat: String): ImageReader = imageReader
 
-    fun transformAudioReader(audioReader: AudioReader): AudioReader = audioReader
+    suspend fun transformAudioReader(audioReader: AudioReader): AudioReader = audioReader
 
     infix fun then(after: MediaProcessConfig): MediaProcessConfig = object : MediaProcessConfig {
 
-        override val processor: ImageProcessor<out Any> = this@MediaProcessConfig.processor then after.processor
         override val outputName: String? = after.outputName ?: this@MediaProcessConfig.outputName
 
         override fun transformOutputFormat(inputFormat: String): String {
@@ -34,12 +33,12 @@ interface MediaProcessConfig {
             return after.transformOutputFormat(firstFormat)
         }
 
-        override fun transformImageReader(imageReader: ImageReader): ImageReader {
-            val firstReader = this@MediaProcessConfig.transformImageReader(imageReader)
-            return after.transformImageReader(firstReader)
+        override suspend fun transformImageReader(imageReader: ImageReader, outputFormat: String): ImageReader {
+            val firstReader = this@MediaProcessConfig.transformImageReader(imageReader, outputFormat)
+            return after.transformImageReader(firstReader, outputFormat)
         }
 
-        override fun transformAudioReader(audioReader: AudioReader): AudioReader {
+        override suspend fun transformAudioReader(audioReader: AudioReader): AudioReader {
             val firstReader = this@MediaProcessConfig.transformAudioReader(audioReader)
             return after.transformAudioReader(firstReader)
         }
@@ -47,9 +46,10 @@ interface MediaProcessConfig {
 }
 
 class SimpleMediaProcessConfig(
-    override val processor: ImageProcessor<out Any>,
+    private val processor: ImageProcessor<*>,
     override val outputName: String?,
 ) : MediaProcessConfig {
+
     constructor(
         outputName: String?,
         transform: (ImageFrame) -> BufferedImage,
@@ -57,6 +57,9 @@ class SimpleMediaProcessConfig(
         SimpleImageProcessor(transform),
         outputName,
     )
+
+    override suspend fun transformImageReader(imageReader: ImageReader, outputFormat: String): ImageReader =
+        imageReader.transform(processor, outputFormat)
 }
 
 suspend fun processMedia(
@@ -74,11 +77,10 @@ suspend fun processMedia(
         val outputFormat = config.transformOutputFormat(inputFormat)
         val outputName = config.outputName ?: fileInput.filenameWithoutExtension()
         val output = processMedia(
-            config.transformImageReader(imageReader),
+            config.transformImageReader(imageReader, outputFormat),
             config.transformAudioReader(audioReader),
             createTemporaryFile(outputName, outputFormat),
             outputFormat,
-            config.processor,
             maxFileSize,
         )
         val filename = filename(outputName, outputFormat)
@@ -87,21 +89,19 @@ suspend fun processMedia(
             filename,
         )
     } finally {
-        if (isTempFile) path.deleteSilently()
+        if (isTempFile)
+            path.deleteSilently()
     }
 }
 
-suspend fun <T : Any> processMedia(
+suspend fun processMedia(
     imageReader: ImageReader,
     audioReader: AudioReader,
     output: Path,
     outputFormat: String,
-    processor: ImageProcessor<T>,
     maxFileSize: Long,
 ): Path {
-    val newImageReader = imageReader.changeSpeed(processor.speed)
-    val newAudioReader = audioReader.changeSpeed(processor.speed)
-    return useAllIgnored(newImageReader, newAudioReader, processor) {
+    return useAllIgnored(imageReader, audioReader) {
         var outputSize: Long
         var resizeRatio = 1.0
         val maxResizeAttempts = 3
@@ -110,41 +110,27 @@ suspend fun <T : Any> processMedia(
             createWriter(
                 output,
                 outputFormat,
-                newImageReader.loopCount,
-                newAudioReader.audioChannels,
-                newAudioReader.audioSampleRate,
-                newAudioReader.audioBitrate,
+                imageReader.loopCount,
+                audioReader.audioChannels,
+                audioReader.audioSampleRate,
+                audioReader.audioBitrate,
                 maxFileSize,
-                newImageReader.duration,
+                imageReader.duration,
             ).use { writer ->
                 val imageFlow = if (writer.isStatic) {
-                    flowOf(newImageReader.first())
+                    flowOf(imageReader.first())
                 } else {
-                    newImageReader.asFlow()
+                    imageReader.asFlow()
                 }
-                lateinit var constantFrameDataValue: T
-                var constantDataSet = false
                 imageFlow.collect { imageFrame ->
-                    if (imageFrame.content is DualBufferedImage && processor is DualImageProcessor<T>) {
-                        processor.frame2 = imageFrame.copy(
-                            content = imageFrame.content.second
-                        )
-                    }
-                    if (!constantDataSet) {
-                        constantFrameDataValue = processor.constantData(imageFrame, imageFlow, outputFormat)
-                        constantDataSet = true
-                    }
                     writer.writeImageFrame(
                         imageFrame.copy(
-                            content = processor.transformImage(imageFrame, constantFrameDataValue).resize(resizeRatio),
+                            content = imageFrame.content.resize(resizeRatio),
                         )
                     )
                 }
-
                 if (writer.supportsAudio) {
-                    newAudioReader.asFlow().collect { audioFrame ->
-                        writer.writeAudioFrame(audioFrame)
-                    }
+                    audioReader.asFlow().collect(writer::writeAudioFrame)
                 }
             }
             outputSize = withContext(Dispatchers.IO) {

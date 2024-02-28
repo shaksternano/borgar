@@ -1,6 +1,8 @@
 package io.github.shaksternano.borgar.core.io.task
 
 import io.github.shaksternano.borgar.core.media.*
+import io.github.shaksternano.borgar.core.media.reader.ImageReader
+import io.github.shaksternano.borgar.core.media.reader.transform
 import kotlinx.coroutines.flow.Flow
 import java.awt.Color
 import java.awt.image.BufferedImage
@@ -15,13 +17,17 @@ class RotateTask(
 }
 
 private class RotateConfig(
-    degrees: Double,
-    backgroundColor: Color?,
+    private val degrees: Double,
+    private val backgroundColor: Color?,
 ) : MediaProcessConfig {
 
-    override val processor: ImageProcessor<out Any> = RotateProcessor(degrees, backgroundColor)
-
     override val outputName: String = "rotated"
+
+    override suspend fun transformImageReader(imageReader: ImageReader, outputFormat: String): ImageReader =
+        imageReader.transform(
+            RotateProcessor(degrees, backgroundColor),
+            outputFormat,
+        )
 
     override fun transformOutputFormat(inputFormat: String): String =
         equivalentTransparentFormat(inputFormat)
@@ -32,13 +38,6 @@ private class RotateProcessor(
     private val backgroundColor: Color?,
 ) : ImageProcessor<RotateData> {
 
-    override suspend fun transformImage(frame: ImageFrame, constantData: RotateData): BufferedImage {
-        val image = frame.content
-        val radians = Math.toRadians(degrees)
-        val resultType = constantData.resultImageType
-        return image.rotate(radians, resultType, backgroundColor)
-    }
-
     override suspend fun constantData(
         firstFrame: ImageFrame,
         imageSource: Flow<ImageFrame>,
@@ -47,6 +46,13 @@ private class RotateProcessor(
         val firstImage = firstFrame.content
         val resultType = firstImage.supportedTransparentImageType(outputFormat)
         return RotateData(resultType)
+    }
+
+    override suspend fun transformImage(frame: ImageFrame, constantData: RotateData): BufferedImage {
+        val image = frame.content
+        val radians = Math.toRadians(degrees)
+        val resultType = constantData.resultImageType
+        return image.rotate(radians, resultType, backgroundColor)
     }
 }
 

@@ -35,9 +35,6 @@ private class CropProcessor(
     private val bottomRatio: Double,
 ) : ImageProcessor<CropData> {
 
-    override suspend fun transformImage(frame: ImageFrame, constantData: CropData): BufferedImage =
-        frame.content.getSubimage(constantData.x, constantData.y, constantData.width, constantData.height)
-
     override suspend fun constantData(
         firstFrame: ImageFrame,
         imageSource: Flow<ImageFrame>,
@@ -52,6 +49,9 @@ private class CropProcessor(
         val newHeight = max(height * (1 - topRatio - bottomRatio), 1.0).toInt()
         return CropData(x, y, newWidth, newHeight)
     }
+
+    override suspend fun transformImage(frame: ImageFrame, constantData: CropData): BufferedImage =
+        frame.content.getSubimage(constantData.x, constantData.y, constantData.width, constantData.height)
 }
 
 private class CropData(

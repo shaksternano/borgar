@@ -38,43 +38,6 @@ private class CaptionProcessor(
 
     private val words: List<String> = caption.splitWords()
 
-    override suspend fun transformImage(frame: ImageFrame, constantData: CaptionData): BufferedImage {
-        val image = frame.content
-        val captionedImage = BufferedImage(
-            image.width,
-            image.height + constantData.fillHeight,
-            image.typeNoCustom,
-        )
-        val graphics = captionedImage.createGraphics()
-        graphics.configureTextDrawQuality()
-
-        val imageY = if (isCaption2) 0 else constantData.fillHeight
-        val captionY = if (isCaption2) image.height else 0
-
-        graphics.drawImage(image, 0, imageY, null)
-
-        graphics.color = Color.WHITE
-        graphics.fillRect(
-            0,
-            captionY,
-            captionedImage.width,
-            constantData.fillHeight,
-        )
-
-        graphics.font = constantData.font
-        graphics.color = Color.BLACK
-        constantData.paragraph.draw(
-            graphics,
-            constantData.padding,
-            captionY + constantData.padding,
-            frame.timestamp
-        )
-
-        graphics.dispose()
-
-        return captionedImage
-    }
-
     override suspend fun constantData(
         firstFrame: ImageFrame,
         imageSource: Flow<ImageFrame>,
@@ -112,6 +75,43 @@ private class CaptionProcessor(
         val fillHeight = paragraph.getHeight(graphics) + padding * 2
         graphics.dispose()
         return CaptionData(font, fillHeight, padding, paragraph)
+    }
+
+    override suspend fun transformImage(frame: ImageFrame, constantData: CaptionData): BufferedImage {
+        val image = frame.content
+        val captionedImage = BufferedImage(
+            image.width,
+            image.height + constantData.fillHeight,
+            image.typeNoCustom,
+        )
+        val graphics = captionedImage.createGraphics()
+        graphics.configureTextDrawQuality()
+
+        val imageY = if (isCaption2) 0 else constantData.fillHeight
+        val captionY = if (isCaption2) image.height else 0
+
+        graphics.drawImage(image, 0, imageY, null)
+
+        graphics.color = Color.WHITE
+        graphics.fillRect(
+            0,
+            captionY,
+            captionedImage.width,
+            constantData.fillHeight,
+        )
+
+        graphics.font = constantData.font
+        graphics.color = Color.BLACK
+        constantData.paragraph.draw(
+            graphics,
+            constantData.padding,
+            captionY + constantData.padding,
+            frame.timestamp
+        )
+
+        graphics.dispose()
+
+        return captionedImage
     }
 
     override suspend fun close() = closeAll(nonTextParts.values)

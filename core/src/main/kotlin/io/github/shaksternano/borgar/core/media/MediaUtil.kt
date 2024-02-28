@@ -44,39 +44,39 @@ fun <E : VideoFrame<*>> frameAtTime(timestamp: Duration, frames: List<E>, durati
  * If there is no frame with the given timestamp, the index of the frame
  * with the highest timestamp smaller than the given timestamp is returned.
  *
- * @param timeStamp  The timestamp in microseconds.
+ * @param timestamp  The timestamp in microseconds.
  * @param timestamps The frame timestamps in microseconds.
  * @return The index of the frame with the given timestamp.
  */
-fun findIndex(timeStamp: Duration, timestamps: List<Duration>): Int =
+fun findIndex(timestamp: Duration, timestamps: List<Duration>): Int =
     if (timestamps.isEmpty())
         throw IllegalArgumentException("Timestamp list is empty")
-    else if (timeStamp < Duration.ZERO)
+    else if (timestamp < Duration.ZERO)
         throw IllegalArgumentException("Timestamp must not be negative")
-    else if (timeStamp < timestamps[0])
+    else if (timestamp < timestamps[0])
         throw IllegalArgumentException("Timestamp must not be smaller than the first timestamp")
-    else if (timeStamp == timestamps[0])
+    else if (timestamp == timestamps[0])
         0
-    else if (timeStamp < timestamps[timestamps.size - 1])
-        findIndexBinarySearch(timeStamp, timestamps)
+    else if (timestamp < timestamps[timestamps.size - 1])
+        findIndexBinarySearch(timestamp, timestamps)
     else {
         // If the timestamp is equal to or greater than the last timestamp.
         timestamps.size - 1
     }
 
-private fun findIndexBinarySearch(timeStamp: Duration, timestamps: List<Duration>): Int {
+private fun findIndexBinarySearch(timestamp: Duration, timestamps: List<Duration>): Int {
     var low = 0
     var high = timestamps.size - 1
     while (low <= high) {
         val mid = low + (high - low) / 2
-        if (timestamps[mid] == timeStamp || (timestamps[mid] < timeStamp && timestamps[mid + 1] > timeStamp))
+        if (timestamps[mid] == timestamp || (timestamps[mid] < timestamp && timestamps[mid + 1] > timestamp))
             return mid
-        else if (timestamps[mid] < timeStamp)
+        else if (timestamps[mid] < timestamp)
             low = mid + 1
         else
             high = mid - 1
     }
-    throw IllegalStateException("This should never be reached. Timestamp: $timeStamp, all timestamps: $timestamps")
+    throw IllegalStateException("This should never be reached. Timestamp: $timestamp, all timestamps: $timestamps")
 }
 
 fun BufferedImage.supportedTransparentImageType(format: String): Int =

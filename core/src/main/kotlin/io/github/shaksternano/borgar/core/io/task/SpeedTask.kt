@@ -1,10 +1,8 @@
 package io.github.shaksternano.borgar.core.io.task
 
-import io.github.shaksternano.borgar.core.media.ImageFrame
-import io.github.shaksternano.borgar.core.media.ImageProcessor
 import io.github.shaksternano.borgar.core.media.MediaProcessConfig
-import kotlinx.coroutines.flow.Flow
-import java.awt.image.BufferedImage
+import io.github.shaksternano.borgar.core.media.reader.AudioReader
+import io.github.shaksternano.borgar.core.media.reader.ImageReader
 
 class SpeedTask(
     speed: Double,
@@ -16,20 +14,13 @@ class SpeedTask(
 }
 
 private class SpeedConfig(
-    speed: Double,
+    private val speed: Double,
     override val outputName: String
 ) : MediaProcessConfig {
 
-    override val processor: ImageProcessor<out Any> = SpeedProcessor(speed)
-}
+    override suspend fun transformImageReader(imageReader: ImageReader, outputFormat: String): ImageReader =
+        imageReader.changeSpeed(speed)
 
-private class SpeedProcessor(
-    override val speed: Double
-) : ImageProcessor<Unit> {
-
-    override suspend fun transformImage(frame: ImageFrame, constantData: Unit): BufferedImage =
-        frame.content
-
-    override suspend fun constantData(firstFrame: ImageFrame, imageSource: Flow<ImageFrame>, outputFormat: String) =
-        Unit
+    override suspend fun transformAudioReader(audioReader: AudioReader): AudioReader =
+        audioReader.changeSpeed(speed)
 }

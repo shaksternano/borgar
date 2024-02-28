@@ -36,12 +36,6 @@ private class FindCropProcessor(
     private val findCropArea: (BufferedImage) -> Rectangle,
 ) : ImageProcessor<FindCropData> {
 
-    override suspend fun transformImage(frame: ImageFrame, constantData: FindCropData): BufferedImage {
-        val toKeep = constantData.toKeep
-        val image = frame.content
-        return image.getSubimage(toKeep.x, toKeep.y, toKeep.width, toKeep.height)
-    }
-
     override suspend fun constantData(
         firstFrame: ImageFrame,
         imageSource: Flow<ImageFrame>,
@@ -81,6 +75,12 @@ private class FindCropProcessor(
         } else {
             FindCropData(toKeep)
         }
+    }
+
+    override suspend fun transformImage(frame: ImageFrame, constantData: FindCropData): BufferedImage {
+        val toKeep = constantData.toKeep
+        val image = frame.content
+        return image.getSubimage(toKeep.x, toKeep.y, toKeep.width, toKeep.height)
     }
 }
 
