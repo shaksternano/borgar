@@ -1,7 +1,7 @@
 package io.github.shaksternano.borgar.chat.command
 
 import io.github.shaksternano.borgar.chat.event.CommandEvent
-import io.github.shaksternano.borgar.chat.util.getFirstEmojiUrl
+import io.github.shaksternano.borgar.chat.util.getEmojiUrls
 import io.github.shaksternano.borgar.chat.util.searchOrThrow
 import io.github.shaksternano.borgar.core.io.task.FileTask
 import io.github.shaksternano.borgar.core.io.task.UrlFileTask
@@ -21,11 +21,14 @@ object EmojiImageCommand : FileCommand(
     override val description: String = "Gets the image of an emoji."
 
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {
-        val emojiUrl = event.asMessageIntersection(arguments)
-            .searchOrThrow(
-                "No emojis found.",
-                CommandMessageIntersection::getFirstEmojiUrl,
-            )
-        return UrlFileTask(emojiUrl)
+        val emojiUrls = event.asMessageIntersection(arguments)
+            .searchOrThrow("No emojis found.") {
+                it.getEmojiUrls()
+                    .values
+                    .ifEmpty {
+                        null
+                    }
+            }
+        return UrlFileTask(emojiUrls)
     }
 }
