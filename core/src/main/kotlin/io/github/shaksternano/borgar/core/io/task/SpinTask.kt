@@ -41,10 +41,6 @@ private class SpinConfig(
     }
     override val outputName: String = "spun"
 
-    override fun transformOutputFormat(inputFormat: String): String =
-        if (isStaticOnly(inputFormat)) "gif"
-        else inputFormat
-
     override suspend fun transformImageReader(imageReader: ImageReader, outputFormat: String): ImageReader {
         val mediaDuration = imageReader.duration
         val rotations = ceil(mediaDuration / rotationDuration)
@@ -58,6 +54,10 @@ private class SpinConfig(
             outputFormat
         )
     }
+
+    override fun transformOutputFormat(inputFormat: String): String =
+        if (isStaticOnly(inputFormat)) "gif"
+        else inputFormat
 }
 
 private class SpinProcessor(

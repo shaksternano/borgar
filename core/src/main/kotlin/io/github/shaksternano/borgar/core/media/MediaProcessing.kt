@@ -18,20 +18,15 @@ interface MediaProcessingConfig {
 
     val outputName: String?
 
-    fun transformOutputFormat(inputFormat: String): String = inputFormat
-
     suspend fun transformImageReader(imageReader: ImageReader, outputFormat: String): ImageReader = imageReader
 
     suspend fun transformAudioReader(audioReader: AudioReader, outputFormat: String): AudioReader = audioReader
 
+    fun transformOutputFormat(inputFormat: String): String = inputFormat
+
     infix fun then(after: MediaProcessingConfig): MediaProcessingConfig = object : MediaProcessingConfig {
 
         override val outputName: String? = after.outputName ?: this@MediaProcessingConfig.outputName
-
-        override fun transformOutputFormat(inputFormat: String): String {
-            val firstFormat = this@MediaProcessingConfig.transformOutputFormat(inputFormat)
-            return after.transformOutputFormat(firstFormat)
-        }
 
         override suspend fun transformImageReader(imageReader: ImageReader, outputFormat: String): ImageReader {
             val firstReader = this@MediaProcessingConfig.transformImageReader(imageReader, outputFormat)
@@ -41,6 +36,11 @@ interface MediaProcessingConfig {
         override suspend fun transformAudioReader(audioReader: AudioReader, outputFormat: String): AudioReader {
             val firstReader = this@MediaProcessingConfig.transformAudioReader(audioReader, outputFormat)
             return after.transformAudioReader(firstReader, outputFormat)
+        }
+
+        override fun transformOutputFormat(inputFormat: String): String {
+            val firstFormat = this@MediaProcessingConfig.transformOutputFormat(inputFormat)
+            return after.transformOutputFormat(firstFormat)
         }
     }
 }
