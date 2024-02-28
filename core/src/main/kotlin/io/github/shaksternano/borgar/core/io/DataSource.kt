@@ -91,6 +91,10 @@ interface DataSource : DataSourceConvertable {
 
         fun fromStreamSupplier(filename: String, streamSupplier: suspend () -> InputStream): DataSource =
             StreamSupplierDataSource(filename, streamSupplier)
+
+        fun fromResource(path: String): DataSource = fromStreamSupplier(filename(path)) {
+            getResource(path)
+        }
     }
 }
 

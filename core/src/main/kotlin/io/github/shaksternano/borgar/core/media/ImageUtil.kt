@@ -1,7 +1,9 @@
 package io.github.shaksternano.borgar.core.media
 
 import com.sksamuel.scrimage.ImmutableImage
+import io.github.shaksternano.borgar.core.graphics.OverlayData
 import java.awt.Color
+import java.awt.Shape
 import java.awt.image.BufferedImage
 import java.awt.image.ColorConvertOp
 import kotlin.math.*
@@ -182,3 +184,215 @@ inline fun BufferedImage.forEachPixel(action: (x: Int, y: Int) -> Unit) {
         }
     }
 }
+
+fun BufferedImage.fill(color: Color): BufferedImage {
+    val filledImage = BufferedImage(width, height, typeNoCustom)
+    val graphics = filledImage.createGraphics()
+    graphics.color = color
+    graphics.fillRect(0, 0, filledImage.width, filledImage.height)
+    graphics.drawImage(this, 0, 0, null)
+    graphics.dispose()
+    return filledImage
+}
+
+/**
+ * Calculates information used for overlaying an image on top of another image.
+ *
+ * @param image1    The first image.
+ * @param image2    The second image.
+ * @param x2        The x coordinate of the top left corner of the second image in relation to the top left corner of the first image.
+ * @param y2        The y coordinate of the top left corner of the second image in relation to the top left corner of the first image.
+ * @param expand    Whether to expand the resulting image to fit the second image in the case that it oversteps the boundaries of the first image.
+ * @param imageType The type of the resulting image.
+ * @return The overlay information.
+ */
+fun getOverlayData(
+    image1: BufferedImage,
+    image2: BufferedImage,
+    x2: Int,
+    y2: Int,
+    expand: Boolean,
+    imageType: Int?
+): OverlayData {
+    val image1Width = image1.width
+    val image1Height = image1.height
+
+    val image2Width = image2.width
+    val image2Height = image2.height
+
+    val type = imageType ?: image1.typeNoCustom
+
+    val overlaidWidth: Int
+    val overlaidHeight: Int
+
+    val image1X: Int
+    val image1Y: Int
+
+    val image2X: Int
+    val image2Y: Int
+
+    if (expand) {
+        if (x2 < 0) {
+            overlaidWidth = max(image1Width - x2, image2Width)
+            image1X = -x2
+        } else {
+            overlaidWidth = max(image1Width, image2Width + x2)
+            image1X = 0
+        }
+
+        if (y2 < 0) {
+            overlaidHeight = max(image1Height - y2, image2Height)
+            image1Y = -y2
+        } else {
+            overlaidHeight = max(image1Height, image2Height + y2)
+            image1Y = 0
+        }
+
+        image2X = max(x2, 0)
+        image2Y = max(y2, 0)
+    } else {
+        overlaidWidth = image1Width
+        overlaidHeight = image1Height
+
+        image1X = 0
+        image1Y = 0
+
+        image2X = x2
+        image2Y = y2
+    }
+
+    return OverlayData(
+        overlaidWidth,
+        overlaidHeight,
+        image1X,
+        image1Y,
+        image2X,
+        image2Y,
+        type,
+    )
+}
+
+/**
+ * Overlays an image on top of another image.
+ *
+ * @param image1             The first image.
+ * @param image2             The second image.
+ * @param overlayData        Additional information used for overlaying the images.
+ * @param image1IsBackground Whether the first image is the background or not. If the first image is not the background, then the second image is.
+ * @param image2Clip         The clipping area of the second image.
+ * @param fill               The background color.
+ * @return The overlaid image.
+ */
+fun overlay(
+    image1: BufferedImage,
+    image2: BufferedImage,
+    overlayData: OverlayData,
+    image1IsBackground: Boolean,
+    image2Clip: Shape? = null,
+    fill: Color? = null,
+): BufferedImage {
+    val overlaidImage = BufferedImage(
+        overlayData.overlaidWidth,
+        overlayData.overlaidHeight,
+        overlayData.overlaidImageType
+    )
+    val graphics = overlaidImage.createGraphics()
+
+    if (fill != null) {
+        graphics.color = fill
+        if (image2Clip == null) {
+            graphics.fillRect(
+                0,
+                0,
+                overlayData.overlaidWidth,
+                overlayData.overlaidHeight
+            )
+        } else {
+            graphics.fill(image2Clip)
+        }
+    }
+
+    if (image1IsBackground) {
+        graphics.drawImage(
+            image1,
+            overlayData.image1X,
+            overlayData.image1Y,
+            null
+        )
+        if (image2Clip != null) {
+            graphics.clip = image2Clip
+        }
+        graphics.drawImage(
+            image2,
+            overlayData.image2X,
+            overlayData.image2Y,
+            null
+        )
+    } else {
+        if (image2Clip != null) {
+            graphics.clip = image2Clip
+        }
+        graphics.drawImage(
+            image2,
+            overlayData.image2X,
+            overlayData.image2Y,
+            null
+        )
+        graphics.clip = null
+        graphics.drawImage(
+            image1,
+            overlayData.image1X,
+            overlayData.image1Y,
+            null
+        )
+    }
+
+    graphics.dispose()
+    return overlaidImage
+}
+
+fun BufferedImage.cutout(
+    imageToCutout: BufferedImage,
+    x: Int,
+    y: Int,
+    cutoutColor: Int,
+): BufferedImage {
+    val imageToCut = convertType(BufferedImage.TYPE_INT_ARGB)
+
+    val toCutWidth = imageToCut.width
+    val toCutHeight = imageToCut.height
+
+    val toCutoutWidth = imageToCutout.width
+    val toCutoutHeight = imageToCutout.height
+
+    val toCutPixels = imageToCut.getRGB(0, 0, toCutWidth, toCutHeight, null, 0, toCutWidth)
+    val toCutoutPixels = imageToCutout.getRGB(0, 0, toCutoutWidth, toCutoutHeight, null, 0, toCutoutWidth)
+
+    toCutoutPixels.forEachIndexed { i, toCutoutRgb ->
+        if (!isTransparent(toCutoutRgb)) {
+            val toCutIndex = get1dIndex(
+                min(toCutWidth, x + getX(i, toCutWidth)),
+                min(toCutHeight, y + getY(i, toCutWidth)),
+                toCutWidth,
+            )
+            if (toCutIndex < toCutPixels.size) {
+                toCutPixels[toCutIndex] = cutoutColor
+            }
+        }
+    }
+
+    imageToCut.setRGB(0, 0, toCutWidth, toCutHeight, toCutPixels, 0, toCutWidth)
+    return imageToCut
+}
+
+private fun isTransparent(rgb: Int): Boolean =
+    (rgb shr 24) == 0
+
+private fun get1dIndex(x: Int, y: Int, width: Int): Int =
+    y * width + x
+
+private fun getX(index: Int, width: Int): Int =
+    index % width
+
+private fun getY(index: Int, width: Int): Int =
+    index / width

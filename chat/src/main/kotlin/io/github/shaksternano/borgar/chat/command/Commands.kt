@@ -10,6 +10,8 @@ val COMMANDS: Map<String, Command> = registerCommands(
     CaptionCommand.Caption2,
     MemeCommand,
     DemotivateCommand,
+    SpeechBubbleCommand,
+    CutoutSpeechBubbleCommand,
     UncaptionCommand.Uncaption,
     UncaptionCommand.Uncaption2,
     AutoCropCommand,

@@ -18,6 +18,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import org.apache.commons.io.FileUtils
 import java.io.Closeable
+import java.io.FileNotFoundException
 import java.io.InputStream
 import java.nio.file.Path
 import kotlin.io.path.appendBytes
@@ -31,7 +32,6 @@ suspend fun createTemporaryFile(filename: String): Path = createTemporaryFile(
     fileExtension(filename),
 )
 
-
 suspend fun createTemporaryFile(filenameWithoutExtension: String, extension: String): Path {
     val extensionWithDot = if (extension.isBlank()) "" else ".$extension"
     val path = withContext(Dispatchers.IO) {
@@ -40,6 +40,13 @@ suspend fun createTemporaryFile(filenameWithoutExtension: String, extension: Str
     path.toFile().deleteOnExit()
     return path
 }
+
+private object IOUtil
+
+suspend fun getResource(resourcePath: String): InputStream =
+    withContext(Dispatchers.IO) {
+        IOUtil.javaClass.classLoader.getResourceAsStream(resourcePath)
+    } ?: throw FileNotFoundException("Resource not found: $resourcePath")
 
 val Path.filename: String
     get() = fileName?.toString() ?: throw IllegalArgumentException("Invalid path")
@@ -135,8 +142,8 @@ suspend fun DataSource.fileFormat(): String {
 fun removeQueryParams(url: String): String =
     url.split('?').first()
 
-fun filename(url: String): String {
-    val noQueryParams = removeQueryParams(url)
+fun filename(filePath: String): String {
+    val noQueryParams = removeQueryParams(filePath)
     val nameWithoutExtension = Files.getNameWithoutExtension(noQueryParams)
     val extension = Files.getFileExtension(noQueryParams)
     return filename(nameWithoutExtension, extension)
@@ -167,31 +174,6 @@ fun closeAll(closeables: Iterable<Closeable?>) =
     Closer.create().use {
         for (closeable in closeables) {
             it.register(closeable)
-        }
-    }
-
-inline fun <A : Closeable?, B : Closeable?, R> useAll(
-    closeable1: A,
-    closeable2: B,
-    block: (A, B) -> R,
-): R =
-    closeable1.use {
-        closeable2.use {
-            block(closeable1, closeable2)
-        }
-    }
-
-inline fun <A : Closeable?, B : Closeable?, C : Closeable?, R> useAll(
-    closeable1: A,
-    closeable2: B,
-    closeable3: C,
-    block: (A, B, C) -> R,
-): R =
-    closeable1.use {
-        closeable2.use {
-            closeable3.use {
-                block(closeable1, closeable2, closeable3)
-            }
         }
     }
 
