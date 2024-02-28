@@ -173,24 +173,24 @@ abstract class NonChainableCommand : BaseCommand() {
     final override fun createExecutable(arguments: CommandArguments, event: CommandEvent): Executable =
         object : Executable {
 
-        override val commands: List<Command> = listOf(this@NonChainableCommand)
+            override val commands: List<Command> = listOf(this@NonChainableCommand)
 
             override suspend fun run(): List<CommandResponse> = run(arguments, event)
 
-        override suspend fun onResponseSend(
-            response: CommandResponse,
-            responseNumber: Int,
-            responseCount: Int,
-            sent: Message,
-            event: CommandEvent,
-        ) = this@NonChainableCommand.onResponseSend(
-            response,
-            responseNumber,
-            responseCount,
-            sent,
-            event,
-        )
-    }
+            override suspend fun onResponseSend(
+                response: CommandResponse,
+                responseNumber: Int,
+                responseCount: Int,
+                sent: Message,
+                event: CommandEvent,
+            ) = this@NonChainableCommand.onResponseSend(
+                response,
+                responseNumber,
+                responseCount,
+                sent,
+                event,
+            )
+        }
 
     abstract suspend fun run(arguments: CommandArguments, event: CommandEvent): List<CommandResponse>
 
