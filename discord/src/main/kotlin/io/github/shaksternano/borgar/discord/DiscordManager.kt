@@ -56,6 +56,9 @@ class DiscordManager(
         jda.retrieveUserById(id).await()?.let { DiscordUser(it) }
     }.getOrNull()
 
+    override suspend fun getGuildCount(): Int =
+        jda.guildCache.size().toInt()
+
     private fun getMentions(content: String): Mentions = MessageMentionsImpl(
         jda as JDAImpl,
         null,

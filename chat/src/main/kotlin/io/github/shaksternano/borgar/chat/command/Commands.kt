@@ -49,6 +49,7 @@ val COMMANDS: Map<String, Command> = registerCommands(
     PonyCommand.PONY,
     PonyCommand.PONY_BOMB,
     PingCommand,
+    ServerCountCommand,
     ShutdownCommand,
 )
 

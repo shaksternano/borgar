@@ -23,6 +23,8 @@ interface BotManager {
 
     suspend fun getUser(id: String): User?
 
+    suspend fun getGuildCount(): Int
+
     fun getCustomEmojis(content: String): List<CustomEmoji>
 
     fun getMentionedUsers(content: String): List<User>
