@@ -20,6 +20,7 @@ interface FileTask : SuspendCloseable {
             throw UnsupportedOperationException("The task after this one must require input")
         }
         return object : FileTask {
+
             override val requireInput: Boolean = this@FileTask.requireInput
 
             override suspend fun run(input: List<DataSource>): List<DataSource> {

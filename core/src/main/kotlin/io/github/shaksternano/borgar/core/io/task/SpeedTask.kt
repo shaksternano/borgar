@@ -1,6 +1,6 @@
 package io.github.shaksternano.borgar.core.io.task
 
-import io.github.shaksternano.borgar.core.media.MediaProcessConfig
+import io.github.shaksternano.borgar.core.media.MediaProcessingConfig
 import io.github.shaksternano.borgar.core.media.reader.AudioReader
 import io.github.shaksternano.borgar.core.media.reader.ImageReader
 
@@ -10,13 +10,13 @@ class SpeedTask(
     outputName: String = "speed",
 ) : MediaProcessingTask(maxFileSize) {
 
-    override val config: MediaProcessConfig = SpeedConfig(speed, outputName)
+    override val config: MediaProcessingConfig = SpeedConfig(speed, outputName)
 }
 
 private class SpeedConfig(
     private val speed: Double,
     override val outputName: String
-) : MediaProcessConfig {
+) : MediaProcessingConfig {
 
     override suspend fun transformImageReader(imageReader: ImageReader, outputFormat: String): ImageReader =
         imageReader.changeSpeed(speed)

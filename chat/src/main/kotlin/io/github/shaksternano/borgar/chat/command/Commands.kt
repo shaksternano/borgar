@@ -22,6 +22,7 @@ val COMMANDS: Map<String, Command> = registerCommands(
     SpinCommand,
     SpeedCommand,
     ReverseCommand,
+    ReduceFpsCommand,
     TranscodeCommand.PNG,
     TranscodeCommand.JPG,
     TranscodeCommand.GIF,

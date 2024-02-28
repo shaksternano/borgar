@@ -1,18 +1,18 @@
 package io.github.shaksternano.borgar.core.io.task
 
-import io.github.shaksternano.borgar.core.media.MediaProcessConfig
+import io.github.shaksternano.borgar.core.media.MediaProcessingConfig
 
 class TranscodeTask(
     format: String,
     maxFileSize: Long,
 ) : MediaProcessingTask(maxFileSize) {
 
-    override val config: MediaProcessConfig = TranscodeConfig(format)
+    override val config: MediaProcessingConfig = TranscodeConfig(format)
 }
 
 private class TranscodeConfig(
     private val format: String,
-) : MediaProcessConfig {
+) : MediaProcessingConfig {
 
     override val outputName: String? = null
 

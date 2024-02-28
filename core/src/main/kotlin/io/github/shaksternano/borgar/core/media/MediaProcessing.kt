@@ -14,7 +14,7 @@ import kotlin.io.path.extension
 import kotlin.io.path.fileSize
 import kotlin.math.min
 
-interface MediaProcessConfig {
+interface MediaProcessingConfig {
 
     val outputName: String?
 
@@ -24,31 +24,31 @@ interface MediaProcessConfig {
 
     suspend fun transformAudioReader(audioReader: AudioReader, outputFormat: String): AudioReader = audioReader
 
-    infix fun then(after: MediaProcessConfig): MediaProcessConfig = object : MediaProcessConfig {
+    infix fun then(after: MediaProcessingConfig): MediaProcessingConfig = object : MediaProcessingConfig {
 
-        override val outputName: String? = after.outputName ?: this@MediaProcessConfig.outputName
+        override val outputName: String? = after.outputName ?: this@MediaProcessingConfig.outputName
 
         override fun transformOutputFormat(inputFormat: String): String {
-            val firstFormat = this@MediaProcessConfig.transformOutputFormat(inputFormat)
+            val firstFormat = this@MediaProcessingConfig.transformOutputFormat(inputFormat)
             return after.transformOutputFormat(firstFormat)
         }
 
         override suspend fun transformImageReader(imageReader: ImageReader, outputFormat: String): ImageReader {
-            val firstReader = this@MediaProcessConfig.transformImageReader(imageReader, outputFormat)
+            val firstReader = this@MediaProcessingConfig.transformImageReader(imageReader, outputFormat)
             return after.transformImageReader(firstReader, outputFormat)
         }
 
         override suspend fun transformAudioReader(audioReader: AudioReader, outputFormat: String): AudioReader {
-            val firstReader = this@MediaProcessConfig.transformAudioReader(audioReader, outputFormat)
+            val firstReader = this@MediaProcessingConfig.transformAudioReader(audioReader, outputFormat)
             return after.transformAudioReader(firstReader, outputFormat)
         }
     }
 }
 
-class SimpleMediaProcessConfig(
+class SimpleMediaProcessingConfig(
     private val processor: ImageProcessor<*>,
     override val outputName: String?,
-) : MediaProcessConfig {
+) : MediaProcessingConfig {
 
     constructor(
         outputName: String?,
@@ -64,7 +64,7 @@ class SimpleMediaProcessConfig(
 
 suspend fun processMedia(
     input: DataSource,
-    config: MediaProcessConfig,
+    config: MediaProcessingConfig,
     maxFileSize: Long,
 ): FileDataSource {
     val isTempFile = input.path == null

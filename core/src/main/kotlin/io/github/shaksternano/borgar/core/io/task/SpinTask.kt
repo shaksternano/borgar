@@ -19,7 +19,7 @@ class SpinTask(
     maxFileSize: Long,
 ) : MediaProcessingTask(maxFileSize) {
 
-    override val config: MediaProcessConfig = SpinConfig(spinSpeed, backgroundColor)
+    override val config: MediaProcessingConfig = SpinConfig(spinSpeed, backgroundColor)
 }
 
 private val SPIN_FRAME_DURATION = 20.milliseconds
@@ -28,7 +28,7 @@ private const val BASE_FRAMES_PER_ROTATION = 150.0
 private class SpinConfig(
     private val spinSpeed: Double,
     private val backgroundColor: Color?,
-) : MediaProcessConfig {
+) : MediaProcessingConfig {
 
     private val rotationDuration: Duration = run {
         val absoluteSpeed = abs(spinSpeed)

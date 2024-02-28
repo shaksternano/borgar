@@ -20,7 +20,7 @@ class CaptionTask(
     maxFileSize: Long,
 ) : MediaProcessingTask(maxFileSize) {
 
-    override val config: MediaProcessConfig = SimpleMediaProcessConfig(
+    override val config: MediaProcessingConfig = SimpleMediaProcessingConfig(
         processor = CaptionProcessor(
             caption,
             isCaption2,

@@ -3,8 +3,8 @@ package io.github.shaksternano.borgar.core.io.task
 import io.github.shaksternano.borgar.core.exception.FailedOperationException
 import io.github.shaksternano.borgar.core.media.ImageFrame
 import io.github.shaksternano.borgar.core.media.ImageProcessor
-import io.github.shaksternano.borgar.core.media.MediaProcessConfig
-import io.github.shaksternano.borgar.core.media.SimpleMediaProcessConfig
+import io.github.shaksternano.borgar.core.media.MediaProcessingConfig
+import io.github.shaksternano.borgar.core.media.SimpleMediaProcessingConfig
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.fold
 import kotlinx.coroutines.flow.take
@@ -18,7 +18,7 @@ abstract class FindCropTask(
     failureMessage: String,
 ) : MediaProcessingTask(maxFileSize) {
 
-    override val config: MediaProcessConfig = SimpleMediaProcessConfig(
+    override val config: MediaProcessingConfig = SimpleMediaProcessingConfig(
         processor = FindCropProcessor(
             onlyCheckFirst,
             failureMessage,

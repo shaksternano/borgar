@@ -1,7 +1,7 @@
 package io.github.shaksternano.borgar.core.io.task
 
-import io.github.shaksternano.borgar.core.media.MediaProcessConfig
-import io.github.shaksternano.borgar.core.media.SimpleMediaProcessConfig
+import io.github.shaksternano.borgar.core.media.MediaProcessingConfig
+import io.github.shaksternano.borgar.core.media.SimpleMediaProcessingConfig
 import io.github.shaksternano.borgar.core.media.stretch
 
 class StretchTask(
@@ -11,7 +11,7 @@ class StretchTask(
     maxFileSize: Long,
 ) : MediaProcessingTask(maxFileSize) {
 
-    override val config: MediaProcessConfig = SimpleMediaProcessConfig("stretched") {
+    override val config: MediaProcessingConfig = SimpleMediaProcessingConfig("stretched") {
         val image = it.content
         image.stretch(
             (image.width * widthMultiplier).toInt(),

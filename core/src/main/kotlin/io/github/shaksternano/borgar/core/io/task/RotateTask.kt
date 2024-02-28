@@ -13,13 +13,13 @@ class RotateTask(
     maxFileSize: Long,
 ) : MediaProcessingTask(maxFileSize) {
 
-    override val config: MediaProcessConfig = RotateConfig(degrees, backgroundColor)
+    override val config: MediaProcessingConfig = RotateConfig(degrees, backgroundColor)
 }
 
 private class RotateConfig(
     private val degrees: Double,
     private val backgroundColor: Color?,
-) : MediaProcessConfig {
+) : MediaProcessingConfig {
 
     override val outputName: String = "rotated"
 

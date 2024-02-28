@@ -8,8 +8,8 @@ import io.github.shaksternano.borgar.core.graphics.fitFontHeight
 import io.github.shaksternano.borgar.core.io.closeAll
 import io.github.shaksternano.borgar.core.media.ImageFrame
 import io.github.shaksternano.borgar.core.media.ImageProcessor
-import io.github.shaksternano.borgar.core.media.MediaProcessConfig
-import io.github.shaksternano.borgar.core.media.SimpleMediaProcessConfig
+import io.github.shaksternano.borgar.core.media.MediaProcessingConfig
+import io.github.shaksternano.borgar.core.media.SimpleMediaProcessingConfig
 import io.github.shaksternano.borgar.core.media.graphics.TextAlignment
 import io.github.shaksternano.borgar.core.util.splitWords
 import kotlinx.coroutines.flow.Flow
@@ -25,7 +25,7 @@ class MemeTask(
     maxFileSize: Long
 ) : MediaProcessingTask(maxFileSize) {
 
-    override val config: MediaProcessConfig = SimpleMediaProcessConfig(
+    override val config: MediaProcessingConfig = SimpleMediaProcessingConfig(
         processor = MemeProcessor(
             topWords,
             bottomWords,
