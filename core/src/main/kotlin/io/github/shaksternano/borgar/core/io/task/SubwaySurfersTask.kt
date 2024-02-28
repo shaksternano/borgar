@@ -32,7 +32,7 @@ private object SubwaySurfersProcessor : ImageProcessor<SubwaySurfersData> {
         val width = image.width
         val height = image.height
         val resized = subwaySurfersReader.firstContent().resizeHeight(height)
-        val overlayData = getOverlayData(image, resized, width, 0, true, null)
+        val overlayData = getOverlayData(image, resized, width, 0, true)
         return SubwaySurfersData(subwaySurfersReader, overlayData)
     }
 

@@ -216,7 +216,7 @@ fun getOverlayData(
     x2: Int,
     y2: Int,
     expand: Boolean,
-    imageType: Int?
+    imageType: Int? = null,
 ): OverlayData {
     val image1Width = image1.width
     val image1Height = image1.height

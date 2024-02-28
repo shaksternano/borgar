@@ -63,7 +63,7 @@ private class SpeechBubbleProcessor(
                 if (flipped) it.flipX()
                 else it
             }
-        val overlayData = getOverlayData(image, result, 0, -result.height, true, null)
+        val overlayData = getOverlayData(image, result, 0, -result.height, true)
         val cutoutColor =
             if (opaque) Color.WHITE.rgb
             else 0
