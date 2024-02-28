@@ -23,7 +23,9 @@ object NoAudioReader : BaseAudioReader() {
 
     override fun asFlow(): Flow<AudioFrame> = emptyFlow()
 
-    override fun createReversed(): AudioReader = this
+    override suspend fun reversed(): MediaReader<AudioFrame> = this
+
+    override suspend fun createChangedSpeed(speedMultiplier: Double): MediaReader<AudioFrame> = this
 
     override suspend fun close() = Unit
 

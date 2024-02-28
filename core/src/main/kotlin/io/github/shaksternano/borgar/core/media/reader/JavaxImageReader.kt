@@ -35,7 +35,9 @@ class JavaxImageReader(
 
     override fun asFlow(): Flow<ImageFrame> = flowOf(frame)
 
-    override fun createReversed(): ImageReader = this
+    override suspend fun reversed(): MediaReader<ImageFrame> = this
+
+    override suspend fun createChangedSpeed(speedMultiplier: Double): MediaReader<ImageFrame> = this
 
     override suspend fun close() = Unit
 

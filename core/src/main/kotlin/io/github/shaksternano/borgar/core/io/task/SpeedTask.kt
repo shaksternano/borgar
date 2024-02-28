@@ -9,17 +9,18 @@ import java.awt.image.BufferedImage
 class SpeedTask(
     speed: Double,
     maxFileSize: Long,
+    outputName: String = "speed",
 ) : MediaProcessingTask(maxFileSize) {
 
-    override val config: MediaProcessConfig = SpeedConfig(speed)
+    override val config: MediaProcessConfig = SpeedConfig(speed, outputName)
 }
 
 private class SpeedConfig(
     speed: Double,
+    override val outputName: String
 ) : MediaProcessConfig {
 
     override val processor: ImageProcessor<out Any> = SpeedProcessor(speed)
-    override val outputName: String = "speed"
 }
 
 private class SpeedProcessor(

@@ -50,26 +50,7 @@ class ScrimageGifReader(
 
     override fun asFlow(): Flow<ImageFrame> = frames.asFlow()
 
-    override fun createReversed(): ImageReader = Reversed(this)
-
     override suspend fun close() = Unit
-
-    private class Reversed(
-        private val reader: ScrimageGifReader,
-    ) : ReversedImageReader(reader) {
-
-        private val reversedFrames = buildList {
-            reader.frames.reversed().fold(Duration.ZERO) { timestamp, frame ->
-                add(ImageFrame(frame.content, frame.duration, timestamp))
-                timestamp + frame.duration
-            }
-        }
-
-        override suspend fun readFrame(timestamp: Duration): ImageFrame =
-            frameAtTime(timestamp, reversedFrames, duration)
-
-        override fun asFlow(): Flow<ImageFrame> = reversedFrames.asFlow()
-    }
 
     object Factory : ImageReaderFactory {
         override val supportedFormats: Set<String> = setOf("gif")

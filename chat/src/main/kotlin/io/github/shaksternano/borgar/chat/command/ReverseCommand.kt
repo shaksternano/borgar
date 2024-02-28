@@ -10,5 +10,9 @@ object ReverseCommand : FileCommand() {
     override val description: String = "Reverses animated media."
 
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask =
-        SpeedTask(-1.0, maxFileSize)
+        SpeedTask(
+            speed = -1.0,
+            maxFileSize = maxFileSize,
+            outputName = "reversed"
+        )
 }

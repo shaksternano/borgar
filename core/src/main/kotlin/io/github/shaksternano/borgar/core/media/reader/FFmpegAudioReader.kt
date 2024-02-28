@@ -55,74 +55,22 @@ class FFmpegAudioReader(
         frame.timestamp.microseconds,
     )
 
-    override fun createReversed(): MediaReader<AudioFrame> = Reversed(this)
+    override suspend fun reversed(): MediaReader<AudioFrame> =
+        ReversedAudioReader(
+            this,
+            filterReverse(this),
+        )
 
-    override fun createChangedSpeed(speedMultiplier: Double): MediaReader<AudioFrame> =
-        ChangedSpeedAudioReader(this, speedMultiplier)
-
-    private class Reversed(
-        private val reader: AudioReader,
-    ) : ReversedAudioReader(reader) {
-
-        private lateinit var reversedFrames: List<AudioFrame>
-
-        private suspend fun init() {
-            if (!::reversedFrames.isInitialized)
-                reversedFrames = filterAudioFrames(reader, "areverse")
-        }
-
-        override suspend fun readFrame(timestamp: Duration): AudioFrame {
-            init()
-            return frameAtTime(timestamp, reversedFrames, duration)
-        }
-
-        override fun asFlow(): Flow<AudioFrame> = flow {
-            init()
-            reversedFrames.forEach {
-                emit(it)
-            }
-        }
-
-        override fun createChangedSpeed(speedMultiplier: Double): MediaReader<AudioFrame> =
-            ChangedSpeedAudioReader(this, speedMultiplier)
-    }
-
-    private class ChangedSpeedAudioReader(
-        reader: AudioReader,
-        speedMultiplier: Double,
-    ) : ChangedSpeedReader<AudioFrame>(
-        reader,
-        speedMultiplier,
-    ) {
-
-        private lateinit var changedSpeedFrames: List<AudioFrame>
-
-        private suspend fun init() {
-            if (!::changedSpeedFrames.isInitialized)
-                changedSpeedFrames = filterAudioFrames(reader, "atempo=$speedMultiplier")
-                    .map {
-                        it.copy(
-                            duration = it.duration / speedMultiplier,
-                            timestamp = it.timestamp / speedMultiplier,
-                        )
-                    }
-        }
-
-        override suspend fun readFrame(timestamp: Duration): AudioFrame {
-            init()
-            return frameAtTime(timestamp, changedSpeedFrames, duration)
-        }
-
-        override fun asFlow(): Flow<AudioFrame> = flow {
-            init()
-            changedSpeedFrames.forEach {
-                emit(it)
-            }
-        }
-    }
+    override suspend fun createChangedSpeed(speedMultiplier: Double): MediaReader<AudioFrame> =
+        ChangedSpeedAudioReader(
+            this,
+            speedMultiplier,
+            filterChangeSpeed(this, speedMultiplier),
+        )
 
     object Factory : AudioReaderFactory {
-        // Default audio reader
+
+        // This is the default audio reader factory
         override val supportedFormats: Set<String> = setOf()
 
         override suspend fun create(input: DataSource): AudioReader =
@@ -141,6 +89,83 @@ class FFmpegAudioReader(
                 )
             }
     }
+}
+
+private class ReversedAudioReader(
+    private val reader: AudioReader,
+    private val reversedFrames: List<AudioFrame>,
+) : BaseAudioReader() {
+
+    override val frameCount: Int = reader.frameCount
+    override val frameRate: Double = reader.frameRate
+    override val duration: Duration = reader.duration
+    override val frameDuration: Duration = reader.frameDuration
+    override val audioChannels: Int = reader.audioChannels
+    override val audioSampleRate: Int = reader.audioSampleRate
+    override val audioBitrate: Int = reader.audioBitrate
+    override val loopCount: Int = reader.loopCount
+
+    override suspend fun readFrame(timestamp: Duration): AudioFrame =
+        frameAtTime(timestamp, reversedFrames, duration)
+
+    override fun asFlow(): Flow<AudioFrame> = flow {
+        reversedFrames.forEach {
+            emit(it)
+        }
+    }
+
+    override suspend fun reversed(): MediaReader<AudioFrame> = reader
+
+    override suspend fun createChangedSpeed(speedMultiplier: Double): MediaReader<AudioFrame> =
+        ChangedSpeedAudioReader(
+            this,
+            speedMultiplier,
+            filterChangeSpeed(this, speedMultiplier),
+        )
+
+    override suspend fun close() = reader.close()
+}
+
+private class ChangedSpeedAudioReader(
+    private val reader: AudioReader,
+    private val speedMultiplier: Double,
+    private val changedSpeedFrames: List<AudioFrame>,
+) : BaseAudioReader() {
+
+    override val frameCount: Int = reader.frameCount
+    override val frameRate: Double = reader.frameRate * speedMultiplier
+    override val duration: Duration = reader.duration / speedMultiplier
+    override val frameDuration: Duration = reader.frameDuration / speedMultiplier
+    override val audioChannels: Int = reader.audioChannels
+    override val audioSampleRate: Int = reader.audioSampleRate
+    override val audioBitrate: Int = reader.audioBitrate
+    override val loopCount: Int = reader.loopCount
+
+    override suspend fun readFrame(timestamp: Duration): AudioFrame =
+        frameAtTime(timestamp, changedSpeedFrames, duration)
+
+    override fun asFlow(): Flow<AudioFrame> = flow {
+        changedSpeedFrames.forEach {
+            emit(it)
+        }
+    }
+
+    override suspend fun reversed(): MediaReader<AudioFrame> =
+        ReversedAudioReader(
+            this,
+            filterReverse(this),
+        )
+
+    override suspend fun createChangedSpeed(speedMultiplier: Double): MediaReader<AudioFrame> {
+        val newSpeedMultiplier = this.speedMultiplier * speedMultiplier
+        return ChangedSpeedAudioReader(
+            reader,
+            newSpeedMultiplier,
+            filterChangeSpeed(reader, newSpeedMultiplier),
+        )
+    }
+
+    override suspend fun close() = reader.close()
 }
 
 /**
@@ -181,3 +206,18 @@ private suspend fun filterAudioFrames(
             }
         }
     }
+
+private suspend fun filterReverse(reader: AudioReader): List<AudioFrame> =
+    filterAudioFrames(reader, "areverse")
+
+private suspend fun filterChangeSpeed(
+    reader: AudioReader,
+    speedMultiplier: Double,
+): List<AudioFrame> =
+    filterAudioFrames(reader, "atempo=$speedMultiplier")
+        .map {
+            it.copy(
+                duration = it.duration / speedMultiplier,
+                timestamp = it.content.timestamp.microseconds,
+            )
+        }

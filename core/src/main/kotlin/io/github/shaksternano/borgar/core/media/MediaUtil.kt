@@ -1,6 +1,5 @@
 package io.github.shaksternano.borgar.core.media
 
-import io.github.shaksternano.borgar.core.collect.MappedList
 import io.github.shaksternano.borgar.core.util.equalsAnyIgnoreCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -36,7 +35,7 @@ private suspend fun mediaFormatImpl(input: Any): String? {
 
 fun <E : VideoFrame<*>> frameAtTime(timestamp: Duration, frames: List<E>, duration: Duration): E {
     val circularTimestamp = (timestamp.inWholeMilliseconds % max(duration.inWholeMilliseconds, 1)).milliseconds
-    val index = findIndex(circularTimestamp, MappedList(frames, VideoFrame<*>::timestamp))
+    val index = findIndex(circularTimestamp, frames.map(VideoFrame<*>::timestamp))
     return frames[index]
 }
 
@@ -49,28 +48,33 @@ fun <E : VideoFrame<*>> frameAtTime(timestamp: Duration, frames: List<E>, durati
  * @param timestamps The frame timestamps in microseconds.
  * @return The index of the frame with the given timestamp.
  */
-fun findIndex(timeStamp: Duration, timestamps: List<Duration>): Int {
-    return if (timestamps.isEmpty()) throw IllegalArgumentException("Timestamp list is empty")
-    else if (timeStamp < Duration.ZERO) throw IllegalArgumentException("Timestamp must not be negative")
-    else if (timeStamp < timestamps[0]) throw IllegalArgumentException("Timestamp must not be smaller than the first timestamp")
-    else if (timeStamp == timestamps[0]) 0
-    else if (timeStamp < timestamps[timestamps.size - 1]) findIndexBinarySearch(timeStamp, timestamps)
-    else
-    // If the timestamp is equal to or greater than the last timestamp.
+fun findIndex(timeStamp: Duration, timestamps: List<Duration>): Int =
+    if (timestamps.isEmpty())
+        throw IllegalArgumentException("Timestamp list is empty")
+    else if (timeStamp < Duration.ZERO)
+        throw IllegalArgumentException("Timestamp must not be negative")
+    else if (timeStamp < timestamps[0])
+        throw IllegalArgumentException("Timestamp must not be smaller than the first timestamp")
+    else if (timeStamp == timestamps[0])
+        0
+    else if (timeStamp < timestamps[timestamps.size - 1])
+        findIndexBinarySearch(timeStamp, timestamps)
+    else {
+        // If the timestamp is equal to or greater than the last timestamp.
         timestamps.size - 1
-}
+    }
 
 private fun findIndexBinarySearch(timeStamp: Duration, timestamps: List<Duration>): Int {
     var low = 0
     var high = timestamps.size - 1
     while (low <= high) {
         val mid = low + (high - low) / 2
-        if (timestamps[mid] == timeStamp
-            || (timestamps[mid] < timeStamp
-                && timestamps[mid + 1] > timeStamp)
-        ) return mid
-        else if (timestamps[mid] < timeStamp) low = mid + 1
-        else high = mid - 1
+        if (timestamps[mid] == timeStamp || (timestamps[mid] < timeStamp && timestamps[mid + 1] > timeStamp))
+            return mid
+        else if (timestamps[mid] < timeStamp)
+            low = mid + 1
+        else
+            high = mid - 1
     }
     throw IllegalStateException("This should never be reached. Timestamp: $timeStamp, all timestamps: $timestamps")
 }

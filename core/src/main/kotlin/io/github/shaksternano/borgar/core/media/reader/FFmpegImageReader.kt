@@ -3,15 +3,9 @@ package io.github.shaksternano.borgar.core.media.reader
 import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.io.SuspendCloseable
 import io.github.shaksternano.borgar.core.io.closeAll
-import io.github.shaksternano.borgar.core.io.use
-import io.github.shaksternano.borgar.core.media.FrameInfo
 import io.github.shaksternano.borgar.core.media.ImageFrame
 import io.github.shaksternano.borgar.core.media.ImageReaderFactory
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.withContext
 import org.bytedeco.javacv.FFmpegFrameGrabber
 import org.bytedeco.javacv.Frame
@@ -63,54 +57,14 @@ class FFmpegImageReader(
     private fun isInvalidImageChannels(imageChannels: Int): Boolean =
         imageChannels != 1 && imageChannels != 3 && imageChannels != 4
 
-    override fun createReversed(): MediaReader<ImageFrame> = Reversed(this)
-
     override suspend fun close() = closeAll(
         { super.close() },
         SuspendCloseable(converter),
     )
 
-    private class Reversed(
-        private val reader: FFmpegImageReader,
-    ) : ReversedImageReader(reader) {
-
-        private lateinit var reversedFrameInfo: List<FrameInfo>
-
-        override suspend fun readFrame(timestamp: Duration): ImageFrame {
-            val reversedTimestamp =
-                duration - (timestamp.inWholeMicroseconds % duration.inWholeMicroseconds).microseconds
-            val frame = reader.readFrame(reversedTimestamp)
-            return frame.copy(
-                timestamp = timestamp
-            )
-        }
-
-        override fun asFlow(): Flow<ImageFrame> = flow {
-            if (!::reversedFrameInfo.isInitialized) {
-                reversedFrameInfo = createReversedFrameInfo()
-            }
-            val grabber = FFmpegFrameGrabber(reader.input.toFile())
-            SuspendCloseable.fromBlocking(grabber).use {
-                withContext(Dispatchers.IO) {
-                    grabber.start()
-                }
-                reversedFrameInfo.forEach {
-                    val frame = reader.readFrame(it.timestamp, grabber)
-                    emit(frame)
-                }
-            }
-        }
-
-        private suspend fun createReversedFrameInfo(): List<FrameInfo> {
-            val frameInfo = reader.asFlow().map { (_, duration, timestamp) ->
-                FrameInfo(duration, timestamp)
-            }.toList()
-            return frameInfo.reversed()
-        }
-    }
-
     object Factory : ImageReaderFactory {
-        // Default image reader
+
+        // This is the default image reader factory
         override val supportedFormats: Set<String> = setOf()
 
         override suspend fun create(input: DataSource): ImageReader =

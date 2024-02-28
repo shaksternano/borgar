@@ -34,8 +34,6 @@ interface MediaReader<T : VideoFrame<*>> : SuspendCloseable {
     val height: Int
     val loopCount: Int
 
-    val reversed: MediaReader<T>
-
     /**
      * Gets the frame at the given timestamp.
      * If the timestamp is larger than the duration of the media,
@@ -48,7 +46,9 @@ interface MediaReader<T : VideoFrame<*>> : SuspendCloseable {
 
     fun asFlow(): Flow<T>
 
-    fun changeSpeed(speedMultiplier: Double): MediaReader<T>
+    suspend fun reversed(): MediaReader<T>
+
+    suspend fun changeSpeed(speedMultiplier: Double): MediaReader<T>
 }
 
 typealias ImageReader = MediaReader<ImageFrame>

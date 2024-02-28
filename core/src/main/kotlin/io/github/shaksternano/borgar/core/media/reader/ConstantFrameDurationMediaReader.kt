@@ -49,8 +49,5 @@ class ConstantFrameDurationMediaReader<T : VideoFrame<*>>(
         }
     }
 
-    override fun createReversed(): MediaReader<T> =
-        ConstantFrameDurationMediaReader(reader.reversed, frameDuration, duration)
-
     override suspend fun close() = reader.close()
 }

@@ -37,12 +37,6 @@ class LimitedDurationMediaReader<T : VideoFrame<*>> internal constructor(
         }
     }
 
-    override fun createReversed(): MediaReader<T> =
-        LimitedDurationMediaReader(
-            reader.reversed,
-            ReaderInfo(reader),
-        )
-
     override suspend fun close() = reader.close()
 }
 

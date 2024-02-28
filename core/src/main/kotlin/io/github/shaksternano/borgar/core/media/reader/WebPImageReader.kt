@@ -1,6 +1,5 @@
 package io.github.shaksternano.borgar.core.media.reader
 
-import io.github.shaksternano.borgar.core.collect.MappedList
 import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.io.SuspendCloseable
 import io.github.shaksternano.borgar.core.io.closeAll
@@ -74,7 +73,7 @@ class WebPImageReader(
 
     override suspend fun readFrame(timestamp: Duration): ImageFrame {
         val circularTimestamp = (timestamp.inWholeMilliseconds % max(duration.inWholeMilliseconds, 1)).milliseconds
-        val index = findIndex(circularTimestamp, MappedList(frameInfos, FrameInfo::duration))
+        val index = findIndex(circularTimestamp, frameInfos.map(FrameInfo::duration))
         return ImageFrame(
             read(index),
             frameInfos[index].duration,
@@ -112,8 +111,6 @@ class WebPImageReader(
         return image
     }
 
-    override fun createReversed(): ImageReader = Reversed(this)
-
     override suspend fun close() = closeAll(
         SuspendCloseable(reader::dispose),
         SuspendCloseable.fromBlocking(imageInput),
@@ -123,59 +120,6 @@ class WebPImageReader(
             }
         }
     )
-
-    private data class IndexedFrameInfo(
-        val duration: Duration,
-        val timestamp: Duration,
-        val index: Int,
-    )
-
-    private class Reversed(
-        private val reader: WebPImageReader,
-    ) : ReversedImageReader(reader) {
-
-        private val reversedFrameInfo: List<IndexedFrameInfo> = buildList {
-            reader.frameInfos.fold(Duration.ZERO) { timestamp, frameInfo ->
-                add(
-                    IndexedFrameInfo(
-                        frameInfo.duration,
-                        timestamp,
-                        reversed.frameCount,
-                    )
-                )
-                timestamp + frameInfo.duration
-            }
-        }
-
-        override suspend fun readFrame(timestamp: Duration): ImageFrame {
-            val circularTimestamp = (timestamp.inWholeMilliseconds % max(duration.inWholeMilliseconds, 1)).milliseconds
-            val index = findIndex(
-                circularTimestamp,
-                MappedList(
-                    reversedFrameInfo,
-                    IndexedFrameInfo::timestamp
-                ),
-            )
-            val frameInfo = reversedFrameInfo[index]
-            return ImageFrame(
-                reader.read(frameInfo.index),
-                frameInfo.duration,
-                circularTimestamp,
-            )
-        }
-
-        override fun asFlow(): Flow<ImageFrame> = flow {
-            reversedFrameInfo.forEach {
-                val image = reader.read(it.index)
-                val frame = ImageFrame(
-                    image,
-                    it.duration,
-                    it.timestamp,
-                )
-                emit(frame)
-            }
-        }
-    }
 
     object Factory : ImageReaderFactory {
         override val supportedFormats: Set<String> = setOf("webp")

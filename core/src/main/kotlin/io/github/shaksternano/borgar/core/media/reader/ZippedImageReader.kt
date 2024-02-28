@@ -64,8 +64,11 @@ class ZippedImageReader(
         }
     }
 
-    override fun createReversed(): ImageReader =
-        ZippedImageReader(firstReader.reversed, secondReader.reversed)
+    override suspend fun reversed(): MediaReader<ImageFrame> =
+        ZippedImageReader(firstReader.reversed(), secondReader.reversed())
+
+    override suspend fun createChangedSpeed(speedMultiplier: Double): MediaReader<ImageFrame> =
+        ZippedImageReader(firstReader.changeSpeed(speedMultiplier), secondReader.changeSpeed(speedMultiplier))
 
     override suspend fun close() = closeAll(firstReader, secondReader)
 }

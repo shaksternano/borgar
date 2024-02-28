@@ -1,42 +1,106 @@
 package io.github.shaksternano.borgar.core.media.reader
 
-import io.github.shaksternano.borgar.core.media.AudioFrame
-import io.github.shaksternano.borgar.core.media.ImageFrame
-import io.github.shaksternano.borgar.core.media.VideoFrame
+import io.github.shaksternano.borgar.core.media.*
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
 import kotlin.math.abs
+import kotlin.math.max
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 
 abstract class BaseMediaReader<T : VideoFrame<*>> : MediaReader<T> {
 
-    override val reversed: MediaReader<T> by lazy(::createReversed)
+    override suspend fun reversed(): MediaReader<T> =
+        ReversedReader(
+            this,
+            createReversedFrameInfo()
+        )
 
-    protected abstract fun createReversed(): MediaReader<T>
+    private suspend fun createReversedFrameInfo(): List<ReversedFrameInfo> = buildList {
+        val frameInfo = asFlow().map { (_, duration, timestamp) ->
+            FrameInfo(duration, timestamp)
+        }.toList()
+        frameInfo.reversed().fold(Duration.ZERO) { timestamp, frame ->
+            add(ReversedFrameInfo(frame.duration, frame.timestamp, timestamp))
+            timestamp + frame.duration
+        }
+    }
 
-    final override fun changeSpeed(speedMultiplier: Double): MediaReader<T> =
+    final override suspend fun changeSpeed(speedMultiplier: Double): MediaReader<T> =
         if (speedMultiplier == 1.0) this
         else if (speedMultiplier == 0.0) throw IllegalArgumentException("Speed multiplier cannot be 0")
-        else if (speedMultiplier < 0.0) reversed.changeSpeed(abs(speedMultiplier))
+        else if (speedMultiplier < 0.0) reversed().changeSpeed(abs(speedMultiplier))
         else createChangedSpeed(speedMultiplier)
 
-    protected open fun createChangedSpeed(speedMultiplier: Double): MediaReader<T> =
+    protected open suspend fun createChangedSpeed(speedMultiplier: Double): MediaReader<T> =
         ChangedSpeedReader(this, speedMultiplier)
 }
 
-open class ChangedSpeedReader<T : VideoFrame<*>>(
-    protected val reader: MediaReader<T>,
-    protected val speedMultiplier: Double,
-) : MediaReader<T> by reader {
+private class ReversedReader<T : VideoFrame<*>>(
+    private val reader: MediaReader<T>,
+    private val reversedFrameInfo: List<ReversedFrameInfo>,
+) : BaseMediaReader<T>() {
 
+    override val frameCount: Int = reader.frameCount
+    override val frameRate: Double = reader.frameRate
+    override val duration: Duration = reader.duration
+    override val frameDuration: Duration = reader.frameDuration
+    override val audioChannels: Int = reader.audioChannels
+    override val audioSampleRate: Int = reader.audioSampleRate
+    override val audioBitrate: Int = reader.audioBitrate
+    override val width: Int = reader.width
+    override val height: Int = reader.height
+    override val loopCount: Int = reader.loopCount
+
+    override suspend fun readFrame(timestamp: Duration): T {
+        val circularTimestamp = (timestamp.inWholeMilliseconds % max(duration.inWholeMilliseconds, 1)).milliseconds
+        val index = findIndex(circularTimestamp, reversedFrameInfo.map(ReversedFrameInfo::actualTimestamp))
+        val reversedTimestamp = reversedFrameInfo[index].reversedTimestamp
+        val frame = reader.readFrame(reversedTimestamp)
+        @Suppress("UNCHECKED_CAST")
+        return frame.copy(
+            timestamp = reversedTimestamp
+        ) as T
+    }
+
+    override fun asFlow(): Flow<T> = flow {
+        reversedFrameInfo.forEach {
+            @Suppress("UNCHECKED_CAST")
+            val frame = reader.readFrame(it.actualTimestamp).copy(
+                timestamp = it.reversedTimestamp
+            ) as T
+            emit(frame)
+        }
+    }
+
+    override suspend fun reversed(): MediaReader<T> = reader
+
+    override suspend fun close() = reader.close()
+}
+
+private data class ReversedFrameInfo(
+    val duration: Duration,
+    val actualTimestamp: Duration,
+    val reversedTimestamp: Duration,
+)
+
+open class ChangedSpeedReader<T : VideoFrame<*>>(
+    private val reader: MediaReader<T>,
+    private val speedMultiplier: Double,
+) : BaseMediaReader<T>() {
+
+    override val frameCount: Int = reader.frameCount
     override val frameRate: Double = reader.frameRate * speedMultiplier
     override val duration: Duration = reader.duration / speedMultiplier
     override val frameDuration: Duration = reader.frameDuration / speedMultiplier
-    override val reversed: MediaReader<T> by lazy {
-        val unmodifiedReverse = reader.reversed
-        if (unmodifiedReverse === reader) this
-        else unmodifiedReverse.changeSpeed(speedMultiplier)
-    }
+    override val audioChannels: Int = reader.audioChannels
+    override val audioSampleRate: Int = reader.audioSampleRate
+    override val audioBitrate: Int = reader.audioBitrate
+    override val width: Int = reader.width
+    override val height: Int = reader.height
+    override val loopCount: Int = reader.loopCount
 
     override suspend fun readFrame(timestamp: Duration): T {
         val newTimestamp = timestamp * speedMultiplier
@@ -60,6 +124,8 @@ open class ChangedSpeedReader<T : VideoFrame<*>>(
                 @Suppress("UNCHECKED_CAST")
                 it as Flow<T>
             }
+
+    override suspend fun close() = reader.close()
 }
 
 abstract class BaseImageReader : BaseMediaReader<ImageFrame>() {
@@ -67,43 +133,10 @@ abstract class BaseImageReader : BaseMediaReader<ImageFrame>() {
     final override val audioChannels: Int = 0
     final override val audioSampleRate: Int = 0
     final override val audioBitrate: Int = 0
-
-    abstract override fun createReversed(): ImageReader
 }
 
 abstract class BaseAudioReader : BaseMediaReader<AudioFrame>() {
 
     final override val width: Int = 0
     final override val height: Int = 0
-
-    abstract override fun createReversed(): AudioReader
 }
-
-abstract class ReversedReader<T : VideoFrame<*>>(
-    private val reader: MediaReader<T>,
-) : BaseMediaReader<T>() {
-
-    final override val frameCount: Int = reader.frameCount
-    final override val frameRate: Double = reader.frameRate
-    final override val duration: Duration = reader.duration
-    final override val frameDuration: Duration = reader.frameDuration
-    final override val audioChannels: Int = reader.audioChannels
-    final override val audioSampleRate: Int = reader.audioSampleRate
-    final override val audioBitrate: Int = reader.audioBitrate
-    final override val width: Int = reader.width
-    final override val height: Int = reader.height
-    final override val loopCount: Int = reader.loopCount
-    final override val reversed: MediaReader<T> = reader
-
-    final override fun createReversed(): MediaReader<T> = reader
-
-    override suspend fun close() = reader.close()
-}
-
-abstract class ReversedImageReader(
-    reader: ImageReader,
-) : ReversedReader<ImageFrame>(reader), ImageReader
-
-abstract class ReversedAudioReader(
-    reader: AudioReader,
-) : ReversedReader<AudioFrame>(reader), AudioReader
