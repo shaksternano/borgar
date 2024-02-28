@@ -74,7 +74,11 @@ fun BufferedImage.resizeHeight(height: Int): BufferedImage =
  *                     If true, no extra processing is done.
  * @return The stretched image.
  */
-fun BufferedImage.stretch(targetWidth: Int, targetHeight: Int, raw: Boolean): BufferedImage {
+fun BufferedImage.stretch(
+    targetWidth: Int,
+    targetHeight: Int,
+    raw: Boolean = false,
+): BufferedImage {
     if (width == targetWidth && height == targetHeight) return this
     val newTargetWidth = max(targetWidth, 1)
     val newTargetHeight = max(targetHeight, 1)

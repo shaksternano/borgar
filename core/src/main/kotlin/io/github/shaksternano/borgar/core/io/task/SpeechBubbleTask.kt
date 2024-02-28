@@ -41,7 +41,7 @@ private class SpeechBubbleProcessor(
             if (cutout) "media/overlay/speech_bubble_2_partial.png"
             else "media/overlay/speech_bubble_1_partial.png"
         val dataSource = DataSource.fromResource(speechBubblePath)
-        val speechBubbleImage = createImageReader(dataSource, "png").firstContent()
+        val speechBubbleImage = createImageReader(dataSource).firstContent()
         val minDimension = 3
         if (width < minDimension) {
             throw FailedOperationException("Image width of $width pixels is too small!")
