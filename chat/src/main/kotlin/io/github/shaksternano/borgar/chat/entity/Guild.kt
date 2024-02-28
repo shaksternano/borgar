@@ -5,6 +5,7 @@ interface Guild : Entity {
     val name: String
     val iconUrl: String?
     val bannerUrl: String?
+    val splashUrl: String?
 
     suspend fun getMember(userId: String): Member?
 

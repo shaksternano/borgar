@@ -5,17 +5,18 @@ import io.github.shaksternano.borgar.core.exception.FailedOperationException
 import io.github.shaksternano.borgar.core.io.task.FileTask
 import io.github.shaksternano.borgar.core.io.task.UrlFileTask
 
-object ServerBannerCommand : FileCommand(
+object ServerSplashCommand : FileCommand(
     requireInput = false,
 ) {
 
-    override val name: String = "serverbanner"
-    override val description: String = "Gets the banner image of this server."
+    override val name: String = "serversplash"
+    override val aliases: Set<String> = setOf("splash")
+    override val description: String = "Gets the splash image of this server."
     override val guildOnly: Boolean = true
 
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {
         val guild = event.getGuild() ?: throw IllegalStateException("Command run outside of a guild")
-        val bannerUrl = guild.bannerUrl ?: throw FailedOperationException("This server has no banner image.")
-        return UrlFileTask(bannerUrl)
+        val splashUrl = guild.splashUrl ?: throw FailedOperationException("This server has no splash image.")
+        return UrlFileTask(splashUrl)
     }
 }
