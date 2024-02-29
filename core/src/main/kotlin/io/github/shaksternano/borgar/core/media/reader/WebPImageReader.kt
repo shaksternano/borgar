@@ -49,21 +49,23 @@ class WebPImageReader(
         durationField.setAccessible(true)
 
         val animationFrames = framesField[reader] as List<*>
-        frameInfos = mutableListOf()
         var shortestDuration = Duration.INFINITE
-        duration = animationFrames.fold(Duration.ZERO) { total, animationFrame ->
-            val frameDuration = (durationField[animationFrame] as Int).milliseconds
-            if (frameDuration < shortestDuration) shortestDuration = frameDuration
-            frameInfos.add(
-                FrameInfo(
-                    frameDuration,
-                    total,
+        frameInfos = buildList {
+            duration = animationFrames.fold(Duration.ZERO) { total, animationFrame ->
+                val frameDuration = (durationField[animationFrame] as Int).milliseconds
+                if (frameDuration < shortestDuration)
+                    shortestDuration = frameDuration
+                add(
+                    FrameInfo(
+                        frameDuration,
+                        total,
+                    )
                 )
-            )
-            total + frameDuration
-        }
-        if (frameInfos.isEmpty()) {
-            frameInfos.add(FrameInfo(1.milliseconds, Duration.ZERO))
+                total + frameDuration
+            }
+            if (isEmpty()) {
+                add(FrameInfo(1.milliseconds, Duration.ZERO))
+            }
         }
         frameDuration = shortestDuration
         frameRate = 1000.0 / frameDuration.inWholeMilliseconds
