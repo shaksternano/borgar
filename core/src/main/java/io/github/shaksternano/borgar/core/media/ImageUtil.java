@@ -6,7 +6,7 @@ import io.github.shaksternano.borgar.core.media.graphics.OverlayData;
 import io.github.shaksternano.borgar.core.media.graphics.TextDrawData;
 import io.github.shaksternano.borgar.core.media.graphics.drawable.Drawable;
 import io.github.shaksternano.borgar.core.media.graphics.drawable.ParagraphCompositeDrawable;
-import io.github.shaksternano.borgar.core.media.template.Template;
+import io.github.shaksternano.borgar.core.media.template.TemplateOld;
 import org.jetbrains.annotations.Nullable;
 
 import javax.imageio.ImageIO;
@@ -305,7 +305,7 @@ public class ImageUtil {
         BufferedImage image,
         List<String> words,
         Map<String, Drawable> nonTextParts,
-        Template template
+        TemplateOld template
     ) {
         if (words.isEmpty()) {
             return Optional.empty();
@@ -355,7 +355,7 @@ public class ImageUtil {
         BufferedImage image,
         TextDrawData textDrawData,
         long timestamp,
-        Template template
+        TemplateOld template
     ) throws IOException {
         var imageWithText = copySize(image);
         var graphics = imageWithText.createGraphics();

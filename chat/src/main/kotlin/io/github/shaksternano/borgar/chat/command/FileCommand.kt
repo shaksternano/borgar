@@ -16,33 +16,35 @@ import io.github.shaksternano.borgar.core.util.retrieveTenorUrlOrDefault
 
 abstract class FileCommand(
     vararg argumentInfo: CommandArgumentInfo<*>,
-    private val requireInput: Boolean = true,
+    private val inputRequirement: InputRequirement = InputRequirement.Required,
 ) : BaseCommand() {
 
     override val chainable: Boolean = true
     override val deferReply: Boolean = true
 
-    final override val argumentInfo: Set<CommandArgumentInfo<*>> = if (requireInput) {
-        val argumentInfoBuilder = mutableSetOf<CommandArgumentInfo<*>>()
-        argumentInfoBuilder.addAll(argumentInfo)
-        argumentInfoBuilder.addAll(
-            ATTACHMENT_ARGUMENT_INFO,
-            URL_ARGUMENT_INFO,
-        )
-        argumentInfoBuilder
-    } else {
-        argumentInfo.toSet()
-    }
+    private val takesInput = inputRequirement != InputRequirement.NotRequired
+    final override val argumentInfo: Set<CommandArgumentInfo<*>> =
+        if (takesInput) {
+            val argumentInfoBuilder = mutableSetOf<CommandArgumentInfo<*>>()
+            argumentInfoBuilder.addAll(argumentInfo)
+            argumentInfoBuilder.addAll(
+                ATTACHMENT_ARGUMENT_INFO,
+                URL_ARGUMENT_INFO,
+            )
+            argumentInfoBuilder
+        } else {
+            argumentInfo.toSet()
+        }
     override val defaultArgumentKey: String? =
-        if (requireInput && this.argumentInfo.size == 2) "url"
+        if (takesInput && this.argumentInfo.size == 2) "url"
         else super.defaultArgumentKey
 
     final override fun createExecutable(arguments: CommandArguments, event: CommandEvent): Executable =
         FileExecutable(
-            commands = listOf(this),
+            commands = CommandConfig(this, arguments).asSingletonList(),
             arguments,
             event,
-            requireInput,
+            inputRequirement,
             event.manager.maxFilesPerMessage,
         ) {
             createTask(
@@ -57,6 +59,12 @@ abstract class FileCommand(
         event: CommandEvent,
         maxFileSize: Long
     ): FileTask
+}
+
+enum class InputRequirement {
+    Required,
+    Optional,
+    NotRequired,
 }
 
 private val ATTACHMENT_ARGUMENT_INFO = CommandArgumentInfo(
@@ -74,10 +82,10 @@ private val URL_ARGUMENT_INFO = CommandArgumentInfo(
 )
 
 private data class FileExecutable(
-    override val commands: List<Command>,
+    override val commands: List<CommandConfig>,
     private val arguments: CommandArguments,
     private val event: CommandEvent,
-    private val requireInput: Boolean,
+    private val inputRequirement: InputRequirement,
     private val maxFilesPerMessage: Int,
     private val taskSupplier: suspend () -> FileTask,
 ) : Executable {
@@ -89,17 +97,21 @@ private data class FileExecutable(
         val task = taskSupplier()
         toClose = task
         var gifv = false
-        val input = if (requireInput) {
-            getFileUrl(arguments, event, task)
-                ?.also {
-                    gifv = it.gifv
+        val input =
+            if (inputRequirement != InputRequirement.NotRequired) {
+                val file = task.suppliedInput
+                    ?: getFileUrl(arguments, event, task)
+                        ?.also {
+                            gifv = it.gifv
+                        }
+                        ?.asDataSource()
+                if (inputRequirement == InputRequirement.Required && file == null) {
+                    return CommandResponse("No input found!").asSingletonList()
                 }
-                ?.asDataSource()
-                ?.asSingletonList()
-                ?: return CommandResponse("No files found!").asSingletonList()
-        } else {
-            emptyList()
-        }
+                listOfNotNull(file)
+            } else {
+                emptyList()
+            }
 
         val modifiedOutputFormatTask = if (gifv && task is MediaProcessingTask)
             task then TranscodeTask("gif", maxFileSize)
@@ -111,7 +123,7 @@ private data class FileExecutable(
                 logger.error(
                     "Error executing command ${
                         commands.joinToString(", ") {
-                            it.name
+                            it.typedForm
                         }
                     }", throwable
                 )
@@ -120,7 +132,7 @@ private data class FileExecutable(
         }
 
         if (output.isEmpty()) {
-            logger.error("No files were outputted by ${commands.last().name}")
+            logger.error("No files were outputted by ${commands.last().typedForm}")
             return CommandResponse("An error occurred!").asSingletonList()
         }
         val canUpload = output.filter {
@@ -165,7 +177,13 @@ private data class FileExecutable(
         return if (after is FileExecutable) {
             copy(
                 commands = commands + after.commands,
-                taskSupplier = { taskSupplier() then after.taskSupplier() },
+                taskSupplier = {
+                    try {
+                        taskSupplier() then after.taskSupplier()
+                    } catch (e: UnsupportedOperationException) {
+                        throw NonChainableCommandException(commands.last(), after.commands.first())
+                    }
+                },
             )
         } else {
             super.then(after)

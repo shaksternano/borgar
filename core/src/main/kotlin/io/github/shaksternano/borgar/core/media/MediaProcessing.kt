@@ -23,25 +23,31 @@ interface MediaProcessingConfig {
     suspend fun transformAudioReader(audioReader: AudioReader, outputFormat: String): AudioReader = audioReader
 
     fun transformOutputFormat(inputFormat: String): String = inputFormat
+}
 
-    infix fun then(after: MediaProcessingConfig): MediaProcessingConfig = object : MediaProcessingConfig {
+infix fun MediaProcessingConfig.then(after: MediaProcessingConfig): MediaProcessingConfig =
+    ChainedMediaProcessingConfig(this, after)
 
-        override val outputName: String? = after.outputName ?: this@MediaProcessingConfig.outputName
+private class ChainedMediaProcessingConfig(
+    private val first: MediaProcessingConfig,
+    private val second: MediaProcessingConfig,
+) : MediaProcessingConfig {
 
-        override suspend fun transformImageReader(imageReader: ImageReader, outputFormat: String): ImageReader {
-            val firstReader = this@MediaProcessingConfig.transformImageReader(imageReader, outputFormat)
-            return after.transformImageReader(firstReader, outputFormat)
-        }
+    override val outputName: String? = second.outputName ?: first.outputName
 
-        override suspend fun transformAudioReader(audioReader: AudioReader, outputFormat: String): AudioReader {
-            val firstReader = this@MediaProcessingConfig.transformAudioReader(audioReader, outputFormat)
-            return after.transformAudioReader(firstReader, outputFormat)
-        }
+    override suspend fun transformImageReader(imageReader: ImageReader, outputFormat: String): ImageReader {
+        val firstReader = first.transformImageReader(imageReader, outputFormat)
+        return second.transformImageReader(firstReader, outputFormat)
+    }
 
-        override fun transformOutputFormat(inputFormat: String): String {
-            val firstFormat = this@MediaProcessingConfig.transformOutputFormat(inputFormat)
-            return after.transformOutputFormat(firstFormat)
-        }
+    override suspend fun transformAudioReader(audioReader: AudioReader, outputFormat: String): AudioReader {
+        val firstReader = first.transformAudioReader(audioReader, outputFormat)
+        return second.transformAudioReader(firstReader, outputFormat)
+    }
+
+    override fun transformOutputFormat(inputFormat: String): String {
+        val firstFormat = first.transformOutputFormat(inputFormat)
+        return second.transformOutputFormat(firstFormat)
     }
 }
 

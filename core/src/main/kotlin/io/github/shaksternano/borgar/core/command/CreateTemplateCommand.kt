@@ -11,7 +11,7 @@ import io.github.shaksternano.borgar.core.io.FileUtil
 import io.github.shaksternano.borgar.core.media.ImageUtil
 import io.github.shaksternano.borgar.core.media.graphics.Position
 import io.github.shaksternano.borgar.core.media.graphics.TextAlignment
-import io.github.shaksternano.borgar.core.media.template.CustomTemplate
+import io.github.shaksternano.borgar.core.media.template.CustomTemplateOld
 import io.github.shaksternano.borgar.core.util.Fonts
 import io.github.shaksternano.borgar.core.util.MessageUtil
 import io.github.shaksternano.borgar.core.util.StringUtil
@@ -57,7 +57,7 @@ object CreateTemplateCommand : KotlinCommand<Unit>(
                 return CommandResponse("A template with the command name `$commandName` already exists!")
             }
             val template = createTemplate(templateJson, commandName, entityId)
-            TemplateRepository.create(template)
+            // TemplateRepository.create(template)
             HelpCommand.removeCachedMessage(entityId)
             CommandResponse("Template created!")
         } catch (e: InvalidTemplateException) {
@@ -79,7 +79,7 @@ object CreateTemplateCommand : KotlinCommand<Unit>(
         templateJson: JsonObject,
         commandName: String,
         entityId: String
-    ): CustomTemplate {
+    ): CustomTemplateOld {
         val description = getString(templateJson, "description") {
             "A custom template."
         }
@@ -168,7 +168,7 @@ object CreateTemplateCommand : KotlinCommand<Unit>(
         }
         val fillColor = runCatching { getColor(templateJson, "fill_color") }.getOrDefault(null)
 
-        return CustomTemplate(
+        return CustomTemplateOld(
             commandName,
             entityId,
 

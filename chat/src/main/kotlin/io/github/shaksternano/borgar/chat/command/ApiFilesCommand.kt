@@ -27,7 +27,7 @@ abstract class ApiFilesCommand(
     } else {
         emptyArray()
     },
-    requireInput = false,
+    inputRequirement = InputRequirement.NotRequired,
 ) {
 
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {

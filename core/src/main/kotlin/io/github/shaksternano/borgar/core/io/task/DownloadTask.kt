@@ -22,9 +22,9 @@ class DownloadTask(
     private val audioOnly: Boolean,
     private val fileNumber: Int?,
     private val maxFileSize: Long,
-) : BaseFileTask(
-    requireInput = false,
-) {
+) : BaseFileTask() {
+
+    override val requireInput: Boolean = false
 
     override suspend fun run(input: List<DataSource>): List<DataSource> = try {
         val url = input.firstOrNull()?.url ?: throw ErrorResponseException("No URL specified!")

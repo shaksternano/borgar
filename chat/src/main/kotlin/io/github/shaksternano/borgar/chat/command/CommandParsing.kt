@@ -61,7 +61,8 @@ suspend inline fun executeCommands(
     commandConfigs: List<CommandConfig>,
     event: CommandEvent,
 ): Pair<List<CommandResponse>, Executable?> = try {
-    val executables = commandConfigs.mapIndexed { i, (command, arguments) ->
+    val executables = commandConfigs.map {
+        val (command, arguments) = it
         val guild = event.getGuild()
         if (guild == null && command.guildOnly) {
             throw GuildOnlyCommandException(command)
@@ -74,23 +75,14 @@ suspend inline fun executeCommands(
                 throw InsufficientPermissionsException(command, requiredPermissions)
             }
         }
-
         try {
             command.createExecutable(arguments, event)
         } catch (t: Throwable) {
-            throw CommandException(listOf(command), cause = t)
+            throw CommandException(listOf(it), cause = t)
         }
     }
     val chained = executables.reduce { executable1, executable2 ->
-        try {
-            executable1 then executable2
-        } catch (e: UnsupportedOperationException) {
-            throw NonChainableCommandException(
-                executable1.commands.last(),
-                executable2.commands.first(),
-                e,
-            )
-        }
+        executable1 then executable2
     }
     val result = try {
         chained.run()
@@ -160,21 +152,20 @@ private suspend fun contentStripped(message: Message): String {
 }
 
 fun handleError(throwable: Throwable, manager: BotManager): String = when (throwable) {
-    is NonChainableCommandException ->
-        "Cannot chain **${throwable.command1.nameWithPrefix}** with **${throwable.command2.nameWithPrefix}**!"
+    is NonChainableCommandException -> throwable.message
 
     is CommandException -> when (val cause = throwable.cause) {
-        is FailedOperationException ->
-            cause.message
+        is NonChainableCommandException -> cause.message
 
-        is MissingArgumentException ->
-            cause.message
+        is FailedOperationException -> cause.message
+
+        is MissingArgumentException -> cause.message
 
         else -> {
             logger.error(
                 "Error executing commands ${
                     throwable.commands.joinToString(", ") {
-                        it.name
+                        it.typedForm
                     }
                 }", throwable
             )
@@ -283,7 +274,13 @@ private suspend fun getCustomTemplateCommand(commandName: String, message: Messa
 data class CommandConfig(
     val command: Command,
     val arguments: CommandArguments,
-)
+) {
+    val typedForm: String = "$COMMAND_PREFIX${command.name}" + run {
+        val argumentsTypedForm = arguments.typedForm
+        if (argumentsTypedForm.isNotBlank()) " $argumentsTypedForm"
+        else ""
+    }
+}
 
 internal data class RawCommandConfig(
     val command: String,
@@ -296,10 +293,11 @@ class CommandNotFoundException(
 ) : Exception()
 
 class NonChainableCommandException(
-    val command1: Command,
-    val command2: Command,
-    override val cause: Throwable,
-) : Exception(cause)
+    command1: CommandConfig,
+    command2: CommandConfig,
+) : Exception() {
+    override val message: String = "Cannot chain **${command1.typedForm}** with **${command2.typedForm}**!"
+}
 
 class GuildOnlyCommandException(
     val command: Command,

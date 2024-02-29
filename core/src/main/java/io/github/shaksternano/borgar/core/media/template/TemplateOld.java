@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.function.Function;
 
-public interface Template {
+public interface TemplateOld {
 
     MediaReader<ImageFrameOld> getImageReader() throws IOException;
 

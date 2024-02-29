@@ -1,6 +1,6 @@
 package io.github.shaksternano.borgar.core.graphics.drawable
 
-import io.github.shaksternano.borgar.core.media.graphics.TextAlignment
+import io.github.shaksternano.borgar.core.graphics.TextAlignment
 import java.awt.Graphics2D
 import java.util.*
 import kotlin.math.max

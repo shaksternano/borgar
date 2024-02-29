@@ -11,7 +11,7 @@ import io.github.shaksternano.borgar.core.media.graphics.TextDrawData;
 import io.github.shaksternano.borgar.core.media.graphics.drawable.Drawable;
 import io.github.shaksternano.borgar.core.media.imageprocessor.DualImageProcessor;
 import io.github.shaksternano.borgar.core.media.imageprocessor.SingleImageProcessor;
-import io.github.shaksternano.borgar.core.media.template.Template;
+import io.github.shaksternano.borgar.core.media.template.TemplateOld;
 import io.github.shaksternano.borgar.core.util.MessageUtil;
 import io.github.shaksternano.borgar.core.util.MiscUtil;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -26,7 +26,7 @@ import java.util.Map;
 
 public class TemplateCommand extends OptionalFileInputFileCommand {
 
-    private final Template template;
+    private final TemplateOld template;
 
     /**
      * Creates a new command object.
@@ -35,7 +35,7 @@ public class TemplateCommand extends OptionalFileInputFileCommand {
      *                    followed by this name, the command will be executed.
      * @param description The description of the command. This is displayed in the help command.
      */
-    public TemplateCommand(String name, String description, Template template) {
+    public TemplateCommand(String name, String description, TemplateOld template) {
         super(name, description);
         this.template = template;
     }
@@ -90,7 +90,7 @@ public class TemplateCommand extends OptionalFileInputFileCommand {
     }
 
     private record ImageContentProcessor(
-        Template template
+        TemplateOld template
     ) implements DualImageProcessor<ImageContentData> {
 
         @Override
@@ -175,7 +175,7 @@ public class TemplateCommand extends OptionalFileInputFileCommand {
     private record TextContentProcessor(
         List<String> words,
         Map<String, Drawable> nonTextParts,
-        Template template
+        TemplateOld template
     ) implements SingleImageProcessor<TextDrawData> {
 
         @Override

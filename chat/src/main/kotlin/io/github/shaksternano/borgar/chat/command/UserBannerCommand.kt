@@ -12,7 +12,7 @@ object UserBannerCommand : FileCommand(
         type = CommandArgumentType.User,
         required = false,
     ),
-    requireInput = false,
+    inputRequirement = InputRequirement.NotRequired,
 ) {
 
     override val name: String = "userbanner"

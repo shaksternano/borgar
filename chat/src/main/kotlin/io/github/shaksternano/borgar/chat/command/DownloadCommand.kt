@@ -27,7 +27,7 @@ object DownloadCommand : FileCommand(
         required = false,
         validator = PositiveIntValidator,
     ),
-    requireInput = false,
+    inputRequirement = InputRequirement.NotRequired,
 ) {
 
     override val name: String = "download"

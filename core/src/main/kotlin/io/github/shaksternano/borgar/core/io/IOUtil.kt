@@ -17,10 +17,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import org.apache.commons.io.FileUtils
+import org.reflections.Reflections
+import org.reflections.scanners.Scanners
 import java.io.Closeable
 import java.io.FileNotFoundException
 import java.io.InputStream
 import java.nio.file.Path
+import java.util.regex.Pattern
 import kotlin.io.path.appendBytes
 import kotlin.io.path.createTempFile
 import kotlin.io.path.deleteIfExists
@@ -47,6 +50,25 @@ suspend fun getResource(resourcePath: String): InputStream =
     withContext(Dispatchers.IO) {
         IOUtil.javaClass.classLoader.getResourceAsStream(resourcePath)
     } ?: throw FileNotFoundException("Resource not found: $resourcePath")
+
+suspend fun forEachResource(
+    directory: String,
+    operation: suspend (resourcePath: String, inputStream: InputStream) -> Unit
+) {
+    // Remove trailing forward slashes
+    val trimmedDirectory = directory.trim { it <= ' ' }.replace("/$".toRegex(), "")
+    val packageName = trimmedDirectory.replace(Pattern.quote("/").toRegex(), ".")
+    getResourcePaths(packageName).forEach { resourcePath ->
+        getResource(resourcePath).use { inputStream ->
+            operation(resourcePath, inputStream)
+        }
+    }
+}
+
+private suspend fun getResourcePaths(packageName: String): Set<String> = withContext(Dispatchers.IO) {
+    val reflections = Reflections(packageName, Scanners.Resources)
+    reflections.getResources("(.*?)")
+}
 
 val Path.filename: String
     get() = fileName?.toString() ?: throw IllegalArgumentException("Invalid path")

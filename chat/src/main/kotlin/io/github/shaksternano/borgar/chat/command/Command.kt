@@ -5,6 +5,7 @@ import io.github.shaksternano.borgar.chat.entity.User
 import io.github.shaksternano.borgar.chat.event.CommandEvent
 import io.github.shaksternano.borgar.chat.exception.MissingArgumentException
 import io.github.shaksternano.borgar.core.io.SuspendCloseable
+import io.github.shaksternano.borgar.core.util.asSingletonList
 import io.github.shaksternano.borgar.core.util.startsWithVowel
 import kotlinx.coroutines.flow.firstOrNull
 
@@ -41,7 +42,7 @@ interface Executable : SuspendCloseable {
      * The commands that produced this executable.
      * Should always have at least one element.
      */
-    val commands: List<Command>
+    val commands: List<CommandConfig>
 
     suspend fun run(): List<CommandResponse>
 
@@ -54,7 +55,7 @@ interface Executable : SuspendCloseable {
     ) = Unit
 
     infix fun then(after: Executable): Executable =
-        throw UnsupportedOperationException("Cannot chain ${commands.last().name} with ${after.commands.first().name}")
+        throw NonChainableCommandException(commands.last(), commands.first())
 
     override suspend fun close() = Unit
 }
@@ -173,7 +174,8 @@ abstract class NonChainableCommand : BaseCommand() {
     final override fun createExecutable(arguments: CommandArguments, event: CommandEvent): Executable =
         object : Executable {
 
-            override val commands: List<Command> = listOf(this@NonChainableCommand)
+            override val commands: List<CommandConfig> =
+                CommandConfig(this@NonChainableCommand, arguments).asSingletonList()
 
             override suspend fun run(): List<CommandResponse> = run(arguments, event)
 

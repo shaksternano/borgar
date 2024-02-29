@@ -1,12 +1,17 @@
 package io.github.shaksternano.borgar.core.media
 
 import com.sksamuel.scrimage.ImmutableImage
-import io.github.shaksternano.borgar.core.graphics.OverlayData
+import io.github.shaksternano.borgar.core.graphics.*
+import io.github.shaksternano.borgar.core.graphics.drawable.Drawable
+import io.github.shaksternano.borgar.core.graphics.drawable.ParagraphCompositeDrawable
+import io.github.shaksternano.borgar.core.media.template.Template
 import java.awt.Color
+import java.awt.Font
 import java.awt.Shape
 import java.awt.image.BufferedImage
 import java.awt.image.ColorConvertOp
 import kotlin.math.*
+import kotlin.time.Duration
 
 val BufferedImage.typeNoCustom: Int
     get() =
@@ -400,3 +405,119 @@ private fun getX(index: Int, width: Int): Int =
 
 private fun getY(index: Int, width: Int): Int =
     index / width
+
+data class TextDrawData(
+    val text: Drawable,
+    val textX: Int,
+    val textY: Int,
+    val textCentreX: Int,
+    val textCentreY: Int,
+    val font: Font,
+)
+
+fun getTextDrawData(
+    image: BufferedImage,
+    words: List<String>,
+    nonTextParts: Map<String, Drawable>,
+    template: Template,
+): TextDrawData {
+    val paragraph = ParagraphCompositeDrawable.Builder(nonTextParts)
+        .addWords(words, template.customTextDrawableSupplier)
+        .build(template.textContentAlignment, template.textContentWidth)
+
+    val graphics = image.createGraphics()
+
+    val font = template.font
+    graphics.font = font
+    ImageUtil.configureTextDrawQuality(graphics)
+
+    graphics.fitFontWidth(template.textContentWidth, paragraph)
+    graphics.fitFontHeight(template.textContentHeight, paragraph)
+    val paragraphHeight = graphics.fitFontHeight(template.textContentHeight, paragraph)
+    val fontSize = graphics.font.size2D
+
+    graphics.dispose()
+
+    val resizedFont = font.deriveFont(fontSize)
+
+    val containerCentreY = template.textContentY + (template.textContentHeight / 2)
+
+    val textX = template.textContentX
+    val textY = when (template.textContentPosition) {
+        ContentPosition.TOP -> template.textContentY
+        ContentPosition.BOTTOM -> template.textContentY + (template.textContentHeight - paragraphHeight)
+        else -> containerCentreY - (paragraphHeight / 2)
+    }
+
+    val textCentreX = template.textContentX + (template.textContentWidth / 2)
+    val textCentreY = template.textContentY + (template.textContentHeight / 2)
+
+    return TextDrawData(
+        paragraph,
+        textX,
+        textY,
+        textCentreX,
+        textCentreY,
+        resizedFont
+    )
+}
+
+suspend fun drawText(
+    image: BufferedImage,
+    textDrawData: TextDrawData,
+    timestamp: Duration,
+    template: Template,
+): BufferedImage {
+    val imageWithText = image.copySize()
+    val graphics = imageWithText.createGraphics()
+
+    val contentClip = template.getContentClip()
+    template.fill?.let {
+        graphics.color = it
+        if (contentClip == null)
+            graphics.fillRect(0, 0, imageWithText.width, imageWithText.height)
+        else
+            graphics.fill(contentClip)
+    }
+
+    if (template.isBackground)
+        graphics.drawImage(image, 0, 0, null)
+
+    val font = textDrawData.font
+    graphics.font = font
+    graphics.configureTextDrawQuality()
+    graphics.color = template.textColor
+
+    contentClip?.let {
+        graphics.clip = it
+    }
+
+    val text = textDrawData.text
+    val textX = textDrawData.textX
+    val textY = textDrawData.textY
+    val rotationRadians = template.contentRotationRadians
+    if (rotationRadians != 0.0)
+        graphics.rotate(
+            rotationRadians,
+            textDrawData.textCentreX.toDouble(),
+            textDrawData.textCentreY.toDouble()
+        )
+
+    text.draw(graphics, textX, textY, timestamp)
+
+    if (rotationRadians != 0.0)
+        graphics.rotate(
+            -rotationRadians,
+            textDrawData.textCentreX.toDouble(),
+            textDrawData.textCentreY.toDouble()
+        )
+
+    if (contentClip != null)
+        graphics.clip = null
+
+    if (!template.isBackground)
+        graphics.drawImage(image, 0, 0, null)
+
+    graphics.dispose()
+    return imageWithText
+}

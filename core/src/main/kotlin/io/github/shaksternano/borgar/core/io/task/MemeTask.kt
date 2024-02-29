@@ -1,5 +1,6 @@
 package io.github.shaksternano.borgar.core.io.task
 
+import io.github.shaksternano.borgar.core.graphics.TextAlignment
 import io.github.shaksternano.borgar.core.graphics.configureTextDrawQuality
 import io.github.shaksternano.borgar.core.graphics.drawable.Drawable
 import io.github.shaksternano.borgar.core.graphics.drawable.OutlinedTextDrawable
@@ -10,7 +11,6 @@ import io.github.shaksternano.borgar.core.media.ImageFrame
 import io.github.shaksternano.borgar.core.media.ImageProcessor
 import io.github.shaksternano.borgar.core.media.MediaProcessingConfig
 import io.github.shaksternano.borgar.core.media.SimpleMediaProcessingConfig
-import io.github.shaksternano.borgar.core.media.graphics.TextAlignment
 import io.github.shaksternano.borgar.core.util.splitWords
 import kotlinx.coroutines.flow.Flow
 import java.awt.Color

@@ -6,7 +6,7 @@ import io.github.shaksternano.borgar.core.io.task.FileTask
 import io.github.shaksternano.borgar.core.io.task.UrlFileTask
 
 object ServerIconCommand : FileCommand(
-    requireInput = false,
+    inputRequirement = InputRequirement.NotRequired,
 ) {
 
     override val name: String = "servericon"

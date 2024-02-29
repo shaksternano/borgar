@@ -3,7 +3,7 @@ package io.github.shaksternano.borgar.core.util
 import java.text.DecimalFormat
 import kotlin.reflect.KClass
 
-private val FLOAT_FORMAT = DecimalFormat("0.#")
+val FLOAT_FORMAT = DecimalFormat("0.#")
 
 val <T : Any> T.kClass: KClass<out T>
     get() = this::class

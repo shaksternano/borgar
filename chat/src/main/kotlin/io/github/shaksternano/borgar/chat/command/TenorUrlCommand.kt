@@ -28,7 +28,7 @@ object TenorUrlCommand : FileCommand(
         required = false,
         validator = TenorUrlValidator,
     ),
-    requireInput = false,
+    inputRequirement = InputRequirement.NotRequired,
 ) {
 
     override val name: String = "tenorurl"

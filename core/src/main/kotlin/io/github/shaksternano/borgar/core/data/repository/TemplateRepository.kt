@@ -1,7 +1,7 @@
 package io.github.shaksternano.borgar.core.data.repository
 
-import io.github.shaksternano.borgar.core.media.graphics.Position
-import io.github.shaksternano.borgar.core.media.graphics.TextAlignment
+import io.github.shaksternano.borgar.core.graphics.ContentPosition
+import io.github.shaksternano.borgar.core.graphics.TextAlignment
 import io.github.shaksternano.borgar.core.media.template.CustomTemplate
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -13,7 +13,6 @@ import java.awt.Color
 import java.awt.Font
 import java.util.*
 import java.util.concurrent.CompletableFuture
-import kotlin.jvm.optionals.getOrNull
 
 object TemplateRepository : Repository<TemplateRepository.TemplateTable>() {
 
@@ -32,13 +31,13 @@ object TemplateRepository : Repository<TemplateRepository.TemplateTable>() {
         val imageY = integer("image_y")
         val imageWidth = integer("image_width")
         val imageHeight = integer("image_height")
-        val imagePosition = enumeration<Position>("image_position")
+        val imagePosition = enumeration<ContentPosition>("image_position")
 
         val textX = integer("text_x")
         val textY = integer("text_y")
         val textWidth = integer("text_width")
         val textHeight = integer("text_height")
-        val textPosition = enumeration<Position>("text_position")
+        val textPosition = enumeration<ContentPosition>("text_position")
         val textAlignment = enumeration<TextAlignment>("text_alignment")
         val textFont = varchar("text_font", 100)
         val textColorRgb = integer("text_color_rgb")
@@ -59,6 +58,7 @@ object TemplateRepository : Repository<TemplateRepository.TemplateTable>() {
 
         this[TemplateTable.description],
         this[TemplateTable.mediaUrl],
+
         this[TemplateTable.format],
         this[TemplateTable.resultName],
 
@@ -74,9 +74,9 @@ object TemplateRepository : Repository<TemplateRepository.TemplateTable>() {
         this[TemplateTable.textHeight],
         this[TemplateTable.textPosition],
         this[TemplateTable.textAlignment],
+
         Font(this[TemplateTable.textFont], Font.PLAIN, this[TemplateTable.textMaxSize]),
         Color(this[TemplateTable.textColorRgb]),
-
         this[TemplateTable.rotationRadians],
         this[TemplateTable.isTemplateBackground],
         this[TemplateTable.fillColor]?.let { Color(it) }
@@ -107,9 +107,9 @@ object TemplateRepository : Repository<TemplateRepository.TemplateTable>() {
         this[TemplateTable.textColorRgb] = template.textColor.rgb
         this[TemplateTable.textMaxSize] = template.font.size
 
-        this[TemplateTable.rotationRadians] = template.contentRotation
+        this[TemplateTable.rotationRadians] = template.contentRotationRadians
         this[TemplateTable.isTemplateBackground] = template.isBackground
-        this[TemplateTable.fillColor] = template.fill.getOrNull()?.rgb
+        this[TemplateTable.fillColor] = template.fill?.rgb
     }
 
     suspend fun create(template: CustomTemplate): Unit = dbQuery {

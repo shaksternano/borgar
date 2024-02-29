@@ -12,6 +12,8 @@ import java.util.concurrent.ConcurrentLinkedQueue
 interface FileTask : SuspendCloseable {
 
     val requireInput: Boolean
+    val suppliedInput: DataSource?
+        get() = null
 
     suspend fun run(input: List<DataSource>): List<DataSource>
 
@@ -38,9 +40,7 @@ interface FileTask : SuspendCloseable {
     override suspend fun close() = Unit
 }
 
-abstract class BaseFileTask(
-    final override val requireInput: Boolean,
-) : FileTask {
+abstract class BaseFileTask : FileTask {
 
     private val toDelete: MutableCollection<Path> = ConcurrentLinkedQueue()
 
@@ -54,9 +54,9 @@ abstract class BaseFileTask(
     }
 }
 
-abstract class MappedFileTask : BaseFileTask(
-    requireInput = true,
-) {
+abstract class MappedFileTask : BaseFileTask() {
+
+    override val requireInput: Boolean = true
 
     final override suspend fun run(input: List<DataSource>): List<DataSource> = input.parallelMap {
         process(it).also { output ->

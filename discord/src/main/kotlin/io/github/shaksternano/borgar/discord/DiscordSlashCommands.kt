@@ -20,6 +20,8 @@ import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.OptionData
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 
+const val AFTER_COMMANDS_ARGUMENT = "aftercommands"
+
 suspend fun JDA.registerSlashCommands() {
     listener<SlashCommandInteractionEvent> {
         handleCommand(it)
@@ -38,7 +40,7 @@ private fun Command.toSlash(): SlashCommandData = Command(name, description) {
     if (this@toSlash.chainable) addOptions(
         OptionData(
             OptionType.STRING,
-            "aftercommands",
+            AFTER_COMMANDS_ARGUMENT,
             "The commands to run after this one.",
             false,
         ),
@@ -64,7 +66,7 @@ private suspend fun executeCommand(
     commandEvent: CommandEvent,
     slashEvent: SlashCommandInteractionEvent,
 ) {
-    val afterCommands = arguments.getStringOrEmpty("aftercommands").let {
+    val afterCommands = arguments.getStringOrEmpty(AFTER_COMMANDS_ARGUMENT).let {
         if (it.isBlank()) it
         else if (!it.startsWith(COMMAND_PREFIX)) "$COMMAND_PREFIX$it"
         else it

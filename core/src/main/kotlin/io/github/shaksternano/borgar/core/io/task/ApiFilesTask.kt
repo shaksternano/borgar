@@ -14,10 +14,9 @@ abstract class ApiFilesTask(
     private val fileCount: Int,
     private val filePrefix: String,
     private val maxFileSize: Long,
-) : BaseFileTask(
-    requireInput = false,
-) {
+) : BaseFileTask() {
 
+    override val requireInput: Boolean = false
     private val tags: Set<String> = parseTags(tags)
 
     override suspend fun run(input: List<DataSource>): List<DataSource> = useHttpClient { client ->

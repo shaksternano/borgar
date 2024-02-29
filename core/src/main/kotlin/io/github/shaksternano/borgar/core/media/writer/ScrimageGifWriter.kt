@@ -4,6 +4,7 @@ import com.sksamuel.scrimage.DisposeMethod
 import com.sksamuel.scrimage.ImmutableImage
 import com.sksamuel.scrimage.nio.StreamingGifWriter
 import com.sksamuel.scrimage.nio.StreamingGifWriter.GifStream
+import io.github.shaksternano.borgar.core.graphics.Position
 import io.github.shaksternano.borgar.core.io.SuspendCloseable
 import io.github.shaksternano.borgar.core.io.closeAll
 import io.github.shaksternano.borgar.core.media.*
@@ -180,8 +181,6 @@ class ScrimageGifWriter(
             SuspendCloseable.fromBlocking(gif),
         )
     }
-
-    private data class Position(val x: Int, val y: Int)
 
     /**
      * Indicates that the current frame had a transparent pixel

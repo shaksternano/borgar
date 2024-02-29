@@ -9,8 +9,8 @@ import kotlin.math.max
 import kotlin.time.Duration
 
 class ZippedImageReader(
-    private val firstReader: MediaReader<ImageFrame>,
-    private val secondReader: MediaReader<ImageFrame>,
+    private val firstReader: ImageReader,
+    private val secondReader: ImageReader,
 ) : BaseImageReader() {
 
     private val firstControlling: Boolean =
@@ -40,9 +40,13 @@ class ZippedImageReader(
         if (firstControlling) ifFirstControlling
         else ifSecondControlling
 
-    override suspend fun readFrame(timestamp: Duration): ImageFrame = firstReader.readFrame(timestamp)
-
-    suspend fun readFrame2(timestamp: Duration): ImageFrame = secondReader.readFrame(timestamp)
+    override suspend fun readFrame(timestamp: Duration): ImageFrame {
+        val firstFrame = firstReader.readFrame(timestamp)
+        val secondFrame = secondReader.readFrame(timestamp)
+        return firstFrame.copy(
+            content = DualBufferedImage(firstFrame.content, secondFrame.content),
+        )
+    }
 
     override fun asFlow(): Flow<ImageFrame> = flow {
         val controllingReader = if (firstControlling) firstReader else secondReader
@@ -64,10 +68,10 @@ class ZippedImageReader(
         }
     }
 
-    override suspend fun reversed(): MediaReader<ImageFrame> =
+    override suspend fun reversed(): ImageReader =
         ZippedImageReader(firstReader.reversed(), secondReader.reversed())
 
-    override suspend fun createChangedSpeed(speedMultiplier: Double): MediaReader<ImageFrame> =
+    override suspend fun createChangedSpeed(speedMultiplier: Double): ImageReader =
         ZippedImageReader(firstReader.changeSpeed(speedMultiplier), secondReader.changeSpeed(speedMultiplier))
 
     override suspend fun close() = closeAll(firstReader, secondReader)

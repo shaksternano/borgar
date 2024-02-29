@@ -57,3 +57,16 @@ fun Graphics2D.fillRect(rectangle: Rectangle) {
 }
 
 data class Position(val x: Int, val y: Int)
+
+enum class ContentPosition {
+    TOP,
+    CENTRE,
+    BOTTOM,
+}
+
+enum class TextAlignment {
+    LEFT,
+    CENTRE,
+    RIGHT,
+    JUSTIFY,
+}

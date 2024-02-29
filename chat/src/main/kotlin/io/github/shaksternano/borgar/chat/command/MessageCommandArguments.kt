@@ -30,6 +30,10 @@ class MessageCommandArguments(
         }
     }
 
+    override val typedForm: String = this.arguments.entries.joinToString(" ") { (key, value) ->
+        "$ARGUMENT_PREFIX$key $value"
+    }
+
     override fun contains(key: String): Boolean =
         arguments.containsKey(key)
 

@@ -6,11 +6,10 @@ import com.google.common.collect.Multimaps;
 import io.github.shaksternano.borgar.core.Main;
 import io.github.shaksternano.borgar.core.command.Command;
 import io.github.shaksternano.borgar.core.command.TemplateCommand;
-import io.github.shaksternano.borgar.core.data.repository.TemplateRepository;
 import io.github.shaksternano.borgar.core.exception.InvalidArgumentException;
 import io.github.shaksternano.borgar.core.exception.MissingArgumentException;
 import io.github.shaksternano.borgar.core.function.FloatPredicate;
-import io.github.shaksternano.borgar.core.media.template.CustomTemplate;
+import io.github.shaksternano.borgar.core.media.template.CustomTemplateOld;
 import io.github.shaksternano.borgar.core.util.CompletableFutureUtil;
 import io.github.shaksternano.borgar.core.util.DiscordUtil;
 import io.github.shaksternano.borgar.core.util.MiscUtil;
@@ -64,7 +63,9 @@ public class CommandParser {
         });
     }
 
-    private static CompletableFuture<Optional<CustomTemplate>> getCustomTemplate(String commandName, MessageReceivedEvent event) {
+    private static CompletableFuture<Optional<CustomTemplateOld>> getCustomTemplate(String commandName, MessageReceivedEvent event) {
+        throw new UnsupportedOperationException("Not implemented");
+        /*
         var commandNameParts = commandName.split(":", 2);
         var templateCommandName = commandNameParts[0];
         if (commandNameParts.length == 1) {
@@ -86,6 +87,7 @@ public class CommandParser {
                     .exceptionally(throwable -> Optional.empty());
             }
         }
+        */
     }
 
     private static <T> void handleCommand(Command<T> command, List<String> commandParts, MessageReceivedEvent event) {

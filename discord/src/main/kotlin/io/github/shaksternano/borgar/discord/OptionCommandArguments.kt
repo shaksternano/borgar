@@ -1,9 +1,11 @@
 package io.github.shaksternano.borgar.discord
 
+import io.github.shaksternano.borgar.chat.command.ARGUMENT_PREFIX
 import io.github.shaksternano.borgar.chat.command.CommandArgumentType
 import io.github.shaksternano.borgar.chat.command.CommandArguments
 import io.github.shaksternano.borgar.chat.command.SimpleCommandArgumentType
 import io.github.shaksternano.borgar.chat.entity.Attachment
+import io.github.shaksternano.borgar.core.util.formatted
 import io.github.shaksternano.borgar.core.util.hash
 import io.github.shaksternano.borgar.core.util.kClass
 import io.github.shaksternano.borgar.discord.entity.DiscordMentionable
@@ -11,11 +13,23 @@ import io.github.shaksternano.borgar.discord.entity.DiscordRole
 import io.github.shaksternano.borgar.discord.entity.DiscordUser
 import io.github.shaksternano.borgar.discord.entity.channel.DiscordChannel
 import net.dv8tion.jda.api.interactions.commands.CommandInteractionPayload
+import net.dv8tion.jda.api.interactions.commands.OptionType
 
 class OptionCommandArguments(
     private val interaction: CommandInteractionPayload,
     override val defaultKey: String?
 ) : CommandArguments {
+
+    override val typedForm: String = interaction.options
+        .filter {
+            it.name != AFTER_COMMANDS_ARGUMENT
+        }
+        .joinToString(" ") {
+            val formatted =
+                if (it.type == OptionType.NUMBER) it.asDouble.formatted
+                else it.asString
+            "$ARGUMENT_PREFIX${it.name} $formatted"
+        }
 
     override fun contains(key: String): Boolean =
         interaction.getOption(key) != null

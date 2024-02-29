@@ -5,7 +5,7 @@ import io.github.shaksternano.borgar.core.data.DatabaseConnectionKt;
 import io.github.shaksternano.borgar.core.emoji.EmojiUtil;
 import io.github.shaksternano.borgar.core.listener.CommandListener;
 import io.github.shaksternano.borgar.core.logging.DiscordLogger;
-import io.github.shaksternano.borgar.core.media.template.ResourceTemplate;
+import io.github.shaksternano.borgar.core.media.template.ResourceTemplateOld;
 import io.github.shaksternano.borgar.core.util.EnvironmentOld;
 import io.github.shaksternano.borgar.core.util.Fonts;
 import io.github.shaksternano.borgar.core.util.MiscUtil;
@@ -88,7 +88,7 @@ public class Main {
         connectToPostgreSql();
 
         Fonts.registerFonts();
-        ResourceTemplate.validate();
+        ResourceTemplateOld.validate();
 
         initJda(initDiscordBotToken());
 

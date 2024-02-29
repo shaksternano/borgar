@@ -5,6 +5,7 @@ import io.github.shaksternano.borgar.chat.entity.Attachment
 interface CommandArguments {
 
     val defaultKey: String?
+    val typedForm: String
 
     operator fun contains(key: String): Boolean
 

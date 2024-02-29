@@ -2,7 +2,7 @@ package io.github.shaksternano.borgar.core
 
 import io.github.shaksternano.borgar.core.data.connectToDatabase
 import io.github.shaksternano.borgar.core.emoji.EmojiUtil
-import io.github.shaksternano.borgar.core.util.Fonts
+import io.github.shaksternano.borgar.core.graphics.registerFonts
 import io.github.shaksternano.borgar.core.util.getEnvVar
 import io.github.shaksternano.borgar.core.util.loadEnv
 import org.bytedeco.ffmpeg.global.avutil
@@ -12,11 +12,11 @@ import kotlin.io.path.Path
 
 val logger: Logger = LoggerFactory.getLogger("Borgar")
 
-fun initCore() {
+suspend fun initCore() {
     val envFileName = ".env"
     loadEnv(Path(envFileName))
     connectToPostgreSql()
-    Fonts.registerFonts()
+    registerFonts()
     EmojiUtil.initEmojiUnicodeSet()
     EmojiUtil.initEmojiShortCodesToUrlsMap()
     avutil.av_log_set_level(avutil.AV_LOG_PANIC)
@@ -39,6 +39,6 @@ private fun connectToPostgreSql() {
         url,
         username,
         password,
-        "org.postgresql.Driver"
+        "org.postgresql.Driver",
     )
 }
