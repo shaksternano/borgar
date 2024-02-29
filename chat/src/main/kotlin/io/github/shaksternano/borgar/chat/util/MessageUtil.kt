@@ -26,7 +26,7 @@ suspend fun CommandMessageIntersection.getUrlsExceptSelf(getGif: Boolean): List<
         val urls = buildList {
             addAll(
                 it.attachments.map { attachment ->
-                    UrlInfo(attachment.proxyUrl, attachment.filename)
+                    UrlInfo(attachment.url, attachment.filename)
                 }
             )
             addAll(
@@ -71,9 +71,6 @@ private suspend fun CommandMessageIntersection.getUrlDrawables(): Map<String, Dr
 
 suspend fun CommandMessageIntersection.getEmojiUrls(): Map<String, String> =
     getEmojiUrls(false)
-
-suspend fun CommandMessageIntersection.getFirstEmojiUrl(): String? =
-    getEmojiUrls(true).values.firstOrNull()
 
 private suspend fun CommandMessageIntersection.getEmojiUrls(onlyGetFirst: Boolean): Map<String, String> {
     val emojiUrls = mutableMapOf<String, String>()

@@ -1,15 +1,12 @@
 package io.github.shaksternano.borgar.core.command;
 
 import com.google.common.collect.ListMultimap;
-import io.github.shaksternano.borgar.core.command.util.CommandRegistry;
 import io.github.shaksternano.borgar.core.command.util.CommandResponse;
-import io.github.shaksternano.borgar.core.data.repository.TemplateRepository;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.utils.SplitUtil;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -76,6 +73,8 @@ public class HelpCommand extends BaseCommand<Void> {
     }
 
     private static CompletableFuture<List<CommandInfo>> getCommandInfos(String entityId) {
+        throw new UnsupportedOperationException("Not implemented");
+        /*
         return TemplateRepository.readAllFuture(entityId).thenApply(templates -> {
             List<CommandInfo> commandInfos = new ArrayList<>();
             for (var command : CommandRegistry.getCommands()) {
@@ -86,6 +85,7 @@ public class HelpCommand extends BaseCommand<Void> {
             }
             return commandInfos;
         });
+        */
     }
 
     private static List<String> createHelpMessages(Collection<CommandInfo> commandInfo) {

@@ -25,7 +25,7 @@ object HelpCommand : NonChainableCommand() {
     )
 
     private val cachedCommandInfos: Cache<String, String> = CacheBuilder.newBuilder()
-        .maximumSize(100)
+        .maximumSize(1000)
         .build()
 
     override suspend fun run(
@@ -52,6 +52,9 @@ object HelpCommand : NonChainableCommand() {
             }
         }
     }
+
+    fun removeCachedMessage(entityId: String) =
+        cachedCommandInfos.invalidate(entityId)
 
     private suspend fun getHelpMessages(entityId: String, maxContentLength: Int, fromGuild: Boolean): List<String> {
         val cached = cachedCommandInfos.getIfPresent(entityId)

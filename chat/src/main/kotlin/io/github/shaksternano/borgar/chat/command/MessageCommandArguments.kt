@@ -38,7 +38,8 @@ class MessageCommandArguments(
         arguments.containsKey(key)
 
     override fun <T> get(key: String, argumentType: SimpleCommandArgumentType<T>): T? =
-        arguments[key]?.let { argumentType.parse(it, message) }
+        if (argumentType == CommandArgumentType.Attachment) argumentType.parse("", message)
+        else arguments[key]?.let { argumentType.parse(it, message) }
 
     override suspend fun <T> getSuspend(key: String, argumentType: CommandArgumentType<T>): T? = when (argumentType) {
         is SimpleCommandArgumentType -> this[key, argumentType]

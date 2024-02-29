@@ -3,16 +3,11 @@ package io.github.shaksternano.borgar.core.data.repository
 import io.github.shaksternano.borgar.core.graphics.ContentPosition
 import io.github.shaksternano.borgar.core.graphics.TextAlignment
 import io.github.shaksternano.borgar.core.media.template.CustomTemplate
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.future.future
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.statements.UpdateBuilder
 import java.awt.Color
 import java.awt.Font
-import java.util.*
-import java.util.concurrent.CompletableFuture
 
 object TemplateRepository : Repository<TemplateRepository.TemplateTable>() {
 
@@ -124,25 +119,10 @@ object TemplateRepository : Repository<TemplateRepository.TemplateTable>() {
         }.firstOrNull()
     }
 
-    @JvmStatic
-    @OptIn(DelicateCoroutinesApi::class)
-    fun readFuture(
-        commandName: String,
-        entityId: String,
-    ): CompletableFuture<Optional<CustomTemplate>> = GlobalScope.future {
-        Optional.ofNullable(read(commandName, entityId))
-    }
-
     suspend fun readAll(entityId: String): List<CustomTemplate> = dbQuery {
         selectAll().where { TemplateTable.entityId eq entityId }.map {
             it.read()
         }
-    }
-
-    @JvmStatic
-    @OptIn(DelicateCoroutinesApi::class)
-    fun readAllFuture(entityId: String): CompletableFuture<List<CustomTemplate>> = GlobalScope.future {
-        readAll(entityId)
     }
 
     suspend fun exists(commandName: String, entityId: String): Boolean = dbQuery {

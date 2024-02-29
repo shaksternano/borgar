@@ -7,6 +7,9 @@ data class CommandResponse(
     val files: List<DataSource> = emptyList(),
     val suppressEmbeds: Boolean = false,
     val deferReply: Boolean = true,
+    /**
+     * Setting this in the constructor does nothing.
+     */
     val ephemeral: Boolean = false,
     val responseData: Any? = null,
 )
