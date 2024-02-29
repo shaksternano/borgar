@@ -25,13 +25,13 @@ abstract class FileCommand(
     private val takesInput = inputRequirement != InputRequirement.NotRequired
     final override val argumentInfo: Set<CommandArgumentInfo<*>> =
         if (takesInput) {
-            val argumentInfoBuilder = mutableSetOf<CommandArgumentInfo<*>>()
-            argumentInfoBuilder.addAll(argumentInfo)
-            argumentInfoBuilder.addAll(
-                ATTACHMENT_ARGUMENT_INFO,
-                URL_ARGUMENT_INFO,
-            )
-            argumentInfoBuilder
+            buildSet {
+                addAll(argumentInfo)
+                addAll(
+                    ATTACHMENT_ARGUMENT_INFO,
+                    URL_ARGUMENT_INFO,
+                )
+            }
         } else {
             argumentInfo.toSet()
         }
