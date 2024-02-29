@@ -153,27 +153,25 @@ private fun CommandArgumentInfo<*>.toOption(): OptionData {
 private fun OptionData.setRequiredRange(validator: Validator<*>) {
     if (validator is RangeValidator<*>) {
         val range = validator.range
-        val start = range.start
         val end = range.endInclusive
-        when (start.kClass) {
-            Int::class -> setRequiredRange((start as Int).toLong(), (end as Int).toLong())
-            Long::class -> setRequiredRange(start as Long, end as Long)
-            Float::class -> setRequiredRange((start as Float).toDouble(), (end as Float).toDouble())
-            Double::class -> setRequiredRange(start as Double, end as Double)
-            Number::class -> setRequiredRange((start as Number).toDouble(), (end as Number).toDouble())
+        when (val start = range.start) {
+            is Int -> setRequiredRange(start.toLong(), (end as Int).toLong())
+            is Long -> setRequiredRange(start, end as Long)
+            is Float -> setRequiredRange(start.toDouble(), (end as Float).toDouble())
+            is Double -> setRequiredRange(start, end as Double)
+            is Number -> setRequiredRange(start.toDouble(), (end as Number).toDouble())
         }
     }
 }
 
 private fun OptionData.setMinValue(validator: Validator<*>) {
     if (validator is MinValueValidator<*>) {
-        val minValue = validator.minValue
-        when (minValue.kClass) {
-            Int::class -> setMinValue((minValue as Int).toLong())
-            Long::class -> setMinValue(minValue as Long)
-            Float::class -> setMinValue((minValue as Float).toDouble())
-            Double::class -> setMinValue(minValue as Double)
-            Number::class -> setMinValue((minValue as Number).toDouble())
+        when (val minValue = validator.minValue) {
+            is Int -> setMinValue(minValue.toLong())
+            is Long -> setMinValue(minValue)
+            is Float -> setMinValue(minValue.toDouble())
+            is Double -> setMinValue(minValue)
+            is Number -> setMinValue(minValue.toDouble())
         }
     }
 }
