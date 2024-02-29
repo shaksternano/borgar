@@ -28,11 +28,11 @@ class WebPImageReader(
     private val deleteInputOnClose: Boolean,
 ) : BaseImageReader() {
 
-    override var frameRate: Double
-    override var duration: Duration
-    override var frameDuration: Duration
-    override var width: Int
-    override var height: Int
+    override val frameRate: Double
+    override val duration: Duration
+    override val frameDuration: Duration
+    override val width: Int
+    override val height: Int
     override val loopCount: Int = 0
     private val frameInfos: List<FrameInfo>
 
