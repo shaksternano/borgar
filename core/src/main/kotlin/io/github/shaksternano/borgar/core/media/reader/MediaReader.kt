@@ -1,6 +1,7 @@
 package io.github.shaksternano.borgar.core.media.reader
 
 import io.github.shaksternano.borgar.core.io.SuspendCloseable
+import io.github.shaksternano.borgar.core.io.closeAll
 import io.github.shaksternano.borgar.core.media.AudioFrame
 import io.github.shaksternano.borgar.core.media.ImageFrame
 import io.github.shaksternano.borgar.core.media.ImageProcessor
@@ -73,6 +74,7 @@ suspend fun <E, T : VideoFrame<E>> MediaReader<T>.readContent(timestamp: Duratio
 suspend fun ImageReader.transform(processor: ImageProcessor<*>, outputFormat: String): ImageReader =
     transformImpl(processor, outputFormat)
 
+// Hide the generic type
 private suspend fun <T> ImageReader.transformImpl(processor: ImageProcessor<T>, outputFormat: String): ImageReader {
     val constantData = processor.constantData(first(), asFlow(), outputFormat)
     return TransformedImageReader(this, processor, constantData)
@@ -104,5 +106,8 @@ private class TransformedImageReader<T>(
             it.copy(content = transformedImage)
         }
 
-    override suspend fun close() = reader.close()
+    override suspend fun close() = closeAll(
+        reader,
+        processor,
+    )
 }
