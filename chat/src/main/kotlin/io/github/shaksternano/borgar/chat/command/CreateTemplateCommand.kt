@@ -63,7 +63,8 @@ object CreateTemplateCommand : NonChainableCommand() {
         }.getOrElse {
             return CommandResponse("Invalid JSON!").asSingletonList()
         }
-        val entityId = event.getGuild()?.id ?: event.getAuthor().id
+        val guild = event.getGuild()
+        val entityId = guild?.id ?: event.getAuthor().id
         return try {
             val commandName = getString(templateJson, "command_name").lowercase()
             if (COMMANDS_AND_ALIASES.containsKey(commandName)) {
@@ -75,6 +76,7 @@ object CreateTemplateCommand : NonChainableCommand() {
             val template = createTemplate(templateJson, commandName, entityId)
             TemplateRepository.create(template)
             HelpCommand.removeCachedMessage(entityId)
+            guild?.addCommand(TemplateCommand(template))
             CommandResponse("Template created!")
         } catch (e: InvalidTemplateException) {
             CommandResponse("Invalid template file. ${e.message}")

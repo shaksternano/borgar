@@ -1,9 +1,11 @@
 package io.github.shaksternano.borgar.discord.entity
 
 import io.github.shaksternano.borgar.chat.BotManager
+import io.github.shaksternano.borgar.chat.command.Command
 import io.github.shaksternano.borgar.chat.entity.*
 import io.github.shaksternano.borgar.discord.DiscordManager
 import io.github.shaksternano.borgar.discord.await
+import io.github.shaksternano.borgar.discord.toSlash
 
 data class DiscordGuild(
     private val discordGuild: net.dv8tion.jda.api.entities.Guild
@@ -33,4 +35,14 @@ data class DiscordGuild(
 
     override suspend fun getPublicRole(): Role =
         DiscordRole(discordGuild.publicRole)
+
+    override suspend fun addCommand(command: Command) {
+        discordGuild.upsertCommand(command.toSlash()).await()
+    }
+
+    override suspend fun deleteCommand(commandName: String) {
+        val commands = discordGuild.retrieveCommands().await()
+        val command = commands.find { it.name == commandName } ?: return
+        discordGuild.deleteCommandById(command.id).await()
+    }
 }

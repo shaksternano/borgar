@@ -1,5 +1,7 @@
 package io.github.shaksternano.borgar.chat.entity
 
+import io.github.shaksternano.borgar.chat.command.Command
+
 interface Guild : Entity {
 
     val name: String
@@ -22,4 +24,8 @@ interface Guild : Entity {
     suspend fun getMaxFileSize(): Long
 
     suspend fun getPublicRole(): Role
+
+    suspend fun addCommand(command: Command)
+
+    suspend fun deleteCommand(commandName: String)
 }

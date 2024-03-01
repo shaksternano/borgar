@@ -22,12 +22,14 @@ object DeleteTemplateCommand : NonChainableCommand() {
 
     override suspend fun run(arguments: CommandArguments, event: CommandEvent): List<CommandResponse> {
         val commandName = arguments.getRequired("template", CommandArgumentType.String).lowercase()
-        val entityId = event.getGuild()?.id ?: event.getAuthor().id
+        val guild = event.getGuild()
+        val entityId = guild?.id ?: event.getAuthor().id
         if (!TemplateRepository.exists(commandName, entityId)) {
             return CommandResponse("No template with the command name **$commandName** exists!").asSingletonList()
         }
         TemplateRepository.delete(commandName, entityId)
         HelpCommand.removeCachedMessage(entityId)
+        guild?.deleteCommand(commandName)
         return CommandResponse("Template **$commandName** deleted!").asSingletonList()
     }
 }

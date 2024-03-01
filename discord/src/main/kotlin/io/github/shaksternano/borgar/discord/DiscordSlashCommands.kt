@@ -6,6 +6,7 @@ import dev.minn.jda.ktx.interactions.commands.updateCommands
 import io.github.shaksternano.borgar.chat.command.*
 import io.github.shaksternano.borgar.chat.entity.*
 import io.github.shaksternano.borgar.chat.event.CommandEvent
+import io.github.shaksternano.borgar.core.data.repository.TemplateRepository
 import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.core.util.*
 import io.github.shaksternano.borgar.discord.entity.DiscordUser
@@ -32,7 +33,7 @@ suspend fun JDA.registerSlashCommands() {
     }.await()
 }
 
-private fun Command.toSlash(): SlashCommandData = Command(name, description) {
+fun Command.toSlash(): SlashCommandData = Command(name, description) {
     isGuildOnly = guildOnly
     val discordPermissions = requiredPermissions.map { it.toDiscord() }
     defaultPermissions = DefaultMemberPermissions.enabledFor(discordPermissions)
@@ -49,7 +50,10 @@ private fun Command.toSlash(): SlashCommandData = Command(name, description) {
 
 private suspend fun handleCommand(event: SlashCommandInteractionEvent) {
     val name = event.name
-    val command = COMMANDS[name]
+    val command = COMMANDS[name] ?: run {
+        val entityId = event.guild?.id ?: event.user.id
+        TemplateRepository.read(name, entityId)?.let(::TemplateCommand)
+    }
     if (command == null) {
         logger.error("Unknown command: $name")
         event.reply("Unknown command!").await()
