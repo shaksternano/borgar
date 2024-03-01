@@ -34,7 +34,7 @@ object CreateTemplateCommand : NonChainableCommand() {
     override val description: String = "Creates a custom image template for this server or DM."
     override val argumentInfo: Set<CommandArgumentInfo<*>> = setOf(
         CommandArgumentInfo(
-            key = "attachment",
+            key = "file",
             description = "The template json.",
             type = CommandArgumentType.Attachment,
             required = false,
@@ -44,7 +44,7 @@ object CreateTemplateCommand : NonChainableCommand() {
             description = "The template json url.",
             type = CommandArgumentType.String,
             required = false,
-        )
+        ),
     )
     override val defaultArgumentKey: String = "url"
     override val requiredPermissions: Set<Permission> = setOf(Permission.MANAGE_GUILD_EXPRESSIONS)
@@ -84,12 +84,12 @@ object CreateTemplateCommand : NonChainableCommand() {
     }
 
     private suspend fun getTemplateFileUrl(arguments: CommandArguments, event: CommandEvent): String? {
-        val templateFileAttachment = arguments["attachment", CommandArgumentType.Attachment]
+        val templateFileAttachment = arguments.getDefaultAttachment()
         if (templateFileAttachment != null) {
             return templateFileAttachment.url
         }
         val messageIntersection = event.asMessageIntersection(arguments)
-        val templateFileUrl = arguments["url", CommandArgumentType.String]
+        val templateFileUrl = arguments.getDefaultUrl()
         if (templateFileUrl != null) {
             return templateFileUrl
         }
