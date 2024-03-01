@@ -1,6 +1,6 @@
 package io.github.shaksternano.borgar.core.io.task
 
-import io.github.shaksternano.borgar.core.exception.FailedOperationException
+import io.github.shaksternano.borgar.core.exception.ErrorResponseException
 import io.github.shaksternano.borgar.core.graphics.OverlayData
 import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.media.*
@@ -44,13 +44,13 @@ private class SpeechBubbleProcessor(
         val speechBubbleImage = createImageReader(dataSource).firstContent()
         val minDimension = 3
         if (width < minDimension) {
-            throw FailedOperationException("Image width of $width pixels is too small!")
+            throw ErrorResponseException("Image width of $width pixels is too small!")
         } else {
             if (speechBubbleImage.height < speechBubbleImage.width) {
                 val scaleRatio = width.toDouble() / speechBubbleImage.width
                 val newHeight = (speechBubbleImage.height * scaleRatio).toInt()
                 if (newHeight < minDimension) {
-                    throw FailedOperationException("Image height of $height pixels is too small!")
+                    throw ErrorResponseException("Image height of $height pixels is too small!")
                 }
             }
         }

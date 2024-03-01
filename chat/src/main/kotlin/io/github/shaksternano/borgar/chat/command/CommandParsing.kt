@@ -13,7 +13,6 @@ import io.github.shaksternano.borgar.chat.exception.CommandException
 import io.github.shaksternano.borgar.chat.exception.MissingArgumentException
 import io.github.shaksternano.borgar.core.data.repository.TemplateRepository
 import io.github.shaksternano.borgar.core.exception.ErrorResponseException
-import io.github.shaksternano.borgar.core.exception.FailedOperationException
 import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.core.util.endOfWord
 import io.github.shaksternano.borgar.core.util.indicesOfPrefix
@@ -159,8 +158,6 @@ fun handleError(throwable: Throwable, manager: BotManager): String = when (throw
         is NonChainableCommandException -> cause.message
 
         is ErrorResponseException -> cause.message
-
-        is FailedOperationException -> cause.message
 
         is MissingArgumentException -> cause.message
 

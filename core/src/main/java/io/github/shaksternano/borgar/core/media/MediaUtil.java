@@ -2,7 +2,6 @@ package io.github.shaksternano.borgar.core.media;
 
 import com.google.common.io.Files;
 import io.github.shaksternano.borgar.core.collect.MappedList;
-import io.github.shaksternano.borgar.core.exception.FailedOperationException;
 import io.github.shaksternano.borgar.core.io.FileUtil;
 import io.github.shaksternano.borgar.core.media.imageprocessor.BasicImageProcessor;
 import io.github.shaksternano.borgar.core.media.imageprocessor.DualImageProcessor;
@@ -281,7 +280,7 @@ public class MediaUtil {
                 && toKeep.getWidth() == width
                 && toKeep.getHeight() == height
             )) {
-                throw new FailedOperationException(failureMessage);
+                throw new IllegalStateException(failureMessage);
             } else {
                 var finalToKeep = toKeep;
                 return processMedia(

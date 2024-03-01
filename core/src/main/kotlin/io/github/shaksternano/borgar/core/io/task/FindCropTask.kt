@@ -1,6 +1,6 @@
 package io.github.shaksternano.borgar.core.io.task
 
-import io.github.shaksternano.borgar.core.exception.FailedOperationException
+import io.github.shaksternano.borgar.core.exception.ErrorResponseException
 import io.github.shaksternano.borgar.core.media.ImageFrame
 import io.github.shaksternano.borgar.core.media.ImageProcessor
 import io.github.shaksternano.borgar.core.media.MediaProcessingConfig
@@ -71,7 +71,7 @@ private class FindCropProcessor(
             && toKeep.width == width
             && toKeep.height == height
         ) {
-            throw FailedOperationException(failureMessage)
+            throw ErrorResponseException(failureMessage)
         } else {
             FindCropData(toKeep)
         }

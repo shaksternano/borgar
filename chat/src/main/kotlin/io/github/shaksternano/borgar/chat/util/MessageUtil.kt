@@ -4,7 +4,7 @@ import io.github.shaksternano.borgar.chat.command.CommandMessageIntersection
 import io.github.shaksternano.borgar.chat.entity.CustomEmoji
 import io.github.shaksternano.borgar.chat.entity.getContent
 import io.github.shaksternano.borgar.core.emoji.EmojiUtil
-import io.github.shaksternano.borgar.core.exception.FailedOperationException
+import io.github.shaksternano.borgar.core.exception.ErrorResponseException
 import io.github.shaksternano.borgar.core.graphics.drawable.Drawable
 import io.github.shaksternano.borgar.core.graphics.drawable.ImageDrawable
 import io.github.shaksternano.borgar.core.io.DataSource
@@ -162,12 +162,12 @@ suspend fun <T> CommandMessageIntersection.searchExceptSelf(find: suspend (Comma
 suspend fun <T> CommandMessageIntersection.searchOrThrow(
     errorMessage: String,
     find: suspend (CommandMessageIntersection) -> T?,
-): T = search(find) ?: throw FailedOperationException(errorMessage)
+): T = search(find) ?: throw ErrorResponseException(errorMessage)
 
 suspend fun <T> CommandMessageIntersection.searchExceptSelfOrThrow(
     errorMessage: String,
     find: suspend (CommandMessageIntersection) -> T?,
-): T = searchExceptSelf(find) ?: throw FailedOperationException(errorMessage)
+): T = searchExceptSelf(find) ?: throw ErrorResponseException(errorMessage)
 
 private suspend fun <T> CommandMessageIntersection.searchVisitors(
     find: suspend (CommandMessageIntersection) -> T?,
