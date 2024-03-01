@@ -41,49 +41,45 @@ class ScrimageGifWriter(
         val currentImage = frame.content
             .bound(MAX_DIMENSION)
             .convertType(BufferedImage.TYPE_INT_ARGB)
-        val previousImage = previousImage
-        if (previousImage != null && isSimilar(previousImage, currentImage)) {
+        val previousImage1 = previousImage
+        if (previousImage1 != null && isSimilar(previousImage1, currentImage)) {
             // Merge duplicate sequential frames into one.
             pendingDuration += frame.duration
         } else {
-            // Write the previous frame if it exists and the duration is long enough.
-            pendingWrite?.let {
-                if (pendingDuration >= GIF_MINIMUM_FRAME_DURATION) {
-                    writeFrame(it, pendingDuration, pendingDisposeMethod)
-                    pendingWrite = null
-                }
-            }
-
             // Optimise transparency.
-            val (toWrite, disposeMethod) = if (previousImage == null) {
+            val (toWrite, disposeMethod) = if (previousImage1 == null) {
                 // First frame
-                currentImage to if (isFullyOpaque(currentImage)) {
-                    DisposeMethod.DO_NOT_DISPOSE
-                } else {
-                    DisposeMethod.RESTORE_TO_BACKGROUND_COLOR
-                }
+                currentImage to DisposeMethod.DO_NOT_DISPOSE
             } else {
                 // Subsequent frames
                 try {
-                    optimiseTransparency(previousImage, currentImage) to DisposeMethod.DO_NOT_DISPOSE
+                    optimiseTransparency(previousImage1, currentImage) to DisposeMethod.DO_NOT_DISPOSE
                 } catch (e: CurrentTransparentException) {
+                    pendingDisposeMethod = DisposeMethod.RESTORE_TO_BACKGROUND_COLOR
                     currentImage to DisposeMethod.RESTORE_TO_BACKGROUND_COLOR
                 }
             }
 
-            val pendingWrite = pendingWrite
-            if (pendingWrite == null) {
-                this.previousImage = currentImage
-                this.pendingWrite = toWrite
+            // Write the previous frame if it exists and the duration is long enough.
+            val pendingWrite1 = pendingWrite
+            if (pendingWrite1 != null && pendingDuration >= GIF_MINIMUM_FRAME_DURATION) {
+                writeFrame(pendingWrite1, pendingDuration, pendingDisposeMethod)
+                pendingWrite = null
+            }
+
+            val pendingWrite2 = pendingWrite
+            if (pendingWrite2 == null) {
+                previousImage = currentImage
+                pendingWrite = toWrite
                 pendingDuration = frame.duration
                 pendingDisposeMethod = disposeMethod
             } else {
                 // Handle the minimum frame duration.
                 val remainingDuration = GIF_MINIMUM_FRAME_DURATION - pendingDuration
                 if (remainingDuration < frame.duration) {
-                    writeFrame(pendingWrite, pendingDuration, pendingDisposeMethod)
-                    this.previousImage = currentImage
-                    this.pendingWrite = toWrite
+                    writeFrame(pendingWrite2, pendingDuration, pendingDisposeMethod)
+                    previousImage = currentImage
+                    pendingWrite = toWrite
                     pendingDuration = frame.duration - remainingDuration
                     pendingDisposeMethod = disposeMethod
                 } else {
@@ -142,9 +138,6 @@ class ScrimageGifWriter(
         }
         return true
     }
-
-    private fun isFullyOpaque(image: BufferedImage): Boolean =
-        filterPixels(image) { color -> color.alpha == 255 }
 
     private fun isFullyTransparent(image: BufferedImage): Boolean =
         filterPixels(image) { color -> color.alpha == 0 }
