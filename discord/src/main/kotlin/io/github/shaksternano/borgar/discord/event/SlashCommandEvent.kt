@@ -2,7 +2,10 @@ package io.github.shaksternano.borgar.discord.event
 
 import dev.minn.jda.ktx.messages.MessageCreateBuilder
 import io.github.shaksternano.borgar.chat.BotManager
-import io.github.shaksternano.borgar.chat.command.*
+import io.github.shaksternano.borgar.chat.command.CommandArguments
+import io.github.shaksternano.borgar.chat.command.CommandMessageIntersection
+import io.github.shaksternano.borgar.chat.command.CommandResponse
+import io.github.shaksternano.borgar.chat.command.getDefaultStringOrEmpty
 import io.github.shaksternano.borgar.chat.entity.*
 import io.github.shaksternano.borgar.chat.entity.channel.MessageChannel
 import io.github.shaksternano.borgar.chat.event.CommandEvent
@@ -17,6 +20,7 @@ import io.github.shaksternano.borgar.discord.toFileUpload
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
+import net.dv8tion.jda.api.interactions.commands.OptionType
 import java.time.OffsetDateTime
 
 class SlashCommandEvent(
@@ -80,7 +84,17 @@ class SlashCommandEvent(
             override val id: String = this@SlashCommandEvent.id
             override val manager: BotManager = this@SlashCommandEvent.manager
             override val content: String = arguments.getDefaultStringOrEmpty()
-            override val attachments: List<Attachment> = listOfNotNull(arguments.getDefaultAttachment())
+            override val attachments: List<Attachment> = event.getOptionsByType(OptionType.ATTACHMENT).map {
+                val attachment = it.asAttachment
+                Attachment(
+                    id = attachment.id,
+                    url = attachment.url,
+                    proxyUrl = attachment.proxyUrl,
+                    filename = attachment.fileName,
+                    manager = manager,
+                    ephemeral = true,
+                )
+            }
             override val embeds: List<MessageEmbed> = listOf()
             override val customEmojis: List<CustomEmoji> = manager.getCustomEmojis(content)
             override val stickers: List<Sticker> = listOf()

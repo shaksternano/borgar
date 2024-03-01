@@ -23,27 +23,29 @@ private const val MAX_PAST_MESSAGES_TO_CHECK: Int = 100
 
 suspend fun CommandMessageIntersection.getUrlsExceptSelf(getGif: Boolean): List<UrlInfo> =
     searchExceptSelf {
-        val urls = buildList {
-            addAll(
-                it.attachments.map { attachment ->
-                    UrlInfo(attachment.url, attachment.filename)
-                }
-            )
-            addAll(
-                it.embeds.mapNotNull {
-                    it.getContent(getGif)
-                }
-            )
-            addAll(
-                it.content.getUrls().map {
-                    retrieveTenorUrlOrDefault(it, getGif)
-                }
-            )
-        }
+        val urls = it.getUrls(getGif)
         urls.ifEmpty {
             null
         }
     } ?: emptyList()
+
+suspend fun CommandMessageIntersection.getUrls(getGif: Boolean): List<UrlInfo> = buildList {
+    addAll(
+        attachments.map { attachment ->
+            UrlInfo(attachment.url, attachment.filename)
+        }
+    )
+    addAll(
+        embeds.mapNotNull {
+            it.getContent(getGif)
+        }
+    )
+    addAll(
+        content.getUrls().map {
+            retrieveTenorUrlOrDefault(it, getGif)
+        }
+    )
+}
 
 suspend fun CommandMessageIntersection.getEmojiAndUrlDrawables(): Map<String, Drawable> =
     getEmojiDrawables() + getUrlDrawables()

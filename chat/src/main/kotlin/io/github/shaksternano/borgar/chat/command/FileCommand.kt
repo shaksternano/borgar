@@ -40,7 +40,7 @@ abstract class FileCommand(
 
     final override fun createExecutable(arguments: CommandArguments, event: CommandEvent): Executable =
         FileExecutable(
-            commands = CommandConfig(this, arguments).asSingletonList(),
+            commandConfigs = CommandConfig(this, arguments).asSingletonList(),
             arguments,
             event,
             inputRequirement,
@@ -81,7 +81,7 @@ private val URL_ARGUMENT_INFO = CommandArgumentInfo(
 )
 
 private data class FileExecutable(
-    override val commands: List<CommandConfig>,
+    override val commandConfigs: List<CommandConfig>,
     private val arguments: CommandArguments,
     private val event: CommandEvent,
     private val inputRequirement: InputRequirement,
@@ -117,7 +117,7 @@ private data class FileExecutable(
         else task
         val output = modifiedOutputFormatTask.run(input)
         if (output.isEmpty()) {
-            logger.error("No files were outputted by ${commands.last().typedForm}")
+            logger.error("No files were outputted by ${commandConfigs.last().typedForm}")
             return CommandResponse("An error occurred!").asSingletonList()
         }
         val canUpload = output.filter {
@@ -161,12 +161,12 @@ private data class FileExecutable(
     override fun then(after: Executable): Executable {
         return if (after is FileExecutable) {
             copy(
-                commands = commands + after.commands,
+                commandConfigs = commandConfigs + after.commandConfigs,
                 taskSupplier = {
                     try {
                         taskSupplier() then after.taskSupplier()
                     } catch (e: UnsupportedOperationException) {
-                        throw NonChainableCommandException(commands.last(), after.commands.first())
+                        throw NonChainableCommandException(commandConfigs.last(), after.commandConfigs.first())
                     }
                 },
             )

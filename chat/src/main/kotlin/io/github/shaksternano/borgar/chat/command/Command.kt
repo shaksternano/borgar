@@ -42,7 +42,7 @@ interface Executable : SuspendCloseable {
      * The commands that produced this executable.
      * Should always have at least one element.
      */
-    val commands: List<CommandConfig>
+    val commandConfigs: List<CommandConfig>
 
     suspend fun run(): List<CommandResponse>
 
@@ -55,7 +55,7 @@ interface Executable : SuspendCloseable {
     ) = Unit
 
     infix fun then(after: Executable): Executable =
-        throw NonChainableCommandException(commands.last(), commands.first())
+        throw NonChainableCommandException(commandConfigs.last(), commandConfigs.first())
 
     override suspend fun close() = Unit
 }
@@ -174,7 +174,7 @@ abstract class NonChainableCommand : BaseCommand() {
     final override fun createExecutable(arguments: CommandArguments, event: CommandEvent): Executable =
         object : Executable {
 
-            override val commands: List<CommandConfig> =
+            override val commandConfigs: List<CommandConfig> =
                 CommandConfig(this@NonChainableCommand, arguments).asSingletonList()
 
             override suspend fun run(): List<CommandResponse> = run(arguments, event)

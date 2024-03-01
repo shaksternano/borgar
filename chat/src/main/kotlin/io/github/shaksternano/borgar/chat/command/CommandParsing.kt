@@ -87,13 +87,13 @@ suspend inline fun executeCommands(
     val result = try {
         chained.run()
     } catch (t: Throwable) {
-        throw CommandException(chained.commands, cause = t)
+        throw CommandException(chained.commandConfigs, cause = t)
     }
     if (result.isEmpty())
-        throw CommandException(chained.commands, "No command responses were returned")
+        throw CommandException(chained.commandConfigs, "No command responses were returned")
     result.forEach {
         if (it.content.isBlank() && it.files.isEmpty())
-            throw CommandException(chained.commands, "Command response is empty")
+            throw CommandException(chained.commandConfigs, "Command response is empty")
     }
     result to chained
 } catch (t: Throwable) {
@@ -293,10 +293,10 @@ class CommandNotFoundException(
 ) : Exception()
 
 class NonChainableCommandException(
-    command1: CommandConfig,
-    command2: CommandConfig,
+    commandConfig1: CommandConfig,
+    commandConfig2: CommandConfig,
 ) : Exception() {
-    override val message: String = "Cannot chain **${command1.typedForm}** with **${command2.typedForm}**!"
+    override val message: String = "Cannot chain **${commandConfig1.typedForm}** with **${commandConfig2.typedForm}**!"
 }
 
 class GuildOnlyCommandException(

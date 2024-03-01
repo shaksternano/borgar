@@ -64,5 +64,5 @@ abstract class MappedFileTask : BaseFileTask() {
         }
     }
 
-    abstract suspend fun process(input: DataSource): DataSource
+    protected abstract suspend fun process(input: DataSource): DataSource
 }
