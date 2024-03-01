@@ -6,6 +6,8 @@ import io.github.shaksternano.borgar.core.data.repository.TemplateRepository
 import io.github.shaksternano.borgar.core.graphics.ContentPosition
 import io.github.shaksternano.borgar.core.graphics.TextAlignment
 import io.github.shaksternano.borgar.core.io.*
+import io.github.shaksternano.borgar.core.media.createAudioReader
+import io.github.shaksternano.borgar.core.media.createImageReader
 import io.github.shaksternano.borgar.core.media.template.CustomTemplate
 import io.github.shaksternano.borgar.core.util.Fonts
 import io.github.shaksternano.borgar.core.util.StringUtil
@@ -19,6 +21,7 @@ import kotlinx.serialization.json.*
 import java.awt.Color
 import java.awt.Font
 import java.net.URI
+import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createFile
@@ -202,44 +205,7 @@ object CreateTemplateCommand : NonChainableCommand() {
         }
         val fillColor = runCatching { getColor(templateJson, "fill_color") }.getOrDefault(null)
 
-        val mediaDirectory = withContext(Dispatchers.IO) {
-            Path("templates/media").createDirectories()
-        }
-        val mediaPath = useHttpClient { client ->
-            val response = client.get(mediaUrl)
-            if (!response.status.isSuccess()) {
-                throw InvalidTemplateException("Invalid media URL!")
-            }
-            val contentLength = response.contentLength() ?: 0
-            if (contentLength > MAX_FILE_SIZE) {
-                throw InvalidTemplateException("Media is too large!")
-            }
-            val contentType = response.contentType()
-            val fileFormat = if (contentType != null && contentType.contentSubtype.isNotBlank()) {
-                contentType.contentSubtype
-            } else {
-                fileExtension(mediaUrl)
-            }.lowercase()
-                .let {
-                    if (it == "jpeg") "jpg"
-                    else it
-                }
-                .ifBlank {
-                    throw InvalidTemplateException("Could not determine media format!")
-                }
-            mediaDirectory.resolve("${entityId}_$commandName.$fileFormat")
-                .also {
-                    withContext(Dispatchers.IO) {
-                        it.createFile()
-                    }
-                    runCatching {
-                        response.download(it)
-                    }.getOrElse { t ->
-                        it.deleteSilently()
-                        throw t
-                    }
-                }
-        }
+        val mediaPath = downloadMedia(mediaUrl, commandName, entityId)
 
         return CustomTemplate(
             commandName,
@@ -281,6 +247,64 @@ object CreateTemplateCommand : NonChainableCommand() {
             throw InvalidTemplateException("Domain $domain is not allowed!")
         }
     }
+
+    private suspend fun downloadMedia(mediaUrl: String, commandName: String, entityId: String): Path =
+        useHttpClient { client ->
+            val response = runCatching {
+                client.get(mediaUrl)
+            }.getOrElse { t ->
+                throw InvalidTemplateException("Invalid media URL!", t)
+            }
+            if (!response.status.isSuccess()) {
+                throw InvalidTemplateException("Invalid media URL!")
+            }
+            val contentLength = response.contentLength() ?: 0
+            if (contentLength > MAX_FILE_SIZE) {
+                throw InvalidTemplateException("Media is too large!")
+            }
+            val contentType = response.contentType()
+            val fileFormat = if (contentType != null && contentType.contentSubtype.isNotBlank()) {
+                contentType.contentSubtype
+            } else {
+                fileExtension(mediaUrl)
+            }.lowercase()
+                .let {
+                    if (it == "jpeg") "jpg"
+                    else it
+                }
+                .ifBlank {
+                    throw InvalidTemplateException("Could not determine media format!")
+                }
+            runCatching {
+                withContext(Dispatchers.IO) {
+                    // Create media directory
+                    Path("templates/media")
+                        .createDirectories()
+                        .resolve("${entityId}_$commandName.$fileFormat")
+                }
+            }.getOrElse { t ->
+                throw InvalidTemplateException("Command name $commandName is not allowed!", t)
+            }.also { mediaPath ->
+                withContext(Dispatchers.IO) {
+                    mediaPath.createFile()
+                }
+                runCatching {
+                    response.download(mediaPath)
+                }.getOrElse { t ->
+                    mediaPath.deleteSilently()
+                    throw InvalidTemplateException("Invalid media URL!", t)
+                }
+                runCatching {
+                    // Check if media can be read
+                    val dataSource = DataSource.fromFile(mediaPath)
+                    createImageReader(dataSource).close()
+                    createAudioReader(dataSource).close()
+                }.getOrElse { t ->
+                    mediaPath.deleteSilently()
+                    throw InvalidTemplateException("Media is not an image or audio file!", t)
+                }
+            }
+        }
 
     private inline fun <reified R> getAs(
         json: JsonObject,

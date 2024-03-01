@@ -24,10 +24,7 @@ import java.io.FileNotFoundException
 import java.io.InputStream
 import java.nio.file.Path
 import java.util.regex.Pattern
-import kotlin.io.path.appendBytes
-import kotlin.io.path.createTempFile
-import kotlin.io.path.deleteIfExists
-import kotlin.io.path.inputStream
+import kotlin.io.path.*
 import kotlin.io.use
 
 private object IOUtil
@@ -85,7 +82,8 @@ val Path.filename: String
 suspend fun Path.deleteSilently() {
     runCatching {
         withContext(Dispatchers.IO) {
-            deleteIfExists()
+            @OptIn(ExperimentalPathApi::class)
+            deleteRecursively()
         }
     }
 }
