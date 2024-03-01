@@ -19,6 +19,7 @@ private val VIDEO_QUALITIES: List<Int> = listOf(
 )
 
 class DownloadTask(
+    private val url: String,
     private val audioOnly: Boolean,
     private val fileNumber: Int?,
     private val maxFileSize: Long,
@@ -26,25 +27,25 @@ class DownloadTask(
 
     override val requireInput: Boolean = false
 
-    override suspend fun run(input: List<DataSource>): List<DataSource> = try {
-        val url = input.firstOrNull()?.url ?: throw ErrorResponseException("No URL specified!")
-        val fileIndex = fileNumber?.let { it - 1 }
-        download(url, 0, audioOnly, fileIndex, maxFileSize)
-    } catch (e: InvalidFileNumberException) {
-        var message = "File number is too large, there "
-        message +=
-            if (e.maxFiles == 1) "is"
-            else "are"
-        message += " only ${e.maxFiles} file"
-        if (e.maxFiles != 1)
-            message += "s"
-        message += "!"
-        throw ErrorResponseException(message)
-    } catch (e: FileTooLargeException) {
-        throw ErrorResponseException("File is too large!")
-    } catch (e: Throwable) {
-        throw ErrorResponseException("Error downloading file!", e)
-    }
+    override suspend fun run(input: List<DataSource>): List<DataSource> =
+        try {
+            val fileIndex = fileNumber?.let { it - 1 }
+            download(url, 0, audioOnly, fileIndex, maxFileSize)
+        } catch (e: InvalidFileNumberException) {
+            var message = "File number is too large, there "
+            message +=
+                if (e.maxFiles == 1) "is"
+                else "are"
+            message += " only ${e.maxFiles} file"
+            if (e.maxFiles != 1)
+                message += "s"
+            message += "!"
+            throw ErrorResponseException(message)
+        } catch (e: FileTooLargeException) {
+            throw ErrorResponseException("File is too large!")
+        } catch (e: Throwable) {
+            throw ErrorResponseException("Error downloading file!", e)
+        }
 
     private suspend fun download(
         url: String,

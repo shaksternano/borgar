@@ -7,7 +7,7 @@ import io.github.shaksternano.borgar.core.io.task.FileTask
 import io.github.shaksternano.borgar.core.io.task.UrlFileTask
 
 object StickerImageCommand : FileCommand(
-    inputRequirement = InputRequirement.NotRequired,
+    inputRequirement = InputRequirement.None,
 ) {
 
     override val name: String = "stickerimage"

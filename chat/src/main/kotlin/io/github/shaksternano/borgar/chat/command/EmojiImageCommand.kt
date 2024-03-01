@@ -13,7 +13,7 @@ object EmojiImageCommand : FileCommand(
         type = CommandArgumentType.String,
         required = false,
     ),
-    inputRequirement = InputRequirement.NotRequired,
+    inputRequirement = InputRequirement.None,
 ) {
 
     override val name: String = "emojiimage"

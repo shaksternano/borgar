@@ -18,7 +18,7 @@ object UserAvatarCommand : FileCommand(
         required = false,
         defaultValue = true,
     ),
-    inputRequirement = InputRequirement.NotRequired,
+    inputRequirement = InputRequirement.None,
 ) {
 
     override val name: String = "useravatar"

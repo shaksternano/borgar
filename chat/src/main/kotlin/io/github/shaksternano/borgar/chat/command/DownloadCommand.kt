@@ -1,15 +1,18 @@
 package io.github.shaksternano.borgar.chat.command
 
 import io.github.shaksternano.borgar.chat.event.CommandEvent
+import io.github.shaksternano.borgar.chat.util.searchExceptSelf
+import io.github.shaksternano.borgar.core.exception.ErrorResponseException
 import io.github.shaksternano.borgar.core.io.task.DownloadTask
 import io.github.shaksternano.borgar.core.io.task.FileTask
+import io.github.shaksternano.borgar.core.util.getUrls
 
 object DownloadCommand : FileCommand(
     CommandArgumentInfo(
         key = "url",
         description = "The URL to download from.",
         type = CommandArgumentType.String,
-        required = true,
+        required = false,
     ),
     CommandArgumentInfo(
         key = "audioonly",
@@ -27,7 +30,7 @@ object DownloadCommand : FileCommand(
         required = false,
         validator = PositiveIntValidator,
     ),
-    inputRequirement = InputRequirement.NotRequired,
+    inputRequirement = InputRequirement.None,
 ) {
 
     override val name: String = "download"
@@ -36,8 +39,13 @@ object DownloadCommand : FileCommand(
         "Downloads a file from a social media website, for example, a video from YouTube."
 
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {
+        val url = arguments.getOptional("url", CommandArgumentType.String)
+            ?: event.asMessageIntersection(arguments).searchExceptSelf {
+                it.content.getUrls().firstOrNull()
+            }
+            ?: throw ErrorResponseException("No URL specified!")
         val audioOnly = arguments.getRequired("audioonly", CommandArgumentType.Boolean)
         val fileNumber = arguments.getOptional("filenumber", CommandArgumentType.Integer)
-        return DownloadTask(audioOnly, fileNumber, maxFileSize)
+        return DownloadTask(url, audioOnly, fileNumber, maxFileSize)
     }
 }

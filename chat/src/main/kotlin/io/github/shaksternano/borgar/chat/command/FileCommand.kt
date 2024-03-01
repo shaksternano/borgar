@@ -4,7 +4,6 @@ import io.github.shaksternano.borgar.chat.entity.getContent
 import io.github.shaksternano.borgar.chat.event.CommandEvent
 import io.github.shaksternano.borgar.chat.util.getUrlsExceptSelf
 import io.github.shaksternano.borgar.core.collect.addAll
-import io.github.shaksternano.borgar.core.exception.ErrorResponseException
 import io.github.shaksternano.borgar.core.io.SuspendCloseable
 import io.github.shaksternano.borgar.core.io.UrlInfo
 import io.github.shaksternano.borgar.core.io.task.FileTask
@@ -22,7 +21,7 @@ abstract class FileCommand(
     override val chainable: Boolean = true
     override val deferReply: Boolean = true
 
-    private val takesInput = inputRequirement != InputRequirement.NotRequired
+    private val takesInput = inputRequirement != InputRequirement.None
     final override val argumentInfo: Set<CommandArgumentInfo<*>> =
         if (takesInput) {
             buildSet {
@@ -64,7 +63,7 @@ abstract class FileCommand(
 enum class InputRequirement {
     Required,
     Optional,
-    NotRequired,
+    None,
 }
 
 private val ATTACHMENT_ARGUMENT_INFO = CommandArgumentInfo(
@@ -98,7 +97,7 @@ private data class FileExecutable(
         toClose = task
         var gifv = false
         val input =
-            if (inputRequirement != InputRequirement.NotRequired) {
+            if (inputRequirement != InputRequirement.None) {
                 val file = task.suppliedInput
                     ?: getFileUrl(arguments, event, task)
                         ?.also {
@@ -116,21 +115,7 @@ private data class FileExecutable(
         val modifiedOutputFormatTask = if (gifv && task is MediaProcessingTask)
             task then TranscodeTask("gif", maxFileSize)
         else task
-        val output = try {
-            modifiedOutputFormatTask.run(input)
-        } catch (e: ErrorResponseException) {
-            e.cause?.let { throwable ->
-                logger.error(
-                    "Error executing command ${
-                        commands.joinToString(", ") {
-                            it.typedForm
-                        }
-                    }", throwable
-                )
-            }
-            return CommandResponse(e.message).asSingletonList()
-        }
-
+        val output = modifiedOutputFormatTask.run(input)
         if (output.isEmpty()) {
             logger.error("No files were outputted by ${commands.last().typedForm}")
             return CommandResponse("An error occurred!").asSingletonList()
