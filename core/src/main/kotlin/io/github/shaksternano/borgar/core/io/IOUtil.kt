@@ -30,6 +30,17 @@ import kotlin.io.path.deleteIfExists
 import kotlin.io.path.inputStream
 import kotlin.io.use
 
+private object IOUtil
+
+val ALLOWED_DOMAINS: Set<String> = setOf(
+    "raw.githubusercontent.com",
+    "cdn.discordapp.com",
+    "media.discordapp.net",
+    "autumn.revolt.chat",
+    "pbs.twimg.com",
+    "i.redd.it",
+)
+
 suspend fun createTemporaryFile(filename: String): Path = createTemporaryFile(
     filenameWithoutExtension(filename),
     fileExtension(filename),
@@ -43,8 +54,6 @@ suspend fun createTemporaryFile(filenameWithoutExtension: String, extension: Str
     path.toFile().deleteOnExit()
     return path
 }
-
-private object IOUtil
 
 suspend fun getResource(resourcePath: String): InputStream =
     withContext(Dispatchers.IO) {
@@ -113,9 +122,11 @@ suspend fun download(url: String, path: Path) = useHttpClient { client ->
     response.download(path)
 }
 
-suspend fun HttpResponse.download(path: Path) = readBytes {
-    withContext(Dispatchers.IO) {
-        path.appendBytes(it)
+suspend fun HttpResponse.download(path: Path) {
+    readBytes {
+        withContext(Dispatchers.IO) {
+            path.appendBytes(it)
+        }
     }
 }
 

@@ -2,24 +2,24 @@ package io.github.shaksternano.borgar.core.data.repository
 
 import io.github.shaksternano.borgar.core.graphics.ContentPosition
 import io.github.shaksternano.borgar.core.graphics.TextAlignment
+import io.github.shaksternano.borgar.core.io.deleteSilently
 import io.github.shaksternano.borgar.core.media.template.CustomTemplate
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.statements.UpdateBuilder
 import java.awt.Color
 import java.awt.Font
+import kotlin.io.path.Path
 
 object TemplateRepository : Repository<TemplateRepository.TemplateTable>() {
 
     object TemplateTable : Table(name = "template") {
         val commandName = varchar("command_name", 100)
-
         // Either a guild ID or a user ID (for DMs)
         val entityId = varchar("entity_id", 100)
 
         val description = varchar("description", 1000)
-        val mediaUrl = varchar("media_url", 2000)
-        val format = varchar("format", 100)
+        val mediaPath = varchar("media_path", 100)
         val resultName = varchar("result_name", 100)
 
         val imageX = integer("image_x")
@@ -52,9 +52,7 @@ object TemplateRepository : Repository<TemplateRepository.TemplateTable>() {
         this[TemplateTable.entityId],
 
         this[TemplateTable.description],
-        this[TemplateTable.mediaUrl],
-
-        this[TemplateTable.format],
+        Path(this[TemplateTable.mediaPath]),
         this[TemplateTable.resultName],
 
         this[TemplateTable.imageX],
@@ -82,8 +80,7 @@ object TemplateRepository : Repository<TemplateRepository.TemplateTable>() {
         this[TemplateTable.entityId] = template.entityId
 
         this[TemplateTable.description] = template.description
-        this[TemplateTable.mediaUrl] = template.mediaUrl
-        this[TemplateTable.format] = template.format
+        this[TemplateTable.mediaPath] = template.mediaPath.toString()
         this[TemplateTable.resultName] = template.resultName
 
         this[TemplateTable.imageX] = template.imageContentX
@@ -107,29 +104,45 @@ object TemplateRepository : Repository<TemplateRepository.TemplateTable>() {
         this[TemplateTable.fillColor] = template.fill?.rgb
     }
 
-    suspend fun create(template: CustomTemplate): Unit = dbQuery {
-        insert {
-            it.write(template)
+    suspend fun create(template: CustomTemplate) {
+        dbQuery {
+            insert {
+                it.write(template)
+            }
         }
     }
 
     suspend fun read(commandName: String, entityId: String): CustomTemplate? = dbQuery {
-        selectAll().where { TemplateTable.commandName eq commandName and (TemplateTable.entityId eq entityId) }.map {
+        queryPrimaryKey(commandName, entityId).map {
             it.read()
         }.firstOrNull()
     }
 
     suspend fun readAll(entityId: String): List<CustomTemplate> = dbQuery {
-        selectAll().where { TemplateTable.entityId eq entityId }.map {
+        selectAll().where { entityIdPredicate(entityId) }.map {
             it.read()
         }
     }
 
     suspend fun exists(commandName: String, entityId: String): Boolean = dbQuery {
-        selectAll().where { TemplateTable.commandName eq commandName and (TemplateTable.entityId eq entityId) }.any()
+        queryPrimaryKey(commandName, entityId).any()
     }
 
-    suspend fun delete(commandName: String, entityId: String): Unit = dbQuery {
-        deleteWhere { TemplateTable.commandName eq commandName and (TemplateTable.entityId eq entityId) }
+    suspend fun delete(commandName: String, entityId: String) {
+        dbQuery {
+            queryPrimaryKey(commandName, entityId).forEach {
+                Path(it[mediaPath]).deleteSilently()
+            }
+            deleteWhere { primaryKeyPredicate(commandName, entityId) }
+        }
     }
+
+    private fun FieldSet.queryPrimaryKey(commandName: String, entityId: String): Query =
+        selectAll().where { primaryKeyPredicate(commandName, entityId) }
+
+    private fun entityIdPredicate(entityId: String): Op<Boolean> =
+        TemplateTable.entityId eq entityId
+
+    private fun primaryKeyPredicate(commandName: String, entityId: String): Op<Boolean> =
+        TemplateTable.commandName eq commandName and entityIdPredicate(entityId)
 }

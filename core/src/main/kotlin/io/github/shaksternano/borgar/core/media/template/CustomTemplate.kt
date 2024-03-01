@@ -11,15 +11,15 @@ import io.github.shaksternano.borgar.core.media.reader.ImageReader
 import java.awt.Color
 import java.awt.Font
 import java.awt.Shape
+import java.nio.file.Path
+import kotlin.io.path.extension
 
 class CustomTemplate(
     val commandName: String,
     val entityId: String,
 
     val description: String,
-    val mediaUrl: String,
-
-    override val format: String,
+    val mediaPath: Path,
     override val resultName: String,
 
     override val imageContentX: Int,
@@ -42,18 +42,15 @@ class CustomTemplate(
     override val fill: Color?
 ) : Template {
 
-    override val media: DataSource = DataSource.fromUrl(mediaUrl)
+    override val media: DataSource = DataSource.fromFile(mediaPath)
+    override val format: String = mediaPath.extension
     override val customTextDrawableSupplier: ((String) -> Drawable)? = null
 
-    override suspend fun getImageReader(): ImageReader {
-        val dataSource = DataSource.fromUrl(mediaUrl)
-        return createImageReader(dataSource, format)
-    }
+    override suspend fun getImageReader(): ImageReader =
+        createImageReader(media, format)
 
-    override suspend fun getAudioReader(): AudioReader {
-        val dataSource = DataSource.fromUrl(mediaUrl)
-        return createAudioReader(dataSource, format)
-    }
+    override suspend fun getAudioReader(): AudioReader =
+        createAudioReader(media, format)
 
     override suspend fun getContentClip(): Shape? = null
 }

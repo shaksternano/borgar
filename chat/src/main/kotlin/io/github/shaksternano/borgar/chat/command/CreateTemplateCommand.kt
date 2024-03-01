@@ -5,7 +5,10 @@ import io.github.shaksternano.borgar.chat.util.getUrlsExceptSelf
 import io.github.shaksternano.borgar.core.data.repository.TemplateRepository
 import io.github.shaksternano.borgar.core.graphics.ContentPosition
 import io.github.shaksternano.borgar.core.graphics.TextAlignment
-import io.github.shaksternano.borgar.core.io.*
+import io.github.shaksternano.borgar.core.io.ALLOWED_DOMAINS
+import io.github.shaksternano.borgar.core.io.download
+import io.github.shaksternano.borgar.core.io.fileExtension
+import io.github.shaksternano.borgar.core.io.useHttpClient
 import io.github.shaksternano.borgar.core.media.template.CustomTemplate
 import io.github.shaksternano.borgar.core.util.Fonts
 import io.github.shaksternano.borgar.core.util.StringUtil
@@ -13,9 +16,17 @@ import io.github.shaksternano.borgar.core.util.asSingletonList
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.*
 import java.awt.Color
 import java.awt.Font
+import java.net.URI
+import kotlin.io.path.Path
+import kotlin.io.path.createDirectories
+import kotlin.io.path.createFile
+
+private const val MAX_FILE_SIZE: Int = 25 * 1024 * 1024
 
 object CreateTemplateCommand : NonChainableCommand() {
 
@@ -86,28 +97,55 @@ object CreateTemplateCommand : NonChainableCommand() {
     private suspend fun createTemplate(
         templateJson: JsonObject,
         commandName: String,
-        entityId: String
+        entityId: String,
     ): CustomTemplate {
         val description = getString(templateJson, "description") {
             "A custom template."
         }
         val mediaUrl = getString(templateJson, "media_url")
-        if (!isUrlValid(mediaUrl)) {
-            throw InvalidTemplateException("Invalid media URL!")
+        validateUrl(mediaUrl)
+        val mediaDirectory = withContext(Dispatchers.IO) {
+            Path("templates/media").createDirectories()
         }
-        val format = getMediaFormat(mediaUrl).lowercase()
+        val mediaPath = useHttpClient { client ->
+            val response = client.get(mediaUrl)
+            if (!response.status.isSuccess()) {
+                throw InvalidTemplateException("Invalid media URL!")
+            }
+            val contentLength = response.contentLength() ?: 0
+            if (contentLength > MAX_FILE_SIZE) {
+                throw InvalidTemplateException("Media is too large!")
+            }
+            val contentType = response.contentType()
+            val fileFormat = if (contentType != null && contentType.contentSubtype.isNotBlank()) {
+                contentType.contentSubtype
+            } else {
+                fileExtension(mediaUrl)
+            }.lowercase()
+                .let {
+                    if (it == "jpeg") "jpg"
+                    else it
+                }
+                .ifBlank {
+                    throw InvalidTemplateException("Could not determine media format!")
+                }
+            mediaDirectory.resolve("${entityId}_$commandName.$fileFormat")
+                .also {
+                    withContext(Dispatchers.IO) {
+                        it.createFile()
+                    }
+                    response.download(it)
+                }
+        }
+
         val resultName = getString(templateJson, "result_name") {
             commandName
         }
 
         val imageStartX = getPositiveInt(templateJson, "image.start.x")
-
         val imageStartY = getPositiveInt(templateJson, "image.start.y")
-
         val imageEndX = getPositiveInt(templateJson, "image.end.x")
-
         val imageEndY = getPositiveInt(templateJson, "image.end.y")
-
         val imagePadding = getPositiveOrZeroInt(templateJson, "image.padding") {
             0
         }
@@ -139,19 +177,15 @@ object CreateTemplateCommand : NonChainableCommand() {
         val textStartX = getPositiveInt(templateJson, "text.start.x") {
             imageStartX
         }
-
         val textStartY = getPositiveInt(templateJson, "text.start.y") {
             imageStartY
         }
-
         val textEndX = getPositiveInt(templateJson, "text.end.x") {
             imageEndX
         }
-
         val textEndY = getPositiveInt(templateJson, "text.end.y") {
             imageEndY
         }
-
         val textPadding = getPositiveOrZeroInt(templateJson, "text.padding") {
             imagePadding
         }
@@ -209,9 +243,7 @@ object CreateTemplateCommand : NonChainableCommand() {
             entityId,
 
             description,
-            mediaUrl,
-
-            format,
+            mediaPath,
             resultName,
 
             imageX,
@@ -235,18 +267,23 @@ object CreateTemplateCommand : NonChainableCommand() {
         )
     }
 
-    private suspend fun isUrlValid(url: String): Boolean =
-        runCatching {
-            useHttpClient {
-                it.head(url).status.isSuccess()
-            }
-        }.getOrDefault(false)
+    private fun validateUrl(url: String) {
+        val uri = runCatching {
+            URI.create(url)
+        }.getOrElse {
+            throw InvalidTemplateException("URL $url is invalid!")
+        }
+        val domain = uri.host ?: throw InvalidTemplateException("URL $url is invalid!")
+        if (domain !in ALLOWED_DOMAINS) {
+            throw InvalidTemplateException("Domain $domain is not allowed!")
+        }
+    }
 
     private inline fun <reified R> getAs(
         json: JsonObject,
         key: String,
         noinline default: (() -> R)? = null,
-        transform: (JsonElement) -> R
+        transform: (JsonElement) -> R,
     ): R {
         val keys = key.split(".")
         val value = keys.fold(json as JsonElement) { subJson, keyPart ->
@@ -320,7 +357,7 @@ object CreateTemplateCommand : NonChainableCommand() {
         end: Int,
         endKey: String,
         padding: Int,
-        paddingKey: String
+        paddingKey: String,
     ) {
         if (start + padding * 2 >= end) {
             throw InvalidTemplateException("**$startKey** + **$paddingKey** * 2 must be less than **$endKey**!")
@@ -330,7 +367,7 @@ object CreateTemplateCommand : NonChainableCommand() {
     private inline fun <reified T : Enum<T>> getEnum(
         json: JsonObject,
         key: String,
-        noinline default: (() -> T)? = null
+        noinline default: (() -> T)? = null,
     ): T =
         getAs(json, key, default) {
             enumValueOf<T>(it.jsonPrimitive.content.uppercase())
@@ -346,16 +383,9 @@ object CreateTemplateCommand : NonChainableCommand() {
             Color(rgb)
         }
 
-    private suspend fun getMediaFormat(url: String): String =
-        runCatching {
-            DataSource.fromUrl(url).fileFormat()
-        }.getOrElse {
-            fileExtension(url)
-        }
-
     private open class InvalidTemplateException(
         override val message: String,
-        override val cause: Throwable? = null
+        override val cause: Throwable? = null,
     ) : IllegalArgumentException(message, cause)
 
     private class MissingKeyException(key: String) : InvalidTemplateException("No **$key** found!")
