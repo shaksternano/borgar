@@ -5,10 +5,7 @@ import io.github.shaksternano.borgar.chat.util.getUrlsExceptSelf
 import io.github.shaksternano.borgar.core.data.repository.TemplateRepository
 import io.github.shaksternano.borgar.core.graphics.ContentPosition
 import io.github.shaksternano.borgar.core.graphics.TextAlignment
-import io.github.shaksternano.borgar.core.io.ALLOWED_DOMAINS
-import io.github.shaksternano.borgar.core.io.download
-import io.github.shaksternano.borgar.core.io.fileExtension
-import io.github.shaksternano.borgar.core.io.useHttpClient
+import io.github.shaksternano.borgar.core.io.*
 import io.github.shaksternano.borgar.core.media.template.CustomTemplate
 import io.github.shaksternano.borgar.core.util.Fonts
 import io.github.shaksternano.borgar.core.util.StringUtil
@@ -104,39 +101,6 @@ object CreateTemplateCommand : NonChainableCommand() {
         }
         val mediaUrl = getString(templateJson, "media_url")
         validateUrl(mediaUrl)
-        val mediaDirectory = withContext(Dispatchers.IO) {
-            Path("templates/media").createDirectories()
-        }
-        val mediaPath = useHttpClient { client ->
-            val response = client.get(mediaUrl)
-            if (!response.status.isSuccess()) {
-                throw InvalidTemplateException("Invalid media URL!")
-            }
-            val contentLength = response.contentLength() ?: 0
-            if (contentLength > MAX_FILE_SIZE) {
-                throw InvalidTemplateException("Media is too large!")
-            }
-            val contentType = response.contentType()
-            val fileFormat = if (contentType != null && contentType.contentSubtype.isNotBlank()) {
-                contentType.contentSubtype
-            } else {
-                fileExtension(mediaUrl)
-            }.lowercase()
-                .let {
-                    if (it == "jpeg") "jpg"
-                    else it
-                }
-                .ifBlank {
-                    throw InvalidTemplateException("Could not determine media format!")
-                }
-            mediaDirectory.resolve("${entityId}_$commandName.$fileFormat")
-                .also {
-                    withContext(Dispatchers.IO) {
-                        it.createFile()
-                    }
-                    response.download(it)
-                }
-        }
 
         val resultName = getString(templateJson, "result_name") {
             commandName
@@ -237,6 +201,45 @@ object CreateTemplateCommand : NonChainableCommand() {
             true
         }
         val fillColor = runCatching { getColor(templateJson, "fill_color") }.getOrDefault(null)
+
+        val mediaDirectory = withContext(Dispatchers.IO) {
+            Path("templates/media").createDirectories()
+        }
+        val mediaPath = useHttpClient { client ->
+            val response = client.get(mediaUrl)
+            if (!response.status.isSuccess()) {
+                throw InvalidTemplateException("Invalid media URL!")
+            }
+            val contentLength = response.contentLength() ?: 0
+            if (contentLength > MAX_FILE_SIZE) {
+                throw InvalidTemplateException("Media is too large!")
+            }
+            val contentType = response.contentType()
+            val fileFormat = if (contentType != null && contentType.contentSubtype.isNotBlank()) {
+                contentType.contentSubtype
+            } else {
+                fileExtension(mediaUrl)
+            }.lowercase()
+                .let {
+                    if (it == "jpeg") "jpg"
+                    else it
+                }
+                .ifBlank {
+                    throw InvalidTemplateException("Could not determine media format!")
+                }
+            mediaDirectory.resolve("${entityId}_$commandName.$fileFormat")
+                .also {
+                    withContext(Dispatchers.IO) {
+                        it.createFile()
+                    }
+                    runCatching {
+                        response.download(it)
+                    }.getOrElse { t ->
+                        it.deleteSilently()
+                        throw t
+                    }
+                }
+        }
 
         return CustomTemplate(
             commandName,
