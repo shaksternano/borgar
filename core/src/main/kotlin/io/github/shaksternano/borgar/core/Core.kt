@@ -14,6 +14,8 @@ val baseLogger: Logger = LoggerFactory.getLogger("Borgar")
 var logger: Logger = baseLogger
     private set
 
+const val BOT_STATUS = "fortnite battle pass"
+
 suspend fun initCore() {
     val envFileName = ".env"
     loadEnv(Path(envFileName))

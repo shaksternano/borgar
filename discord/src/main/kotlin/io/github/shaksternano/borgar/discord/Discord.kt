@@ -6,6 +6,7 @@ import dev.minn.jda.ktx.jdabuilder.default
 import dev.minn.jda.ktx.jdabuilder.intents
 import io.github.shaksternano.borgar.chat.event.MessageReceiveEvent
 import io.github.shaksternano.borgar.chat.util.onMessageReceived
+import io.github.shaksternano.borgar.core.BOT_STATUS
 import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.core.setLogger
@@ -18,6 +19,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.launch
 import net.dv8tion.jda.api.JDA
+import net.dv8tion.jda.api.entities.Activity
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.events.session.ReadyEvent
@@ -36,6 +38,7 @@ suspend fun initDiscord(token: String) {
     jda.listener<MessageReceivedEvent> {
         handleMessageEvent(it)
     }
+    jda.presence.activity = Activity.playing(BOT_STATUS)
     coroutineScope {
         launch {
             jda.registerSlashCommands()
