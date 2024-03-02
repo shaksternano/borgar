@@ -278,12 +278,11 @@ object CreateTemplateCommand : NonChainableCommand() {
                     throw InvalidTemplateException("Could not determine media format!")
                 }
             runCatching {
+                val path = Path("templates/media")
                 withContext(Dispatchers.IO) {
-                    // Create media directory
-                    Path("templates/media")
-                        .createDirectories()
-                        .resolve("${entityId}_$commandName.$fileFormat")
+                    path.createDirectories()
                 }
+                path.resolve("${entityId}_$commandName.$fileFormat")
             }.getOrElse { t ->
                 throw InvalidTemplateException("Command name $commandName is not allowed!", t)
             }.also { mediaPath ->
