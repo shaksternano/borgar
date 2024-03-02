@@ -5,6 +5,7 @@ import io.github.shaksternano.borgar.core.util.LimitedStringBuilder;
 import io.github.shaksternano.borgar.core.util.StringUtil;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.event.Level;
@@ -25,7 +26,10 @@ public class DiscordLogger extends InterceptLogger {
     }
 
     @Override
-    protected void intercept(Level level, String message, @Nullable Throwable t, Object... arguments) {
+    protected void intercept(@NotNull Level level, @Nullable String message, @Nullable Throwable t, Object... arguments) {
+        if (message == null) {
+            return;
+        }
         getLogChannel(logChannelId, jda).ifPresentOrElse(channel -> {
             LimitedStringBuilder builder = new LimitedStringBuilder(2000);
             String messageWithArguments = formatArguments(message, arguments);
@@ -40,13 +44,13 @@ public class DiscordLogger extends InterceptLogger {
                 (part, index) -> channel.sendMessage(part).submit()
             ).whenComplete((unused, throwable) -> {
                 if (throwable != null) {
-                    delegate.error("Failed to send message to Discord", throwable);
+                    getDelegate().error("Failed to send message to Discord", throwable);
                 }
             });
         }, () -> {
             if (!notFoundLogged) {
                 notFoundLogged = true;
-                delegate.warn("Message channel with ID {} not found!", logChannelId);
+                getDelegate().warn("Message channel with ID {} not found!", logChannelId);
             }
         });
     }

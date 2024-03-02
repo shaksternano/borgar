@@ -10,7 +10,9 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import kotlin.io.path.Path
 
-val logger: Logger = LoggerFactory.getLogger("Borgar")
+val baseLogger: Logger = LoggerFactory.getLogger("Borgar")
+var logger: Logger = baseLogger
+    private set
 
 suspend fun initCore() {
     val envFileName = ".env"
@@ -20,6 +22,10 @@ suspend fun initCore() {
     EmojiUtil.initEmojiUnicodeSet()
     EmojiUtil.initEmojiShortCodesToUrlsMap()
     avutil.av_log_set_level(avutil.AV_LOG_PANIC)
+}
+
+fun setLogger(logger: Logger) {
+    io.github.shaksternano.borgar.core.logger = logger
 }
 
 private fun connectToPostgreSql() {
