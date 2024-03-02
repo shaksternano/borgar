@@ -104,7 +104,7 @@ private suspend fun executeCommand(
     }
     val executable = result.second
     deferReply?.await()
-    responses.send(executable, commandEvent)
+    sendResponses(responses, executable, commandEvent)
 }
 
 private suspend fun getAfterCommandConfigs(

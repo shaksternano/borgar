@@ -38,7 +38,7 @@ suspend fun parseAndExecuteCommand(event: MessageReceiveEvent) {
     val (responses, executable) = sendTypingUntilDone(event.getChannel()) {
         executeCommands(commandConfigs, commandEvent)
     }
-    responses.send(executable, commandEvent)
+    sendResponses(responses, executable, commandEvent)
 }
 
 private suspend fun <T> sendTypingUntilDone(
@@ -104,19 +104,20 @@ suspend inline fun executeCommands(
         listOf(CommandResponse(responseContent)) to null
     }
 
-suspend fun List<CommandResponse>.send(
+suspend fun sendResponses(
+    responses: List<CommandResponse>,
     executable: Executable?,
     commandEvent: CommandEvent,
 ) {
     var sendHandleResponseErrorMessage = true
-    forEachIndexed { index, response ->
+    responses.forEachIndexed { index, response ->
         try {
             val sent = commandEvent.reply(response)
             runCatching {
                 executable?.onResponseSend(
                     response,
                     index + 1,
-                    size,
+                    responses.size,
                     sent,
                     commandEvent,
                 )
