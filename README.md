@@ -9,8 +9,8 @@ Discord bot that provides fun image editing commands, such as image captioning. 
 2. Select the project's `build.gradle.kts` file to import the project.
 3. Go to `File` → `Project Structure` → `Project Settings` → `Project` and set `SDK` to a Java 17 or higher SDK.
 4. Optional, but recommended: By default, IntelliJ delegates to Gradle to build the project. This is unnecessary for this project and causes longer build times. To make it use the builtin compiler:
-   1. Open the `Gradle Settings` dialog from the Gradle tab. 
-   2. Change the `Build and run using` and `Run tests using` fields to `IntelliJ IDEA`. 
+   1. Open the `Gradle Settings` dialog from the Gradle tab.
+   2. Change the `Build and run using` and `Run tests using` fields to `IntelliJ IDEA`.
    3. Go to `File` → `Project Structure` → `Project` and set `Project compiler output` to `$PROJECT_DIR$/out`.
 
 ## How to run this project in Intellij Idea
