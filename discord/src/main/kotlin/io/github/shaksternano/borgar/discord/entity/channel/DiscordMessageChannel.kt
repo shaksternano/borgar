@@ -14,13 +14,15 @@ import io.ktor.client.statement.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import net.dv8tion.jda.api.entities.Icon
+import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.Webhook
 import net.dv8tion.jda.api.entities.channel.attribute.IWebhookContainer
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel
 import net.dv8tion.jda.api.utils.messages.MessageCreateData
 
 data class DiscordMessageChannel(
-    private val discordMessageChannel: net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
+    private val discordMessageChannel: net.dv8tion.jda.api.entities.channel.middleman.MessageChannel,
 ) : DiscordChannel(discordMessageChannel), MessageChannel {
 
     override suspend fun sendTyping() {
@@ -44,14 +46,33 @@ data class DiscordMessageChannel(
             .await()
 
     private suspend fun sendWebhookMessage(messageBuilder: MessageCreateBuilder): net.dv8tion.jda.api.entities.Message {
-        val messageAction = getOrCreateWebhook()
-            .sendMessage(messageBuilder.convert())
+        val webhook = getOrCreateWebhook()
+        val messageAction = webhook.sendMessage(messageBuilder.convert())
         if (discordMessageChannel is ThreadChannel) {
             messageAction.setThread(discordMessageChannel)
         }
         messageAction.setSuppressEmbeds(messageBuilder.suppressEmbeds)
-        messageAction.setUsername(messageBuilder.username)
-        messageAction.setAvatarUrl(messageBuilder.avatarUrl)
+
+        val selfUser = discordMessageChannel.jda.selfUser
+        var selfMember: Member? = null
+        var setMember = false
+        val guild =
+            if (discordMessageChannel is GuildChannel) discordMessageChannel.guild
+            else null
+        val username = messageBuilder.username ?: run {
+            selfMember = guild?.retrieveMember(selfUser)?.await()
+            setMember = true
+            selfMember?.effectiveName ?: selfUser.effectiveName
+        }
+        val avatarUrl = messageBuilder.avatarUrl ?: run {
+            if (!setMember) {
+                selfMember = guild?.retrieveMember(selfUser)?.await()
+            }
+            selfMember?.effectiveAvatarUrl ?: selfUser.effectiveAvatarUrl
+        }
+
+        messageAction.setUsername(username)
+        messageAction.setAvatarUrl(avatarUrl)
         return messageAction.await()
     }
 
@@ -87,17 +108,17 @@ data class DiscordMessageChannel(
             .await()
     }
 
-    override fun getPreviousMessages(beforeId: String): Flow<Message> {
-        return discordMessageChannel.iterableHistory
-            .skipTo(beforeId.toLong())
-            .asFlow()
-            .map { DiscordMessage(it) }
-    }
-
     private fun MessageCreateBuilder.convert(): MessageCreateData {
         val builder = net.dv8tion.jda.api.utils.messages.MessageCreateBuilder()
         builder.setContent(content)
         builder.setFiles(files.map(DataSource::toFileUpload))
         return builder.build()
+    }
+
+    override fun getPreviousMessages(beforeId: String): Flow<Message> {
+        return discordMessageChannel.iterableHistory
+            .skipTo(beforeId.toLong())
+            .asFlow()
+            .map { DiscordMessage(it) }
     }
 }
