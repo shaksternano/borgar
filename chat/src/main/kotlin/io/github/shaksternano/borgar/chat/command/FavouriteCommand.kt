@@ -20,6 +20,7 @@ import io.github.shaksternano.borgar.core.media.reader.transform
 import io.github.shaksternano.borgar.core.util.asSingletonList
 import io.github.shaksternano.borgar.core.util.equalsAnyIgnoreCase
 import io.github.shaksternano.borgar.core.util.getUrls
+import io.github.shaksternano.borgar.core.util.isTenorUrl
 import kotlinx.coroutines.flow.Flow
 import java.awt.Color
 import java.awt.Font
@@ -49,7 +50,7 @@ object FavouriteCommand : NonChainableCommand() {
         val fileUrl = getFileUrl(arguments, event)
             ?: return CommandResponse("No media found!").asSingletonList()
         val fileExtension = fileExtension(fileUrl).lowercase()
-        if (fileExtension.equals("gif", ignoreCase = true))
+        if (fileExtension.equals("gif", ignoreCase = true) || isTenorUrl(fileUrl))
             return CommandResponse("This is already a GIF file!").asSingletonList()
         val dataSource = DataSource.fromUrl(fileUrl)
         if (fileExtension.equalsAnyIgnoreCase("png", "jpg", "jpeg", "webp")) {
