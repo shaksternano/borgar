@@ -27,7 +27,8 @@ fun BufferedImage.convertType(type: Int): BufferedImage =
     }
 
 fun BufferedImage.bound(width: Int, height: Int): BufferedImage =
-    ImmutableImage.wrapAwt(this).bound(width, height).awt()
+    if (this.width <= width && this.height <= height) this
+    else ImmutableImage.wrapAwt(this).bound(width, height).awt()
 
 fun BufferedImage.bound(maxDimension: Int): BufferedImage =
     runCatching {

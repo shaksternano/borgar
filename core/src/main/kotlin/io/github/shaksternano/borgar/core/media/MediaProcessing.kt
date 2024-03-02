@@ -142,7 +142,7 @@ suspend fun processMedia(
             outputSize = withContext(Dispatchers.IO) {
                 output.fileSize()
             }
-            resizeRatio = min((maxFileSize.toDouble() / outputSize), 0.9)
+            resizeRatio = min((maxFileSize.toDouble() / outputSize), 0.8)
             attempts++
         } while (maxFileSize in 1..<outputSize && attempts < maxResizeAttempts)
         output
