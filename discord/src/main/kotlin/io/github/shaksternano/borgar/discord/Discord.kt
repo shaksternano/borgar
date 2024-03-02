@@ -3,8 +3,8 @@ package io.github.shaksternano.borgar.discord
 import dev.minn.jda.ktx.events.listener
 import dev.minn.jda.ktx.jdabuilder.default
 import dev.minn.jda.ktx.jdabuilder.intents
-import io.github.shaksternano.borgar.chat.command.parseAndExecuteCommand
 import io.github.shaksternano.borgar.chat.event.MessageReceiveEvent
+import io.github.shaksternano.borgar.chat.util.onMessageReceived
 import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.discord.entity.DiscordMessage
@@ -40,8 +40,7 @@ suspend fun initDiscord(token: String) = coroutineScope {
 }
 
 private suspend fun handleMessageEvent(event: MessageReceivedEvent) = runCatching {
-    val convertedEvent = event.convert()
-    parseAndExecuteCommand(convertedEvent)
+    onMessageReceived(event.convert())
 }.onFailure {
     logger.error("Error while handling message event", it)
 }

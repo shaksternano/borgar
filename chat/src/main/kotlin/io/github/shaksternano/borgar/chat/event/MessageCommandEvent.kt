@@ -23,6 +23,8 @@ data class MessageCommandEvent(
 
     override suspend fun getAuthor(): User = event.getAuthor()
 
+    override suspend fun getMember(): Member? = event.getMember()
+
     override suspend fun getChannel(): MessageChannel = event.getChannel()
 
     override suspend fun getGuild(): Guild? = event.getGuild()
@@ -49,6 +51,8 @@ data class MessageCommandEvent(
             override val referencedMessages: Flow<Message> = this@MessageCommandEvent.referencedMessages
 
             override suspend fun getAuthor(): User = this@MessageCommandEvent.getAuthor()
+
+            override suspend fun getMember(): Member? = this@MessageCommandEvent.getMember()
 
             override suspend fun getChannel(): MessageChannel = this@MessageCommandEvent.getChannel()
 

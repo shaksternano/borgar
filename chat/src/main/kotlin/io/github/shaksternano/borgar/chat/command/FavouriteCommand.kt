@@ -28,7 +28,7 @@ import java.util.*
 import kotlin.math.min
 import kotlin.time.Duration.Companion.seconds
 
-private const val ALIAS_PREFIX: String = "favourite_"
+const val FAVOURITE_ALIAS_PREFIX: String = "favourite_"
 
 object FavouriteCommand : NonChainableCommand() {
 
@@ -125,7 +125,7 @@ object FavouriteCommand : NonChainableCommand() {
     private suspend fun createAliasGif(dataSource: UrlDataSource, event: CommandEvent, maxFileSize: Long): FileDataSource {
         val url = removeQueryParams(dataSource.url)
         val encodedUrl = Base64.getEncoder().encodeToString(url.toByteArray())
-        val resultName = ALIAS_PREFIX + encodedUrl
+        val resultName = FAVOURITE_ALIAS_PREFIX + encodedUrl
         val avatarUrl = event.manager.getSelf().effectiveAvatarUrl
         val format = fileExtension(url)
         val config = FavouriteConfig(resultName, avatarUrl, format)

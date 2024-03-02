@@ -8,6 +8,8 @@ data class MessageCreateBuilder(
     val files: MutableList<DataSource> = mutableListOf(),
     var referencedMessageId: String? = null,
     var suppressEmbeds: Boolean = false,
+    var username: String? = null,
+    var avatarUrl: String? = null,
 ) {
 
     fun fromCommandResponse(response: CommandResponse) {

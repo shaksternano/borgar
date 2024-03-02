@@ -38,6 +38,7 @@ data class DiscordMessage(
         ?: emptyFlow()
 
     private val author: User = DiscordUser(discordMessage.author)
+    private val member: Member? = discordMessage.member?.let { DiscordMember(it) }
     private val channel: MessageChannel = DiscordMessageChannel(discordMessage.channel)
     private val guild: Guild? = if (discordMessage.isFromGuild) {
         DiscordGuild(discordMessage.guild)
@@ -68,6 +69,8 @@ data class DiscordMessage(
 
     override suspend fun getAuthor(): User = author
 
+    override suspend fun getMember(): Member? = member
+
     override suspend fun getChannel(): MessageChannel = channel
 
     override suspend fun getGuild(): Guild? = guild
@@ -77,6 +80,10 @@ data class DiscordMessage(
         val editRequest = builder.convert()
         val editedMessage = discordMessage.editMessage(editRequest).await()
         return DiscordMessage(editedMessage)
+    }
+
+    override suspend fun delete() {
+        discordMessage.delete().await()
     }
 
     private fun net.dv8tion.jda.api.entities.Message.Attachment.convert(): Attachment = Attachment(

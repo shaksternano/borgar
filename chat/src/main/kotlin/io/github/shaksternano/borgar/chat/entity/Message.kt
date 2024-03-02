@@ -30,4 +30,6 @@ interface Message : CommandMessageIntersection, TimeStamped {
     }
 
     suspend fun edit(block: MessageEditBuilder.() -> Unit): Message
+
+    suspend fun delete()
 }

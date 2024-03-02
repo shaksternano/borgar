@@ -39,6 +39,8 @@ data class FakeMessage(
 
     override suspend fun getAuthor(): User = author
 
+    override suspend fun getMember(): Member? = getGuild()?.getMember(author)
+
     override suspend fun getChannel(): MessageChannel = channel
 
     override suspend fun getGuild(): Guild? = channel.getGuild()
@@ -52,4 +54,6 @@ data class FakeMessage(
             )
         } ?: this
     }
+
+    override suspend fun delete() = Unit
 }

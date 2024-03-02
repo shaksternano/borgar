@@ -3,6 +3,7 @@ package io.github.shaksternano.borgar.chat.event
 import io.github.shaksternano.borgar.chat.BotManager
 import io.github.shaksternano.borgar.chat.builder.MessageCreateBuilder
 import io.github.shaksternano.borgar.chat.entity.Guild
+import io.github.shaksternano.borgar.chat.entity.Member
 import io.github.shaksternano.borgar.chat.entity.Message
 import io.github.shaksternano.borgar.chat.entity.User
 import io.github.shaksternano.borgar.chat.entity.channel.MessageChannel
@@ -15,6 +16,8 @@ class MessageReceiveEvent(
     val messageId = message.id
 
     suspend fun getAuthor(): User = message.getAuthor()
+
+    suspend fun getMember(): Member? = message.getMember()
 
     suspend fun getChannel(): MessageChannel = message.getChannel()
 

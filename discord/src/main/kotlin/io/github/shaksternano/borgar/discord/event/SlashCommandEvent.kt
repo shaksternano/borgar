@@ -13,6 +13,7 @@ import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.discord.DiscordManager
 import io.github.shaksternano.borgar.discord.await
 import io.github.shaksternano.borgar.discord.entity.DiscordGuild
+import io.github.shaksternano.borgar.discord.entity.DiscordMember
 import io.github.shaksternano.borgar.discord.entity.DiscordMessage
 import io.github.shaksternano.borgar.discord.entity.DiscordUser
 import io.github.shaksternano.borgar.discord.entity.channel.DiscordMessageChannel
@@ -33,12 +34,15 @@ class SlashCommandEvent(
     override val referencedMessages: Flow<Message> = emptyFlow()
 
     private val user: User = DiscordUser(event.user)
+    private val member: Member? = event.member?.let { DiscordMember(it) }
     private val channel: MessageChannel = DiscordMessageChannel(event.channel)
     private val guild: Guild? = event.guild?.let { DiscordGuild(it) }
 
     private var replied = false
 
     override suspend fun getAuthor(): User = user
+
+    override suspend fun getMember(): Member? = member
 
     override suspend fun getChannel(): MessageChannel = channel
 
@@ -101,6 +105,8 @@ class SlashCommandEvent(
             override val referencedMessages: Flow<Message> = emptyFlow()
 
             override suspend fun getAuthor(): User = this@SlashCommandEvent.getAuthor()
+
+            override suspend fun getMember(): Member? = this@SlashCommandEvent.getMember()
 
             override suspend fun getChannel(): MessageChannel = this@SlashCommandEvent.getChannel()
 

@@ -4,12 +4,19 @@ import io.github.shaksternano.borgar.chat.builder.MessageCreateBuilder
 import io.github.shaksternano.borgar.chat.entity.Message
 import io.github.shaksternano.borgar.chat.entity.channel.MessageChannel
 import io.github.shaksternano.borgar.core.io.DataSource
+import io.github.shaksternano.borgar.core.io.useHttpClient
 import io.github.shaksternano.borgar.discord.asFlow
 import io.github.shaksternano.borgar.discord.await
 import io.github.shaksternano.borgar.discord.entity.DiscordMessage
 import io.github.shaksternano.borgar.discord.toFileUpload
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import net.dv8tion.jda.api.entities.Icon
+import net.dv8tion.jda.api.entities.Webhook
+import net.dv8tion.jda.api.entities.channel.attribute.IWebhookContainer
+import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel
 import net.dv8tion.jda.api.utils.messages.MessageCreateData
 
 data class DiscordMessageChannel(
@@ -22,12 +29,62 @@ data class DiscordMessageChannel(
 
     override suspend fun createMessage(block: MessageCreateBuilder.() -> Unit): Message {
         val builder = MessageCreateBuilder().apply(block)
-        val message = builder.convert()
-        val discordMessage = discordMessageChannel.sendMessage(message)
-            .setMessageReference(builder.referencedMessageId)
-            .setSuppressEmbeds(builder.suppressEmbeds)
-            .await()
+        val discordMessage = if (builder.username == null && builder.avatarUrl == null) {
+            sendStandardMessage(builder)
+        } else {
+            sendWebhookMessage(builder)
+        }
         return DiscordMessage(discordMessage)
+    }
+
+    private suspend fun sendStandardMessage(messageBuilder: MessageCreateBuilder): net.dv8tion.jda.api.entities.Message =
+        discordMessageChannel.sendMessage(messageBuilder.convert())
+            .setMessageReference(messageBuilder.referencedMessageId)
+            .setSuppressEmbeds(messageBuilder.suppressEmbeds)
+            .await()
+
+    private suspend fun sendWebhookMessage(messageBuilder: MessageCreateBuilder): net.dv8tion.jda.api.entities.Message {
+        val messageAction = getOrCreateWebhook()
+            .sendMessage(messageBuilder.convert())
+        if (discordMessageChannel is ThreadChannel) {
+            messageAction.setThread(discordMessageChannel)
+        }
+        messageAction.setSuppressEmbeds(messageBuilder.suppressEmbeds)
+        messageAction.setUsername(messageBuilder.username)
+        messageAction.setAvatarUrl(messageBuilder.avatarUrl)
+        return messageAction.await()
+    }
+
+    private suspend fun getOrCreateWebhook(): Webhook {
+        val webhookContainer = getWebhookContainer()
+            ?: throw UnsupportedOperationException("Webhook container not found")
+        val webhooks = webhookContainer.retrieveWebhooks().await()
+        return getOrCreateWebhook(webhooks, webhookContainer)
+    }
+
+    private fun getWebhookContainer(): IWebhookContainer? {
+        val channel = if (discordMessageChannel is ThreadChannel) {
+            discordMessageChannel.parentChannel
+        } else {
+            discordMessageChannel
+        }
+        return channel as? IWebhookContainer
+    }
+
+    private suspend fun getOrCreateWebhook(webhooks: List<Webhook>, webhookContainer: IWebhookContainer): Webhook {
+        val selfUser = webhookContainer.jda.selfUser
+        val ownWebhook = webhooks.find {
+            it.ownerAsUser == selfUser
+        }
+        if (ownWebhook != null) return ownWebhook
+        val avatarUrl = selfUser.effectiveAvatarUrl
+        val avatarBytes = useHttpClient {
+            it.get(avatarUrl).readBytes()
+        }
+        val icon = Icon.from(avatarBytes)
+        return webhookContainer.createWebhook(selfUser.name)
+            .setAvatar(icon)
+            .await()
     }
 
     override fun getPreviousMessages(beforeId: String): Flow<Message> {
