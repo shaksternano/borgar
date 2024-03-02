@@ -4,9 +4,9 @@ import dev.minn.jda.ktx.events.listener
 import dev.minn.jda.ktx.generics.getChannel
 import dev.minn.jda.ktx.jdabuilder.default
 import dev.minn.jda.ktx.jdabuilder.intents
+import io.github.shaksternano.borgar.chat.BOT_STATUS
 import io.github.shaksternano.borgar.chat.event.MessageReceiveEvent
 import io.github.shaksternano.borgar.chat.util.onMessageReceived
-import io.github.shaksternano.borgar.core.BOT_STATUS
 import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.core.setLogger

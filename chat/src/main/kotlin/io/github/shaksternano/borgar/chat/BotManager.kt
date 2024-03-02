@@ -8,6 +8,8 @@ import io.github.shaksternano.borgar.chat.entity.User
 import io.github.shaksternano.borgar.chat.entity.channel.Channel
 import kotlin.time.Duration
 
+const val BOT_STATUS = "fortnite battle pass"
+
 interface BotManager {
 
     val maxMessageContentLength: Int
