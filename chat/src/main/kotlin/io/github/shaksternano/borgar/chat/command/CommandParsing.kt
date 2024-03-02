@@ -11,8 +11,10 @@ import io.github.shaksternano.borgar.chat.event.MessageCommandEvent
 import io.github.shaksternano.borgar.chat.event.MessageReceiveEvent
 import io.github.shaksternano.borgar.chat.exception.CommandException
 import io.github.shaksternano.borgar.chat.exception.MissingArgumentException
+import io.github.shaksternano.borgar.core.collect.parallelForEach
 import io.github.shaksternano.borgar.core.data.repository.TemplateRepository
 import io.github.shaksternano.borgar.core.exception.ErrorResponseException
+import io.github.shaksternano.borgar.core.io.deleteSilently
 import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.core.util.endOfWord
 import io.github.shaksternano.borgar.core.util.indicesOfPrefix
@@ -60,74 +62,77 @@ private suspend fun <T> sendTypingUntilDone(
 suspend inline fun executeCommands(
     commandConfigs: List<CommandConfig>,
     event: CommandEvent,
-): Pair<List<CommandResponse>, Executable?> = try {
-    val executables = commandConfigs.map {
-        val (command, arguments) = it
-        val guild = event.getGuild()
-        if (guild == null && command.guildOnly) {
-            throw GuildOnlyCommandException(command)
-        }
-        if (guild != null) {
-            val requiredPermissions = command.requiredPermissions
-            val permissionHolder = guild.getMember(event.getAuthor()) ?: guild.getPublicRole()
-            val hasPermission = permissionHolder.hasPermission(requiredPermissions, event.getChannel())
-            if (!hasPermission) {
-                throw InsufficientPermissionsException(command, requiredPermissions)
+): Pair<List<CommandResponse>, Executable?> =
+    runCatching {
+        val executables = commandConfigs.map {
+            val (command, arguments) = it
+            val guild = event.getGuild()
+            if (guild == null && command.guildOnly) {
+                throw GuildOnlyCommandException(command)
+            }
+            if (guild != null) {
+                val requiredPermissions = command.requiredPermissions
+                val permissionHolder = guild.getMember(event.getAuthor()) ?: guild.getPublicRole()
+                val hasPermission = permissionHolder.hasPermission(requiredPermissions, event.getChannel())
+                if (!hasPermission) {
+                    throw InsufficientPermissionsException(command, requiredPermissions)
+                }
+            }
+            try {
+                command.createExecutable(arguments, event)
+            } catch (t: Throwable) {
+                throw CommandException(listOf(it), cause = t)
             }
         }
-        try {
-            command.createExecutable(arguments, event)
-        } catch (t: Throwable) {
-            throw CommandException(listOf(it), cause = t)
+        val chained = executables.reduce { executable1, executable2 ->
+            executable1 then executable2
         }
+        val result = try {
+            chained.run()
+        } catch (t: Throwable) {
+            throw CommandException(chained.commandConfigs, cause = t)
+        }
+        if (result.isEmpty())
+            throw CommandException(chained.commandConfigs, "No command responses were returned")
+        result.forEach {
+            if (it.content.isBlank() && it.files.isEmpty())
+                throw CommandException(chained.commandConfigs, "Command response is empty")
+        }
+        result to chained
+    }.getOrElse { t ->
+        val responseContent = handleError(t, event.manager)
+        listOf(CommandResponse(responseContent)) to null
     }
-    val chained = executables.reduce { executable1, executable2 ->
-        executable1 then executable2
-    }
-    val result = try {
-        chained.run()
-    } catch (t: Throwable) {
-        throw CommandException(chained.commandConfigs, cause = t)
-    }
-    if (result.isEmpty())
-        throw CommandException(chained.commandConfigs, "No command responses were returned")
-    result.forEach {
-        if (it.content.isBlank() && it.files.isEmpty())
-            throw CommandException(chained.commandConfigs, "Command response is empty")
-    }
-    result to chained
-} catch (t: Throwable) {
-    val responseContent = handleError(t, event.manager)
-    listOf(CommandResponse(responseContent)) to null
-}
 
 suspend fun List<CommandResponse>.send(
     executable: Executable?,
     commandEvent: CommandEvent,
-) = coroutineScope {
+) {
     var sendHandleResponseErrorMessage = true
     forEachIndexed { index, response ->
         try {
             val sent = commandEvent.reply(response)
-            launch {
-                try {
-                    executable?.onResponseSend(
-                        response,
-                        index + 1,
-                        size,
-                        sent,
-                        commandEvent
-                    )
-                } catch (t: Throwable) {
-                    logger.error("An error occurred", t)
-                    if (sendHandleResponseErrorMessage) {
-                        commandEvent.reply("An error occurred!")
-                        sendHandleResponseErrorMessage = false
-                    }
+            runCatching {
+                executable?.onResponseSend(
+                    response,
+                    index + 1,
+                    size,
+                    sent,
+                    commandEvent,
+                )
+            }.getOrElse { t ->
+                logger.error("An error occurred", t)
+                if (sendHandleResponseErrorMessage) {
+                    commandEvent.reply("An error occurred!")
+                    sendHandleResponseErrorMessage = false
                 }
             }
         } catch (t: Throwable) {
             logger.error("Failed to send response", t)
+        } finally {
+            response.files.parallelForEach {
+                it.path?.deleteSilently()
+            }
         }
     }
     executable?.close()

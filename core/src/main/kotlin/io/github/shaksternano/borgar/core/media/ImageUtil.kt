@@ -5,9 +5,8 @@ import io.github.shaksternano.borgar.core.graphics.*
 import io.github.shaksternano.borgar.core.graphics.drawable.Drawable
 import io.github.shaksternano.borgar.core.graphics.drawable.ParagraphCompositeDrawable
 import io.github.shaksternano.borgar.core.media.template.Template
-import java.awt.Color
-import java.awt.Font
-import java.awt.Shape
+import java.awt.*
+import java.awt.geom.RoundRectangle2D
 import java.awt.image.BufferedImage
 import java.awt.image.ColorConvertOp
 import kotlin.math.*
@@ -520,4 +519,36 @@ suspend fun drawText(
 
     graphics.dispose()
     return imageWithText
+}
+
+fun BufferedImage.makeRoundedCorners(cornerRadius: Double): BufferedImage {
+    val output = BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)
+    val graphics = output.createGraphics()
+    /*
+    This is what we want, but it only does hard-clipping, i.e. aliasing
+    graphics.setClip(new RoundRectangle2D ...)
+    So instead fake soft-clipping by first drawing the desired clip shape
+    in fully opaque white with antialiasing enabled...
+     */
+    graphics.composite = AlphaComposite.Src
+    graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+    graphics.color = Color.WHITE
+    graphics.fill(
+        RoundRectangle2D.Double(
+            0.0,
+            0.0,
+            width.toDouble(),
+            height.toDouble(),
+            cornerRadius,
+            cornerRadius,
+        )
+    )
+    /*
+    ...then compositing the image on top,
+    using the white shape from above as alpha source
+     */
+    graphics.composite = AlphaComposite.SrcAtop
+    graphics.drawImage(this, 0, 0, null)
+    graphics.dispose()
+    return output
 }
