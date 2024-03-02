@@ -31,3 +31,4 @@ bin/
 .env
 *.mapdb
 *.mapdb.wal.0
+templates/
