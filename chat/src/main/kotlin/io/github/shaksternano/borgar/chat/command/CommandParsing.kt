@@ -156,6 +156,8 @@ private suspend fun contentStripped(message: Message): String {
     return stripped
 }
 
+private const val OUT_OF_MEMORY_ERROR_MESSAGE = "Ran out of memory! Please try again later, or use a smaller file."
+
 fun handleError(throwable: Throwable, manager: BotManager): String = when (throwable) {
     is NonChainableCommandException -> throwable.message
 
@@ -165,6 +167,8 @@ fun handleError(throwable: Throwable, manager: BotManager): String = when (throw
         is ErrorResponseException -> cause.message
 
         is MissingArgumentException -> cause.message
+
+        is OutOfMemoryError -> OUT_OF_MEMORY_ERROR_MESSAGE
 
         else -> {
             logger.error(
@@ -187,6 +191,8 @@ fun handleError(throwable: Throwable, manager: BotManager): String = when (throw
 
     is GuildOnlyCommandException ->
         "**${throwable.command.nameWithPrefix}** can only be used in a server!"
+
+    is OutOfMemoryError -> OUT_OF_MEMORY_ERROR_MESSAGE
 
     else -> {
         logger.error("An error occurred", throwable)
