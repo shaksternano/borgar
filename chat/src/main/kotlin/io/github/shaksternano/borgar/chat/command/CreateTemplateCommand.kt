@@ -5,13 +5,13 @@ import io.github.shaksternano.borgar.chat.util.getUrlsExceptSelf
 import io.github.shaksternano.borgar.core.data.repository.TemplateRepository
 import io.github.shaksternano.borgar.core.graphics.ContentPosition
 import io.github.shaksternano.borgar.core.graphics.TextAlignment
+import io.github.shaksternano.borgar.core.graphics.fontExists
 import io.github.shaksternano.borgar.core.io.*
 import io.github.shaksternano.borgar.core.media.createAudioReader
 import io.github.shaksternano.borgar.core.media.createImageReader
 import io.github.shaksternano.borgar.core.media.template.CustomTemplate
-import io.github.shaksternano.borgar.core.util.Fonts
-import io.github.shaksternano.borgar.core.util.StringUtil
 import io.github.shaksternano.borgar.core.util.asSingletonList
+import io.github.shaksternano.borgar.core.util.splitCamelCase
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -188,7 +188,7 @@ object CreateTemplateCommand : NonChainableCommand() {
         val textFont = getString(templateJson, "text.font") {
             "Futura-CondensedExtraBold"
         }
-        if (!Fonts.fontExists(textFont)) {
+        if (!fontExists(textFont)) {
             throw InvalidTemplateException("Font $textFont does not exist!")
         }
         val textMaxSize = getPositiveInt(templateJson, "text.max_size") {
@@ -334,8 +334,11 @@ object CreateTemplateCommand : NonChainableCommand() {
             runCatching {
                 transform(value)
             }.getOrElse {
-                val typeName = StringUtil.splitCamelCase(R::class.java.simpleName).lowercase()
-                throw InvalidTemplateException("**$key** is not a valid $typeName!")
+                val typeName = R::class.simpleName?.splitCamelCase()?.lowercase()
+                throw if (typeName == null)
+                    InvalidTemplateException("**$key** is invalid!")
+                else
+                    InvalidTemplateException("**$key** is not a valid $typeName!")
             }
         }
     }

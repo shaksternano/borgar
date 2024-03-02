@@ -1,7 +1,7 @@
 package io.github.shaksternano.borgar.core
 
 import io.github.shaksternano.borgar.core.data.connectToDatabase
-import io.github.shaksternano.borgar.core.emoji.EmojiUtil
+import io.github.shaksternano.borgar.core.emoji.initEmojis
 import io.github.shaksternano.borgar.core.graphics.registerFonts
 import io.github.shaksternano.borgar.core.util.getEnvVar
 import io.github.shaksternano.borgar.core.util.loadEnv
@@ -19,8 +19,7 @@ suspend fun initCore() {
     loadEnv(Path(envFileName))
     connectToPostgreSql()
     registerFonts()
-    EmojiUtil.initEmojiUnicodeSet()
-    EmojiUtil.initEmojiShortCodesToUrlsMap()
+    initEmojis()
     avutil.av_log_set_level(avutil.AV_LOG_PANIC)
 }
 

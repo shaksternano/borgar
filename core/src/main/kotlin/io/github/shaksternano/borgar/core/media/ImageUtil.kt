@@ -428,7 +428,7 @@ fun getTextDrawData(
 
     val font = template.font
     graphics.font = font
-    ImageUtil.configureTextDrawQuality(graphics)
+    graphics.configureTextDrawQuality()
 
     graphics.fitFontWidth(template.textContentWidth, paragraph)
     graphics.fitFontHeight(template.textContentHeight, paragraph)

@@ -86,23 +86,6 @@ suspend fun closeAll(closeables: Iterable<SuspendCloseable?>) {
     throwable?.let { throw it }
 }
 
-suspend inline fun <A : SuspendCloseable?, B : SuspendCloseable?, R> useAll(
-    closeable1: A,
-    closeable2: B,
-    block: (A, B) -> R,
-): R = useAllIgnored(closeable1, closeable2) {
-    block(closeable1, closeable2)
-}
-
-suspend inline fun <A : SuspendCloseable?, B : SuspendCloseable?, C : SuspendCloseable?, R> useAll(
-    closeable1: A,
-    closeable2: B,
-    closeable3: C,
-    block: (A, B, C) -> R,
-): R = useAllIgnored(closeable1, closeable2, closeable3) {
-    block(closeable1, closeable2, closeable3)
-}
-
 suspend inline fun <R> useAllIgnored(vararg closeables: SuspendCloseable?, block: () -> R): R {
     val closeable = SuspendCloseable {
         closeAll(*closeables)

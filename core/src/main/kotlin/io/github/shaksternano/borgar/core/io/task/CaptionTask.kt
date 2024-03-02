@@ -56,7 +56,7 @@ private class CaptionProcessor(
         val graphics = firstImage.createGraphics()
 
         graphics.font = font
-        ImageUtil.configureTextDrawQuality(graphics)
+        graphics.configureTextDrawQuality()
 
         val maxWidth = width - padding * 2
 

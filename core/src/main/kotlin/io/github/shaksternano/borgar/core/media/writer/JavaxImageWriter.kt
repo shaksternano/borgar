@@ -1,9 +1,9 @@
 package io.github.shaksternano.borgar.core.media.writer
 
 import io.github.shaksternano.borgar.core.media.ImageFrame
-import io.github.shaksternano.borgar.core.media.MediaUtil
 import io.github.shaksternano.borgar.core.media.MediaWriterFactory
 import io.github.shaksternano.borgar.core.media.convertType
+import io.github.shaksternano.borgar.core.media.supportsTransparency
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.awt.image.BufferedImage
@@ -22,7 +22,7 @@ class JavaxImageWriter(
     override suspend fun writeImageFrame(frame: ImageFrame) {
         if (written) return
         written = true
-        val imageType = if (MediaUtil.supportsTransparency(outputFormat)) {
+        val imageType = if (supportsTransparency(outputFormat)) {
             BufferedImage.TYPE_INT_ARGB
         } else {
             BufferedImage.TYPE_3BYTE_BGR

@@ -24,7 +24,7 @@ class DiscordLogger(
     override fun intercept(level: Level, message: String?, t: Throwable?, vararg arguments: Any?) {
         if (message == null) return
         val logChannel = getLogChannel() ?: return
-        val messageWithArguments = formatArguments(message, arguments)
+        val messageWithArguments = formatArguments(message, arguments.asList())
         var formattedMessage = "$level - $name"
         if (messageWithArguments.isNotBlank()) {
             formattedMessage += "\n$messageWithArguments"
@@ -48,7 +48,7 @@ class DiscordLogger(
     private fun getLogChannel(): MessageChannel? =
         jda.getChannelById(MessageChannel::class.java, logChannelId)
 
-    private fun formatArguments(message: String, arguments: Array<out Any?>): String {
+    private fun formatArguments(message: String, arguments: List<Any?>): String {
         var messageWithArguments = message
         arguments.forEachIndexed { i, argument ->
             val stringArgument = argument.toString()

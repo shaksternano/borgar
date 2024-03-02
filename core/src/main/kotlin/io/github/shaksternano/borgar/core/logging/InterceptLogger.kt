@@ -5,7 +5,7 @@ import org.slf4j.Marker
 import org.slf4j.event.Level
 
 abstract class InterceptLogger(
-    protected val delegate: Logger,
+    private val delegate: Logger,
 ) : Logger by delegate {
 
     private fun tryIntercept(level: Level, message: String?, t: Throwable?, vararg arguments: Any?) {

@@ -22,6 +22,7 @@ import org.reflections.scanners.Scanners
 import java.io.Closeable
 import java.io.FileNotFoundException
 import java.io.InputStream
+import java.io.RandomAccessFile
 import java.nio.file.Path
 import java.util.regex.Pattern
 import kotlin.io.path.*
@@ -88,6 +89,13 @@ suspend fun Path.deleteSilently() {
     }
 }
 
+suspend fun Path.clear() =
+    withContext(Dispatchers.IO) {
+        RandomAccessFile(toFile(), "rw").use { file ->
+            file.setLength(0)
+        }
+    }
+
 fun httpClient(block: HttpClientConfig<*>.() -> Unit = {}): HttpClient = HttpClient(Jetty, block)
 
 fun configuredHttpClient(): HttpClient = httpClient {
@@ -121,6 +129,7 @@ suspend fun download(url: String, path: Path) = useHttpClient { client ->
 }
 
 suspend fun HttpResponse.download(path: Path) {
+    path.clear()
     readBytes {
         withContext(Dispatchers.IO) {
             path.appendBytes(it)

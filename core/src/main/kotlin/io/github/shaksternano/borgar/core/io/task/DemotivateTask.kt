@@ -2,6 +2,7 @@ package io.github.shaksternano.borgar.core.io.task
 
 import io.github.shaksternano.borgar.core.graphics.Position
 import io.github.shaksternano.borgar.core.graphics.TextAlignment
+import io.github.shaksternano.borgar.core.graphics.configureTextDrawQuality
 import io.github.shaksternano.borgar.core.graphics.drawable.Drawable
 import io.github.shaksternano.borgar.core.graphics.drawable.ParagraphCompositeDrawable
 import io.github.shaksternano.borgar.core.graphics.drawable.draw
@@ -64,7 +65,7 @@ private class DemotivateProcessor(
         val font = Font("Times", Font.PLAIN, contentAverageDimension / 6)
         val subFont = font.deriveFont(font.size / 3F)
         graphics.font = font
-        ImageUtil.configureTextDrawQuality(graphics)
+        graphics.configureTextDrawQuality()
 
         val textAlignment = TextAlignment.CENTRE
         val paragraph = ParagraphCompositeDrawable.Builder(nonTextParts)
@@ -143,7 +144,7 @@ private class DemotivateProcessor(
 
     override suspend fun transformImage(frame: ImageFrame, constantData: DemotivateData): BufferedImage {
         val image = frame.content
-        val result = BufferedImage(constantData.width, constantData.height, ImageUtil.getType(image))
+        val result = BufferedImage(constantData.width, constantData.height, image.typeNoCustom)
         val graphics = result.createGraphics()
 
         // Draw background
@@ -162,7 +163,7 @@ private class DemotivateProcessor(
 
         // Draw text
         graphics.font = constantData.font
-        ImageUtil.configureTextDrawQuality(graphics)
+        graphics.configureTextDrawQuality()
         constantData.paragraph.draw(
             graphics,
             constantData.paragraphPosition,

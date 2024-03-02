@@ -3,7 +3,9 @@ package io.github.shaksternano.borgar.chat.util
 import io.github.shaksternano.borgar.chat.command.CommandMessageIntersection
 import io.github.shaksternano.borgar.chat.entity.CustomEmoji
 import io.github.shaksternano.borgar.chat.entity.getContent
-import io.github.shaksternano.borgar.core.emoji.EmojiUtil
+import io.github.shaksternano.borgar.core.emoji.getEmojiUrl
+import io.github.shaksternano.borgar.core.emoji.getEmojiUrlFromShortcode
+import io.github.shaksternano.borgar.core.emoji.isEmojiUnicode
 import io.github.shaksternano.borgar.core.exception.ErrorResponseException
 import io.github.shaksternano.borgar.core.graphics.drawable.Drawable
 import io.github.shaksternano.borgar.core.graphics.drawable.ImageDrawable
@@ -16,7 +18,6 @@ import io.github.shaksternano.borgar.core.util.retrieveTenorUrlOrDefault
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.take
-import kotlin.jvm.optionals.getOrNull
 import kotlin.math.min
 
 private const val MAX_PAST_MESSAGES_TO_CHECK: Int = 100
@@ -71,18 +72,12 @@ private suspend fun CommandMessageIntersection.getUrlDrawables(): Map<String, Dr
         }.associate { it }
 }
 
-suspend fun CommandMessageIntersection.getEmojiUrls(): Map<String, String> =
-    getEmojiUrls(false)
-
-private suspend fun CommandMessageIntersection.getEmojiUrls(onlyGetFirst: Boolean): Map<String, String> {
+suspend fun CommandMessageIntersection.getEmojiUrls(): Map<String, String> {
     val emojiUrls = mutableMapOf<String, String>()
 
     // Get custom emojis.
     customEmojis.forEach {
         emojiUrls[it.asMention] = it.imageUrl
-        if (onlyGetFirst) {
-            return emojiUrls
-        }
     }
 
     // Get undetected emojis, such as those requiring Discord nitro.
@@ -93,9 +88,6 @@ private suspend fun CommandMessageIntersection.getEmojiUrls(onlyGetFirst: Boolea
                 val basicMention = it.asBasicMention
                 if (content.contains(basicMention)) {
                     emojiUrls[basicMention] = it.imageUrl
-                    if (onlyGetFirst) {
-                        return emojiUrls
-                    }
                 }
             }
         }
@@ -116,17 +108,12 @@ private suspend fun CommandMessageIntersection.getEmojiUrls(onlyGetFirst: Boolea
             }
             compositeUnicodeBuilder.deleteCharAt(compositeUnicodeBuilder.length - 1)
 
-            if (EmojiUtil.isEmojiUnicode(compositeUnicodeBuilder.toString())) {
+            if (isEmojiUnicode(compositeUnicodeBuilder.toString())) {
                 val emojiCharactersBuilder = StringBuilder()
                 compositeCodePoints.forEach(emojiCharactersBuilder::appendCodePoint)
-                emojiUrls[emojiCharactersBuilder.toString()] =
-                    EmojiUtil.getEmojiUrl(compositeUnicodeBuilder.toString())
-                return if (onlyGetFirst) {
-                    emojiUrls
-                } else {
-                    i += j - i
-                    break
-                }
+                emojiUrls[emojiCharactersBuilder.toString()] = getEmojiUrl(compositeUnicodeBuilder.toString())
+                i += j - i
+                break
             }
         }
         i++
@@ -135,11 +122,9 @@ private suspend fun CommandMessageIntersection.getEmojiUrls(onlyGetFirst: Boolea
     // Get unicode emojis from shortcodes.
     manager.emojiTypedPattern.findAll(content).forEach {
         val emojiName = manager.getEmojiName(it.value)
-        EmojiUtil.getEmojiUrlFromShortcode(emojiName).getOrNull()?.let { emojiUrl ->
+        val emojiUrl = getEmojiUrlFromShortcode(emojiName)
+        if (emojiUrl != null) {
             emojiUrls[emojiName] = emojiUrl
-            if (onlyGetFirst) {
-                return emojiUrls
-            }
         }
     }
 

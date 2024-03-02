@@ -120,7 +120,7 @@ suspend fun List<CommandResponse>.send(
                     sent,
                     commandEvent,
                 )
-            }.getOrElse { t ->
+            }.onFailure { t ->
                 logger.error("An error occurred", t)
                 if (sendHandleResponseErrorMessage) {
                     commandEvent.reply("An error occurred!")

@@ -16,7 +16,7 @@ suspend fun registerFonts() = forEachResource(
             Font.createFont(Font.TRUETYPE_FONT, inputStream)
         }
         GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(font)
-    }.getOrElse {
+    }.onFailure {
         logger.error("Error loading font $resourcePath", it)
     }
 }

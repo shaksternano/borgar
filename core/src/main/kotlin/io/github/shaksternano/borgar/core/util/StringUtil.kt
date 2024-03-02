@@ -62,3 +62,13 @@ fun String.splitChunks(limit: Int): List<String> = SplitUtil.split(
 fun String.equalsAnyIgnoreCase(vararg toCompare: String): Boolean = toCompare.any {
     equals(it, ignoreCase = true)
 }
+
+fun String.splitCamelCase(): String =
+    replace(
+        String.format(
+            "%s|%s|%s",
+            "(?<=[A-Z])(?=[A-Z][a-z])",
+            "(?<=[^A-Z])(?=[A-Z])",
+            "(?<=[A-Za-z])(?=[^A-Za-z])"
+        ).toRegex(), " "
+    )

@@ -1,6 +1,6 @@
 package io.github.shaksternano.borgar.core.graphics.drawable
 
-import io.github.shaksternano.borgar.core.media.ImageUtil
+import io.github.shaksternano.borgar.core.graphics.configureTextDrawQuality
 import java.awt.BasicStroke
 import java.awt.Color
 import java.awt.Graphics2D
@@ -28,8 +28,7 @@ class OutlinedTextDrawable(
 
         val textShape = graphics.shape(text)
 
-        ImageUtil.configureTextDrawQuality(graphics)
-
+        graphics.configureTextDrawQuality()
         graphics.color = outlineColor
         graphics.stroke = outlineStroke
         graphics.translate(actualX, actualY)
