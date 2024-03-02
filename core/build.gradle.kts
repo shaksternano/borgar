@@ -2,7 +2,6 @@ val kotlinCoroutinesVersion: String by project
 val ktorVersion: String by project
 val logbackVersion: String by project
 val guavaVersion: String by project
-val gsonVersion: String by project
 val commonsIoVersion: String by project
 val javacvVersion: String by project
 val scrimageVersion: String by project
@@ -10,7 +9,6 @@ val twelveMonkeysVersion: String by project
 val image4jVersion: String by project
 val reflectionsVersion: String by project
 val jdaVersion: String by project
-val discordWebhooksVersion: String by project
 val exposedVersion: String by project
 val postgreSqlVersion: String by project
 val junitVersion: String by project
@@ -20,6 +18,8 @@ plugins {
 }
 
 dependencies {
+    api("ch.qos.logback:logback-classic:$logbackVersion")
+
     api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion")
 
     api("io.ktor:ktor-client-core:$ktorVersion")
@@ -27,18 +27,13 @@ dependencies {
     api("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     api("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
 
-    api("ch.qos.logback:logback-classic:$logbackVersion")
-
     api("com.google.guava:guava:$guavaVersion-jre")
-    api("com.google.code.gson:gson:$gsonVersion")
-    api("commons-io:commons-io:$commonsIoVersion")
+    implementation("commons-io:commons-io:$commonsIoVersion")
     implementation("org.reflections:reflections:$reflectionsVersion")
     // For utility classes such as SplitUtil
     implementation("net.dv8tion:JDA:$jdaVersion") {
         exclude(module = "opus-java")
     }
-    @Suppress
-    implementation("club.minnced:discord-webhooks:$discordWebhooksVersion")
 
     implementation("org.bytedeco:javacv-platform:$javacvVersion") {
         excludeJavaCpp(
