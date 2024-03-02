@@ -131,12 +131,13 @@ private data class FileExecutable(
             val attachments = partitioned.second
             CommandResponse(
                 content = when {
-                    index == 0 && canUpload.isEmpty() -> "Files are too large to upload."
                     index == 0 && canUpload.size < output.size -> "Some files are too large to upload."
                     else -> urls
                 },
                 files = attachments,
             )
+        }.ifEmpty {
+            CommandResponse("Files are too large to upload.").asSingletonList()
         }
     }
 
