@@ -69,10 +69,12 @@ object HelpCommand : NonChainableCommand() {
 
     private fun createHelpMessage(commandInfo: Iterable<CommandInfo>): String {
         val commandDescriptions = commandInfo.sorted()
-            .joinToString(separator = "") {
-                "**" + it.name + "** - " + it.description + "\n"
+            .joinToString(separator = "\n") {
+                "**" + it.name + "** - " + it.description
             }
-        return "Commands:\n\n$commandDescriptions"
+        return "Commands:" +
+            "\n$commandDescriptions\n\n" +
+            "Use **$nameWithPrefix [command]** to get detailed information about a command."
     }
 
     private suspend fun getCommandInfo(entityId: String, fromGuild: Boolean): List<CommandInfo> = buildList {
