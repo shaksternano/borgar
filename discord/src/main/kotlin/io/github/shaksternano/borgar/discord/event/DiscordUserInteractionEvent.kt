@@ -1,48 +1,43 @@
 package io.github.shaksternano.borgar.discord.event
 
-import dev.minn.jda.ktx.messages.MessageCreateBuilder
 import io.github.shaksternano.borgar.chat.BotManager
 import io.github.shaksternano.borgar.chat.entity.Guild
 import io.github.shaksternano.borgar.chat.entity.Member
 import io.github.shaksternano.borgar.chat.entity.Message
 import io.github.shaksternano.borgar.chat.entity.User
-import io.github.shaksternano.borgar.chat.entity.channel.MessageChannel
-import io.github.shaksternano.borgar.chat.event.MessageInteractionEvent
+import io.github.shaksternano.borgar.chat.entity.channel.Channel
+import io.github.shaksternano.borgar.chat.event.UserInteractionEvent
 import io.github.shaksternano.borgar.chat.interaction.InteractionResponse
 import io.github.shaksternano.borgar.discord.DiscordManager
 import io.github.shaksternano.borgar.discord.await
 import io.github.shaksternano.borgar.discord.entity.DiscordGuild
 import io.github.shaksternano.borgar.discord.entity.DiscordMember
-import io.github.shaksternano.borgar.discord.entity.DiscordMessage
 import io.github.shaksternano.borgar.discord.entity.DiscordUser
-import io.github.shaksternano.borgar.discord.entity.channel.DiscordMessageChannel
-import io.github.shaksternano.borgar.discord.toFileUpload
-import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent
-import net.dv8tion.jda.api.utils.messages.MessageCreateData
+import io.github.shaksternano.borgar.discord.entity.channel.DiscordChannel
+import net.dv8tion.jda.api.events.interaction.command.UserContextInteractionEvent
 
-class DiscordMessageInteractionEvent(
-    private val discordEvent: MessageContextInteractionEvent,
-) : MessageInteractionEvent {
+class DiscordUserInteractionEvent(
+    private val discordEvent: UserContextInteractionEvent,
+) : UserInteractionEvent {
 
     override val manager: BotManager = DiscordManager[discordEvent.jda]
     override val id: String = discordEvent.id
     override val name: String = discordEvent.name
-    override val message: Message = DiscordMessage(discordEvent.target)
+    override var ephemeralReply: Boolean = false
 
-    private val user: User = DiscordUser(discordEvent.user)
+    override val target: User = DiscordUser(discordEvent.target)
     private val member: Member? = discordEvent.member?.let { DiscordMember(it) }
-    private val channel: MessageChannel = DiscordMessageChannel(discordEvent.target.channel)
+    private val channel: Channel? = discordEvent.channel?.let { DiscordChannel.create(it) }
     private val guild: Guild? = discordEvent.guild?.let { DiscordGuild(it) }
 
-    override var ephemeralReply: Boolean = false
     private var deferReply: Boolean = false
     private var replied: Boolean = false
 
-    override suspend fun getAuthor(): User = user
+    override suspend fun getAuthor(): User = target
 
     override suspend fun getAuthorMember(): Member? = member
 
-    override suspend fun getChannel(): MessageChannel = channel
+    override suspend fun getChannel(): Channel? = channel
 
     override suspend fun getGuild(): Guild? = guild
 
@@ -64,9 +59,3 @@ class DiscordMessageInteractionEvent(
         }
     }
 }
-
-fun InteractionResponse.convert(): MessageCreateData =
-    MessageCreateBuilder(
-        content = content,
-        files = files.map { it.toFileUpload() }
-    ).build()

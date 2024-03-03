@@ -49,7 +49,7 @@ object CreateTemplateCommand : NonChainableCommand() {
     override val defaultArgumentKey: String = "url"
     override val requiredPermissions: Set<Permission> = setOf(Permission.MANAGE_GUILD_EXPRESSIONS)
     override val deferReply: Boolean = true
-    override val ephemeral: Boolean = true
+    override val ephemeralReply: Boolean = true
 
     override suspend fun run(arguments: CommandArguments, event: CommandEvent): List<CommandResponse> {
         val templateFileUrl = getTemplateFileUrl(arguments, event)

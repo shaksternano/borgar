@@ -5,13 +5,13 @@ import io.github.shaksternano.borgar.chat.entity.User
 import io.github.shaksternano.borgar.chat.event.CommandEvent
 import io.github.shaksternano.borgar.chat.exception.MissingArgumentException
 import io.github.shaksternano.borgar.core.io.SuspendCloseable
+import io.github.shaksternano.borgar.core.util.Named
 import io.github.shaksternano.borgar.core.util.asSingletonList
 import io.github.shaksternano.borgar.core.util.startsWithVowel
 import kotlinx.coroutines.flow.firstOrNull
 
-interface Command {
+interface Command : Named {
 
-    val name: String
     val aliases: Set<String>
         get() = emptySet()
     val description: String
@@ -25,7 +25,7 @@ interface Command {
     val requiredPermissions: Set<Permission>
         get() = emptySet()
     val deferReply: Boolean
-    val ephemeral: Boolean
+    val ephemeralReply: Boolean
         get() = false
     val entityId: String?
         get() = null

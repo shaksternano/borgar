@@ -1,7 +1,8 @@
-package io.github.shaksternano.borgar.chat.interaction
+package io.github.shaksternano.borgar.chat.interaction.message
 
 import io.github.shaksternano.borgar.chat.entity.Message
 import io.github.shaksternano.borgar.chat.event.MessageInteractionEvent
+import io.github.shaksternano.borgar.chat.interaction.InteractionResponse
 import io.github.shaksternano.borgar.core.io.task.DownloadTask
 import io.github.shaksternano.borgar.core.io.task.FileTask
 import io.github.shaksternano.borgar.core.io.task.run
@@ -12,10 +13,10 @@ object DownloadInteractionCommand : MessageInteractionCommand {
     override val name: String = "Download"
     override val deferReply: Boolean = true
 
-    override suspend fun respond(event: MessageInteractionEvent): MessageInteractionResponse {
+    override suspend fun respond(event: MessageInteractionEvent): InteractionResponse {
         val messageContent = event.message.content
         val url = messageContent.getUrls().ifEmpty {
-            return MessageInteractionResponse("No URLs found!")
+            return InteractionResponse("No URLs found!")
         }.first()
         val maxFileSize = event.getGuild()?.getMaxFileSize() ?: event.manager.maxFileSize
         val downloadTask = DownloadTask(
@@ -23,14 +24,14 @@ object DownloadInteractionCommand : MessageInteractionCommand {
             maxFileSize = maxFileSize,
         )
         val output = downloadTask.run()
-        return MessageInteractionResponse(
+        return InteractionResponse(
             files = output,
             responseData = downloadTask
         )
     }
 
     override suspend fun onResponseSend(
-        response: MessageInteractionResponse,
+        response: InteractionResponse,
         sent: Message,
         event: MessageInteractionEvent,
     ) {

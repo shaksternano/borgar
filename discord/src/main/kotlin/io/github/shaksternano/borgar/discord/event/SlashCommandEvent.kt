@@ -46,7 +46,7 @@ class SlashCommandEvent(
 
     override suspend fun getAuthor(): User = user
 
-    override suspend fun getMember(): Member? = member
+    override suspend fun getAuthorMember(): Member? = member
 
     override suspend fun getChannel(): MessageChannel = channel
 
@@ -71,7 +71,6 @@ class SlashCommandEvent(
             replied = true
             event.reply(
                 message,
-                channel,
                 deferReply,
                 ephemeralReply,
                 response.suppressEmbeds,
@@ -102,7 +101,7 @@ class SlashCommandEvent(
 
             override suspend fun getAuthor(): User = this@SlashCommandEvent.getAuthor()
 
-            override suspend fun getMember(): Member? = this@SlashCommandEvent.getMember()
+            override suspend fun getMember(): Member? = this@SlashCommandEvent.getAuthorMember()
 
             override suspend fun getChannel(): MessageChannel = this@SlashCommandEvent.getChannel()
 
@@ -112,30 +111,19 @@ class SlashCommandEvent(
 
 suspend fun IReplyCallback.reply(
     message: MessageCreateData,
-    channel: MessageChannel,
     deferReply: Boolean,
     ephemeralReply: Boolean,
     suppressEmbeds: Boolean,
-): Message =
-    if (deferReply) {
-        val discordResponse = hook.sendMessage(message)
+): Message {
+    val discordResponse = if (deferReply) {
+        hook.sendMessage(message)
             .setSuppressEmbeds(suppressEmbeds)
-            .await()
-        DiscordMessage(discordResponse)
     } else {
-        val interactionHook = reply(message)
+        reply(message)
             .setEphemeral(ephemeralReply)
             .setSuppressEmbeds(suppressEmbeds)
             .await()
-        if (ephemeralReply) {
-            FakeMessage(
-                interactionHook.id,
-                message.content,
-                channel.manager.getSelf(),
-                channel,
-            )
-        } else {
-            val discordResponse = interactionHook.retrieveOriginal().await()
-            DiscordMessage(discordResponse)
-        }
-    }
+            .retrieveOriginal()
+    }.await()
+    return DiscordMessage(discordResponse)
+}

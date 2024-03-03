@@ -212,7 +212,7 @@ suspend fun parseCommands(messageContent: String, message: Message): List<Comman
         .mapIndexed { index, (commandString, rawArguments, defaultArgumentValue) ->
             val command = COMMANDS_AND_ALIASES[commandString] ?: getCustomTemplateCommand(
                 commandString,
-                message
+                message,
             )
             if (command == null) {
                 if (index > 0) {
@@ -226,7 +226,7 @@ suspend fun parseCommands(messageContent: String, message: Message): List<Comman
                 command.defaultArgumentKey,
                 defaultArgumentValue,
                 command.argumentInfo,
-                message
+                message,
             )
             CommandConfig(command, arguments)
         }

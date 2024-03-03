@@ -26,7 +26,9 @@ fun CharSequence.indicesOfPrefix(
     }
 
 fun CharSequence.indicesOf(substr: String, ignoreCase: Boolean = false): List<Int> {
-    val regex = if (ignoreCase) Regex(substr, RegexOption.IGNORE_CASE) else Regex(substr)
+    val regex =
+        if (ignoreCase) Regex(substr, RegexOption.IGNORE_CASE)
+        else Regex(substr)
     return regex.findAll(this).map { it.range.first }.toList()
 }
 
@@ -56,19 +58,20 @@ fun String.splitChunks(limit: Int): List<String> = SplitUtil.split(
     true,
     SplitUtil.Strategy.NEWLINE,
     SplitUtil.Strategy.WHITESPACE,
-    SplitUtil.Strategy.ANYWHERE
+    SplitUtil.Strategy.ANYWHERE,
 )
 
 fun String.equalsAnyIgnoreCase(vararg toCompare: String): Boolean = toCompare.any {
     equals(it, ignoreCase = true)
 }
 
-fun String.splitCamelCase(): String =
+fun CharSequence.splitCamelCase(): String =
     replace(
         String.format(
             "%s|%s|%s",
             "(?<=[A-Z])(?=[A-Z][a-z])",
             "(?<=[^A-Z])(?=[A-Z])",
-            "(?<=[A-Za-z])(?=[^A-Za-z])"
-        ).toRegex(), " "
+            "(?<=[A-Za-z])(?=[^A-Za-z])",
+        ).toRegex(),
+        " ",
     )

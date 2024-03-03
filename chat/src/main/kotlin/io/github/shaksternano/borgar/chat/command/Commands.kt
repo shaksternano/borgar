@@ -1,10 +1,14 @@
 package io.github.shaksternano.borgar.chat.command
 
+import io.github.shaksternano.borgar.core.util.Named
+import io.github.shaksternano.borgar.core.util.startsWithVowel
+
 const val COMMAND_PREFIX: String = "%"
 const val ARGUMENT_PREFIX: String = "--"
 const val ENTITY_ID_SEPARATOR: String = ":"
 
 val COMMANDS: Map<String, Command> = registerCommands(
+    "command",
     HelpCommand,
     CaptionCommand.Caption,
     CaptionCommand.Caption2,
@@ -78,11 +82,16 @@ val COMMANDS_AND_ALIASES: Map<String, Command> = buildMap {
     }
 }
 
-private fun registerCommands(vararg commands: Command): Map<String, Command> = buildMap {
+fun <T : Named> registerCommands(commandType: String, vararg commands: T): Map<String, T> = buildMap {
     commands.forEach {
-        if (it.name in this) throw IllegalArgumentException(
-            "A command with the name ${it.name} already exists. Existing command: ${this[it.name]}. New command: $it"
-        )
+        if (it.name in this) {
+            var errorMessage = "A"
+            if (commandType.startsWithVowel()) {
+                errorMessage += "n"
+            }
+            errorMessage += " $commandType with the name ${it.name} already exists. Existing command: ${this[it.name]}. New command: $it"
+            throw IllegalArgumentException(errorMessage)
+        }
         this[it.name] = it
     }
 }

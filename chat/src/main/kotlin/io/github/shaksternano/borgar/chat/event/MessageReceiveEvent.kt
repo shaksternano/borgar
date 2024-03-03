@@ -17,7 +17,7 @@ class MessageReceiveEvent(
 
     suspend fun getAuthor(): User = message.getAuthor()
 
-    suspend fun getMember(): Member? = message.getMember()
+    suspend fun getAuthorMember(): Member? = message.getMember()
 
     suspend fun getChannel(): MessageChannel = message.getChannel()
 

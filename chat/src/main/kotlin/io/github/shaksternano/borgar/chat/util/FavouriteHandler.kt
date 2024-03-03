@@ -16,7 +16,7 @@ suspend fun sendFavouriteFile(event: MessageReceiveEvent) {
     val fileName = filenameWithoutExtension(aliasUrl)
     if (!fileName.startsWith(FAVOURITE_ALIAS_PREFIX)) return
     val url = getUrl(aliasUrl) ?: return
-    val author = event.getMember() ?: event.getAuthor()
+    val author = event.getAuthorMember() ?: event.getAuthor()
     val channel = event.getChannel()
     coroutineScope {
         launch {

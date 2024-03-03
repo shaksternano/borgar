@@ -7,9 +7,13 @@ import io.github.shaksternano.borgar.chat.command.*
 import io.github.shaksternano.borgar.chat.entity.*
 import io.github.shaksternano.borgar.chat.event.CommandEvent
 import io.github.shaksternano.borgar.chat.event.MessageInteractionEvent
-import io.github.shaksternano.borgar.chat.interaction.MESSAGE_INTERACTION_COMMANDS
-import io.github.shaksternano.borgar.chat.interaction.MessageInteractionCommand
-import io.github.shaksternano.borgar.chat.interaction.handleMessageInteraction
+import io.github.shaksternano.borgar.chat.event.UserInteractionEvent
+import io.github.shaksternano.borgar.chat.interaction.message.MESSAGE_INTERACTION_COMMANDS
+import io.github.shaksternano.borgar.chat.interaction.message.MessageInteractionCommand
+import io.github.shaksternano.borgar.chat.interaction.message.handleMessageInteraction
+import io.github.shaksternano.borgar.chat.interaction.user.USER_INTERACTION_COMMANDS
+import io.github.shaksternano.borgar.chat.interaction.user.UserInteractionCommand
+import io.github.shaksternano.borgar.chat.interaction.user.handleUserInteraction
 import io.github.shaksternano.borgar.core.data.repository.TemplateRepository
 import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.core.util.*
@@ -17,6 +21,7 @@ import io.github.shaksternano.borgar.discord.await
 import io.github.shaksternano.borgar.discord.entity.DiscordUser
 import io.github.shaksternano.borgar.discord.entity.channel.DiscordMessageChannel
 import io.github.shaksternano.borgar.discord.event.DiscordMessageInteractionEvent
+import io.github.shaksternano.borgar.discord.event.DiscordUserInteractionEvent
 import io.github.shaksternano.borgar.discord.event.SlashCommandEvent
 import io.github.shaksternano.borgar.discord.toDiscord
 import kotlinx.coroutines.coroutineScope
@@ -24,6 +29,7 @@ import kotlinx.coroutines.launch
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
+import net.dv8tion.jda.api.events.interaction.command.UserContextInteractionEvent
 import net.dv8tion.jda.api.interactions.commands.Command.Choice
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions
 import net.dv8tion.jda.api.interactions.commands.OptionType
@@ -41,6 +47,9 @@ suspend fun JDA.registerCommands() {
     listener<MessageContextInteractionEvent> {
         handleMessageInteraction(it.convert())
     }
+    listener<UserContextInteractionEvent> {
+        handleUserInteraction(it.convert())
+    }
     updateCommands {
         val slashCommands = COMMANDS.values
             .map(Command::toSlash)
@@ -48,6 +57,9 @@ suspend fun JDA.registerCommands() {
         val messageInteractionCommands = MESSAGE_INTERACTION_COMMANDS.values
             .map(MessageInteractionCommand::toDiscord)
         addCommands(messageInteractionCommands)
+        val userInteractionCommands = USER_INTERACTION_COMMANDS.values
+            .map(UserInteractionCommand::toDiscord)
+        addCommands(userInteractionCommands)
     }.await()
 }
 
@@ -67,10 +79,16 @@ fun Command.toSlash(): SlashCommandData = Command(name, description) {
 }
 
 fun MessageInteractionCommand.toDiscord(): CommandData =
-    Commands.message(name)
+    Commands.message(name).setGuildOnly(guildOnly)
+
+fun UserInteractionCommand.toDiscord(): CommandData =
+    Commands.user(name).setGuildOnly(guildOnly)
 
 fun MessageContextInteractionEvent.convert(): MessageInteractionEvent =
     DiscordMessageInteractionEvent(this)
+
+fun UserContextInteractionEvent.convert(): UserInteractionEvent =
+    DiscordUserInteractionEvent(this)
 
 private suspend fun handleCommand(event: SlashCommandInteractionEvent) {
     val name = event.name
@@ -112,7 +130,7 @@ private suspend fun executeCommand(
     } else {
         slashCommandConfig
     }
-    commandEvent.ephemeralReply = commandConfigs.any { it.command.ephemeral }
+    commandEvent.ephemeralReply = commandConfigs.any { it.command.ephemeralReply }
     val (responses, executable) = coroutineScope {
         val anyDefer = commandConfigs.any { it.command.deferReply }
         if (anyDefer) launch {

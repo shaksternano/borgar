@@ -23,7 +23,7 @@ data class MessageCommandEvent(
 
     override suspend fun getAuthor(): User = event.getAuthor()
 
-    override suspend fun getMember(): Member? = event.getMember()
+    override suspend fun getAuthorMember(): Member? = event.getAuthorMember()
 
     override suspend fun getChannel(): MessageChannel = event.getChannel()
 
@@ -54,7 +54,7 @@ data class MessageCommandEvent(
 
             override suspend fun getAuthor(): User = this@MessageCommandEvent.getAuthor()
 
-            override suspend fun getMember(): Member? = this@MessageCommandEvent.getMember()
+            override suspend fun getMember(): Member? = this@MessageCommandEvent.getAuthorMember()
 
             override suspend fun getChannel(): MessageChannel = this@MessageCommandEvent.getChannel()
 
