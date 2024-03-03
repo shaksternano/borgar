@@ -7,6 +7,7 @@ import io.github.shaksternano.borgar.core.graphics.ContentPosition
 import io.github.shaksternano.borgar.core.graphics.TextAlignment
 import io.github.shaksternano.borgar.core.graphics.fontExists
 import io.github.shaksternano.borgar.core.io.*
+import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.core.media.createAudioReader
 import io.github.shaksternano.borgar.core.media.createImageReader
 import io.github.shaksternano.borgar.core.media.template.CustomTemplate
@@ -84,6 +85,9 @@ object CreateTemplateCommand : NonChainableCommand() {
             guild?.addCommand(TemplateCommand(template))
             CommandResponse("Template created!")
         } catch (e: InvalidTemplateException) {
+            e.cause?.let {
+                logger.error("Invalid template file", it)
+            }
             CommandResponse("Invalid template file. ${e.message}")
         }.asSingletonList()
     }
@@ -298,7 +302,7 @@ object CreateTemplateCommand : NonChainableCommand() {
                     response.download(mediaPath)
                 }.getOrElse { t ->
                     mediaPath.deleteSilently()
-                    throw InvalidTemplateException("Invalid media URL!", t)
+                    throw InvalidTemplateException("Failed to read media!", t)
                 }
                 runCatching {
                     // Check if media can be read

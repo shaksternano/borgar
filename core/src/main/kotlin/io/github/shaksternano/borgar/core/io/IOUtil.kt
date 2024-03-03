@@ -22,7 +22,6 @@ import org.reflections.scanners.Scanners
 import java.io.Closeable
 import java.io.FileNotFoundException
 import java.io.InputStream
-import java.io.RandomAccessFile
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
 import java.util.regex.Pattern
@@ -90,13 +89,6 @@ suspend fun Path.deleteSilently() {
     }
 }
 
-suspend fun Path.clear() =
-    withContext(Dispatchers.IO) {
-        RandomAccessFile(toFile(), "rw").use { file ->
-            file.setLength(0)
-        }
-    }
-
 fun httpClient(block: HttpClientConfig<*>.() -> Unit = {}): HttpClient = HttpClient(CIO, block)
 
 fun configuredHttpClient(): HttpClient = httpClient {
@@ -130,12 +122,22 @@ suspend fun download(url: String, path: Path) = useHttpClient { client ->
 }
 
 suspend fun HttpResponse.download(path: Path) {
-    runCatching {
-        path.clear()
-    }
+    var created = false
     readBytes {
         withContext(Dispatchers.IO) {
-            path.writeBytes(it, StandardOpenOption.APPEND, StandardOpenOption.CREATE)
+            if (created) {
+                path.writeBytes(
+                    it,
+                    StandardOpenOption.APPEND,
+                )
+            } else {
+                path.writeBytes(
+                    it,
+                    StandardOpenOption.TRUNCATE_EXISTING,
+                    StandardOpenOption.CREATE,
+                )
+                created = true
+            }
         }
     }
 }

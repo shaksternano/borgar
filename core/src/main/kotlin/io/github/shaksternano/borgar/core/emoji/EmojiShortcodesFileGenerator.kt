@@ -1,6 +1,5 @@
 package io.github.shaksternano.borgar.core.emoji
 
-import io.github.shaksternano.borgar.core.io.clear
 import io.github.shaksternano.borgar.core.io.useHttpClient
 import io.github.shaksternano.borgar.core.util.prettyPrintJson
 import io.ktor.client.request.*
@@ -29,7 +28,6 @@ suspend fun main() {
                 response.bodyAsText()
             }
             val prettyPrintedJson = prettyPrintJson(emojiJsonString)
-            emojiShortcodesFile.clear()
             emojiShortcodesFile.writeText(prettyPrintedJson + "\n")
             val totalTime = System.currentTimeMillis() - startTime
             emojiLogger.info("Created emoji shortcodes file $emojiShortcodesFile in ${totalTime}ms")
