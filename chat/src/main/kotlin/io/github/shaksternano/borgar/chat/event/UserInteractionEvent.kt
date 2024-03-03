@@ -4,5 +4,5 @@ import io.github.shaksternano.borgar.chat.entity.User
 
 interface UserInteractionEvent : InteractionEvent {
 
-    val target: User
+    val user: User
 }

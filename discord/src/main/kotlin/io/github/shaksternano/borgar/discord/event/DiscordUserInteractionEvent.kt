@@ -25,7 +25,7 @@ class DiscordUserInteractionEvent(
     override val name: String = discordEvent.name
     override var ephemeralReply: Boolean = false
 
-    override val target: User = DiscordUser(discordEvent.target)
+    override val user: User = DiscordUser(discordEvent.target)
     private val member: Member? = discordEvent.member?.let { DiscordMember(it) }
     private val channel: Channel? = discordEvent.channel?.let { DiscordChannel.create(it) }
     private val guild: Guild? = discordEvent.guild?.let { DiscordGuild(it) }
@@ -33,7 +33,7 @@ class DiscordUserInteractionEvent(
     private var deferReply: Boolean = false
     private var replied: Boolean = false
 
-    override suspend fun getAuthor(): User = target
+    override suspend fun getAuthor(): User = user
 
     override suspend fun getAuthorMember(): Member? = member
 

@@ -11,7 +11,7 @@ object UserGuildAvatarInteractionCommand : UserInteractionCommand {
     override val ephemeralReply: Boolean = true
 
     override suspend fun respond(event: UserInteractionEvent): InteractionResponse {
-        val user = event.target
+        val user = event.user
         val displayedUser = event.getGuild()?.getMember(user) ?: user
         return InteractionResponse(
             displayedUser.effectiveAvatarUrl,

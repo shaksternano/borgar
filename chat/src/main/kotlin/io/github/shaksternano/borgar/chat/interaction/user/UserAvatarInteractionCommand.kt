@@ -11,6 +11,6 @@ object UserAvatarInteractionCommand : UserInteractionCommand {
 
     override suspend fun respond(event: UserInteractionEvent): InteractionResponse =
         InteractionResponse(
-            event.target.effectiveAvatarUrl,
+            event.user.effectiveAvatarUrl,
         )
 }
