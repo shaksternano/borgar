@@ -1,7 +1,5 @@
-val kotlinCoroutinesVersion: String by project
 val jdaVersion: String by project
 val jdaKtxVersion: String by project
-val logbackVersion: String by project
 
 dependencies {
     api(project(":chat"))

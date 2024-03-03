@@ -1,4 +1,4 @@
-package io.github.shaksternano.borgar.core.util
+package io.github.shaksternano.borgar.scripts.util
 
 import io.github.shaksternano.borgar.core.io.httpGet
 import kotlinx.serialization.SerialName

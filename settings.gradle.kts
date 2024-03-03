@@ -1,8 +1,12 @@
+plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention") version "0.5.0"
+}
 rootProject.name = "Borgar"
 
 include(
-    "core",
-    "chat",
-    "discord",
     "app",
+    "chat",
+    "core",
+    "discord",
+    "scripts",
 )

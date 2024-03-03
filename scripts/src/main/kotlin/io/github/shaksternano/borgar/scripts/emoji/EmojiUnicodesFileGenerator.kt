@@ -1,8 +1,9 @@
-package io.github.shaksternano.borgar.core.emoji
+package io.github.shaksternano.borgar.scripts.emoji
 
+import io.github.shaksternano.borgar.core.emoji.EMOJI_FILES_DIRECTORY
 import io.github.shaksternano.borgar.core.io.filenameWithoutExtension
-import io.github.shaksternano.borgar.core.util.getGitHubLatestReleaseTagCommitSha
-import io.github.shaksternano.borgar.core.util.listGitHubFiles
+import io.github.shaksternano.borgar.scripts.util.getGitHubLatestReleaseTagCommitSha
+import io.github.shaksternano.borgar.scripts.util.listGitHubFiles
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import kotlin.io.path.*
