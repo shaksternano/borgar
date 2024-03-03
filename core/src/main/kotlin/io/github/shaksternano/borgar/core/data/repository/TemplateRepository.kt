@@ -121,7 +121,7 @@ object TemplateTable : Table(name = "template") {
     // Either a guild ID or a user ID (for DMs)
     val entityId = varchar("entity_id", 100)
 
-    val description = varchar("description", 1000)
+    val description = varchar("description", 100)
     val mediaPath = varchar("media_path", 100)
     val resultName = varchar("result_name", 100)
 

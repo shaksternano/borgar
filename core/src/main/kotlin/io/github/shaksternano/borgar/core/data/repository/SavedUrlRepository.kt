@@ -22,7 +22,7 @@ object SavedUrlRepository : Repository<SavedUrlTable>() {
     }
 }
 
-object SavedUrlTable : VarcharIdTable(name = "saved_url", columnName = "url", length = 2000) {
+object SavedUrlTable : VarcharIdTable(name = "saved_url", columnName = "url", length = 500) {
     val url = id
-    val aliasUrl = varchar("alias_url", 2000).uniqueIndex()
+    val aliasUrl = varchar("alias_url", 500).uniqueIndex()
 }
