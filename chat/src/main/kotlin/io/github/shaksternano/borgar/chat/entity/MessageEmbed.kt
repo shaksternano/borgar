@@ -28,7 +28,7 @@ data class MessageEmbed(
     )
 }
 
-suspend fun MessageEmbed.getContent(getGif: Boolean): UrlInfo? {
+suspend fun MessageEmbed.getContent(getGif: Boolean = false): UrlInfo? {
     val isTenor = url?.let(::isTenorUrl) ?: false
     val tenorGifUrl = if (getGif && url != null)
         retrieveTenorMediaUrl(url, TenorMediaType.GIF_LARGE)

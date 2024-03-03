@@ -1,6 +1,7 @@
 package io.github.shaksternano.borgar.chat.command
 
 import io.github.shaksternano.borgar.chat.entity.Message
+import io.github.shaksternano.borgar.chat.entity.getContent
 import io.github.shaksternano.borgar.chat.event.CommandEvent
 import io.github.shaksternano.borgar.chat.util.searchExceptSelf
 import io.github.shaksternano.borgar.core.data.repository.SavedUrlRepository
@@ -127,7 +128,7 @@ object FavouriteCommand : NonChainableCommand() {
         if (defaultUrl != null) {
             val embedUrl = messageIntersection.embeds.find {
                 it.url == defaultUrl
-            }?.url
+            }?.getContent()?.url
             return defaultUrl to (embedUrl ?: defaultUrl)
         }
         return messageIntersection.searchExceptSelf {
@@ -139,7 +140,7 @@ object FavouriteCommand : NonChainableCommand() {
             if (contentUrl != null) {
                 val embedUrl = it.embeds.find { embed ->
                     embed.url == contentUrl
-                }?.url
+                }?.getContent()?.url
                 return@searchExceptSelf contentUrl to (embedUrl ?: contentUrl)
             }
             null
