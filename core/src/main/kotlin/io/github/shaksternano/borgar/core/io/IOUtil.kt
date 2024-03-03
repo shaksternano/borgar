@@ -24,6 +24,7 @@ import java.io.FileNotFoundException
 import java.io.InputStream
 import java.io.RandomAccessFile
 import java.nio.file.Path
+import java.nio.file.StandardOpenOption
 import java.util.regex.Pattern
 import kotlin.io.path.*
 import kotlin.io.use
@@ -129,10 +130,12 @@ suspend fun download(url: String, path: Path) = useHttpClient { client ->
 }
 
 suspend fun HttpResponse.download(path: Path) {
-    path.clear()
+    runCatching {
+        path.clear()
+    }
     readBytes {
         withContext(Dispatchers.IO) {
-            path.appendBytes(it)
+            path.writeBytes(it, StandardOpenOption.APPEND, StandardOpenOption.CREATE)
         }
     }
 }

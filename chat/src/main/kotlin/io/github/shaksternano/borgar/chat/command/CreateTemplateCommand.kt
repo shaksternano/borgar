@@ -24,7 +24,6 @@ import java.net.URI
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
-import kotlin.io.path.createFile
 
 private const val MAX_FILE_SIZE: Int = 25 * 1024 * 1024
 
@@ -295,9 +294,6 @@ object CreateTemplateCommand : NonChainableCommand() {
             }.getOrElse { t ->
                 throw InvalidTemplateException("Command name $commandName is not allowed!", t)
             }.also { mediaPath ->
-                withContext(Dispatchers.IO) {
-                    mediaPath.createFile()
-                }
                 runCatching {
                     response.download(mediaPath)
                 }.getOrElse { t ->
