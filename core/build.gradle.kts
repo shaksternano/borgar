@@ -23,7 +23,7 @@ dependencies {
     api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion")
 
     api("io.ktor:ktor-client-core:$ktorVersion")
-    implementation("io.ktor:ktor-client-jetty:$ktorVersion")
+    implementation("io.ktor:ktor-client-cio:$ktorVersion")
     api("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     api("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
 
@@ -61,6 +61,7 @@ dependencies {
 
     implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
+    implementation("io.ktor:ktor-client-cio-jvm:2.3.8")
     runtimeOnly("org.postgresql:postgresql:$postgreSqlVersion")
 
     testImplementation(kotlin("test"))
