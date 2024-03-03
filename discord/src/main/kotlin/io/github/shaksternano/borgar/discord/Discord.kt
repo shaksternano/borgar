@@ -11,6 +11,7 @@ import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.core.setLogger
 import io.github.shaksternano.borgar.core.util.getEnvVar
+import io.github.shaksternano.borgar.discord.command.registerCommands
 import io.github.shaksternano.borgar.discord.entity.DiscordMessage
 import io.github.shaksternano.borgar.discord.logging.DiscordLogger
 import kotlinx.coroutines.coroutineScope
@@ -41,7 +42,7 @@ suspend fun initDiscord(token: String) {
     jda.presence.activity = Activity.playing(BOT_STATUS)
     coroutineScope {
         launch {
-            jda.registerSlashCommands()
+            jda.registerCommands()
         }
         launch {
             jda.awaitReadySuspend()
@@ -60,18 +61,16 @@ suspend fun initDiscord(token: String) {
     }
 }
 
-private suspend fun handleMessageEvent(event: MessageReceivedEvent) = runCatching {
-    onMessageReceived(event.convert())
-}.onFailure {
-    logger.error("Error while handling message event", it)
-}
+private suspend fun handleMessageEvent(event: MessageReceivedEvent) =
+    runCatching {
+        onMessageReceived(event.convert())
+    }.onFailure {
+        logger.error("Error while handling message event", it)
+    }
 
 fun MessageReceivedEvent.convert(): MessageReceiveEvent {
     val message = DiscordMessage(message)
-    return MessageReceiveEvent(
-        message = message,
-        manager = message.manager,
-    )
+    return MessageReceiveEvent(message)
 }
 
 fun DataSource.toFileUpload(): FileUpload =

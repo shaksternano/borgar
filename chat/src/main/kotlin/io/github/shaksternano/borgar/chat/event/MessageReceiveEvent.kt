@@ -10,9 +10,9 @@ import io.github.shaksternano.borgar.chat.entity.channel.MessageChannel
 
 class MessageReceiveEvent(
     val message: Message,
-    override val manager: BotManager,
 ) : Event {
 
+    override val manager: BotManager = message.manager
     val messageId = message.id
 
     suspend fun getAuthor(): User = message.getAuthor()

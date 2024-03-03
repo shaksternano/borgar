@@ -5,7 +5,7 @@ import io.github.shaksternano.borgar.chat.command.Command
 import io.github.shaksternano.borgar.chat.entity.*
 import io.github.shaksternano.borgar.discord.DiscordManager
 import io.github.shaksternano.borgar.discord.await
-import io.github.shaksternano.borgar.discord.toSlash
+import io.github.shaksternano.borgar.discord.command.toSlash
 
 data class DiscordGuild(
     private val discordGuild: net.dv8tion.jda.api.entities.Guild

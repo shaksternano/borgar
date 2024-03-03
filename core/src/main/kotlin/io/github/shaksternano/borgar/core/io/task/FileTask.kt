@@ -40,6 +40,18 @@ interface FileTask : SuspendCloseable {
     override suspend fun close() = Unit
 }
 
+suspend fun FileTask.run(): List<DataSource> =
+    if (requireInput) {
+        val suppliedInput = suppliedInput
+        if (suppliedInput == null) {
+            throw UnsupportedOperationException("This task requires input")
+        } else {
+            run(listOf(suppliedInput))
+        }
+    } else {
+        run(listOfNotNull(suppliedInput))
+    }
+
 abstract class BaseFileTask : FileTask {
 
     private val toDelete: MutableCollection<Path> = ConcurrentLinkedQueue()

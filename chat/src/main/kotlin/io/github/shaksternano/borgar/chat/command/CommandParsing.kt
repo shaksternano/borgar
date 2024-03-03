@@ -159,45 +159,47 @@ private suspend fun contentStripped(message: Message): String {
 
 private const val OUT_OF_MEMORY_ERROR_MESSAGE = "Ran out of memory! Please try again later, or use a smaller file."
 
-fun handleError(throwable: Throwable, manager: BotManager): String = when (throwable) {
-    is NonChainableCommandException -> throwable.message
+fun handleError(throwable: Throwable, manager: BotManager): String {
+    val (unwrapped, commandConfigs) =
+        if (throwable is CommandException)
+            (throwable.cause ?: throwable) to throwable.commandConfigs
+        else throwable to emptyList()
+    return when (unwrapped) {
+        is NonChainableCommandException -> unwrapped.message
 
-    is CommandException -> when (val cause = throwable.cause) {
-        is NonChainableCommandException -> cause.message
+        is ErrorResponseException -> unwrapped.message
 
-        is ErrorResponseException -> cause.message
+        is MissingArgumentException -> unwrapped.message
 
-        is MissingArgumentException -> cause.message
+        is InsufficientPermissionsException ->
+            "**${unwrapped.command.nameWithPrefix}** requires permissions:\n${
+                unwrapped.requiredPermissions.joinToString(
+                    "\n"
+                ) {
+                    manager.getPermissionName(it)
+                }
+            }!"
+
+        is GuildOnlyCommandException ->
+            "**${unwrapped.command.nameWithPrefix}** can only be used in a server!"
 
         is OutOfMemoryError -> OUT_OF_MEMORY_ERROR_MESSAGE
 
         else -> {
-            logger.error(
-                "Error executing commands ${
-                    throwable.commands.joinToString(", ") {
-                        it.typedForm
-                    }
-                }", throwable
-            )
+            if (commandConfigs.isEmpty()) {
+                logger.error("An error occurred", unwrapped)
+            } else {
+                logger.error(
+                    "Error executing commands ${
+                        commandConfigs.joinToString(", ") {
+                            it.typedForm
+                        }
+                    }",
+                    unwrapped,
+                )
+            }
             "An error occurred!"
         }
-    }
-
-    is InsufficientPermissionsException ->
-        "**${throwable.command.nameWithPrefix}** requires permissions:\n${
-            throwable.requiredPermissions.joinToString(
-                "\n"
-            ) { manager.getPermissionName(it) }
-        }!"
-
-    is GuildOnlyCommandException ->
-        "**${throwable.command.nameWithPrefix}** can only be used in a server!"
-
-    is OutOfMemoryError -> OUT_OF_MEMORY_ERROR_MESSAGE
-
-    else -> {
-        logger.error("An error occurred", throwable)
-        "An error occurred!"
     }
 }
 

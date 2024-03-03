@@ -1,4 +1,4 @@
-package io.github.shaksternano.borgar.discord
+package io.github.shaksternano.borgar.discord.command
 
 import dev.minn.jda.ktx.events.listener
 import dev.minn.jda.ktx.interactions.commands.Command
@@ -6,30 +6,47 @@ import dev.minn.jda.ktx.interactions.commands.updateCommands
 import io.github.shaksternano.borgar.chat.command.*
 import io.github.shaksternano.borgar.chat.entity.*
 import io.github.shaksternano.borgar.chat.event.CommandEvent
+import io.github.shaksternano.borgar.chat.event.MessageInteractionEvent
+import io.github.shaksternano.borgar.chat.interaction.MESSAGE_INTERACTION_COMMANDS
+import io.github.shaksternano.borgar.chat.interaction.MessageInteractionCommand
+import io.github.shaksternano.borgar.chat.interaction.handleMessageInteraction
 import io.github.shaksternano.borgar.core.data.repository.TemplateRepository
 import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.core.util.*
+import io.github.shaksternano.borgar.discord.await
 import io.github.shaksternano.borgar.discord.entity.DiscordUser
 import io.github.shaksternano.borgar.discord.entity.channel.DiscordMessageChannel
+import io.github.shaksternano.borgar.discord.event.DiscordMessageInteractionEvent
 import io.github.shaksternano.borgar.discord.event.SlashCommandEvent
+import io.github.shaksternano.borgar.discord.toDiscord
 import kotlinx.coroutines.future.await
 import net.dv8tion.jda.api.JDA
+import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.interactions.commands.Command.Choice
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions
 import net.dv8tion.jda.api.interactions.commands.OptionType
+import net.dv8tion.jda.api.interactions.commands.build.CommandData
+import net.dv8tion.jda.api.interactions.commands.build.Commands
 import net.dv8tion.jda.api.interactions.commands.build.OptionData
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 
 const val AFTER_COMMANDS_ARGUMENT = "aftercommands"
 
-suspend fun JDA.registerSlashCommands() {
+suspend fun JDA.registerCommands() {
     listener<SlashCommandInteractionEvent> {
         handleCommand(it)
     }
+    listener<MessageContextInteractionEvent> {
+        handleMessageInteraction(it.convert())
+    }
     updateCommands {
-        val slashCommands = COMMANDS.values.map(Command::toSlash)
+        val slashCommands = COMMANDS.values
+            .map(Command::toSlash)
         addCommands(slashCommands)
+        val messageInteractionCommands = MESSAGE_INTERACTION_COMMANDS.values
+            .map(MessageInteractionCommand::toDiscord)
+        addCommands(messageInteractionCommands)
     }.await()
 }
 
@@ -47,6 +64,12 @@ fun Command.toSlash(): SlashCommandData = Command(name, description) {
         ),
     )
 }
+
+fun MessageInteractionCommand.toDiscord(): CommandData =
+    Commands.message(name)
+
+fun MessageContextInteractionEvent.convert(): MessageInteractionEvent =
+    DiscordMessageInteractionEvent(this)
 
 private suspend fun handleCommand(event: SlashCommandInteractionEvent) {
     val name = event.name

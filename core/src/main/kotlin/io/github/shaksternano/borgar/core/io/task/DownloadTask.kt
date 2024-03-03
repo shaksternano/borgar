@@ -20,8 +20,8 @@ private val VIDEO_QUALITIES: List<Int> = listOf(
 
 class DownloadTask(
     private val url: String,
-    private val audioOnly: Boolean,
-    private val fileNumber: Int?,
+    private val audioOnly: Boolean = false,
+    private val fileNumber: Int? = null,
     private val maxFileSize: Long,
 ) : BaseFileTask() {
 

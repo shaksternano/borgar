@@ -1,4 +1,4 @@
-package io.github.shaksternano.borgar.discord
+package io.github.shaksternano.borgar.discord.command
 
 import io.github.shaksternano.borgar.chat.command.ARGUMENT_PREFIX
 import io.github.shaksternano.borgar.chat.command.CommandArgumentType
@@ -8,6 +8,7 @@ import io.github.shaksternano.borgar.chat.entity.Attachment
 import io.github.shaksternano.borgar.core.util.formatted
 import io.github.shaksternano.borgar.core.util.hash
 import io.github.shaksternano.borgar.core.util.kClass
+import io.github.shaksternano.borgar.discord.DiscordManager
 import io.github.shaksternano.borgar.discord.entity.DiscordMentionable
 import io.github.shaksternano.borgar.discord.entity.DiscordRole
 import io.github.shaksternano.borgar.discord.entity.DiscordUser
