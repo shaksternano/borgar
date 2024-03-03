@@ -5,6 +5,8 @@ import io.github.shaksternano.borgar.chat.event.MessageInteractionEvent
 import io.github.shaksternano.borgar.core.collect.parallelForEach
 import io.github.shaksternano.borgar.core.io.deleteSilently
 import io.github.shaksternano.borgar.core.logger
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 val MESSAGE_INTERACTION_COMMANDS: Map<String, MessageInteractionCommand> = registerCommands(
     DownloadInteractionCommand,
@@ -27,10 +29,13 @@ suspend fun handleMessageInteraction(event: MessageInteractionEvent) {
         return
     }
     runCatching {
-        if (command.deferReply) {
-            event.deferReply(command.ephemeral)
+        event.ephemeralReply = command.ephemeral
+        val response = coroutineScope {
+            if (command.deferReply) launch {
+                event.deferReply()
+            }
+            command.respond(event)
         }
-        val response = command.respond(event)
         try {
             val sent = event.reply(response)
             command.onResponseSend(response, sent, event)

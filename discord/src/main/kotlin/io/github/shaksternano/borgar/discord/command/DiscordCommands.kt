@@ -19,7 +19,8 @@ import io.github.shaksternano.borgar.discord.entity.channel.DiscordMessageChanne
 import io.github.shaksternano.borgar.discord.event.DiscordMessageInteractionEvent
 import io.github.shaksternano.borgar.discord.event.SlashCommandEvent
 import io.github.shaksternano.borgar.discord.toDiscord
-import kotlinx.coroutines.future.await
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
@@ -111,22 +112,14 @@ private suspend fun executeCommand(
     } else {
         slashCommandConfig
     }
-    val anyDefer = commandConfigs.any { it.command.deferReply }
-    val anyEphemeral = commandConfigs.any { it.command.ephemeral }
-    val deferReply =
-        if (anyDefer) slashEvent.deferReply()
-            .setEphemeral(anyEphemeral)
-            .submit()
-        else null
-    val result = executeCommands(commandConfigs, commandEvent)
-    val responses = result.first.map {
-        it.copy(
-            deferReply = anyDefer,
-            ephemeral = anyEphemeral,
-        )
+    commandEvent.ephemeralReply = commandConfigs.any { it.command.ephemeral }
+    val (responses, executable) = coroutineScope {
+        val anyDefer = commandConfigs.any { it.command.deferReply }
+        if (anyDefer) launch {
+            commandEvent.deferReply()
+        }
+        executeCommands(commandConfigs, commandEvent)
     }
-    val executable = result.second
-    deferReply?.await()
     sendResponses(responses, executable, commandEvent)
 }
 
@@ -139,7 +132,6 @@ private suspend fun getAfterCommandConfigs(
         afterCommands,
         FakeMessage(
             commandEvent.id,
-            commandEvent.manager,
             afterCommands,
             DiscordUser(slashEvent.user),
             DiscordMessageChannel(slashEvent.channel),

@@ -18,7 +18,7 @@ data class MessageCommandEvent(
     override val manager: BotManager = event.manager
     override val timeCreated: OffsetDateTime = event.message.timeCreated
     override val referencedMessages: Flow<Message> = event.message.referencedMessages
-
+    override var ephemeralReply: Boolean = false
     private var replied: Boolean = false
 
     override suspend fun getAuthor(): User = event.getAuthor()
@@ -28,6 +28,8 @@ data class MessageCommandEvent(
     override suspend fun getChannel(): MessageChannel = event.getChannel()
 
     override suspend fun getGuild(): Guild? = event.getGuild()
+
+    override suspend fun deferReply() = Unit
 
     override suspend fun reply(response: CommandResponse): Message = event.getChannel().createMessage {
         fromCommandResponse(response)

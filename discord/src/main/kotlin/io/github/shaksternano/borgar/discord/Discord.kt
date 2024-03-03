@@ -44,9 +44,7 @@ suspend fun initDiscord(token: String) {
         launch {
             jda.registerCommands()
         }
-        launch {
-            jda.awaitReadySuspend()
-        }
+        jda.awaitReadySuspend()
     }
     val discordLogger = jda.createDiscordLogger()
     if (discordLogger != null) {

@@ -11,13 +11,13 @@ import java.time.OffsetDateTime
 
 data class FakeMessage(
     override val id: String,
-    override val manager: BotManager,
     override val content: String,
     private val author: User,
     private val channel: MessageChannel,
     override val timeCreated: OffsetDateTime = OffsetDateTime.now(),
 ) : Message {
 
+    override val manager: BotManager = author.manager
     override val referencedMessages: Flow<Message> = emptyFlow()
 
     private val mentionedUsersSet: Set<User> = manager.getMentionedUsers(content).toSet()

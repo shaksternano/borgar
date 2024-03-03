@@ -2,62 +2,63 @@ package io.github.shaksternano.borgar.discord.event
 
 import dev.minn.jda.ktx.messages.MessageCreateBuilder
 import io.github.shaksternano.borgar.chat.BotManager
-import io.github.shaksternano.borgar.chat.entity.FakeMessage
 import io.github.shaksternano.borgar.chat.entity.Guild
+import io.github.shaksternano.borgar.chat.entity.Member
 import io.github.shaksternano.borgar.chat.entity.Message
+import io.github.shaksternano.borgar.chat.entity.User
 import io.github.shaksternano.borgar.chat.entity.channel.MessageChannel
 import io.github.shaksternano.borgar.chat.event.MessageInteractionEvent
 import io.github.shaksternano.borgar.chat.interaction.MessageInteractionResponse
 import io.github.shaksternano.borgar.discord.DiscordManager
 import io.github.shaksternano.borgar.discord.await
 import io.github.shaksternano.borgar.discord.entity.DiscordGuild
+import io.github.shaksternano.borgar.discord.entity.DiscordMember
 import io.github.shaksternano.borgar.discord.entity.DiscordMessage
+import io.github.shaksternano.borgar.discord.entity.DiscordUser
 import io.github.shaksternano.borgar.discord.entity.channel.DiscordMessageChannel
 import io.github.shaksternano.borgar.discord.toFileUpload
 import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent
 import net.dv8tion.jda.api.utils.messages.MessageCreateData
 
 class DiscordMessageInteractionEvent(
-    private val discordEvent: MessageContextInteractionEvent,
+    private val event: MessageContextInteractionEvent,
 ) : MessageInteractionEvent {
 
-    override val manager: BotManager = DiscordManager[discordEvent.jda]
-    override val name: String = discordEvent.name
-    override val message: Message = DiscordMessage(discordEvent.target)
-    override val channel: MessageChannel = DiscordMessageChannel(discordEvent.channel!!)
-    override val guild: Guild? = discordEvent.guild?.let { DiscordGuild(it) }
+    override val manager: BotManager = DiscordManager[event.jda]
+    override val id: String = event.id
+    override val name: String = event.name
+    override val message: Message = DiscordMessage(event.target)
 
-    private var deferred: Boolean = false
+    private val user: User = DiscordUser(event.user)
+    private val member: Member? = event.member?.let { DiscordMember(it) }
+    private val channel: MessageChannel = DiscordMessageChannel(event.channel!!)
+    private val guild: Guild? = event.guild?.let { DiscordGuild(it) }
 
-    override suspend fun deferReply(ephemeral: Boolean) {
-        discordEvent.deferReply(ephemeral).await()
-        deferred = true
+    override var ephemeralReply: Boolean = false
+
+    override suspend fun getUser(): User = user
+
+    override suspend fun getMember(): Member? = member
+
+    override suspend fun getChannel(): MessageChannel = channel
+
+    override suspend fun getGuild(): Guild? = guild
+
+    private var deferReply: Boolean = false
+
+    override suspend fun deferReply() {
+        event.deferReply(ephemeralReply).await()
+        deferReply = true
     }
 
-    override suspend fun reply(response: MessageInteractionResponse): Message {
-        val message = response.convert()
-        val discordResponse = if (deferred) {
-            discordEvent.hook.sendMessage(message)
-                .setSuppressEmbeds(response.suppressEmbeds)
-                .await()
-        } else {
-            val interactionHook = discordEvent.reply(message)
-                .setEphemeral(response.ephemeral)
-                .setSuppressEmbeds(response.suppressEmbeds)
-                .await()
-            if (response.ephemeral) {
-                return FakeMessage(
-                    interactionHook.id,
-                    manager,
-                    response.content,
-                    manager.getSelf(),
-                    channel,
-                )
-            }
-            interactionHook.retrieveOriginal().await()
-        }
-        return DiscordMessage(discordResponse)
-    }
+    override suspend fun reply(response: MessageInteractionResponse): Message =
+        event.reply(
+            response.convert(),
+            channel,
+            deferReply,
+            ephemeralReply,
+            response.suppressEmbeds,
+        )
 
     private fun MessageInteractionResponse.convert(): MessageCreateData {
         val builder = MessageCreateBuilder(

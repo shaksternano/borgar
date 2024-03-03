@@ -21,15 +21,17 @@ import io.github.shaksternano.borgar.discord.toFileUpload
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
+import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback
 import net.dv8tion.jda.api.interactions.commands.OptionType
+import net.dv8tion.jda.api.utils.messages.MessageCreateData
 import java.time.OffsetDateTime
 
 class SlashCommandEvent(
     private val event: SlashCommandInteractionEvent
 ) : CommandEvent {
 
-    override val id: String = event.id
     override val manager: BotManager = DiscordManager[event.jda]
+    override val id: String = event.id
     override val timeCreated: OffsetDateTime = event.timeCreated
     override val referencedMessages: Flow<Message> = emptyFlow()
 
@@ -38,7 +40,9 @@ class SlashCommandEvent(
     private val channel: MessageChannel = DiscordMessageChannel(event.channel)
     private val guild: Guild? = event.guild?.let { DiscordGuild(it) }
 
-    private var replied = false
+    override var ephemeralReply: Boolean = false
+    private var deferReply: Boolean = false
+    private var replied: Boolean = false
 
     override suspend fun getAuthor(): User = user
 
@@ -48,39 +52,31 @@ class SlashCommandEvent(
 
     override suspend fun getGuild(): Guild? = guild
 
+    override suspend fun deferReply() {
+        event.deferReply(ephemeralReply).await()
+        deferReply = true
+    }
+
     override suspend fun reply(response: CommandResponse): Message {
-        val replyBuilder = MessageCreateBuilder(
+        val message = MessageCreateBuilder(
             content = response.content,
             files = response.files.map(DataSource::toFileUpload),
         ).build()
-        val discordResponseMessage = if (replied) {
-            event.channel.sendMessage(replyBuilder)
+        return if (replied) {
+            val discordResponseMessage = event.channel.sendMessage(message)
                 .setSuppressEmbeds(response.suppressEmbeds)
                 .await()
+            DiscordMessage(discordResponseMessage)
         } else {
             replied = true
-            if (response.deferReply) {
-                event.hook.sendMessage(replyBuilder)
-                    .setSuppressEmbeds(response.suppressEmbeds)
-                    .await()
-            } else {
-                val interactionHook = event.reply(replyBuilder)
-                    .setEphemeral(response.ephemeral)
-                    .setSuppressEmbeds(response.suppressEmbeds)
-                    .await()
-                if (response.ephemeral) {
-                    return FakeMessage(
-                        interactionHook.id,
-                        manager,
-                        response.content,
-                        manager.getSelf(),
-                        channel,
-                    )
-                }
-                interactionHook.retrieveOriginal().await()
-            }
+            event.reply(
+                message,
+                channel,
+                deferReply,
+                ephemeralReply,
+                response.suppressEmbeds,
+            )
         }
-        return DiscordMessage(discordResponseMessage)
     }
 
     override fun asMessageIntersection(arguments: CommandArguments): CommandMessageIntersection =
@@ -113,3 +109,33 @@ class SlashCommandEvent(
             override suspend fun getGuild(): Guild? = this@SlashCommandEvent.getGuild()
         }
 }
+
+suspend fun IReplyCallback.reply(
+    message: MessageCreateData,
+    channel: MessageChannel,
+    deferReply: Boolean,
+    ephemeralReply: Boolean,
+    suppressEmbeds: Boolean,
+): Message =
+    if (deferReply) {
+        val discordResponse = hook.sendMessage(message)
+            .setSuppressEmbeds(suppressEmbeds)
+            .await()
+        DiscordMessage(discordResponse)
+    } else {
+        val interactionHook = reply(message)
+            .setEphemeral(ephemeralReply)
+            .setSuppressEmbeds(suppressEmbeds)
+            .await()
+        if (ephemeralReply) {
+            FakeMessage(
+                interactionHook.id,
+                message.content,
+                channel.manager.getSelf(),
+                channel,
+            )
+        } else {
+            val discordResponse = interactionHook.retrieveOriginal().await()
+            DiscordMessage(discordResponse)
+        }
+    }

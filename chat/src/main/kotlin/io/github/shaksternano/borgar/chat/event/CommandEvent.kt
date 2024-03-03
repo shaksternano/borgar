@@ -11,6 +11,7 @@ interface CommandEvent : Managed, TimeStamped {
 
     val id: String
     val referencedMessages: Flow<Message>
+    var ephemeralReply: Boolean
 
     suspend fun getAuthor(): User
 
@@ -19,6 +20,8 @@ interface CommandEvent : Managed, TimeStamped {
     suspend fun getChannel(): MessageChannel
 
     suspend fun getGuild(): Guild?
+
+    suspend fun deferReply()
 
     suspend fun reply(response: CommandResponse): Message
 

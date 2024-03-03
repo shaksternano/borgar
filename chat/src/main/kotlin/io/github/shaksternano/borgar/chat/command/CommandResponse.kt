@@ -9,10 +9,6 @@ data class CommandResponse(
     /**
      * Setting this in the constructor does nothing.
      */
-    val deferReply: Boolean = true,
-    /**
-     * Setting this in the constructor does nothing.
-     */
     val ephemeral: Boolean = false,
     val responseData: Any? = null,
 )
