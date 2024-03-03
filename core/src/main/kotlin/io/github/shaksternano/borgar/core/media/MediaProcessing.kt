@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.withContext
 import java.awt.image.BufferedImage
 import java.nio.file.Path
-import kotlin.io.path.extension
 import kotlin.io.path.fileSize
 import kotlin.math.min
 
@@ -77,7 +76,7 @@ suspend fun processMedia(
     val fileInput = input.getOrWriteFile()
     val path = fileInput.path
     return try {
-        val inputFormat = mediaFormat(path) ?: path.extension
+        val inputFormat = input.fileFormat()
         val imageReader = createImageReader(fileInput, inputFormat)
         val audioReader = createAudioReader(fileInput, inputFormat)
         val outputFormat = config.transformOutputFormat(inputFormat)
@@ -95,56 +94,55 @@ suspend fun processMedia(
             filename,
         )
     } finally {
-        if (isTempFile)
+        if (isTempFile) {
             path.deleteSilently()
+        }
     }
 }
 
-suspend fun processMedia(
+private suspend fun processMedia(
     imageReader: ImageReader,
     audioReader: AudioReader,
     output: Path,
     outputFormat: String,
     maxFileSize: Long,
-): Path {
-    return useAllIgnored(imageReader, audioReader) {
-        var outputSize: Long
-        var resizeRatio = 1.0
-        val maxResizeAttempts = 3
-        var attempts = 0
-        do {
-            createWriter(
-                output,
-                outputFormat,
-                imageReader.loopCount,
-                audioReader.audioChannels,
-                audioReader.audioSampleRate,
-                audioReader.audioBitrate,
-                maxFileSize,
-                imageReader.duration,
-            ).use { writer ->
-                val imageFlow = if (writer.isStatic) {
-                    flowOf(imageReader.first())
-                } else {
-                    imageReader.asFlow()
-                }
-                imageFlow.collect { imageFrame ->
-                    writer.writeImageFrame(
-                        imageFrame.copy(
-                            content = imageFrame.content.resize(resizeRatio),
-                        )
+): Path = useAllIgnored(imageReader, audioReader) {
+    var outputSize: Long
+    var resizeRatio = 1.0
+    val maxResizeAttempts = 3
+    var attempts = 0
+    do {
+        createWriter(
+            output,
+            outputFormat,
+            imageReader.loopCount,
+            audioReader.audioChannels,
+            audioReader.audioSampleRate,
+            audioReader.audioBitrate,
+            maxFileSize,
+            imageReader.duration,
+        ).use { writer ->
+            val imageFlow = if (writer.isStatic) {
+                flowOf(imageReader.first())
+            } else {
+                imageReader.asFlow()
+            }
+            imageFlow.collect { imageFrame ->
+                writer.writeImageFrame(
+                    imageFrame.copy(
+                        content = imageFrame.content.resize(resizeRatio),
                     )
-                }
-                if (writer.supportsAudio) {
-                    audioReader.asFlow().collect(writer::writeAudioFrame)
-                }
+                )
             }
-            outputSize = withContext(Dispatchers.IO) {
-                output.fileSize()
+            if (writer.supportsAudio) {
+                audioReader.asFlow().collect(writer::writeAudioFrame)
             }
-            resizeRatio = min((maxFileSize.toDouble() / outputSize), 0.8)
-            attempts++
-        } while (maxFileSize in 1..<outputSize && attempts < maxResizeAttempts)
-        output
-    }
+        }
+        outputSize = withContext(Dispatchers.IO) {
+            output.fileSize()
+        }
+        resizeRatio = min((maxFileSize.toDouble() / outputSize), 0.8)
+        attempts++
+    } while (maxFileSize in 1..<outputSize && attempts < maxResizeAttempts)
+    output
 }

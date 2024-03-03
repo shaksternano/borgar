@@ -4,13 +4,13 @@ import io.github.shaksternano.borgar.chat.entity.Message
 import io.github.shaksternano.borgar.chat.event.CommandEvent
 import io.github.shaksternano.borgar.chat.util.searchExceptSelf
 import io.github.shaksternano.borgar.core.data.repository.SavedUrlRepository
+import io.github.shaksternano.borgar.core.exception.ErrorResponseException
 import io.github.shaksternano.borgar.core.graphics.configureTextDrawQuality
 import io.github.shaksternano.borgar.core.graphics.drawable.Drawable
 import io.github.shaksternano.borgar.core.graphics.drawable.TextDrawable
 import io.github.shaksternano.borgar.core.graphics.fitFontHeight
 import io.github.shaksternano.borgar.core.graphics.fitFontWidth
 import io.github.shaksternano.borgar.core.io.*
-import io.github.shaksternano.borgar.core.io.task.ChangeExtensionTask
 import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.core.media.*
 import io.github.shaksternano.borgar.core.media.reader.ImageReader
@@ -47,21 +47,24 @@ object FavouriteCommand : NonChainableCommand() {
     override val deferReply: Boolean = true
 
     override suspend fun run(arguments: CommandArguments, event: CommandEvent): List<CommandResponse> {
-        val fileUrl = getFileUrl(arguments, event)
+        val (fileUrl, downloadUrl) = getFileUrl(arguments, event)
             ?: return CommandResponse("No media found!").asSingletonList()
         val fileExtension = fileExtension(fileUrl).lowercase()
         if (fileExtension.equals("gif", ignoreCase = true) || isTenorUrl(fileUrl))
             return CommandResponse("This is already a GIF file!").asSingletonList()
-        val dataSource = DataSource.fromUrl(fileUrl)
+        val dataSource = DataSource.fromUrl(downloadUrl)
         if (fileExtension.equalsAnyIgnoreCase("png", "jpg", "jpeg", "webp")) {
             val maxFileSize = event.getGuild()?.getMaxFileSize() ?: event.manager.maxFileSize
-            val task = ChangeExtensionTask("gif", maxFileSize)
-            val result = task.run(listOf(dataSource))
+            if (dataSource.size() > maxFileSize) {
+                throw ErrorResponseException("File is too large! (Max: ${toMb(maxFileSize)}MB)")
+            }
+            val nameWithoutExtension = filenameWithoutExtension(fileUrl)
+            val result = dataSource.rename("$nameWithoutExtension.gif")
             return CommandResponse(
-                files = result,
+                files = listOf(result),
             ).asSingletonList()
         }
-        return getOrCreateAliasGif(dataSource, event).asSingletonList()
+        return getOrCreateAliasGif(dataSource, fileUrl, event).asSingletonList()
     }
 
     override suspend fun onResponseSend(
@@ -69,7 +72,7 @@ object FavouriteCommand : NonChainableCommand() {
         responseNumber: Int,
         responseCount: Int,
         sent: Message,
-        event: CommandEvent
+        event: CommandEvent,
     ) {
         if (responseNumber != 1) return
         val responseData = response.responseData
@@ -89,9 +92,13 @@ object FavouriteCommand : NonChainableCommand() {
         }
     }
 
-    private suspend fun getOrCreateAliasGif(dataSource: UrlDataSource, event: CommandEvent): CommandResponse {
-        val fileUrl = removeQueryParams(dataSource.url)
-        val aliasUrl = SavedUrlRepository.readAliasUrl(fileUrl)
+    private suspend fun getOrCreateAliasGif(
+        dataSource: UrlDataSource,
+        fileUrl: String,
+        event: CommandEvent,
+    ): CommandResponse {
+        val noQueryParams = removeQueryParams(fileUrl)
+        val aliasUrl = SavedUrlRepository.readAliasUrl(noQueryParams)
         if (aliasUrl != null) {
             return CommandResponse(aliasUrl)
         }
@@ -103,27 +110,47 @@ object FavouriteCommand : NonChainableCommand() {
         }
         return CommandResponse(
             files = listOf(aliasGif),
-            responseData = FavouriteResponseData(fileUrl),
+            responseData = FavouriteResponseData(noQueryParams),
         )
     }
 
-    private suspend fun getFileUrl(arguments: CommandArguments, event: CommandEvent): String? {
+    private suspend fun getFileUrl(
+        arguments: CommandArguments,
+        event: CommandEvent,
+    ): Pair<String, String>? {
         val messageIntersection = event.asMessageIntersection(arguments)
         val attachment = messageIntersection.attachments.firstOrNull { it.ephemeral }
         if (attachment != null) {
-            return attachment.url
+            return attachment.url to attachment.url
         }
         val defaultUrl = arguments.getDefaultUrl()
         if (defaultUrl != null) {
-            return defaultUrl
+            val embedUrl = messageIntersection.embeds.find {
+                it.url == defaultUrl
+            }?.url
+            return defaultUrl to (embedUrl ?: defaultUrl)
         }
         return messageIntersection.searchExceptSelf {
-            it.attachments.firstOrNull()?.url
-                ?: it.content.getUrls().firstOrNull()
+            val attachmentUrl = it.attachments.firstOrNull()?.url
+            if (attachmentUrl != null) {
+                return@searchExceptSelf attachmentUrl to attachmentUrl
+            }
+            val contentUrl = it.content.getUrls().firstOrNull()
+            if (contentUrl != null) {
+                val embedUrl = it.embeds.find { embed ->
+                    embed.url == contentUrl
+                }?.url
+                return@searchExceptSelf contentUrl to (embedUrl ?: contentUrl)
+            }
+            null
         }
     }
 
-    private suspend fun createAliasGif(dataSource: UrlDataSource, event: CommandEvent, maxFileSize: Long): FileDataSource {
+    private suspend fun createAliasGif(
+        dataSource: UrlDataSource,
+        event: CommandEvent,
+        maxFileSize: Long,
+    ): FileDataSource {
         val url = removeQueryParams(dataSource.url)
         val encodedUrl = Base64.getEncoder().encodeToString(url.toByteArray())
         val resultName = FAVOURITE_ALIAS_PREFIX + encodedUrl
@@ -238,9 +265,8 @@ private class FavouriteProcessor(
         return resized
     }
 
-    private fun BufferedImage.resize(): BufferedImage {
-        return bound(300)
-    }
+    private fun BufferedImage.resize(): BufferedImage =
+        bound(300)
 }
 
 private class FavouriteData(
@@ -253,7 +279,7 @@ private class FavouriteData(
     val textBoxWidth: Int,
     val textBoxHeight: Int,
     val textX: Int,
-    val textY: Int
+    val textY: Int,
 )
 
 private class FavouriteResponseData(
