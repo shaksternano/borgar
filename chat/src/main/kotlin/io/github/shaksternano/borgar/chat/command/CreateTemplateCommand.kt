@@ -67,6 +67,12 @@ object CreateTemplateCommand : NonChainableCommand() {
         val entityId = guild?.id ?: event.getAuthor().id
         return try {
             val commandName = getString(templateJson, "command_name").lowercase()
+            if (commandName.isBlank()) {
+                return CommandResponse("Command name cannot be blank!").asSingletonList()
+            }
+            if (commandName.length > TemplateRepository.COMMAND_NAME_MAX_LENGTH) {
+                return CommandResponse("Command name is too long!").asSingletonList()
+            }
             if (COMMANDS_AND_ALIASES.containsKey(commandName)) {
                 return CommandResponse("A command with the name **$commandName** already exists!").asSingletonList()
             }
@@ -103,6 +109,9 @@ object CreateTemplateCommand : NonChainableCommand() {
     ): CustomTemplate {
         val description = getString(templateJson, "description") {
             "A custom template."
+        }
+        if (description.length > TemplateRepository.COMMAND_DESCRIPTION_MAX_LENGTH) {
+            throw InvalidTemplateException("Description is too long!")
         }
         val mediaUrl = getString(templateJson, "media_url")
         validateUrl(mediaUrl)

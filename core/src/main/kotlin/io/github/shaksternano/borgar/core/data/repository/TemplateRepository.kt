@@ -13,6 +13,9 @@ import kotlin.io.path.Path
 
 object TemplateRepository : Repository<TemplateTable>() {
 
+    const val COMMAND_NAME_MAX_LENGTH = 32
+    const val COMMAND_DESCRIPTION_MAX_LENGTH = 100
+
     override fun table(): TemplateTable = TemplateTable
 
     suspend fun create(template: CustomTemplate) {
@@ -116,12 +119,12 @@ object TemplateRepository : Repository<TemplateTable>() {
 }
 
 object TemplateTable : Table(name = "template") {
-    val commandName = varchar("command_name", 100)
+    val commandName = varchar("command_name", TemplateRepository.COMMAND_NAME_MAX_LENGTH)
 
     // Either a guild ID or a user ID (for DMs)
-    val entityId = varchar("entity_id", 100)
+    val entityId = varchar("entity_id", 50)
 
-    val description = varchar("description", 100)
+    val description = varchar("description", TemplateRepository.COMMAND_DESCRIPTION_MAX_LENGTH)
     val mediaPath = varchar("media_path", 100)
     val resultName = varchar("result_name", 100)
 
