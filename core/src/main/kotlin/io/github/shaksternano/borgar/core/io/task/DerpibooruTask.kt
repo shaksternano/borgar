@@ -23,6 +23,9 @@ class DerpibooruTask(
     override suspend fun run(input: List<DataSource>): List<DataSource> {
         val requestUrl = getRequestUrl(1)
         val response = httpGet<DerpibooruImagesResponse>(requestUrl)
+        if (response.total == 0) {
+            throw ErrorResponseException("No images found!")
+        }
         val totalPages = min(ceil(response.total.toDouble() / DERPIBOORU_RESULTS_PER_PAGE).toInt(), 10)
         val weightedPageNumbers = (1..totalPages).flatMap { page ->
             List(totalPages - page + 1) { page }
