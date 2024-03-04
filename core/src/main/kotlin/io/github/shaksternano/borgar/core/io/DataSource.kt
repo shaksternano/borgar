@@ -48,7 +48,7 @@ interface DataSource : DataSourceConvertable {
             writeToPath(newPath)
             newPath
         }
-        return fromFile(path, filename)
+        return fromFile(path, filename, url)
     }
 
     private suspend fun writeToPath(path: Path) {
@@ -80,8 +80,8 @@ interface DataSource : DataSourceConvertable {
     override fun asDataSource(): DataSource = this
 
     companion object {
-        fun fromFile(path: Path, filename: String = path.filename): FileDataSource =
-            FileDataSource(filename, path)
+        fun fromFile(path: Path, filename: String = path.filename, url: String? = null): FileDataSource =
+            FileDataSource(filename, path, url)
 
         fun fromUrl(url: String, filename: String = filename(url), sendUrl: Boolean = false): UrlDataSource =
             UrlDataSource(filename, url, sendUrl)
@@ -106,9 +106,8 @@ fun interface DataSourceConvertable {
 data class FileDataSource(
     override val filename: String,
     override val path: Path,
+    override val url: String? = null,
 ) : DataSource {
-
-    override val url: String? = null
     override val sendUrl: Boolean = false
 
     override suspend fun newStream(): InputStream = withContext(Dispatchers.IO) {

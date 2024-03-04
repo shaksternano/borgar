@@ -16,19 +16,19 @@ class UrlFileCommand(
         val HAEMA: Command = UrlFileCommand(
             name = "haema",
             description = "https://modrinth.com/mod/haema",
-            url = "https://media.discordapp.net/attachments/964551969509347331/1134818935829712987/YOU_SHOULD_DOWNLOAD_HAEMA_NOW.gif",
+            url = "https://autumn.revolt.chat/attachments/yRiB5Iu4BWNkwEKtkR1fi9YmsWIY6EzaInEXqavcIt/YOU_SHOULD_DOWNLOAD_HAEMA_NOW.gif",
         )
 
         val TULIN: Command = UrlFileCommand(
             name = "tulin",
             description = "The best character in The Legend of Zelda: Breath of the Wild.",
-            url = "https://media.discordapp.net/attachments/964551969509347331/1119756264633798729/BotW_Tulin_Model.gif",
+            url = "https://autumn.revolt.chat/attachments/i5fZQ7mIeaBauXxtf8Vh-bM3nWSXlZ07XSVJd7cdCN/Tulin.gif",
         )
 
         val SURE_BUD: Command = UrlFileCommand(
             name = "surebud",
             description = "Sure bud.",
-            url = "https://media.discordapp.net/attachments/927613139116249181/1186837192182595584/captioned.gif",
+            url = "https://autumn.revolt.chat/attachments/UHIUrXhUl9bkhF1jGoZ6cA78MGvrcX0tf09iLEwQkN/Sure_bud.gif",
         )
     }
 

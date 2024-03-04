@@ -180,6 +180,16 @@ suspend fun Path.inputStreamSuspend(): InputStream = withContext(Dispatchers.IO)
 }
 
 suspend fun DataSource.fileFormat(): String {
+    val fileType = url?.let { url ->
+        useHttpClient { client ->
+            val response = client.head(url)
+            response.contentType()?.contentSubtype?.lowercase()
+        }
+    }?.let {
+        if (it == "jpeg") "jpg"
+        else it
+    }
+    if (fileType != null) return fileType
     val mediaFormat = path?.let { mediaFormat(it) } ?: mediaFormat(newStream())
     return mediaFormat ?: fileExtension()
 }
