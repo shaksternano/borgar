@@ -13,14 +13,23 @@ import kotlinx.serialization.Serializable
  * @param path       The path to the directory to get the list of files from.
  * @return The list of file names in the given directory.
  */
-suspend fun listGitHubFiles(user: String, repository: String, commitSha: String, vararg path: String): List<String> =
-    listGitHubFiles(user, repository, commitSha, path.asList())
+suspend fun listGitHubFiles(
+    user: String,
+    repository: String,
+    commitSha: String,
+    vararg path: String,
+): List<String> = listGitHubFiles(
+    user,
+    repository,
+    commitSha,
+    path.asList(),
+)
 
 private tailrec suspend fun listGitHubFiles(
     user: String,
     repository: String,
     commitSha: String,
-    path: List<String>
+    path: List<String>,
 ): List<String> {
     val url = getRepositoryApiUrl(user, repository) + "/git/trees/" + commitSha
     val tree = httpGet<GitHubTreeResponse>(url).tree
