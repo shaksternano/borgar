@@ -14,12 +14,16 @@ private const val DERPIBOORU_EVERYTHING_FILTER_ID: Int = 56027
 
 class DerpibooruTask(
     tags: String,
+    private val searchAll: Boolean,
     private val fileCount: Int,
     private val maxFileSize: Long,
 ) : BaseFileTask() {
 
     override val requireInput: Boolean = false
-    private val tags: Set<String> = parseTags(tags)
+    private val tags: Set<String> = parseTags(tags).let {
+        if (searchAll) it
+        else it.plus("safe")
+    }
 
     override suspend fun run(input: List<DataSource>): List<DataSource> {
         val requestUrl = getRequestUrl(1)

@@ -14,8 +14,15 @@ class DerpibooruCommand(
         key = "tags",
         description = "The tags to search for.",
         type = CommandArgumentType.String,
-        required = false,
         defaultValue = "safe",
+    ),
+    CommandArgumentInfo(
+        key = "searchall",
+        aliases = setOf("all", "a"),
+        description = "Whether to search for NSFW images or not.",
+        type = CommandArgumentType.Boolean,
+        required = false,
+        defaultValue = false,
     ),
     *if (fileCount == 1) {
         arrayOf(
@@ -53,9 +60,10 @@ class DerpibooruCommand(
 
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {
         val tags = arguments.getRequired("tags", CommandArgumentType.String)
+        val searchAll = arguments.getRequired("searchall", CommandArgumentType.Boolean)
         val fileCount =
             if (fileCount == 1) arguments.getRequired("filecount", CommandArgumentType.Integer)
             else fileCount
-        return DerpibooruTask(tags, fileCount, maxFileSize)
+        return DerpibooruTask(tags, searchAll, fileCount, maxFileSize)
     }
 }
