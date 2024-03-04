@@ -8,7 +8,8 @@ import io.github.shaksternano.borgar.core.logger
 val USER_INTERACTION_COMMANDS: Map<String, UserInteractionCommand> = registerCommands(
     "user interaction command",
     UserAvatarInteractionCommand,
-    UserGuildAvatarInteractionCommand,
+    MemberAvatarInteractionCommand,
+    UserBannerInteractionCommand,
 )
 
 suspend fun handleUserInteraction(event: UserInteractionEvent) {
