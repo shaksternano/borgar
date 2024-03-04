@@ -10,6 +10,7 @@ import kotlin.math.min
 
 private const val DERPIBOORU_API_DOMAIN: String = "https://derpibooru.org"
 private const val DERPIBOORU_RESULTS_PER_PAGE: Int = 50
+private const val DERPIBOORU_EVERYTHING_FILTER_ID: Int = 56027
 
 class DerpibooruTask(
     tags: String,
@@ -46,7 +47,7 @@ class DerpibooruTask(
         val tagsQuery = tags.joinToString("%2C+") {
             it.replace(" ", "+")
         }
-        return "$DERPIBOORU_API_DOMAIN/api/v1/json/search/images?q=$tagsQuery&filter_id=56027&sf=upvotes&page=$page&per_page=$DERPIBOORU_RESULTS_PER_PAGE"
+        return "$DERPIBOORU_API_DOMAIN/api/v1/json/search/images?q=$tagsQuery&filter_id=$DERPIBOORU_EVERYTHING_FILTER_ID&sf=upvotes&page=$page&per_page=$DERPIBOORU_RESULTS_PER_PAGE"
     }
 
     private suspend fun DerpibooruImageBody.getImage(maxFileSize: Long): DataSource? {
