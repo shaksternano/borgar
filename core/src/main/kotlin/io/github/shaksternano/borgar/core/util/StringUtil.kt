@@ -75,3 +75,15 @@ fun CharSequence.splitCamelCase(): String =
         ).toRegex(),
         " ",
     )
+
+fun parseTags(tags: String): Set<String> {
+    return tags
+        .split(',')
+        .map {
+            it.trim()
+        }
+        .filter {
+            it.isNotEmpty()
+        }
+        .toSet()
+}

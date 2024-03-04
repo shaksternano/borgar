@@ -62,6 +62,8 @@ val COMMANDS: Map<String, Command> = registerCommands(
     CatCommand.CAT_BOMB,
     PonyCommand.PONY,
     PonyCommand.PONY_BOMB,
+    DerpibooruCommand.DERPIBOORU,
+    DerpibooruCommand.DERPIBOORU_BOMB,
     FavouriteCommand,
     CreateTemplateCommand,
     DeleteTemplateCommand,
