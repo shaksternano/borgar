@@ -46,7 +46,7 @@ class DerpibooruTask(
         val tagsQuery = tags.joinToString("%2C+") {
             it.replace(" ", "+")
         }
-        return "$DERPIBOORU_API_DOMAIN/api/v1/json/search/images?q=$tagsQuery&sf=upvotes&page=$page&per_page=$DERPIBOORU_RESULTS_PER_PAGE"
+        return "$DERPIBOORU_API_DOMAIN/api/v1/json/search/images?q=$tagsQuery&filter_id=56027&sf=upvotes&page=$page&per_page=$DERPIBOORU_RESULTS_PER_PAGE"
     }
 
     private suspend fun DerpibooruImageBody.getImage(maxFileSize: Long): DataSource? {
