@@ -145,8 +145,7 @@ private suspend fun executeCommand(
         }
         executeCommands(commandConfigs, commandEvent)
     }
-    val channel = commandEvent.getChannel()
-    sendResponses(responses, executable, commandEvent, channel)
+    sendResponses(responses, executable, commandEvent)
 }
 
 private suspend fun getAfterCommandConfigs(

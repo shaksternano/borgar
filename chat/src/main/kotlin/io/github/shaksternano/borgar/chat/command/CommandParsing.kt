@@ -37,15 +37,14 @@ suspend fun parseAndExecuteCommand(event: MessageReceiveEvent) {
     if (commandConfigs.first().command.guildOnly && event.getGuild() == null) return
     val commandEvent = MessageCommandEvent(event)
     val channel = event.getChannel()
-    val (responses, executable) = sendTypingUntilDone(channel, stopAfter = false) {
-        executeCommands(commandConfigs, commandEvent)
+    sendTypingUntilDone(channel) {
+        val (responses, executable) = executeCommands(commandConfigs, commandEvent)
+        sendResponses(responses, executable, commandEvent)
     }
-    sendResponses(responses, executable, commandEvent, channel)
 }
 
 private suspend fun <T> sendTypingUntilDone(
     channel: MessageChannel,
-    stopAfter: Boolean,
     block: suspend () -> T,
 ): T = coroutineScope {
     var sendTyping = true
@@ -59,9 +58,7 @@ private suspend fun <T> sendTypingUntilDone(
     block().also {
         sendTyping = false
         typing.cancel()
-        if (stopAfter) {
-            channel.stopTyping()
-        }
+        channel.stopTyping()
     }
 }
 
@@ -114,16 +111,11 @@ suspend fun sendResponses(
     responses: List<CommandResponse>,
     executable: Executable?,
     commandEvent: CommandEvent,
-    channel: MessageChannel,
 ) {
     var sendHandleResponseErrorMessage = true
     responses.forEachIndexed { index, response ->
         try {
-            val sent =
-                if (index == 0) sendTypingUntilDone(channel, stopAfter = true) {
-                    commandEvent.reply(response)
-                }
-                else commandEvent.reply(response)
+            val sent = commandEvent.reply(response)
             runCatching {
                 executable?.onResponseSend(
                     response,
