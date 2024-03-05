@@ -43,7 +43,13 @@ class DerpibooruTask(
             .ifEmpty { throw ErrorResponseException("No images found!") }
             .shuffled()
             .take(fileCount)
-            .mapNotNull { it.getImage(maxFileSize) }
+            .mapNotNull {
+                val image = it.getImage(maxFileSize)
+                val format =
+                    if (it.format.equals("jpeg", ignoreCase = true)) "jpg"
+                    else it.format.lowercase()
+                image?.rename("derpibooru-${it.id}.$format")
+            }
             .ifEmpty { throw ErrorResponseException("Images are too large!") }
     }
 
@@ -84,6 +90,8 @@ private data class DerpibooruImagesResponse(
 
 @Serializable
 private data class DerpibooruImageBody(
+    val id: Int,
+    val format: String,
     val representations: DerpibooruImageRepresentations,
 )
 

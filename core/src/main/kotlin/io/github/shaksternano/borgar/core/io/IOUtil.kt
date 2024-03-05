@@ -199,7 +199,7 @@ suspend fun DataSource.fileFormat(): String {
     val mediaFormat = runCatching {
         path?.let { mediaFormat(it) } ?: mediaFormat(newStream())
     }.getOrNull()
-    return mediaFormat ?: fileExtension()
+    return mediaFormat ?: fileExtension
 }
 
 suspend fun DataSource.toChannelProvider(): ChannelProvider {
@@ -240,9 +240,11 @@ fun filenameWithoutExtension(fileName: String): String =
 fun fileExtension(fileName: String): String =
     Files.getFileExtension(removeQueryParams(fileName))
 
-fun DataSource.filenameWithoutExtension(): String = filenameWithoutExtension(filename)
+val DataSource.filenameWithoutExtension: String
+    get() = filenameWithoutExtension(filename)
 
-fun DataSource.fileExtension(): String = fileExtension(filename)
+val DataSource.fileExtension: String
+    get() = fileExtension(filename)
 
 fun toMb(bytes: Long): Long =
     bytes / 1024 / 1024

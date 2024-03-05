@@ -80,7 +80,7 @@ suspend fun processMedia(
         val imageReader = createImageReader(fileInput, inputFormat)
         val audioReader = createAudioReader(fileInput, inputFormat)
         val outputFormat = config.transformOutputFormat(inputFormat)
-        val outputName = config.outputName ?: fileInput.filenameWithoutExtension()
+        val outputName = config.outputName ?: fileInput.filenameWithoutExtension
         val output = processMedia(
             config.transformImageReader(imageReader, outputFormat),
             config.transformAudioReader(audioReader, outputFormat),
