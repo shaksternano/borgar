@@ -116,7 +116,7 @@ class RevoltWebSocketClient(
 
     private fun registerHandlers() {
         handle(WebSocketMessageType.AUTHENTICATED) {
-            logger.info("Logged into Revolt")
+            logger.info("Connected to Revolt")
         }
         handle(WebSocketMessageType.READY) {
             ready = true
