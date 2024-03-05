@@ -25,7 +25,7 @@ data class RevoltGuild(
 
     override suspend fun getMember(user: User): RevoltMember? =
         runCatching {
-            manager.request<RevoltMemberBody>("/servers/$id/members/${user.id}")
+            manager.request<RevoltMemberResponse>("/servers/$id/members/${user.id}")
         }.getOrNull()?.convert(manager, user, this)
 
     override suspend fun getCustomEmojis(): List<CustomEmoji> = emptyList()
@@ -36,7 +36,7 @@ data class RevoltGuild(
 }
 
 @Serializable
-data class RevoltGuildBody(
+data class RevoltGuildResponse(
     @SerialName("_id")
     val id: String,
     val name: String,

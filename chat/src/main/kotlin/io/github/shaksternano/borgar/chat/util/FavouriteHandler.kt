@@ -19,18 +19,24 @@ suspend fun sendFavouriteFile(event: MessageReceiveEvent) {
     val author = event.getAuthorMember() ?: event.getAuthor()
     val channel = event.getChannel()
     coroutineScope {
+        val guild = event.getGuild()
         launch {
-            runCatching {
-                channel.createMessage {
-                    content = url
-                    username = author.effectiveName
-                    avatarUrl = author.effectiveAvatarUrl
-                }
-            }.getOrElse {
+            if (guild == null) {
                 channel.createMessage(url)
+            } else {
+                runCatching {
+                    channel.createMessage {
+                        content = url
+                        username = author.effectiveName
+                        avatarUrl = author.effectiveAvatarUrl
+                    }
+                }.onFailure {
+                    channel.createMessage(url)
+                }
             }
         }
         launch {
+            if (guild == null) return@launch
             runCatching {
                 event.message.delete()
             }

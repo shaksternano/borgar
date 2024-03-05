@@ -3,12 +3,16 @@ package io.github.shaksternano.borgar.revolt.entity.channel
 import io.github.shaksternano.borgar.chat.builder.MessageCreateBuilder
 import io.github.shaksternano.borgar.chat.entity.Message
 import io.github.shaksternano.borgar.chat.entity.channel.MessageChannel
+import io.github.shaksternano.borgar.core.collect.parallelMap
+import io.github.shaksternano.borgar.core.io.toChannelProvider
 import io.github.shaksternano.borgar.revolt.RevoltManager
-import io.github.shaksternano.borgar.revolt.entity.RevoltMemberBody
+import io.github.shaksternano.borgar.revolt.entity.RevoltMemberResponse
 import io.github.shaksternano.borgar.revolt.entity.RevoltMessage
-import io.github.shaksternano.borgar.revolt.entity.RevoltMessageBody
-import io.github.shaksternano.borgar.revolt.entity.RevoltUserBody
+import io.github.shaksternano.borgar.revolt.entity.RevoltMessageResponse
+import io.github.shaksternano.borgar.revolt.entity.RevoltUserResponse
+import io.ktor.client.request.forms.*
 import io.ktor.http.*
+import io.ktor.utils.io.errors.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.Serializable
@@ -31,14 +35,33 @@ class RevoltMessageChannel(
     override suspend fun sendTyping() =
         manager.webSocket.sendTyping(id)
 
+    override suspend fun sendCancellableyping() = sendTyping()
+
     override suspend fun stopTyping() =
         manager.webSocket.stopTyping(id)
 
     override suspend fun createMessage(block: MessageCreateBuilder.() -> Unit): RevoltMessage {
         val builder = MessageCreateBuilder().apply(block)
-        val requestBody = builder.toRequestBody()
+        val attachmentIds = builder.files.parallelMap {
+            val filename = it.filename
+            val channelProvider = it.toChannelProvider()
+            val form = formData {
+                append("file", channelProvider, headers {
+                    append(HttpHeaders.ContentDisposition, "filename=\"$filename\"")
+                })
+            }
+            runCatching {
+                manager.postCdnForm<AttachmentResponse>(
+                    path = "/attachments",
+                    form = form,
+                )
+            }.getOrElse { t ->
+                throw IOException("Failed to upload $filename to revolt", t)
+            }.id
+        }
+        val requestBody = builder.toRequestBody(attachmentIds)
         val ulid = ULID.randomULID()
-        val response = manager.request<RevoltMessageBody>(
+        val response = manager.request<RevoltMessageResponse>(
             path = "/channels/$id/messages",
             method = HttpMethod.Post,
             headers = mapOf(
@@ -80,23 +103,26 @@ class RevoltMessageChannel(
         }
     }
 
-    private suspend fun requestPreviousMessages(beforeId: String): RevoltPreviousMessagesBody =
-        manager.request<RevoltPreviousMessagesBody>("/channels/$id/messages?before=$beforeId&include_users=true")
+    private suspend fun requestPreviousMessages(beforeId: String): RevoltPreviousMessagesResponse =
+        manager.request<RevoltPreviousMessagesResponse>("/channels/$id/messages?before=$beforeId&include_users=true")
 }
 
-private fun MessageCreateBuilder.toRequestBody(): MessageCreateRequestBody = MessageCreateRequestBody(
-    content = content,
-    replies = referencedMessageIds.map { ReplyBody(it, true) },
-    masquerade = if (username != null || avatarUrl != null) {
-        MasqueradeBody(username, avatarUrl)
-    } else {
-        null
-    },
-)
+private fun MessageCreateBuilder.toRequestBody(attachmentIds: List<String>?): MessageCreateRequest =
+    MessageCreateRequest(
+        content = content,
+        attachments = attachmentIds,
+        replies = referencedMessageIds.map { ReplyBody(it, true) },
+        masquerade = if (username != null || avatarUrl != null) {
+            MasqueradeBody(username, avatarUrl)
+        } else {
+            null
+        },
+    )
 
 @Serializable
-private data class MessageCreateRequestBody(
+private data class MessageCreateRequest(
     val content: String,
+    val attachments: List<String>?,
     val replies: List<ReplyBody>?,
     val masquerade: MasqueradeBody?,
 )
@@ -114,8 +140,13 @@ private data class MasqueradeBody(
 )
 
 @Serializable
-private data class RevoltPreviousMessagesBody(
-    val messages: List<RevoltMessageBody>,
-    val users: List<RevoltUserBody>,
-    val members: List<RevoltMemberBody> = emptyList(),
+private data class AttachmentResponse(
+    val id: String,
+)
+
+@Serializable
+private data class RevoltPreviousMessagesResponse(
+    val messages: List<RevoltMessageResponse>,
+    val users: List<RevoltUserResponse>,
+    val members: List<RevoltMemberResponse> = emptyList(),
 )

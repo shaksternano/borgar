@@ -36,7 +36,7 @@ data class RevoltMember(
 }
 
 @Serializable
-data class RevoltMemberBody(
+data class RevoltMemberResponse(
     @SerialName("_id")
     val id: RevoltMemberIdBody,
     val nickname: String? = null,

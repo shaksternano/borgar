@@ -7,7 +7,7 @@ import io.github.shaksternano.borgar.core.io.httpClient
 import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.core.util.JSON
 import io.github.shaksternano.borgar.revolt.RevoltManager
-import io.github.shaksternano.borgar.revolt.entity.RevoltGuildBody
+import io.github.shaksternano.borgar.revolt.entity.RevoltGuildResponse
 import io.github.shaksternano.borgar.revolt.entity.createMessage
 import io.ktor.client.plugins.websocket.*
 import io.ktor.util.network.*
@@ -208,5 +208,5 @@ class RevoltWebSocketClient(
 @Serializable
 private data class ReadyBody(
     @SerialName("servers")
-    val guilds: List<RevoltGuildBody>
+    val guilds: List<RevoltGuildResponse>
 )

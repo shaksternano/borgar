@@ -27,7 +27,7 @@ private const val DEFAULT_AVATAR_URL: String =
     "https://autumn.revolt.chat/attachments/iHTRCGdFPvQviBkUXwX2Z0vj-0ilaCHcaCNmvBnyuc/default_avatar.png"
 
 @Serializable
-data class RevoltUserBody(
+data class RevoltUserResponse(
     @SerialName("_id")
     val id: String,
     val username: String,

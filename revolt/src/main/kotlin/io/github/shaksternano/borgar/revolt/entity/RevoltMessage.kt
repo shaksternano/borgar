@@ -6,7 +6,7 @@ import io.github.shaksternano.borgar.chat.entity.channel.Channel
 import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.core.util.JSON
 import io.github.shaksternano.borgar.revolt.RevoltManager
-import io.github.shaksternano.borgar.revolt.entity.channel.RevoltChannelBody
+import io.github.shaksternano.borgar.revolt.entity.channel.RevoltChannelResponse
 import io.github.shaksternano.borgar.revolt.entity.channel.RevoltMessageChannel
 import io.ktor.http.*
 import kotlinx.coroutines.flow.Flow
@@ -42,7 +42,7 @@ data class RevoltMessage(
     override val customEmojis: List<CustomEmoji> = emptyList()
     override val stickers: List<Sticker> = emptyList()
     override val referencedMessages: Flow<Message> = flow {
-        val response = manager.request<RevoltMessageBody>("/channels/$channelId/messages/$id")
+        val response = manager.request<RevoltMessageResponse>("/channels/$channelId/messages/$id")
         emit(response.convert(manager))
     }
 
@@ -67,7 +67,7 @@ data class RevoltMessage(
     override suspend fun edit(block: MessageEditBuilder.() -> Unit): Message {
         val builder = MessageEditBuilder().apply(block)
         val requestBody = builder.toRequestBody() ?: return this
-        val response = manager.request<RevoltMessageBody>(
+        val response = manager.request<RevoltMessageResponse>(
             path = "/channels/$channelId/messages/$id",
             method = HttpMethod.Patch,
             body = requestBody,
@@ -96,7 +96,7 @@ data class RevoltMessage(
     override suspend fun getChannel(): RevoltMessageChannel {
         if (::channel.isInitialized) return channel
         return runCatching {
-            manager.request<RevoltChannelBody>("/channels/$channelId")
+            manager.request<RevoltChannelResponse>("/channels/$channelId")
         }.getOrElse {
             throw IllegalStateException("Channel $channelId not found", it)
         }.let { body ->
@@ -116,10 +116,10 @@ data class RevoltMessage(
 }
 
 fun createMessage(body: JsonElement, manager: RevoltManager): RevoltMessage =
-    JSON.decodeFromJsonElement(RevoltMessageBody.serializer(), body).convert(manager)
+    JSON.decodeFromJsonElement(RevoltMessageResponse.serializer(), body).convert(manager)
 
 @Serializable
-data class RevoltMessageBody(
+data class RevoltMessageResponse(
     @SerialName("_id")
     val id: String,
     val content: String,
@@ -171,10 +171,10 @@ private fun RevoltAttachmentBody.convert(manager: RevoltManager): Attachment {
     )
 }
 
-private fun MessageEditBuilder.toRequestBody(): MessageEditRequestBody? =
-    content?.let { MessageEditRequestBody(it) }
+private fun MessageEditBuilder.toRequestBody(): MessageEditRequest? =
+    content?.let { MessageEditRequest(it) }
 
 @Serializable
-private data class MessageEditRequestBody(
+private data class MessageEditRequest(
     val content: String,
 )

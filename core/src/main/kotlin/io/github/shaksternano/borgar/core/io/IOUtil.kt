@@ -9,11 +9,15 @@ import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
+import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.utils.io.core.*
+import io.ktor.utils.io.errors.*
+import io.ktor.utils.io.jvm.javaio.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import org.apache.commons.io.FileUtils
@@ -110,7 +114,12 @@ fun configuredHttpClient(): HttpClient = httpClient {
 }
 
 inline fun <T> useHttpClient(block: (HttpClient) -> T): T =
-    configuredHttpClient().use(block)
+    configuredHttpClient().runCatching {
+        use(block)
+    }.getOrElse {
+        // Wrap exception because HttpClient errors don't have helpful stack traces
+        throw IOException("Error using HttpClient", it)
+    }
 
 suspend inline fun <reified T> httpGet(url: String): T = useHttpClient {
     it.get(url).body<T>()
@@ -193,6 +202,23 @@ suspend fun DataSource.fileFormat(): String {
         path?.let { mediaFormat(it) } ?: mediaFormat(newStream())
     }.getOrNull()
     return mediaFormat ?: fileExtension()
+}
+
+suspend fun DataSource.toChannelProvider(): ChannelProvider {
+    val size = runCatching { size() }.getOrNull()
+    return ChannelProvider(size) {
+        val url = url
+        if (path == null && url != null) {
+            useHttpClient { client ->
+                runBlocking {
+                    val response = client.get(url)
+                    response.bodyAsChannel()
+                }
+            }
+        } else {
+            newStreamBlocking().toByteReadChannel()
+        }
+    }
 }
 
 fun removeQueryParams(url: String): String =

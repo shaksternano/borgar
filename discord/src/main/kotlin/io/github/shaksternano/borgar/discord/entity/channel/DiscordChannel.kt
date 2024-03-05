@@ -20,11 +20,11 @@ open class DiscordChannel protected constructor(
         }
     }
 
-    override val id: String = discordChannel.id
     override val manager: BotManager = DiscordManager[discordChannel.jda]
+    override val id: String = discordChannel.id
+    override val name: String = discordChannel.name
     override val asMention: String = discordChannel.asMention
     override val asBasicMention: String = "#${discordChannel.name}"
-    override val name: String = discordChannel.name
 
     override suspend fun getGuild(): Guild? {
         return if (discordChannel is GuildChannel) {

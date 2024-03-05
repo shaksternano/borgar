@@ -47,7 +47,7 @@ open class RevoltChannel(
 }
 
 @Serializable
-data class RevoltChannelBody(
+data class RevoltChannelResponse(
     @SerialName("_id")
     val id: String,
     val name: String? = null,
