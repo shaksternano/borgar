@@ -18,7 +18,7 @@ object DownloadInteractionCommand : MessageInteractionCommand {
         val url = messageContent.getUrls().ifEmpty {
             return InteractionResponse("No URLs found!")
         }.first()
-        val maxFileSize = event.getGuild()?.getMaxFileSize() ?: event.manager.maxFileSize
+        val maxFileSize = event.getGuild()?.maxFileSize ?: event.manager.maxFileSize
         val downloadTask = DownloadTask(
             url = url,
             maxFileSize = maxFileSize,

@@ -46,30 +46,22 @@ data class DiscordMessage(
         null
     }
 
-    private val mentionedUsersSet: Set<User> = discordMessage.mentions
+    override val mentionedUsers: Flow<User> = discordMessage.mentions
         .users
         .map { DiscordUser(it) }
-        .toSet()
-    private val mentionedChannelsSet: Set<Channel> = discordMessage.mentions
+        .asFlow()
+    override val mentionedChannels: Flow<Channel> = discordMessage.mentions
         .channels
         .map { DiscordChannel.create(it) }
-        .toSet()
-    private val mentionedRolesSet: Set<Role> = discordMessage.mentions
+        .asFlow()
+    override val mentionedRoles: Flow<Role> = discordMessage.mentions
         .roles
         .map { DiscordRole(it) }
-        .toSet()
-
-    override val mentionedUsers: Flow<User> = mentionedUsersSet.asFlow()
-    override val mentionedChannels: Flow<Channel> = mentionedChannelsSet.asFlow()
-    override val mentionedRoles: Flow<Role> = mentionedRolesSet.asFlow()
-
-    override val mentionedUserIds: Set<Mentionable> = mentionedUsersSet
-    override val mentionedChannelIds: Set<Mentionable> = mentionedChannelsSet
-    override val mentionedRoleIds: Set<Mentionable> = mentionedRolesSet
+        .asFlow()
 
     override suspend fun getAuthor(): User = author
 
-    override suspend fun getMember(): Member? = member
+    override suspend fun getAuthorMember(): Member? = member
 
     override suspend fun getChannel(): MessageChannel = channel
 

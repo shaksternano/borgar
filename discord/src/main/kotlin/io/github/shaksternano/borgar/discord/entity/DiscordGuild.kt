@@ -17,6 +17,8 @@ data class DiscordGuild(
     override val iconUrl: String? = discordGuild.iconUrl?.let { "$it?size=1024" }
     override val bannerUrl: String? = discordGuild.bannerUrl?.let { "$it?size=4096" }
     override val splashUrl: String? = discordGuild.splashUrl?.let { "$it?size=4096" }
+    override val maxFileSize: Long = discordGuild.maxFileSize
+    override val publicRole: Role = DiscordRole(discordGuild.publicRole)
 
     override suspend fun getMember(userId: String): Member? =
         discordGuild.runCatching {
@@ -29,12 +31,6 @@ data class DiscordGuild(
             .map {
                 DiscordCustomEmoji(it, discordGuild.jda)
             }
-
-    override suspend fun getMaxFileSize(): Long =
-        discordGuild.boostTier.maxFileSize
-
-    override suspend fun getPublicRole(): Role =
-        DiscordRole(discordGuild.publicRole)
 
     override suspend fun addCommand(command: Command) {
         discordGuild.upsertCommand(command.toSlash()).await()

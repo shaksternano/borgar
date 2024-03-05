@@ -1,4 +1,4 @@
-package io.github.shaksternano.io.github.shaksternano.borgar.revolt.websocket
+package io.github.shaksternano.borgar.revolt.websocket
 
 import kotlinx.serialization.json.JsonObject
 

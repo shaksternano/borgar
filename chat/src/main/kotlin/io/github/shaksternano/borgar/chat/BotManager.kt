@@ -12,12 +12,13 @@ const val BOT_STATUS = "fortnite battle pass"
 
 interface BotManager {
 
+    val selfId: String
+    val ownerId: String
     val maxMessageContentLength: Int
     val maxFileSize: Long
     val maxFilesPerMessage: Int
     val emojiTypedPattern: Regex
     val typingDuration: Duration
-    val ownerId: String
 
     suspend fun getSelf(): User
 

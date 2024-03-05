@@ -12,9 +12,11 @@ data class DiscordUser(
 
     override val id: String = discordUser.id
     override val manager: BotManager = DiscordManager[discordUser.jda]
+    override val name: String = discordUser.name
     override val effectiveName: String = discordUser.effectiveName
     override val effectiveAvatarUrl: String = "${discordUser.effectiveAvatarUrl}?size=1024"
     override val isSelf: Boolean = discordUser.jda.selfUser == discordUser
+    override val isBot: Boolean = discordUser.isBot
     override val asMention: String = discordUser.asMention
     override val asBasicMention: String = "@${discordUser.effectiveName}"
 

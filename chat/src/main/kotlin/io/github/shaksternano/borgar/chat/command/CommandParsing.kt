@@ -19,6 +19,7 @@ import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.core.util.endOfWord
 import io.github.shaksternano.borgar.core.util.indicesOfPrefix
 import io.github.shaksternano.borgar.core.util.split
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.fold
@@ -55,7 +56,8 @@ private suspend fun <T> sendTypingUntilDone(
     }
     block().also {
         sendTyping = false
-        typing.cancel()
+        typing.cancelAndJoin()
+        channel.stopTyping()
     }
 }
 
@@ -72,7 +74,7 @@ suspend inline fun executeCommands(
             }
             if (guild != null) {
                 val requiredPermissions = command.requiredPermissions
-                val permissionHolder = guild.getMember(event.getAuthor()) ?: guild.getPublicRole()
+                val permissionHolder = guild.getMember(event.getAuthor()) ?: guild.publicRole
                 val hasPermission = permissionHolder.hasPermission(requiredPermissions, event.getChannel())
                 if (!hasPermission) {
                     throw InsufficientPermissionsException(command, requiredPermissions)
@@ -203,9 +205,8 @@ fun handleError(throwable: Throwable, manager: BotManager): String {
     }
 }
 
-private suspend fun userDetails(user: User, guild: Guild?): DisplayedUser {
-    return guild?.getMember(user)?.user ?: user
-}
+private suspend fun userDetails(user: User, guild: Guild?): DisplayedUser =
+    guild?.getMember(user) ?: user
 
 suspend fun parseCommands(messageContent: String, message: Message): List<CommandConfig> {
     return parseRawCommands(messageContent)

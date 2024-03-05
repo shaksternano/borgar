@@ -1,4 +1,4 @@
-package io.github.shaksternano.io.github.shaksternano.borgar.revolt.websocket
+package io.github.shaksternano.borgar.revolt.websocket
 
 enum class WebSocketMessageType(
     val apiName: String,
@@ -6,4 +6,8 @@ enum class WebSocketMessageType(
     READY("Ready"),
     AUTHENTICATED("Authenticated"),
     NOT_FOUND("NotFound"),
+    MESSAGE("Message"),
+    SERVER_CREATE("ServerCreate"),
+    SERVER_DELETE("ServerDelete"),
+    SERVER_MEMBER_LEAVE("ServerMemberLeave"),
 }

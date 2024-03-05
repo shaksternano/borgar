@@ -20,17 +20,9 @@ data class FakeMessage(
     override val manager: BotManager = author.manager
     override val referencedMessages: Flow<Message> = emptyFlow()
 
-    private val mentionedUsersSet: Set<User> = manager.getMentionedUsers(content).toSet()
-    private val mentionedChannelsSet: Set<Channel> = manager.getMentionedChannels(content).toSet()
-    private val mentionedRolesSet: Set<Role> = manager.getMentionedRoles(content).toSet()
-
-    override val mentionedUsers: Flow<User> = mentionedUsersSet.asFlow()
-    override val mentionedChannels: Flow<Channel> = mentionedChannelsSet.asFlow()
-    override val mentionedRoles: Flow<Role> = mentionedRolesSet.asFlow()
-
-    override val mentionedUserIds: Set<Mentionable> = mentionedUsersSet
-    override val mentionedChannelIds: Set<Mentionable> = mentionedChannelsSet
-    override val mentionedRoleIds: Set<Mentionable> = mentionedRolesSet
+    override val mentionedUsers: Flow<User> = manager.getMentionedUsers(content).asFlow()
+    override val mentionedChannels: Flow<Channel> = manager.getMentionedChannels(content).asFlow()
+    override val mentionedRoles: Flow<Role> = manager.getMentionedRoles(content).asFlow()
 
     override val attachments: List<Attachment> = listOf()
     override val embeds: List<MessageEmbed> = listOf()
@@ -39,7 +31,7 @@ data class FakeMessage(
 
     override suspend fun getAuthor(): User = author
 
-    override suspend fun getMember(): Member? = getGuild()?.getMember(author)
+    override suspend fun getAuthorMember(): Member? = getGuild()?.getMember(author)
 
     override suspend fun getChannel(): MessageChannel = channel
 

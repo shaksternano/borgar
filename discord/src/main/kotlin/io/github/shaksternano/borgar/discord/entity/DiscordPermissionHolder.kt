@@ -13,10 +13,10 @@ abstract class DiscordPermissionHolder(
     private val permissionHolder: IPermissionHolder,
 ) : PermissionHolder, BaseEntity() {
 
-    override suspend fun hasPermission(permissions: Iterable<Permission>): Boolean =
+    override suspend fun hasPermission(permissions: Set<Permission>): Boolean =
         permissionHolder.hasPermission(permissions.map { it.toDiscord() })
 
-    override suspend fun hasPermission(permissions: Iterable<Permission>, channel: Channel): Boolean =
+    override suspend fun hasPermission(permissions: Set<Permission>, channel: Channel): Boolean =
         if (channel is DiscordChannel && channel.discordChannel is GuildChannel) {
             permissionHolder.hasPermission(channel.discordChannel, permissions.map { it.toDiscord() })
         } else {

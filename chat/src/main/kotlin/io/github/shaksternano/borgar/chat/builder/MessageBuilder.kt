@@ -6,7 +6,7 @@ import io.github.shaksternano.borgar.core.io.DataSource
 data class MessageCreateBuilder(
     var content: String = "",
     val files: MutableList<DataSource> = mutableListOf(),
-    var referencedMessageId: String? = null,
+    val referencedMessageIds: MutableList<String> = mutableListOf(),
     var suppressEmbeds: Boolean = false,
     var username: String? = null,
     var avatarUrl: String? = null,

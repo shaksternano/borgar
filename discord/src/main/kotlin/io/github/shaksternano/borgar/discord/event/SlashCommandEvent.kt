@@ -101,7 +101,7 @@ class SlashCommandEvent(
 
             override suspend fun getAuthor(): User = this@SlashCommandEvent.getAuthor()
 
-            override suspend fun getMember(): Member? = this@SlashCommandEvent.getAuthorMember()
+            override suspend fun getAuthorMember(): Member? = this@SlashCommandEvent.getAuthorMember()
 
             override suspend fun getChannel(): MessageChannel = this@SlashCommandEvent.getChannel()
 

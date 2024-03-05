@@ -13,9 +13,11 @@ data class DiscordMember(
     override val id: String = discordMember.id
     override val manager: BotManager = DiscordManager[discordMember.jda]
     override val user: User = DiscordUser(discordMember.user)
-    override val guild: Guild = DiscordGuild(discordMember.guild)
+    private val guild: Guild = DiscordGuild(discordMember.guild)
     override val effectiveName: String = discordMember.effectiveName
     override val effectiveAvatarUrl: String = "${discordMember.effectiveAvatarUrl}?size=1024"
     override val asMention: String = discordMember.asMention
     override val asBasicMention: String = "@${discordMember.effectiveName}"
+
+    override suspend fun getGuild(): Guild = guild
 }

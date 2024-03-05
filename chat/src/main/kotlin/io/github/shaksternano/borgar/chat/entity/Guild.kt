@@ -8,6 +8,8 @@ interface Guild : Entity {
     val iconUrl: String?
     val bannerUrl: String?
     val splashUrl: String?
+    val maxFileSize: Long
+    val publicRole: Role
 
     suspend fun getMember(userId: String): Member?
 
@@ -20,10 +22,6 @@ interface Guild : Entity {
         isMember(user.id)
 
     suspend fun getCustomEmojis(): List<CustomEmoji>
-
-    suspend fun getMaxFileSize(): Long
-
-    suspend fun getPublicRole(): Role
 
     suspend fun addCommand(command: Command)
 

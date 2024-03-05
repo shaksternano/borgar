@@ -15,7 +15,7 @@ interface CommandMessageIntersection : Entity {
 
     suspend fun getAuthor(): User
 
-    suspend fun getMember(): Member?
+    suspend fun getAuthorMember(): Member?
 
     suspend fun getChannel(): MessageChannel
 

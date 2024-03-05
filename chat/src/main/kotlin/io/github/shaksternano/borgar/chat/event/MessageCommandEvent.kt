@@ -33,11 +33,9 @@ data class MessageCommandEvent(
 
     override suspend fun reply(response: CommandResponse): Message = event.getChannel().createMessage {
         fromCommandResponse(response)
-        referencedMessageId = if (replied) {
-            null
-        } else {
+        if (!replied) {
             replied = true
-            event.messageId
+            referencedMessageIds.add(event.messageId)
         }
     }
 
@@ -54,7 +52,7 @@ data class MessageCommandEvent(
 
             override suspend fun getAuthor(): User = this@MessageCommandEvent.getAuthor()
 
-            override suspend fun getMember(): Member? = this@MessageCommandEvent.getAuthorMember()
+            override suspend fun getAuthorMember(): Member? = this@MessageCommandEvent.getAuthorMember()
 
             override suspend fun getChannel(): MessageChannel = this@MessageCommandEvent.getChannel()
 
