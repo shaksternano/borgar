@@ -35,6 +35,7 @@ suspend fun parseAndExecuteCommand(event: MessageReceiveEvent) {
         return
     }
     if (commandConfigs.isEmpty()) return
+    if (commandConfigs.first().command.guildOnly && event.getGuild() == null) return
     val commandEvent = MessageCommandEvent(event)
     val (responses, executable) = sendTypingUntilDone(event.getChannel()) {
         executeCommands(commandConfigs, commandEvent)
@@ -69,7 +70,7 @@ suspend inline fun executeCommands(
         val executables = commandConfigs.map {
             val (command, arguments) = it
             val guild = event.getGuild()
-            if (guild == null && command.guildOnly) {
+            if (command.guildOnly && guild == null) {
                 throw GuildOnlyCommandException(command)
             }
             if (guild != null) {
