@@ -40,8 +40,9 @@ class RevoltManager(
     override val maxFilesPerMessage: Int = 5
     override val emojiTypedPattern: Regex = ":[A-Za-z0-9]+:".toRegex()
     override val typingDuration: Duration = 1.seconds
+
     val webSocket: RevoltWebSocketClient = RevoltWebSocketClient(token, this)
-    val apiDomain: String = REVOLT_API_DOMAIN
+    private val apiDomain: String = REVOLT_API_DOMAIN
     val cdnDomain: String = REVOLT_CDN_DOMAIN
     private var ready: Boolean = false
 
