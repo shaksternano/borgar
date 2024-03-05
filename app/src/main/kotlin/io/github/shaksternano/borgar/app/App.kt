@@ -13,16 +13,18 @@ suspend fun main() {
     val time = System.currentTimeMillis()
     logger.info("Starting")
     initCore()
-    val discordToken = getEnvVar(DISCORD_BOT_TOKEN_ENV_VAR) ?: run {
-        logger.error("$DISCORD_BOT_TOKEN_ENV_VAR environment variable not found!")
+    val discordToken = getEnvVar(DISCORD_BOT_TOKEN_ENV_VAR)
+    val revoltToken = getEnvVar(REVOLT_BOT_TOKEN_ENV_VAR)
+    if (discordToken == null && revoltToken == null) {
+        logger.error("No bot tokens found")
         return
     }
-    initDiscord(discordToken)
-    val revoltToken = getEnvVar(REVOLT_BOT_TOKEN_ENV_VAR) ?: run {
-        logger.error("$REVOLT_BOT_TOKEN_ENV_VAR environment variable not found!")
-        return
+    if (discordToken != null) {
+        initDiscord(discordToken)
     }
-    initRevolt(revoltToken)
+    if (revoltToken != null) {
+        initRevolt(revoltToken)
+    }
     val timeTaken = System.currentTimeMillis() - time
     logger.info("Finished loading in ${timeTaken}ms")
 }
