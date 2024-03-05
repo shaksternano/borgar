@@ -3,7 +3,7 @@ package io.github.shaksternano.borgar.chat.command
 import io.github.shaksternano.borgar.chat.event.CommandEvent
 import io.github.shaksternano.borgar.core.util.asSingletonList
 
-object ServerCountCommand : NonChainableCommand() {
+object GuildCountCommand : NonChainableCommand() {
 
     override val name: String = "servercount"
     override val aliases: Set<String> = setOf("servers")
@@ -15,6 +15,7 @@ object ServerCountCommand : NonChainableCommand() {
         if (guildCount != 1) {
             message += "s"
         }
+        message += "."
         return CommandResponse(message).asSingletonList()
     }
 }

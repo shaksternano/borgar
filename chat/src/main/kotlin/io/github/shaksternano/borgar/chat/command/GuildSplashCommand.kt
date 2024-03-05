@@ -5,7 +5,7 @@ import io.github.shaksternano.borgar.core.exception.ErrorResponseException
 import io.github.shaksternano.borgar.core.io.task.FileTask
 import io.github.shaksternano.borgar.core.io.task.UrlFileTask
 
-object ServerSplashCommand : FileCommand(
+object GuildSplashCommand : FileCommand(
     inputRequirement = InputRequirement.None,
 ) {
 

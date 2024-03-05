@@ -54,9 +54,9 @@ val COMMANDS: Map<String, Command> = registerCommands(
     UrlFileCommand.SURE_BUD,
     UserAvatarCommand,
     UserBannerCommand,
-    ServerIconCommand,
-    ServerBannerCommand,
-    ServerSplashCommand,
+    GuildIconCommand,
+    GuildBannerCommand,
+    GuildSplashCommand,
     DownloadCommand,
     CatCommand.CAT,
     CatCommand.CAT_BOMB,
@@ -68,7 +68,7 @@ val COMMANDS: Map<String, Command> = registerCommands(
     CreateTemplateCommand,
     DeleteTemplateCommand,
     PingCommand,
-    ServerCountCommand,
+    GuildCountCommand,
     ShutdownCommand,
 )
 

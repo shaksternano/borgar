@@ -5,18 +5,17 @@ import io.github.shaksternano.borgar.core.exception.ErrorResponseException
 import io.github.shaksternano.borgar.core.io.task.FileTask
 import io.github.shaksternano.borgar.core.io.task.UrlFileTask
 
-object ServerIconCommand : FileCommand(
+object GuildBannerCommand : FileCommand(
     inputRequirement = InputRequirement.None,
 ) {
 
-    override val name: String = "servericon"
-    override val aliases: Set<String> = setOf("icon")
-    override val description: String = "Gets the icon of this server."
+    override val name: String = "serverbanner"
+    override val description: String = "Gets the banner image of this server."
     override val guildOnly: Boolean = true
 
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {
         val guild = event.getGuild() ?: throw IllegalStateException("Command run outside of a guild")
-        val iconUrl = guild.iconUrl ?: throw ErrorResponseException("This server has no icon.")
-        return UrlFileTask(iconUrl)
+        val bannerUrl = guild.bannerUrl ?: throw ErrorResponseException("This server has no banner image.")
+        return UrlFileTask(bannerUrl)
     }
 }
