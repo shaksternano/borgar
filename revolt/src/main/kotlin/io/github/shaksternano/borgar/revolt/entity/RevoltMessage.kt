@@ -34,16 +34,19 @@ data class RevoltMessage(
 ) : BaseEntity(), Message {
 
     override val timeCreated: OffsetDateTime = run {
-        val timestamp = ULID.parseULID(id).timestamp
-        val instant = Instant.ofEpochMilli(timestamp)
+        val ulid = ULID.parseULID(id)
+        val instant = Instant.ofEpochMilli(ulid.timestamp)
         OffsetDateTime.ofInstant(instant, ZoneOffset.UTC)
     }
     override val embeds: List<MessageEmbed> = emptyList()
     override val customEmojis: List<CustomEmoji> = emptyList()
     override val stickers: List<Sticker> = emptyList()
     override val referencedMessages: Flow<Message> = flow {
-        val response = manager.request<RevoltMessageResponse>("/channels/$channelId/messages/$id")
-        emit(response.convert(manager))
+        referencedMessageIds.forEach {
+            val response = manager.request<RevoltMessageResponse>("/channels/$channelId/messages/$it")
+            val referencedMessage = response.convert(manager)
+            emit(referencedMessage)
+        }
     }
 
     override val mentionedUsers: Flow<User> = flow {
