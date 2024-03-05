@@ -3,6 +3,7 @@ package io.github.shaksternano.borgar.core.io
 import com.google.common.io.Closer
 import com.google.common.io.Files
 import io.github.shaksternano.borgar.core.media.mediaFormat
+import io.github.shaksternano.borgar.core.util.JSON
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
@@ -19,7 +20,6 @@ import io.ktor.utils.io.jvm.javaio.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
 import org.apache.commons.io.FileUtils
 import org.reflections.Reflections
 import org.reflections.scanners.Scanners
@@ -97,9 +97,7 @@ fun httpClient(block: HttpClientConfig<*>.() -> Unit = {}): HttpClient = HttpCli
 
 fun configuredHttpClient(): HttpClient = httpClient {
     install(ContentNegotiation) {
-        json(Json {
-            ignoreUnknownKeys = true
-        })
+        json(JSON)
     }
     install(HttpRequestRetry) {
         maxRetries = 3
