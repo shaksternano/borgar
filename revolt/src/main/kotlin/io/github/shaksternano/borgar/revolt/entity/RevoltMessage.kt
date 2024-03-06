@@ -32,7 +32,7 @@ data class RevoltMessage(
     private val mentionedUserIds: List<String>,
     private var author: RevoltUser? = null,
     private var authorMember: RevoltMember? = null,
-) : BaseEntity(), Message {
+) : Message, BaseEntity() {
 
     override val timeCreated: OffsetDateTime = run {
         val ulid = ULID.parseULID(id)

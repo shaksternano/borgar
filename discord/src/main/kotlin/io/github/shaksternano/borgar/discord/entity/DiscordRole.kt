@@ -6,7 +6,7 @@ import io.github.shaksternano.borgar.discord.DiscordManager
 
 data class DiscordRole(
     private val discordRole: net.dv8tion.jda.api.entities.Role,
-) : DiscordPermissionHolder(discordRole), Role {
+) : Role, DiscordPermissionHolder(discordRole) {
 
     override val id: String = discordRole.id
     override val manager: BotManager = DiscordManager[discordRole.jda]

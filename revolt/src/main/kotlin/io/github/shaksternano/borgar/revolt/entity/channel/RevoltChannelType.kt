@@ -3,6 +3,7 @@ package io.github.shaksternano.borgar.revolt.entity.channel
 enum class RevoltChannelType(
     val apiName: String,
 ) {
+    SAVED_MESSAGES("SavedMessages"),
     DIRECT_MESSAGE("DirectMessage"),
     GROUP("Group"),
     TEXT("TextChannel"),

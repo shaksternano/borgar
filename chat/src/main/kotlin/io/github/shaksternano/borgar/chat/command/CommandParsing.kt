@@ -184,7 +184,7 @@ fun handleError(throwable: Throwable, manager: BotManager): String {
                 ) {
                     manager.getPermissionName(it)
                 }
-            }!"
+            }"
 
         is GuildOnlyCommandException ->
             "**${unwrapped.command.nameWithPrefix}** can only be used in a server!"

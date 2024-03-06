@@ -20,7 +20,7 @@ import java.time.OffsetDateTime
 
 data class DiscordMessage(
     private val discordMessage: net.dv8tion.jda.api.entities.Message,
-) : BaseEntity(), Message {
+) : Message, BaseEntity() {
 
     override val id: String = discordMessage.id
     override val manager: BotManager = DiscordManager[discordMessage.jda]

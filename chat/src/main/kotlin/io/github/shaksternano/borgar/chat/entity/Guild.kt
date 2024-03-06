@@ -5,6 +5,7 @@ import io.github.shaksternano.borgar.chat.command.Command
 interface Guild : Entity {
 
     val name: String
+    val ownerId: String
     val iconUrl: String?
     val bannerUrl: String?
     val splashUrl: String?

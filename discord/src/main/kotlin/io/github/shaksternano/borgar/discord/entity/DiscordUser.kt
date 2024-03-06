@@ -8,7 +8,7 @@ import io.github.shaksternano.borgar.discord.await
 
 data class DiscordUser(
     private val discordUser: net.dv8tion.jda.api.entities.User
-) : BaseEntity(), User {
+) : User, BaseEntity() {
 
     override val id: String = discordUser.id
     override val manager: BotManager = DiscordManager[discordUser.jda]

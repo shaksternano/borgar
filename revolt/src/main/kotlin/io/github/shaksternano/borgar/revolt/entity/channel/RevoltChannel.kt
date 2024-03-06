@@ -4,7 +4,9 @@ import io.github.shaksternano.borgar.chat.entity.BaseEntity
 import io.github.shaksternano.borgar.chat.entity.channel.Channel
 import io.github.shaksternano.borgar.revolt.RevoltManager
 import io.github.shaksternano.borgar.revolt.entity.RevoltGuild
+import io.github.shaksternano.borgar.revolt.entity.RevoltRolePermissionsBody
 import io.github.shaksternano.borgar.revolt.entity.RevoltUser
+import io.github.shaksternano.borgar.revolt.util.RevoltPermissionValue
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -13,19 +15,37 @@ open class RevoltChannel(
     final override val id: String,
     final override val name: String,
     private val guildId: String?,
-) : BaseEntity(), Channel {
+    val defaultPermissions: RevoltPermissionValue?,
+    val rolePermissions: Map<String, RevoltPermissionValue>,
+) : Channel, BaseEntity() {
 
     companion object {
         fun create(
             manager: RevoltManager,
             id: String,
             name: String,
-            guildId: String?,
             type: RevoltChannelType,
+            guildId: String?,
+            defaultPermissions: RevoltPermissionValue?,
+            rolePermissions: Map<String, RevoltPermissionValue>,
         ) = if (type.isMessage()) {
-            RevoltMessageChannel(manager, id, name, guildId)
+            RevoltMessageChannel(
+                manager,
+                id,
+                name,
+                guildId,
+                defaultPermissions,
+                rolePermissions,
+            )
         } else {
-            RevoltChannel(manager, id, name, guildId)
+            RevoltChannel(
+                manager,
+                id,
+                name,
+                guildId,
+                defaultPermissions,
+                rolePermissions,
+            )
         }
     }
 
@@ -57,13 +77,19 @@ data class RevoltChannelResponse(
     val userId: String? = null,
     @SerialName("server")
     val guildId: String? = null,
+    @SerialName("default_permissions")
+    val defaultPermissions: RevoltRolePermissionsBody? = null,
+    @SerialName("role_permissions")
+    val rolePermissions: Map<String, RevoltRolePermissionsBody> = emptyMap(),
 ) {
     fun convert(manager: RevoltManager, user: RevoltUser? = null): RevoltChannel =
         RevoltChannel.create(
             manager = manager,
             id = id,
             name = name ?: user?.name ?: "",
-            guildId = guildId,
             type = RevoltChannelType.fromApiName(type),
+            guildId = guildId,
+            defaultPermissions = defaultPermissions?.convert(),
+            rolePermissions = rolePermissions.mapValues { it.value.convert() },
         )
 }

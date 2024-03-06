@@ -14,7 +14,7 @@ data class RevoltUser(
     override val effectiveAvatarUrl: String,
     override val isBot: Boolean,
     val ownerId: String? = null,
-) : BaseEntity(), User {
+) : User, BaseEntity() {
 
     override val isSelf: Boolean = manager.selfId == id
     override val asMention: String = "<@$id>"

@@ -8,6 +8,7 @@ import io.github.shaksternano.borgar.chat.entity.User
 import io.github.shaksternano.borgar.chat.entity.channel.Channel
 import io.github.shaksternano.borgar.core.io.useHttpClient
 import io.github.shaksternano.borgar.revolt.entity.*
+import io.github.shaksternano.borgar.revolt.util.toRevolt
 import io.github.shaksternano.borgar.revolt.websocket.RevoltWebSocketClient
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -182,9 +183,12 @@ class RevoltManager(
 
     override fun getMentionedRoles(content: String): Flow<Role> = emptyFlow()
 
-    override fun getEmojiName(typedEmoji: String): String = typedEmoji.removeSurrounding(":")
+    override fun getEmojiName(typedEmoji: String): String =
+        typedEmoji.removeSurrounding(":")
 
-    override fun emojiAsTyped(emoji: String): String = ":$emoji:"
+    override fun emojiAsTyped(emoji: String): String =
+        ":$emoji:"
 
-    override fun getPermissionName(permission: Permission): String = permission.name
+    override fun getPermissionName(permission: Permission): String =
+        permission.toRevolt().displayName
 }

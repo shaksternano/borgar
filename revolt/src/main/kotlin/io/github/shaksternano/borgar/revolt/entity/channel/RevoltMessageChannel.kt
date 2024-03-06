@@ -10,6 +10,7 @@ import io.github.shaksternano.borgar.revolt.entity.RevoltMemberResponse
 import io.github.shaksternano.borgar.revolt.entity.RevoltMessage
 import io.github.shaksternano.borgar.revolt.entity.RevoltMessageResponse
 import io.github.shaksternano.borgar.revolt.entity.RevoltUserResponse
+import io.github.shaksternano.borgar.revolt.util.RevoltPermissionValue
 import io.ktor.client.request.forms.*
 import io.ktor.http.*
 import io.ktor.utils.io.errors.*
@@ -25,12 +26,16 @@ class RevoltMessageChannel(
     id: String,
     name: String,
     guildId: String?,
-) : RevoltChannel(
+    defaultPermissions: RevoltPermissionValue?,
+    rolePermissions: Map<String, RevoltPermissionValue>,
+) : MessageChannel, RevoltChannel(
     manager,
     id,
     name,
     guildId,
-), MessageChannel {
+    defaultPermissions,
+    rolePermissions,
+) {
 
     override suspend fun sendTyping() =
         manager.webSocket.sendTyping(id)

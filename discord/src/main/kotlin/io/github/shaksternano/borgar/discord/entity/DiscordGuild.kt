@@ -9,11 +9,12 @@ import io.github.shaksternano.borgar.discord.command.toSlash
 
 data class DiscordGuild(
     private val discordGuild: net.dv8tion.jda.api.entities.Guild
-) : BaseEntity(), Guild {
+) : Guild, BaseEntity() {
 
-    override val id: String = discordGuild.id
     override val manager: BotManager = DiscordManager[discordGuild.jda]
+    override val id: String = discordGuild.id
     override val name: String = discordGuild.name
+    override val ownerId: String = discordGuild.ownerId
     override val iconUrl: String? = discordGuild.iconUrl?.let { "$it?size=1024" }
     override val bannerUrl: String? = discordGuild.bannerUrl?.let { "$it?size=4096" }
     override val splashUrl: String? = discordGuild.splashUrl?.let { "$it?size=4096" }

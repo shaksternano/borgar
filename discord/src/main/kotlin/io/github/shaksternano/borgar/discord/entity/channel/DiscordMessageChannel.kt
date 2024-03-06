@@ -23,7 +23,7 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateData
 
 data class DiscordMessageChannel(
     private val discordMessageChannel: net.dv8tion.jda.api.entities.channel.middleman.MessageChannel,
-) : DiscordChannel(discordMessageChannel), MessageChannel {
+) : MessageChannel, DiscordChannel(discordMessageChannel) {
 
     override suspend fun sendTyping() {
         discordMessageChannel.sendTyping().await()

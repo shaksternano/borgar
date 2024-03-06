@@ -5,7 +5,7 @@ import io.github.shaksternano.borgar.chat.entity.BaseEntity
 import io.github.shaksternano.borgar.chat.entity.PermissionHolder
 import io.github.shaksternano.borgar.chat.entity.channel.Channel
 import io.github.shaksternano.borgar.discord.entity.channel.DiscordChannel
-import io.github.shaksternano.borgar.discord.toDiscord
+import io.github.shaksternano.borgar.discord.util.toDiscord
 import net.dv8tion.jda.api.entities.IPermissionHolder
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel
 

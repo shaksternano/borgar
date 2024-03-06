@@ -12,6 +12,7 @@ import io.github.shaksternano.borgar.discord.entity.DiscordGuild
 import io.github.shaksternano.borgar.discord.entity.DiscordRole
 import io.github.shaksternano.borgar.discord.entity.DiscordUser
 import io.github.shaksternano.borgar.discord.entity.channel.DiscordChannel
+import io.github.shaksternano.borgar.discord.util.toDiscord
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emptyFlow

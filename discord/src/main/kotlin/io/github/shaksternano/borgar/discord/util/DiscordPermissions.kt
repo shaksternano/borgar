@@ -1,4 +1,4 @@
-package io.github.shaksternano.borgar.discord
+package io.github.shaksternano.borgar.discord.util
 
 import io.github.shaksternano.borgar.chat.command.Permission
 

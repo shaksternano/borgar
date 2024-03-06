@@ -23,7 +23,7 @@ import io.github.shaksternano.borgar.discord.entity.channel.DiscordMessageChanne
 import io.github.shaksternano.borgar.discord.event.DiscordMessageInteractionEvent
 import io.github.shaksternano.borgar.discord.event.DiscordUserInteractionEvent
 import io.github.shaksternano.borgar.discord.event.SlashCommandEvent
-import io.github.shaksternano.borgar.discord.toDiscord
+import io.github.shaksternano.borgar.discord.util.toDiscord
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import net.dv8tion.jda.api.JDA
