@@ -25,6 +25,7 @@ data class RevoltMessage(
     override val id: String,
     override val content: String,
     override val attachments: List<Attachment>,
+    override val embeds: List<MessageEmbed>,
     private val authorId: String,
     private val channelId: String,
     private val referencedMessageIds: List<String>,
@@ -38,7 +39,6 @@ data class RevoltMessage(
         val instant = Instant.ofEpochMilli(ulid.timestamp)
         OffsetDateTime.ofInstant(instant, ZoneOffset.UTC)
     }
-    override val embeds: List<MessageEmbed> = emptyList()
     override val customEmojis: Flow<CustomEmoji> = manager.getCustomEmojis(content)
     override val stickers: Flow<Sticker> = emptyFlow()
     override val referencedMessages: Flow<Message> = flow {
@@ -131,6 +131,7 @@ data class RevoltMessageResponse(
     @SerialName("channel")
     val channelId: String,
     val attachments: List<RevoltAttachmentBody> = emptyList(),
+    val embeds: List<RevoltMessageEmbedBody> = emptyList(),
     @SerialName("replies")
     val referencedMessageIds: List<String> = emptyList(),
     @SerialName("mentions")
@@ -147,6 +148,7 @@ data class RevoltMessageResponse(
             id = id,
             content = content,
             attachments = attachments.map { it.convert(manager) },
+            embeds = embeds.map { it.convert() },
             authorId = authorId,
             channelId = channelId,
             referencedMessageIds = referencedMessageIds,
@@ -162,6 +164,55 @@ data class RevoltAttachmentBody(
     val id: String,
     val filename: String,
 )
+
+@Serializable
+data class RevoltMessageEmbedBody(
+    val type: String,
+    val url: String? = null,
+    val image: RevoltMessageEmbedImageBody? = null,
+    val video: RevoltMessageEmbedVideoBody? = null,
+) {
+
+    fun convert(): MessageEmbed = when (type) {
+        "Website" -> MessageEmbed(
+            url = url,
+            image = image?.convert(),
+            video = video?.convert(),
+        )
+
+        "Image" -> MessageEmbed(
+            url = url,
+            image = url?.let { MessageEmbed.ImageInfo(it, null) },
+        )
+
+        "Video" -> MessageEmbed(
+            url = url,
+            video = url?.let { MessageEmbed.VideoInfo(it, null) },
+        )
+
+        else -> MessageEmbed(
+            url = url,
+        )
+    }
+}
+
+@Serializable
+data class RevoltMessageEmbedImageBody(
+    val url: String,
+) {
+
+    fun convert(): MessageEmbed.ImageInfo =
+        MessageEmbed.ImageInfo(url, null)
+}
+
+@Serializable
+data class RevoltMessageEmbedVideoBody(
+    val url: String,
+) {
+
+    fun convert(): MessageEmbed.VideoInfo =
+        MessageEmbed.VideoInfo(url, null)
+}
 
 private fun RevoltAttachmentBody.convert(manager: RevoltManager): Attachment {
     return Attachment(
