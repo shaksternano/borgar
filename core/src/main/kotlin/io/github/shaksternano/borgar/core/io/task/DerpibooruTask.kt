@@ -44,11 +44,14 @@ class DerpibooruTask(
             .shuffled()
             .take(fileCount)
             .mapNotNull {
-                val image = it.getImage(maxFileSize)
-                val format =
-                    if (it.format.equals("jpeg", ignoreCase = true)) "jpg"
-                    else it.format.lowercase()
-                image?.rename("derpibooru-${it.id}.$format")
+                if (fileCount == 1) DataSource.fromUrl(it.representations.full, sendUrl = true)
+                else {
+                    val image = it.getImage(maxFileSize)
+                    val format =
+                        if (it.format.equals("jpeg", ignoreCase = true)) "jpg"
+                        else it.format.lowercase()
+                    image?.rename("derpibooru-${it.id}.$format")
+                }
             }
             .ifEmpty { throw ErrorResponseException("Images are too large!") }
     }
