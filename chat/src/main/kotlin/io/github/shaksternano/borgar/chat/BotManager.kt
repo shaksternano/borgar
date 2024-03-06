@@ -6,6 +6,7 @@ import io.github.shaksternano.borgar.chat.entity.Guild
 import io.github.shaksternano.borgar.chat.entity.Role
 import io.github.shaksternano.borgar.chat.entity.User
 import io.github.shaksternano.borgar.chat.entity.channel.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlin.time.Duration
 
 const val BOT_STATUS = "fortnite battle pass"
@@ -28,13 +29,13 @@ interface BotManager {
 
     suspend fun getGuildCount(): Int
 
-    fun getCustomEmojis(content: String): List<CustomEmoji>
+    fun getCustomEmojis(content: String): Flow<CustomEmoji>
 
-    fun getMentionedUsers(content: String): List<User>
+    fun getMentionedUsers(content: String): Flow<User>
 
-    fun getMentionedChannels(content: String): List<Channel>
+    fun getMentionedChannels(content: String): Flow<Channel>
 
-    fun getMentionedRoles(content: String): List<Role>
+    fun getMentionedRoles(content: String): Flow<Role>
 
     fun getEmojiName(typedEmoji: String): String
 

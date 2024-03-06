@@ -20,6 +20,8 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.utils.io.errors.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
@@ -149,13 +151,13 @@ class RevoltManager(
 
     override suspend fun getGuildCount(): Int = webSocket.guildCount
 
-    override fun getCustomEmojis(content: String): List<CustomEmoji> = emptyList()
+    override fun getCustomEmojis(content: String): Flow<CustomEmoji> = emptyFlow()
 
-    override fun getMentionedUsers(content: String): List<User> = emptyList()
+    override fun getMentionedUsers(content: String): Flow<User> = emptyFlow()
 
-    override fun getMentionedChannels(content: String): List<Channel> = emptyList()
+    override fun getMentionedChannels(content: String): Flow<Channel> = emptyFlow()
 
-    override fun getMentionedRoles(content: String): List<Role> = emptyList()
+    override fun getMentionedRoles(content: String): Flow<Role> = emptyFlow()
 
     override fun getEmojiName(typedEmoji: String): String = typedEmoji.removeSurrounding(":")
 

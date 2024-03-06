@@ -1,7 +1,6 @@
 package io.github.shaksternano.borgar.chat.util
 
 import io.github.shaksternano.borgar.chat.command.CommandMessageIntersection
-import io.github.shaksternano.borgar.chat.entity.CustomEmoji
 import io.github.shaksternano.borgar.chat.entity.getContent
 import io.github.shaksternano.borgar.core.emoji.getEmojiUrl
 import io.github.shaksternano.borgar.core.emoji.getEmojiUrlFromShortcode
@@ -18,6 +17,7 @@ import io.github.shaksternano.borgar.core.util.retrieveTenorUrlOrDefault
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toSet
 import kotlin.math.min
 
 private const val MAX_PAST_MESSAGES_TO_CHECK: Int = 100
@@ -76,13 +76,13 @@ suspend fun CommandMessageIntersection.getEmojiUrls(): Map<String, String> {
     val emojiUrls = mutableMapOf<String, String>()
 
     // Get custom emojis.
-    customEmojis.forEach {
+    customEmojis.collect {
         emojiUrls[it.asMention] = it.imageUrl
     }
 
     // Get undetected emojis, such as those requiring Discord nitro.
     getGuild()?.let { guild ->
-        val existingEmojis = customEmojis.map(CustomEmoji::name).toSet()
+        val existingEmojis = customEmojis.map { it.name }.toSet()
         guild.getCustomEmojis().forEach {
             if (!existingEmojis.contains(it.name)) {
                 val basicMention = it.asBasicMention

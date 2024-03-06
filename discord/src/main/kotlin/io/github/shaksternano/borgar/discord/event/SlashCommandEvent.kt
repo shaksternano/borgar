@@ -95,8 +95,8 @@ class SlashCommandEvent(
                 )
             }
             override val embeds: List<MessageEmbed> = listOf()
-            override val customEmojis: List<CustomEmoji> = manager.getCustomEmojis(content)
-            override val stickers: List<Sticker> = listOf()
+            override val customEmojis: Flow<CustomEmoji> = manager.getCustomEmojis(content)
+            override val stickers: Flow<Sticker> = emptyFlow()
             override val referencedMessages: Flow<Message> = emptyFlow()
 
             override suspend fun getAuthor(): User = this@SlashCommandEvent.getAuthor()

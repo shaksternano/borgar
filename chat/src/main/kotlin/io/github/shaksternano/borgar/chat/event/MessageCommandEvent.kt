@@ -46,8 +46,8 @@ data class MessageCommandEvent(
             override val content: String = arguments.getDefaultStringOrEmpty()
             override val attachments: List<Attachment> = event.message.attachments
             override val embeds: List<MessageEmbed> = event.message.embeds
-            override val customEmojis: List<CustomEmoji> = event.message.customEmojis
-            override val stickers: List<Sticker> = event.message.stickers
+            override val customEmojis: Flow<CustomEmoji> = event.message.customEmojis
+            override val stickers: Flow<Sticker> = event.message.stickers
             override val referencedMessages: Flow<Message> = this@MessageCommandEvent.referencedMessages
 
             override suspend fun getAuthor(): User = this@MessageCommandEvent.getAuthor()

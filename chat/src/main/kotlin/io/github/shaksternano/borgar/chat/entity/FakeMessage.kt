@@ -5,7 +5,6 @@ import io.github.shaksternano.borgar.chat.builder.MessageEditBuilder
 import io.github.shaksternano.borgar.chat.entity.channel.Channel
 import io.github.shaksternano.borgar.chat.entity.channel.MessageChannel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emptyFlow
 import java.time.OffsetDateTime
 
@@ -20,14 +19,14 @@ data class FakeMessage(
     override val manager: BotManager = author.manager
     override val referencedMessages: Flow<Message> = emptyFlow()
 
-    override val mentionedUsers: Flow<User> = manager.getMentionedUsers(content).asFlow()
-    override val mentionedChannels: Flow<Channel> = manager.getMentionedChannels(content).asFlow()
-    override val mentionedRoles: Flow<Role> = manager.getMentionedRoles(content).asFlow()
+    override val mentionedUsers: Flow<User> = manager.getMentionedUsers(content)
+    override val mentionedChannels: Flow<Channel> = manager.getMentionedChannels(content)
+    override val mentionedRoles: Flow<Role> = manager.getMentionedRoles(content)
 
     override val attachments: List<Attachment> = listOf()
     override val embeds: List<MessageEmbed> = listOf()
-    override val customEmojis: List<CustomEmoji> = manager.getCustomEmojis(content)
-    override val stickers: List<Sticker> = listOf()
+    override val customEmojis: Flow<CustomEmoji> = manager.getCustomEmojis(content)
+    override val stickers: Flow<Sticker> = emptyFlow()
 
     override suspend fun getAuthor(): User = author
 

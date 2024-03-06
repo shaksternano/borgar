@@ -12,6 +12,9 @@ import io.github.shaksternano.borgar.discord.entity.DiscordGuild
 import io.github.shaksternano.borgar.discord.entity.DiscordRole
 import io.github.shaksternano.borgar.discord.entity.DiscordUser
 import io.github.shaksternano.borgar.discord.entity.channel.DiscordChannel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.emptyFlow
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.Mentions
 import net.dv8tion.jda.api.entities.Message
@@ -69,21 +72,21 @@ class DiscordManager(
         DataArray.empty(),
     )
 
-    override fun getCustomEmojis(content: String): List<CustomEmoji> =
-        if (content.isBlank()) emptyList()
-        else getMentions(content).customEmojis.map { DiscordCustomEmoji(it, jda) }
+    override fun getCustomEmojis(content: String): Flow<CustomEmoji> =
+        if (content.isBlank()) emptyFlow()
+        else getMentions(content).customEmojis.map { DiscordCustomEmoji(it, jda) }.asFlow()
 
-    override fun getMentionedUsers(content: String): List<User> =
-        if (content.isBlank()) emptyList()
-        else getMentions(content).users.map { DiscordUser(it) }
+    override fun getMentionedUsers(content: String): Flow<User> =
+        if (content.isBlank()) emptyFlow()
+        else getMentions(content).users.map { DiscordUser(it) }.asFlow()
 
-    override fun getMentionedChannels(content: String): List<Channel> =
-        if (content.isBlank()) emptyList()
-        else getMentions(content).channels.map { DiscordChannel.create(it) }
+    override fun getMentionedChannels(content: String): Flow<Channel> =
+        if (content.isBlank()) emptyFlow()
+        else getMentions(content).channels.map { DiscordChannel.create(it) }.asFlow()
 
-    override fun getMentionedRoles(content: String): List<Role> =
-        if (content.isBlank()) emptyList()
-        else getMentions(content).roles.map { DiscordRole(it) }
+    override fun getMentionedRoles(content: String): Flow<Role> =
+        if (content.isBlank()) emptyFlow()
+        else getMentions(content).roles.map { DiscordRole(it) }.asFlow()
 
     override fun getEmojiName(typedEmoji: String): String = typedEmoji.removeSurrounding(":")
 
