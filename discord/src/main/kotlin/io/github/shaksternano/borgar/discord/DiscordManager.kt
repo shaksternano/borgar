@@ -44,6 +44,7 @@ class DiscordManager(
             }
     }
 
+    override val platform: String = "Discord"
     override val selfId: String = jda.selfUser.id
     override val maxMessageContentLength: Int = Message.MAX_CONTENT_LENGTH
     override val maxFileSize: Long = Message.MAX_FILE_SIZE.toLong()

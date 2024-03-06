@@ -4,8 +4,8 @@ import io.github.shaksternano.borgar.chat.entity.Message
 import io.github.shaksternano.borgar.chat.entity.User
 import io.github.shaksternano.borgar.chat.event.CommandEvent
 import io.github.shaksternano.borgar.chat.exception.MissingArgumentException
-import io.github.shaksternano.borgar.chat.util.ChannelEnvironment
 import io.github.shaksternano.borgar.core.io.SuspendCloseable
+import io.github.shaksternano.borgar.core.util.ChannelEnvironment
 import io.github.shaksternano.borgar.core.util.Named
 import io.github.shaksternano.borgar.core.util.asSingletonList
 import io.github.shaksternano.borgar.core.util.startsWithVowel

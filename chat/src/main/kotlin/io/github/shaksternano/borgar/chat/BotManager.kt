@@ -13,6 +13,7 @@ const val BOT_STATUS = "fortnite battle pass"
 
 interface BotManager {
 
+    val platform: String
     val selfId: String
     val ownerId: String
     val maxMessageContentLength: Int

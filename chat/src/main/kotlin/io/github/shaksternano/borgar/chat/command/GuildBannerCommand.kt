@@ -1,10 +1,10 @@
 package io.github.shaksternano.borgar.chat.command
 
 import io.github.shaksternano.borgar.chat.event.CommandEvent
-import io.github.shaksternano.borgar.chat.util.ChannelEnvironment
 import io.github.shaksternano.borgar.core.exception.ErrorResponseException
 import io.github.shaksternano.borgar.core.io.task.FileTask
 import io.github.shaksternano.borgar.core.io.task.UrlFileTask
+import io.github.shaksternano.borgar.core.util.ChannelEnvironment
 
 object GuildBannerCommand : FileCommand(
     inputRequirement = InputRequirement.None,

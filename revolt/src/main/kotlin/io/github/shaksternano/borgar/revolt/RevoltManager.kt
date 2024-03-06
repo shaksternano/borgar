@@ -35,6 +35,7 @@ class RevoltManager(
     private val token: String,
 ) : BotManager {
 
+    override val platform: String = "Revolt"
     override var selfId: String = ""
         private set
     override var ownerId: String = ""
