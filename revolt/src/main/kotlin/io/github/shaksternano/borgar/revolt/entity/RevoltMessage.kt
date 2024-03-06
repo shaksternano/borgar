@@ -39,7 +39,7 @@ data class RevoltMessage(
         OffsetDateTime.ofInstant(instant, ZoneOffset.UTC)
     }
     override val embeds: List<MessageEmbed> = emptyList()
-    override val customEmojis: Flow<CustomEmoji> = emptyFlow()
+    override val customEmojis: Flow<CustomEmoji> = manager.getCustomEmojis(content)
     override val stickers: Flow<Sticker> = emptyFlow()
     override val referencedMessages: Flow<Message> = flow {
         referencedMessageIds.forEach {

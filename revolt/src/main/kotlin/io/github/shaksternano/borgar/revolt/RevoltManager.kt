@@ -7,10 +7,7 @@ import io.github.shaksternano.borgar.chat.entity.Role
 import io.github.shaksternano.borgar.chat.entity.User
 import io.github.shaksternano.borgar.chat.entity.channel.Channel
 import io.github.shaksternano.borgar.core.io.useHttpClient
-import io.github.shaksternano.borgar.revolt.entity.RevoltGuild
-import io.github.shaksternano.borgar.revolt.entity.RevoltGuildResponse
-import io.github.shaksternano.borgar.revolt.entity.RevoltUser
-import io.github.shaksternano.borgar.revolt.entity.RevoltUserResponse
+import io.github.shaksternano.borgar.revolt.entity.*
 import io.github.shaksternano.borgar.revolt.websocket.RevoltWebSocketClient
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -21,13 +18,17 @@ import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.utils.io.errors.*
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.mapNotNull
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 const val REVOLT_API_DOMAIN = "https://api.revolt.chat"
 const val REVOLT_CDN_DOMAIN = "https://autumn.revolt.chat"
 const val REVOLT_TOKEN_HEADER = "x-bot-token"
+
+private val USER_MENTION_REGEX: Regex = "<@[A-Za-z0-9]+>".toRegex()
 
 class RevoltManager(
     private val token: String,
@@ -40,7 +41,7 @@ class RevoltManager(
     override val maxMessageContentLength: Int = 2000
     override val maxFileSize: Long = 20 * 1024 * 1024
     override val maxFilesPerMessage: Int = 5
-    override val emojiTypedPattern: Regex = ":[A-Za-z0-9]+:".toRegex()
+    override val emojiTypedRegex: Regex = ":[A-Za-z0-9]+:".toRegex()
     override val typingDuration: Duration = 1.seconds
 
     val webSocket: RevoltWebSocketClient = RevoltWebSocketClient(token, this)
@@ -151,9 +152,31 @@ class RevoltManager(
 
     override suspend fun getGuildCount(): Int = webSocket.guildCount
 
-    override fun getCustomEmojis(content: String): Flow<CustomEmoji> = emptyFlow()
+    override fun getCustomEmojis(content: String): Flow<CustomEmoji> =
+        emojiTypedRegex.findAll(content)
+            .map {
+                getEmojiName(it.value)
+            }
+            .asFlow()
+            .mapNotNull {
+                runCatching {
+                    val response = request<RevoltEmojiResponse>("/custom/emoji/$it")
+                    response.convert(this@RevoltManager)
+                }.getOrNull()
+            }
 
-    override fun getMentionedUsers(content: String): Flow<User> = emptyFlow()
+    override fun getMentionedUsers(content: String): Flow<User> =
+        USER_MENTION_REGEX.findAll(content)
+            .map {
+                getUserId(it.value)
+            }
+            .asFlow()
+            .mapNotNull {
+                getUser(it)
+            }
+
+    private fun getUserId(typedUserMention: String): String =
+        typedUserMention.removeSurrounding("<@", ">")
 
     override fun getMentionedChannels(content: String): Flow<Channel> = emptyFlow()
 

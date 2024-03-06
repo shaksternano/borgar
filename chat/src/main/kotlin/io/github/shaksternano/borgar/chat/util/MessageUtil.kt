@@ -120,7 +120,7 @@ suspend fun CommandMessageIntersection.getEmojiUrls(): Map<String, String> {
     }
 
     // Get unicode emojis from shortcodes.
-    manager.emojiTypedPattern.findAll(content).forEach {
+    manager.emojiTypedRegex.findAll(content).forEach {
         val emojiName = manager.getEmojiName(it.value)
         val emojiUrl = getEmojiUrlFromShortcode(emojiName)
         if (emojiUrl != null) {
