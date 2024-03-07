@@ -7,7 +7,6 @@ import java.awt.Rectangle
 import java.awt.image.BufferedImage
 
 class UncaptionTask(
-    private val coloredCaption: Boolean,
     onlyCheckFirst: Boolean,
     maxFileSize: Long,
 ) : FindCropTask(
@@ -19,15 +18,15 @@ class UncaptionTask(
 
     override fun findCropArea(image: BufferedImage): Rectangle {
         val fullImageArea = Rectangle(0, 0, image.width, image.height)
-        val nonTopCaptionArea =
-            if (coloredCaption) findNonCaptionAreaColored(image, true)
-            else findNonCaptionArea(image, true)
-        val nonBottomCaptionArea =
-            if (coloredCaption) findNonCaptionAreaColored(image, false)
-            else findNonCaptionArea(image, false)
+        val nonTopCaptionArea = findNonCaptionArea(image, true)
+        val nonTopColoredCaptionArea = findNonCaptionAreaColored(image, true)
+        val nonBottomCaptionArea = findNonCaptionArea(image, false)
+        val nonBottomColoredCaptionArea = findNonCaptionAreaColored(image, false)
         return fullImageArea
             .intersection(nonTopCaptionArea)
+            .intersection(nonTopColoredCaptionArea)
             .intersection(nonBottomCaptionArea)
+            .intersection(nonBottomColoredCaptionArea)
     }
 
     private fun findNonCaptionArea(image: BufferedImage, topCaption: Boolean): Rectangle {

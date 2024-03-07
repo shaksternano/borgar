@@ -4,11 +4,7 @@ import io.github.shaksternano.borgar.chat.event.CommandEvent
 import io.github.shaksternano.borgar.core.io.task.FileTask
 import io.github.shaksternano.borgar.core.io.task.UncaptionTask
 
-sealed class UncaptionCommand(
-    override val name: String,
-    override val description: String,
-    private val coloredCaption: Boolean,
-) : FileCommand(
+object UncaptionCommand : FileCommand(
     CommandArgumentInfo(
         key = "onlycheckfirst",
         aliases = setOf("first", "f"),
@@ -19,20 +15,11 @@ sealed class UncaptionCommand(
     ),
 ) {
 
-    object Uncaption : UncaptionCommand(
-        "uncaption",
-        "Uncaptions media that has color in the caption.",
-        true,
-    )
-
-    object Uncaption2 : UncaptionCommand(
-        "uncaption2",
-        "Uncaptions media that doesn't have color in the caption.",
-        false,
-    )
+    override val name: String = "uncaption"
+    override val description: String = "Removes the caption from media."
 
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {
         val onlyCheckFirst = arguments.getRequired("onlycheckfirst", CommandArgumentType.Boolean)
-        return UncaptionTask(coloredCaption, onlyCheckFirst, maxFileSize)
+        return UncaptionTask(onlyCheckFirst, maxFileSize)
     }
 }
