@@ -16,6 +16,8 @@ private val VIDEO_QUALITIES: List<Int> = listOf(
     720,
     480,
     360,
+    240,
+    144,
 )
 
 class DownloadTask(
@@ -47,7 +49,7 @@ class DownloadTask(
             throw ErrorResponseException("Error downloading file!", e)
         }
 
-    private suspend fun download(
+    private tailrec suspend fun download(
         url: String,
         videoQualityIndex: Int,
         audioOnly: Boolean,
@@ -55,28 +57,43 @@ class DownloadTask(
         maxFileSize: Long,
     ): List<DataSource> {
         val videoQuality = VIDEO_QUALITIES[videoQualityIndex]
-        val downloadUrls = getDownloadUrls(url, videoQuality, audioOnly, fileIndex)
-        return downloadUrls.map { downloadUrl ->
-            val filename = useHttpClient { client ->
-                val headResponse = client.head(downloadUrl)
-                val contentLength = headResponse.contentLength() ?: 0
-                if (contentLength > maxFileSize) {
+        return getDownloadUrls(url, videoQuality, audioOnly, fileIndex)
+            .ifEmpty {
+                return if (videoQualityIndex < VIDEO_QUALITIES.size - 1) {
+                    download(
+                        url,
+                        videoQualityIndex + 1,
+                        audioOnly,
+                        fileIndex,
+                        maxFileSize,
+                    )
+                } else {
+                    throw FileTooLargeException()
+                }
+            }
+            .map { downloadUrl ->
+                val dataSource = useHttpClient { client ->
+                    val headResponse = client.head(downloadUrl)
+                    val filename = getFilename(headResponse, downloadUrl)
+                    DataSource.fromUrl(downloadUrl, filename)
+                }
+                val fileSize = dataSource.size()
+                if (fileSize > maxFileSize) {
                     return if (videoQualityIndex < VIDEO_QUALITIES.size - 1) {
                         download(
                             url,
                             videoQualityIndex + 1,
                             audioOnly,
                             fileIndex,
-                            maxFileSize
+                            maxFileSize,
                         )
                     } else {
                         throw FileTooLargeException()
                     }
+                } else {
+                    dataSource
                 }
-                getFilename(headResponse, downloadUrl)
             }
-            DataSource.fromUrl(downloadUrl, filename)
-        }
     }
 
     private suspend fun getDownloadUrls(
@@ -106,6 +123,9 @@ class DownloadTask(
         }.getOrElse {
             val prettyPrint = prettyPrintJsonCatching(responseBodyString)
             throw IllegalStateException("Invalid Cobalt response body:\n$prettyPrint", it)
+        }
+        if (responseBody.status == "error") {
+            return emptyList()
         }
         return if (responseBody.url != null)
             if (fileIndex != null && fileIndex != 0) throw InvalidFileNumberException(1)
@@ -144,6 +164,7 @@ class DownloadTask(
 
     @Serializable
     private data class CobaltResponseBody(
+        val status: String,
         val url: String? = null,
         val picker: List<CobaltPicker>? = null,
     )

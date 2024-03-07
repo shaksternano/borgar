@@ -3,6 +3,7 @@ package io.github.shaksternano.borgar.core.io
 import io.github.shaksternano.borgar.core.util.hash
 import io.github.shaksternano.borgar.core.util.kClass
 import io.ktor.client.request.*
+import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -31,13 +32,16 @@ interface DataSource : DataSourceConvertable {
         }
     }
 
-    suspend fun size(): Long = withContext(Dispatchers.IO) {
-        newStream().buffered().use {
-            var size = 0L
-            it.iterator().forEach { _ ->
-                size++
+    suspend fun size(): Long {
+        val inputStream = newStream()
+        return withContext(Dispatchers.IO) {
+            inputStream.buffered().use {
+                var size = 0L
+                it.iterator().forEach { _ ->
+                    size++
+                }
+                size
             }
-            size
         }
     }
 
@@ -108,7 +112,9 @@ data class FileDataSource(
     override val path: Path,
     override val url: String? = null,
 ) : DataSource {
+
     override val sendUrl: Boolean = false
+    private var size: Long? = null
 
     override suspend fun newStream(): InputStream = withContext(Dispatchers.IO) {
         path.inputStream()
@@ -120,8 +126,15 @@ data class FileDataSource(
         path.readBytes()
     }
 
-    override suspend fun size(): Long = withContext(Dispatchers.IO) {
-        path.fileSize()
+    override suspend fun size(): Long {
+        size?.let {
+            return it
+        }
+        return withContext(Dispatchers.IO) {
+            path.fileSize()
+        }.also {
+            size = it
+        }
     }
 
     override fun rename(newName: String): FileDataSource = copy(filename = newName)
@@ -152,6 +165,7 @@ data class UrlDataSource(
 ) : DataSource {
 
     override val path: Path? = null
+    private var size: Long? = null
 
     override suspend fun newStream(): InputStream =
         httpGet<InputStream>(url)
@@ -159,9 +173,22 @@ data class UrlDataSource(
     override suspend fun toByteArray(): ByteArray =
         httpGet<ByteArray>(url)
 
-    override suspend fun size(): Long = useHttpClient { client ->
-        val response = client.get(url)
-        response.size()
+    override suspend fun size(): Long {
+        size?.let {
+            return it
+        }
+        return useHttpClient { client ->
+            val headResponse = client.head(url)
+            val contentLength = headResponse.contentLength()
+            if (contentLength == null) {
+                val response = client.get(url)
+                response.size()
+            } else {
+                contentLength
+            }
+        }.also {
+            size = it
+        }
     }
 
     override fun rename(newName: String): UrlDataSource = copy(

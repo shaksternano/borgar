@@ -171,9 +171,14 @@ fun handleError(throwable: Throwable, manager: BotManager): String {
             (throwable.cause ?: throwable) to throwable.commandConfigs
         else throwable to emptyList()
     return when (unwrapped) {
-        is NonChainableCommandException -> unwrapped.message
+        is ErrorResponseException -> {
+            unwrapped.cause?.let {
+                logger.error("An error occurred", it)
+            }
+            unwrapped.message
+        }
 
-        is ErrorResponseException -> unwrapped.message
+        is NonChainableCommandException -> unwrapped.message
 
         is MissingArgumentException -> unwrapped.message
 
@@ -195,12 +200,16 @@ fun handleError(throwable: Throwable, manager: BotManager): String {
             if (commandConfigs.isEmpty()) {
                 logger.error("An error occurred", unwrapped)
             } else {
+                var message = "Error executing command"
+                if (commandConfigs.size > 1) {
+                    message += "s"
+                }
+                message += " "
+                message += commandConfigs.joinToString(", ") {
+                    it.typedForm
+                }
                 logger.error(
-                    "Error executing commands ${
-                        commandConfigs.joinToString(", ") {
-                            it.typedForm
-                        }
-                    }",
+                    message,
                     unwrapped,
                 )
             }
