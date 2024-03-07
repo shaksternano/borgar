@@ -1,5 +1,9 @@
 package io.github.shaksternano.borgar.revolt
 
+import io.github.shaksternano.borgar.chat.registerBotManager
+
 suspend fun initRevolt(token: String) {
-    RevoltManager(token).awaitReady()
+    val manager = RevoltManager(token)
+    registerBotManager(manager)
+    manager.awaitReady()
 }

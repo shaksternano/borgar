@@ -8,6 +8,7 @@ import io.github.shaksternano.borgar.chat.entity.Guild
 import io.github.shaksternano.borgar.chat.entity.Role
 import io.github.shaksternano.borgar.chat.entity.User
 import io.github.shaksternano.borgar.chat.entity.channel.Channel
+import io.github.shaksternano.borgar.chat.registerBotManager
 import io.github.shaksternano.borgar.discord.entity.DiscordCustomEmoji
 import io.github.shaksternano.borgar.discord.entity.DiscordGuild
 import io.github.shaksternano.borgar.discord.entity.DiscordRole
@@ -36,7 +37,9 @@ class DiscordManager(
 
         suspend fun create(jda: JDA) {
             val ownerId = jda.retrieveApplicationInfo().await().owner.id
-            managers[jda] = DiscordManager(jda, ownerId)
+            val manager = DiscordManager(jda, ownerId)
+            managers[jda] = manager
+            registerBotManager(manager)
         }
 
         operator fun get(jda: JDA): BotManager =

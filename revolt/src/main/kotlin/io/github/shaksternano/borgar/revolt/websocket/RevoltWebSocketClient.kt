@@ -42,9 +42,9 @@ class RevoltWebSocketClient(
     private val manager: RevoltManager,
 ) {
 
+    private val guildCountAtomic: AtomicInteger = AtomicInteger(0)
     val guildCount: Int
         get() = guildCountAtomic.get()
-    private val guildCountAtomic: AtomicInteger = AtomicInteger(0)
     private var session: DefaultClientWebSocketSession? = null
     private val messageHandlers: MutableMap<String, MutableList<WebSocketMessageHandler>> = mutableMapOf()
     private var ready: Boolean = false
