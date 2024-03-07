@@ -7,6 +7,8 @@ import io.github.shaksternano.borgar.chat.entity.Guild
 import io.github.shaksternano.borgar.chat.entity.User
 import io.github.shaksternano.borgar.revolt.RevoltManager
 import io.github.shaksternano.borgar.revolt.util.RevoltPermissionValue
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -22,6 +24,15 @@ data class RevoltGuild(
 
     override val splashUrl: String? = null
     override val maxFileSize: Long = manager.maxFileSize
+    override val customEmojis: Flow<CustomEmoji> = flow {
+        val response = manager.request<List<RevoltEmojiResponse>>("/servers/$id/emojis")
+        val emojis = response.map {
+            it.convert(manager)
+        }
+        emojis.forEach {
+            emit(it)
+        }
+    }
 
     override suspend fun getMember(userId: String): RevoltMember? {
         val user = manager.getUser(userId) ?: return null
@@ -32,8 +43,6 @@ data class RevoltGuild(
         runCatching {
             manager.request<RevoltMemberResponse>("/servers/$id/members/${user.id}")
         }.getOrNull()?.convert(manager, user, this)
-
-    override suspend fun getCustomEmojis(): List<CustomEmoji> = emptyList()
 
     override suspend fun addCommand(command: Command) = Unit
 

@@ -1,5 +1,6 @@
 package io.github.shaksternano.borgar.chat.util
 
+import io.github.shaksternano.borgar.chat.ChatPlatform
 import io.github.shaksternano.borgar.chat.command.CommandMessageIntersection
 import io.github.shaksternano.borgar.chat.entity.getContent
 import io.github.shaksternano.borgar.core.emoji.getEmojiUrl
@@ -75,19 +76,22 @@ private suspend fun CommandMessageIntersection.getUrlDrawables(): Map<String, Dr
 suspend fun CommandMessageIntersection.getEmojiUrls(): Map<String, String> {
     val emojiUrls = mutableMapOf<String, String>()
 
+    val customEmojis = customEmojis.toSet()
     // Get custom emojis.
-    customEmojis.collect {
+    customEmojis.forEach {
         emojiUrls[it.asMention] = it.imageUrl
     }
 
-    // Get undetected emojis, such as those requiring Discord nitro.
-    getGuild()?.let { guild ->
-        val existingEmojis = customEmojis.map { it.name }.toSet()
-        guild.getCustomEmojis().forEach {
-            if (!existingEmojis.contains(it.name)) {
-                val basicMention = it.asBasicMention
-                if (content.contains(basicMention)) {
-                    emojiUrls[basicMention] = it.imageUrl
+    if (manager.platform == ChatPlatform.DISCORD) {
+        // Get undetected emojis, such as those requiring Discord nitro
+        getGuild()?.let { guild ->
+            val existingEmojis = customEmojis.map { it.name }.toSet()
+            guild.customEmojis.collect {
+                if (!existingEmojis.contains(it.name)) {
+                    val basicMention = it.asBasicMention
+                    if (content.contains(basicMention)) {
+                        emojiUrls[basicMention] = it.imageUrl
+                    }
                 }
             }
         }
@@ -98,13 +102,14 @@ suspend fun CommandMessageIntersection.getEmojiUrls(): Map<String, String> {
     var i = 0
     while (i < codePoints.size) {
         for (j in min(codePoints.size - 1, 10 + i) downTo i) {
-            val compositeCodePoints = mutableListOf<Int>()
             val compositeUnicodeBuilder = StringBuilder()
-            for (k in i..j) {
-                val codePoint = codePoints[k]
-                val hexCodePoint = codePoint.toString(16)
-                compositeCodePoints.add(codePoint)
-                compositeUnicodeBuilder.append(hexCodePoint).append("-")
+            val compositeCodePoints = buildList {
+                for (k in i..j) {
+                    val codePoint = codePoints[k]
+                    val hexCodePoint = codePoint.toString(16)
+                    add(codePoint)
+                    compositeUnicodeBuilder.append(hexCodePoint).append("-")
+                }
             }
             compositeUnicodeBuilder.deleteCharAt(compositeUnicodeBuilder.length - 1)
 

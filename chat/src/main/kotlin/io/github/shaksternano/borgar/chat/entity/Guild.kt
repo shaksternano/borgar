@@ -1,6 +1,7 @@
 package io.github.shaksternano.borgar.chat.entity
 
 import io.github.shaksternano.borgar.chat.command.Command
+import kotlinx.coroutines.flow.Flow
 
 interface Guild : Entity {
 
@@ -11,6 +12,7 @@ interface Guild : Entity {
     val splashUrl: String?
     val maxFileSize: Long
     val publicRole: Role
+    val customEmojis: Flow<CustomEmoji>
 
     suspend fun getMember(userId: String): Member?
 
@@ -21,8 +23,6 @@ interface Guild : Entity {
 
     suspend fun isMember(user: User): Boolean =
         isMember(user.id)
-
-    suspend fun getCustomEmojis(): List<CustomEmoji>
 
     suspend fun addCommand(command: Command)
 

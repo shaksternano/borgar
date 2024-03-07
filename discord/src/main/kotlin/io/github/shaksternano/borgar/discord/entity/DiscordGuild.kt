@@ -6,6 +6,8 @@ import io.github.shaksternano.borgar.chat.entity.*
 import io.github.shaksternano.borgar.discord.DiscordManager
 import io.github.shaksternano.borgar.discord.await
 import io.github.shaksternano.borgar.discord.command.toSlash
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
 data class DiscordGuild(
     private val discordGuild: net.dv8tion.jda.api.entities.Guild
@@ -20,18 +22,21 @@ data class DiscordGuild(
     override val splashUrl: String? = discordGuild.splashUrl?.let { "$it?size=4096" }
     override val maxFileSize: Long = discordGuild.maxFileSize
     override val publicRole: Role = DiscordRole(discordGuild.publicRole)
-
-    override suspend fun getMember(userId: String): Member? =
-        discordGuild.runCatching {
-            DiscordMember(retrieveMemberById(userId).await())
-        }.getOrNull()
-
-    override suspend fun getCustomEmojis(): List<CustomEmoji> =
+    override val customEmojis: Flow<CustomEmoji> = flow {
         discordGuild.retrieveEmojis()
             .await()
             .map {
                 DiscordCustomEmoji(it, discordGuild.jda)
             }
+            .forEach {
+                emit(it)
+            }
+    }
+
+    override suspend fun getMember(userId: String): Member? =
+        discordGuild.runCatching {
+            DiscordMember(retrieveMemberById(userId).await())
+        }.getOrNull()
 
     override suspend fun addCommand(command: Command) {
         discordGuild.upsertCommand(command.toSlash()).await()

@@ -1,6 +1,7 @@
 package io.github.shaksternano.borgar.discord
 
 import io.github.shaksternano.borgar.chat.BotManager
+import io.github.shaksternano.borgar.chat.ChatPlatform
 import io.github.shaksternano.borgar.chat.command.Permission
 import io.github.shaksternano.borgar.chat.entity.CustomEmoji
 import io.github.shaksternano.borgar.chat.entity.Guild
@@ -44,7 +45,7 @@ class DiscordManager(
             }
     }
 
-    override val platform: String = "Discord"
+    override val platform: String = ChatPlatform.DISCORD
     override val selfId: String = jda.selfUser.id
     override val maxMessageContentLength: Int = Message.MAX_CONTENT_LENGTH
     override val maxFileSize: Long = Message.MAX_FILE_SIZE.toLong()
