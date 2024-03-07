@@ -34,6 +34,12 @@ data class RevoltMessage(
     private var authorMember: RevoltMember? = null,
 ) : Message, BaseEntity() {
 
+    init {
+        if (author == null && authorId == SYSTEM_USER_ID) {
+            author = RevoltSystemUser(manager)
+        }
+    }
+
     override val timeCreated: OffsetDateTime = run {
         val ulid = ULID.parseULID(id)
         val instant = Instant.ofEpochMilli(ulid.timestamp)

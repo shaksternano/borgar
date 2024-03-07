@@ -6,13 +6,13 @@ import io.github.shaksternano.borgar.revolt.RevoltManager
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-data class RevoltUser(
-    override val manager: RevoltManager,
-    override val id: String,
-    override val name: String,
-    override val effectiveName: String,
-    override val effectiveAvatarUrl: String,
-    override val isBot: Boolean,
+open class RevoltUser(
+    final override val manager: RevoltManager,
+    final override val id: String,
+    final override val name: String,
+    final override val effectiveName: String,
+    final override val effectiveAvatarUrl: String,
+    final override val isBot: Boolean,
     val ownerId: String? = null,
 ) : User, BaseEntity() {
 
