@@ -21,10 +21,12 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.utils.io.errors.*
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.launch
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
@@ -56,11 +58,15 @@ class RevoltManager(
 
     suspend fun awaitReady() {
         if (ready) return
-        webSocket.awaitReady()
-        val self = getSelf()
-        selfId = self.id
-        ownerId = self.ownerId ?: error("Owner ID not found")
-        ready = true
+        coroutineScope {
+            launch {
+                webSocket.awaitReady()
+            }
+            val self = getSelf()
+            selfId = self.id
+            ownerId = self.ownerId ?: error("Owner ID not found")
+            ready = true
+        }
     }
 
     override suspend fun getSelf(): RevoltUser =
