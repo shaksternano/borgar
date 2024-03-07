@@ -68,7 +68,7 @@ data class RevoltMemberResponse(
     @SerialName("_id")
     val id: RevoltMemberIdBody,
     val nickname: String? = null,
-    val avatarBody: RevoltAvatarBody? = null,
+    val avatar: RevoltAvatarBody? = null,
     @SerialName("roles")
     val roleIds: List<String> = emptyList(),
     val timeout: String? = null,
@@ -83,7 +83,7 @@ data class RevoltMemberResponse(
             manager = manager,
             user = user,
             effectiveName = nickname ?: user.effectiveName,
-            effectiveAvatarUrl = avatarBody?.getUrl(manager) ?: user.effectiveAvatarUrl,
+            effectiveAvatarUrl = avatar?.getUrl(manager) ?: user.effectiveAvatarUrl,
             timeoutEnd = timeout?.let { OffsetDateTime.parse(it) },
             roleIds = roleIds,
             guildId = id.guild,
