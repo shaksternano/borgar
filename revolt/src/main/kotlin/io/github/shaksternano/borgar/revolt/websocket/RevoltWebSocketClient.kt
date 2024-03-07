@@ -8,6 +8,8 @@ import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.core.util.JSON
 import io.github.shaksternano.borgar.revolt.RevoltManager
 import io.github.shaksternano.borgar.revolt.entity.RevoltGuildResponse
+import io.github.shaksternano.borgar.revolt.entity.channel.RevoltChannelResponse
+import io.github.shaksternano.borgar.revolt.entity.channel.RevoltChannelType
 import io.github.shaksternano.borgar.revolt.entity.createMessage
 import io.ktor.client.plugins.websocket.*
 import io.ktor.util.network.*
@@ -92,6 +94,24 @@ class RevoltWebSocketClient(
         }
     }
 
+    suspend fun awaitReady() {
+        if (ready) return
+        if (invalidToken) throw IllegalArgumentException("Invalid token")
+        var resumed = false
+        suspendCoroutine { continuation ->
+            handle(WebSocketMessageType.READY) {
+                if (resumed) return@handle
+                resumed = true
+                continuation.resume(Unit)
+            }
+            handle(WebSocketMessageType.NOT_FOUND) {
+                if (resumed) return@handle
+                resumed = true
+                continuation.resumeWithException(IllegalArgumentException("Invalid token"))
+            }
+        }
+    }
+
     suspend fun sendTyping(channelId: String) {
         session?.send(
             JsonObject(
@@ -121,7 +141,11 @@ class RevoltWebSocketClient(
         handle(WebSocketMessageType.READY) {
             ready = true
             val body = JSON.decodeFromJsonElement(ReadyBody.serializer(), it)
-            guildCountAtomic.set(body.guilds.size)
+            val guildCount = body.guilds.size
+            val groupCount = body.channels.count { response ->
+                response.type == RevoltChannelType.GROUP.apiName
+            }
+            guildCountAtomic.set(guildCount + groupCount)
         }
         handle(WebSocketMessageType.NOT_FOUND) {
             invalidToken = true
@@ -144,6 +168,18 @@ class RevoltWebSocketClient(
                 guildCountAtomic.decrementAndGet()
             }
         }
+        handle(WebSocketMessageType.CHANNEL_CREATE) {
+            val channelType = it["channel_type"] as? JsonPrimitive
+            if (channelType?.content == "Group") {
+                guildCountAtomic.incrementAndGet()
+            }
+        }
+        handle(WebSocketMessageType.CHANNEL_GROUP_LEAVE) {
+            val userId = it["user"] as? JsonPrimitive
+            if (userId?.content == manager.selfId) {
+                guildCountAtomic.decrementAndGet()
+            }
+        }
     }
 
     private fun handle(messageType: WebSocketMessageType, handler: suspend (JsonObject) -> Unit) {
@@ -151,21 +187,10 @@ class RevoltWebSocketClient(
             .add(WebSocketMessageHandler(handler))
     }
 
-    suspend fun awaitReady() {
-        if (ready) return
-        if (invalidToken) throw IllegalArgumentException("Invalid token")
-        var resumed = false
-        suspendCoroutine { continuation ->
-            handle(WebSocketMessageType.READY) {
-                if (resumed) return@handle
-                resumed = true
-                continuation.resume(Unit)
-            }
-            handle(WebSocketMessageType.NOT_FOUND) {
-                if (resumed) return@handle
-                resumed = true
-                continuation.resumeWithException(IllegalArgumentException("Invalid token"))
-            }
+    private suspend fun WebSocketSession.sendPings() {
+        while (open) {
+            send(PING_JSON)
+            delay(PING_INTERVAL)
         }
     }
 
@@ -196,17 +221,11 @@ class RevoltWebSocketClient(
             }
         }
     }
-
-    private suspend fun WebSocketSession.sendPings() {
-        while (open) {
-            send(PING_JSON)
-            delay(PING_INTERVAL)
-        }
-    }
 }
 
 @Serializable
 private data class ReadyBody(
     @SerialName("servers")
-    val guilds: List<RevoltGuildResponse>
+    val guilds: List<RevoltGuildResponse>,
+    val channels: List<RevoltChannelResponse>,
 )

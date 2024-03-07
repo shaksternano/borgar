@@ -10,4 +10,6 @@ enum class WebSocketMessageType(
     SERVER_CREATE("ServerCreate"),
     SERVER_DELETE("ServerDelete"),
     SERVER_MEMBER_LEAVE("ServerMemberLeave"),
+    CHANNEL_CREATE("ChannelCreate"),
+    CHANNEL_GROUP_LEAVE("ChannelGroupLeave"),
 }
