@@ -5,7 +5,7 @@ import io.github.shaksternano.borgar.chat.entity.channel.Channel
 
 interface PermissionHolder : Entity {
 
-    suspend fun hasPermission(permissions: Iterable<Permission>): Boolean
+    suspend fun hasPermission(permissions: Set<Permission>): Boolean
 
-    suspend fun hasPermission(permissions: Iterable<Permission>, channel: Channel): Boolean
+    suspend fun hasPermission(permissions: Set<Permission>, channel: Channel): Boolean
 }

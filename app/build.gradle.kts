@@ -6,6 +6,7 @@ base.archivesName.set("borgar")
 
 dependencies {
     api(project(":discord"))
+    api(project(":revolt"))
 
     testImplementation(kotlin("test"))
 }

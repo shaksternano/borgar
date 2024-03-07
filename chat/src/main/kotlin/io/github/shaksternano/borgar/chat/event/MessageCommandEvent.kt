@@ -14,8 +14,9 @@ data class MessageCommandEvent(
     private val event: MessageReceiveEvent,
 ) : CommandEvent {
 
-    override val id: String = event.messageId
     override val manager: BotManager = event.manager
+    override val id: String = event.messageId
+    override val authorId: String = event.authorId
     override val timeCreated: OffsetDateTime = event.message.timeCreated
     override val referencedMessages: Flow<Message> = event.message.referencedMessages
     override var ephemeralReply: Boolean = false
@@ -33,28 +34,27 @@ data class MessageCommandEvent(
 
     override suspend fun reply(response: CommandResponse): Message = event.getChannel().createMessage {
         fromCommandResponse(response)
-        referencedMessageId = if (replied) {
-            null
-        } else {
+        if (!replied) {
             replied = true
-            event.messageId
+            referencedMessageIds.add(event.messageId)
         }
     }
 
     override fun asMessageIntersection(arguments: CommandArguments): CommandMessageIntersection =
         object : CommandMessageIntersection {
-            override val id: String = this@MessageCommandEvent.id
             override val manager: BotManager = this@MessageCommandEvent.manager
+            override val id: String = this@MessageCommandEvent.id
+            override val authorId: String = this@MessageCommandEvent.authorId
             override val content: String = arguments.getDefaultStringOrEmpty()
             override val attachments: List<Attachment> = event.message.attachments
             override val embeds: List<MessageEmbed> = event.message.embeds
-            override val customEmojis: List<CustomEmoji> = event.message.customEmojis
-            override val stickers: List<Sticker> = event.message.stickers
+            override val customEmojis: Flow<CustomEmoji> = event.message.customEmojis
+            override val stickers: Flow<Sticker> = event.message.stickers
             override val referencedMessages: Flow<Message> = this@MessageCommandEvent.referencedMessages
 
             override suspend fun getAuthor(): User = this@MessageCommandEvent.getAuthor()
 
-            override suspend fun getMember(): Member? = this@MessageCommandEvent.getAuthorMember()
+            override suspend fun getAuthorMember(): Member? = this@MessageCommandEvent.getAuthorMember()
 
             override suspend fun getChannel(): MessageChannel = this@MessageCommandEvent.getChannel()
 

@@ -10,6 +10,6 @@ interface Channel : Mentionable {
     suspend fun getGuild(): Guild?
 
     suspend fun getMaxFileSize(): Long {
-        return getGuild()?.getMaxFileSize() ?: manager.maxFileSize
+        return getGuild()?.maxFileSize ?: manager.maxFileSize
     }
 }

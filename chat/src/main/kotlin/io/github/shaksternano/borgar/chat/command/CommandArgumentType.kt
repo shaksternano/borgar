@@ -1,6 +1,7 @@
 package io.github.shaksternano.borgar.chat.command
 
 import io.github.shaksternano.borgar.chat.entity.Message
+import io.github.shaksternano.borgar.core.collect.plus
 import io.github.shaksternano.borgar.core.util.Displayed
 import kotlinx.coroutines.flow.firstOrNull
 import kotlin.reflect.KClass
@@ -86,15 +87,15 @@ sealed interface CommandArgumentType<T> {
             }
     }
 
-    data object Mentionable : SimpleCommandArgumentType<io.github.shaksternano.borgar.chat.entity.Mentionable> {
+    data object Mentionable : SuspendingCommandArgumentType<io.github.shaksternano.borgar.chat.entity.Mentionable> {
 
         override val name: kotlin.String = "mentionable"
 
-        override fun parse(
+        override suspend fun parse(
             value: kotlin.String,
             message: Message
         ): io.github.shaksternano.borgar.chat.entity.Mentionable? {
-            val mentions = message.mentionedUserIds + message.mentionedChannelIds + message.mentionedRoleIds
+            val mentions = message.mentionedUsers + message.mentionedChannels + message.mentionedRoles
             return mentions.firstOrNull {
                 value == it.asMention || value == it.asBasicMention
             }

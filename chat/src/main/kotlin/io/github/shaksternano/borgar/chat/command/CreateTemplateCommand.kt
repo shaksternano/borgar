@@ -11,6 +11,7 @@ import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.core.media.createAudioReader
 import io.github.shaksternano.borgar.core.media.createImageReader
 import io.github.shaksternano.borgar.core.media.template.CustomTemplate
+import io.github.shaksternano.borgar.core.util.ChannelEnvironment
 import io.github.shaksternano.borgar.core.util.asSingletonList
 import io.github.shaksternano.borgar.core.util.splitCamelCase
 import io.ktor.client.request.*
@@ -65,6 +66,10 @@ object CreateTemplateCommand : NonChainableCommand() {
         }
         val guild = event.getGuild()
         val entityId = guild?.id ?: event.getAuthor().id
+        val platform = event.manager.platform
+        val environment =
+            if (guild == null) ChannelEnvironment.DIRECT_MESSAGE
+            else ChannelEnvironment.GUILD
         return try {
             val commandName = getString(templateJson, "command_name").lowercase()
             if (commandName.isBlank()) {
@@ -80,7 +85,7 @@ object CreateTemplateCommand : NonChainableCommand() {
                 return CommandResponse("A template with the command name **$commandName** already exists!").asSingletonList()
             }
             val template = createTemplate(templateJson, commandName, entityId)
-            TemplateRepository.create(template)
+            TemplateRepository.create(template, platform, environment)
             HelpCommand.removeCachedMessage(entityId)
             guild?.addCommand(TemplateCommand(template))
             CommandResponse("Template created!")

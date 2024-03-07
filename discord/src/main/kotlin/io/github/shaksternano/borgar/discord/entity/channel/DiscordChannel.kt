@@ -11,7 +11,7 @@ import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
 
 open class DiscordChannel protected constructor(
     internal val discordChannel: net.dv8tion.jda.api.entities.channel.Channel
-) : BaseEntity(), Channel {
+) : Channel, BaseEntity() {
 
     companion object {
         fun create(jdaChannel: net.dv8tion.jda.api.entities.channel.Channel): DiscordChannel = when (jdaChannel) {
@@ -20,11 +20,11 @@ open class DiscordChannel protected constructor(
         }
     }
 
-    override val id: String = discordChannel.id
     override val manager: BotManager = DiscordManager[discordChannel.jda]
+    override val id: String = discordChannel.id
+    override val name: String = discordChannel.name
     override val asMention: String = discordChannel.asMention
     override val asBasicMention: String = "#${discordChannel.name}"
-    override val name: String = discordChannel.name
 
     override suspend fun getGuild(): Guild? {
         return if (discordChannel is GuildChannel) {

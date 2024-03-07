@@ -144,7 +144,7 @@ private data class FileExecutable(
     private suspend fun getFileUrl(arguments: CommandArguments, event: CommandEvent, task: FileTask): UrlInfo? {
         arguments.getDefaultAttachment()?.let {
             return UrlInfo(
-                it.proxyUrl,
+                it.url,
                 it.filename,
                 false,
             )

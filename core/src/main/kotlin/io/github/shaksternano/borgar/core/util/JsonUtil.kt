@@ -1,9 +1,12 @@
 package io.github.shaksternano.borgar.core.util
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 
 val JSON: Json = Json {
+    @OptIn(ExperimentalSerializationApi::class)
+    explicitNulls = false
     ignoreUnknownKeys = true
     prettyPrint = true
 }

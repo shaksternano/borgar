@@ -5,6 +5,7 @@ import io.github.shaksternano.borgar.chat.entity.User
 import io.github.shaksternano.borgar.chat.event.CommandEvent
 import io.github.shaksternano.borgar.chat.exception.MissingArgumentException
 import io.github.shaksternano.borgar.core.io.SuspendCloseable
+import io.github.shaksternano.borgar.core.util.ChannelEnvironment
 import io.github.shaksternano.borgar.core.util.Named
 import io.github.shaksternano.borgar.core.util.asSingletonList
 import io.github.shaksternano.borgar.core.util.startsWithVowel
@@ -20,8 +21,8 @@ interface Command : Named {
     val defaultArgumentKey: String?
         get() = argumentInfo.firstOrNull()?.key
     val chainable: Boolean
-    val guildOnly: Boolean
-        get() = false
+    val environment: Set<ChannelEnvironment>
+        get() = ChannelEnvironment.ALL
     val requiredPermissions: Set<Permission>
         get() = emptySet()
     val deferReply: Boolean
@@ -35,6 +36,11 @@ interface Command : Named {
 
 val Command.nameWithPrefix: String
     get() = COMMAND_PREFIX + name
+
+val Command.guildOnly: Boolean
+    get() = environment.let {
+        it.size == 1 && it.contains(ChannelEnvironment.GUILD)
+    }
 
 interface Executable : SuspendCloseable {
 
@@ -155,7 +161,7 @@ abstract class BaseCommand : Command {
             "description='$description'," +
             "argumentInfo=$argumentInfo," +
             "defaultArgumentKey=$defaultArgumentKey," +
-            "guildOnly=$guildOnly," +
+            "environment=$environment," +
             "requiredPermissions=$requiredPermissions," +
             "entityId=$entityId" +
             ")"

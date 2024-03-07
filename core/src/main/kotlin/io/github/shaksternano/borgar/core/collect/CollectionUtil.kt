@@ -3,6 +3,8 @@ package io.github.shaksternano.borgar.core.collect
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
 fun <T> MutableCollection<in T>.addAll(vararg elements: T): Boolean =
     addAll(elements)
@@ -33,5 +35,14 @@ inline fun <T> forEachNotNull(
     while (value != null) {
         action(value)
         value = supplier()
+    }
+}
+
+operator fun <T> Flow<T>.plus(other: Flow<T>): Flow<T> = flow {
+    collect {
+        emit(it)
+    }
+    other.collect {
+        emit(it)
     }
 }

@@ -5,7 +5,6 @@ import io.github.shaksternano.borgar.chat.builder.MessageEditBuilder
 import io.github.shaksternano.borgar.chat.entity.channel.Channel
 import io.github.shaksternano.borgar.chat.entity.channel.MessageChannel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emptyFlow
 import java.time.OffsetDateTime
 
@@ -18,28 +17,21 @@ data class FakeMessage(
 ) : Message {
 
     override val manager: BotManager = author.manager
+    override val authorId: String = author.id
     override val referencedMessages: Flow<Message> = emptyFlow()
 
-    private val mentionedUsersSet: Set<User> = manager.getMentionedUsers(content).toSet()
-    private val mentionedChannelsSet: Set<Channel> = manager.getMentionedChannels(content).toSet()
-    private val mentionedRolesSet: Set<Role> = manager.getMentionedRoles(content).toSet()
-
-    override val mentionedUsers: Flow<User> = mentionedUsersSet.asFlow()
-    override val mentionedChannels: Flow<Channel> = mentionedChannelsSet.asFlow()
-    override val mentionedRoles: Flow<Role> = mentionedRolesSet.asFlow()
-
-    override val mentionedUserIds: Set<Mentionable> = mentionedUsersSet
-    override val mentionedChannelIds: Set<Mentionable> = mentionedChannelsSet
-    override val mentionedRoleIds: Set<Mentionable> = mentionedRolesSet
+    override val mentionedUsers: Flow<User> = manager.getMentionedUsers(content)
+    override val mentionedChannels: Flow<Channel> = manager.getMentionedChannels(content)
+    override val mentionedRoles: Flow<Role> = manager.getMentionedRoles(content)
 
     override val attachments: List<Attachment> = listOf()
     override val embeds: List<MessageEmbed> = listOf()
-    override val customEmojis: List<CustomEmoji> = manager.getCustomEmojis(content)
-    override val stickers: List<Sticker> = listOf()
+    override val customEmojis: Flow<CustomEmoji> = manager.getCustomEmojis(content)
+    override val stickers: Flow<Sticker> = emptyFlow()
 
     override suspend fun getAuthor(): User = author
 
-    override suspend fun getMember(): Member? = getGuild()?.getMember(author)
+    override suspend fun getAuthorMember(): Member? = getGuild()?.getMember(author)
 
     override suspend fun getChannel(): MessageChannel = channel
 

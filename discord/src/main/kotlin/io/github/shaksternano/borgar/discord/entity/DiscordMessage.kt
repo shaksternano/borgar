@@ -20,19 +20,22 @@ import java.time.OffsetDateTime
 
 data class DiscordMessage(
     private val discordMessage: net.dv8tion.jda.api.entities.Message,
-) : BaseEntity(), Message {
+) : Message, BaseEntity() {
 
-    override val id: String = discordMessage.id
     override val manager: BotManager = DiscordManager[discordMessage.jda]
+    override val id: String = discordMessage.id
+    override val authorId: String = discordMessage.author.id
     override val timeCreated: OffsetDateTime = discordMessage.timeCreated
     override val content: String = discordMessage.contentRaw
     override val attachments: List<Attachment> = discordMessage.attachments.map { it.convert() }
     override val embeds: List<MessageEmbed> = discordMessage.embeds.map { it.convert() }
-    override val customEmojis: List<CustomEmoji> = discordMessage.mentions
+    override val customEmojis: Flow<CustomEmoji> = discordMessage.mentions
         .customEmojis
         .map { DiscordCustomEmoji(it, discordMessage.jda) }
-    override val stickers: List<Sticker> = discordMessage.stickers
+        .asFlow()
+    override val stickers: Flow<Sticker> = discordMessage.stickers
         .map { DiscordSticker(it, discordMessage.jda) }
+        .asFlow()
     override val referencedMessages: Flow<Message> = discordMessage.referencedMessage
         ?.let { flowOf(DiscordMessage(it)) }
         ?: emptyFlow()
@@ -46,30 +49,22 @@ data class DiscordMessage(
         null
     }
 
-    private val mentionedUsersSet: Set<User> = discordMessage.mentions
+    override val mentionedUsers: Flow<User> = discordMessage.mentions
         .users
         .map { DiscordUser(it) }
-        .toSet()
-    private val mentionedChannelsSet: Set<Channel> = discordMessage.mentions
+        .asFlow()
+    override val mentionedChannels: Flow<Channel> = discordMessage.mentions
         .channels
         .map { DiscordChannel.create(it) }
-        .toSet()
-    private val mentionedRolesSet: Set<Role> = discordMessage.mentions
+        .asFlow()
+    override val mentionedRoles: Flow<Role> = discordMessage.mentions
         .roles
         .map { DiscordRole(it) }
-        .toSet()
-
-    override val mentionedUsers: Flow<User> = mentionedUsersSet.asFlow()
-    override val mentionedChannels: Flow<Channel> = mentionedChannelsSet.asFlow()
-    override val mentionedRoles: Flow<Role> = mentionedRolesSet.asFlow()
-
-    override val mentionedUserIds: Set<Mentionable> = mentionedUsersSet
-    override val mentionedChannelIds: Set<Mentionable> = mentionedChannelsSet
-    override val mentionedRoleIds: Set<Mentionable> = mentionedRolesSet
+        .asFlow()
 
     override suspend fun getAuthor(): User = author
 
-    override suspend fun getMember(): Member? = member
+    override suspend fun getAuthorMember(): Member? = member
 
     override suspend fun getChannel(): MessageChannel = channel
 

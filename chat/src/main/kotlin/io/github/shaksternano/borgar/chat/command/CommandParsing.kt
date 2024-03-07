@@ -34,11 +34,13 @@ suspend fun parseAndExecuteCommand(event: MessageReceiveEvent) {
         return
     }
     if (commandConfigs.isEmpty()) return
+    if (commandConfigs.first().command.guildOnly && event.getGuild() == null) return
     val commandEvent = MessageCommandEvent(event)
-    val (responses, executable) = sendTypingUntilDone(event.getChannel()) {
-        executeCommands(commandConfigs, commandEvent)
+    val channel = event.getChannel()
+    sendTypingUntilDone(channel) {
+        val (responses, executable) = executeCommands(commandConfigs, commandEvent)
+        sendResponses(responses, executable, commandEvent)
     }
-    sendResponses(responses, executable, commandEvent)
 }
 
 private suspend fun <T> sendTypingUntilDone(
@@ -56,6 +58,7 @@ private suspend fun <T> sendTypingUntilDone(
     block().also {
         sendTyping = false
         typing.cancel()
+        channel.stopTyping()
     }
 }
 
@@ -67,12 +70,12 @@ suspend inline fun executeCommands(
         val executables = commandConfigs.map {
             val (command, arguments) = it
             val guild = event.getGuild()
-            if (guild == null && command.guildOnly) {
+            if (command.guildOnly && guild == null) {
                 throw GuildOnlyCommandException(command)
             }
             if (guild != null) {
                 val requiredPermissions = command.requiredPermissions
-                val permissionHolder = guild.getMember(event.getAuthor()) ?: guild.getPublicRole()
+                val permissionHolder = guild.getMember(event.getAuthor()) ?: guild.publicRole
                 val hasPermission = permissionHolder.hasPermission(requiredPermissions, event.getChannel())
                 if (!hasPermission) {
                     throw InsufficientPermissionsException(command, requiredPermissions)
@@ -130,6 +133,9 @@ suspend fun sendResponses(
             }
         } catch (t: Throwable) {
             logger.error("Failed to send response", t)
+            runCatching {
+                commandEvent.reply("Error sending response!")
+            }
         } finally {
             response.files.parallelForEach {
                 it.path?.deleteSilently()
@@ -178,7 +184,7 @@ fun handleError(throwable: Throwable, manager: BotManager): String {
                 ) {
                     manager.getPermissionName(it)
                 }
-            }!"
+            }"
 
         is GuildOnlyCommandException ->
             "**${unwrapped.command.nameWithPrefix}** can only be used in a server!"
@@ -203,9 +209,8 @@ fun handleError(throwable: Throwable, manager: BotManager): String {
     }
 }
 
-private suspend fun userDetails(user: User, guild: Guild?): DisplayedUser {
-    return guild?.getMember(user)?.user ?: user
-}
+private suspend fun userDetails(user: User, guild: Guild?): DisplayedUser =
+    guild?.getMember(user) ?: user
 
 suspend fun parseCommands(messageContent: String, message: Message): List<CommandConfig> {
     return parseRawCommands(messageContent)

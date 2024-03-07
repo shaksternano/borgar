@@ -23,7 +23,7 @@ import io.github.shaksternano.borgar.discord.entity.channel.DiscordMessageChanne
 import io.github.shaksternano.borgar.discord.event.DiscordMessageInteractionEvent
 import io.github.shaksternano.borgar.discord.event.DiscordUserInteractionEvent
 import io.github.shaksternano.borgar.discord.event.SlashCommandEvent
-import io.github.shaksternano.borgar.discord.toDiscord
+import io.github.shaksternano.borgar.discord.util.toDiscord
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import net.dv8tion.jda.api.JDA
@@ -112,6 +112,13 @@ private suspend fun executeCommand(
     commandEvent: CommandEvent,
     slashEvent: SlashCommandInteractionEvent,
 ) {
+    if (command.guildOnly && slashEvent.guild == null) {
+        logger.error("Guild only slash command $command used outside of a guild")
+        slashEvent.reply("${command.nameWithPrefix} can only be used in a server!")
+            .setEphemeral(true)
+            .await()
+        return
+    }
     val afterCommands = arguments.getStringOrEmpty(AFTER_COMMANDS_ARGUMENT).let {
         if (it.isBlank()) it
         else if (!it.startsWith(COMMAND_PREFIX)) "$COMMAND_PREFIX$it"

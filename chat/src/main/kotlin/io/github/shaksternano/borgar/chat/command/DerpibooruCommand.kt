@@ -6,7 +6,6 @@ import io.github.shaksternano.borgar.core.io.task.FileTask
 
 class DerpibooruCommand(
     override val name: String,
-    override val aliases: Set<String>,
     override val description: String,
     private val fileCount: Int,
 ) : FileCommand(
@@ -44,16 +43,14 @@ class DerpibooruCommand(
 
     companion object {
         val DERPIBOORU: Command = DerpibooruCommand(
-            name = "derpibooru",
-            aliases = setOf("derpi"),
-            description = "Sends a random image from Derpibooru.",
+            name = "pony",
+            description = "Sends a random pony image.",
             fileCount = 1,
         )
 
         val DERPIBOORU_BOMB: Command = DerpibooruCommand(
-            name = "derpiboorubomb",
-            aliases = setOf("derpibomb"),
-            description = "Sends a bunch of random images from Derpibooru.",
+            name = "ponybomb",
+            description = "Sends a bunch of random pony images.",
             fileCount = 10,
         )
     }

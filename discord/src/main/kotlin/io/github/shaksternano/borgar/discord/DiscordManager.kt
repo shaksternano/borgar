@@ -1,17 +1,23 @@
 package io.github.shaksternano.borgar.discord
 
 import io.github.shaksternano.borgar.chat.BotManager
+import io.github.shaksternano.borgar.chat.ChatPlatform
 import io.github.shaksternano.borgar.chat.command.Permission
 import io.github.shaksternano.borgar.chat.entity.CustomEmoji
 import io.github.shaksternano.borgar.chat.entity.Guild
 import io.github.shaksternano.borgar.chat.entity.Role
 import io.github.shaksternano.borgar.chat.entity.User
 import io.github.shaksternano.borgar.chat.entity.channel.Channel
+import io.github.shaksternano.borgar.chat.registerBotManager
 import io.github.shaksternano.borgar.discord.entity.DiscordCustomEmoji
 import io.github.shaksternano.borgar.discord.entity.DiscordGuild
 import io.github.shaksternano.borgar.discord.entity.DiscordRole
 import io.github.shaksternano.borgar.discord.entity.DiscordUser
 import io.github.shaksternano.borgar.discord.entity.channel.DiscordChannel
+import io.github.shaksternano.borgar.discord.util.toDiscord
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.emptyFlow
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.Mentions
 import net.dv8tion.jda.api.entities.Message
@@ -31,7 +37,9 @@ class DiscordManager(
 
         suspend fun create(jda: JDA) {
             val ownerId = jda.retrieveApplicationInfo().await().owner.id
-            managers[jda] = DiscordManager(jda, ownerId)
+            val manager = DiscordManager(jda, ownerId)
+            managers[jda] = manager
+            registerBotManager(manager)
         }
 
         operator fun get(jda: JDA): BotManager =
@@ -40,10 +48,12 @@ class DiscordManager(
             }
     }
 
+    override val platform: String = ChatPlatform.DISCORD
+    override val selfId: String = jda.selfUser.id
     override val maxMessageContentLength: Int = Message.MAX_CONTENT_LENGTH
     override val maxFileSize: Long = Message.MAX_FILE_SIZE.toLong()
     override val maxFilesPerMessage: Int = Message.MAX_FILE_AMOUNT
-    override val emojiTypedPattern: Regex = ":[A-Za-z0-9]+:".toRegex()
+    override val emojiTypedRegex: Regex = ":[A-Za-z0-9]+:".toRegex()
     override val typingDuration: Duration = 5.seconds
 
     override suspend fun getSelf(): User =
@@ -68,21 +78,21 @@ class DiscordManager(
         DataArray.empty(),
     )
 
-    override fun getCustomEmojis(content: String): List<CustomEmoji> =
-        if (content.isBlank()) emptyList()
-        else getMentions(content).customEmojis.map { DiscordCustomEmoji(it, jda) }
+    override fun getCustomEmojis(content: String): Flow<CustomEmoji> =
+        if (content.isBlank()) emptyFlow()
+        else getMentions(content).customEmojis.map { DiscordCustomEmoji(it, jda) }.asFlow()
 
-    override fun getMentionedUsers(content: String): List<User> =
-        if (content.isBlank()) emptyList()
-        else getMentions(content).users.map { DiscordUser(it) }
+    override fun getMentionedUsers(content: String): Flow<User> =
+        if (content.isBlank()) emptyFlow()
+        else getMentions(content).users.map { DiscordUser(it) }.asFlow()
 
-    override fun getMentionedChannels(content: String): List<Channel> =
-        if (content.isBlank()) emptyList()
-        else getMentions(content).channels.map { DiscordChannel.create(it) }
+    override fun getMentionedChannels(content: String): Flow<Channel> =
+        if (content.isBlank()) emptyFlow()
+        else getMentions(content).channels.map { DiscordChannel.create(it) }.asFlow()
 
-    override fun getMentionedRoles(content: String): List<Role> =
-        if (content.isBlank()) emptyList()
-        else getMentions(content).roles.map { DiscordRole(it) }
+    override fun getMentionedRoles(content: String): Flow<Role> =
+        if (content.isBlank()) emptyFlow()
+        else getMentions(content).roles.map { DiscordRole(it) }.asFlow()
 
     override fun getEmojiName(typedEmoji: String): String = typedEmoji.removeSurrounding(":")
 

@@ -4,6 +4,7 @@ import io.github.shaksternano.borgar.core.graphics.ContentPosition
 import io.github.shaksternano.borgar.core.graphics.TextAlignment
 import io.github.shaksternano.borgar.core.io.deleteSilently
 import io.github.shaksternano.borgar.core.media.template.CustomTemplate
+import io.github.shaksternano.borgar.core.util.ChannelEnvironment
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.statements.UpdateBuilder
@@ -18,10 +19,14 @@ object TemplateRepository : Repository<TemplateTable>() {
 
     override fun table(): TemplateTable = TemplateTable
 
-    suspend fun create(template: CustomTemplate) {
+    suspend fun create(
+        template: CustomTemplate,
+        platform: String,
+        environment: ChannelEnvironment,
+    ) {
         dbQuery {
             insert {
-                it.write(template)
+                it.write(template, platform, environment)
             }
         }
     }
@@ -88,9 +93,16 @@ object TemplateRepository : Repository<TemplateTable>() {
         this[TemplateTable.fillColor]?.let { Color(it) },
     )
 
-    private fun UpdateBuilder<*>.write(template: CustomTemplate) {
+    private fun UpdateBuilder<*>.write(
+        template: CustomTemplate,
+        platform: String,
+        environment: ChannelEnvironment,
+    ) {
         this[TemplateTable.commandName] = template.commandName
         this[TemplateTable.entityId] = template.entityId
+
+        this[TemplateTable.platform] = platform
+        this[TemplateTable.environment] = environment.displayName
 
         this[TemplateTable.description] = template.description
         this[TemplateTable.mediaPath] = template.mediaPath.toString()
@@ -120,9 +132,11 @@ object TemplateRepository : Repository<TemplateTable>() {
 
 object TemplateTable : Table(name = "template") {
     val commandName = varchar("command_name", TemplateRepository.COMMAND_NAME_MAX_LENGTH)
-
     // Either a guild ID or a user ID (for DMs)
     val entityId = varchar("entity_id", 50)
+
+    val platform = varchar("platform", 20)
+    val environment = varchar("channel_environment", 50)
 
     val description = varchar("description", TemplateRepository.COMMAND_DESCRIPTION_MAX_LENGTH)
     val mediaPath = varchar("media_path", 100)

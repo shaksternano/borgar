@@ -7,9 +7,9 @@ import io.github.shaksternano.borgar.core.util.retrieveTenorMediaUrl
 
 data class MessageEmbed(
     val url: String?,
-    val image: ImageInfo?,
-    val video: VideoInfo?,
-    val thumbnail: ThumbnailInfo?,
+    val image: ImageInfo? = null,
+    val video: VideoInfo? = null,
+    val thumbnail: ThumbnailInfo? = null,
 ) {
 
     data class ImageInfo(

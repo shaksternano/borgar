@@ -14,10 +14,11 @@ class MessageReceiveEvent(
 
     override val manager: BotManager = message.manager
     val messageId = message.id
+    val authorId = message.authorId
 
     suspend fun getAuthor(): User = message.getAuthor()
 
-    suspend fun getAuthorMember(): Member? = message.getMember()
+    suspend fun getAuthorMember(): Member? = message.getAuthorMember()
 
     suspend fun getChannel(): MessageChannel = message.getChannel()
 

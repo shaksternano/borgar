@@ -9,13 +9,13 @@ class ChangeExtensionTask(
 ) : MappedFileTask() {
 
     override suspend fun process(input: DataSource): DataSource {
-        if (input.fileExtension() == newExtension && !input.sendUrl && input.url != null) {
+        if (input.fileExtension == newExtension && !input.sendUrl && input.url != null) {
             return input.withSendUrl(true)
         }
         if (input.size() > maxFileSize) {
             throw ErrorResponseException("File is too large! (Max: ${toMb(maxFileSize)}MB)")
         }
-        val filenameWithoutExtension = input.filenameWithoutExtension()
+        val filenameWithoutExtension = input.filenameWithoutExtension
         val newFilename = filename(filenameWithoutExtension, newExtension)
         return input.rename(newFilename)
     }

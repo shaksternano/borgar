@@ -8,11 +8,11 @@ import io.github.shaksternano.borgar.core.io.UrlDataSource
 data class Attachment(
     override val id: String,
     val url: String,
-    val proxyUrl: String,
+    val proxyUrl: String?,
     val filename: String,
     override val manager: BotManager,
     val ephemeral: Boolean = false,
 ) : BaseEntity(), DataSourceConvertable {
 
-    override fun asDataSource(): UrlDataSource = DataSource.fromUrl(proxyUrl, filename)
+    override fun asDataSource(): UrlDataSource = DataSource.fromUrl(url, filename)
 }

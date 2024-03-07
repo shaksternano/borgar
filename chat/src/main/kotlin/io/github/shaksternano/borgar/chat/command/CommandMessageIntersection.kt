@@ -6,16 +6,17 @@ import kotlinx.coroutines.flow.Flow
 
 interface CommandMessageIntersection : Entity {
 
+    val authorId: String
     val content: String
     val attachments: List<Attachment>
     val embeds: List<MessageEmbed>
-    val customEmojis: List<CustomEmoji>
-    val stickers: List<Sticker>
+    val customEmojis: Flow<CustomEmoji>
+    val stickers: Flow<Sticker>
     val referencedMessages: Flow<Message>
 
     suspend fun getAuthor(): User
 
-    suspend fun getMember(): Member?
+    suspend fun getAuthorMember(): Member?
 
     suspend fun getChannel(): MessageChannel
 

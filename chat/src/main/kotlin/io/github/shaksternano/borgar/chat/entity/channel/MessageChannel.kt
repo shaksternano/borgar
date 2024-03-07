@@ -8,6 +8,10 @@ interface MessageChannel : Channel {
 
     suspend fun sendTyping()
 
+    suspend fun sendCancellableyping() = Unit
+
+    suspend fun stopTyping()
+
     suspend fun createMessage(content: String): Message = createMessage {
         this.content = content
     }

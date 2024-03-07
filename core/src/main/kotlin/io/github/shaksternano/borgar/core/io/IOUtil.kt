@@ -3,19 +3,23 @@ package io.github.shaksternano.borgar.core.io
 import com.google.common.io.Closer
 import com.google.common.io.Files
 import io.github.shaksternano.borgar.core.media.mediaFormat
+import io.github.shaksternano.borgar.core.util.JSON
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
+import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.utils.io.core.*
+import io.ktor.utils.io.errors.*
+import io.ktor.utils.io.jvm.javaio.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
 import org.apache.commons.io.FileUtils
 import org.reflections.Reflections
 import org.reflections.scanners.Scanners
@@ -93,9 +97,7 @@ fun httpClient(block: HttpClientConfig<*>.() -> Unit = {}): HttpClient = HttpCli
 
 fun configuredHttpClient(): HttpClient = httpClient {
     install(ContentNegotiation) {
-        json(Json {
-            ignoreUnknownKeys = true
-        })
+        json(JSON)
     }
     install(HttpRequestRetry) {
         maxRetries = 3
@@ -110,7 +112,12 @@ fun configuredHttpClient(): HttpClient = httpClient {
 }
 
 inline fun <T> useHttpClient(block: (HttpClient) -> T): T =
-    configuredHttpClient().use(block)
+    configuredHttpClient().runCatching {
+        use(block)
+    }.getOrElse {
+        // Wrap exception because HttpClient errors don't have helpful stack traces
+        throw IOException("Error using HttpClient", it)
+    }
 
 suspend inline fun <reified T> httpGet(url: String): T = useHttpClient {
     it.get(url).body<T>()
@@ -192,7 +199,24 @@ suspend fun DataSource.fileFormat(): String {
     val mediaFormat = runCatching {
         path?.let { mediaFormat(it) } ?: mediaFormat(newStream())
     }.getOrNull()
-    return mediaFormat ?: fileExtension()
+    return mediaFormat ?: fileExtension
+}
+
+suspend fun DataSource.toChannelProvider(): ChannelProvider {
+    val size = runCatching { size() }.getOrNull()
+    return ChannelProvider(size) {
+        val url = url
+        if (path == null && url != null) {
+            useHttpClient { client ->
+                runBlocking {
+                    val response = client.get(url)
+                    response.bodyAsChannel()
+                }
+            }
+        } else {
+            newStreamBlocking().toByteReadChannel()
+        }
+    }
 }
 
 fun removeQueryParams(url: String): String =
@@ -216,9 +240,11 @@ fun filenameWithoutExtension(fileName: String): String =
 fun fileExtension(fileName: String): String =
     Files.getFileExtension(removeQueryParams(fileName))
 
-fun DataSource.filenameWithoutExtension(): String = filenameWithoutExtension(filename)
+val DataSource.filenameWithoutExtension: String
+    get() = filenameWithoutExtension(filename)
 
-fun DataSource.fileExtension(): String = fileExtension(filename)
+val DataSource.fileExtension: String
+    get() = fileExtension(filename)
 
 fun toMb(bytes: Long): Long =
     bytes / 1024 / 1024

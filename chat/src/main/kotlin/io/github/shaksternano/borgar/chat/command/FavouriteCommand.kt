@@ -55,7 +55,7 @@ object FavouriteCommand : NonChainableCommand() {
             return CommandResponse("This is already a GIF file!").asSingletonList()
         val dataSource = DataSource.fromUrl(downloadUrl)
         if (fileExtension.equalsAnyIgnoreCase("png", "jpg", "jpeg", "webp")) {
-            val maxFileSize = event.getGuild()?.getMaxFileSize() ?: event.manager.maxFileSize
+            val maxFileSize = event.getGuild()?.maxFileSize ?: event.manager.maxFileSize
             if (dataSource.size() > maxFileSize) {
                 throw ErrorResponseException("File is too large! (Max: ${toMb(maxFileSize)}MB)")
             }
@@ -84,7 +84,8 @@ object FavouriteCommand : NonChainableCommand() {
             return
         }
         val url = responseData.url
-        val aliasUrl = removeQueryParams(attachments.first().proxyUrl)
+        val attachment = attachments.first()
+        val aliasUrl = removeQueryParams(attachment.proxyUrl ?: attachment.url)
         runCatching {
             SavedUrlRepository.createAlias(url, aliasUrl)
         }.getOrElse {
@@ -103,7 +104,7 @@ object FavouriteCommand : NonChainableCommand() {
         if (aliasUrl != null) {
             return CommandResponse(aliasUrl)
         }
-        val maxSize = event.getGuild()?.getMaxFileSize() ?: event.manager.maxFileSize
+        val maxSize = event.getGuild()?.maxFileSize ?: event.manager.maxFileSize
         val aliasGif = createAliasGif(dataSource, event, maxSize)
         if (aliasGif.size() > maxSize) {
             aliasGif.path.deleteSilently()

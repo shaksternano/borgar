@@ -8,5 +8,6 @@ include(
     "chat",
     "core",
     "discord",
+    "revolt",
     "scripts",
 )

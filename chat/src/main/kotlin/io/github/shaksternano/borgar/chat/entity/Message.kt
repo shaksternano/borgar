@@ -12,17 +12,13 @@ interface Message : CommandMessageIntersection, TimeStamped {
     val mentionedChannels: Flow<Channel>
     val mentionedRoles: Flow<Role>
 
-    val mentionedUserIds: Set<Mentionable>
-    val mentionedChannelIds: Set<Mentionable>
-    val mentionedRoleIds: Set<Mentionable>
-
     suspend fun reply(content: String): Message = reply {
         this.content = content
     }
 
     suspend fun reply(block: MessageCreateBuilder.() -> Unit): Message = getChannel().createMessage {
         block()
-        referencedMessageId = id
+        referencedMessageIds.add(id)
     }
 
     suspend fun edit(content: String): Message = edit {

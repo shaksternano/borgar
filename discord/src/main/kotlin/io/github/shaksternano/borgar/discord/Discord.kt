@@ -37,7 +37,7 @@ suspend fun initDiscord(token: String) {
     }
     DiscordManager.create(jda)
     jda.listener<MessageReceivedEvent> {
-        handleMessageEvent(it)
+        onMessageReceived(it.convert())
     }
     jda.presence.activity = Activity.playing(BOT_STATUS)
     coroutineScope {
@@ -59,13 +59,6 @@ suspend fun initDiscord(token: String) {
     }
 }
 
-private suspend fun handleMessageEvent(event: MessageReceivedEvent) =
-    runCatching {
-        onMessageReceived(event.convert())
-    }.onFailure {
-        logger.error("Error while handling message event", it)
-    }
-
 fun MessageReceivedEvent.convert(): MessageReceiveEvent {
     val message = DiscordMessage(message)
     return MessageReceiveEvent(message)
@@ -78,8 +71,11 @@ fun DataSource.toFileUpload(): FileUpload =
 
 private suspend fun JDA.awaitReadySuspend() {
     if (status == JDA.Status.CONNECTED) return
+    var resumed = false
     suspendCoroutine { continuation ->
         listener<ReadyEvent> {
+            if (resumed) return@listener
+            resumed = true
             continuation.resume(Unit)
         }
     }
@@ -117,11 +113,11 @@ suspend fun <T> RestAction<T>.await(): T = submit().await()
  */
 fun <T, M : PaginationAction<T, M>> M.asFlow(): Flow<T> = flow {
     cache(false)
-    val queue = ArrayDeque(await())
-    while (queue.isNotEmpty()) {
-        while (queue.isNotEmpty()) {
-            emit(queue.removeFirst())
+    var elements = await()
+    while (elements.isNotEmpty()) {
+        elements.forEach {
+            emit(it)
         }
-        queue.addAll(await())
+        elements = await()
     }
 }

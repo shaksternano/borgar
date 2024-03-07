@@ -23,11 +23,13 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateData
 
 data class DiscordMessageChannel(
     private val discordMessageChannel: net.dv8tion.jda.api.entities.channel.middleman.MessageChannel,
-) : DiscordChannel(discordMessageChannel), MessageChannel {
+) : MessageChannel, DiscordChannel(discordMessageChannel) {
 
     override suspend fun sendTyping() {
         discordMessageChannel.sendTyping().await()
     }
+
+    override suspend fun stopTyping() = Unit
 
     override suspend fun createMessage(block: MessageCreateBuilder.() -> Unit): Message {
         val builder = MessageCreateBuilder().apply(block)
@@ -41,7 +43,7 @@ data class DiscordMessageChannel(
 
     private suspend fun sendStandardMessage(messageBuilder: MessageCreateBuilder): net.dv8tion.jda.api.entities.Message =
         discordMessageChannel.sendMessage(messageBuilder.convert())
-            .setMessageReference(messageBuilder.referencedMessageId)
+            .setMessageReference(messageBuilder.referencedMessageIds.firstOrNull())
             .setSuppressEmbeds(messageBuilder.suppressEmbeds)
             .await()
 
