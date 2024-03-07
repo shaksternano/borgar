@@ -34,8 +34,8 @@ data class RevoltMessage(
 ) : Message, BaseEntity() {
 
     init {
-        if (author == null && authorId == SYSTEM_USER_ID) {
-            author = RevoltSystemUser(manager)
+        if (author == null && authorId == RevoltUser.SYSTEM_ID) {
+            author = RevoltUser.system(manager)
         }
     }
 
