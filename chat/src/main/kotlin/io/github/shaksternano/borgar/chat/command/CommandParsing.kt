@@ -18,10 +18,7 @@ import io.github.shaksternano.borgar.core.data.repository.TemplateRepository
 import io.github.shaksternano.borgar.core.exception.ErrorResponseException
 import io.github.shaksternano.borgar.core.io.deleteSilently
 import io.github.shaksternano.borgar.core.logger
-import io.github.shaksternano.borgar.core.util.ChannelEnvironment
-import io.github.shaksternano.borgar.core.util.endOfWord
-import io.github.shaksternano.borgar.core.util.indicesOfPrefix
-import io.github.shaksternano.borgar.core.util.split
+import io.github.shaksternano.borgar.core.util.*
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.fold
@@ -201,8 +198,14 @@ fun handleError(throwable: Throwable, manager: BotManager): String {
                 }
             }"
 
-        is IncorrectChannelEnvironmentException ->
-            "**${unwrapped.command.nameWithPrefix}** cannot be used in a ${unwrapped.environment.displayName}!"
+        is IncorrectChannelEnvironmentException -> {
+            var message = "**${unwrapped.command.nameWithPrefix}** cannot be used in a"
+            val environmentDisplayName = unwrapped.environment.displayName.lowercase()
+            if (environmentDisplayName.startsWithVowel()) {
+                message += "n"
+            }
+            "$message $environmentDisplayName!"
+        }
 
         is OutOfMemoryError -> OUT_OF_MEMORY_ERROR_MESSAGE
 
