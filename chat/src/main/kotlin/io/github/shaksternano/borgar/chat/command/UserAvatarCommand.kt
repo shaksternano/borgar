@@ -13,10 +13,11 @@ object UserAvatarCommand : FileCommand(
     ),
     CommandArgumentInfo(
         key = "server",
+        aliases = setOf("s"),
         description = "Whether to get the avatar from the server profile or not.",
         type = CommandArgumentType.Boolean,
         required = false,
-        defaultValue = true,
+        defaultValue = false,
     ),
     inputRequirement = InputRequirement.None,
 ) {
