@@ -84,7 +84,13 @@ object CreateTemplateCommand : NonChainableCommand() {
             if (TemplateRepository.exists(commandName, entityId)) {
                 return CommandResponse("A template with the command name **$commandName** already exists!").asSingletonList()
             }
-            val template = createTemplate(templateJson, commandName, entityId)
+            val template = createTemplate(
+                templateJson,
+                commandName,
+                entityId,
+                platform,
+                environment,
+            )
             TemplateRepository.create(template, platform, environment)
             HelpCommand.removeCachedMessage(entityId)
             guild?.addCommand(TemplateCommand(template))
@@ -114,6 +120,8 @@ object CreateTemplateCommand : NonChainableCommand() {
         templateJson: JsonObject,
         commandName: String,
         entityId: String,
+        platform: String,
+        environment: ChannelEnvironment,
     ): CustomTemplate {
         val description = getString(templateJson, "description") {
             "A custom template."
@@ -224,7 +232,13 @@ object CreateTemplateCommand : NonChainableCommand() {
         }
         val fillColor = runCatching { getColor(templateJson, "fill_color") }.getOrDefault(null)
 
-        val mediaPath = downloadMedia(mediaUrl, commandName, entityId)
+        val mediaPath = downloadMedia(
+            mediaUrl,
+            commandName,
+            entityId,
+            platform,
+            environment,
+        )
 
         return CustomTemplate(
             commandName,
@@ -267,7 +281,13 @@ object CreateTemplateCommand : NonChainableCommand() {
         }
     }
 
-    private suspend fun downloadMedia(mediaUrl: String, commandName: String, entityId: String): Path =
+    private suspend fun downloadMedia(
+        mediaUrl: String,
+        commandName: String,
+        entityId: String,
+        platform: String,
+        environment: ChannelEnvironment,
+    ): Path =
         useHttpClient { client ->
             val response = runCatching {
                 client.get(mediaUrl)
@@ -299,7 +319,12 @@ object CreateTemplateCommand : NonChainableCommand() {
                 withContext(Dispatchers.IO) {
                     path.createDirectories()
                 }
-                path.resolve("${entityId}_$commandName.$fileFormat")
+                path.resolve(
+                    platform.lowercase() +
+                        "_${environment.displayName.lowercase()}" +
+                        "_${entityId}" +
+                        "_$commandName.$fileFormat"
+                )
             }.getOrElse { t ->
                 throw InvalidTemplateException("Command name $commandName is not allowed!", t)
             }.also { mediaPath ->
