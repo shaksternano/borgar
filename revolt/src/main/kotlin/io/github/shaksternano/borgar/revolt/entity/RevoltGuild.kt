@@ -5,6 +5,7 @@ import io.github.shaksternano.borgar.chat.entity.BaseEntity
 import io.github.shaksternano.borgar.chat.entity.CustomEmoji
 import io.github.shaksternano.borgar.chat.entity.Guild
 import io.github.shaksternano.borgar.chat.entity.User
+import io.github.shaksternano.borgar.core.util.replaceUrlSpaces
 import io.github.shaksternano.borgar.revolt.RevoltManager
 import io.github.shaksternano.borgar.revolt.util.RevoltPermissionValue
 import kotlinx.coroutines.flow.Flow
@@ -91,7 +92,7 @@ data class RevoltIconBody(
 ) {
 
     fun getUrl(manager: RevoltManager): String =
-        "${manager.cdnDomain}/icons/$id/$filename"
+        "${manager.cdnDomain}/icons/$id/${filename.replaceUrlSpaces()}"
 }
 
 @Serializable
@@ -102,5 +103,5 @@ data class RevoltBannerBody(
 ) {
 
     fun getUrl(manager: RevoltManager): String =
-        "${manager.cdnDomain}/banners/$id/$filename"
+        "${manager.cdnDomain}/banners/$id/${filename.replaceUrlSpaces()}"
 }

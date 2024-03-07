@@ -87,3 +87,6 @@ fun parseTags(tags: String): Set<String> {
         }
         .toSet()
 }
+
+fun String.replaceUrlSpaces(): String =
+    replace(" ", "%20")

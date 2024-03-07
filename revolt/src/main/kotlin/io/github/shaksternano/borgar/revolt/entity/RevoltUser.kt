@@ -2,6 +2,7 @@ package io.github.shaksternano.borgar.revolt.entity
 
 import io.github.shaksternano.borgar.chat.entity.BaseEntity
 import io.github.shaksternano.borgar.chat.entity.User
+import io.github.shaksternano.borgar.core.util.replaceUrlSpaces
 import io.github.shaksternano.borgar.revolt.RevoltManager
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -68,7 +69,7 @@ data class RevoltAvatarBody(
 ) {
 
     fun getUrl(manager: RevoltManager): String =
-        "${manager.cdnDomain}/avatars/$id/$filename"
+        "${manager.cdnDomain}/avatars/$id/${filename.replaceUrlSpaces()}"
 }
 
 @Serializable
