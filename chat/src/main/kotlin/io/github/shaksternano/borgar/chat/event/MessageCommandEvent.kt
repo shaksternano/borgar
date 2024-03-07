@@ -7,6 +7,7 @@ import io.github.shaksternano.borgar.chat.command.CommandResponse
 import io.github.shaksternano.borgar.chat.command.getDefaultStringOrEmpty
 import io.github.shaksternano.borgar.chat.entity.*
 import io.github.shaksternano.borgar.chat.entity.channel.MessageChannel
+import io.github.shaksternano.borgar.core.util.ChannelEnvironment
 import kotlinx.coroutines.flow.Flow
 import java.time.OffsetDateTime
 
@@ -28,7 +29,11 @@ data class MessageCommandEvent(
 
     override suspend fun getChannel(): MessageChannel = event.getChannel()
 
+    override suspend fun getEnvironment(): ChannelEnvironment = event.getEnvironment()
+
     override suspend fun getGuild(): Guild? = event.getGuild()
+
+    override suspend fun getGroup(): Group? = event.getGroup()
 
     override suspend fun deferReply() = Unit
 
@@ -59,5 +64,7 @@ data class MessageCommandEvent(
             override suspend fun getChannel(): MessageChannel = this@MessageCommandEvent.getChannel()
 
             override suspend fun getGuild(): Guild? = this@MessageCommandEvent.getGuild()
+
+            override suspend fun getGroup(): Group? = this@MessageCommandEvent.getGroup()
         }
 }

@@ -6,7 +6,6 @@ import io.github.shaksternano.borgar.chat.entity.channel.Channel
 import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.core.util.JSON
 import io.github.shaksternano.borgar.revolt.RevoltManager
-import io.github.shaksternano.borgar.revolt.entity.channel.RevoltChannelResponse
 import io.github.shaksternano.borgar.revolt.entity.channel.RevoltMessageChannel
 import io.ktor.http.*
 import kotlinx.coroutines.flow.Flow
@@ -104,24 +103,19 @@ data class RevoltMessage(
 
     override suspend fun getChannel(): RevoltMessageChannel {
         if (::channel.isInitialized) return channel
-        return runCatching {
-            manager.request<RevoltChannelResponse>("/channels/$channelId")
-        }.getOrElse {
-            throw IllegalStateException("Channel $channelId not found", it)
-        }.let { body ->
-            val user = body.userId?.let { manager.getUser(it) }
-            val channel = body.convert(manager, user)
-            if (channel !is RevoltMessageChannel) {
-                error("Channel $channelId is not a message channel")
-            }
-            channel.also {
-                this.channel = it
-            }
+        val channel = manager.getChannel(channelId) ?: error("Channel $channelId not found")
+        if (channel !is RevoltMessageChannel) {
+            error("Channel $channelId is not a message channel, but a ${channel.type.apiName}")
         }
+        this.channel = channel
+        return channel
     }
 
     override suspend fun getGuild(): RevoltGuild? =
         getChannel().getGuild()
+
+    override suspend fun getGroup(): Group? =
+        getChannel().getGroup()
 }
 
 fun createMessage(body: JsonElement, manager: RevoltManager): RevoltMessage =

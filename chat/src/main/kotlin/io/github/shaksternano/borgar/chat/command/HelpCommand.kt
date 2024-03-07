@@ -4,8 +4,11 @@ import com.google.common.cache.Cache
 import com.google.common.cache.CacheBuilder
 import io.github.shaksternano.borgar.chat.BotManager
 import io.github.shaksternano.borgar.chat.event.CommandEvent
+import io.github.shaksternano.borgar.chat.util.checkEntityIdBelongs
+import io.github.shaksternano.borgar.chat.util.getEntityId
 import io.github.shaksternano.borgar.core.data.repository.TemplateRepository
 import io.github.shaksternano.borgar.core.logger
+import io.github.shaksternano.borgar.core.util.ChannelEnvironment
 import io.github.shaksternano.borgar.core.util.Displayed
 import io.github.shaksternano.borgar.core.util.formatted
 import io.github.shaksternano.borgar.core.util.splitChunks
@@ -32,21 +35,24 @@ object HelpCommand : NonChainableCommand() {
         arguments: CommandArguments,
         event: CommandEvent
     ): List<CommandResponse> {
-        val guild = event.getGuild()
-        val entityId = guild?.id ?: event.getAuthor().id
+        val entityId = event.getEntityId()
         val commandName = arguments.getDefaultStringOrEmpty()
             .removePrefix(COMMAND_PREFIX)
-            .lowercase()
         return if (commandName.isBlank()) {
+            val environment = event.getEnvironment()
             getHelpMessages(
                 entityId,
+                environment,
                 event.manager.maxMessageContentLength,
-                fromGuild = guild != null
             ).map {
                 CommandResponse(it, suppressEmbeds = true)
             }
         } else {
-            val detailedCommandMessage = getDetailedCommandMessage(commandName, entityId, guild != null, event)
+            val detailedCommandMessage = getDetailedCommandMessage(
+                commandName,
+                entityId,
+                event,
+            )
             detailedCommandMessage.splitChunks(event.manager.maxMessageContentLength).map {
                 CommandResponse(it, suppressEmbeds = true)
             }
@@ -56,12 +62,16 @@ object HelpCommand : NonChainableCommand() {
     fun removeCachedMessage(entityId: String) =
         cachedCommandInfos.invalidate(entityId)
 
-    private suspend fun getHelpMessages(entityId: String, maxContentLength: Int, fromGuild: Boolean): List<String> {
+    private suspend fun getHelpMessages(
+        entityId: String,
+        environment: ChannelEnvironment,
+        maxContentLength: Int,
+    ): List<String> {
         val cached = cachedCommandInfos.getIfPresent(entityId)
         if (cached != null) {
             return cached.splitChunks(maxContentLength)
         }
-        val commandInfos = getCommandInfo(entityId, fromGuild)
+        val commandInfos = getCommandInfo(entityId, environment)
         val helpMessage = createHelpMessage(commandInfos)
         cachedCommandInfos.put(entityId, helpMessage)
         return helpMessage.splitChunks(maxContentLength)
@@ -77,9 +87,12 @@ object HelpCommand : NonChainableCommand() {
             "Use **$nameWithPrefix [command]** to get detailed information about a command."
     }
 
-    private suspend fun getCommandInfo(entityId: String, fromGuild: Boolean): List<CommandInfo> = buildList {
+    private suspend fun getCommandInfo(
+        entityId: String,
+        environment: ChannelEnvironment,
+    ): List<CommandInfo> = buildList {
         COMMANDS.values.forEach {
-            if (fromGuild || !it.guildOnly) {
+            if (it.isCorrectEnvironment(environment)) {
                 add(CommandInfo(it.nameWithPrefix, it.description))
             }
         }
@@ -97,32 +110,35 @@ object HelpCommand : NonChainableCommand() {
     private suspend fun getDetailedCommandMessage(
         commandName: String,
         entityId: String,
-        fromGuild: Boolean,
-        event: CommandEvent
+        event: CommandEvent,
     ): String {
         val manager = event.manager
         val command = COMMANDS_AND_ALIASES[commandName] ?: run {
             val entityIdSplit = commandName.split(ENTITY_ID_SEPARATOR, limit = 2)
-            val externalGuild = entityIdSplit.size == 2
-            val (newCommandName, newEntityId) = if (externalGuild) {
-                entityIdSplit[0] to entityIdSplit[1]
-            } else {
+            val (newCommandName, newEntityId) = if (entityIdSplit.size == 1) {
                 commandName to entityId
+            } else {
+                entityIdSplit[0] to entityIdSplit[1]
             }
-            if (externalGuild && fromGuild) {
-                val guild = manager.getGuild(newEntityId)
-                if (guild == null || !guild.isMember(event.getAuthor())) {
-                    return@run null
-                }
+            val template = runCatching {
+                TemplateRepository.read(newCommandName, newEntityId)
+            }.getOrNull() ?: return@run null
+            checkEntityIdBelongs(
+                currentEnvironmentEntityId = entityId,
+                toCheckEntityId = newEntityId,
+                targetEnvironment = template.entityEnvironment,
+                authorId = event.authorId,
+                manager = manager,
+            ) {
+                return@run null
             }
-            runCatching { TemplateRepository.read(newCommandName, newEntityId) }.getOrNull()
-                ?.let { TemplateCommand(it) }
+            TemplateCommand(template)
         } ?: return "Command **$commandName** not found!"
         return "**${command.nameWithPrefix}** - ${command.description}\n" +
             getCommandAliasesMessage(command) +
             getArgumentsMessage(command) +
             getPermissionsMessage(command, manager) +
-            getExtraInfoMessage(command, fromGuild, manager)
+            getExtraInfoMessage(command, manager)
     }
 
     private fun getCommandAliasesMessage(command: Command): String {
@@ -161,9 +177,8 @@ object HelpCommand : NonChainableCommand() {
                 }
             }
 
-            message +=
-                "\n        Description: ${it.description}" +
-                    "\n        Type: ${it.type.name}"
+            message += "\n        Description: ${it.description}"
+            message += "\n        Type: ${it.type.name}"
 
             val type = it.type
             if (type is CommandArgumentType.Enum<*>) {
@@ -196,20 +211,28 @@ object HelpCommand : NonChainableCommand() {
 
     private suspend fun getExtraInfoMessage(
         command: Command,
-        fromGuild: Boolean,
-        manager: BotManager
+        manager: BotManager,
     ): String {
         var extraInfo = ""
         if (command.guildOnly) {
             extraInfo += "\n    Server only"
         }
-        command.entityId?.let {
-            if (fromGuild) {
-                manager.getGuild(it)?.let { guild ->
-                    extraInfo += "\n    From the ${guild.name} server"
-                }
-            } else {
-                extraInfo += "\n    Personal command"
+        val entityId = command.entityId
+        val entityEnvironment = command.entityEnvironment
+        if (entityId != null && entityEnvironment != null) {
+            when (entityEnvironment) {
+                ChannelEnvironment.GUILD ->
+                    manager.getGuild(entityId)?.let { guild ->
+                        extraInfo += "\n    From the ${guild.name} server"
+                    }
+
+                ChannelEnvironment.GROUP ->
+                    manager.getGroup(entityId)?.let { group ->
+                        extraInfo += "\n    From the ${group.name} group"
+                    }
+
+                ChannelEnvironment.DIRECT_MESSAGE ->
+                    extraInfo += "\n    Personal command"
             }
         }
         if (extraInfo.isNotBlank()) {

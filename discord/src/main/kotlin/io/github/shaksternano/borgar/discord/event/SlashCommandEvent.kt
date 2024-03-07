@@ -10,6 +10,7 @@ import io.github.shaksternano.borgar.chat.entity.*
 import io.github.shaksternano.borgar.chat.entity.channel.MessageChannel
 import io.github.shaksternano.borgar.chat.event.CommandEvent
 import io.github.shaksternano.borgar.core.io.DataSource
+import io.github.shaksternano.borgar.core.util.ChannelEnvironment
 import io.github.shaksternano.borgar.discord.DiscordManager
 import io.github.shaksternano.borgar.discord.await
 import io.github.shaksternano.borgar.discord.entity.DiscordGuild
@@ -51,7 +52,11 @@ class SlashCommandEvent(
 
     override suspend fun getChannel(): MessageChannel = channel
 
+    override suspend fun getEnvironment(): ChannelEnvironment = channel.environment
+
     override suspend fun getGuild(): Guild? = guild
+
+    override suspend fun getGroup(): Group? = null
 
     override suspend fun deferReply() {
         event.deferReply(ephemeralReply).await()
@@ -108,6 +113,8 @@ class SlashCommandEvent(
             override suspend fun getChannel(): MessageChannel = this@SlashCommandEvent.getChannel()
 
             override suspend fun getGuild(): Guild? = this@SlashCommandEvent.getGuild()
+
+            override suspend fun getGroup(): Group? = this@SlashCommandEvent.getGroup()
         }
 }
 

@@ -22,7 +22,11 @@ class MessageReceiveEvent(
 
     suspend fun getChannel(): MessageChannel = message.getChannel()
 
+    suspend fun getEnvironment() = getChannel().environment
+
     suspend fun getGuild(): Guild? = message.getGuild()
+
+    suspend fun getGroup() = message.getGroup()
 
     suspend fun reply(content: String): Message = message.reply(content)
 

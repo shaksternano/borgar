@@ -22,6 +22,8 @@ interface CommandMessageIntersection : Entity {
 
     suspend fun getGuild(): Guild?
 
+    suspend fun getGroup(): Group?
+
     suspend fun getPreviousMessages(): Flow<Message> =
         getChannel().getPreviousMessages(id)
 }

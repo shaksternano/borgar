@@ -30,6 +30,8 @@ interface Command : Named {
         get() = false
     val entityId: String?
         get() = null
+    val entityEnvironment: ChannelEnvironment?
+        get() = null
 
     fun createExecutable(arguments: CommandArguments, event: CommandEvent): Executable
 }
@@ -41,6 +43,9 @@ val Command.guildOnly: Boolean
     get() = environment.let {
         it.size == 1 && it.contains(ChannelEnvironment.GUILD)
     }
+
+fun Command.isCorrectEnvironment(environment: ChannelEnvironment): Boolean =
+    environment in this.environment
 
 interface Executable : SuspendCloseable {
 

@@ -11,11 +11,14 @@ import io.github.shaksternano.borgar.chat.event.MessageCommandEvent
 import io.github.shaksternano.borgar.chat.event.MessageReceiveEvent
 import io.github.shaksternano.borgar.chat.exception.CommandException
 import io.github.shaksternano.borgar.chat.exception.MissingArgumentException
+import io.github.shaksternano.borgar.chat.util.checkEntityIdBelongs
+import io.github.shaksternano.borgar.chat.util.getEntityId
 import io.github.shaksternano.borgar.core.collect.parallelForEach
 import io.github.shaksternano.borgar.core.data.repository.TemplateRepository
 import io.github.shaksternano.borgar.core.exception.ErrorResponseException
 import io.github.shaksternano.borgar.core.io.deleteSilently
 import io.github.shaksternano.borgar.core.logger
+import io.github.shaksternano.borgar.core.util.ChannelEnvironment
 import io.github.shaksternano.borgar.core.util.endOfWord
 import io.github.shaksternano.borgar.core.util.indicesOfPrefix
 import io.github.shaksternano.borgar.core.util.split
@@ -34,11 +37,17 @@ suspend fun parseAndExecuteCommand(event: MessageReceiveEvent) {
         return
     }
     if (commandConfigs.isEmpty()) return
-    if (commandConfigs.first().command.guildOnly && event.getGuild() == null) return
-    val commandEvent = MessageCommandEvent(event)
     val channel = event.getChannel()
+    val environment = channel.environment
+    val firstCommand = commandConfigs.first().command
+    if (!firstCommand.isCorrectEnvironment(environment)) return
+    val commandEvent = MessageCommandEvent(event)
     sendTypingUntilDone(channel) {
-        val (responses, executable) = executeCommands(commandConfigs, commandEvent)
+        val (responses, executable) = executeCommands(
+            commandConfigs,
+            environment,
+            commandEvent,
+        )
         sendResponses(responses, executable, commandEvent)
     }
 }
@@ -64,18 +73,19 @@ private suspend fun <T> sendTypingUntilDone(
 
 suspend inline fun executeCommands(
     commandConfigs: List<CommandConfig>,
+    environment: ChannelEnvironment,
     event: CommandEvent,
 ): Pair<List<CommandResponse>, Executable?> =
     runCatching {
         val executables = commandConfigs.map {
             val (command, arguments) = it
             val guild = event.getGuild()
-            if (command.guildOnly && guild == null) {
-                throw GuildOnlyCommandException(command)
+            if (!command.isCorrectEnvironment(environment)) {
+                throw IncorrectChannelEnvironmentException(command, environment)
             }
             if (guild != null) {
                 val requiredPermissions = command.requiredPermissions
-                val permissionHolder = guild.getMember(event.getAuthor()) ?: guild.publicRole
+                val permissionHolder = guild.getMember(event.authorId) ?: guild.publicRole
                 val hasPermission = permissionHolder.hasPermission(requiredPermissions, event.getChannel())
                 if (!hasPermission) {
                     throw InsufficientPermissionsException(command, requiredPermissions)
@@ -191,8 +201,8 @@ fun handleError(throwable: Throwable, manager: BotManager): String {
                 }
             }"
 
-        is GuildOnlyCommandException ->
-            "**${unwrapped.command.nameWithPrefix}** can only be used in a server!"
+        is IncorrectChannelEnvironmentException ->
+            "**${unwrapped.command.nameWithPrefix}** cannot be used in a ${unwrapped.environment.displayName}!"
 
         is OutOfMemoryError -> OUT_OF_MEMORY_ERROR_MESSAGE
 
@@ -277,26 +287,25 @@ internal fun parseCommandStrings(message: String): List<String> {
 private suspend fun getCustomTemplateCommand(commandName: String, message: Message): Command? {
     val commandNameParts = commandName.split(ENTITY_ID_SEPARATOR, limit = 2)
     val templateName = commandNameParts[0]
+    val messageEntityId = message.getEntityId()
     val entityId = if (commandNameParts.size == 1) {
-        message.getGuild()?.id ?: message.getAuthor().id
+        messageEntityId
     } else {
-        val entityId = commandNameParts[1]
-        if (message.getAuthor().id == entityId) {
-            entityId
-        } else {
-            message.manager.getGuild(entityId)?.let {
-                if (it.isMember(message.getAuthor())) {
-                    entityId
-                } else {
-                    null
-                }
-            }
-        }
+        commandNameParts[1]
     }
-    val template = entityId?.runCatching {
-        TemplateRepository.read(templateName, this)
-    }?.getOrNull()
-    return template?.let { TemplateCommand(it) }
+    val template = runCatching {
+        TemplateRepository.read(templateName, entityId)
+    }.getOrNull() ?: return null
+    checkEntityIdBelongs(
+        currentEnvironmentEntityId = messageEntityId,
+        toCheckEntityId = entityId,
+        targetEnvironment = template.entityEnvironment,
+        authorId = message.authorId,
+        manager = message.manager,
+    ) {
+        return null
+    }
+    return TemplateCommand(template)
 }
 
 data class CommandConfig(
@@ -327,8 +336,9 @@ class NonChainableCommandException(
     override val message: String = "Cannot chain **${commandConfig1.typedForm}** with **${commandConfig2.typedForm}**!"
 }
 
-class GuildOnlyCommandException(
+class IncorrectChannelEnvironmentException(
     val command: Command,
+    val environment: ChannelEnvironment,
 ) : Exception()
 
 class InsufficientPermissionsException(

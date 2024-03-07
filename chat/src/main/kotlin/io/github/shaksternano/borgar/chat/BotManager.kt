@@ -1,10 +1,7 @@
 package io.github.shaksternano.borgar.chat
 
 import io.github.shaksternano.borgar.chat.command.Permission
-import io.github.shaksternano.borgar.chat.entity.CustomEmoji
-import io.github.shaksternano.borgar.chat.entity.Guild
-import io.github.shaksternano.borgar.chat.entity.Role
-import io.github.shaksternano.borgar.chat.entity.User
+import io.github.shaksternano.borgar.chat.entity.*
 import io.github.shaksternano.borgar.chat.entity.channel.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlin.time.Duration
@@ -27,9 +24,13 @@ interface BotManager {
 
     suspend fun getSelf(): User
 
+    suspend fun getUser(id: String): User?
+
+    suspend fun getChannel(id: String): Channel?
+
     suspend fun getGuild(id: String): Guild?
 
-    suspend fun getUser(id: String): User?
+    suspend fun getGroup(id: String): Group?
 
     suspend fun getGuildCount(): Int
 

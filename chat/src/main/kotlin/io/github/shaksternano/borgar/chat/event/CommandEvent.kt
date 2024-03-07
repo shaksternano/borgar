@@ -5,6 +5,7 @@ import io.github.shaksternano.borgar.chat.command.CommandMessageIntersection
 import io.github.shaksternano.borgar.chat.command.CommandResponse
 import io.github.shaksternano.borgar.chat.entity.*
 import io.github.shaksternano.borgar.chat.entity.channel.MessageChannel
+import io.github.shaksternano.borgar.core.util.ChannelEnvironment
 import kotlinx.coroutines.flow.Flow
 
 interface CommandEvent : Managed, TimeStamped {
@@ -20,7 +21,11 @@ interface CommandEvent : Managed, TimeStamped {
 
     suspend fun getChannel(): MessageChannel
 
+    suspend fun getEnvironment(): ChannelEnvironment
+
     suspend fun getGuild(): Guild?
+
+    suspend fun getGroup(): Group?
 
     suspend fun deferReply()
 

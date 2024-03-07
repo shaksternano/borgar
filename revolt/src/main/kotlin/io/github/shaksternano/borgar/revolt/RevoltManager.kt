@@ -9,6 +9,8 @@ import io.github.shaksternano.borgar.chat.entity.User
 import io.github.shaksternano.borgar.chat.entity.channel.Channel
 import io.github.shaksternano.borgar.core.io.useHttpClient
 import io.github.shaksternano.borgar.revolt.entity.*
+import io.github.shaksternano.borgar.revolt.entity.channel.RevoltChannel
+import io.github.shaksternano.borgar.revolt.entity.channel.RevoltChannelResponse
 import io.github.shaksternano.borgar.revolt.util.toRevolt
 import io.github.shaksternano.borgar.revolt.websocket.RevoltWebSocketClient
 import io.ktor.client.*
@@ -60,6 +62,69 @@ class RevoltManager(
         ownerId = self.ownerId ?: error("Owner ID not found")
         ready = true
     }
+
+    override suspend fun getSelf(): RevoltUser =
+        runCatching {
+            request<RevoltUserResponse>("/users/@me")
+        }.getOrElse {
+            throw IllegalStateException("Failed to get self user", it)
+        }.convert(this)
+
+    override suspend fun getChannel(id: String): RevoltChannel? =
+        runCatching {
+            request<RevoltChannelResponse>("/channels/$id")
+        }.getOrNull()?.convert(this)
+
+    override suspend fun getGuild(id: String): RevoltGuild? =
+        runCatching {
+            request<RevoltGuildResponse>("/servers/$id")
+        }.getOrNull()?.convert(this)
+
+    override suspend fun getGroup(id: String): RevoltGroup? =
+        getChannel(id)?.getGroup()
+
+    override suspend fun getUser(id: String): RevoltUser? =
+        runCatching {
+            request<RevoltUserResponse>("/users/$id")
+        }.getOrNull()?.convert(this)
+
+    override suspend fun getGuildCount(): Int = webSocket.guildCount
+
+    override fun getCustomEmojis(content: String): Flow<CustomEmoji> =
+        emojiTypedRegex.findAll(content)
+            .map {
+                getEmojiName(it.value)
+            }
+            .asFlow()
+            .mapNotNull {
+                runCatching {
+                    val response = request<RevoltEmojiResponse>("/custom/emoji/$it")
+                    response.convert(this@RevoltManager)
+                }.getOrNull()
+            }
+
+    override fun getMentionedUsers(content: String): Flow<User> =
+        USER_MENTION_REGEX.findAll(content)
+            .map {
+                getUserId(it.value)
+            }
+            .asFlow()
+            .mapNotNull {
+                getUser(it)
+            }
+
+    override fun getMentionedChannels(content: String): Flow<Channel> = emptyFlow()
+
+    override fun getMentionedRoles(content: String): Flow<Role> = emptyFlow()
+
+    override fun getEmojiName(typedEmoji: String): String =
+        typedEmoji.removeSurrounding(":")
+
+    override fun emojiAsTyped(emoji: String): String =
+        ":$emoji:"
+
+    override fun getPermissionName(permission: Permission): String =
+        permission.toRevolt().displayName
 
     suspend inline fun <reified T> request(
         path: String,
@@ -136,61 +201,6 @@ class RevoltManager(
         }
     }
 
-    override suspend fun getSelf(): RevoltUser =
-        runCatching {
-            request<RevoltUserResponse>("/users/@me")
-        }.getOrElse {
-            throw IllegalStateException("Failed to get self user", it)
-        }.convert(this)
-
-    override suspend fun getGuild(id: String): RevoltGuild? =
-        runCatching {
-            request<RevoltGuildResponse>("/servers/$id")
-        }.getOrNull()?.convert(this)
-
-    override suspend fun getUser(id: String): RevoltUser? =
-        runCatching {
-            request<RevoltUserResponse>("/users/$id")
-        }.getOrNull()?.convert(this)
-
-    override suspend fun getGuildCount(): Int = webSocket.guildCount
-
-    override fun getCustomEmojis(content: String): Flow<CustomEmoji> =
-        emojiTypedRegex.findAll(content)
-            .map {
-                getEmojiName(it.value)
-            }
-            .asFlow()
-            .mapNotNull {
-                runCatching {
-                    val response = request<RevoltEmojiResponse>("/custom/emoji/$it")
-                    response.convert(this@RevoltManager)
-                }.getOrNull()
-            }
-
-    override fun getMentionedUsers(content: String): Flow<User> =
-        USER_MENTION_REGEX.findAll(content)
-            .map {
-                getUserId(it.value)
-            }
-            .asFlow()
-            .mapNotNull {
-                getUser(it)
-            }
-
     private fun getUserId(typedUserMention: String): String =
         typedUserMention.removeSurrounding("<@", ">")
-
-    override fun getMentionedChannels(content: String): Flow<Channel> = emptyFlow()
-
-    override fun getMentionedRoles(content: String): Flow<Role> = emptyFlow()
-
-    override fun getEmojiName(typedEmoji: String): String =
-        typedEmoji.removeSurrounding(":")
-
-    override fun emojiAsTyped(emoji: String): String =
-        ":$emoji:"
-
-    override fun getPermissionName(permission: Permission): String =
-        permission.toRevolt().displayName
 }

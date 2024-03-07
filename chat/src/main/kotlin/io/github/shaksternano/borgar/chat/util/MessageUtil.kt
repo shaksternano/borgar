@@ -1,8 +1,13 @@
 package io.github.shaksternano.borgar.chat.util
 
+import io.github.shaksternano.borgar.chat.BotManager
 import io.github.shaksternano.borgar.chat.ChatPlatform
 import io.github.shaksternano.borgar.chat.command.CommandMessageIntersection
+import io.github.shaksternano.borgar.chat.entity.Message
+import io.github.shaksternano.borgar.chat.entity.User
+import io.github.shaksternano.borgar.chat.entity.channel.Channel
 import io.github.shaksternano.borgar.chat.entity.getContent
+import io.github.shaksternano.borgar.chat.event.CommandEvent
 import io.github.shaksternano.borgar.core.emoji.getEmojiUrl
 import io.github.shaksternano.borgar.core.emoji.getEmojiUrlFromShortcode
 import io.github.shaksternano.borgar.core.emoji.isEmojiUnicode
@@ -11,10 +16,7 @@ import io.github.shaksternano.borgar.core.graphics.drawable.Drawable
 import io.github.shaksternano.borgar.core.graphics.drawable.ImageDrawable
 import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.io.UrlInfo
-import io.github.shaksternano.borgar.core.util.TenorMediaType
-import io.github.shaksternano.borgar.core.util.getUrls
-import io.github.shaksternano.borgar.core.util.retrieveTenorMediaUrl
-import io.github.shaksternano.borgar.core.util.retrieveTenorUrlOrDefault
+import io.github.shaksternano.borgar.core.util.*
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.take
@@ -189,3 +191,56 @@ private suspend fun <T> CommandMessageIntersection.searchPreviousMessages(find: 
         .firstOrNull {
             it != null
         }
+
+suspend fun CommandEvent.getEntityId(): String =
+    getEntityId(getChannel()) {
+        getAuthor()
+    }
+
+suspend fun Message.getEntityId(): String =
+    getEntityId(getChannel()) {
+        getAuthor()
+    }
+
+private suspend inline fun getEntityId(
+    channel: Channel,
+    authorSupplier: () -> User,
+): String {
+    val environment = channel.environment
+    return when (environment) {
+        ChannelEnvironment.GUILD -> channel.getGuild()?.id
+        ChannelEnvironment.GROUP -> channel.getGroup()?.id
+        ChannelEnvironment.DIRECT_MESSAGE -> authorSupplier().id
+    } ?: error("Entity ID not found in environment $environment")
+}
+
+suspend inline fun checkEntityIdBelongs(
+    currentEnvironmentEntityId: String,
+    toCheckEntityId: String,
+    targetEnvironment: ChannelEnvironment,
+    authorId: String,
+    manager: BotManager,
+    onDoesNotBelong: () -> Unit,
+) {
+    if (currentEnvironmentEntityId != toCheckEntityId) {
+        when (targetEnvironment) {
+            ChannelEnvironment.GUILD -> {
+                val guild = manager.getGuild(toCheckEntityId)
+                val belongsToGuild = guild == null || guild.isMember(authorId)
+                if (!belongsToGuild) {
+                    onDoesNotBelong()
+                }
+            }
+
+            ChannelEnvironment.GROUP -> {
+                val group = manager.getGroup(toCheckEntityId)
+                val belongsToGroup = group == null || group.isMember(authorId)
+                if (!belongsToGroup) {
+                    onDoesNotBelong()
+                }
+            }
+
+            ChannelEnvironment.DIRECT_MESSAGE -> return onDoesNotBelong()
+        }
+    }
+}

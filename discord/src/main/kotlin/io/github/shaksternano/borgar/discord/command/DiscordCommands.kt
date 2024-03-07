@@ -137,13 +137,14 @@ private suspend fun executeCommand(
     } else {
         slashCommandConfig
     }
+    val environment = commandEvent.getChannel().environment
     commandEvent.ephemeralReply = commandConfigs.any { it.command.ephemeralReply }
     val (responses, executable) = coroutineScope {
         val anyDefer = commandConfigs.any { it.command.deferReply }
         if (anyDefer) launch {
             commandEvent.deferReply()
         }
-        executeCommands(commandConfigs, commandEvent)
+        executeCommands(commandConfigs, environment, commandEvent)
     }
     sendResponses(responses, executable, commandEvent)
 }

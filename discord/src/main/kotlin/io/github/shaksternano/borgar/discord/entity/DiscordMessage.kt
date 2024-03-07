@@ -70,6 +70,8 @@ data class DiscordMessage(
 
     override suspend fun getGuild(): Guild? = guild
 
+    override suspend fun getGroup(): Group? = null
+
     override suspend fun edit(block: MessageEditBuilder.() -> Unit): Message {
         val builder = MessageEditBuilder().apply(block)
         val editRequest = builder.convert()

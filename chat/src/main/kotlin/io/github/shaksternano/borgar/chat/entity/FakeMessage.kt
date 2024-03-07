@@ -37,6 +37,8 @@ data class FakeMessage(
 
     override suspend fun getGuild(): Guild? = channel.getGuild()
 
+    override suspend fun getGroup(): Group? = channel.getGroup()
+
     override suspend fun edit(block: MessageEditBuilder.() -> Unit): Message {
         val builder = MessageEditBuilder().apply(block)
         return builder.content?.let {

@@ -5,11 +5,9 @@ import io.github.shaksternano.borgar.chat.entity.Message
 import io.github.shaksternano.borgar.chat.entity.channel.MessageChannel
 import io.github.shaksternano.borgar.core.collect.parallelMap
 import io.github.shaksternano.borgar.core.io.toChannelProvider
+import io.github.shaksternano.borgar.core.util.ChannelEnvironment
 import io.github.shaksternano.borgar.revolt.RevoltManager
-import io.github.shaksternano.borgar.revolt.entity.RevoltMemberResponse
-import io.github.shaksternano.borgar.revolt.entity.RevoltMessage
-import io.github.shaksternano.borgar.revolt.entity.RevoltMessageResponse
-import io.github.shaksternano.borgar.revolt.entity.RevoltUserResponse
+import io.github.shaksternano.borgar.revolt.entity.*
 import io.github.shaksternano.borgar.revolt.util.RevoltPermissionValue
 import io.ktor.client.request.forms.*
 import io.ktor.http.*
@@ -25,14 +23,20 @@ class RevoltMessageChannel(
     manager: RevoltManager,
     id: String,
     name: String,
+    environment: ChannelEnvironment,
+    type: RevoltChannelType,
     guildId: String?,
+    group: RevoltGroup?,
     defaultPermissions: RevoltPermissionValue?,
     rolePermissions: Map<String, RevoltPermissionValue>,
 ) : MessageChannel, RevoltChannel(
     manager,
     id,
     name,
+    environment,
+    type,
     guildId,
+    group,
     defaultPermissions,
     rolePermissions,
 ) {

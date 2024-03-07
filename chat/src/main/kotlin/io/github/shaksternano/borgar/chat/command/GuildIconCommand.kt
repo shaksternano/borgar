@@ -13,11 +13,16 @@ object GuildIconCommand : FileCommand(
     override val name: String = "servericon"
     override val aliases: Set<String> = setOf("icon")
     override val description: String = "Gets the icon of this server."
-    override val environment: Set<ChannelEnvironment> = setOf(ChannelEnvironment.GUILD)
+    override val environment: Set<ChannelEnvironment> = setOf(
+        ChannelEnvironment.GUILD,
+        ChannelEnvironment.GROUP,
+    )
 
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {
-        val guild = event.getGuild() ?: throw IllegalStateException("Command run outside of a guild")
-        val iconUrl = guild.iconUrl ?: throw ErrorResponseException("This server has no icon.")
+        val chatroom = event.getGuild()
+            ?: event.getGroup()
+            ?: throw IllegalStateException("Command run outside of a guild")
+        val iconUrl = chatroom.iconUrl ?: throw ErrorResponseException("This server has no icon.")
         return UrlFileTask(iconUrl)
     }
 }

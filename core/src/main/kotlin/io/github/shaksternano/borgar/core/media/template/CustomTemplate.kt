@@ -8,6 +8,7 @@ import io.github.shaksternano.borgar.core.media.createAudioReader
 import io.github.shaksternano.borgar.core.media.createImageReader
 import io.github.shaksternano.borgar.core.media.reader.AudioReader
 import io.github.shaksternano.borgar.core.media.reader.ImageReader
+import io.github.shaksternano.borgar.core.util.ChannelEnvironment
 import java.awt.Color
 import java.awt.Font
 import java.awt.Shape
@@ -19,6 +20,7 @@ class CustomTemplate(
     val entityId: String,
 
     val description: String,
+    val entityEnvironment: ChannelEnvironment,
     val mediaPath: Path,
     override val resultName: String,
 

@@ -1,12 +1,10 @@
 package io.github.shaksternano.borgar.discord
 
+import dev.minn.jda.ktx.generics.getChannel
 import io.github.shaksternano.borgar.chat.BotManager
 import io.github.shaksternano.borgar.chat.ChatPlatform
 import io.github.shaksternano.borgar.chat.command.Permission
-import io.github.shaksternano.borgar.chat.entity.CustomEmoji
-import io.github.shaksternano.borgar.chat.entity.Guild
-import io.github.shaksternano.borgar.chat.entity.Role
-import io.github.shaksternano.borgar.chat.entity.User
+import io.github.shaksternano.borgar.chat.entity.*
 import io.github.shaksternano.borgar.chat.entity.channel.Channel
 import io.github.shaksternano.borgar.chat.registerBotManager
 import io.github.shaksternano.borgar.discord.entity.DiscordCustomEmoji
@@ -59,12 +57,17 @@ class DiscordManager(
     override suspend fun getSelf(): User =
         DiscordUser(jda.selfUser)
 
-    override suspend fun getGuild(id: String): Guild? =
-        jda.getGuildById(id)?.let { DiscordGuild(it) }
-
     override suspend fun getUser(id: String): User? = runCatching {
         jda.retrieveUserById(id).await()?.let { DiscordUser(it) }
     }.getOrNull()
+
+    override suspend fun getChannel(id: String): Channel? =
+        jda.getChannel(id)?.let { DiscordChannel.create(it) }
+
+    override suspend fun getGuild(id: String): Guild? =
+        jda.getGuildById(id)?.let { DiscordGuild(it) }
+
+    override suspend fun getGroup(id: String): Group? = null
 
     override suspend fun getGuildCount(): Int =
         jda.guildCache.size().toInt()

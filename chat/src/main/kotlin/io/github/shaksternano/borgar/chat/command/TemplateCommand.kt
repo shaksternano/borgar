@@ -7,6 +7,7 @@ import io.github.shaksternano.borgar.core.io.task.TemplateTask
 import io.github.shaksternano.borgar.core.media.template.CustomTemplate
 import io.github.shaksternano.borgar.core.media.template.ResourceTemplate
 import io.github.shaksternano.borgar.core.media.template.Template
+import io.github.shaksternano.borgar.core.util.ChannelEnvironment
 
 class TemplateCommand(
     override val name: String,
@@ -14,6 +15,7 @@ class TemplateCommand(
     override val description: String,
     private val template: Template,
     override val entityId: String? = null,
+    override val entityEnvironment: ChannelEnvironment? = null,
 ) : FileCommand(
     CommandArgumentInfo(
         key = "text",
@@ -23,6 +25,14 @@ class TemplateCommand(
     ),
     inputRequirement = InputRequirement.Optional,
 ) {
+
+    constructor(customTemplate: CustomTemplate) : this(
+        name = customTemplate.commandName,
+        description = customTemplate.description,
+        template = customTemplate,
+        entityId = customTemplate.entityId,
+        entityEnvironment = customTemplate.entityEnvironment,
+    )
 
     companion object {
         val SONIC_SAYS: Command = TemplateCommand(
@@ -79,13 +89,6 @@ class TemplateCommand(
             template = ResourceTemplate.WHO_DID_THIS,
         )
     }
-
-    constructor(customTemplate: CustomTemplate) : this(
-        name = customTemplate.commandName,
-        description = customTemplate.description,
-        template = customTemplate,
-        entityId = customTemplate.entityId
-    )
 
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {
         val text = arguments.getOptional("text", CommandArgumentType.String)

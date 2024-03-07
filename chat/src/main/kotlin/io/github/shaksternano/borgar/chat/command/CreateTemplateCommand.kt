@@ -1,6 +1,7 @@
 package io.github.shaksternano.borgar.chat.command
 
 import io.github.shaksternano.borgar.chat.event.CommandEvent
+import io.github.shaksternano.borgar.chat.util.getEntityId
 import io.github.shaksternano.borgar.chat.util.getUrlsExceptSelf
 import io.github.shaksternano.borgar.core.data.repository.TemplateRepository
 import io.github.shaksternano.borgar.core.graphics.ContentPosition
@@ -52,7 +53,10 @@ object CreateTemplateCommand : NonChainableCommand() {
     override val deferReply: Boolean = true
     override val ephemeralReply: Boolean = true
 
-    override suspend fun run(arguments: CommandArguments, event: CommandEvent): List<CommandResponse> {
+    override suspend fun run(
+        arguments: CommandArguments,
+        event: CommandEvent,
+    ): List<CommandResponse> {
         val templateFileUrl = getTemplateFileUrl(arguments, event)
             ?: return CommandResponse("No template file found!").asSingletonList()
         val templateJson = runCatching {
@@ -64,12 +68,9 @@ object CreateTemplateCommand : NonChainableCommand() {
         }.getOrElse {
             return CommandResponse("Invalid JSON!").asSingletonList()
         }
-        val guild = event.getGuild()
-        val entityId = guild?.id ?: event.getAuthor().id
+        val entityId = event.getEntityId()
+        val environment = event.getEnvironment()
         val platform = event.manager.platform
-        val environment =
-            if (guild == null) ChannelEnvironment.DIRECT_MESSAGE
-            else ChannelEnvironment.GUILD
         return try {
             val commandName = getString(templateJson, "command_name").lowercase()
             if (commandName.isBlank()) {
@@ -84,26 +85,22 @@ object CreateTemplateCommand : NonChainableCommand() {
             if (TemplateRepository.exists(commandName, entityId)) {
                 return CommandResponse("A template with the command name **$commandName** already exists!").asSingletonList()
             }
-            val entityType = when (environment) {
-                ChannelEnvironment.GUILD -> "guild"
-                ChannelEnvironment.GROUP -> "group"
-                ChannelEnvironment.DIRECT_MESSAGE -> "user"
-            }
             val template = createTemplate(
                 templateJson,
                 commandName,
-                entityId,
                 platform,
-                entityType,
+                entityId,
+                environment,
             )
             TemplateRepository.create(
                 template,
                 platform,
-                entityType,
+                environment.entityType,
                 event.authorId,
             )
-            HelpCommand.removeCachedMessage(entityId)
+            val guild = event.getGuild()
             guild?.addCommand(TemplateCommand(template))
+            HelpCommand.removeCachedMessage(entityId)
             CommandResponse("Template created!")
         } catch (e: InvalidTemplateException) {
             e.cause?.let {
@@ -129,9 +126,9 @@ object CreateTemplateCommand : NonChainableCommand() {
     private suspend fun createTemplate(
         templateJson: JsonObject,
         commandName: String,
-        entityId: String,
         platform: String,
-        entityType: String,
+        entityId: String,
+        environment: ChannelEnvironment,
     ): CustomTemplate {
         val description = getString(templateJson, "description") {
             "A custom template."
@@ -247,7 +244,7 @@ object CreateTemplateCommand : NonChainableCommand() {
             commandName,
             entityId,
             platform,
-            entityType,
+            environment.entityType,
         )
 
         return CustomTemplate(
@@ -255,6 +252,7 @@ object CreateTemplateCommand : NonChainableCommand() {
             entityId,
 
             description,
+            environment,
             mediaPath,
             resultName,
 
