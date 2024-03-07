@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface CommandMessageIntersection : Entity {
 
+    val authorId: String
     val content: String
     val attachments: List<Attachment>
     val embeds: List<MessageEmbed>

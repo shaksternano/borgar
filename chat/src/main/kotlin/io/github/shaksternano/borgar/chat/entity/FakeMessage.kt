@@ -17,6 +17,7 @@ data class FakeMessage(
 ) : Message {
 
     override val manager: BotManager = author.manager
+    override val authorId: String = author.id
     override val referencedMessages: Flow<Message> = emptyFlow()
 
     override val mentionedUsers: Flow<User> = manager.getMentionedUsers(content)

@@ -14,8 +14,9 @@ data class MessageCommandEvent(
     private val event: MessageReceiveEvent,
 ) : CommandEvent {
 
-    override val id: String = event.messageId
     override val manager: BotManager = event.manager
+    override val id: String = event.messageId
+    override val authorId: String = event.authorId
     override val timeCreated: OffsetDateTime = event.message.timeCreated
     override val referencedMessages: Flow<Message> = event.message.referencedMessages
     override var ephemeralReply: Boolean = false
@@ -41,8 +42,9 @@ data class MessageCommandEvent(
 
     override fun asMessageIntersection(arguments: CommandArguments): CommandMessageIntersection =
         object : CommandMessageIntersection {
-            override val id: String = this@MessageCommandEvent.id
             override val manager: BotManager = this@MessageCommandEvent.manager
+            override val id: String = this@MessageCommandEvent.id
+            override val authorId: String = this@MessageCommandEvent.authorId
             override val content: String = arguments.getDefaultStringOrEmpty()
             override val attachments: List<Attachment> = event.message.attachments
             override val embeds: List<MessageEmbed> = event.message.embeds

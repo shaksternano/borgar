@@ -6,7 +6,7 @@ import io.github.shaksternano.borgar.core.logger
 
 suspend fun onMessageReceived(event: MessageReceiveEvent) {
     runCatching {
-        if (event.getAuthor() == event.manager.getSelf()) return
+        if (event.authorId == event.manager.selfId) return
         parseAndExecuteCommand(event)
         sendFavouriteFile(event)
     }.onFailure {

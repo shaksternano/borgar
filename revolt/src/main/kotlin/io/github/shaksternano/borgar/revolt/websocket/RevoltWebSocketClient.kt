@@ -207,7 +207,6 @@ class RevoltWebSocketClient(
                 }
                 message as? Frame.Text ?: continue
                 val json = Json.parseToJsonElement(message.readText()) as? JsonObject ?: continue
-                println(json)
                 val type = json["type"] as? JsonPrimitive ?: continue
                 val handlers = messageHandlers[type.content] ?: continue
                 handlers.forEach {

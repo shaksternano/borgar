@@ -23,10 +23,10 @@ import java.time.ZoneOffset
 data class RevoltMessage(
     override val manager: RevoltManager,
     override val id: String,
+    override val authorId: String,
     override val content: String,
     override val attachments: List<Attachment>,
     override val embeds: List<MessageEmbed>,
-    private val authorId: String,
     private val channelId: String,
     private val referencedMessageIds: List<String>,
     private val mentionedUserIds: List<String>,
@@ -152,10 +152,10 @@ data class RevoltMessageResponse(
         RevoltMessage(
             manager = manager,
             id = id,
+            authorId = authorId,
             content = content,
             attachments = attachments.map { it.convert(manager) },
             embeds = embeds.map { it.convert() },
-            authorId = authorId,
             channelId = channelId,
             referencedMessageIds = referencedMessageIds,
             mentionedUserIds = mentionedUserIds,

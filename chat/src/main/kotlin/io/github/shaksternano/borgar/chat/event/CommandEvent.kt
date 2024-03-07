@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.Flow
 interface CommandEvent : Managed, TimeStamped {
 
     val id: String
+    val authorId: String
     val referencedMessages: Flow<Message>
     var ephemeralReply: Boolean
 

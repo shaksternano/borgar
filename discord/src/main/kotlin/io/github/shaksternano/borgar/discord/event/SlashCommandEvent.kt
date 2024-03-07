@@ -32,6 +32,7 @@ class SlashCommandEvent(
 
     override val manager: BotManager = DiscordManager[event.jda]
     override val id: String = event.id
+    override val authorId: String = event.user.id
     override val timeCreated: OffsetDateTime = event.timeCreated
     override val referencedMessages: Flow<Message> = emptyFlow()
 
@@ -81,6 +82,7 @@ class SlashCommandEvent(
     override fun asMessageIntersection(arguments: CommandArguments): CommandMessageIntersection =
         object : CommandMessageIntersection {
             override val id: String = this@SlashCommandEvent.id
+            override val authorId: String = this@SlashCommandEvent.authorId
             override val manager: BotManager = this@SlashCommandEvent.manager
             override val content: String = arguments.getDefaultStringOrEmpty()
             override val attachments: List<Attachment> = event.getOptionsByType(OptionType.ATTACHMENT).map {
