@@ -8,6 +8,7 @@ import io.github.shaksternano.borgar.core.media.createAudioReader
 import io.github.shaksternano.borgar.core.media.createImageReader
 import io.github.shaksternano.borgar.core.media.reader.AudioReader
 import io.github.shaksternano.borgar.core.media.reader.ImageReader
+import io.github.shaksternano.borgar.core.media.supportsTransparency
 import io.github.shaksternano.borgar.core.util.ChannelEnvironment
 import java.awt.Color
 import java.awt.Font
@@ -47,6 +48,7 @@ class CustomTemplate(
     override val media: DataSource = DataSource.fromFile(mediaPath)
     override val format: String = mediaPath.extension
     override val customTextDrawableSupplier: ((String) -> Drawable)? = null
+    override val forceTransparency: Boolean = supportsTransparency(format)
 
     override suspend fun getImageReader(): ImageReader =
         createImageReader(media, format)

@@ -44,6 +44,7 @@ enum class ResourceTemplate(
     override val fill: Color? = null,
     private val contentClipShapePath: String? = null,
     override val customTextDrawableSupplier: ((String) -> Drawable)? = null,
+    override val forceTransparency: Boolean = false,
 ) : Template {
 
     SONIC_SAYS(
@@ -62,6 +63,7 @@ enum class ResourceTemplate(
         maxFontSize = 200,
         textColor = Color.WHITE,
         isBackground = true,
+        forceTransparency = true,
     ),
 
     SOYJAK_POINTING(
@@ -87,6 +89,7 @@ enum class ResourceTemplate(
         maxFontSize = 200,
         textColor = Color.BLACK,
         isBackground = false,
+        forceTransparency = true,
     ),
 
     THINKING_BUBBLE(
@@ -114,6 +117,7 @@ enum class ResourceTemplate(
         isBackground = false,
         fill = Color.WHITE,
         contentClipShapePath = "shape/thinking_bubble_edge_trimmed.javaobject",
+        forceTransparency = true,
     ),
 
     MUTA_SOY(
@@ -132,6 +136,7 @@ enum class ResourceTemplate(
         maxFontSize = 100,
         textColor = Color.WHITE,
         isBackground = false,
+        forceTransparency = true,
     ),
 
     WALMART_WANTED(
@@ -240,6 +245,7 @@ enum class ResourceTemplate(
         fill: Color? = null,
         contentClipShapePath: String? = null,
         customTextDrawableSupplier: ((String) -> Drawable)? = null,
+        forceTransparency: Boolean = false,
     ) : this(
         mediaPath,
         resultName,
@@ -267,6 +273,7 @@ enum class ResourceTemplate(
         fill,
         contentClipShapePath,
         customTextDrawableSupplier,
+        forceTransparency,
     )
 
     override val media: DataSource = DataSource.fromResource(mediaPath)

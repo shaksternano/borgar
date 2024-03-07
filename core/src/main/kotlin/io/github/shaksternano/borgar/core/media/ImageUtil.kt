@@ -26,6 +26,9 @@ fun BufferedImage.convertType(type: Int): BufferedImage =
         convertOp.filter(this, newType)
     }
 
+fun BufferedImage.addTransparency(): BufferedImage =
+    convertType(BufferedImage.TYPE_INT_ARGB)
+
 fun BufferedImage.bound(width: Int, height: Int): BufferedImage =
     if (this.width <= width && this.height <= height) this
     else ImmutableImage.wrapAwt(this).bound(width, height).awt()
@@ -303,7 +306,7 @@ fun overlay(
     val overlaidImage = BufferedImage(
         overlayData.overlaidWidth,
         overlayData.overlaidHeight,
-        overlayData.overlaidImageType
+        overlayData.overlaidImageType,
     )
     val graphics = overlaidImage.createGraphics()
 
@@ -366,7 +369,7 @@ fun BufferedImage.cutout(
     y: Int,
     cutoutColor: Int,
 ): BufferedImage {
-    val imageToCut = convertType(BufferedImage.TYPE_INT_ARGB)
+    val imageToCut = addTransparency()
 
     val toCutWidth = imageToCut.width
     val toCutHeight = imageToCut.height

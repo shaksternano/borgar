@@ -40,7 +40,7 @@ class ScrimageGifWriter(
     override suspend fun writeImageFrame(frame: ImageFrame) {
         val currentImage = frame.content
             .bound(MAX_DIMENSION)
-            .convertType(BufferedImage.TYPE_INT_ARGB)
+            .addTransparency()
         val previousImage1 = previousImage
         if (previousImage1 != null && isSimilar(previousImage1, currentImage)) {
             // Merge duplicate sequential frames into one.

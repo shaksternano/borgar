@@ -89,6 +89,7 @@ fun supportsTransparency(format: String): Boolean = format.equalsAnyIgnoreCase(
     "gif",
     "tif",
     "tiff",
+    "webp",
 )
 
 fun equivalentTransparentFormat(format: String): String =

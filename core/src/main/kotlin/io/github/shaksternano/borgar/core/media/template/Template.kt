@@ -35,7 +35,7 @@ interface Template {
     val contentRotationRadians: Double
     val isBackground: Boolean
     val fill: Color?
-
+    val forceTransparency: Boolean
 
     suspend fun getImageReader(): ImageReader
 

@@ -49,6 +49,8 @@ private class TemplateConfig(
     override fun transformOutputFormat(inputFormat: String): String =
         if (text.isNullOrBlank() && isStaticOnly(inputFormat) && !isStaticOnly(template.format)) {
             template.format
+        } else if (template.forceTransparency) {
+            equivalentTransparentFormat(inputFormat)
         } else {
             inputFormat
         }
@@ -87,13 +89,18 @@ private class TemplateImageContentProcessor(
             if (transformedContentImage.colorModel.hasAlpha()) null
             else Color.WHITE
 
+        val resultType = if (template.forceTransparency) {
+            BufferedImage.TYPE_INT_ARGB
+        } else {
+            contentImage.typeNoCustom
+        }
         val overlayData = getOverlayData(
             templateImage,
             contentImage,
             contentImageX,
             contentImageY,
             false,
-            contentImage.typeNoCustom
+            resultType,
         )
 
         return ImageContentData(

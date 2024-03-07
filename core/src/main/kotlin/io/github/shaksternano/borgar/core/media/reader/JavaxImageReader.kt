@@ -3,7 +3,7 @@ package io.github.shaksternano.borgar.core.media.reader
 import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.media.ImageFrame
 import io.github.shaksternano.borgar.core.media.ImageReaderFactory
-import io.github.shaksternano.borgar.core.media.convertType
+import io.github.shaksternano.borgar.core.media.addTransparency
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -19,7 +19,7 @@ class JavaxImageReader(
 
     private val frame: ImageFrame = run {
         // For some reason some images have a greyscale type, even though they have color
-        val converted = image.convertType(BufferedImage.TYPE_INT_ARGB)
+        val converted = image.addTransparency()
         ImageFrame(converted, 1.milliseconds, Duration.ZERO)
     }
 
