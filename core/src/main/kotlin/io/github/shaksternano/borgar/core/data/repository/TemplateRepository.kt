@@ -4,12 +4,13 @@ import io.github.shaksternano.borgar.core.graphics.ContentPosition
 import io.github.shaksternano.borgar.core.graphics.TextAlignment
 import io.github.shaksternano.borgar.core.io.deleteSilently
 import io.github.shaksternano.borgar.core.media.template.CustomTemplate
-import io.github.shaksternano.borgar.core.util.ChannelEnvironment
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.javatime.timestampWithTimeZone
 import org.jetbrains.exposed.sql.statements.UpdateBuilder
 import java.awt.Color
 import java.awt.Font
+import java.time.OffsetDateTime
 import kotlin.io.path.Path
 
 object TemplateRepository : Repository<TemplateTable>() {
@@ -22,11 +23,17 @@ object TemplateRepository : Repository<TemplateTable>() {
     suspend fun create(
         template: CustomTemplate,
         platform: String,
-        environment: ChannelEnvironment,
+        entityType: String,
+        creatorId: String,
     ) {
         dbQuery {
             insert {
-                it.write(template, platform, environment)
+                it.write(
+                    template,
+                    platform,
+                    entityType,
+                    creatorId,
+                )
             }
         }
     }
@@ -96,13 +103,16 @@ object TemplateRepository : Repository<TemplateTable>() {
     private fun UpdateBuilder<*>.write(
         template: CustomTemplate,
         platform: String,
-        environment: ChannelEnvironment,
+        entityType: String,
+        creatorId: String,
     ) {
         this[TemplateTable.commandName] = template.commandName
         this[TemplateTable.entityId] = template.entityId
 
         this[TemplateTable.platform] = platform
-        this[TemplateTable.environment] = environment.displayName
+        this[TemplateTable.entityType] = entityType
+        this[TemplateTable.creatorId] = creatorId
+        this[TemplateTable.dateCreated] = OffsetDateTime.now()
 
         this[TemplateTable.description] = template.description
         this[TemplateTable.mediaPath] = template.mediaPath.toString()
@@ -134,11 +144,14 @@ object TemplateTable : Table(name = "template") {
     val commandName = varchar("command_name", TemplateRepository.COMMAND_NAME_MAX_LENGTH)
     // Either a guild ID or a user ID (for DMs)
     val entityId = varchar("entity_id", 50)
-
-    val platform = varchar("platform", 20)
-    val environment = varchar("channel_environment", 50)
+    override val primaryKey = PrimaryKey(commandName, entityId, name = "template_pk")
 
     val description = varchar("description", TemplateRepository.COMMAND_DESCRIPTION_MAX_LENGTH)
+    val platform = varchar("platform", 20)
+    val entityType = varchar("entity_type", 50)
+    val creatorId = varchar("creator_id", 50)
+    val dateCreated = timestampWithTimeZone("date_created")
+
     val mediaPath = varchar("media_path", 100)
     val resultName = varchar("result_name", 100)
 
@@ -161,6 +174,4 @@ object TemplateTable : Table(name = "template") {
     val rotationRadians = double("rotation_radians")
     val isTemplateBackground = bool("is_template_background")
     val fillColor = integer("fill_color").nullable()
-
-    override val primaryKey = PrimaryKey(commandName, entityId, name = "template_pk")
 }

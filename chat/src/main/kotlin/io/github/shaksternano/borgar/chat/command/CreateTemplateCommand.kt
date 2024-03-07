@@ -84,14 +84,24 @@ object CreateTemplateCommand : NonChainableCommand() {
             if (TemplateRepository.exists(commandName, entityId)) {
                 return CommandResponse("A template with the command name **$commandName** already exists!").asSingletonList()
             }
+            val entityType = when (environment) {
+                ChannelEnvironment.GUILD -> "guild"
+                ChannelEnvironment.GROUP -> "group"
+                ChannelEnvironment.DIRECT_MESSAGE -> "user"
+            }
             val template = createTemplate(
                 templateJson,
                 commandName,
                 entityId,
                 platform,
-                environment,
+                entityType,
             )
-            TemplateRepository.create(template, platform, environment)
+            TemplateRepository.create(
+                template,
+                platform,
+                entityType,
+                event.authorId,
+            )
             HelpCommand.removeCachedMessage(entityId)
             guild?.addCommand(TemplateCommand(template))
             CommandResponse("Template created!")
@@ -121,7 +131,7 @@ object CreateTemplateCommand : NonChainableCommand() {
         commandName: String,
         entityId: String,
         platform: String,
-        environment: ChannelEnvironment,
+        entityType: String,
     ): CustomTemplate {
         val description = getString(templateJson, "description") {
             "A custom template."
@@ -237,7 +247,7 @@ object CreateTemplateCommand : NonChainableCommand() {
             commandName,
             entityId,
             platform,
-            environment,
+            entityType,
         )
 
         return CustomTemplate(
@@ -286,7 +296,7 @@ object CreateTemplateCommand : NonChainableCommand() {
         commandName: String,
         entityId: String,
         platform: String,
-        environment: ChannelEnvironment,
+        entityType: String,
     ): Path =
         useHttpClient { client ->
             val response = runCatching {
@@ -320,8 +330,8 @@ object CreateTemplateCommand : NonChainableCommand() {
                     path.createDirectories()
                 }
                 path.resolve(
-                    platform.lowercase() +
-                        "_${environment.displayName.lowercase()}" +
+                    platform +
+                        "_$entityType" +
                         "_${entityId}" +
                         "_$commandName.$fileFormat"
                 )
