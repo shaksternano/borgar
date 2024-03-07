@@ -48,7 +48,7 @@ class RevoltManager(
     override val typingDuration: Duration = 1.seconds
 
     val webSocket: RevoltWebSocketClient = RevoltWebSocketClient(token, this)
-    private val apiDomain: String = REVOLT_API_DOMAIN
+    val apiDomain: String = REVOLT_API_DOMAIN
     val cdnDomain: String = REVOLT_CDN_DOMAIN
     private var ready: Boolean = false
 

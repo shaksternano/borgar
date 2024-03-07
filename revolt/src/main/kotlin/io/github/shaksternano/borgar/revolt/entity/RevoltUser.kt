@@ -23,9 +23,6 @@ open class RevoltUser(
     override suspend fun getBannerUrl(): String? = null
 }
 
-private const val DEFAULT_AVATAR_URL: String =
-    "https://autumn.revolt.chat/attachments/iHTRCGdFPvQviBkUXwX2Z0vj-0ilaCHcaCNmvBnyuc/default_avatar.png"
-
 @Serializable
 data class RevoltUserResponse(
     @SerialName("_id")
@@ -43,7 +40,8 @@ data class RevoltUserResponse(
             id = id,
             name = username,
             effectiveName = displayName ?: username,
-            effectiveAvatarUrl = avatar?.getUrl(manager) ?: "$DEFAULT_AVATAR_URL/defaults/avatar.png",
+            effectiveAvatarUrl = avatar?.getUrl(manager)
+                ?: "${manager.apiDomain}/users/${id}/default_avatar",
             isBot = bot != null,
             ownerId = bot?.ownerId,
         )
