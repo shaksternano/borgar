@@ -125,7 +125,7 @@ fun createMessage(body: JsonElement, manager: RevoltManager): RevoltMessage =
 data class RevoltMessageResponse(
     @SerialName("_id")
     val id: String,
-    val content: String,
+    val content: String = "",
     @SerialName("author")
     val authorId: String,
     @SerialName("channel")
