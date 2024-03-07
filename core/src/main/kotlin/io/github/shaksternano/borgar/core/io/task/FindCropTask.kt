@@ -80,7 +80,19 @@ private class FindCropProcessor(
     override suspend fun transformImage(frame: ImageFrame, constantData: FindCropData): BufferedImage {
         val toKeep = constantData.toKeep
         val image = frame.content
-        return image.getSubimage(toKeep.x, toKeep.y, toKeep.width, toKeep.height)
+        val imageArea = Rectangle(
+            0,
+            0,
+            image.width,
+            image.height,
+        )
+        val cropArea = imageArea.intersection(toKeep)
+        return image.getSubimage(
+            cropArea.x,
+            cropArea.y,
+            cropArea.width,
+            cropArea.height,
+        )
     }
 }
 
