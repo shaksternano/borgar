@@ -12,6 +12,7 @@ import io.github.shaksternano.borgar.revolt.entity.channel.RevoltChannelResponse
 import io.github.shaksternano.borgar.revolt.entity.channel.RevoltChannelType
 import io.github.shaksternano.borgar.revolt.entity.createMessage
 import io.ktor.client.plugins.websocket.*
+import io.ktor.http.*
 import io.ktor.util.network.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.*
@@ -71,6 +72,11 @@ class RevoltWebSocketClient(
                             client.webSocket(
                                 host = REVOLT_WEBSOCKET_URL,
                                 path = "?version=1&format=json&token=$token",
+                                request = {
+                                    url {
+                                        protocol = URLProtocol.WSS
+                                    }
+                                },
                             ) {
                                 session = this
                                 val pingJob = launch {
