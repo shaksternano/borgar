@@ -18,6 +18,7 @@ interface Message : CommandMessageIntersection, TimeStamped {
 
     suspend fun reply(block: MessageCreateBuilder.() -> Unit): Message = getChannel().createMessage {
         block()
+        referencedMessageIds.clear()
         referencedMessageIds.add(id)
     }
 
