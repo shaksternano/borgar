@@ -4,7 +4,7 @@ import net.dv8tion.jda.api.utils.SplitUtil
 
 val VOWELS: Set<Char> = setOf('a', 'e', 'i', 'o', 'u')
 
-private val URL_REGEX: Regex =
+val URL_REGEX: Regex =
     "\\b((?:https?|ftp|file)://[-a-zA-Z\\d+&@#/%?=~_|!:, .;]*[-a-zA-Z\\d+&@#/%=~_|])".toRegex()
 private val WHITE_SPACE_REGEX: Regex = "\\s+".toRegex()
 

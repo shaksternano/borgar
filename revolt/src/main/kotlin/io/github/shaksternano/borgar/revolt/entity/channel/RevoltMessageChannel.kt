@@ -6,6 +6,7 @@ import io.github.shaksternano.borgar.chat.entity.channel.MessageChannel
 import io.github.shaksternano.borgar.core.collect.parallelMap
 import io.github.shaksternano.borgar.core.io.toChannelProvider
 import io.github.shaksternano.borgar.core.util.ChannelEnvironment
+import io.github.shaksternano.borgar.core.util.URL_REGEX
 import io.github.shaksternano.borgar.revolt.RevoltManager
 import io.github.shaksternano.borgar.revolt.entity.*
 import io.github.shaksternano.borgar.revolt.util.RevoltPermissionValue
@@ -118,9 +119,32 @@ class RevoltMessageChannel(
 
 private fun MessageCreateBuilder.toRequestBody(attachmentIds: List<String>?): MessageCreateRequest =
     MessageCreateRequest(
-        content = content,
+        content = if (suppressEmbeds) {
+            URL_REGEX.findAll(content)
+                .toList()
+                /*
+                Need to reverse the list because inserting tags
+                changes the indices of the following matches
+                 */
+                .reversed()
+                .fold(StringBuilder(content)) { newContent, urlMatch ->
+                    val range = urlMatch.range
+                    /*
+                    Need to insert the closing tag first to avoid
+                    changing the index of the opening tag
+                     */
+                    newContent
+                        .insert(range.last + 1, ">")
+                        .insert(range.first, "<")
+                }
+                .toString()
+        } else {
+            content
+        },
         attachments = attachmentIds,
-        replies = referencedMessageIds.map { ReplyBody(it, true) },
+        replies = referencedMessageIds.map {
+            ReplyBody(it, true)
+        },
         masquerade = if (username != null || avatarUrl != null) {
             MasqueradeBody(username, avatarUrl)
         } else {
