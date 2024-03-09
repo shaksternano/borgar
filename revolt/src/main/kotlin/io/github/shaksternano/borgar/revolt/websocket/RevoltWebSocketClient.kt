@@ -158,9 +158,7 @@ class RevoltWebSocketClient(
             open = false
         }
         handle(WebSocketMessageType.MESSAGE) {
-            val message = createMessage(it, manager)
-            val event = MessageReceiveEvent(message)
-            onMessageReceived(event)
+            handleMessage(it)
         }
         handle(WebSocketMessageType.SERVER_CREATE) {
             guildCountAtomic.incrementAndGet()
@@ -186,6 +184,12 @@ class RevoltWebSocketClient(
                 guildCountAtomic.decrementAndGet()
             }
         }
+    }
+
+    private suspend fun handleMessage(json: JsonObject) {
+        val message = createMessage(json, manager)
+        val event = MessageReceiveEvent(message)
+        onMessageReceived(event)
     }
 
     private fun handle(messageType: WebSocketMessageType, handler: suspend (JsonObject) -> Unit) {
