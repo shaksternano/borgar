@@ -45,8 +45,6 @@ class RevoltMessageChannel(
     override suspend fun sendTyping() =
         manager.webSocket.sendTyping(id)
 
-    override suspend fun sendCancellableyping() = sendTyping()
-
     override suspend fun stopTyping() =
         manager.webSocket.stopTyping(id)
 

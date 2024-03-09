@@ -8,8 +8,6 @@ interface MessageChannel : Channel {
 
     suspend fun sendTyping()
 
-    suspend fun sendCancellableyping() = Unit
-
     suspend fun stopTyping()
 
     suspend fun createMessage(content: String): Message = createMessage {
@@ -19,7 +17,4 @@ interface MessageChannel : Channel {
     suspend fun createMessage(block: MessageCreateBuilder.() -> Unit): Message
 
     fun getPreviousMessages(beforeId: String): Flow<Message>
-
-    fun getPreviousMessages(before: Message): Flow<Message> =
-        getPreviousMessages(before.id)
 }
