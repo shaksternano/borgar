@@ -35,15 +35,27 @@ data class RevoltGuild(
         }
     }
 
+    private val memberCache: MutableMap<String, RevoltMember> = mutableMapOf()
+
     override suspend fun getMember(userId: String): RevoltMember? {
+        memberCache[userId]?.let {
+            return it
+        }
         val user = manager.getUser(userId) ?: return null
         return getMember(user)
     }
 
-    override suspend fun getMember(user: User): RevoltMember? =
-        runCatching {
-            manager.request<RevoltMemberResponse>("/servers/$id/members/${user.id}")
-        }.getOrNull()?.convert(manager, user, this)
+    override suspend fun getMember(user: User): RevoltMember? {
+        val userId = user.id
+        memberCache[userId]?.let {
+            return it
+        }
+        return runCatching {
+            manager.request<RevoltMemberResponse>("/servers/$id/members/$userId")
+        }.getOrNull()?.convert(manager, user, this)?.also {
+            memberCache[userId] = it
+        }
+    }
 
     override suspend fun addCommand(command: Command) = Unit
 
