@@ -71,19 +71,13 @@ suspend fun <E, T : VideoFrame<E>> MediaReader<T>.firstContent(): E =
 suspend fun <E, T : VideoFrame<E>> MediaReader<T>.readContent(timestamp: Duration): E =
     readFrame(timestamp).content
 
-suspend fun ImageReader.transform(processor: ImageProcessor<*>, outputFormat: String): ImageReader =
-    transformImpl(processor, outputFormat)
+fun ImageReader.transform(processor: ImageProcessor<*>, outputFormat: String): ImageReader =
+    TransformedImageReader(this, processor, outputFormat)
 
-// Hide the generic type
-private suspend fun <T> ImageReader.transformImpl(processor: ImageProcessor<T>, outputFormat: String): ImageReader {
-    val constantData = processor.constantData(first(), asFlow(), outputFormat)
-    return TransformedImageReader(this, processor, constantData)
-}
-
-private class TransformedImageReader<T>(
+private class TransformedImageReader<T : Any>(
     private val reader: ImageReader,
     private val processor: ImageProcessor<T>,
-    private val constantData: T,
+    private val outputFormat: String,
 ) : BaseImageReader() {
 
     override val frameCount: Int = reader.frameCount
@@ -94,17 +88,27 @@ private class TransformedImageReader<T>(
     override val height: Int = reader.height
     override val loopCount: Int = reader.loopCount
 
+    private val flow: Flow<ImageFrame> = reader.asFlow()
+    private lateinit var constantData: T
+
     override suspend fun readFrame(timestamp: Duration): ImageFrame {
         val originalFrame = reader.readFrame(timestamp)
+        initConstantData(originalFrame)
         val transformedImage = processor.transformImage(originalFrame, constantData)
         return originalFrame.copy(content = transformedImage)
     }
 
-    override fun asFlow(): Flow<ImageFrame> = reader.asFlow()
-        .map {
-            val transformedImage = processor.transformImage(it, constantData)
-            it.copy(content = transformedImage)
+    override fun asFlow(): Flow<ImageFrame> = flow.map {
+        initConstantData(it)
+        val transformedImage = processor.transformImage(it, constantData)
+        it.copy(content = transformedImage)
+    }
+
+    private suspend fun initConstantData(frame: ImageFrame) {
+        if (!::constantData.isInitialized) {
+            constantData = processor.constantData(frame, flow, outputFormat)
         }
+    }
 
     override suspend fun close() = closeAll(
         reader,

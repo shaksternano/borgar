@@ -4,7 +4,7 @@ import io.github.shaksternano.borgar.core.io.SuspendCloseable
 import kotlinx.coroutines.flow.Flow
 import java.awt.image.BufferedImage
 
-interface ImageProcessor<T> : SuspendCloseable {
+interface ImageProcessor<T : Any> : SuspendCloseable {
 
     suspend fun constantData(firstFrame: ImageFrame, imageSource: Flow<ImageFrame>, outputFormat: String): T
 
