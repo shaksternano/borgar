@@ -5,7 +5,7 @@ plugins {
 }
 
 dependencies {
-    api(project(":chat"))
+    api(project(":messaging"))
 
     implementation("com.aallam.ulid:ulid-kotlin:$ulidKotlinVersion")
 

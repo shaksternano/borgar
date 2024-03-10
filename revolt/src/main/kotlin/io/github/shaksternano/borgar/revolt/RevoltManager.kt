@@ -1,13 +1,13 @@
 package io.github.shaksternano.borgar.revolt
 
-import io.github.shaksternano.borgar.chat.BotManager
-import io.github.shaksternano.borgar.chat.MessagingPlatform
-import io.github.shaksternano.borgar.chat.command.Permission
-import io.github.shaksternano.borgar.chat.entity.CustomEmoji
-import io.github.shaksternano.borgar.chat.entity.Role
-import io.github.shaksternano.borgar.chat.entity.User
-import io.github.shaksternano.borgar.chat.entity.channel.Channel
 import io.github.shaksternano.borgar.core.io.useHttpClient
+import io.github.shaksternano.borgar.messaging.BotManager
+import io.github.shaksternano.borgar.messaging.MessagingPlatform
+import io.github.shaksternano.borgar.messaging.command.Permission
+import io.github.shaksternano.borgar.messaging.entity.CustomEmoji
+import io.github.shaksternano.borgar.messaging.entity.Role
+import io.github.shaksternano.borgar.messaging.entity.User
+import io.github.shaksternano.borgar.messaging.entity.channel.Channel
 import io.github.shaksternano.borgar.revolt.entity.*
 import io.github.shaksternano.borgar.revolt.entity.channel.RevoltChannel
 import io.github.shaksternano.borgar.revolt.entity.channel.RevoltChannelResponse

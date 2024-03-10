@@ -1,18 +1,18 @@
 package io.github.shaksternano.borgar.discord
 
 import dev.minn.jda.ktx.generics.getChannel
-import io.github.shaksternano.borgar.chat.BotManager
-import io.github.shaksternano.borgar.chat.MessagingPlatform
-import io.github.shaksternano.borgar.chat.command.Permission
-import io.github.shaksternano.borgar.chat.entity.*
-import io.github.shaksternano.borgar.chat.entity.channel.Channel
-import io.github.shaksternano.borgar.chat.registerBotManager
 import io.github.shaksternano.borgar.discord.entity.DiscordCustomEmoji
 import io.github.shaksternano.borgar.discord.entity.DiscordGuild
 import io.github.shaksternano.borgar.discord.entity.DiscordRole
 import io.github.shaksternano.borgar.discord.entity.DiscordUser
 import io.github.shaksternano.borgar.discord.entity.channel.DiscordChannel
 import io.github.shaksternano.borgar.discord.util.toDiscord
+import io.github.shaksternano.borgar.messaging.BotManager
+import io.github.shaksternano.borgar.messaging.MessagingPlatform
+import io.github.shaksternano.borgar.messaging.command.Permission
+import io.github.shaksternano.borgar.messaging.entity.*
+import io.github.shaksternano.borgar.messaging.entity.channel.Channel
+import io.github.shaksternano.borgar.messaging.registerBotManager
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emptyFlow

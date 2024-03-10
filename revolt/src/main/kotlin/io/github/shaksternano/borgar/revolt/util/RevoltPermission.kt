@@ -1,8 +1,8 @@
 package io.github.shaksternano.borgar.revolt.util
 
-import io.github.shaksternano.borgar.chat.command.Permission
 import io.github.shaksternano.borgar.core.util.Displayed
 import io.github.shaksternano.borgar.core.util.pow
+import io.github.shaksternano.borgar.messaging.command.Permission
 import io.github.shaksternano.borgar.revolt.entity.RevoltMember
 import io.github.shaksternano.borgar.revolt.entity.RevoltRole
 import io.github.shaksternano.borgar.revolt.entity.channel.RevoltChannel

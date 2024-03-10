@@ -1,14 +1,14 @@
 package io.github.shaksternano.borgar.discord.entity.channel
 
-import io.github.shaksternano.borgar.chat.builder.MessageCreateBuilder
-import io.github.shaksternano.borgar.chat.entity.Message
-import io.github.shaksternano.borgar.chat.entity.channel.MessageChannel
 import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.io.useHttpClient
 import io.github.shaksternano.borgar.discord.asFlow
 import io.github.shaksternano.borgar.discord.await
 import io.github.shaksternano.borgar.discord.entity.DiscordMessage
 import io.github.shaksternano.borgar.discord.toFileUpload
+import io.github.shaksternano.borgar.messaging.builder.MessageCreateBuilder
+import io.github.shaksternano.borgar.messaging.entity.Message
+import io.github.shaksternano.borgar.messaging.entity.channel.MessageChannel
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import kotlinx.coroutines.flow.Flow

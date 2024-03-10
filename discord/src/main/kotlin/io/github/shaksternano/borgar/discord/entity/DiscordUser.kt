@@ -1,10 +1,10 @@
 package io.github.shaksternano.borgar.discord.entity
 
-import io.github.shaksternano.borgar.chat.BotManager
-import io.github.shaksternano.borgar.chat.entity.BaseEntity
-import io.github.shaksternano.borgar.chat.entity.User
 import io.github.shaksternano.borgar.discord.DiscordManager
 import io.github.shaksternano.borgar.discord.await
+import io.github.shaksternano.borgar.messaging.BotManager
+import io.github.shaksternano.borgar.messaging.entity.BaseEntity
+import io.github.shaksternano.borgar.messaging.entity.User
 
 data class DiscordUser(
     private val discordUser: net.dv8tion.jda.api.entities.User

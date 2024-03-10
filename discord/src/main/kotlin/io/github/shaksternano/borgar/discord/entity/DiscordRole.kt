@@ -1,8 +1,8 @@
 package io.github.shaksternano.borgar.discord.entity
 
-import io.github.shaksternano.borgar.chat.BotManager
-import io.github.shaksternano.borgar.chat.entity.Role
 import io.github.shaksternano.borgar.discord.DiscordManager
+import io.github.shaksternano.borgar.messaging.BotManager
+import io.github.shaksternano.borgar.messaging.entity.Role
 
 data class DiscordRole(
     private val discordRole: net.dv8tion.jda.api.entities.Role,

@@ -1,9 +1,9 @@
 package io.github.shaksternano.borgar.discord.entity
 
-import io.github.shaksternano.borgar.chat.BotManager
-import io.github.shaksternano.borgar.chat.entity.BaseEntity
-import io.github.shaksternano.borgar.chat.entity.CustomEmoji
 import io.github.shaksternano.borgar.discord.DiscordManager
+import io.github.shaksternano.borgar.messaging.BotManager
+import io.github.shaksternano.borgar.messaging.entity.BaseEntity
+import io.github.shaksternano.borgar.messaging.entity.CustomEmoji
 import net.dv8tion.jda.api.JDA
 
 data class DiscordCustomEmoji(

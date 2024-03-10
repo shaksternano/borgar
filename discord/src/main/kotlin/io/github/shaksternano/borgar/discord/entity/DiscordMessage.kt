@@ -1,16 +1,16 @@
 package io.github.shaksternano.borgar.discord.entity
 
-import io.github.shaksternano.borgar.chat.BotManager
-import io.github.shaksternano.borgar.chat.builder.MessageEditBuilder
-import io.github.shaksternano.borgar.chat.entity.*
-import io.github.shaksternano.borgar.chat.entity.channel.Channel
-import io.github.shaksternano.borgar.chat.entity.channel.MessageChannel
 import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.discord.DiscordManager
 import io.github.shaksternano.borgar.discord.await
 import io.github.shaksternano.borgar.discord.entity.channel.DiscordChannel
 import io.github.shaksternano.borgar.discord.entity.channel.DiscordMessageChannel
 import io.github.shaksternano.borgar.discord.toFileUpload
+import io.github.shaksternano.borgar.messaging.BotManager
+import io.github.shaksternano.borgar.messaging.builder.MessageEditBuilder
+import io.github.shaksternano.borgar.messaging.entity.*
+import io.github.shaksternano.borgar.messaging.entity.channel.Channel
+import io.github.shaksternano.borgar.messaging.entity.channel.MessageChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emptyFlow

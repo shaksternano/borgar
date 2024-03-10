@@ -1,11 +1,11 @@
 package io.github.shaksternano.borgar.discord.entity
 
-import io.github.shaksternano.borgar.chat.BotManager
-import io.github.shaksternano.borgar.chat.entity.Guild
-import io.github.shaksternano.borgar.chat.entity.Member
-import io.github.shaksternano.borgar.chat.entity.Role
-import io.github.shaksternano.borgar.chat.entity.User
 import io.github.shaksternano.borgar.discord.DiscordManager
+import io.github.shaksternano.borgar.messaging.BotManager
+import io.github.shaksternano.borgar.messaging.entity.Guild
+import io.github.shaksternano.borgar.messaging.entity.Member
+import io.github.shaksternano.borgar.messaging.entity.Role
+import io.github.shaksternano.borgar.messaging.entity.User
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import java.time.OffsetDateTime

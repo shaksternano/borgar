@@ -1,12 +1,12 @@
 package io.github.shaksternano.borgar.revolt.entity.channel
 
-import io.github.shaksternano.borgar.chat.builder.MessageCreateBuilder
-import io.github.shaksternano.borgar.chat.entity.Message
-import io.github.shaksternano.borgar.chat.entity.channel.MessageChannel
 import io.github.shaksternano.borgar.core.collect.parallelMap
 import io.github.shaksternano.borgar.core.io.toChannelProvider
 import io.github.shaksternano.borgar.core.util.ChannelEnvironment
 import io.github.shaksternano.borgar.core.util.URL_REGEX
+import io.github.shaksternano.borgar.messaging.builder.MessageCreateBuilder
+import io.github.shaksternano.borgar.messaging.entity.Message
+import io.github.shaksternano.borgar.messaging.entity.channel.MessageChannel
 import io.github.shaksternano.borgar.revolt.RevoltManager
 import io.github.shaksternano.borgar.revolt.entity.*
 import io.github.shaksternano.borgar.revolt.util.RevoltPermissionValue

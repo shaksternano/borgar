@@ -1,8 +1,8 @@
 package io.github.shaksternano.borgar.discord.entity
 
-import io.github.shaksternano.borgar.chat.BotManager
-import io.github.shaksternano.borgar.chat.entity.Sticker
 import io.github.shaksternano.borgar.discord.DiscordManager
+import io.github.shaksternano.borgar.messaging.BotManager
+import io.github.shaksternano.borgar.messaging.entity.Sticker
 import net.dv8tion.jda.api.JDA
 
 data class DiscordSticker(

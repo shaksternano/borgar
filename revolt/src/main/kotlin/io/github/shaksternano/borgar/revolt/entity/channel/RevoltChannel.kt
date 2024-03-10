@@ -1,8 +1,8 @@
 package io.github.shaksternano.borgar.revolt.entity.channel
 
-import io.github.shaksternano.borgar.chat.entity.BaseEntity
-import io.github.shaksternano.borgar.chat.entity.channel.Channel
 import io.github.shaksternano.borgar.core.util.ChannelEnvironment
+import io.github.shaksternano.borgar.messaging.entity.BaseEntity
+import io.github.shaksternano.borgar.messaging.entity.channel.Channel
 import io.github.shaksternano.borgar.revolt.RevoltManager
 import io.github.shaksternano.borgar.revolt.entity.*
 import io.github.shaksternano.borgar.revolt.util.RevoltPermissionValue

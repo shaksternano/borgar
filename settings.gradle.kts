@@ -5,9 +5,9 @@ rootProject.name = "Borgar"
 
 include(
     "app",
-    "chat",
     "core",
     "discord",
+    "messaging",
     "revolt",
     "scripts",
 )

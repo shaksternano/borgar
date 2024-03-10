@@ -1,14 +1,6 @@
 package io.github.shaksternano.borgar.discord.event
 
 import dev.minn.jda.ktx.messages.MessageCreateBuilder
-import io.github.shaksternano.borgar.chat.BotManager
-import io.github.shaksternano.borgar.chat.command.CommandArguments
-import io.github.shaksternano.borgar.chat.command.CommandMessageIntersection
-import io.github.shaksternano.borgar.chat.command.CommandResponse
-import io.github.shaksternano.borgar.chat.command.getDefaultStringOrEmpty
-import io.github.shaksternano.borgar.chat.entity.*
-import io.github.shaksternano.borgar.chat.entity.channel.MessageChannel
-import io.github.shaksternano.borgar.chat.event.CommandEvent
 import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.util.ChannelEnvironment
 import io.github.shaksternano.borgar.discord.DiscordManager
@@ -19,6 +11,14 @@ import io.github.shaksternano.borgar.discord.entity.DiscordMessage
 import io.github.shaksternano.borgar.discord.entity.DiscordUser
 import io.github.shaksternano.borgar.discord.entity.channel.DiscordMessageChannel
 import io.github.shaksternano.borgar.discord.toFileUpload
+import io.github.shaksternano.borgar.messaging.BotManager
+import io.github.shaksternano.borgar.messaging.command.CommandArguments
+import io.github.shaksternano.borgar.messaging.command.CommandMessageIntersection
+import io.github.shaksternano.borgar.messaging.command.CommandResponse
+import io.github.shaksternano.borgar.messaging.command.getDefaultStringOrEmpty
+import io.github.shaksternano.borgar.messaging.entity.*
+import io.github.shaksternano.borgar.messaging.entity.channel.MessageChannel
+import io.github.shaksternano.borgar.messaging.event.CommandEvent
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent

@@ -1,7 +1,7 @@
 package io.github.shaksternano.borgar.revolt.entity
 
-import io.github.shaksternano.borgar.chat.entity.BaseEntity
-import io.github.shaksternano.borgar.chat.entity.CustomEmoji
+import io.github.shaksternano.borgar.messaging.entity.BaseEntity
+import io.github.shaksternano.borgar.messaging.entity.CustomEmoji
 import io.github.shaksternano.borgar.revolt.RevoltManager
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

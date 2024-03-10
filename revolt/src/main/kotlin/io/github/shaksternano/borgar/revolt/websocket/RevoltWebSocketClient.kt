@@ -1,11 +1,11 @@
 package io.github.shaksternano.borgar.revolt.websocket
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder
-import io.github.shaksternano.borgar.chat.event.MessageReceiveEvent
-import io.github.shaksternano.borgar.chat.util.onMessageReceived
 import io.github.shaksternano.borgar.core.io.httpClient
 import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.core.util.JSON
+import io.github.shaksternano.borgar.messaging.event.MessageReceiveEvent
+import io.github.shaksternano.borgar.messaging.util.onMessageReceived
 import io.github.shaksternano.borgar.revolt.RevoltManager
 import io.github.shaksternano.borgar.revolt.entity.RevoltGuildResponse
 import io.github.shaksternano.borgar.revolt.entity.channel.RevoltChannelResponse

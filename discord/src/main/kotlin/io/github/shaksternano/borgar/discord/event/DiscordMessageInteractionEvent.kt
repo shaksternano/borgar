@@ -1,14 +1,6 @@
 package io.github.shaksternano.borgar.discord.event
 
 import dev.minn.jda.ktx.messages.MessageCreateBuilder
-import io.github.shaksternano.borgar.chat.BotManager
-import io.github.shaksternano.borgar.chat.entity.Guild
-import io.github.shaksternano.borgar.chat.entity.Member
-import io.github.shaksternano.borgar.chat.entity.Message
-import io.github.shaksternano.borgar.chat.entity.User
-import io.github.shaksternano.borgar.chat.entity.channel.MessageChannel
-import io.github.shaksternano.borgar.chat.event.MessageInteractionEvent
-import io.github.shaksternano.borgar.chat.interaction.InteractionResponse
 import io.github.shaksternano.borgar.discord.DiscordManager
 import io.github.shaksternano.borgar.discord.await
 import io.github.shaksternano.borgar.discord.entity.DiscordGuild
@@ -17,6 +9,14 @@ import io.github.shaksternano.borgar.discord.entity.DiscordMessage
 import io.github.shaksternano.borgar.discord.entity.DiscordUser
 import io.github.shaksternano.borgar.discord.entity.channel.DiscordMessageChannel
 import io.github.shaksternano.borgar.discord.toFileUpload
+import io.github.shaksternano.borgar.messaging.BotManager
+import io.github.shaksternano.borgar.messaging.entity.Guild
+import io.github.shaksternano.borgar.messaging.entity.Member
+import io.github.shaksternano.borgar.messaging.entity.Message
+import io.github.shaksternano.borgar.messaging.entity.User
+import io.github.shaksternano.borgar.messaging.entity.channel.MessageChannel
+import io.github.shaksternano.borgar.messaging.event.MessageInteractionEvent
+import io.github.shaksternano.borgar.messaging.interaction.InteractionResponse
 import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent
 import net.dv8tion.jda.api.utils.messages.MessageCreateData
 

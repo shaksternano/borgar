@@ -1,10 +1,10 @@
 package io.github.shaksternano.borgar.revolt.entity
 
-import io.github.shaksternano.borgar.chat.command.Permission
-import io.github.shaksternano.borgar.chat.entity.BaseEntity
-import io.github.shaksternano.borgar.chat.entity.Member
-import io.github.shaksternano.borgar.chat.entity.User
-import io.github.shaksternano.borgar.chat.entity.channel.Channel
+import io.github.shaksternano.borgar.messaging.command.Permission
+import io.github.shaksternano.borgar.messaging.entity.BaseEntity
+import io.github.shaksternano.borgar.messaging.entity.Member
+import io.github.shaksternano.borgar.messaging.entity.User
+import io.github.shaksternano.borgar.messaging.entity.channel.Channel
 import io.github.shaksternano.borgar.revolt.RevoltManager
 import io.github.shaksternano.borgar.revolt.entity.channel.RevoltChannel
 import io.github.shaksternano.borgar.revolt.util.bitwiseAndEq

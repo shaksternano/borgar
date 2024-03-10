@@ -1,10 +1,10 @@
 package io.github.shaksternano.borgar.revolt.entity
 
-import io.github.shaksternano.borgar.chat.builder.MessageEditBuilder
-import io.github.shaksternano.borgar.chat.entity.*
-import io.github.shaksternano.borgar.chat.entity.channel.Channel
 import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.core.util.JSON
+import io.github.shaksternano.borgar.messaging.builder.MessageEditBuilder
+import io.github.shaksternano.borgar.messaging.entity.*
+import io.github.shaksternano.borgar.messaging.entity.channel.Channel
 import io.github.shaksternano.borgar.revolt.RevoltManager
 import io.github.shaksternano.borgar.revolt.entity.channel.RevoltMessageChannel
 import io.ktor.http.*

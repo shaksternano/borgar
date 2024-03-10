@@ -1,7 +1,7 @@
 package io.github.shaksternano.borgar.revolt.entity
 
-import io.github.shaksternano.borgar.chat.entity.BaseEntity
-import io.github.shaksternano.borgar.chat.entity.Group
+import io.github.shaksternano.borgar.messaging.entity.BaseEntity
+import io.github.shaksternano.borgar.messaging.entity.Group
 import io.github.shaksternano.borgar.revolt.RevoltManager
 
 data class RevoltGroup(

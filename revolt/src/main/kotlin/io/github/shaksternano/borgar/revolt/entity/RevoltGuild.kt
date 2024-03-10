@@ -1,11 +1,11 @@
 package io.github.shaksternano.borgar.revolt.entity
 
-import io.github.shaksternano.borgar.chat.command.Command
-import io.github.shaksternano.borgar.chat.entity.BaseEntity
-import io.github.shaksternano.borgar.chat.entity.CustomEmoji
-import io.github.shaksternano.borgar.chat.entity.Guild
-import io.github.shaksternano.borgar.chat.entity.User
 import io.github.shaksternano.borgar.core.util.replaceUrlSpaces
+import io.github.shaksternano.borgar.messaging.command.Command
+import io.github.shaksternano.borgar.messaging.entity.BaseEntity
+import io.github.shaksternano.borgar.messaging.entity.CustomEmoji
+import io.github.shaksternano.borgar.messaging.entity.Guild
+import io.github.shaksternano.borgar.messaging.entity.User
 import io.github.shaksternano.borgar.revolt.RevoltManager
 import io.github.shaksternano.borgar.revolt.util.RevoltPermissionValue
 import kotlinx.coroutines.flow.Flow
