@@ -13,7 +13,7 @@ val BOT_MANAGERS: List<BotManager> = botManagersMutable
 
 interface BotManager {
 
-    val platform: String
+    val platform: MessagingPlatform
     val selfId: String
     val ownerId: String
     val maxMessageContentLength: Int

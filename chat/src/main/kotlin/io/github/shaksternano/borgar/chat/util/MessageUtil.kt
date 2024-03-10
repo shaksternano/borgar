@@ -1,7 +1,7 @@
 package io.github.shaksternano.borgar.chat.util
 
 import io.github.shaksternano.borgar.chat.BotManager
-import io.github.shaksternano.borgar.chat.ChatPlatform
+import io.github.shaksternano.borgar.chat.MessagingPlatform
 import io.github.shaksternano.borgar.chat.command.CommandMessageIntersection
 import io.github.shaksternano.borgar.chat.entity.Message
 import io.github.shaksternano.borgar.chat.entity.User
@@ -84,7 +84,7 @@ suspend fun CommandMessageIntersection.getEmojiUrls(): Map<String, String> {
         emojiUrls[it.asMention] = it.imageUrl
     }
 
-    if (manager.platform == ChatPlatform.DISCORD) {
+    if (manager.platform == MessagingPlatform.DISCORD) {
         // Get undetected emojis, such as those requiring Discord nitro
         getGuild()?.let { guild ->
             val existingEmojis = customEmojis.map { it.name }.toSet()

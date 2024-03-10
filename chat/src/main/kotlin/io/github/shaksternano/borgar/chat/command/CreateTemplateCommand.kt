@@ -70,7 +70,7 @@ object CreateTemplateCommand : NonChainableCommand() {
         }
         val entityId = event.getEntityId()
         val environment = event.getEnvironment()
-        val platform = event.manager.platform
+        val platform = event.manager.platform.id
         return try {
             val commandName = getString(templateJson, "command_name").lowercase()
             if (commandName.isBlank()) {

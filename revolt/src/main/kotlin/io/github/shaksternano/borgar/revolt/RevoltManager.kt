@@ -1,7 +1,7 @@
 package io.github.shaksternano.borgar.revolt
 
 import io.github.shaksternano.borgar.chat.BotManager
-import io.github.shaksternano.borgar.chat.ChatPlatform
+import io.github.shaksternano.borgar.chat.MessagingPlatform
 import io.github.shaksternano.borgar.chat.command.Permission
 import io.github.shaksternano.borgar.chat.entity.CustomEmoji
 import io.github.shaksternano.borgar.chat.entity.Role
@@ -40,7 +40,7 @@ class RevoltManager(
     private val token: String,
 ) : BotManager {
 
-    override val platform: String = ChatPlatform.REVOLT
+    override val platform: MessagingPlatform = MessagingPlatform.REVOLT
     override var selfId: String = ""
         private set
     override var ownerId: String = ""
