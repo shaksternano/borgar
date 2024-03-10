@@ -30,9 +30,10 @@ import kotlinx.coroutines.launch
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-const val REVOLT_API_DOMAIN = "https://api.revolt.chat"
-const val REVOLT_CDN_DOMAIN = "https://autumn.revolt.chat"
-const val REVOLT_TOKEN_HEADER = "x-bot-token"
+private const val REVOLT_API_DOMAIN = "https://api.revolt.chat"
+private const val REVOLT_CDN_DOMAIN = "https://autumn.revolt.chat"
+
+private const val REVOLT_TOKEN_HEADER = "x-bot-token"
 
 private val USER_MENTION_REGEX: Regex = "<@[A-Za-z0-9]+>".toRegex()
 
@@ -189,7 +190,7 @@ class RevoltManager(
     suspend fun postCdnForm(
         client: HttpClient,
         path: String,
-        form: List<PartData>
+        form: List<PartData>,
     ): HttpResponse {
         val url = "$cdnDomain$path"
         return runCatching {
