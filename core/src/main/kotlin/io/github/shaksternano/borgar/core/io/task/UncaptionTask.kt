@@ -16,7 +16,7 @@ class UncaptionTask(
     "Couldn't detect caption!",
 ) {
 
-    override fun findCropArea(image: BufferedImage): Rectangle {
+    override suspend fun findCropArea(image: BufferedImage): Rectangle {
         val fullImageArea = Rectangle(0, 0, image.width, image.height)
         val nonTopCaptionArea = findNonCaptionArea(image, true)
         val nonTopColoredCaptionArea = findNonCaptionAreaColored(image, true)

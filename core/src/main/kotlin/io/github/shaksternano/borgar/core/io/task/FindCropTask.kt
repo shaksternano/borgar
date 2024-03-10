@@ -27,13 +27,13 @@ abstract class FindCropTask(
         outputName = outputName
     )
 
-    protected abstract fun findCropArea(image: BufferedImage): Rectangle
+    protected abstract suspend fun findCropArea(image: BufferedImage): Rectangle
 }
 
 private class FindCropProcessor(
     private val onlyCheckFirst: Boolean,
     private val failureMessage: String,
-    private val findCropArea: (BufferedImage) -> Rectangle,
+    private val findCropArea: suspend (BufferedImage) -> Rectangle,
 ) : ImageProcessor<FindCropData> {
 
     override suspend fun constantData(
