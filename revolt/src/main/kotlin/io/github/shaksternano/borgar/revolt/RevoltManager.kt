@@ -1,6 +1,7 @@
 package io.github.shaksternano.borgar.revolt
 
 import io.github.shaksternano.borgar.core.io.useHttpClient
+import io.github.shaksternano.borgar.messaging.BOT_STATUS
 import io.github.shaksternano.borgar.messaging.BotManager
 import io.github.shaksternano.borgar.messaging.MessagingPlatform
 import io.github.shaksternano.borgar.messaging.command.Permission
@@ -21,12 +22,15 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.utils.io.errors.*
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
@@ -55,19 +59,28 @@ class RevoltManager(
     val webSocket: RevoltWebSocketClient = RevoltWebSocketClient(token, this)
     val apiDomain: String = REVOLT_API_DOMAIN
     val cdnDomain: String = REVOLT_CDN_DOMAIN
+
     private var ready: Boolean = false
+
+    @OptIn(DelicateCoroutinesApi::class)
+    private val setup: Job = GlobalScope.launch {
+        val editUserBody = EditUserRequest(
+            status = StatusBody(BOT_STATUS),
+        )
+        val self = request<RevoltUserResponse>(
+            path = "/users/@me",
+            method = HttpMethod.Patch,
+            body = editUserBody,
+        ).convert(this@RevoltManager)
+        selfId = self.id
+        ownerId = self.ownerId ?: error("Owner ID not found")
+        ready = true
+    }
 
     suspend fun awaitReady() {
         if (ready) return
-        coroutineScope {
-            launch {
-                webSocket.awaitReady()
-            }
-            val self = getSelf()
-            selfId = self.id
-            ownerId = self.ownerId ?: error("Owner ID not found")
-            ready = true
-        }
+        webSocket.awaitReady()
+        setup.join()
     }
 
     override suspend fun getSelf(): RevoltUser =
@@ -144,12 +157,6 @@ class RevoltManager(
             response.body<T>()
         }
 
-    suspend fun request(path: String, method: HttpMethod = HttpMethod.Get) {
-        useHttpClient {
-            request(it, path, method)
-        }
-    }
-
     suspend fun request(
         client: HttpClient,
         path: String,
@@ -175,6 +182,9 @@ class RevoltManager(
         }.getOrElse {
             throw IOException("Failed to ${method.value} $url", it)
         }.also {
+            if (it.status == HttpStatusCode.Unauthorized) {
+                throw IllegalArgumentException("Invalid token")
+            }
             require(it.status.isSuccess()) {
                 "${method.value} request to $url returned error response: ${it.status}"
             }
@@ -210,4 +220,14 @@ class RevoltManager(
 
     private fun getUserId(typedUserMention: String): String =
         typedUserMention.removeSurrounding("<@", ">")
+
+    @Serializable
+    private data class EditUserRequest(
+        val status: StatusBody,
+    )
+
+    @Serializable
+    private data class StatusBody(
+        val text: String,
+    )
 }

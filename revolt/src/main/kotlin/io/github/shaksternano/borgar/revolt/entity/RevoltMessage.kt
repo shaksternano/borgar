@@ -84,7 +84,7 @@ data class RevoltMessage(
     }
 
     override suspend fun delete() =
-        manager.request("/channels/$channelId/messages/$id", HttpMethod.Delete)
+        manager.request<Unit>("/channels/$channelId/messages/$id", HttpMethod.Delete)
 
     override suspend fun getAuthor(): RevoltUser {
         author?.let { return it }
