@@ -38,7 +38,7 @@ class DerpibooruCommand(
     } else {
         emptyArray()
     },
-    inputRequirement = InputRequirement.None,
+    inputRequirement = InputRequirement.NONE,
 ) {
 
     companion object {

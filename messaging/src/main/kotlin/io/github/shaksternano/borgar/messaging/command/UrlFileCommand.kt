@@ -9,7 +9,7 @@ class UrlFileCommand(
     override val description: String,
     url: String,
 ) : FileCommand(
-    inputRequirement = InputRequirement.None,
+    inputRequirement = InputRequirement.NONE,
 ) {
 
     companion object {

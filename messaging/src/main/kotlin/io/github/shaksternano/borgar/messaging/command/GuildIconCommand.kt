@@ -7,7 +7,7 @@ import io.github.shaksternano.borgar.core.util.ChannelEnvironment
 import io.github.shaksternano.borgar.messaging.event.CommandEvent
 
 object GuildIconCommand : FileCommand(
-    inputRequirement = InputRequirement.None,
+    inputRequirement = InputRequirement.NONE,
 ) {
 
     override val name: String = "servericon"

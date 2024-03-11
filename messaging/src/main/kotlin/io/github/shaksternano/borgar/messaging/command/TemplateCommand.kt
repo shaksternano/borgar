@@ -23,7 +23,7 @@ class TemplateCommand(
         type = CommandArgumentType.String,
         required = false,
     ),
-    inputRequirement = InputRequirement.Optional,
+    inputRequirement = InputRequirement.OPTIONAL,
 ) {
 
     constructor(customTemplate: CustomTemplate) : this(

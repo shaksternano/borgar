@@ -15,13 +15,13 @@ import io.github.shaksternano.borgar.messaging.util.getUrlsExceptSelf
 
 abstract class FileCommand(
     vararg argumentInfo: CommandArgumentInfo<*>,
-    private val inputRequirement: InputRequirement = InputRequirement.Required,
+    private val inputRequirement: InputRequirement = InputRequirement.REQUIRED,
 ) : BaseCommand() {
 
     override val chainable: Boolean = true
     override val deferReply: Boolean = true
 
-    private val takesInput = inputRequirement != InputRequirement.None
+    private val takesInput = inputRequirement != InputRequirement.NONE
     final override val argumentInfo: Set<CommandArgumentInfo<*>> =
         if (takesInput) {
             buildSet {
@@ -61,9 +61,9 @@ abstract class FileCommand(
 }
 
 enum class InputRequirement {
-    Required,
-    Optional,
-    None,
+    REQUIRED,
+    OPTIONAL,
+    NONE,
 }
 
 private val ATTACHMENT_ARGUMENT_INFO = CommandArgumentInfo(
@@ -97,14 +97,14 @@ private data class FileExecutable(
         toClose = task
         var gifv = false
         val input =
-            if (inputRequirement != InputRequirement.None) {
+            if (inputRequirement != InputRequirement.NONE) {
                 val file = task.suppliedInput
                     ?: getFileUrl(arguments, event, task)
                         ?.also {
                             gifv = it.gifv
                         }
                         ?.asDataSource()
-                if (inputRequirement == InputRequirement.Required && file == null) {
+                if (inputRequirement == InputRequirement.REQUIRED && file == null) {
                     return CommandResponse("No input found!").asSingletonList()
                 }
                 listOfNotNull(file)
