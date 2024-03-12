@@ -12,9 +12,8 @@ object UserAvatarCommand : FileCommand(
         required = false,
     ),
     CommandArgumentInfo(
-        key = "server",
-        aliases = setOf("s"),
-        description = "Whether to get the avatar from the server profile or not.",
+        key = "noserver",
+        description = "Whether to ignore the server avatar or not.",
         type = CommandArgumentType.Boolean,
         required = false,
         defaultValue = false,
@@ -28,9 +27,9 @@ object UserAvatarCommand : FileCommand(
 
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {
         val user = getReferencedUser(arguments, event)
-        val guildAvatar = arguments.getRequired("server", CommandArgumentType.Boolean)
+        val ignoreServer = arguments.getRequired("noserver", CommandArgumentType.Boolean)
         val avatarUrl = run {
-            if (guildAvatar) {
+            if (!ignoreServer) {
                 val member = event.getGuild()?.getMember(user.id)
                 if (member != null) {
                     return@run member.effectiveAvatarUrl
