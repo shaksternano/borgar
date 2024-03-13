@@ -2,6 +2,7 @@ package io.github.shaksternano.borgar.revolt.entity.channel
 
 import io.github.shaksternano.borgar.core.collect.parallelMap
 import io.github.shaksternano.borgar.core.io.toChannelProvider
+import io.github.shaksternano.borgar.core.io.useHttpClient
 import io.github.shaksternano.borgar.core.util.ChannelEnvironment
 import io.github.shaksternano.borgar.core.util.URL_REGEX
 import io.github.shaksternano.borgar.messaging.builder.MessageCreateBuilder
@@ -12,9 +13,13 @@ import io.github.shaksternano.borgar.revolt.entity.*
 import io.github.shaksternano.borgar.revolt.util.RevoltPermissionValue
 import io.ktor.client.request.forms.*
 import io.ktor.http.*
+import io.ktor.util.collections.*
 import io.ktor.utils.io.errors.*
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import ulid.ULID
 
@@ -48,26 +53,13 @@ class RevoltMessageChannel(
     override suspend fun stopTyping() =
         manager.webSocket.stopTyping(id)
 
-    override suspend fun createMessage(block: MessageCreateBuilder.() -> Unit): RevoltMessage {
+    override suspend fun createMessage(block: MessageCreateBuilder.() -> Unit): RevoltMessage = coroutineScope {
         val builder = MessageCreateBuilder().apply(block)
-        val attachmentIds = builder.files.parallelMap {
-            val filename = it.filename
-            val channelProvider = it.toChannelProvider()
-            val form = formData {
-                append("file", channelProvider, headers {
-                    append(HttpHeaders.ContentDisposition, "filename=\"$filename\"")
-                })
-            }
-            runCatching {
-                manager.postCdnForm<AttachmentResponse>(
-                    path = "/attachments",
-                    form = form,
-                )
-            }.getOrElse { t ->
-                throw IOException("Failed to upload $filename to revolt", t)
-            }.id
+        val attachmentIdsDeferred = async {
+            builder.uploadAttachments(manager)
         }
-        val requestBody = builder.toRequestBody(attachmentIds)
+        builder.removeInvalidReferencedMessages(manager, id)
+        val requestBody = builder.toRequestBody(attachmentIdsDeferred.await())
         val ulid = ULID.randomULID()
         val response = manager.request<RevoltMessageResponse>(
             path = "/channels/$id/messages",
@@ -77,7 +69,7 @@ class RevoltMessageChannel(
             ),
             body = requestBody,
         )
-        return response.convert(manager)
+        response.convert(manager)
     }
 
     override fun getPreviousMessages(beforeId: String): Flow<Message> = flow {
@@ -113,6 +105,55 @@ class RevoltMessageChannel(
 
     private suspend fun requestPreviousMessages(beforeId: String): RevoltPreviousMessagesResponse =
         manager.request<RevoltPreviousMessagesResponse>("/channels/$id/messages?before=$beforeId&include_users=true")
+}
+
+private suspend fun MessageCreateBuilder.uploadAttachments(manager: RevoltManager): List<String> =
+    files.parallelMap {
+        val filename = it.filename
+        val channelProvider = it.toChannelProvider()
+        val form = formData {
+            append("file", channelProvider, headers {
+                append(HttpHeaders.ContentDisposition, "filename=\"$filename\"")
+            })
+        }
+        runCatching {
+            manager.postCdnForm<AttachmentResponse>(
+                path = "/attachments",
+                form = form,
+            )
+        }.getOrElse { t ->
+            throw IOException("Failed to upload $filename to revolt", t)
+        }.id
+    }
+
+private suspend fun MessageCreateBuilder.removeInvalidReferencedMessages(manager: RevoltManager, channelId: String) {
+    if (referencedMessageIds.isEmpty()) return
+    val validReferencedMessageIds = ConcurrentSet<String>()
+    useHttpClient { client ->
+        coroutineScope {
+            referencedMessageIds.forEach {
+                launch {
+                    val response = manager.request(
+                        client = client,
+                        path = "/channels/$channelId/messages/$it",
+                        method = HttpMethod.Head,
+                        ignoreErrors = true,
+                    )
+                    val messageExists = response.status.isSuccess()
+                    if (messageExists) {
+                        validReferencedMessageIds.add(it)
+                    }
+                }
+            }
+        }
+    }
+    val referencedMessageIdsIterator = referencedMessageIds.iterator()
+    while (referencedMessageIdsIterator.hasNext()) {
+        val referencedMessageId = referencedMessageIdsIterator.next()
+        if (referencedMessageId !in validReferencedMessageIds) {
+            referencedMessageIdsIterator.remove()
+        }
+    }
 }
 
 private fun MessageCreateBuilder.toRequestBody(attachmentIds: List<String>?): MessageCreateRequest =

@@ -1,6 +1,7 @@
 package io.github.shaksternano.borgar.revolt
 
 import io.github.shaksternano.borgar.core.io.useHttpClient
+import io.github.shaksternano.borgar.core.util.prettyPrintJsonCatching
 import io.github.shaksternano.borgar.messaging.BOT_STATUS
 import io.github.shaksternano.borgar.messaging.BotManager
 import io.github.shaksternano.borgar.messaging.MessagingPlatform
@@ -163,6 +164,7 @@ class RevoltManager(
         method: HttpMethod = HttpMethod.Get,
         headers: Map<String, String> = emptyMap(),
         body: Any? = null,
+        ignoreErrors: Boolean = false,
     ): HttpResponse {
         val url = "$apiDomain$path"
         return runCatching {
@@ -180,13 +182,22 @@ class RevoltManager(
                 }
             }
         }.getOrElse {
-            throw IOException("Failed to ${method.value} $url", it)
+            throw IOException("Failed to ${method.value} request $url", it)
         }.also {
-            if (it.status == HttpStatusCode.Unauthorized) {
+            val status = it.status
+            if (status == HttpStatusCode.Unauthorized) {
                 throw IllegalArgumentException("Invalid token")
             }
-            require(it.status.isSuccess()) {
-                "${method.value} request to $url returned error response: ${it.status}"
+            if (!ignoreErrors && !status.isSuccess()) {
+                val errorBody = runCatching {
+                    it.bodyAsText()
+                }.getOrElse { "" }
+                var error = "${method.value} request to $url returned error response: ${it.status}"
+                if (errorBody.isNotBlank()) {
+                    val jsonError = prettyPrintJsonCatching(errorBody)
+                    error += ". Body:\n$jsonError"
+                }
+                throw IOException(error)
             }
         }
     }
