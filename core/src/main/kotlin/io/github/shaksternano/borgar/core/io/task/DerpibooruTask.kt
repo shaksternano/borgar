@@ -3,6 +3,7 @@ package io.github.shaksternano.borgar.core.io.task
 import io.github.shaksternano.borgar.core.exception.ErrorResponseException
 import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.io.httpGet
+import io.github.shaksternano.borgar.core.util.asSingletonList
 import io.github.shaksternano.borgar.core.util.parseTags
 import kotlinx.serialization.Serializable
 import kotlin.math.ceil
@@ -14,6 +15,7 @@ private const val DERPIBOORU_18_PLUS_DARK_FILTER_ID: Int = 37429
 
 class DerpibooruTask(
     tags: String,
+    private val id: String?,
     private val searchAll: Boolean,
     private val fileCount: Int,
     private val maxFileSize: Long,
@@ -26,6 +28,17 @@ class DerpibooruTask(
     }
 
     override suspend fun run(input: List<DataSource>): List<DataSource> {
+        if (id != null) {
+            val requestUrl = getRequestUrlId()
+            val response = runCatching {
+                httpGet<DerpibooruSingleImageResponse>(requestUrl)
+            }.getOrElse {
+                throw ErrorResponseException("Image not found!")
+            }
+            val imageUrl = response.image.representations.full
+            return DataSource.fromUrl(imageUrl, sendUrl = true).asSingletonList()
+        }
+
         val requestUrl = getRequestUrl(1)
         val response = httpGet<DerpibooruImagesResponse>(requestUrl)
         if (response.total == 0) {
@@ -68,6 +81,9 @@ class DerpibooruTask(
             "&per_page=$DERPIBOORU_RESULTS_PER_PAGE"
     }
 
+    private fun getRequestUrlId(): String =
+        "$DERPIBOORU_API_DOMAIN/api/v1/json/images/$id"
+
     private suspend fun DerpibooruImageBody.getImage(maxFileSize: Long): DataSource? {
         val fullDataSource = DataSource.fromUrl(representations.full)
         if (fullDataSource.size() <= maxFileSize) {
@@ -89,6 +105,11 @@ class DerpibooruTask(
 private data class DerpibooruImagesResponse(
     val total: Int,
     val images: List<DerpibooruImageBody>
+)
+
+@Serializable
+private data class DerpibooruSingleImageResponse(
+    val image: DerpibooruImageBody,
 )
 
 @Serializable

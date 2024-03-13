@@ -26,6 +26,12 @@ class DerpibooruCommand(
     *if (fileCount == 1) {
         arrayOf(
             CommandArgumentInfo(
+                key = "id",
+                description = "The ID of the image to send.",
+                type = CommandArgumentType.String,
+                required = false,
+            ),
+            CommandArgumentInfo(
                 key = "filecount",
                 aliases = setOf("n"),
                 description = "The number of images to send.",
@@ -56,11 +62,27 @@ class DerpibooruCommand(
     }
 
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {
+        val id = arguments["id", CommandArgumentType.String]
+        if (id != null) {
+            return DerpibooruTask(
+                tags = "",
+                id = id,
+                searchAll = false,
+                fileCount = 1,
+                maxFileSize = maxFileSize,
+            )
+        }
         val tags = arguments.getRequired("tags", CommandArgumentType.String)
         val searchAll = arguments.getRequired("searchall", CommandArgumentType.Boolean)
         val fileCount =
             if (fileCount == 1) arguments.getRequired("filecount", CommandArgumentType.Integer)
             else fileCount
-        return DerpibooruTask(tags, searchAll, fileCount, maxFileSize)
+        return DerpibooruTask(
+            tags = tags,
+            id = null,
+            searchAll = searchAll,
+            fileCount = fileCount,
+            maxFileSize = maxFileSize,
+        )
     }
 }

@@ -102,7 +102,7 @@ fun configuredHttpClient(): HttpClient = httpClient {
     install(HttpRequestRetry) {
         maxRetries = 3
         retryIf { _, response ->
-            !response.status.isSuccess()
+            response.status == HttpStatusCode.TooManyRequests
         }
         constantDelay(5000)
     }
@@ -119,13 +119,23 @@ inline fun <T> useHttpClient(block: (HttpClient) -> T): T =
         throw IOException("Error using HttpClient", it)
     }
 
-suspend inline fun <reified T> httpGet(url: String): T = useHttpClient {
-    it.get(url).body<T>()
+inline fun <T> HttpResponse.ifSuccessful(block: (HttpResponse) -> T): T =
+    if (status.isSuccess()) {
+        block(this)
+    } else {
+        throw IOException("HTTP request failed: $status")
+    }
+
+suspend inline fun <reified T> httpGet(url: String): T = useHttpClient { client ->
+    client.get(url).ifSuccessful {
+        it.body<T>()
+    }
 }
 
 suspend fun download(url: String, path: Path) = useHttpClient { client ->
-    val response = client.get(url)
-    response.download(path)
+    client.get(url).ifSuccessful {
+        it.download(path)
+    }
 }
 
 suspend fun HttpResponse.download(path: Path) {
