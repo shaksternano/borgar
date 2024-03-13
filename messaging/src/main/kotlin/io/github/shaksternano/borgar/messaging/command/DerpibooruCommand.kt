@@ -13,6 +13,7 @@ class DerpibooruCommand(
         key = "tags",
         description = "The tags to search for.",
         type = CommandArgumentType.String,
+        required = false,
         defaultValue = "safe",
     ),
     CommandArgumentInfo(
