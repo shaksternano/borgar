@@ -38,7 +38,7 @@ private val PING_JSON: String =
     )).toString()
 private val PING_INTERVAL: Duration = 10.seconds
 
-private val RECONNECT_INTERVAL: Duration = 10.seconds
+private val RETRY_CONNECT_INTERVAL: Duration = 10.seconds
 
 class RevoltWebSocketClient(
     private val token: String,
@@ -85,12 +85,13 @@ class RevoltWebSocketClient(
                                 handleMessages()
                                 pingJob.cancel()
                             }
-                            logger.info("Disconnected from Revolt WebSocket, reconnecting in $RECONNECT_INTERVAL")
+                            session = null
+                            logger.info("Disconnected from Revolt WebSocket, reconnecting...")
                         } catch (e: UnresolvedAddressException) {
-                            logger.info("Failed to connect to Revolt WebSocket, trying again in $RECONNECT_INTERVAL")
+                            session = null
+                            logger.info("Failed to connect to Revolt WebSocket, trying again in $RETRY_CONNECT_INTERVAL")
+                            delay(RETRY_CONNECT_INTERVAL)
                         }
-                        session = null
-                        delay(RECONNECT_INTERVAL)
                     }
                 }.onFailure {
                     logger.error("Error with Revolt WebSocket", it)
