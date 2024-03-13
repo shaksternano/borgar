@@ -102,7 +102,7 @@ data class DiscordMessage(
         video = videoInfo?.let {
             MessageEmbed.VideoInfo(
                 it.url,
-                it.url,
+                it.proxyUrl,
             )
         },
         thumbnail = thumbnail?.let {
