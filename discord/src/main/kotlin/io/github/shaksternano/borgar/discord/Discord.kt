@@ -58,6 +58,7 @@ suspend fun initDiscord(token: String) {
             setLogger(discordLogger)
         }
     }
+    logger.info("Connected to Discord")
 }
 
 private suspend fun handleMessage(event: MessageReceivedEvent) {
