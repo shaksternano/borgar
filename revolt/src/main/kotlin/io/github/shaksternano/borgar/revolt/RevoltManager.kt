@@ -74,12 +74,12 @@ class RevoltManager(
         ).convert(this@RevoltManager)
         selfId = self.id
         ownerId = self.ownerId ?: error("Owner ID not found")
+        webSocket.awaitReady()
         ready = true
     }
 
     suspend fun awaitReady() {
         if (ready) return
-        webSocket.awaitReady()
         setup.join()
     }
 
