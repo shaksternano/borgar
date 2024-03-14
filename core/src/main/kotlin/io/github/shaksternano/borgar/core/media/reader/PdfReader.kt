@@ -1,5 +1,7 @@
 package io.github.shaksternano.borgar.core.media.reader
 
+import com.google.common.cache.Cache
+import com.google.common.cache.CacheBuilder
 import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.io.SuspendCloseable
 import io.github.shaksternano.borgar.core.io.closeAll
@@ -13,6 +15,7 @@ import kotlinx.coroutines.withContext
 import org.apache.pdfbox.Loader
 import org.apache.pdfbox.pdmodel.PDDocument
 import org.apache.pdfbox.rendering.PDFRenderer
+import java.awt.image.BufferedImage
 import java.nio.file.Path
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
@@ -31,20 +34,29 @@ class PdfReader(
     override val frameRate: Double = 1000.0 / frameDuration.inWholeMilliseconds
     override val loopCount: Int = 0
 
+    private val imageCache: Cache<Int, BufferedImage> = CacheBuilder.newBuilder()
+        .maximumSize(10)
+        .build()
+
     override suspend fun readFrame(timestamp: Duration): ImageFrame {
         val page = (timestamp / frameDuration).toInt()
         val circularPage = page % frameCount
-        val image = pdfRenderer.getImage(circularPage)
+        val image = getImage(circularPage)
         return ImageFrame(image, frameDuration, frameDuration * circularPage)
     }
 
     override fun asFlow(): Flow<ImageFrame> = flow {
         for (page in 0..<frameCount) {
-            val image = pdfRenderer.getImage(page)
+            val image = getImage(page)
             val frame = ImageFrame(image, frameDuration, frameDuration * page)
             emit(frame)
         }
     }
+
+    private suspend fun getImage(page: Int): BufferedImage =
+        imageCache.asMap().getOrPut(page) {
+            pdfRenderer.getImage(page)
+        }
 
     override suspend fun close() = closeAll(
         SuspendCloseable.fromBlocking(pdfDocument),
@@ -78,6 +90,7 @@ class PdfReader(
 
 private const val PDF_DPI: Float = 300F
 
-private suspend fun PDFRenderer.getImage(page: Int) = withContext(Dispatchers.IO) {
-    renderImageWithDPI(page, PDF_DPI)
-}
+private suspend fun PDFRenderer.getImage(page: Int): BufferedImage =
+    withContext(Dispatchers.IO) {
+        renderImageWithDPI(page, PDF_DPI)
+    }
