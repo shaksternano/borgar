@@ -10,22 +10,22 @@ class DualBufferedImage(
 ) : BufferedImage(
     first.width,
     first.height,
-    first.type
+    first.type,
 ) {
 
     override fun getWidth(): Int = first.width
 
-    override fun getWidth(observer: ImageObserver): Int = first.getWidth(observer)
+    override fun getWidth(observer: ImageObserver?): Int = first.getWidth(observer)
 
     override fun getHeight(): Int = first.height
 
-    override fun getHeight(observer: ImageObserver): Int = first.getHeight(observer)
+    override fun getHeight(observer: ImageObserver?): Int = first.getHeight(observer)
 
     override fun getSource(): ImageProducer = first.source
 
     override fun getGraphics(): Graphics = first.graphics
 
-    override fun getProperty(name: String, observer: ImageObserver): Any = first.getProperty(name, observer)
+    override fun getProperty(name: String, observer: ImageObserver?): Any = first.getProperty(name, observer)
 
     override fun getProperty(name: String): Any = first.getProperty(name)
 
