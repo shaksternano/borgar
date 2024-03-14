@@ -15,6 +15,7 @@ private val init: Unit = run {
     registerImageOnlyFactory(JavaxImageReader.Factory)
     registerImageOnlyFactory(ScrimageGifReader.Factory)
     registerImageOnlyFactory(WebPImageReader.Factory)
+    registerImageOnlyFactory(PdfReader.Factory)
 }
 
 private fun registerImageFactory(factory: ImageReaderFactory) =
@@ -33,6 +34,9 @@ private fun registerImageOnlyFactory(factory: ImageReaderFactory) {
     registerImageFactory(factory)
     registerAudioFactory(NoAudioReader.Factory(factory.supportedFormats))
 }
+
+fun isReaderFormatSupported(format: String): Boolean =
+    imageReaderFactories.containsKey(format)
 
 suspend fun createImageReader(input: DataSource): ImageReader =
     createImageReader(input, input.fileFormat())

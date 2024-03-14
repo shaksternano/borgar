@@ -18,6 +18,9 @@ private fun MutableMap<String, MediaWriterFactory>.registerFactory(
     factory,
 )
 
+fun isWriterFormatSupported(format: String): Boolean =
+    writerFactories.containsKey(format)
+
 suspend fun createWriter(
     output: Path,
     outputFormat: String,

@@ -7,6 +7,7 @@ val javacvVersion: String by project
 val scrimageVersion: String by project
 val twelveMonkeysVersion: String by project
 val image4jVersion: String by project
+val pdfBoxVersion: String by project
 val reflectionsVersion: String by project
 val jdaVersion: String by project
 val exposedVersion: String by project
@@ -59,6 +60,7 @@ dependencies {
     }
     implementation("com.twelvemonkeys.imageio:imageio-webp:$twelveMonkeysVersion")
     implementation("net.ifok.image:image4j:$image4jVersion")
+    implementation("org.apache.pdfbox:pdfbox:$pdfBoxVersion")
 
     implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")

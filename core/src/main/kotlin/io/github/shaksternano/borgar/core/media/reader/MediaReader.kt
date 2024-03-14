@@ -15,9 +15,9 @@ interface MediaReader<T : VideoFrame<*>> : SuspendCloseable {
     val frameCount: Int
 
     /**
-     * The frame rate in frames per second.
+     * The duration of each frame.
      */
-    val frameRate: Double
+    val frameDuration: Duration
 
     /**
      * The total media duration.
@@ -25,9 +25,9 @@ interface MediaReader<T : VideoFrame<*>> : SuspendCloseable {
     val duration: Duration
 
     /**
-     * The duration of each frame.
+     * The frame rate in frames per second.
      */
-    val frameDuration: Duration
+    val frameRate: Double
 
     val audioChannels: Int
     val audioSampleRate: Int
