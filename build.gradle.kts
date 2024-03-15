@@ -19,3 +19,9 @@ allprojects {
         }
     }
 }
+
+tasks {
+    jar {
+        enabled = false
+    }
+}
