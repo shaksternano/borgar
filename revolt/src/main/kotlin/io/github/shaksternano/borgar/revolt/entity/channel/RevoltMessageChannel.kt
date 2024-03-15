@@ -53,13 +53,27 @@ class RevoltMessageChannel(
     override suspend fun stopTyping() =
         manager.webSocket.stopTyping(id)
 
-    override suspend fun createMessage(block: MessageCreateBuilder.() -> Unit): RevoltMessage = coroutineScope {
+    override suspend fun createMessage(block: MessageCreateBuilder.() -> Unit): RevoltMessage {
         val builder = MessageCreateBuilder().apply(block)
-        val attachmentIdsDeferred = async {
-            builder.uploadAttachments(manager)
+        require(builder.content.isNotEmpty() || builder.files.isNotEmpty()) {
+            "Message content and files cannot both be empty"
         }
-        builder.removeInvalidReferencedMessages(manager, id)
-        val requestBody = builder.toRequestBody(attachmentIdsDeferred.await())
+        val requestBody = coroutineScope {
+            val attachmentIdsDeferred = async {
+                builder.uploadAttachments(manager)
+            }
+            builder.removeInvalidReferencedMessages(manager, id)
+            builder.toRequestBody(attachmentIdsDeferred.await())
+        }
+        return runCatching {
+            requestBody.send()
+        }.getOrElse {
+            val noReplies = requestBody.copy(replies = null)
+            noReplies.send()
+        }
+    }
+
+    private suspend fun MessageCreateRequest.send(): RevoltMessage {
         val ulid = ULID.randomULID()
         val response = manager.request<RevoltMessageResponse>(
             path = "/channels/$id/messages",
@@ -67,9 +81,9 @@ class RevoltMessageChannel(
             headers = mapOf(
                 IDEMPOTENCY_KEY_HEADER to ulid,
             ),
-            body = requestBody,
+            body = this,
         )
-        response.convert(manager)
+        return response.convert(manager)
     }
 
     override fun getPreviousMessages(beforeId: String): Flow<Message> = flow {
@@ -156,7 +170,7 @@ private suspend fun MessageCreateBuilder.removeInvalidReferencedMessages(manager
     }
 }
 
-private fun MessageCreateBuilder.toRequestBody(attachmentIds: List<String>?): MessageCreateRequest =
+private fun MessageCreateBuilder.toRequestBody(attachmentIds: List<String>): MessageCreateRequest =
     MessageCreateRequest(
         content = if (suppressEmbeds) {
             URL_REGEX.findAll(content)
@@ -179,11 +193,11 @@ private fun MessageCreateBuilder.toRequestBody(attachmentIds: List<String>?): Me
                 .toString()
         } else {
             content
-        },
-        attachments = attachmentIds,
+        }.ifEmpty { null },
+        attachments = attachmentIds.ifEmpty { null },
         replies = referencedMessageIds.map {
             ReplyBody(it, true)
-        },
+        }.ifEmpty { null },
         masquerade = if (username != null || avatarUrl != null) {
             MasqueradeBody(username, avatarUrl)
         } else {
@@ -193,7 +207,7 @@ private fun MessageCreateBuilder.toRequestBody(attachmentIds: List<String>?): Me
 
 @Serializable
 private data class MessageCreateRequest(
-    val content: String,
+    val content: String?,
     val attachments: List<String>?,
     val replies: List<ReplyBody>?,
     val masquerade: MasqueradeBody?,
