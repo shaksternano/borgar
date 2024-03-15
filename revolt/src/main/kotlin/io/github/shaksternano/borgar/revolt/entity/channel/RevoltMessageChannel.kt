@@ -56,7 +56,7 @@ class RevoltMessageChannel(
     override suspend fun createMessage(block: MessageCreateBuilder.() -> Unit): RevoltMessage {
         val builder = MessageCreateBuilder().apply(block)
         require(builder.content.isNotEmpty() || builder.files.isNotEmpty()) {
-            "Message content and files cannot both be empty"
+            "Revolt message content and files cannot both be empty"
         }
         val requestBody = coroutineScope {
             val attachmentIdsDeferred = async {
@@ -136,7 +136,7 @@ private suspend fun MessageCreateBuilder.uploadAttachments(manager: RevoltManage
                 form = form,
             )
         }.getOrElse { t ->
-            throw IOException("Failed to upload $filename to revolt", t)
+            throw IOException("Failed to upload $filename to Revolt", t)
         }.id
     }
 

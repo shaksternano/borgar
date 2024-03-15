@@ -117,7 +117,7 @@ data class RevoltChannelResponse(
                 manager = manager,
                 id = id,
                 name = name ?: "Group",
-                ownerId = ownerId ?: error("Group owner id is null. Response body:\n$this"),
+                ownerId = ownerId ?: error("Revolt group owner id is null. Response body:\n$this"),
                 memberIds = memberIds.toSet(),
                 iconUrl = icon?.getUrl(manager),
             ) else null,

@@ -103,7 +103,7 @@ class RevoltWebSocketClient(
 
     suspend fun awaitReady() {
         if (ready) return
-        if (invalidToken) throw IllegalArgumentException("Invalid token")
+        if (invalidToken) throw IllegalArgumentException("Invalid Revolt token")
         var resumed = false
         suspendCoroutine { continuation ->
             handle(WebSocketMessageType.READY) {
@@ -114,7 +114,7 @@ class RevoltWebSocketClient(
             handle(WebSocketMessageType.NOT_FOUND) {
                 if (resumed) return@handle
                 resumed = true
-                continuation.resumeWithException(IllegalArgumentException("Invalid token"))
+                continuation.resumeWithException(IllegalArgumentException("Invalid Revolt token"))
             }
         }
     }
@@ -225,7 +225,7 @@ class RevoltWebSocketClient(
                         runCatching {
                             it.handleMessage(json)
                         }.onFailure {
-                            logger.error("Error handling WebSocket message", it)
+                            logger.error("Error handling Revolt WebSocket message", it)
                         }
                     }
                 }

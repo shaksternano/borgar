@@ -74,7 +74,7 @@ class RevoltManager(
             body = editUserBody,
         ).convert(this@RevoltManager)
         selfId = self.id
-        ownerId = self.ownerId ?: error("Owner ID not found")
+        ownerId = self.ownerId ?: error("Revolt bot owner ID not found")
         webSocket.awaitReady()
         ready = true
     }
@@ -88,7 +88,7 @@ class RevoltManager(
         runCatching {
             request<RevoltUserResponse>("/users/@me")
         }.getOrElse {
-            throw IllegalStateException("Failed to get self user", it)
+            throw IllegalStateException("Failed to get Revolt self user", it)
         }.convert(this)
 
     override suspend fun getChannel(id: String): RevoltChannel? =
