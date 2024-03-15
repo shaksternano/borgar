@@ -17,19 +17,6 @@ data class RevoltUser(
     val ownerId: String? = null,
 ) : User, BaseEntity() {
 
-    companion object {
-        const val SYSTEM_ID: String = "00000000000000000000000000"
-
-        fun system(manager: RevoltManager): RevoltUser = RevoltUser(
-            manager = manager,
-            id = SYSTEM_ID,
-            name = "System",
-            effectiveName = "System",
-            effectiveAvatarUrl = "https://autumn.revolt.chat/attachments/7HzJPSqop6nEMrnlH3tpqiWe31gX8pmeQxiUxkGxPn/revolt.png",
-            isBot = false,
-        )
-    }
-
     override val isSelf: Boolean = manager.selfId == id
     override val asMention: String = "<@$id>"
     override val asBasicMention: String = "@$effectiveName"

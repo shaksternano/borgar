@@ -61,6 +61,15 @@ class RevoltManager(
     val apiDomain: String = REVOLT_API_DOMAIN
     val cdnDomain: String = REVOLT_CDN_DOMAIN
 
+    private val systemUser: RevoltUser = RevoltUser(
+        manager = this,
+        id = "00000000000000000000000000",
+        name = "System",
+        effectiveName = "System",
+        effectiveAvatarUrl = "https://autumn.revolt.chat/attachments/7HzJPSqop6nEMrnlH3tpqiWe31gX8pmeQxiUxkGxPn/revolt.png",
+        isBot = false,
+    )
+
     private var ready: Boolean = false
 
     @OptIn(DelicateCoroutinesApi::class)
@@ -105,7 +114,8 @@ class RevoltManager(
         getChannel(id)?.getGroup()
 
     override suspend fun getUser(id: String): RevoltUser? =
-        runCatching {
+        if (id == systemUser.id) systemUser
+        else runCatching {
             request<RevoltUserResponse>("/users/$id")
         }.getOrNull()?.convert(this)
 
