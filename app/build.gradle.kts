@@ -28,7 +28,13 @@ tasks {
         }
     }
 
+    val copyJar = register<Copy>("copyJar") {
+        from(layout.buildDirectory.file("libs/${base.archivesName.get()}-$version.jar"))
+        into(rootProject.layout.buildDirectory.dir("libs"))
+    }
+
     build {
         dependsOn(shadowJar)
+        finalizedBy(copyJar)
     }
 }
