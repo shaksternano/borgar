@@ -49,21 +49,24 @@ private class FindCropProcessor(
         } else {
             imageSource
         }
-        val toKeep = newImageSource.fold(Rectangle()) { keepArea, frame ->
+        val emptyRectangle = Rectangle()
+        val toKeep = newImageSource.fold(emptyRectangle) { keepArea, frame ->
             val image = frame.content
             val mayKeepArea = findCropArea(image)
-            if ((mayKeepArea.x != 0
-                    || mayKeepArea.y != 0
-                    || mayKeepArea.width != width
-                    || mayKeepArea.height != height)
-                && (mayKeepArea.width > 0)
-                && (mayKeepArea.height > 0)
-                && keepArea.width != 0
-                && keepArea.height != 0
+            if (mayKeepArea.x >= 0
+                && mayKeepArea.y >= 0
+                && mayKeepArea.width > 0
+                && mayKeepArea.height > 0
+                && mayKeepArea.x + mayKeepArea.width <= width
+                && mayKeepArea.y + mayKeepArea.height <= height
             ) {
-                keepArea.union(mayKeepArea)
+                if (keepArea == emptyRectangle) {
+                    mayKeepArea
+                } else {
+                    keepArea.union(mayKeepArea)
+                }
             } else {
-                mayKeepArea
+                keepArea
             }
         }
         return if (toKeep.x == 0
@@ -80,18 +83,11 @@ private class FindCropProcessor(
     override suspend fun transformImage(frame: ImageFrame, constantData: FindCropData): BufferedImage {
         val toKeep = constantData.toKeep
         val image = frame.content
-        val imageArea = Rectangle(
-            0,
-            0,
-            image.width,
-            image.height,
-        )
-        val cropArea = imageArea.intersection(toKeep)
         return image.getSubimage(
-            cropArea.x,
-            cropArea.y,
-            cropArea.width,
-            cropArea.height,
+            toKeep.x,
+            toKeep.y,
+            toKeep.width,
+            toKeep.height,
         )
     }
 }

@@ -63,7 +63,7 @@ class AutoCropTask(
         val height = image.height
         var column = 0
         val rectangle = Rectangle(column, 0, 1, height)
-        while (column != width && PixelTools.colorMatches(color, tolerance, extractPixels(image, rectangle))) {
+        while (column < width && PixelTools.colorMatches(color, tolerance, extractPixels(image, rectangle))) {
             rectangle.setBounds(++column, 0, 1, height)
         }
         return column
@@ -78,7 +78,7 @@ class AutoCropTask(
         val height = image.height
         var column = width - 1
         val rectangle = Rectangle(column, 0, 1, height)
-        while (column != 0 && PixelTools.colorMatches(color, tolerance, extractPixels(image, rectangle))) {
+        while (column > 0 && PixelTools.colorMatches(color, tolerance, extractPixels(image, rectangle))) {
             rectangle.setBounds(--column, 0, 1, height)
         }
         return column
@@ -93,7 +93,7 @@ class AutoCropTask(
         val height = image.height
         var row = 0
         val rectangle = Rectangle(0, row, width, 1)
-        while (row != height && PixelTools.colorMatches(color, tolerance, extractPixels(image, rectangle))) {
+        while (row < height && PixelTools.colorMatches(color, tolerance, extractPixels(image, rectangle))) {
             rectangle.setBounds(0, ++row, width, 1)
         }
         return row
@@ -108,7 +108,7 @@ class AutoCropTask(
         val height = image.height
         var row = height - 1
         val rectangle = Rectangle(0, row, width, 1)
-        while (row != 0 && PixelTools.colorMatches(color, tolerance, extractPixels(image, rectangle))) {
+        while (row > 0 && PixelTools.colorMatches(color, tolerance, extractPixels(image, rectangle))) {
             rectangle.setBounds(0, --row, width, 1)
         }
         return row
