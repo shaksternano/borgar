@@ -2,6 +2,7 @@ package io.github.shaksternano.borgar.messaging.command
 
 import com.google.common.cache.Cache
 import com.google.common.cache.CacheBuilder
+import io.github.shaksternano.borgar.core.collect.getOrPut
 import io.github.shaksternano.borgar.core.data.repository.TemplateRepository
 import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.core.util.ChannelEnvironment
@@ -66,16 +67,11 @@ object HelpCommand : NonChainableCommand() {
         entityId: String,
         environment: ChannelEnvironment,
         maxContentLength: Int,
-    ): List<String> {
-        val cached = cachedCommandInfos.getIfPresent(entityId)
-        if (cached != null) {
-            return cached.splitChunks(maxContentLength)
-        }
-        val commandInfos = getCommandInfo(entityId, environment)
-        val helpMessage = createHelpMessage(commandInfos)
-        cachedCommandInfos.put(entityId, helpMessage)
-        return helpMessage.splitChunks(maxContentLength)
-    }
+    ): List<String> =
+        cachedCommandInfos.getOrPut(entityId) {
+            val commandInfos = getCommandInfo(entityId, environment)
+            createHelpMessage(commandInfos)
+        }.splitChunks(maxContentLength)
 
     private fun createHelpMessage(commandInfo: Iterable<CommandInfo>): String {
         val commandDescriptions = commandInfo.sorted()
