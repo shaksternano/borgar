@@ -2,6 +2,7 @@ package io.github.shaksternano.borgar.core.media.reader
 
 import com.google.common.cache.Cache
 import com.google.common.cache.CacheBuilder
+import io.github.shaksternano.borgar.core.collect.getOrPut
 import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.io.SuspendCloseable
 import io.github.shaksternano.borgar.core.io.closeAll
@@ -54,7 +55,7 @@ class PdfReader(
     }
 
     private suspend fun getImage(page: Int): BufferedImage =
-        imageCache.asMap().getOrPut(page) {
+        imageCache.getOrPut(page) {
             pdfRenderer.getImage(page)
         }
 
@@ -88,7 +89,7 @@ class PdfReader(
     }
 }
 
-private const val PDF_DPI: Float = 300F
+private const val PDF_DPI: Float = 200F
 
 private suspend fun PDFRenderer.getImage(page: Int): BufferedImage =
     withContext(Dispatchers.IO) {

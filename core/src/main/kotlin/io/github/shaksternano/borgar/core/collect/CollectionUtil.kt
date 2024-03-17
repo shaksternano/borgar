@@ -1,5 +1,6 @@
 package io.github.shaksternano.borgar.core.collect
 
+import com.google.common.cache.Cache
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -46,3 +47,9 @@ operator fun <T> Flow<T>.plus(other: Flow<T>): Flow<T> = flow {
         emit(it)
     }
 }
+
+inline fun <K : Any, V : Any> Cache<K, V>.getOrPut(key: K, defaultValue: () -> V): V =
+    getIfPresent(key)
+        ?: defaultValue().also {
+            put(key, it)
+        }
