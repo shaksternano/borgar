@@ -39,9 +39,7 @@ class WebPImageReader(
     init {
         val webPReaderClass = Class.forName("com.twelvemonkeys.imageio.plugins.webp.WebPImageReader")
         val animationFrameClass = Class.forName("com.twelvemonkeys.imageio.plugins.webp.AnimationFrame")
-
         require(webPReaderClass.isInstance(reader)) { "No WebP reader found" }
-        reader.input = imageInput
 
         val framesField = webPReaderClass.getDeclaredField("frames")
         val durationField = animationFrameClass.getDeclaredField("duration")
@@ -75,7 +73,7 @@ class WebPImageReader(
 
     override suspend fun readFrame(timestamp: Duration): ImageFrame {
         val circularTimestamp = (timestamp.inWholeMilliseconds % max(duration.inWholeMilliseconds, 1)).milliseconds
-        val index = findIndex(circularTimestamp, frameInfos.map(FrameInfo::duration))
+        val index = findIndex(circularTimestamp, frameInfos.map(FrameInfo::timestamp))
         return ImageFrame(
             read(index),
             frameInfos[index].duration,
@@ -134,6 +132,7 @@ class WebPImageReader(
                 val readers = ImageIO.getImageReaders(imageInput)
                 require(readers.hasNext()) { "No WebP reader found" }
                 val reader = readers.next()
+                reader.input = imageInput
                 val size = reader.getNumImages(true)
                 WebPImageReader(
                     path,
