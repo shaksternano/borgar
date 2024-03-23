@@ -12,7 +12,7 @@ object DownloadCommand : FileCommand(
         key = "url",
         description = "The URL to download from.",
         type = CommandArgumentType.String,
-        required = false,
+        required = true,
     ),
     CommandArgumentInfo(
         key = "audioonly",
