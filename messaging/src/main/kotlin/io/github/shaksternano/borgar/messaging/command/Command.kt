@@ -81,7 +81,7 @@ abstract class BaseCommand : Command {
         key: String,
         type: CommandArgumentType<T>,
     ): T {
-        val argumentResult = getArgument(key, type)
+        val argumentResult = getArgument(key, type, false)
         val value = argumentResult.value
         return if (value == null) {
             val errorMessage = argumentResult.errorMessage.ifBlank {
@@ -99,7 +99,7 @@ abstract class BaseCommand : Command {
         key: String,
         type: CommandArgumentType<T>,
     ): T? {
-        val argumentResult = getArgument(key, type)
+        val argumentResult = getArgument(key, type, true)
         return if (argumentResult.errorMessage.isNotBlank())
             throw MissingArgumentException(argumentResult.errorMessage)
         else argumentResult.value
@@ -108,15 +108,17 @@ abstract class BaseCommand : Command {
     private suspend fun <T> CommandArguments.getArgument(
         key: String,
         type: CommandArgumentType<T>,
+        optional: Boolean,
     ): ArgumentRetrievalResult<T> {
         val argumentInfo = argumentInfoMap[key] ?: throw IllegalArgumentException("Argument `$key` is not registered.")
-        return getArgument(key, type, argumentInfo)
+        return getArgument(key, type, argumentInfo, optional)
     }
 
     private suspend fun <T> CommandArguments.getArgument(
         key: String,
         type: CommandArgumentType<T>,
         argumentInfo: CommandArgumentInfo<*>,
+        optional: Boolean,
     ): ArgumentRetrievalResult<T> {
         if (argumentInfo.type != type)
             throw IllegalArgumentException("Expected argument type $type for key $key, but got ${argumentInfo.type}")
@@ -132,7 +134,8 @@ abstract class BaseCommand : Command {
                 errorMessage += " ${type.name}."
                 ArgumentRetrievalResult(null, errorMessage)
             } else if (argumentInfo.defaultValue == null && argumentInfo.required) {
-                ArgumentRetrievalResult(null, "Missing argument **$key**.")
+                val error = if (optional) "" else "Missing argument **$key**."
+                ArgumentRetrievalResult(null, error)
             } else {
                 ArgumentRetrievalResult(argumentInfo.defaultValue, "")
             }
