@@ -5,10 +5,7 @@ import com.google.common.cache.CacheBuilder
 import io.github.shaksternano.borgar.core.collect.getOrPut
 import io.github.shaksternano.borgar.core.data.repository.TemplateRepository
 import io.github.shaksternano.borgar.core.logger
-import io.github.shaksternano.borgar.core.util.ChannelEnvironment
-import io.github.shaksternano.borgar.core.util.Displayed
-import io.github.shaksternano.borgar.core.util.formatted
-import io.github.shaksternano.borgar.core.util.splitChunks
+import io.github.shaksternano.borgar.core.util.*
 import io.github.shaksternano.borgar.messaging.BotManager
 import io.github.shaksternano.borgar.messaging.event.CommandEvent
 import io.github.shaksternano.borgar.messaging.util.checkEntityIdBelongs
@@ -180,8 +177,8 @@ object HelpCommand : NonChainableCommand() {
             if (type is CommandArgumentType.Enum<*>) {
                 message += "\n        Possible values:"
                 type.values.forEach { value ->
-                    value as Displayed
-                    message += "\n            ${value.displayName}"
+                    value as Identified
+                    message += "\n            ${value.id}"
                 }
             }
 
