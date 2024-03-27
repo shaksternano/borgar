@@ -28,7 +28,6 @@ data class DiscordMessage(
     override val timeCreated: OffsetDateTime = discordMessage.timeCreated
     override val content: String = discordMessage.contentRaw
     override val attachments: List<Attachment> = discordMessage.attachments.map { it.convert() }
-    override val embeds: List<MessageEmbed> = discordMessage.embeds.map { it.convert() }
     override val customEmojis: Flow<CustomEmoji> = discordMessage.mentions
         .customEmojis
         .map { DiscordCustomEmoji(it, discordMessage.jda) }
@@ -62,6 +61,9 @@ data class DiscordMessage(
         .map { DiscordRole(it) }
         .asFlow()
 
+    private val embeds: List<MessageEmbed> = discordMessage.embeds.map { it.convert() }
+    private var fetchEmbeds: Boolean = embeds.isEmpty()
+
     override suspend fun getAuthor(): User = author
 
     override suspend fun getAuthorMember(): Member? = member
@@ -71,6 +73,18 @@ data class DiscordMessage(
     override suspend fun getGuild(): Guild? = guild
 
     override suspend fun getGroup(): Group? = null
+
+    override suspend fun getEmbeds(): List<MessageEmbed> {
+        if (fetchEmbeds) {
+            fetchEmbeds = false
+            runCatching {
+                val discordChannel = discordMessage.channel
+                val refreshedMessage = discordChannel.retrieveMessageById(id).await()
+                return refreshedMessage.embeds.map { it.convert() }
+            }
+        }
+        return embeds
+    }
 
     override suspend fun edit(block: MessageEditBuilder.() -> Unit): Message {
         val builder = MessageEditBuilder().apply(block)

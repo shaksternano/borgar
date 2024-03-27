@@ -40,7 +40,7 @@ suspend fun CommandMessageIntersection.getUrls(getGif: Boolean): List<UrlInfo> =
         }
     )
     addAll(
-        embeds.mapNotNull {
+        getEmbeds().mapNotNull {
             it.getContent(getGif)
         }
     )
@@ -61,7 +61,7 @@ private suspend fun CommandMessageIntersection.getEmojiDrawables(): Map<String, 
     }
 
 private suspend fun CommandMessageIntersection.getUrlDrawables(): Map<String, Drawable> {
-    val embeds = embeds.associateBy { it.url }
+    val embeds = getEmbeds().associateBy { it.url }
     return content.getUrls()
         .associateBy { it }
         .mapNotNull { entry ->

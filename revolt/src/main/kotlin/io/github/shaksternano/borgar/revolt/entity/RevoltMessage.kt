@@ -25,7 +25,7 @@ data class RevoltMessage(
     override val authorId: String,
     override val content: String,
     override val attachments: List<Attachment>,
-    override val embeds: List<MessageEmbed>,
+    private val embeds: List<MessageEmbed>,
     private val channelId: String,
     private val referencedMessageIds: List<String>,
     private val mentionedUserIds: List<String>,
@@ -110,6 +110,8 @@ data class RevoltMessage(
 
     override suspend fun getGroup(): Group? =
         getChannel().getGroup()
+
+    override suspend fun getEmbeds(): List<MessageEmbed> = embeds
 }
 
 fun createMessage(body: JsonElement, manager: RevoltManager): RevoltMessage =

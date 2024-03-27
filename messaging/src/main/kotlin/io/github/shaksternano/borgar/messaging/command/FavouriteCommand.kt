@@ -127,7 +127,7 @@ object FavouriteCommand : NonChainableCommand() {
         }
         val defaultUrl = arguments.getDefaultUrl()
         if (defaultUrl != null) {
-            val embedUrl = messageIntersection.embeds.find {
+            val embedUrl = messageIntersection.getEmbeds().find {
                 it.url == defaultUrl
             }?.getContent()?.url
             return defaultUrl to (embedUrl ?: defaultUrl)
@@ -139,7 +139,7 @@ object FavouriteCommand : NonChainableCommand() {
             }
             val contentUrl = it.content.getUrls().firstOrNull()
             if (contentUrl != null) {
-                val embedUrl = it.embeds.find { embed ->
+                val embedUrl = it.getEmbeds().find { embed ->
                     embed.url == contentUrl
                 }?.getContent()?.url
                 return@searchExceptSelf contentUrl to (embedUrl ?: contentUrl)

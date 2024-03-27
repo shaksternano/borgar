@@ -153,7 +153,7 @@ private data class FileExecutable(
         val getGif = task.requireInput && task !is MediaProcessingTask
         val url = arguments.getDefaultUrl()
             ?: return messageIntersection.getUrlsExceptSelf(getGif).firstOrNull()
-        val embed = messageIntersection.embeds.firstOrNull { it.url == url }
+        val embed = messageIntersection.getEmbeds().firstOrNull { it.url == url }
         val embedContent = embed?.getContent(getGif)
         if (embedContent != null) return embedContent
         return retrieveTenorUrlOrDefault(url, getGif)

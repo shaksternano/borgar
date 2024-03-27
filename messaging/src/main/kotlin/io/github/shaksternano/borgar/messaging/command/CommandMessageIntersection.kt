@@ -9,7 +9,6 @@ interface CommandMessageIntersection : Entity {
     val authorId: String
     val content: String
     val attachments: List<Attachment>
-    val embeds: List<MessageEmbed>
     val customEmojis: Flow<CustomEmoji>
     val stickers: Flow<Sticker>
     val referencedMessages: Flow<Message>
@@ -26,4 +25,6 @@ interface CommandMessageIntersection : Entity {
 
     suspend fun getPreviousMessages(): Flow<Message> =
         getChannel().getPreviousMessages(id)
+
+    suspend fun getEmbeds(): List<MessageEmbed>
 }

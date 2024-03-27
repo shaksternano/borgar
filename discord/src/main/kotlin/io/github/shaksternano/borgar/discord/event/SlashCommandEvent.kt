@@ -101,7 +101,6 @@ class SlashCommandEvent(
                     ephemeral = true,
                 )
             }
-            override val embeds: List<MessageEmbed> = listOf()
             override val customEmojis: Flow<CustomEmoji> = manager.getCustomEmojis(content)
             override val stickers: Flow<Sticker> = emptyFlow()
             override val referencedMessages: Flow<Message> = emptyFlow()
@@ -115,6 +114,8 @@ class SlashCommandEvent(
             override suspend fun getGuild(): Guild? = this@SlashCommandEvent.getGuild()
 
             override suspend fun getGroup(): Group? = this@SlashCommandEvent.getGroup()
+
+            override suspend fun getEmbeds(): List<MessageEmbed> = emptyList()
         }
 }
 

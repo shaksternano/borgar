@@ -25,7 +25,6 @@ data class FakeMessage(
     override val mentionedRoles: Flow<Role> = manager.getMentionedRoles(content)
 
     override val attachments: List<Attachment> = listOf()
-    override val embeds: List<MessageEmbed> = listOf()
     override val customEmojis: Flow<CustomEmoji> = manager.getCustomEmojis(content)
     override val stickers: Flow<Sticker> = emptyFlow()
 
@@ -38,6 +37,8 @@ data class FakeMessage(
     override suspend fun getGuild(): Guild? = channel.getGuild()
 
     override suspend fun getGroup(): Group? = channel.getGroup()
+
+    override suspend fun getEmbeds(): List<MessageEmbed> = emptyList()
 
     override suspend fun edit(block: MessageEditBuilder.() -> Unit): Message {
         val builder = MessageEditBuilder().apply(block)
