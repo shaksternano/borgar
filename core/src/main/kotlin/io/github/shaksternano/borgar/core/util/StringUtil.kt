@@ -5,7 +5,7 @@ import net.dv8tion.jda.api.utils.SplitUtil
 val VOWELS: Set<Char> = setOf('a', 'e', 'i', 'o', 'u')
 
 val URL_REGEX: Regex =
-    "\\b((?:https?|ftp|file)://[-a-zA-Z\\d+&@#/%?=~_|!:, .;]*[-a-zA-Z\\d+&@#/%=~_|])".toRegex()
+    "https?://(www\\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_+.~#?&/=]*)".toRegex()
 private val WHITE_SPACE_REGEX: Regex = "\\s+".toRegex()
 
 fun CharSequence.startsWithVowel(): Boolean =
