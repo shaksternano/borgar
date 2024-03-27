@@ -1,6 +1,5 @@
 package io.github.shaksternano.borgar.revolt.util
 
-import io.github.shaksternano.borgar.core.util.Displayed
 import io.github.shaksternano.borgar.core.util.pow
 import io.github.shaksternano.borgar.messaging.command.Permission
 import io.github.shaksternano.borgar.revolt.entity.RevoltMember
@@ -9,9 +8,9 @@ import io.github.shaksternano.borgar.revolt.entity.channel.RevoltChannel
 import kotlinx.coroutines.flow.toList
 
 enum class RevoltPermission(
-    override val displayName: String,
+    val displayName: String,
     val value: Long,
-) : Displayed {
+) {
     MANAGE_CUSTOMISATION("Manage Customisation", 2 pow 4),
     VIEW_CHANNELS("View Channel", 2 pow 20),
     READ_MESSAGE_HISTORY("Read Message History", 2 pow 21),
