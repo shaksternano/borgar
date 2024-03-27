@@ -1,6 +1,7 @@
 package io.github.shaksternano.borgar.discord.entity
 
 import io.github.shaksternano.borgar.core.io.DataSource
+import io.github.shaksternano.borgar.core.util.getUrls
 import io.github.shaksternano.borgar.discord.DiscordManager
 import io.github.shaksternano.borgar.discord.await
 import io.github.shaksternano.borgar.discord.entity.channel.DiscordChannel
@@ -61,8 +62,12 @@ data class DiscordMessage(
         .map { DiscordRole(it) }
         .asFlow()
 
-    private val embeds: List<MessageEmbed> = discordMessage.embeds.map { it.convert() }
-    private var fetchEmbeds: Boolean = embeds.isEmpty()
+    private val embeds: MutableList<MessageEmbed> = discordMessage.embeds
+        .map {
+            it.convert()
+        }
+        .toMutableList()
+    private var fetchEmbeds: Boolean = embeds.isEmpty() && content.getUrls().isNotEmpty()
 
     override suspend fun getAuthor(): User = author
 
@@ -80,7 +85,9 @@ data class DiscordMessage(
             runCatching {
                 val discordChannel = discordMessage.channel
                 val refreshedMessage = discordChannel.retrieveMessageById(id).await()
-                return refreshedMessage.embeds.map { it.convert() }
+                refreshedMessage.embeds.forEach {
+                    embeds.add(it.convert())
+                }
             }
         }
         return embeds
