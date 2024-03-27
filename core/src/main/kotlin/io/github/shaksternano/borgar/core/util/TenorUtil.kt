@@ -26,7 +26,7 @@ suspend fun retrieveTenorMediaUrl(url: String, mediaType: TenorMediaType): Strin
     val requestUrl = "https://g.tenor.com/v1/gifs?key=$apiKey&ids=$mediaId"
     val responseBody = httpGet<TenorResponse>(requestUrl)
     return runCatching {
-        responseBody.results.first().media.first().getOrElse(mediaType.key) {
+        responseBody.results.first().media.first().getOrElse(mediaType.id) {
             throw IllegalArgumentException("Media type $mediaType not found")
         }.url
     }.getOrElse {
@@ -45,9 +45,9 @@ fun isTenorUrl(url: String): Boolean {
  */
 @Suppress("unused")
 enum class TenorMediaType(
-    val key: String,
+    override val id: String,
     override val displayName: String
-) : Displayed {
+) : Identified, Displayed {
     GIF_EXTRA_SMALL("nanogif", "Extra small GIF"),
     GIF_SMALL("tinygif", "Small GIF"),
     GIF_NORMAL("gif", "Normal GIF"),
