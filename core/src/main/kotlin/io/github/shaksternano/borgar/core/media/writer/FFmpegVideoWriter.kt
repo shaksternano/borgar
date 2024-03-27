@@ -12,7 +12,8 @@ import java.awt.image.BufferedImage
 import java.nio.file.Path
 import kotlin.time.Duration
 
-private const val MAX_DIMENSION = 2000
+// 720p
+private const val MAX_DIMENSION = 1280
 private const val MAX_AUDIO_FRAME_RATE = 1000
 
 class FFmpegVideoWriter(
