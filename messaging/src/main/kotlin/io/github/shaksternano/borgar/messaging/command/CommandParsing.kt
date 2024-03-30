@@ -157,18 +157,20 @@ suspend fun sendResponses(
 suspend fun formatMentions(content: String, message: CommandMessageIntersection): String {
     if (content.isBlank()) return content
     var stripped = content
-    stripped = message.mentionedUsers.fold(stripped) { newContent, user ->
-        val details = userDetails(user, message.getGuild())
-        newContent.replace(
-            "<@!?${user.id}>".toRegex(),
-            "@${details.effectiveName}"
-        )
-    }
-    stripped = message.mentionedChannels.fold(stripped) { newContent, channel ->
-        newContent.replace(channel.asMention, "#${channel.name}")
-    }
-    stripped = message.mentionedRoles.fold(stripped) { newContent, role ->
-        newContent.replace(role.asMention, "@${role.name}")
+    runCatching {
+        stripped = message.mentionedUsers.fold(stripped) { newContent, user ->
+            val details = userDetails(user, message.getGuild())
+            newContent.replace(
+                "<@!?${user.id}>".toRegex(),
+                "@${details.effectiveName}"
+            )
+        }
+        stripped = message.mentionedChannels.fold(stripped) { newContent, channel ->
+            newContent.replace(channel.asMention, "#${channel.name}")
+        }
+        stripped = message.mentionedRoles.fold(stripped) { newContent, role ->
+            newContent.replace(role.asMention, "@${role.name}")
+        }
     }
     return stripped
 }
