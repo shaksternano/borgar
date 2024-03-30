@@ -66,38 +66,42 @@ class RevoltWebSocketClient(
             httpClient {
                 install(WebSockets)
             }.use { client ->
-                runCatching {
-                    while (open) {
-                        try {
-                            client.webSocket(
-                                host = REVOLT_WEBSOCKET_URL,
-                                path = "?version=1&format=json&token=$token",
-                                request = {
-                                    url {
-                                        protocol = URLProtocol.WSS
-                                    }
-                                },
-                            ) {
-                                session = this
-                                val pingJob = launch {
-                                    sendPings()
+                while (open) {
+                    runCatching {
+                        client.webSocket(
+                            host = REVOLT_WEBSOCKET_URL,
+                            path = "?version=1&format=json&token=$token",
+                            request = {
+                                url {
+                                    protocol = URLProtocol.WSS
                                 }
-                                handleMessages()
-                                pingJob.cancel()
+                            },
+                        ) {
+                            session = this
+                            val pingJob = launch {
+                                sendPings()
                             }
-                            session = null
-                            logger.info("Disconnected from Revolt WebSocket, reconnecting...")
-                        } catch (e: UnresolvedAddressException) {
-                            session = null
-                            logger.info("Failed to connect to Revolt WebSocket, trying again in $RETRY_CONNECT_INTERVAL")
-                            delay(RETRY_CONNECT_INTERVAL)
+                            handleMessages()
+                            pingJob.cancel()
+                        }
+                        logger.info("Disconnected from Revolt WebSocket, reconnecting...")
+                    }.onFailure {
+                        when (it) {
+                            // No internet connection
+                            is UnresolvedAddressException -> logger.error(
+                                "Failed to connect to Revolt WebSocket, trying again in $RETRY_CONNECT_INTERVAL",
+                            )
+
+                            else -> logger.error(
+                                "Error with Revolt WebSocket, reconnecting in $RETRY_CONNECT_INTERVAL",
+                                it,
+                            )
                         }
                     }
-                }.onFailure {
-                    logger.error("Error with Revolt WebSocket", it)
+                    session = null
+                    delay(RETRY_CONNECT_INTERVAL)
                 }
             }
-            session = null
         }
     }
 
