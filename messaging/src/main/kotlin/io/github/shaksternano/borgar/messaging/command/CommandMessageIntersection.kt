@@ -1,6 +1,7 @@
 package io.github.shaksternano.borgar.messaging.command
 
 import io.github.shaksternano.borgar.messaging.entity.*
+import io.github.shaksternano.borgar.messaging.entity.channel.Channel
 import io.github.shaksternano.borgar.messaging.entity.channel.MessageChannel
 import kotlinx.coroutines.flow.Flow
 
@@ -12,6 +13,9 @@ interface CommandMessageIntersection : Entity {
     val customEmojis: Flow<CustomEmoji>
     val stickers: Flow<Sticker>
     val referencedMessages: Flow<Message>
+    val mentionedUsers: Flow<User>
+    val mentionedChannels: Flow<Channel>
+    val mentionedRoles: Flow<Role>
 
     suspend fun getAuthor(): User
 

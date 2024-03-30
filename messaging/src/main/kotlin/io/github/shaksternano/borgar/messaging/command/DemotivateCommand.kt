@@ -23,11 +23,15 @@ object DemotivateCommand : FileCommand(
     override val name: String = "demotiv"
     override val description: String = "Puts image in demotivate meme."
 
-    override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask =
-        DemotivateTask(
-            arguments.getDefaultStringOrEmpty(),
-            arguments.getStringOrEmpty("subtext"),
-            event.asMessageIntersection(arguments).getEmojiAndUrlDrawables(),
-            maxFileSize,
+    override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {
+        val text = arguments.getDefaultStringOrEmpty()
+        val subText = arguments.getStringOrEmpty("subtext")
+        val messageIntersection = event.asMessageIntersection(arguments)
+        return DemotivateTask(
+            text = formatMentions(text, messageIntersection),
+            subText = formatMentions(subText, messageIntersection),
+            nonTextParts = messageIntersection.getEmojiAndUrlDrawables(),
+            maxFileSize = maxFileSize,
         )
+    }
 }

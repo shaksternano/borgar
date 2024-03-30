@@ -92,9 +92,12 @@ class TemplateCommand(
 
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {
         val text = arguments.getOptional("text", CommandArgumentType.String)
-        val nonTextParts =
-            if (text.isNullOrBlank()) emptyMap()
-            else event.asMessageIntersection(arguments).getEmojiAndUrlDrawables()
-        return TemplateTask(template, text, nonTextParts, maxFileSize)
+        val messageIntersection = event.asMessageIntersection(arguments)
+        return TemplateTask(
+            template = template,
+            text = text?.let { formatMentions(it, messageIntersection) },
+            nonTextParts = messageIntersection.getEmojiAndUrlDrawables(),
+            maxFileSize = maxFileSize,
+        )
     }
 }

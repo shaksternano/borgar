@@ -52,7 +52,8 @@ suspend fun CommandMessageIntersection.getUrls(getGif: Boolean): List<UrlInfo> =
 }
 
 suspend fun CommandMessageIntersection.getEmojiAndUrlDrawables(): Map<String, Drawable> =
-    getEmojiDrawables() + getUrlDrawables()
+    if (content.isBlank()) emptyMap()
+    else getEmojiDrawables() + getUrlDrawables()
 
 private suspend fun CommandMessageIntersection.getEmojiDrawables(): Map<String, Drawable> =
     getEmojiUrls().mapValues {

@@ -19,16 +19,16 @@ import java.awt.image.BufferedImage
 import kotlin.math.min
 
 class MemeTask(
-    topWords: String,
-    bottomWords: String,
+    topText: String,
+    bottomText: String,
     nonTextParts: Map<String, Drawable>,
     maxFileSize: Long
 ) : MediaProcessingTask(maxFileSize) {
 
     override val config: MediaProcessingConfig = SimpleMediaProcessingConfig(
         processor = MemeProcessor(
-            topWords,
-            bottomWords,
+            topText,
+            bottomText,
             nonTextParts,
         ),
         outputName = "meme"
@@ -36,13 +36,13 @@ class MemeTask(
 }
 
 private class MemeProcessor(
-    topWords: String,
-    bottomWords: String,
+    topText: String,
+    bottomText: String,
     private val nonTextParts: Map<String, Drawable>,
 ) : ImageProcessor<MemeData> {
 
-    private val topWords: List<String> = topWords.splitWords()
-    private val bottomWords: List<String> = bottomWords.splitWords()
+    private val topText: List<String> = topText.splitWords()
+    private val bottomText: List<String> = bottomText.splitWords()
 
     override suspend fun constantData(
         firstFrame: ImageFrame,
@@ -62,12 +62,12 @@ private class MemeProcessor(
         val bottomParagraphY = firstImage.height - textHeight - padding
 
         val topParagraph = ParagraphCompositeDrawable.Builder(nonTextParts)
-            .addWords(topWords) {
+            .addWords(topText) {
                 createText(it)
             }
             .build(TextAlignment.CENTRE, textWidth)
         val bottomParagraph = ParagraphCompositeDrawable.Builder(nonTextParts)
-            .addWords(bottomWords) {
+            .addWords(bottomText) {
                 createText(it)
             }
             .build(TextAlignment.CENTRE, textWidth)

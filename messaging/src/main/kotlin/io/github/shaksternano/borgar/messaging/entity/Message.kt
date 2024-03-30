@@ -3,14 +3,8 @@ package io.github.shaksternano.borgar.messaging.entity
 import io.github.shaksternano.borgar.messaging.builder.MessageCreateBuilder
 import io.github.shaksternano.borgar.messaging.builder.MessageEditBuilder
 import io.github.shaksternano.borgar.messaging.command.CommandMessageIntersection
-import io.github.shaksternano.borgar.messaging.entity.channel.Channel
-import kotlinx.coroutines.flow.Flow
 
 interface Message : CommandMessageIntersection, TimeStamped {
-
-    val mentionedUsers: Flow<User>
-    val mentionedChannels: Flow<Channel>
-    val mentionedRoles: Flow<Role>
 
     suspend fun reply(content: String): Message = reply {
         this.content = content

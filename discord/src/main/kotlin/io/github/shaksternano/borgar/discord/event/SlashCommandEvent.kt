@@ -17,6 +17,7 @@ import io.github.shaksternano.borgar.messaging.command.CommandMessageIntersectio
 import io.github.shaksternano.borgar.messaging.command.CommandResponse
 import io.github.shaksternano.borgar.messaging.command.getDefaultStringOrEmpty
 import io.github.shaksternano.borgar.messaging.entity.*
+import io.github.shaksternano.borgar.messaging.entity.channel.Channel
 import io.github.shaksternano.borgar.messaging.entity.channel.MessageChannel
 import io.github.shaksternano.borgar.messaging.event.CommandEvent
 import kotlinx.coroutines.flow.Flow
@@ -104,6 +105,9 @@ class SlashCommandEvent(
             override val customEmojis: Flow<CustomEmoji> = manager.getCustomEmojis(content)
             override val stickers: Flow<Sticker> = emptyFlow()
             override val referencedMessages: Flow<Message> = emptyFlow()
+            override val mentionedUsers: Flow<User> = emptyFlow()
+            override val mentionedChannels: Flow<Channel> = emptyFlow()
+            override val mentionedRoles: Flow<Role> = emptyFlow()
 
             override suspend fun getAuthor(): User = this@SlashCommandEvent.getAuthor()
 

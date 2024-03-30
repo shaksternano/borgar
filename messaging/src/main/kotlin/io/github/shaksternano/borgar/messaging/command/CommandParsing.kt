@@ -25,14 +25,10 @@ import kotlinx.coroutines.flow.fold
 import kotlinx.coroutines.launch
 
 suspend fun parseAndExecuteCommand(event: MessageReceiveEvent) {
-    val contentStripped = runCatching {
-        contentStripped(event.message)
-    }.getOrElse {
-        event.message.content
-    }.trim()
-    if (!contentStripped.startsWith(COMMAND_PREFIX)) return
+    val content = event.message.content.trim()
+    if (!content.startsWith(COMMAND_PREFIX)) return
     val commandConfigs = try {
-        parseCommands(contentStripped, event.message)
+        parseCommands(content, event.message)
     } catch (e: CommandNotFoundException) {
         event.reply("The command **$COMMAND_PREFIX${e.command}** does not exist!")
         return
@@ -156,20 +152,21 @@ suspend fun sendResponses(
     executable?.close()
 }
 
-private suspend fun contentStripped(message: Message): String {
-    var stripped = message.content
-    stripped = message.mentionedUsers.fold(stripped) { content, user ->
+suspend fun formatMentions(content: String, message: CommandMessageIntersection): String {
+    if (content.isBlank()) return content
+    var stripped = content
+    stripped = message.mentionedUsers.fold(stripped) { newContent, user ->
         val details = userDetails(user, message.getGuild())
-        content.replace(
+        newContent.replace(
             "<@!?${user.id}>".toRegex(),
             "@${details.effectiveName}"
         )
     }
-    stripped = message.mentionedChannels.fold(stripped) { content, channel ->
-        content.replace(channel.asMention, "#${channel.name}")
+    stripped = message.mentionedChannels.fold(stripped) { newContent, channel ->
+        newContent.replace(channel.asMention, "#${channel.name}")
     }
-    stripped = message.mentionedRoles.fold(stripped) { content, role ->
-        content.replace(role.asMention, "@${role.name}")
+    stripped = message.mentionedRoles.fold(stripped) { newContent, role ->
+        newContent.replace(role.asMention, "@${role.name}")
     }
     return stripped
 }

@@ -22,11 +22,15 @@ object MemeCommand : FileCommand(
     override val name: String = "meme"
     override val description: String = "Adds impact font text to a media file."
 
-    override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask =
-        MemeTask(
-            topWords = arguments.getDefaultStringOrEmpty(),
-            bottomWords = arguments.getStringOrEmpty("bottom"),
-            nonTextParts = event.asMessageIntersection(arguments).getEmojiAndUrlDrawables(),
+    override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {
+        val topText = arguments.getDefaultStringOrEmpty()
+        val bottomText = arguments.getStringOrEmpty("bottom")
+        val messageIntersection = event.asMessageIntersection(arguments)
+        return MemeTask(
+            topText = formatMentions(topText, messageIntersection),
+            bottomText = formatMentions(bottomText, messageIntersection),
+            nonTextParts = messageIntersection.getEmojiAndUrlDrawables(),
             maxFileSize = maxFileSize,
         )
+    }
 }

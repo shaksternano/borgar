@@ -29,11 +29,14 @@ sealed class CaptionCommand(
     override val description: String =
         "Captions a media file."
 
-    override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask =
-        CaptionTask(
-            arguments.getDefaultStringOrEmpty(),
-            isCaption2,
-            event.asMessageIntersection(arguments).getEmojiAndUrlDrawables(),
-            maxFileSize,
+    override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {
+        val caption = arguments.getDefaultStringOrEmpty()
+        val messageIntersection = event.asMessageIntersection(arguments)
+        return CaptionTask(
+            caption = formatMentions(caption, messageIntersection),
+            isCaption2 = isCaption2,
+            nonTextParts = messageIntersection.getEmojiAndUrlDrawables(),
+            maxFileSize = maxFileSize,
         )
+    }
 }
