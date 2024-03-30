@@ -8,6 +8,7 @@ import io.github.shaksternano.borgar.core.graphics.drawable.Drawable
 import io.github.shaksternano.borgar.core.graphics.drawable.ImageDrawable
 import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.io.UrlInfo
+import io.github.shaksternano.borgar.core.io.useHttpClient
 import io.github.shaksternano.borgar.core.util.*
 import io.github.shaksternano.borgar.messaging.BotManager
 import io.github.shaksternano.borgar.messaging.MessagingPlatform
@@ -17,6 +18,8 @@ import io.github.shaksternano.borgar.messaging.entity.User
 import io.github.shaksternano.borgar.messaging.entity.channel.Channel
 import io.github.shaksternano.borgar.messaging.entity.getContent
 import io.github.shaksternano.borgar.messaging.event.CommandEvent
+import io.ktor.client.request.*
+import io.ktor.http.*
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.take
@@ -69,6 +72,17 @@ private suspend fun CommandMessageIntersection.getUrlDrawables(): Map<String, Dr
             val url = embeds[entry.key]?.getContent(false)?.url
                 ?: retrieveTenorMediaUrl(entry.key, TenorMediaType.MP4_NORMAL)
                 ?: entry.key
+            val isImageOrVideo = useHttpClient { client ->
+                runCatching {
+                    val contentType = client.head(url).contentType()
+                    contentType?.let {
+                        it.match(ContentType.Image.Any) || it.match(ContentType.Video.Any)
+                    } ?: false
+                }.getOrDefault(false)
+            }
+            if (!isImageOrVideo) {
+                return@mapNotNull null
+            }
             val dataSource = DataSource.fromUrl(url)
             runCatching {
                 ImageDrawable(dataSource)
