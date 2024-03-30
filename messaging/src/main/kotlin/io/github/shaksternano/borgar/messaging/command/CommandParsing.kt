@@ -25,7 +25,11 @@ import kotlinx.coroutines.flow.fold
 import kotlinx.coroutines.launch
 
 suspend fun parseAndExecuteCommand(event: MessageReceiveEvent) {
-    val contentStripped = contentStripped(event.message).trim()
+    val contentStripped = runCatching {
+        contentStripped(event.message)
+    }.getOrElse {
+        event.message.content
+    }.trim()
     if (!contentStripped.startsWith(COMMAND_PREFIX)) return
     val commandConfigs = try {
         parseCommands(contentStripped, event.message)
