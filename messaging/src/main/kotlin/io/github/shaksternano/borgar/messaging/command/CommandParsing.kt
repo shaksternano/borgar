@@ -3,6 +3,7 @@ package io.github.shaksternano.borgar.messaging.command
 import io.github.shaksternano.borgar.core.collect.parallelForEach
 import io.github.shaksternano.borgar.core.data.repository.TemplateRepository
 import io.github.shaksternano.borgar.core.exception.ErrorResponseException
+import io.github.shaksternano.borgar.core.exception.UnreadableFileException
 import io.github.shaksternano.borgar.core.io.deleteSilently
 import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.core.util.*
@@ -19,6 +20,7 @@ import io.github.shaksternano.borgar.messaging.exception.CommandException
 import io.github.shaksternano.borgar.messaging.exception.MissingArgumentException
 import io.github.shaksternano.borgar.messaging.util.checkEntityIdBelongs
 import io.github.shaksternano.borgar.messaging.util.getEntityId
+import io.ktor.util.logging.*
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.fold
@@ -208,27 +210,39 @@ fun handleError(throwable: Throwable, manager: BotManager): String {
             "$message $environmentDisplayName!"
         }
 
-        is OutOfMemoryError -> OUT_OF_MEMORY_ERROR_MESSAGE
+        is UnreadableFileException -> {
+            logger.commandError(commandConfigs, unwrapped)
+            "The file could not be read!"
+        }
+
+        is OutOfMemoryError -> {
+            logger.commandError(commandConfigs, unwrapped)
+            OUT_OF_MEMORY_ERROR_MESSAGE
+        }
 
         else -> {
-            if (commandConfigs.isEmpty()) {
-                logger.error("An error occurred", unwrapped)
-            } else {
-                var message = "Error executing command"
-                if (commandConfigs.size > 1) {
-                    message += "s"
-                }
-                message += " "
-                message += commandConfigs.joinToString(", ") {
-                    it.typedForm
-                }
-                logger.error(
-                    message,
-                    unwrapped,
-                )
-            }
+            logger.commandError(commandConfigs, unwrapped)
             "An error occurred!"
         }
+    }
+}
+
+private fun Logger.commandError(commandConfigs: Collection<CommandConfig>, throwable: Throwable) {
+    if (commandConfigs.isEmpty()) {
+        error("An error occurred", throwable)
+    } else {
+        var message = "Error executing command"
+        if (commandConfigs.size > 1) {
+            message += "s"
+        }
+        message += " "
+        message += commandConfigs.joinToString(", ") {
+            it.typedForm
+        }
+        error(
+            message,
+            throwable,
+        )
     }
 }
 

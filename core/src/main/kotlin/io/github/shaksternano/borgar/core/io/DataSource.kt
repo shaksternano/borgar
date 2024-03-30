@@ -1,5 +1,6 @@
 package io.github.shaksternano.borgar.core.io
 
+import io.github.shaksternano.borgar.core.exception.UnreadableFileException
 import io.github.shaksternano.borgar.core.util.hash
 import io.github.shaksternano.borgar.core.util.kClass
 import io.ktor.client.request.*
@@ -49,7 +50,12 @@ interface DataSource : DataSourceConvertable {
         if (this is FileDataSource) return this
         val path = path ?: let {
             val newPath = createTemporaryFile(filename)
-            writeToPath(newPath)
+            runCatching {
+                writeToPath(newPath)
+            }.onFailure {
+                newPath.deleteSilently()
+                throw UnreadableFileException(it)
+            }
             newPath
         }
         return fromFile(path, filename, url)
