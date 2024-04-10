@@ -1,5 +1,6 @@
 plugins {
     id("com.github.johnrengelman.shadow") version "8.1.1"
+    application
 }
 
 base.archivesName.set("borgar")
@@ -37,4 +38,9 @@ tasks {
         dependsOn(shadowJar)
         finalizedBy(copyJar)
     }
+}
+
+application {
+    mainClass.set("${project.group}.app.AppKt")
+    tasks.run.get().workingDir = rootProject.projectDir
 }
