@@ -27,6 +27,7 @@ tasks {
                 )
             )
         }
+        dependsOn(distTar, distZip)
     }
 
     val copyJar = register<Copy>("copyJar") {
