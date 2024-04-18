@@ -39,6 +39,12 @@ object StretchCommand : FileCommand(
         val widthMultiplier = arguments.getRequired("widthmultiplier", CommandArgumentType.Double)
         val heightMultiplier = arguments.getRequired("heightmultiplier", CommandArgumentType.Double)
         val raw = arguments.getRequired("raw", CommandArgumentType.Boolean)
-        return StretchTask(widthMultiplier, heightMultiplier, raw, maxFileSize)
+        return StretchTask(
+            widthMultiplier = widthMultiplier,
+            heightMultiplier = heightMultiplier,
+            raw = raw,
+            maxFileSize = maxFileSize,
+            outputName = "stretched",
+        )
     }
 }

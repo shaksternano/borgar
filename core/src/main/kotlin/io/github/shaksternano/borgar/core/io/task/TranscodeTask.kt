@@ -14,7 +14,7 @@ private class TranscodeConfig(
     private val format: String,
 ) : MediaProcessingConfig {
 
-    override val outputName: String? = null
+    override val outputName: String = ""
 
     override fun transformOutputFormat(inputFormat: String): String = format
 }

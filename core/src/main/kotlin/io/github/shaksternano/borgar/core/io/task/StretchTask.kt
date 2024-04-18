@@ -9,9 +9,10 @@ class StretchTask(
     heightMultiplier: Double,
     raw: Boolean,
     maxFileSize: Long,
+    outputName: String = "",
 ) : MediaProcessingTask(maxFileSize) {
 
-    override val config: MediaProcessingConfig = SimpleMediaProcessingConfig("stretched") {
+    override val config: MediaProcessingConfig = SimpleMediaProcessingConfig(outputName) {
         val image = it.content
         image.stretch(
             (image.width * widthMultiplier).toInt(),

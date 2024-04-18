@@ -27,7 +27,12 @@ object ResizeCommand : FileCommand(
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {
         val resizeMultiplier = arguments.getRequired("resizemultiplier", CommandArgumentType.Double)
         val raw = arguments.getRequired("raw", CommandArgumentType.Boolean)
-        return StretchTask(resizeMultiplier, resizeMultiplier, raw, maxFileSize)
+        return StretchTask(
+            widthMultiplier = resizeMultiplier,
+            heightMultiplier = resizeMultiplier,
+            raw = raw,
+            maxFileSize = maxFileSize,
+        )
     }
 }
 

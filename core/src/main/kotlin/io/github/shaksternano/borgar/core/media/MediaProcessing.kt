@@ -15,7 +15,7 @@ import kotlin.math.min
 
 interface MediaProcessingConfig {
 
-    val outputName: String?
+    val outputName: String
 
     suspend fun transformImageReader(imageReader: ImageReader, outputFormat: String): ImageReader = imageReader
 
@@ -32,7 +32,9 @@ private class ChainedMediaProcessingConfig(
     private val second: MediaProcessingConfig,
 ) : MediaProcessingConfig {
 
-    override val outputName: String? = second.outputName ?: first.outputName
+    override val outputName: String = second.outputName.ifBlank {
+        first.outputName
+    }
 
     override suspend fun transformImageReader(imageReader: ImageReader, outputFormat: String): ImageReader {
         val firstReader = first.transformImageReader(imageReader, outputFormat)
@@ -52,11 +54,11 @@ private class ChainedMediaProcessingConfig(
 
 class SimpleMediaProcessingConfig(
     private val processor: ImageProcessor<*>,
-    override val outputName: String?,
+    override val outputName: String,
 ) : MediaProcessingConfig {
 
     constructor(
-        outputName: String?,
+        outputName: String,
         transform: (ImageFrame) -> BufferedImage,
     ) : this(
         SimpleImageProcessor(transform),
@@ -86,7 +88,9 @@ suspend fun processMedia(
             else
                 inputFormat
         val outputFormat = config.transformOutputFormat(supportedInputFormat)
-        val outputName = config.outputName ?: fileInput.filenameWithoutExtension
+        val outputName = config.outputName.ifBlank {
+            fileInput.filenameWithoutExtension
+        }
         val output = processMedia(
             config.transformImageReader(imageReader, outputFormat),
             config.transformAudioReader(audioReader, outputFormat),
