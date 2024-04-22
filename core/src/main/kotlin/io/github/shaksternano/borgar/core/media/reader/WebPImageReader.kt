@@ -10,19 +10,15 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 import java.awt.image.BufferedImage
-import java.nio.file.Path
 import javax.imageio.ImageIO
 import javax.imageio.stream.ImageInputStream
-import kotlin.io.path.deleteIfExists
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
 class WebPImageReader(
-    private val input: Path,
     private val imageInput: ImageInputStream,
     private val reader: javax.imageio.ImageReader,
     override val frameCount: Int,
-    private val deleteInputOnClose: Boolean,
 ) : BaseImageReader() {
 
     override val frameRate: Double
@@ -110,35 +106,24 @@ class WebPImageReader(
     override suspend fun close() = closeAll(
         SuspendCloseable(reader::dispose),
         SuspendCloseable.fromBlocking(imageInput),
-        SuspendCloseable.fromBlocking {
-            if (deleteInputOnClose) {
-                input.deleteIfExists()
-            }
-        }
     )
 
     object Factory : ImageReaderFactory {
 
         override val supportedFormats: Set<String> = setOf("webp")
 
-        override suspend fun create(input: DataSource): ImageReader {
-            val isTempFile = input.path == null
-            val path = input.getOrWriteFile().path
-            return withContext(Dispatchers.IO) {
-                val imageInput = ImageIO.createImageInputStream(path.toFile())
-                val readers = ImageIO.getImageReaders(imageInput)
-                require(readers.hasNext()) { "No WebP reader found" }
-                val reader = readers.next()
-                reader.input = imageInput
-                val size = reader.getNumImages(true)
-                WebPImageReader(
-                    path,
-                    imageInput,
-                    reader,
-                    size,
-                    isTempFile,
-                )
-            }
+        override suspend fun create(input: DataSource): ImageReader = withContext(Dispatchers.IO) {
+            val imageInput = ImageIO.createImageInputStream(input.newStream())
+            val readers = ImageIO.getImageReaders(imageInput)
+            require(readers.hasNext()) { "No WebP reader found" }
+            val reader = readers.next()
+            reader.input = imageInput
+            val size = reader.getNumImages(true)
+            WebPImageReader(
+                imageInput,
+                reader,
+                size,
+            )
         }
     }
 }
