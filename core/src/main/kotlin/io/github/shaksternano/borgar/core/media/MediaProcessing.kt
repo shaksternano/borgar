@@ -69,6 +69,16 @@ class SimpleMediaProcessingConfig(
         imageReader.transform(processor, outputFormat)
 }
 
+private val ANIMATED_FORMAT_MAPPING: Map<String, String> = mapOf(
+    "pdf" to "mp4",
+    "webp" to "gif",
+)
+
+private val STATIC_FORMAT_MAPPING: Map<String, String> = mapOf(
+    "pdf" to "png",
+    "webp" to "png",
+)
+
 suspend fun processMedia(
     input: DataSource,
     config: MediaProcessingConfig,
@@ -83,8 +93,8 @@ suspend fun processMedia(
         val audioReader = createAudioReader(fileInput, inputFormat)
         val supportedInputFormat =
             if (isReaderFormatSupported(inputFormat) && !isWriterFormatSupported(inputFormat))
-                if (imageReader.frameCount == 1) "png"
-                else "mp4"
+                if (imageReader.frameCount == 1) STATIC_FORMAT_MAPPING[inputFormat] ?: "png"
+                else ANIMATED_FORMAT_MAPPING[inputFormat] ?: "mp4"
             else
                 inputFormat
         val outputFormat = config.transformOutputFormat(supportedInputFormat)
