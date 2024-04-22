@@ -20,12 +20,12 @@ class LoopTask(
 
     override suspend fun process(input: DataSource): DataSource {
         val tempFile = input.path == null
-        val path = input.getOrWriteFile().path
+        val dataSource = input.getOrWriteFile()
         if (tempFile) {
-            markToDelete(path)
+            markToDelete(dataSource.path)
         }
         val gifInfo = try {
-            locateGifComponents(path.inputStreamSuspend())
+            locateGifComponents(dataSource.newStream())
         } catch (e: IllegalArgumentException) {
             throw ErrorResponseException("File is not a GIF!")
         }
@@ -34,7 +34,7 @@ class LoopTask(
             if (loopCount < 0) listOf()
             else createApplicationExtension(loopCount)
         return DataSource.fromStreamSupplier(input.filename) {
-            val result = path.inputStreamSuspend()
+            val result = dataSource.newStream()
                 .buffered()
                 .modifiable()
             // Insert the new application extension with the specified loop count after the global color table

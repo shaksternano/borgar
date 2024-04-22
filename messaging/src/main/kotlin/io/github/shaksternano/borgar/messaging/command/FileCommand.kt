@@ -121,7 +121,7 @@ private data class FileExecutable(
             return CommandResponse("An error occurred!").asSingletonList()
         }
         val canUpload = output.filter {
-            it.sendUrl || it.size() <= maxFileSize
+            it.sendUrl || it.isWithinReportedSize(maxFileSize)
         }
         return canUpload.chunked(maxFilesPerMessage).mapIndexed { index, files ->
             val partitioned = files.partition {
@@ -137,7 +137,10 @@ private data class FileExecutable(
                 files = attachments,
             )
         }.ifEmpty {
-            CommandResponse("Files are too large to upload.").asSingletonList()
+            val message = if (output.size == 1)
+                "File is too large to upload."
+            else "Files are too large to upload."
+            CommandResponse(message).asSingletonList()
         }
     }
 

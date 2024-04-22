@@ -56,7 +56,7 @@ object FavouriteCommand : NonChainableCommand() {
         val dataSource = DataSource.fromUrl(downloadUrl)
         if (fileExtension.equalsAnyIgnoreCase("png", "jpg", "jpeg", "webp")) {
             val maxFileSize = event.getGuild()?.maxFileSize ?: event.manager.maxFileSize
-            if (dataSource.size() > maxFileSize) {
+            if (!dataSource.isWithinReportedSize(maxFileSize)) {
                 throw ErrorResponseException("File is too large! (Max: ${toMb(maxFileSize)}MB)")
             }
             val nameWithoutExtension = filenameWithoutExtension(fileUrl)
@@ -106,7 +106,7 @@ object FavouriteCommand : NonChainableCommand() {
         }
         val maxSize = event.getGuild()?.maxFileSize ?: event.manager.maxFileSize
         val aliasGif = createAliasGif(dataSource, event, maxSize)
-        if (aliasGif.size() > maxSize) {
+        if (!aliasGif.isWithinReportedSize(maxSize)) {
             aliasGif.path.deleteSilently()
             return CommandResponse("The file is too large!")
         }

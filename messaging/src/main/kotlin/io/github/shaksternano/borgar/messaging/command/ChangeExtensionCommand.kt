@@ -16,5 +16,5 @@ class ChangeExtensionCommand(
     override val description: String = "Changes the extension of a file to .$newExtension."
 
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask =
-        ChangeExtensionTask(newExtension, maxFileSize)
+        ChangeExtensionTask(newExtension)
 }

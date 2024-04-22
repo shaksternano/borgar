@@ -33,18 +33,10 @@ interface DataSource : DataSourceConvertable {
         }
     }
 
-    suspend fun size(): Long {
-        val inputStream = newStream()
-        return withContext(Dispatchers.IO) {
-            inputStream.buffered().use {
-                var size = 0L
-                it.iterator().forEach { _ ->
-                    size++
-                }
-                size
-            }
-        }
-    }
+    suspend fun size(): Long? = null
+
+    suspend fun isWithinReportedSize(maxSize: Long): Boolean =
+        size()?.let { it <= maxSize } ?: true
 
     suspend fun getOrWriteFile(): FileDataSource {
         if (this is FileDataSource) return this
@@ -122,9 +114,7 @@ data class FileDataSource(
     override val sendUrl: Boolean = false
     private var size: Long? = null
 
-    override suspend fun newStream(): InputStream = withContext(Dispatchers.IO) {
-        path.inputStream()
-    }
+    override suspend fun newStream(): InputStream = path.inputStreamSuspend()
 
     override fun newStreamBlocking(): InputStream = path.inputStream()
 
@@ -172,6 +162,7 @@ data class UrlDataSource(
 
     override val path: Path? = null
     private var size: Long? = null
+    private var setSize: Boolean = false
 
     override suspend fun newStream(): InputStream =
         httpGet<InputStream>(url)
@@ -179,21 +170,16 @@ data class UrlDataSource(
     override suspend fun toByteArray(): ByteArray =
         httpGet<ByteArray>(url)
 
-    override suspend fun size(): Long {
-        size?.let {
-            return it
+    override suspend fun size(): Long? {
+        if (setSize) {
+            return size
         }
         return useHttpClient { client ->
             val headResponse = client.head(url)
-            val contentLength = headResponse.contentLength()
-            if (contentLength == null) {
-                val response = client.get(url)
-                response.size()
-            } else {
-                contentLength
-            }
+            headResponse.contentLength()
         }.also {
             size = it
+            setSize = true
         }
     }
 

@@ -5,6 +5,7 @@ import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.io.httpGet
 import io.github.shaksternano.borgar.core.util.asSingletonList
 import io.github.shaksternano.borgar.core.util.parseTags
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlin.math.ceil
 import kotlin.math.min
@@ -56,17 +57,16 @@ class DerpibooruTask(
             .ifEmpty { throw ErrorResponseException("No images found!") }
             .shuffled()
             .take(fileCount)
-            .mapNotNull {
+            .map {
                 if (fileCount == 1) DataSource.fromUrl(it.representations.full, sendUrl = true)
                 else {
                     val image = it.getImage(maxFileSize)
                     val format =
                         if (it.format.equals("jpeg", ignoreCase = true)) "jpg"
                         else it.format.lowercase()
-                    image?.rename("derpibooru-${it.id}.$format")
+                    image.rename("derpibooru-${it.id}.$format")
                 }
             }
-            .ifEmpty { throw ErrorResponseException("Images are too large!") }
     }
 
     private fun getRequestUrl(page: Int): String {
@@ -84,20 +84,15 @@ class DerpibooruTask(
     private fun getRequestUrlId(): String =
         "$DERPIBOORU_API_DOMAIN/api/v1/json/images/$id"
 
-    private suspend fun DerpibooruImageBody.getImage(maxFileSize: Long): DataSource? {
-        val fullDataSource = DataSource.fromUrl(representations.full)
-        if (fullDataSource.size() <= maxFileSize) {
-            return fullDataSource
+    private suspend fun DerpibooruImageBody.getImage(maxFileSize: Long): DataSource {
+        val allRepresentations = representations.all
+        allRepresentations.forEachIndexed { index, representation ->
+            val dataSource = DataSource.fromUrl(representation)
+            if (index == allRepresentations.size - 1 || dataSource.isWithinReportedSize(maxFileSize)) {
+                return dataSource
+            }
         }
-        val mediumDataSource = DataSource.fromUrl(representations.medium)
-        if (mediumDataSource.size() <= maxFileSize) {
-            return mediumDataSource
-        }
-        val smallDataSource = DataSource.fromUrl(representations.small)
-        if (smallDataSource.size() <= maxFileSize) {
-            return smallDataSource
-        }
-        return null
+        throw IllegalStateException("This should never happen")
     }
 }
 
@@ -124,4 +119,13 @@ private data class DerpibooruImageRepresentations(
     val full: String,
     val medium: String,
     val small: String,
-)
+    val thumb: String,
+    @SerialName("thumb_small")
+    val thumbSmall: String,
+    @SerialName("thumb_tiny")
+    val thumbTiny: String,
+) {
+
+    val all: List<String>
+        get() = listOf(full, medium, small, thumb, thumbSmall, thumbTiny)
+}

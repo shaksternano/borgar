@@ -159,15 +159,6 @@ suspend fun HttpResponse.download(path: Path) {
     }
 }
 
-suspend fun HttpResponse.size(): Long =
-    contentLength() ?: let {
-        var size = 0L
-        readBytes {
-            size += it.size
-        }
-        size
-    }
-
 fun HttpResponse.filename(): String? = headers["Content-Disposition"]?.let {
     val headerParts = it.split("filename=", limit = 2)
     if (headerParts.size == 2) {
@@ -212,9 +203,8 @@ suspend fun DataSource.fileFormat(): String {
     return mediaFormat ?: fileExtension
 }
 
-suspend fun DataSource.toChannelProvider(): ChannelProvider {
-    val size = runCatching { size() }.getOrNull()
-    return ChannelProvider(size) {
+suspend fun DataSource.toChannelProvider(): ChannelProvider =
+    ChannelProvider(size()) {
         val url = url
         if (path == null && url != null) {
             useHttpClient { client ->
@@ -227,7 +217,6 @@ suspend fun DataSource.toChannelProvider(): ChannelProvider {
             newStreamBlocking().toByteReadChannel()
         }
     }
-}
 
 fun removeQueryParams(url: String): String =
     url.split('?').first()

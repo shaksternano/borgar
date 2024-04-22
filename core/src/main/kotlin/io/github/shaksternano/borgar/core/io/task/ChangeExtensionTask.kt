@@ -1,19 +1,17 @@
 package io.github.shaksternano.borgar.core.io.task
 
-import io.github.shaksternano.borgar.core.exception.ErrorResponseException
-import io.github.shaksternano.borgar.core.io.*
+import io.github.shaksternano.borgar.core.io.DataSource
+import io.github.shaksternano.borgar.core.io.fileExtension
+import io.github.shaksternano.borgar.core.io.filename
+import io.github.shaksternano.borgar.core.io.filenameWithoutExtension
 
 class ChangeExtensionTask(
     private val newExtension: String,
-    private val maxFileSize: Long,
 ) : MappedFileTask() {
 
     override suspend fun process(input: DataSource): DataSource {
         if (input.fileExtension == newExtension && !input.sendUrl && input.url != null) {
             return input.withSendUrl(true)
-        }
-        if (input.size() > maxFileSize) {
-            throw ErrorResponseException("File is too large! (Max: ${toMb(maxFileSize)}MB)")
         }
         val filenameWithoutExtension = input.filenameWithoutExtension
         val newFilename = filename(filenameWithoutExtension, newExtension)

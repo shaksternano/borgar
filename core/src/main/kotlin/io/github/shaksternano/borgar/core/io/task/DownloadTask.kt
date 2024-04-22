@@ -78,22 +78,17 @@ class DownloadTask(
                 val filename = getFilename(headResponse, downloadUrl)
                 DataSource.fromUrl(downloadUrl, filename)
             }
-            val fileSize = dataSource.size()
-            if (fileSize > maxFileSize) {
-                if (videoQualityIndex < VIDEO_QUALITIES.size - 1) {
-                    return download(
-                        url,
-                        videoQualityIndex + 1,
-                        audioOnly,
-                        fileIndex,
-                        maxFileSize,
-                    )
-                } else {
-                    throw FileTooLargeException()
-                }
-            } else {
-                dataSource
-            }
+            if (videoQualityIndex < VIDEO_QUALITIES.size - 1
+                && !dataSource.isWithinReportedSize(maxFileSize)
+            ) {
+                return download(
+                    url,
+                    videoQualityIndex + 1,
+                    audioOnly,
+                    fileIndex,
+                    maxFileSize,
+                )
+            } else dataSource
         }
     }
 
