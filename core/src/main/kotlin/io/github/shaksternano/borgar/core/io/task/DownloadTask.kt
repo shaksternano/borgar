@@ -109,7 +109,7 @@ class DownloadTask(
             url,
             videoQuality,
             audioOnly,
-            isNoTTWatermark = true,
+            twitterGif = true,
         )
         val responseBodyString = useHttpClient { client ->
             val response = client.post(requestUrl) {
@@ -147,19 +147,19 @@ class DownloadTask(
         val url: String,
         val vQuality: String,
         val isAudioOnly: Boolean,
-        val isNoTTWatermark: Boolean,
+        val twitterGif: Boolean,
     ) {
 
         constructor(
             url: String,
             vQuality: Int,
             isAudioOnly: Boolean,
-            isNoTTWatermark: Boolean,
+            twitterGif: Boolean,
         ) : this(
             url,
             vQuality.toString(),
             isAudioOnly,
-            isNoTTWatermark,
+            twitterGif,
         )
     }
 
