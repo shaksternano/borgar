@@ -6,6 +6,8 @@ import kotlinx.coroutines.flow.Flow
 
 interface MessageChannel : Channel {
 
+    val cancellableTyping: Boolean
+
     suspend fun sendTyping()
 
     suspend fun stopTyping()

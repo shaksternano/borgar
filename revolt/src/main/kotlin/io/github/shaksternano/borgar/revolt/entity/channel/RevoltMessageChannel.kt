@@ -47,6 +47,8 @@ class RevoltMessageChannel(
     rolePermissions,
 ) {
 
+    override val cancellableTyping: Boolean = true
+
     override suspend fun sendTyping() =
         manager.webSocket.sendTyping(id)
 

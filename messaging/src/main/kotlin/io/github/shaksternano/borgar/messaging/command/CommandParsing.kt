@@ -41,12 +41,19 @@ suspend fun parseAndExecuteCommand(event: MessageReceiveEvent) {
     val firstCommand = commandConfigs.first().command
     if (!firstCommand.isCorrectEnvironment(environment)) return
     val commandEvent = MessageCommandEvent(event)
-    sendTypingUntilDone(channel) {
-        val (responses, executable) = executeCommands(
+    val cancellableTyping = channel.cancellableTyping
+    val (responses, executable) = sendTypingUntilDone(channel) {
+        executeCommands(
             commandConfigs,
             environment,
             commandEvent,
-        )
+        ).also { (responses, executable) ->
+            if (cancellableTyping) {
+                sendResponses(responses, executable, commandEvent)
+            }
+        }
+    }
+    if (!cancellableTyping) {
         sendResponses(responses, executable, commandEvent)
     }
 }

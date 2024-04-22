@@ -25,6 +25,8 @@ data class DiscordMessageChannel(
     private val discordMessageChannel: net.dv8tion.jda.api.entities.channel.middleman.MessageChannel,
 ) : MessageChannel, DiscordChannel(discordMessageChannel) {
 
+    override val cancellableTyping: Boolean = false
+
     override suspend fun sendTyping() {
         discordMessageChannel.sendTyping().await()
     }
