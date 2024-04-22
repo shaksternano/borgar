@@ -291,15 +291,11 @@ enum class ResourceTemplate(
 
     override val font: Font = Font(fontName, Font.PLAIN, maxFontSize)
 
-    override suspend fun getImageReader(): ImageReader {
-        val dataSource = DataSource.fromResource(mediaPath)
-        return createImageReader(dataSource)
-    }
+    override suspend fun getImageReader(): ImageReader =
+        createImageReader(media)
 
-    override suspend fun getAudioReader(): AudioReader {
-        val dataSource = DataSource.fromResource(mediaPath)
-        return createAudioReader(dataSource)
-    }
+    override suspend fun getAudioReader(): AudioReader =
+        createAudioReader(media)
 
     override suspend fun getContentClip(): Shape? {
         if (contentClipShapePath == null) return null
