@@ -113,7 +113,7 @@ class WebPImageReader(
         override val supportedFormats: Set<String> = setOf("webp")
 
         override suspend fun create(input: DataSource): ImageReader = withContext(Dispatchers.IO) {
-            val imageInput = ImageIO.createImageInputStream(input.newStream())
+            val imageInput = ImageIO.createImageInputStream(input.path?.toFile() ?: input.newStream())
             val readers = ImageIO.getImageReaders(imageInput)
             require(readers.hasNext()) { "No WebP reader found" }
             val reader = readers.next()
