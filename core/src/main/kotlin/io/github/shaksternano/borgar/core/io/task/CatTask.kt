@@ -20,7 +20,7 @@ class CatTask(
     maxFileSize,
 ) {
 
-    override fun requestUrl(tags: Set<String>): String {
+    override fun getRequestUrl(tags: Set<String>): String {
         val isGif =
             if (tags.equalsAnyIgnoreCase("gif")) true
             else if (tags.equalsAnyIgnoreCase("image")) false

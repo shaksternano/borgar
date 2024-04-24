@@ -95,9 +95,11 @@ suspend fun Path.deleteSilently() {
 
 fun httpClient(block: HttpClientConfig<*>.() -> Unit = {}): HttpClient = HttpClient(CIO, block)
 
-fun configuredHttpClient(): HttpClient = httpClient {
-    install(ContentNegotiation) {
-        json(JSON)
+fun configuredHttpClient(json: Boolean = true): HttpClient = httpClient {
+    if (json) {
+        install(ContentNegotiation) {
+            json(JSON)
+        }
     }
     install(HttpRequestRetry) {
         maxRetries = 3
@@ -111,8 +113,8 @@ fun configuredHttpClient(): HttpClient = httpClient {
     }
 }
 
-inline fun <T> useHttpClient(block: (HttpClient) -> T): T =
-    configuredHttpClient().runCatching {
+inline fun <T> useHttpClient(json: Boolean = true, block: (HttpClient) -> T): T =
+    configuredHttpClient(json).runCatching {
         use(block)
     }.getOrElse {
         // Wrap exception because HttpClient errors don't have helpful stack traces

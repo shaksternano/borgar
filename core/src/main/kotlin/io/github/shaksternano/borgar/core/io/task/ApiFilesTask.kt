@@ -20,11 +20,11 @@ abstract class ApiFilesTask(
     override val requireInput: Boolean = false
     private val tags: Set<String> = parseTags(tags)
 
-    override suspend fun run(input: List<DataSource>): List<DataSource> = useHttpClient { client ->
-        val files = (1..fileCount)
-            .parallelMap {
+    override suspend fun run(input: List<DataSource>): List<DataSource> {
+        val apiResponses = useHttpClient { client ->
+            (1..fileCount).parallelMap {
                 runCatching {
-                    response(client, tags)
+                    getApiResponse(client, tags)
                 }.getOrElse {
                     return@parallelMap null
                 }
@@ -33,17 +33,20 @@ abstract class ApiFilesTask(
             .distinctBy {
                 it.id
             }
-            .parallelMap {
-                val response = runCatching {
+        }
+        return useHttpClient(json = false) { client ->
+            apiResponses.parallelMap {
+                val fileResponse = runCatching {
                     client.get(it.url)
                 }.getOrElse {
                     return@parallelMap null
                 }
-                val contentLength = response.contentLength() ?: 0
-                if (!response.status.isSuccess() || contentLength > maxFileSize) {
+                println(it.url)
+                val contentLength = fileResponse.contentLength() ?: 0
+                if (!fileResponse.status.isSuccess() || contentLength > maxFileSize) {
                     return@parallelMap null
                 }
-                val extension = response.contentType()
+                val extension = fileResponse.contentType()
                     ?.contentSubtype
                     ?: it.extension
                 val fixedExtension = if (extension.equals("jpeg", true)) {
@@ -52,17 +55,18 @@ abstract class ApiFilesTask(
                     extension.lowercase()
                 }
                 val filename = "$filePrefix-${it.id}.${fixedExtension}"
-                val bytes = response.readBytes()
+                val bytes = fileResponse.readBytes()
                 DataSource.fromBytes(filename, bytes)
             }
             .filterNotNull()
-        files.ifEmpty {
-            throw ErrorResponseException("No images found!")
+            .ifEmpty {
+                throw ErrorResponseException("No images found!")
+            }
         }
     }
 
-    private suspend fun response(client: HttpClient, tags: Set<String>): ApiResponse {
-        val url = requestUrl(tags)
+    private suspend fun getApiResponse(client: HttpClient, tags: Set<String>): ApiResponse {
+        val url = getRequestUrl(tags)
         val response = client.get(url) {
             contentType(ContentType.Application.Json)
         }
@@ -73,7 +77,7 @@ abstract class ApiFilesTask(
         }
     }
 
-    protected abstract fun requestUrl(tags: Set<String>): String
+    protected abstract fun getRequestUrl(tags: Set<String>): String
 
     protected abstract suspend fun parseResponse(response: HttpResponse): ApiResponse
 
