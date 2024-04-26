@@ -97,9 +97,9 @@ class RevoltWebSocketClient(
                                 it,
                             )
                         }
+                        delay(RETRY_CONNECT_INTERVAL)
                     }
                     session = null
-                    delay(RETRY_CONNECT_INTERVAL)
                 }
             }
         }
