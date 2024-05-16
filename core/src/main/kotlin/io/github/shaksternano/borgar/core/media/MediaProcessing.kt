@@ -88,7 +88,7 @@ suspend fun processMedia(
     val fileInput = input.getOrWriteFile()
     val path = fileInput.path
     return try {
-        val inputFormat = input.fileFormat()
+        val inputFormat = input.fileFormat().ifBlank { "mp4" }
         val imageReader = createImageReader(fileInput, inputFormat)
         val audioReader = createAudioReader(fileInput, inputFormat)
         val supportedInputFormat =
