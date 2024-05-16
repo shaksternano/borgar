@@ -18,7 +18,6 @@ import io.ktor.utils.io.core.*
 import io.ktor.utils.io.errors.*
 import io.ktor.utils.io.jvm.javaio.*
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.FileUtils
 import org.reflections.Reflections
@@ -200,14 +199,11 @@ suspend fun DataSource.toChannelProvider(): ChannelProvider =
     ChannelProvider(size()) {
         val url = url
         if (path == null && url != null) {
-            useHttpClient { client ->
-                runBlocking {
-                    val response = client.get(url)
-                    response.bodyAsChannel()
-                }
-            }
+            HttpByteReadChannel(url)
         } else {
-            newStreamBlocking().toByteReadChannel()
+            LazyInitByteReadChannel {
+                newStream().toByteReadChannel()
+            }
         }
     }
 
