@@ -15,46 +15,29 @@ abstract class DelegatedByteReadChannel : ByteReadChannel {
 
     override val availableForRead: Int
         get() =
-            if (isInitialized) {
-                delegate.availableForRead
-            } else {
-                0
-            }
+            if (isInitialized) delegate.availableForRead
+            else 0
     override val closedCause: Throwable?
         get() =
-            if (isInitialized) {
-                delegate.closedCause
-            } else {
-                null
-            }
+            if (isInitialized) delegate.closedCause
+            else null
     override val isClosedForRead: Boolean
         get() =
-            if (isInitialized) {
-                delegate.isClosedForRead
-            } else {
-                false
-            }
+            if (isInitialized) delegate.isClosedForRead
+            else false
     override val isClosedForWrite: Boolean
         get() =
-            if (isInitialized) {
-                delegate.isClosedForWrite
-            } else {
-                false
-            }
+            if (isInitialized) delegate.isClosedForWrite
+            else false
     override val totalBytesRead: Long
         get() =
-            if (isInitialized) {
-                delegate.totalBytesRead
-            } else {
-                0
-            }
+            if (isInitialized) delegate.totalBytesRead
+            else 0
 
     protected abstract suspend fun createChannel(): ByteReadChannel
 
     private suspend fun init() {
-        if (!isInitialized) {
-            delegate = createChannel()
-        }
+        if (!isInitialized) delegate = createChannel()
     }
 
     override suspend fun awaitContent() {
@@ -63,11 +46,8 @@ abstract class DelegatedByteReadChannel : ByteReadChannel {
     }
 
     override fun cancel(cause: Throwable?): Boolean =
-        if (isInitialized) {
-            delegate.cancel(cause)
-        } else {
-            true
-        }
+        if (isInitialized) delegate.cancel(cause)
+        else true
 
     override suspend fun discard(max: Long): Long {
         init()
@@ -123,11 +103,8 @@ abstract class DelegatedByteReadChannel : ByteReadChannel {
     }
 
     override fun readAvailable(min: Int, block: (ByteBuffer) -> Unit): Int =
-        if (isInitialized) {
-            delegate.readAvailable(min, block)
-        } else {
-            -1
-        }
+        if (isInitialized) delegate.readAvailable(min, block)
+        else -1
 
     override suspend fun readBoolean(): Boolean {
         init()
