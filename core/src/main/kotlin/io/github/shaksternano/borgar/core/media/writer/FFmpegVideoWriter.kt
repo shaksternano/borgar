@@ -3,6 +3,7 @@ package io.github.shaksternano.borgar.core.media.writer
 import io.github.shaksternano.borgar.core.io.SuspendCloseable
 import io.github.shaksternano.borgar.core.io.closeAll
 import io.github.shaksternano.borgar.core.media.*
+import io.github.shaksternano.borgar.core.util.getEnvVar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.bytedeco.ffmpeg.global.avcodec
@@ -114,31 +115,52 @@ class FFmpegVideoWriter(
         )
         recorder.format = format
         recorder.isInterleaved = true
+
+        var customVideoEncoder = false
         if (format == "webm") {
             // VP9 takes too long to encode. In one case it was over 4x slower than VP8.
-            recorder.videoCodec = avcodec.AV_CODEC_ID_VP8
+            val vp8Encoder = getEnvVar("VP8_ENCODER")
+            if (vp8Encoder == null) {
+                recorder.videoCodec = avcodec.AV_CODEC_ID_VP8
+            } else {
+                recorder.videoCodecName = vp8Encoder
+                customVideoEncoder = true
+            }
+
             recorder.audioCodec = avcodec.AV_CODEC_ID_OPUS
             audioSampleRate1 = getWebmSampleRate(audioSampleRate1)
         } else {
-            recorder.videoCodec = avcodec.AV_CODEC_ID_H264
+            val h264Encoder = getEnvVar("H264_ENCODER")
+            if (h264Encoder == null) {
+                recorder.videoCodec = avcodec.AV_CODEC_ID_H264
+            } else {
+                recorder.videoCodecName = h264Encoder
+                customVideoEncoder = true
+            }
+
             recorder.audioCodec = avcodec.AV_CODEC_ID_AAC
-            /*
-            Decrease "startup" latency in FFMPEG
-            (see: https://trac.ffmpeg.org/wiki/StreamingGuide).
-             */
-            recorder.setVideoOption("tune", "zerolatency")
+
+            if (!customVideoEncoder) {
+                /*
+                Decrease "startup" latency in FFMPEG
+                (see: https://trac.ffmpeg.org/wiki/StreamingGuide).
+                 */
+                recorder.setVideoOption("tune", "zerolatency")
+            }
         }
 
-        /*
-        Tradeoff between quality and encode speed.
-        Possible values are: ultrafast, superfast, veryfast, faster, fast, medium, slow, slower, veryslow.
-        Ultrafast offers us the least amount of compression
-        (lower encoder CPU) at the cost of a larger stream size.
-        At the other end, veryslow provides the best compression
-        (high encoder CPU) while lowering the stream size
-        (see: https://trac.ffmpeg.org/wiki/Encode/H.264).
-         */
-        recorder.setVideoOption("preset", "ultrafast")
+        if (!customVideoEncoder) {
+            /*
+            Tradeoff between quality and encode speed.
+            Possible values are: ultrafast, superfast, veryfast, faster, fast, medium, slow, slower, veryslow.
+            Ultrafast offers us the least amount of compression
+            (lower encoder CPU) at the cost of a larger stream size.
+            At the other end, veryslow provides the best compression
+            (high encoder CPU) while lowering the stream size
+            (see: https://trac.ffmpeg.org/wiki/Encode/H.264).
+             */
+            recorder.setVideoOption("preset", "ultrafast")
+        }
         recorder.frameRate = fps
         recorder.videoBitrate = videoBitrate
         /*
