@@ -10,6 +10,7 @@ import io.github.shaksternano.borgar.messaging.entity.CustomEmoji
 import io.github.shaksternano.borgar.messaging.entity.Role
 import io.github.shaksternano.borgar.messaging.entity.User
 import io.github.shaksternano.borgar.messaging.entity.channel.Channel
+import io.github.shaksternano.borgar.messaging.exception.HttpException
 import io.github.shaksternano.borgar.revolt.entity.*
 import io.github.shaksternano.borgar.revolt.entity.channel.RevoltChannel
 import io.github.shaksternano.borgar.revolt.entity.channel.RevoltChannelResponse
@@ -233,8 +234,8 @@ class RevoltManager(
         }.getOrElse {
             throw IOException("Failed to post form data to $url", it)
         }.also {
-            require(it.status.isSuccess()) {
-                "Posting form data to $url returned error response: ${it.status}"
+            if (!it.status.isSuccess()) {
+                throw HttpException("Posting form data to $url returned error response: ${it.status}", it.status)
             }
         }
     }

@@ -17,6 +17,7 @@ import io.github.shaksternano.borgar.messaging.event.CommandEvent
 import io.github.shaksternano.borgar.messaging.event.MessageCommandEvent
 import io.github.shaksternano.borgar.messaging.event.MessageReceiveEvent
 import io.github.shaksternano.borgar.messaging.exception.CommandException
+import io.github.shaksternano.borgar.messaging.exception.FileTooLargeException
 import io.github.shaksternano.borgar.messaging.exception.MissingArgumentException
 import io.github.shaksternano.borgar.messaging.util.checkEntityIdBelongs
 import io.github.shaksternano.borgar.messaging.util.getEntityId
@@ -147,6 +148,8 @@ suspend fun sendResponses(
                     sendHandleResponseErrorMessage = false
                 }
             }
+        } catch (e: FileTooLargeException) {
+            commandEvent.reply("The file is too large to send!")
         } catch (t: Throwable) {
             logger.error("Failed to send response", t)
             runCatching {
