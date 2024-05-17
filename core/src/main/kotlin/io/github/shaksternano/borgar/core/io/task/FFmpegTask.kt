@@ -3,6 +3,7 @@ package io.github.shaksternano.borgar.core.io.task
 import io.github.shaksternano.borgar.core.collect.indicesOf
 import io.github.shaksternano.borgar.core.exception.ErrorResponseException
 import io.github.shaksternano.borgar.core.io.*
+import io.github.shaksternano.borgar.core.util.getEnvVar
 import io.github.shaksternano.borgar.core.util.splitWords
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -11,7 +12,7 @@ import org.bytedeco.javacpp.Loader
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 
-private val FFMPEG_PATH: String = Loader.load(ffmpeg::class.java)
+private val FFMPEG_PATH: String = getEnvVar("FFMPEG_PATH") ?: Loader.load(ffmpeg::class.java)
 
 class FFmpegTask(
     private val arguments: String,
