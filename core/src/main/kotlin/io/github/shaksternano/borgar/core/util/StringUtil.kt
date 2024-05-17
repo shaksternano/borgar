@@ -50,7 +50,7 @@ fun CharSequence.endOfWord(startIndex: Int): Int {
 }
 
 fun CharSequence.splitWords(limit: Int = 0): List<String> =
-    split(WHITE_SPACE_REGEX, limit)
+    split(WHITE_SPACE_REGEX, limit).filter { it.isNotBlank() }
 
 fun String.splitChunks(limit: Int): List<String> = SplitUtil.split(
     this,

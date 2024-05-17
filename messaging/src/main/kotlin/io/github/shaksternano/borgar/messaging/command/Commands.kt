@@ -57,6 +57,7 @@ val COMMANDS: Map<String, Command> = registerCommands(
     GuildBannerCommand,
     GuildSplashCommand,
     DownloadCommand,
+    FFmpegCommand,
     CatCommand.CAT,
     CatCommand.CAT_BOMB,
     DerpibooruCommand.DERPIBOORU,

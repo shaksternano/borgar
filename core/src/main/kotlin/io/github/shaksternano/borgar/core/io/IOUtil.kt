@@ -30,8 +30,12 @@ import java.nio.file.StandardOpenOption
 import java.util.regex.Pattern
 import kotlin.io.path.*
 import kotlin.io.use
+import kotlin.random.Random
+import kotlin.random.nextULong
 
 private object IOUtil
+
+private val TEMP_DIR: Path = Path(System.getProperty("java.io.tmpdir"))
 
 val ALLOWED_DOMAINS: Set<String> = setOf(
     "raw.githubusercontent.com",
@@ -51,6 +55,23 @@ suspend fun createTemporaryFile(filenameWithoutExtension: String, extension: Str
     val extensionWithDot = if (extension.isBlank()) "" else ".$extension"
     val path = withContext(Dispatchers.IO) {
         createTempFile(filenameWithoutExtension, extensionWithDot)
+    }
+    path.toFile().deleteOnExit()
+    return path
+}
+
+suspend fun getTemporaryFile(filename: String): Path = getTemporaryFile(
+    filenameWithoutExtension(filename),
+    fileExtension(filename),
+)
+
+suspend fun getTemporaryFile(filenameWithoutExtension: String, extension: String): Path {
+    val extension1 = extension.ifBlank { "tmp" }
+    var filename = ""
+    var path = TEMP_DIR.resolve(filename)
+    while (filename.isBlank() || withContext(Dispatchers.IO) { path.exists() }) {
+        filename = filenameWithoutExtension + Random.nextULong() + "." + extension1
+        path = TEMP_DIR.resolve(filename)
     }
     path.toFile().deleteOnExit()
     return path
@@ -211,9 +232,8 @@ fun removeQueryParams(url: String): String =
     url.split('?').first()
 
 fun filename(filePath: String): String {
-    val noQueryParams = removeQueryParams(filePath)
-    val nameWithoutExtension = Files.getNameWithoutExtension(noQueryParams)
-    val extension = Files.getFileExtension(noQueryParams)
+    val nameWithoutExtension = filenameWithoutExtension(filePath)
+    val extension = fileExtension(filePath)
     return filename(nameWithoutExtension, extension)
 }
 
@@ -257,4 +277,16 @@ suspend fun InputStream.readNBytesSuspend(n: Int): ByteArray = withContext(Dispa
 
 suspend fun InputStream.skipNBytesSuspend(n: Long) = withContext(Dispatchers.IO) {
     skipNBytes(n)
+}
+
+suspend inline fun <R> DataSource.useFile(block: (FileDataSource) -> R): R {
+    val isInputTemp = path == null
+    val fileInput = getOrWriteFile()
+    return try {
+        block(fileInput)
+    } finally {
+        if (isInputTemp) {
+            fileInput.path.deleteSilently()
+        }
+    }
 }

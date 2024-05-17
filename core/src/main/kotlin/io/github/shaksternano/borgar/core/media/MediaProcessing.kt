@@ -83,41 +83,32 @@ suspend fun processMedia(
     input: DataSource,
     config: MediaProcessingConfig,
     maxFileSize: Long,
-): FileDataSource {
-    val isTempFile = input.path == null
-    val fileInput = input.getOrWriteFile()
-    val path = fileInput.path
-    return try {
-        val inputFormat = input.fileFormat().ifBlank { "mp4" }
-        val imageReader = createImageReader(fileInput, inputFormat)
-        val audioReader = createAudioReader(fileInput, inputFormat)
-        val supportedInputFormat =
-            if (isReaderFormatSupported(inputFormat) && !isWriterFormatSupported(inputFormat))
-                if (imageReader.frameCount == 1) STATIC_FORMAT_MAPPING[inputFormat] ?: "png"
-                else ANIMATED_FORMAT_MAPPING[inputFormat] ?: "mp4"
-            else
-                inputFormat
-        val outputFormat = config.transformOutputFormat(supportedInputFormat)
-        val outputName = config.outputName.ifBlank {
-            fileInput.filenameWithoutExtension
-        }
-        val output = processMedia(
-            config.transformImageReader(imageReader, outputFormat),
-            config.transformAudioReader(audioReader, outputFormat),
-            createTemporaryFile(outputName, outputFormat),
-            outputFormat,
-            maxFileSize,
-        )
-        val filename = filename(outputName, outputFormat)
-        DataSource.fromFile(
-            output,
-            filename,
-        )
-    } finally {
-        if (isTempFile) {
-            path.deleteSilently()
-        }
+): FileDataSource = input.useFile { fileInput ->
+    val inputFormat = input.fileFormat().ifBlank { "mp4" }
+    val imageReader = createImageReader(fileInput, inputFormat)
+    val audioReader = createAudioReader(fileInput, inputFormat)
+    val supportedInputFormat =
+        if (isReaderFormatSupported(inputFormat) && !isWriterFormatSupported(inputFormat))
+            if (imageReader.frameCount == 1) STATIC_FORMAT_MAPPING[inputFormat] ?: "png"
+            else ANIMATED_FORMAT_MAPPING[inputFormat] ?: "mp4"
+        else
+            inputFormat
+    val outputFormat = config.transformOutputFormat(supportedInputFormat)
+    val outputName = config.outputName.ifBlank {
+        fileInput.filenameWithoutExtension
     }
+    val output = processMedia(
+        config.transformImageReader(imageReader, outputFormat),
+        config.transformAudioReader(audioReader, outputFormat),
+        createTemporaryFile(outputName, outputFormat),
+        outputFormat,
+        maxFileSize,
+    )
+    val filename = filename(outputName, outputFormat)
+    DataSource.fromFile(
+        output,
+        filename,
+    )
 }
 
 private suspend fun processMedia(
