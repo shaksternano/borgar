@@ -10,7 +10,11 @@ fun loadEnv(path: Path) = path.forEachLine {
     if (it.isNotBlank()) {
         val envVar = it.split("=", limit = 2)
         if (envVar.size == 2) {
-            setEnvVar(envVar[0].trim(), envVar[1].trim())
+            val key = envVar[0].trim()
+            val value = envVar[1].trim()
+            if (key.isNotBlank() && value.isNotBlank()) {
+                setEnvVar(key, value)
+            }
         } else {
             logger.error("Invalid environment variable: $it")
         }
