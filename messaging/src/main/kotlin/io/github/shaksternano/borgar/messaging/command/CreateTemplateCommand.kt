@@ -143,8 +143,8 @@ object CreateTemplateCommand : NonChainableCommand() {
             commandName
         }
 
-        val imageStartX = getPositiveInt(templateJson, "image.start.x")
-        val imageStartY = getPositiveInt(templateJson, "image.start.y")
+        val imageStartX = getPositiveOrZeroInt(templateJson, "image.start.x")
+        val imageStartY = getPositiveOrZeroInt(templateJson, "image.start.y")
         val imageEndX = getPositiveInt(templateJson, "image.end.x")
         val imageEndY = getPositiveInt(templateJson, "image.end.y")
         val imagePadding = getPositiveOrZeroInt(templateJson, "image.padding") {
@@ -175,10 +175,10 @@ object CreateTemplateCommand : NonChainableCommand() {
             ContentPosition.CENTRE
         }
 
-        val textStartX = getPositiveInt(templateJson, "text.start.x") {
+        val textStartX = getPositiveOrZeroInt(templateJson, "text.start.x") {
             imageStartX
         }
-        val textStartY = getPositiveInt(templateJson, "text.start.y") {
+        val textStartY = getPositiveOrZeroInt(templateJson, "text.start.y") {
             imageStartY
         }
         val textEndX = getPositiveInt(templateJson, "text.end.x") {
@@ -401,6 +401,7 @@ object CreateTemplateCommand : NonChainableCommand() {
         }
     }
 
+    @Suppress("SameParameterValue")
     private fun getPositiveInt(json: JsonObject, key: String, default: (() -> Int)? = null): Int {
         val value = getInt(json, key, default)
         if (value <= 0) {
