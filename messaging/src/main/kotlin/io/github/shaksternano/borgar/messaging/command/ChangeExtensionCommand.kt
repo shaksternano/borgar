@@ -5,7 +5,7 @@ import io.github.shaksternano.borgar.core.io.task.FileTask
 import io.github.shaksternano.borgar.messaging.event.CommandEvent
 
 class ChangeExtensionCommand(
-    private val newExtension: String
+    newExtension: String,
 ) : FileCommand() {
 
     companion object {
@@ -14,7 +14,8 @@ class ChangeExtensionCommand(
 
     override val name: String = "${newExtension}2"
     override val description: String = "Changes the extension of a file to .$newExtension."
+    private val task: FileTask = ChangeExtensionTask(newExtension)
 
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask =
-        ChangeExtensionTask(newExtension)
+        task
 }
