@@ -41,7 +41,6 @@ abstract class ApiFilesTask(
                 }.getOrElse {
                     return@parallelMap null
                 }
-                println(it.url)
                 val contentLength = fileResponse.contentLength() ?: 0
                 if (!fileResponse.status.isSuccess() || contentLength > maxFileSize) {
                     return@parallelMap null
