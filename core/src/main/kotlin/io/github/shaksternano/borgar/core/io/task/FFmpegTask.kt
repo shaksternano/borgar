@@ -3,14 +3,18 @@ package io.github.shaksternano.borgar.core.io.task
 import io.github.shaksternano.borgar.core.collect.indicesOf
 import io.github.shaksternano.borgar.core.exception.ErrorResponseException
 import io.github.shaksternano.borgar.core.io.*
+import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.core.util.getEnvVar
 import io.github.shaksternano.borgar.core.util.splitWords
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 import org.bytedeco.ffmpeg.ffmpeg
 import org.bytedeco.javacpp.Loader
+import java.io.InputStreamReader
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
+
 
 private val FFMPEG_PATH: String = getEnvVar("FFMPEG_PATH") ?: Loader.load(ffmpeg::class.java)
 
@@ -38,12 +42,20 @@ class FFmpegTask(
             ffmpegArguments.subList(0, ffmpegArguments.lastIndex) +
             outputPath.absolutePathString()
         val processBuilder = ProcessBuilder(ffmpegCommand)
-            .redirectOutput(ProcessBuilder.Redirect.DISCARD)
-            .redirectError(ProcessBuilder.Redirect.DISCARD)
         withContext(Dispatchers.IO) {
             val process = processBuilder.start()
+            val ffmpegErrorDeferred = async {
+                val lines = InputStreamReader(process.errorStream).readLines()
+                lines.joinToString("\n")
+            }
             val exitCode = process.waitFor()
             if (exitCode != 0) {
+                var errorMessage = "FFmpeg command failed with exit code $exitCode"
+                val ffmpegError = ffmpegErrorDeferred.await()
+                if (ffmpegError.isNotBlank()) {
+                    errorMessage += ". FFmpeg error:\n$ffmpegError"
+                }
+                logger.error(errorMessage)
                 throw ErrorResponseException("FFmpeg command failed!")
             }
         }
