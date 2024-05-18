@@ -15,7 +15,6 @@ import java.io.InputStreamReader
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 
-
 private val FFMPEG_PATH: String = getEnvVar("FFMPEG_PATH") ?: Loader.load(ffmpeg::class.java)
 
 class FFmpegTask(
