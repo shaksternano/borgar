@@ -9,7 +9,10 @@ import io.github.shaksternano.borgar.core.graphics.drawable.ImageDrawable
 import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.io.UrlInfo
 import io.github.shaksternano.borgar.core.io.useHttpClient
-import io.github.shaksternano.borgar.core.util.*
+import io.github.shaksternano.borgar.core.util.ChannelEnvironment
+import io.github.shaksternano.borgar.core.util.TenorMediaType
+import io.github.shaksternano.borgar.core.util.getUrls
+import io.github.shaksternano.borgar.core.util.retrieveTenorMediaUrl
 import io.github.shaksternano.borgar.messaging.BotManager
 import io.github.shaksternano.borgar.messaging.MessagingPlatform
 import io.github.shaksternano.borgar.messaging.command.CommandMessageIntersection
@@ -48,8 +51,12 @@ suspend fun CommandMessageIntersection.getUrls(getGif: Boolean): List<UrlInfo> =
         }
     )
     addAll(
-        content.getUrls().map {
-            retrieveTenorUrlOrDefault(it, getGif)
+        content.getUrls().mapNotNull {
+            if (isImageOrVideo(it)) {
+                UrlInfo(it)
+            } else {
+                retrieveTenorMediaUrl(it, getGif)
+            }
         }
     )
 }
@@ -69,18 +76,13 @@ private suspend fun CommandMessageIntersection.getUrlDrawables(): Map<String, Dr
     return content.getUrls()
         .associateBy { it }
         .mapNotNull { entry ->
+            var checkContentType = true
             val url = embeds[entry.key]?.getContent(false)?.url
-                ?: retrieveTenorMediaUrl(entry.key, TenorMediaType.MP4_NORMAL)
+                ?: retrieveTenorMediaUrl(entry.key, TenorMediaType.MP4_NORMAL).also {
+                    checkContentType = false
+                }
                 ?: entry.key
-            val isImageOrVideo = useHttpClient { client ->
-                runCatching {
-                    val contentType = client.head(url).contentType()
-                    contentType?.let {
-                        it.match(ContentType.Image.Any) || it.match(ContentType.Video.Any)
-                    } ?: false
-                }.getOrDefault(false)
-            }
-            if (!isImageOrVideo) {
+            if (checkContentType && !isImageOrVideo(url)) {
                 return@mapNotNull null
             }
             val dataSource = DataSource.fromUrl(url)
@@ -88,6 +90,15 @@ private suspend fun CommandMessageIntersection.getUrlDrawables(): Map<String, Dr
                 ImageDrawable(dataSource)
             }.map { entry.key to it }.getOrNull()
         }.associate { it }
+}
+
+private suspend fun isImageOrVideo(url: String): Boolean {
+    val contentType = runCatching {
+        useHttpClient { client ->
+            client.head(url).contentType()
+        }
+    }.getOrNull() ?: return false
+    return contentType.match(ContentType.Image.Any) || contentType.match(ContentType.Video.Any)
 }
 
 suspend fun CommandMessageIntersection.getEmojiUrls(): Map<String, String> {

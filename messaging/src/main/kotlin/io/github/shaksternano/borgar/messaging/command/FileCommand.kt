@@ -8,7 +8,7 @@ import io.github.shaksternano.borgar.core.io.task.MediaProcessingTask
 import io.github.shaksternano.borgar.core.io.task.TranscodeTask
 import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.core.util.asSingletonList
-import io.github.shaksternano.borgar.core.util.retrieveTenorUrlOrDefault
+import io.github.shaksternano.borgar.core.util.retrieveTenorMediaUrl
 import io.github.shaksternano.borgar.messaging.entity.getContent
 import io.github.shaksternano.borgar.messaging.event.CommandEvent
 import io.github.shaksternano.borgar.messaging.util.getUrlsExceptSelf
@@ -159,7 +159,7 @@ private data class FileExecutable(
         val embed = messageIntersection.getEmbeds().firstOrNull { it.url == url }
         val embedContent = embed?.getContent(getGif)
         if (embedContent != null) return embedContent
-        return retrieveTenorUrlOrDefault(url, getGif)
+        return retrieveTenorMediaUrl(url, getGif) ?: UrlInfo(url)
     }
 
     override fun then(after: Executable): Executable {

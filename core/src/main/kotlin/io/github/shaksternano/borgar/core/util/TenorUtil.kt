@@ -7,15 +7,14 @@ import java.net.URI
 
 private const val DEFAULT_TENOR_API_KEY: String = "LIVDSRZULELA"
 
-suspend fun retrieveTenorUrlOrDefault(url: String, getGif: Boolean): UrlInfo {
-    val tenorGifUrl = if (getGif)
-        retrieveTenorMediaUrl(url, TenorMediaType.GIF_LARGE)
-    else null
-    val tenorUrl = if (getGif) tenorGifUrl
-    else retrieveTenorMediaUrl(url, TenorMediaType.MP4_NORMAL)
+suspend fun retrieveTenorMediaUrl(url: String, getGif: Boolean): UrlInfo? {
+    val mediaType =
+        if (getGif) TenorMediaType.GIF_LARGE
+        else TenorMediaType.MP4_NORMAL
+    val mediaUrl = retrieveTenorMediaUrl(url, mediaType) ?: return null
     return UrlInfo(
-        url = tenorUrl ?: url,
-        gifv = tenorGifUrl == null && isTenorUrl(url)
+        url = mediaUrl,
+        gifv = !getGif,
     )
 }
 
