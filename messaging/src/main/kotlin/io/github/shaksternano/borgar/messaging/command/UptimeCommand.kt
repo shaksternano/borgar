@@ -7,7 +7,7 @@ import kotlin.time.TimeSource
 object UptimeCommand : NonChainableCommand() {
 
     override val name: String = "uptime"
-    override val description: String = "Gets the uptime of the bot."
+    override val description: String = "Gets the uptime of this bot."
 
     override suspend fun run(arguments: CommandArguments, event: CommandEvent): List<CommandResponse> {
         val time = TimeSource.Monotonic.markNow()
@@ -39,7 +39,7 @@ object UptimeCommand : NonChainableCommand() {
                 }
             }
         }
-        val message = "The bot has been up for $uptimeString."
+        val message = "This bot has been up for $uptimeString."
         return listOf(CommandResponse(message))
     }
 }
