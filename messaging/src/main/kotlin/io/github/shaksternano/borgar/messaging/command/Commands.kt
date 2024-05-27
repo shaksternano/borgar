@@ -67,6 +67,7 @@ val COMMANDS: Map<String, Command> = registerCommands(
     DeleteTemplateCommand,
     PingCommand,
     GuildCountCommand,
+    UptimeCommand,
     ShutdownCommand,
 )
 

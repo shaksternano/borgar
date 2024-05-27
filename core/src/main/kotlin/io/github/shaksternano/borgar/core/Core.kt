@@ -9,6 +9,9 @@ import org.bytedeco.ffmpeg.global.avutil
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import kotlin.io.path.Path
+import kotlin.time.TimeSource
+
+val START_TIME: TimeSource.Monotonic.ValueTimeMark = TimeSource.Monotonic.markNow()
 
 val baseLogger: Logger = LoggerFactory.getLogger("Borgar")
 var logger: Logger = baseLogger
