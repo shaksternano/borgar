@@ -27,6 +27,7 @@ bin/
 .fleet/
 
 ### Other ###
+.kotlin/
 *.log
 .env
 *.mapdb
