@@ -68,5 +68,4 @@ enum class TextAlignment {
     LEFT,
     CENTRE,
     RIGHT,
-    JUSTIFY,
 }

@@ -1,62 +1,171 @@
 package io.github.shaksternano.borgar.core.graphics.drawable
 
 import io.github.shaksternano.borgar.core.graphics.TextAlignment
-import io.github.shaksternano.borgar.core.util.splitWords
+import io.github.shaksternano.borgar.core.io.closeAll
+import io.github.shaksternano.borgar.core.util.*
+import kotlinx.coroutines.runBlocking
 import java.awt.Graphics2D
-import java.util.*
 import kotlin.math.max
+import kotlin.math.min
 import kotlin.time.Duration
 
-private val SPACE: Drawable = TextDrawable(" ")
-
 class ParagraphCompositeDrawable(
+    text: String,
+    nonTextParts: Map<String, Drawable>,
     private val alignment: TextAlignment,
     maxWidth: Int,
-) : CompositeDrawable() {
+    textDrawableFactory: (String) -> Drawable = ::SimpleTextDrawable,
+) : Drawable {
+
+    companion object {
+        private val NEWLINE: Drawable = SimpleTextDrawable("\n")
+    }
 
     private val maxWidth: Int = max(0, maxWidth)
+    private val parts: List<Drawable> = run {
+        val wordMatches = NON_WHITESPACE_REGEX.findAll(text)
+        val whitespaceMatches = HORIZONTAL_WHITESPACE_REGEX.findAll(text)
+        val newlineMatches = NEWLINE_REGEX.findAll(text)
 
-    override suspend fun draw(graphics: Graphics2D, x: Int, y: Int, timestamp: Duration) {
+        val orderedMatches = (wordMatches + whitespaceMatches + newlineMatches)
+            .sortedBy { it.range.first }
+
+        val sortedNonTextParts = nonTextParts.entries
+            .sortedBy { it.key.length }
+            .reversed()
+            .map { it.key to it.value }
+        orderedMatches.map {
+            val match = it.value
+            if (NON_WHITESPACE_REGEX.matches(match)) {
+                val parts = getWordParts(match, sortedNonTextParts, textDrawableFactory)
+                if (parts.size == 1) {
+                    parts.first()
+                } else {
+                    HorizontalCompositeDrawable(parts)
+                }
+            } else if (NEWLINE_REGEX.matches(match)) {
+                NEWLINE
+            } else {
+                SimpleTextDrawable(match)
+            }
+        }.toList()
+    }
+
+    private fun getWordParts(
+        word: String,
+        nonTextParts: Collection<Pair<String, Drawable>>,
+        textDrawableFactory: (String) -> Drawable,
+    ): List<Drawable> {
+        if (nonTextParts.isEmpty()) {
+            return listOf(textDrawableFactory(word))
+        }
+        nonTextParts.forEach {
+            val key = it.first
+            val index = word.indexOf(key)
+            if (index >= 0) {
+                val before = word.substring(0, index)
+                val after = word.substring(index + key.length)
+                if (before.isBlank() && after.isBlank()) {
+                    return listOf(it.second)
+                }
+                val parts = mutableListOf<Drawable>()
+                if (before.isNotBlank()) {
+                    parts.addAll(getWordParts(before, nonTextParts, textDrawableFactory))
+                }
+                parts.add(it.second)
+                if (after.isNotBlank()) {
+                    parts.addAll(getWordParts(after, nonTextParts, textDrawableFactory))
+                }
+                return parts
+            }
+        }
+        return listOf(textDrawableFactory(word))
+    }
+
+    private suspend fun drawAndGetSize(
+        graphics: Graphics2D,
+        x: Int,
+        y: Int,
+        timestamp: Duration,
+        draw: Boolean,
+    ): Pair<Int, Int> {
         val metrics = graphics.fontMetrics
         val lineHeight = metrics.ascent + metrics.descent
         val lineSpace = metrics.leading
+        val lineHeightAndSpace = lineHeight + lineSpace
         var lineWidth = 0
         var lineY = y
+        var maxLineWidth = 0
 
         val currentLine = mutableListOf<Drawable>()
-        parts.forEachIndexed { i, part ->
-            val resizedPart = part.resizeToHeight(lineHeight)?.also {
-                parts[i] = it
-            } ?: part
-            val partWidth = resizedPart.getWidth(graphics)
-            var spaceWidth = SPACE.getWidth(graphics)
-            var newLineWidth = lineWidth + partWidth
-            if (lineWidth > 0) {
-                newLineWidth += spaceWidth
+        for (part in parts) {
+            if (part == NEWLINE) {
+                if (draw) {
+                    drawLine(graphics, currentLine, x, lineWidth, lineY, timestamp)
+                }
+                currentLine.clear()
+                lineWidth = 0
+                lineY += lineHeightAndSpace
+                continue
             }
-            if (newLineWidth <= maxWidth || currentLine.isEmpty()) {
+
+            val resizedPart = part.resizeToHeight(lineHeight) ?: part
+            val partWidth = resizedPart.getWidth(graphics)
+            val newLineWidth = lineWidth + partWidth
+            if (newLineWidth <= maxWidth || lineWidth == 0) {
                 currentLine.add(resizedPart)
                 lineWidth = newLineWidth
             } else {
-                var lineX = calculateTextXPosition(alignment, x, lineWidth, maxWidth)
-                if (alignment == TextAlignment.JUSTIFY) {
-                    spaceWidth += (maxWidth - lineWidth) / (currentLine.size - 1)
+                val allBlank = currentLine.all {
+                    it is TextDrawable && it.text.isBlank()
                 }
-                currentLine.forEach {
-                    it.draw(graphics, lineX, lineY, timestamp)
-                    lineX += it.getWidth(graphics) + spaceWidth
+                if (draw && !allBlank) {
+                    drawLine(graphics, currentLine, x, lineWidth, lineY, timestamp)
                 }
                 currentLine.clear()
                 currentLine.add(resizedPart)
-                lineWidth = partWidth
-                lineY += lineHeight + lineSpace
+                lineWidth = min(partWidth, maxWidth)
+                if (!allBlank) {
+                    lineY += lineHeightAndSpace
+                }
             }
+            maxLineWidth = max(maxLineWidth, lineWidth)
         }
 
         var lineX = calculateTextXPosition(alignment, x, lineWidth, maxWidth)
+        lineWidth = 0
         currentLine.forEach {
+            if (draw) {
+                it.draw(graphics, lineX, lineY, timestamp)
+            }
+            val width = it.getWidth(graphics)
+            lineX += width
+            lineWidth += width
+        }
+        maxLineWidth = max(maxLineWidth, lineWidth)
+        if (currentLine.isNotEmpty()) {
+            lineY += lineHeight
+        }
+        return maxLineWidth to lineY
+    }
+
+    override suspend fun draw(graphics: Graphics2D, x: Int, y: Int, timestamp: Duration) {
+        drawAndGetSize(graphics, x, y, timestamp, true)
+    }
+
+    private suspend fun drawLine(
+        graphics: Graphics2D,
+        line: Collection<Drawable>,
+        x: Int,
+        lineWidth: Int,
+        lineY: Int,
+        timestamp: Duration,
+    ) {
+        if (line.isEmpty()) return
+        var lineX = calculateTextXPosition(alignment, x, lineWidth, maxWidth)
+        line.forEach {
             it.draw(graphics, lineX, lineY, timestamp)
-            lineX += it.getWidth(graphics) + SPACE.getWidth(graphics)
+            lineX += it.getWidth(graphics)
         }
     }
 
@@ -67,144 +176,41 @@ class ParagraphCompositeDrawable(
             else -> x
         }
 
-    override fun getWidth(graphicsContext: Graphics2D): Int {
-        val metrics = graphicsContext.fontMetrics
-        val lineHeight = metrics.ascent + metrics.descent
-        var lineWidth = 0
-        var maxLineWidth = 0
-
-        var currentLineIsEmpty = true
-        parts.forEach {
-            val resizedPart = it.resizeToHeight(lineHeight) ?: it
-            val partWidth = resizedPart.getWidth(graphicsContext)
-            val spaceWidth = SPACE.getWidth(graphicsContext)
-            var newLineWidth = lineWidth + partWidth
-            if (lineWidth > 0) {
-                newLineWidth += spaceWidth
-            }
-            if (newLineWidth <= maxWidth || currentLineIsEmpty) {
-                lineWidth = newLineWidth
-                currentLineIsEmpty = false
-            } else {
-                lineWidth = partWidth
-                currentLineIsEmpty = true
-            }
-            maxLineWidth = max(maxLineWidth, lineWidth)
-        }
-
-        return maxLineWidth
+    override fun getWidth(graphics: Graphics2D): Int = runBlocking {
+        drawAndGetSize(graphics, 0, 0, Duration.ZERO, false).first
     }
 
-    override fun getHeight(graphicsContext: Graphics2D): Int {
-        val metrics = graphicsContext.fontMetrics
-        val lineHeight = metrics.ascent + metrics.descent
-        val lineSpace = metrics.leading
-        var lineWidth = 0
-        var lineY = 0
-
-        var currentLineIsEmpty = true
-        parts.forEach {
-            val resizedPart = it.resizeToHeight(lineHeight) ?: it
-            val partWidth = resizedPart.getWidth(graphicsContext)
-            val spaceWidth = SPACE.getWidth(graphicsContext)
-            var newLineWidth = lineWidth + partWidth
-            if (lineWidth > 0) {
-                newLineWidth += spaceWidth
-            }
-            if (newLineWidth <= maxWidth || currentLineIsEmpty) {
-                lineWidth = newLineWidth
-                currentLineIsEmpty = false
-            } else {
-                lineWidth = partWidth
-                lineY += lineHeight + lineSpace
-                currentLineIsEmpty = true
-            }
-        }
-
-        lineY += lineHeight
-        return lineY
+    override fun getHeight(graphics: Graphics2D): Int = runBlocking {
+        drawAndGetSize(graphics, 0, 0, Duration.ZERO, false).second
     }
 
     override fun resizeToHeight(height: Int): Drawable? = null
 
-    class Builder(
-        nonTextParts: Map<String, Drawable>,
-    ) {
+    override suspend fun close() =
+        closeAll(parts)
 
-        private val words: MutableList<Drawable> = mutableListOf()
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (kClass != other?.kClass) return false
 
-        private val nonTextParts: Map<String, Drawable> = TreeMap<String, Drawable>(
-            Comparator
-                .comparingInt(String::length)
-                .reversed()
-                .thenComparing(Comparator.naturalOrder())
-        ).also {
-            it.putAll(nonTextParts)
-        }
+        other as ParagraphCompositeDrawable
 
-        fun addText(
-            text: String,
-            customTextDrawableFactory: ((String) -> Drawable)? = null,
-        ): Builder {
-            text.splitWords().forEach {
-                addWord(it, customTextDrawableFactory)
-            }
-            return this
-        }
+        if (alignment != other.alignment) return false
+        if (parts != other.parts) return false
+        if (maxWidth != other.maxWidth) return false
 
-        private fun addWord(
-            word: String,
-            customTextDrawableFactory: ((String) -> Drawable)? = null,
-        ) {
-            if (nonTextParts.isEmpty()) {
-                val textPart =
-                    if (customTextDrawableFactory == null) TextDrawable(word)
-                    else customTextDrawableFactory(word)
-                words.add(textPart)
-            } else {
-                val compositeWord = HorizontalCompositeDrawable()
-                val actualWordBuilder = StringBuilder()
-                var index = 0
-                while (index < word.length) {
-                    val subWord = word.substring(index)
-                    var foundImage = false
-                    for ((key, part) in nonTextParts) {
-                        val keyLength = key.length
-                        if (subWord.startsWith(key)) {
-                            if (actualWordBuilder.isNotEmpty()) {
-                                val text = actualWordBuilder.toString()
-                                val textPart =
-                                    if (customTextDrawableFactory == null) TextDrawable(text)
-                                    else customTextDrawableFactory(text)
-                                compositeWord.parts.add(textPart)
-                                actualWordBuilder.clear()
-                            }
-                            compositeWord.parts.add(part)
-                            index += keyLength
-                            foundImage = true
-                            break
-                        }
-                    }
-                    if (!foundImage) {
-                        actualWordBuilder.append(subWord[0])
-                        index++
-                    }
-                }
-                if (actualWordBuilder.isNotEmpty()) {
-                    val text = actualWordBuilder.toString()
-                    val textPart =
-                        if (customTextDrawableFactory == null) TextDrawable(text)
-                        else customTextDrawableFactory(text)
-                    compositeWord.parts.add(textPart)
-                }
-                words.add(compositeWord)
-            }
-        }
+        return true
+    }
 
-        fun build(alignment: TextAlignment, maxWidth: Int): ParagraphCompositeDrawable {
-            val paragraph = ParagraphCompositeDrawable(alignment, maxWidth)
-            paragraph.parts.addAll(words)
-            return paragraph
-        }
+    override fun hashCode(): Int = hash(
+        alignment,
+        parts,
+        maxWidth,
+    )
+
+    override fun toString(): String {
+        return "ParagraphCompositeDrawable(alignment=$alignment" +
+            ", parts=$parts" +
+            ", maxWidth=$maxWidth)"
     }
 }

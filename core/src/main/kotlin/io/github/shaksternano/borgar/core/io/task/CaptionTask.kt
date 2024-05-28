@@ -63,9 +63,12 @@ private class CaptionProcessor(
             TextAlignment.CENTRE
         }
 
-        val paragraph = ParagraphCompositeDrawable.Builder(nonTextParts)
-            .addText(caption)
-            .build(textAlignment, maxWidth)
+        val paragraph = ParagraphCompositeDrawable(
+            caption,
+            nonTextParts,
+            textAlignment,
+            maxWidth,
+        )
 
         graphics.fitFontWidth(maxWidth, paragraph)
         font = graphics.font
@@ -103,7 +106,7 @@ private class CaptionProcessor(
             graphics,
             constantData.padding,
             captionY + constantData.padding,
-            frame.timestamp
+            frame.timestamp,
         )
 
         graphics.dispose()

@@ -60,15 +60,20 @@ private class DemotivateProcessor(
         graphics.configureTextDrawQuality()
 
         val textAlignment = TextAlignment.CENTRE
-        val paragraph = ParagraphCompositeDrawable.Builder(nonTextParts)
-            .addText(text)
-            .build(textAlignment, imageWidth)
-
+        val paragraph = ParagraphCompositeDrawable(
+            text,
+            nonTextParts,
+            textAlignment,
+            imageWidth,
+        )
         val paragraphHeight = paragraph.getHeight(graphics)
 
-        val subParagraph = ParagraphCompositeDrawable.Builder(nonTextParts)
-            .addText(subText)
-            .build(textAlignment, imageWidth)
+        val subParagraph = ParagraphCompositeDrawable(
+            subText,
+            nonTextParts,
+            textAlignment,
+            imageWidth,
+        )
         graphics.font = subFont
         val subParagraphHeight = subParagraph.getHeight(graphics)
         val mainToSubParagraphSpacing = subParagraphHeight / 4

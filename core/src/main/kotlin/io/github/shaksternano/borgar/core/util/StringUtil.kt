@@ -6,7 +6,10 @@ val VOWELS: Set<Char> = setOf('a', 'e', 'i', 'o', 'u')
 
 val URL_REGEX: Regex =
     "https?://(www\\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_+.~#?&/=]*)".toRegex()
-private val WHITE_SPACE_REGEX: Regex = "\\s+".toRegex()
+val WHITESPACE_REGEX: Regex = "\\s+".toRegex()
+val HORIZONTAL_WHITESPACE_REGEX: Regex = "\\h+".toRegex()
+val NEWLINE_REGEX: Regex = "\\R".toRegex()
+val NON_WHITESPACE_REGEX: Regex = "\\S+".toRegex()
 
 fun CharSequence.startsWithVowel(): Boolean =
     isNotEmpty() && first().lowercaseChar() in VOWELS
@@ -50,7 +53,7 @@ fun CharSequence.endOfWord(startIndex: Int): Int {
 }
 
 fun CharSequence.splitWords(limit: Int = 0): List<String> =
-    split(WHITE_SPACE_REGEX, limit).filter { it.isNotBlank() }
+    split(WHITESPACE_REGEX, limit).filter { it.isNotBlank() }
 
 fun String.splitChunks(limit: Int): List<String> = SplitUtil.split(
     this,

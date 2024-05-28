@@ -4,7 +4,7 @@ import io.github.shaksternano.borgar.core.data.repository.SavedUrlRepository
 import io.github.shaksternano.borgar.core.exception.ErrorResponseException
 import io.github.shaksternano.borgar.core.graphics.configureTextDrawQuality
 import io.github.shaksternano.borgar.core.graphics.drawable.Drawable
-import io.github.shaksternano.borgar.core.graphics.drawable.TextDrawable
+import io.github.shaksternano.borgar.core.graphics.drawable.SimpleTextDrawable
 import io.github.shaksternano.borgar.core.graphics.fitFontHeight
 import io.github.shaksternano.borgar.core.graphics.fitFontWidth
 import io.github.shaksternano.borgar.core.io.*
@@ -208,7 +208,7 @@ private class FavouriteProcessor(
         val graphics = BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB).createGraphics()
         graphics.configureTextDrawQuality()
 
-        val formatText = TextDrawable(fileFormat.uppercase())
+        val formatText = SimpleTextDrawable(fileFormat.uppercase())
         val font = Font("Helvetica Neue", Font.PLAIN, smallestDimension)
         graphics.font = font
         val textBoxPadding = (iconSmallestDimension * 0.1).toInt()

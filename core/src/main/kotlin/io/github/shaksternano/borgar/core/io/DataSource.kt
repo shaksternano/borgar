@@ -141,12 +141,14 @@ data class FileDataSource(
         other as FileDataSource
         if (filename != other.filename) return false
         if (path != other.path) return false
+        if (url != other.url) return false
         return true
     }
 
     override fun hashCode(): Int = hash(
         filename,
         path,
+        url,
     )
 
     override fun toString(): String {

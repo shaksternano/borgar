@@ -424,9 +424,12 @@ fun getTextDrawData(
     nonTextParts: Map<String, Drawable>,
     template: Template,
 ): TextDrawData {
-    val paragraph = ParagraphCompositeDrawable.Builder(nonTextParts)
-        .addText(text, template.customTextDrawableSupplier)
-        .build(template.textContentAlignment, template.textContentWidth)
+    val paragraph = ParagraphCompositeDrawable(
+        text,
+        nonTextParts,
+        template.textContentAlignment,
+        template.textContentWidth,
+    )
 
     val graphics = image.createGraphics()
 

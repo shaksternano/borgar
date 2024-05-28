@@ -1,6 +1,8 @@
 package io.github.shaksternano.borgar.core.graphics.drawable
 
 import io.github.shaksternano.borgar.core.graphics.configureTextDrawQuality
+import io.github.shaksternano.borgar.core.util.hash
+import io.github.shaksternano.borgar.core.util.kClass
 import java.awt.BasicStroke
 import java.awt.Color
 import java.awt.Graphics2D
@@ -9,11 +11,11 @@ import java.awt.geom.Rectangle2D
 import kotlin.time.Duration
 
 class OutlinedTextDrawable(
-    private val text: String,
+    override val text: String,
     private val fillColor: Color,
     private val outlineColor: Color,
     private val outlineWidthRatio: Double,
-) : Drawable {
+) : TextDrawable {
 
     override suspend fun draw(graphics: Graphics2D, x: Int, y: Int, timestamp: Duration) {
         val font = graphics.font
@@ -43,16 +45,16 @@ class OutlinedTextDrawable(
         graphics.translate(-actualX, -actualY)
     }
 
-    override fun getWidth(graphicsContext: Graphics2D): Int {
-        val font = graphicsContext.font
+    override fun getWidth(graphics: Graphics2D): Int {
+        val font = graphics.font
         val textOutlineWidth = font.size2D * outlineWidthRatio
-        return (graphicsContext.bounds(text).width + textOutlineWidth * 2).toInt()
+        return (graphics.bounds(text).width + textOutlineWidth * 2).toInt()
     }
 
-    override fun getHeight(graphicsContext: Graphics2D): Int {
-        val font = graphicsContext.font
+    override fun getHeight(graphics: Graphics2D): Int {
+        val font = graphics.font
         val textOutlineWidth = font.size2D * outlineWidthRatio
-        return (graphicsContext.bounds(text).height + textOutlineWidth * 2).toInt()
+        return (graphics.bounds(text).height + textOutlineWidth * 2).toInt()
     }
 
     override fun resizeToHeight(height: Int): Drawable? = null
@@ -62,4 +64,32 @@ class OutlinedTextDrawable(
 
     private fun Graphics2D.bounds(text: String): Rectangle2D =
         shape(text).bounds2D
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (kClass != other?.kClass) return false
+
+        other as OutlinedTextDrawable
+
+        if (text != other.text) return false
+        if (fillColor != other.fillColor) return false
+        if (outlineColor != other.outlineColor) return false
+        if (outlineWidthRatio != other.outlineWidthRatio) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int = hash(
+        text,
+        fillColor,
+        outlineColor,
+        outlineWidthRatio,
+    )
+
+    override fun toString(): String {
+        return "OutlinedTextDrawable(text='$text'" +
+            ", fillColor=$fillColor" +
+            ", outlineColor=$outlineColor" +
+            ", outlineWidthRatio=$outlineWidthRatio)"
+    }
 }

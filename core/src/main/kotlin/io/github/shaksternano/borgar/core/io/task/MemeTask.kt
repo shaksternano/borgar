@@ -57,16 +57,20 @@ private class MemeProcessor(
 
         val bottomParagraphY = firstImage.height - textHeight - padding
 
-        val topParagraph = ParagraphCompositeDrawable.Builder(nonTextParts)
-            .addText(topText) {
-                createText(it)
-            }
-            .build(TextAlignment.CENTRE, textWidth)
-        val bottomParagraph = ParagraphCompositeDrawable.Builder(nonTextParts)
-            .addText(bottomText) {
-                createText(it)
-            }
-            .build(TextAlignment.CENTRE, textWidth)
+        val topParagraph = ParagraphCompositeDrawable(
+            topText,
+            nonTextParts,
+            TextAlignment.CENTRE,
+            textWidth,
+            ::createText,
+        )
+        val bottomParagraph = ParagraphCompositeDrawable(
+            bottomText,
+            nonTextParts,
+            TextAlignment.CENTRE,
+            textWidth,
+            ::createText,
+        )
 
         val font = Font("Impact", Font.BOLD, smallestDimension)
 
@@ -102,7 +106,7 @@ private class MemeProcessor(
             graphics,
             constantData.topParagraphX,
             constantData.topParagraphY,
-            frame.timestamp
+            frame.timestamp,
         )
 
         graphics.font = constantData.bottomFont
@@ -110,7 +114,7 @@ private class MemeProcessor(
             graphics,
             constantData.bottomParagraphX,
             constantData.bottomParagraphY,
-            frame.timestamp
+            frame.timestamp,
         )
 
         graphics.dispose()

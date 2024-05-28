@@ -17,9 +17,9 @@ interface Drawable : SuspendCloseable {
      */
     suspend fun draw(graphics: Graphics2D, x: Int, y: Int, timestamp: Duration)
 
-    fun getWidth(graphicsContext: Graphics2D): Int
+    fun getWidth(graphics: Graphics2D): Int
 
-    fun getHeight(graphicsContext: Graphics2D): Int
+    fun getHeight(graphics: Graphics2D): Int
 
     /**
      * Creates a new drawable from this one that has been resized to the given height.
