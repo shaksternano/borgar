@@ -7,7 +7,6 @@ import io.github.shaksternano.borgar.core.graphics.drawable.ParagraphCompositeDr
 import io.github.shaksternano.borgar.core.graphics.fitFontWidth
 import io.github.shaksternano.borgar.core.io.closeAll
 import io.github.shaksternano.borgar.core.media.*
-import io.github.shaksternano.borgar.core.util.splitWords
 import kotlinx.coroutines.flow.Flow
 import java.awt.Color
 import java.awt.Font
@@ -31,12 +30,10 @@ class CaptionTask(
 }
 
 private class CaptionProcessor(
-    caption: String,
+    private val caption: String,
     private val isCaption2: Boolean,
     private val nonTextParts: Map<String, Drawable>,
 ) : ImageProcessor<CaptionData> {
-
-    private val words: List<String> = caption.splitWords()
 
     override suspend fun constantData(
         firstFrame: ImageFrame,
@@ -67,7 +64,7 @@ private class CaptionProcessor(
         }
 
         val paragraph = ParagraphCompositeDrawable.Builder(nonTextParts)
-            .addWords(words)
+            .addText(caption)
             .build(textAlignment, maxWidth)
 
         graphics.fitFontWidth(maxWidth, paragraph)

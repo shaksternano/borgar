@@ -9,7 +9,6 @@ import io.github.shaksternano.borgar.core.graphics.drawable.draw
 import io.github.shaksternano.borgar.core.graphics.fillRect
 import io.github.shaksternano.borgar.core.io.closeAll
 import io.github.shaksternano.borgar.core.media.*
-import io.github.shaksternano.borgar.core.util.splitWords
 import kotlinx.coroutines.flow.Flow
 import java.awt.Color
 import java.awt.Font
@@ -36,17 +35,10 @@ class DemotivateTask(
 }
 
 private class DemotivateProcessor(
-    text: String,
-    subText: String,
+    private val text: String,
+    private val subText: String,
     private val nonTextParts: Map<String, Drawable>,
 ) : ImageProcessor<DemotivateData> {
-
-    private val text: List<String> = text.splitWords()
-    private val subText: List<String> = if (subText.isBlank()) {
-        emptyList()
-    } else {
-        subText.splitWords()
-    }
 
     override suspend fun constantData(
         firstFrame: ImageFrame,
@@ -69,13 +61,13 @@ private class DemotivateProcessor(
 
         val textAlignment = TextAlignment.CENTRE
         val paragraph = ParagraphCompositeDrawable.Builder(nonTextParts)
-            .addWords(text)
+            .addText(text)
             .build(textAlignment, imageWidth)
 
         val paragraphHeight = paragraph.getHeight(graphics)
 
         val subParagraph = ParagraphCompositeDrawable.Builder(nonTextParts)
-            .addWords(subText)
+            .addText(subText)
             .build(textAlignment, imageWidth)
         graphics.font = subFont
         val subParagraphHeight = subParagraph.getHeight(graphics)

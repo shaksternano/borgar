@@ -9,7 +9,6 @@ import io.github.shaksternano.borgar.core.media.reader.ImageReader
 import io.github.shaksternano.borgar.core.media.reader.ZippedImageReader
 import io.github.shaksternano.borgar.core.media.reader.transform
 import io.github.shaksternano.borgar.core.media.template.Template
-import io.github.shaksternano.borgar.core.util.splitWords
 import kotlinx.coroutines.flow.Flow
 import java.awt.Color
 import java.awt.Shape
@@ -141,19 +140,17 @@ private class ImageContentData(
 )
 
 private class TemplateTextContentProcessor(
-    text: String,
+    private val text: String,
     private val nonTextParts: Map<String, Drawable>,
     private val template: Template,
 ) : ImageProcessor<TextDrawData> {
-
-    private val words: List<String> = text.splitWords()
 
     override suspend fun constantData(
         firstFrame: ImageFrame,
         imageSource: Flow<ImageFrame>,
         outputFormat: String,
     ): TextDrawData =
-        getTextDrawData(firstFrame.content, words, nonTextParts, template)
+        getTextDrawData(firstFrame.content, text, nonTextParts, template)
 
     override suspend fun transformImage(frame: ImageFrame, constantData: TextDrawData): BufferedImage =
         drawText(frame.content, constantData, frame.timestamp, template)

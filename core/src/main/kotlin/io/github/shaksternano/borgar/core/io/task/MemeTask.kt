@@ -11,7 +11,6 @@ import io.github.shaksternano.borgar.core.media.ImageFrame
 import io.github.shaksternano.borgar.core.media.ImageProcessor
 import io.github.shaksternano.borgar.core.media.MediaProcessingConfig
 import io.github.shaksternano.borgar.core.media.SimpleMediaProcessingConfig
-import io.github.shaksternano.borgar.core.util.splitWords
 import kotlinx.coroutines.flow.Flow
 import java.awt.Color
 import java.awt.Font
@@ -36,13 +35,10 @@ class MemeTask(
 }
 
 private class MemeProcessor(
-    topText: String,
-    bottomText: String,
+    private val topText: String,
+    private val bottomText: String,
     private val nonTextParts: Map<String, Drawable>,
 ) : ImageProcessor<MemeData> {
-
-    private val topText: List<String> = topText.splitWords()
-    private val bottomText: List<String> = bottomText.splitWords()
 
     override suspend fun constantData(
         firstFrame: ImageFrame,
@@ -62,12 +58,12 @@ private class MemeProcessor(
         val bottomParagraphY = firstImage.height - textHeight - padding
 
         val topParagraph = ParagraphCompositeDrawable.Builder(nonTextParts)
-            .addWords(topText) {
+            .addText(topText) {
                 createText(it)
             }
             .build(TextAlignment.CENTRE, textWidth)
         val bottomParagraph = ParagraphCompositeDrawable.Builder(nonTextParts)
-            .addWords(bottomText) {
+            .addText(bottomText) {
                 createText(it)
             }
             .build(TextAlignment.CENTRE, textWidth)

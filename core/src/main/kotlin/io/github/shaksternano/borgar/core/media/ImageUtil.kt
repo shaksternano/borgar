@@ -420,12 +420,12 @@ data class TextDrawData(
 
 fun getTextDrawData(
     image: BufferedImage,
-    words: List<String>,
+    text: String,
     nonTextParts: Map<String, Drawable>,
     template: Template,
 ): TextDrawData {
     val paragraph = ParagraphCompositeDrawable.Builder(nonTextParts)
-        .addWords(words, template.customTextDrawableSupplier)
+        .addText(text, template.customTextDrawableSupplier)
         .build(template.textContentAlignment, template.textContentWidth)
 
     val graphics = image.createGraphics()

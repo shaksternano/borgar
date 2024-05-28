@@ -1,6 +1,7 @@
 package io.github.shaksternano.borgar.core.graphics.drawable
 
 import io.github.shaksternano.borgar.core.graphics.TextAlignment
+import io.github.shaksternano.borgar.core.util.splitWords
 import java.awt.Graphics2D
 import java.util.*
 import kotlin.math.max
@@ -141,13 +142,14 @@ class ParagraphCompositeDrawable(
             it.putAll(nonTextParts)
         }
 
-        fun addWords(
-            words: Iterable<String>,
+        fun addText(
+            text: String,
             customTextDrawableFactory: ((String) -> Drawable)? = null,
-        ): Builder = apply {
-            words.forEach {
+        ): Builder {
+            text.splitWords().forEach {
                 addWord(it, customTextDrawableFactory)
             }
+            return this
         }
 
         private fun addWord(
