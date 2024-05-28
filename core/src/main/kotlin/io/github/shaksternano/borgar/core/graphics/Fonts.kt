@@ -8,6 +8,8 @@ import java.awt.Font
 import java.awt.GraphicsEnvironment
 import java.io.InputStream
 
+const val DEFAULT_FONT_NAME = Font.DIALOG
+
 suspend fun registerFonts() = forEachResource(
     "font"
 ) { resourcePath: String, inputStream: InputStream ->

@@ -1,9 +1,11 @@
 package io.github.shaksternano.borgar.core.graphics
 
 import io.github.shaksternano.borgar.core.graphics.drawable.Drawable
-import java.awt.Graphics2D
-import java.awt.Rectangle
-import java.awt.RenderingHints
+import java.awt.*
+import java.awt.font.LineBreakMeasurer
+import java.awt.font.TextAttribute
+import java.awt.geom.Rectangle2D
+import java.text.AttributedString
 
 fun Graphics2D.configureTextDrawQuality() {
     setRenderingHint(
@@ -54,6 +56,40 @@ fun Graphics2D.fitFontHeight(maxHeight: Int, text: Drawable): Int {
 
 fun Graphics2D.fillRect(rectangle: Rectangle) {
     fillRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height)
+}
+
+fun Graphics2D.shape(text: String): Shape =
+    font.createGlyphVector(fontRenderContext, text).outline
+
+fun Graphics2D.bounds(text: String): Rectangle2D =
+    shape(text).bounds2D
+
+fun createFallbackFontString(text: String, mainFont: Font, fallbackFont: Font): AttributedString {
+    val result = AttributedString(text)
+    result.addAttribute(TextAttribute.FONT, mainFont, 0, text.length)
+    var fallback = false
+    var fallbackBegin = 0
+    text.forEachIndexed { index, char ->
+        val currentFallback = !mainFont.canDisplay(char)
+        if (currentFallback != fallback) {
+            fallback = currentFallback
+            if (fallback) {
+                fallbackBegin = index
+            } else {
+                result.addAttribute(TextAttribute.FONT, fallbackFont, fallbackBegin, index)
+            }
+        }
+    }
+    if (fallback) {
+        result.addAttribute(TextAttribute.FONT, fallbackFont, fallbackBegin, text.length)
+    }
+    return result
+}
+
+fun Graphics2D.attributedStringBounds(attributedString: AttributedString): Rectangle2D {
+    val lineBreakMeasurer = LineBreakMeasurer(attributedString.iterator, fontRenderContext)
+    val textLayout = lineBreakMeasurer.nextLayout(Float.MAX_VALUE)
+    return textLayout.bounds
 }
 
 data class Position(val x: Int, val y: Int)

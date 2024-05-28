@@ -1,13 +1,13 @@
 package io.github.shaksternano.borgar.core.graphics.drawable
 
+import io.github.shaksternano.borgar.core.graphics.bounds
 import io.github.shaksternano.borgar.core.graphics.configureTextDrawQuality
+import io.github.shaksternano.borgar.core.graphics.shape
 import io.github.shaksternano.borgar.core.util.hash
 import io.github.shaksternano.borgar.core.util.kClass
 import java.awt.BasicStroke
 import java.awt.Color
 import java.awt.Graphics2D
-import java.awt.Shape
-import java.awt.geom.Rectangle2D
 import kotlin.time.Duration
 
 class OutlinedTextDrawable(
@@ -58,12 +58,6 @@ class OutlinedTextDrawable(
     }
 
     override fun resizeToHeight(height: Int): Drawable? = null
-
-    private fun Graphics2D.shape(text: String): Shape =
-        font.createGlyphVector(fontRenderContext, text).outline
-
-    private fun Graphics2D.bounds(text: String): Rectangle2D =
-        shape(text).bounds2D
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
