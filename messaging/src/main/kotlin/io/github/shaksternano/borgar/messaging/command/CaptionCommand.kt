@@ -13,7 +13,15 @@ sealed class CaptionCommand(
         key = "caption",
         description = "The caption text",
         type = CommandArgumentType.String,
-    )
+    ),
+    CommandArgumentInfo(
+        key = "bottom",
+        aliases = setOf("b"),
+        description = "Whether the caption should be at the bottom instead of the top.",
+        type = CommandArgumentType.Boolean,
+        required = false,
+        defaultValue = false,
+    ),
 ) {
 
     object Caption : CaptionCommand(
@@ -31,10 +39,12 @@ sealed class CaptionCommand(
 
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {
         val caption = arguments.getDefaultStringOrEmpty()
+        val bottom = arguments.getRequired("bottom", CommandArgumentType.Boolean)
         val messageIntersection = event.asMessageIntersection(arguments)
         return CaptionTask(
             caption = formatMentions(caption, messageIntersection),
             isCaption2 = isCaption2,
+            isBottom = bottom,
             nonTextParts = messageIntersection.getEmojiAndUrlDrawables(),
             maxFileSize = maxFileSize,
         )

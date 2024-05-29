@@ -15,6 +15,7 @@ import java.awt.image.BufferedImage
 class CaptionTask(
     caption: String,
     isCaption2: Boolean,
+    isBottom: Boolean,
     nonTextParts: Map<String, Drawable>,
     maxFileSize: Long,
 ) : MediaProcessingTask(maxFileSize) {
@@ -23,15 +24,17 @@ class CaptionTask(
         processor = CaptionProcessor(
             caption,
             isCaption2,
+            isBottom,
             nonTextParts,
         ),
-        outputName = "captioned"
+        outputName = "captioned",
     )
 }
 
 private class CaptionProcessor(
     private val caption: String,
     private val isCaption2: Boolean,
+    private val isBottom: Boolean,
     private val nonTextParts: Map<String, Drawable>,
 ) : ImageProcessor<CaptionData> {
 
@@ -87,8 +90,8 @@ private class CaptionProcessor(
         val graphics = captionedImage.createGraphics()
         graphics.configureTextDrawQuality()
 
-        val imageY = if (isCaption2) 0 else constantData.fillHeight
-        val captionY = if (isCaption2) image.height else 0
+        val imageY = if (isBottom) 0 else constantData.fillHeight
+        val captionY = if (isBottom) image.height else 0
 
         graphics.drawImage(image, 0, imageY, null)
 
