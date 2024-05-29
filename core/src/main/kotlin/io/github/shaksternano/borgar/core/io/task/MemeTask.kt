@@ -4,7 +4,7 @@ import io.github.shaksternano.borgar.core.graphics.TextAlignment
 import io.github.shaksternano.borgar.core.graphics.configureTextDrawQuality
 import io.github.shaksternano.borgar.core.graphics.drawable.Drawable
 import io.github.shaksternano.borgar.core.graphics.drawable.OutlinedTextDrawable
-import io.github.shaksternano.borgar.core.graphics.drawable.ParagraphCompositeDrawable
+import io.github.shaksternano.borgar.core.graphics.drawable.ParagraphDrawable
 import io.github.shaksternano.borgar.core.graphics.fitFontHeight
 import io.github.shaksternano.borgar.core.io.closeAll
 import io.github.shaksternano.borgar.core.media.ImageFrame
@@ -57,14 +57,14 @@ private class MemeProcessor(
 
         val bottomParagraphY = firstImage.height - textHeight - padding
 
-        val topParagraph = ParagraphCompositeDrawable(
+        val topParagraph = ParagraphDrawable(
             topText,
             nonTextParts,
             TextAlignment.CENTRE,
             textWidth,
             ::createText,
         )
-        val bottomParagraph = ParagraphCompositeDrawable(
+        val bottomParagraph = ParagraphDrawable(
             bottomText,
             nonTextParts,
             TextAlignment.CENTRE,

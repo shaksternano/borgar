@@ -3,7 +3,7 @@ package io.github.shaksternano.borgar.core.media
 import com.sksamuel.scrimage.ImmutableImage
 import io.github.shaksternano.borgar.core.graphics.*
 import io.github.shaksternano.borgar.core.graphics.drawable.Drawable
-import io.github.shaksternano.borgar.core.graphics.drawable.ParagraphCompositeDrawable
+import io.github.shaksternano.borgar.core.graphics.drawable.ParagraphDrawable
 import io.github.shaksternano.borgar.core.media.template.Template
 import java.awt.*
 import java.awt.geom.RoundRectangle2D
@@ -424,7 +424,7 @@ fun getTextDrawData(
     nonTextParts: Map<String, Drawable>,
     template: Template,
 ): TextDrawData {
-    val paragraph = ParagraphCompositeDrawable(
+    val paragraph = ParagraphDrawable(
         text,
         nonTextParts,
         template.textContentAlignment,

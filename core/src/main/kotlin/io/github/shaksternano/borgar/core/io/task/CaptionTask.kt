@@ -3,7 +3,7 @@ package io.github.shaksternano.borgar.core.io.task
 import io.github.shaksternano.borgar.core.graphics.TextAlignment
 import io.github.shaksternano.borgar.core.graphics.configureTextDrawQuality
 import io.github.shaksternano.borgar.core.graphics.drawable.Drawable
-import io.github.shaksternano.borgar.core.graphics.drawable.ParagraphCompositeDrawable
+import io.github.shaksternano.borgar.core.graphics.drawable.ParagraphDrawable
 import io.github.shaksternano.borgar.core.graphics.fitFontWidth
 import io.github.shaksternano.borgar.core.io.closeAll
 import io.github.shaksternano.borgar.core.media.*
@@ -63,7 +63,7 @@ private class CaptionProcessor(
             TextAlignment.CENTRE
         }
 
-        val paragraph = ParagraphCompositeDrawable(
+        val paragraph = ParagraphDrawable(
             caption,
             nonTextParts,
             textAlignment,

@@ -4,7 +4,7 @@ import io.github.shaksternano.borgar.core.graphics.Position
 import io.github.shaksternano.borgar.core.graphics.TextAlignment
 import io.github.shaksternano.borgar.core.graphics.configureTextDrawQuality
 import io.github.shaksternano.borgar.core.graphics.drawable.Drawable
-import io.github.shaksternano.borgar.core.graphics.drawable.ParagraphCompositeDrawable
+import io.github.shaksternano.borgar.core.graphics.drawable.ParagraphDrawable
 import io.github.shaksternano.borgar.core.graphics.drawable.draw
 import io.github.shaksternano.borgar.core.graphics.fillRect
 import io.github.shaksternano.borgar.core.io.closeAll
@@ -60,7 +60,7 @@ private class DemotivateProcessor(
         graphics.configureTextDrawQuality()
 
         val textAlignment = TextAlignment.CENTRE
-        val paragraph = ParagraphCompositeDrawable(
+        val paragraph = ParagraphDrawable(
             text,
             nonTextParts,
             textAlignment,
@@ -68,7 +68,7 @@ private class DemotivateProcessor(
         )
         val paragraphHeight = paragraph.getHeight(graphics)
 
-        val subParagraph = ParagraphCompositeDrawable(
+        val subParagraph = ParagraphDrawable(
             subText,
             nonTextParts,
             textAlignment,

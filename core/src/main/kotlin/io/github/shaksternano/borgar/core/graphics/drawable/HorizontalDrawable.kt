@@ -6,7 +6,7 @@ import java.awt.Graphics2D
 import kotlin.math.max
 import kotlin.time.Duration
 
-class HorizontalCompositeDrawable(
+class HorizontalDrawable(
     private val parts: Iterable<Drawable>,
 ) : Drawable {
 
@@ -36,7 +36,7 @@ class HorizontalCompositeDrawable(
             } ?: it
         }
         return if (resizedAny) {
-            HorizontalCompositeDrawable(resizedParts)
+            HorizontalDrawable(resizedParts)
         } else {
             this
         }
@@ -49,7 +49,7 @@ class HorizontalCompositeDrawable(
         if (this === other) return true
         if (kClass != other?.kClass) return false
 
-        other as HorizontalCompositeDrawable
+        other as HorizontalDrawable
 
         return parts == other.parts
     }

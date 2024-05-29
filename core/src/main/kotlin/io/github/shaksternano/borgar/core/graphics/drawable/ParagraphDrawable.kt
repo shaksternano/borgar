@@ -9,7 +9,7 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.time.Duration
 
-class ParagraphCompositeDrawable(
+class ParagraphDrawable(
     text: String,
     nonTextParts: Map<String, Drawable>,
     private val alignment: TextAlignment,
@@ -41,7 +41,7 @@ class ParagraphCompositeDrawable(
                 if (parts.size == 1) {
                     parts.first()
                 } else {
-                    HorizontalCompositeDrawable(parts)
+                    HorizontalDrawable(parts)
                 }
             } else if (NEWLINE_REGEX.matches(match)) {
                 NEWLINE
@@ -193,7 +193,7 @@ class ParagraphCompositeDrawable(
         if (this === other) return true
         if (kClass != other?.kClass) return false
 
-        other as ParagraphCompositeDrawable
+        other as ParagraphDrawable
 
         if (alignment != other.alignment) return false
         if (parts != other.parts) return false
