@@ -45,14 +45,12 @@ private class CaptionProcessor(
     ): CaptionData {
         val firstImage = firstFrame.content
         val width = firstImage.width
-        val height = firstImage.height
-
-        val averageDimension = (width + height) / 2
 
         val fontName = if (isCaption2) "Helvetica Neue" else "Futura-CondensedExtraBold"
-        val fontRatio = if (isCaption2) 9 else 7
-        var font = Font(fontName, Font.PLAIN, averageDimension / fontRatio)
-        val padding = (averageDimension * 0.04).toInt()
+        val fontRatio = 0.1
+        val paddingRatio = 0.04
+        var font = Font(fontName, Font.PLAIN, (width * fontRatio).toInt())
+        val padding = (width * paddingRatio).toInt()
         val graphics = firstImage.createGraphics()
 
         graphics.font = font
