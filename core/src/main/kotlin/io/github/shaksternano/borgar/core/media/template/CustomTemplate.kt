@@ -16,7 +16,7 @@ import java.awt.Shape
 import java.nio.file.Path
 import kotlin.io.path.extension
 
-class CustomTemplate(
+data class CustomTemplate(
     val commandName: String,
     val entityId: String,
 

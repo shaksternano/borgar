@@ -12,12 +12,15 @@ import org.jetbrains.exposed.sql.statements.UpdateBuilder
 import java.awt.Color
 import java.awt.Font
 import java.time.OffsetDateTime
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.Path
 
 object TemplateRepository : Repository<TemplateTable>() {
 
     const val COMMAND_NAME_MAX_LENGTH = 32
     const val COMMAND_DESCRIPTION_MAX_LENGTH = 100
+
+    private val cache: MutableMap<String, CustomTemplate> = ConcurrentHashMap()
 
     override fun table(): TemplateTable = TemplateTable
 
@@ -37,17 +40,23 @@ object TemplateRepository : Repository<TemplateTable>() {
                 )
             }
         }
+        cache[template.commandName] = template
     }
 
-    suspend fun read(commandName: String, entityId: String): CustomTemplate? = dbQuery {
-        queryPrimaryKey(commandName, entityId).map {
-            it.read()
-        }.firstOrNull()
-    }
+    suspend fun read(commandName: String, entityId: String): CustomTemplate? =
+        cache[commandName] ?: dbQuery {
+            queryPrimaryKey(commandName, entityId).map {
+                it.read()
+            }.firstOrNull()
+        }?.also {
+            cache[commandName] = it
+        }
 
     suspend fun readAll(entityId: String): List<CustomTemplate> = dbQuery {
         selectAll().where { entityIdPredicate(entityId) }.map {
-            it.read()
+            it.read().also { template ->
+                cache[template.commandName] = template
+            }
         }
     }
 
@@ -62,6 +71,7 @@ object TemplateRepository : Repository<TemplateTable>() {
             }
             deleteWhere { primaryKeyPredicate(commandName, entityId) }
         }
+        cache.remove(commandName)
     }
 
     private fun FieldSet.queryPrimaryKey(commandName: String, entityId: String): Query =
