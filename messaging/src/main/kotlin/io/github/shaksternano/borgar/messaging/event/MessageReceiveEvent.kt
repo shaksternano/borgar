@@ -21,6 +21,7 @@ class MessageReceiveEvent(
     suspend fun getAuthorMember(): Member? = message.getAuthorMember()
 
     suspend fun getChannel(): MessageChannel = message.getChannel()
+        ?: error("Message channel not found")
 
     suspend fun getEnvironment() = getChannel().environment
 

@@ -30,6 +30,8 @@ import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.UserContextInteractionEvent
+import net.dv8tion.jda.api.interactions.IntegrationType
+import net.dv8tion.jda.api.interactions.InteractionContextType
 import net.dv8tion.jda.api.interactions.commands.Command.Choice
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions
 import net.dv8tion.jda.api.interactions.commands.OptionType
@@ -64,7 +66,8 @@ suspend fun JDA.registerCommands() {
 }
 
 fun Command.toSlash(): SlashCommandData = Command(name, description) {
-    isGuildOnly = guildOnly
+    setContexts(environment.toDiscord())
+    setIntegrationTypes(IntegrationType.ALL)
     val discordPermissions = requiredPermissions.map { it.toDiscord() }
     defaultPermissions = DefaultMemberPermissions.enabledFor(discordPermissions)
     addOptions(argumentInfo.map(CommandArgumentInfo<*>::toOption))
@@ -78,16 +81,30 @@ fun Command.toSlash(): SlashCommandData = Command(name, description) {
     )
 }
 
-fun MessageInteractionCommand.toDiscord(): CommandData =
-    Commands.message(name).setGuildOnly(guildOnly)
+private fun MessageInteractionCommand.toDiscord(): CommandData =
+    Commands.message(name)
+        .setContexts(environment.toDiscord())
+        .setIntegrationTypes(IntegrationType.ALL)
 
-fun UserInteractionCommand.toDiscord(): CommandData =
-    Commands.user(name).setGuildOnly(guildOnly)
+private fun UserInteractionCommand.toDiscord(): CommandData =
+    Commands.user(name)
+        .setContexts(environment.toDiscord())
+        .setIntegrationTypes(IntegrationType.ALL)
 
-fun MessageContextInteractionEvent.convert(): MessageInteractionEvent =
+private fun Iterable<ChannelEnvironment>.toDiscord(): List<InteractionContextType> =
+    map(ChannelEnvironment::toDiscord)
+
+private fun ChannelEnvironment.toDiscord(): InteractionContextType = when (this) {
+    ChannelEnvironment.GUILD -> InteractionContextType.GUILD
+    ChannelEnvironment.DIRECT_MESSAGE -> InteractionContextType.BOT_DM
+    ChannelEnvironment.PRIVATE -> InteractionContextType.PRIVATE_CHANNEL
+    ChannelEnvironment.GROUP -> InteractionContextType.PRIVATE_CHANNEL
+}
+
+private fun MessageContextInteractionEvent.convert(): MessageInteractionEvent =
     DiscordMessageInteractionEvent(this)
 
-fun UserContextInteractionEvent.convert(): UserInteractionEvent =
+private fun UserContextInteractionEvent.convert(): UserInteractionEvent =
     DiscordUserInteractionEvent(this)
 
 private suspend fun handleCommand(event: SlashCommandInteractionEvent) {

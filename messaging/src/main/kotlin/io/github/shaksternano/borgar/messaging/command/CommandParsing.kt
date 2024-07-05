@@ -93,8 +93,8 @@ suspend inline fun executeCommands(
             if (guild != null) {
                 val requiredPermissions = command.requiredPermissions
                 val permissionHolder = guild.getMember(event.authorId) ?: guild.publicRole
-                val hasPermission = permissionHolder.hasPermission(requiredPermissions, event.getChannel())
-                if (!hasPermission) {
+                val hasPermission = permissionHolder?.hasPermission(requiredPermissions, event.getChannel())
+                if (hasPermission == false) {
                     throw InsufficientPermissionsException(command, requiredPermissions)
                 }
             }

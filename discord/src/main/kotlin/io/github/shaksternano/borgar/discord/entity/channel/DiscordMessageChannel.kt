@@ -12,6 +12,7 @@ import io.github.shaksternano.borgar.messaging.entity.channel.MessageChannel
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.map
 import net.dv8tion.jda.api.entities.Icon
 import net.dv8tion.jda.api.entities.Member
@@ -19,21 +20,29 @@ import net.dv8tion.jda.api.entities.Webhook
 import net.dv8tion.jda.api.entities.channel.attribute.IWebhookContainer
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel
+import net.dv8tion.jda.api.interactions.InteractionContextType
 import net.dv8tion.jda.api.utils.messages.MessageCreateData
 
-data class DiscordMessageChannel(
+class DiscordMessageChannel(
     private val discordMessageChannel: net.dv8tion.jda.api.entities.channel.middleman.MessageChannel,
-) : MessageChannel, DiscordChannel(discordMessageChannel) {
+    context: InteractionContextType = InteractionContextType.UNKNOWN,
+) : MessageChannel, DiscordChannel(discordMessageChannel, context) {
 
     override val cancellableTyping: Boolean = false
 
     override suspend fun sendTyping() {
+        if (isDetached) {
+            throw UnsupportedOperationException("Cannot send typing as a user app")
+        }
         discordMessageChannel.sendTyping().await()
     }
 
     override suspend fun stopTyping() = Unit
 
     override suspend fun createMessage(block: MessageCreateBuilder.() -> Unit): Message {
+        if (isDetached) {
+            throw UnsupportedOperationException("Cannot send messages as a user app")
+        }
         val builder = MessageCreateBuilder().apply(block)
         val discordMessage = if (builder.username == null && builder.avatarUrl == null) {
             sendStandardMessage(builder)
@@ -82,7 +91,7 @@ data class DiscordMessageChannel(
 
     private suspend fun getOrCreateWebhook(): Webhook {
         val webhookContainer = getWebhookContainer()
-            ?: throw UnsupportedOperationException("Webhook container not found")
+            ?: throw UnsupportedOperationException("Channel does not support webhooks")
         val webhooks = webhookContainer.retrieveWebhooks().await()
         return getOrCreateWebhook(webhooks, webhookContainer)
     }
@@ -96,7 +105,10 @@ data class DiscordMessageChannel(
         return channel as? IWebhookContainer
     }
 
-    private suspend fun getOrCreateWebhook(webhooks: List<Webhook>, webhookContainer: IWebhookContainer): Webhook {
+    private suspend fun getOrCreateWebhook(
+        webhooks: List<Webhook>,
+        webhookContainer: IWebhookContainer,
+    ): Webhook {
         val selfUser = webhookContainer.jda.selfUser
         val ownWebhook = webhooks.find {
             it.ownerAsUser == selfUser
@@ -119,10 +131,15 @@ data class DiscordMessageChannel(
         return builder.build()
     }
 
-    override fun getPreviousMessages(beforeId: String): Flow<Message> {
-        return discordMessageChannel.iterableHistory
-            .skipTo(beforeId.toLong())
-            .asFlow()
-            .map { DiscordMessage(it) }
-    }
+    override fun getPreviousMessages(beforeId: String): Flow<Message> =
+        if (isDetached) {
+            emptyFlow()
+        } else {
+            discordMessageChannel.iterableHistory
+                .skipTo(beforeId.toLong())
+                .asFlow()
+                .map {
+                    DiscordMessage(it)
+                }
+        }
 }

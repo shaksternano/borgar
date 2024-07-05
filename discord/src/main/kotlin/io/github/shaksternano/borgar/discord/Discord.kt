@@ -22,6 +22,7 @@ import kotlinx.coroutines.launch
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.Activity
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
+import net.dv8tion.jda.api.entities.detached.IDetachableEntity
 import net.dv8tion.jda.api.entities.emoji.Emoji
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.events.session.ReadyEvent
@@ -78,6 +79,13 @@ private fun MessageReceivedEvent.convert(): MessageReceiveEvent {
 fun DataSource.toFileUpload(): FileUpload =
     FileUpload.fromStreamSupplier(filename) {
         newStreamBlocking()
+    }
+
+fun <T> IDetachableEntity.ifDetachedOrElse(ifDetached: T, ifNotDetached: () -> T) =
+    if (isDetached) {
+        ifDetached
+    } else {
+        ifNotDetached()
     }
 
 private suspend fun JDA.awaitReadySuspend() {

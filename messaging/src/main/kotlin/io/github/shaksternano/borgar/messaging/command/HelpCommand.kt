@@ -5,7 +5,10 @@ import com.google.common.cache.CacheBuilder
 import io.github.shaksternano.borgar.core.collect.getOrPut
 import io.github.shaksternano.borgar.core.data.repository.TemplateRepository
 import io.github.shaksternano.borgar.core.logger
-import io.github.shaksternano.borgar.core.util.*
+import io.github.shaksternano.borgar.core.util.ChannelEnvironment
+import io.github.shaksternano.borgar.core.util.Identified
+import io.github.shaksternano.borgar.core.util.formatted
+import io.github.shaksternano.borgar.core.util.splitChunks
 import io.github.shaksternano.borgar.messaging.BotManager
 import io.github.shaksternano.borgar.messaging.event.CommandEvent
 import io.github.shaksternano.borgar.messaging.util.checkEntityIdBelongs
@@ -216,16 +219,25 @@ object HelpCommand : NonChainableCommand() {
             when (entityEnvironment) {
                 ChannelEnvironment.GUILD ->
                     manager.getGuild(entityId)?.let { guild ->
-                        extraInfo += "\n    From the ${guild.name} server"
-                    }
-
-                ChannelEnvironment.GROUP ->
-                    manager.getGroup(entityId)?.let { group ->
-                        extraInfo += "\n    From the ${group.name} group"
+                        val name = guild.name
+                        if (name != null) {
+                            extraInfo += "\n    From the $name server"
+                        }
                     }
 
                 ChannelEnvironment.DIRECT_MESSAGE ->
                     extraInfo += "\n    Personal command"
+
+                ChannelEnvironment.PRIVATE ->
+                    extraInfo += "\n    Personal command"
+
+                ChannelEnvironment.GROUP ->
+                    manager.getGroup(entityId)?.let { group ->
+                        val name = group.name
+                        if (name != null) {
+                            extraInfo += "\n    From the $name group"
+                        }
+                    }
             }
         }
         if (extraInfo.isNotBlank()) {

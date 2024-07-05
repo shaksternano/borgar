@@ -116,8 +116,8 @@ data class RevoltChannelResponse(
             group = if (type == RevoltChannelType.GROUP.apiName) RevoltGroup(
                 manager = manager,
                 id = id,
-                name = name ?: "Group",
-                ownerId = ownerId ?: error("Revolt group owner id is null. Response body:\n$this"),
+                name = name,
+                ownerId = ownerId,
                 memberIds = memberIds.toSet(),
                 iconUrl = icon?.getUrl(manager),
             ) else null,

@@ -105,7 +105,7 @@ private data class FileExecutable(
                         }
                         ?.asDataSource()
                 if (inputRequirement == InputRequirement.REQUIRED && file == null) {
-                    return CommandResponse("No input found!").asSingletonList()
+                    return CommandResponse("No files found!").asSingletonList()
                 }
                 listOfNotNull(file)
             } else {

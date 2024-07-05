@@ -10,11 +10,11 @@ interface Message : CommandMessageIntersection, TimeStamped {
         this.content = content
     }
 
-    suspend fun reply(block: MessageCreateBuilder.() -> Unit): Message = getChannel().createMessage {
+    suspend fun reply(block: MessageCreateBuilder.() -> Unit): Message = getChannel()?.createMessage {
         block()
         referencedMessageIds.clear()
         referencedMessageIds.add(id)
-    }
+    } ?: error("Message channel not found")
 
     suspend fun edit(content: String): Message = edit {
         this.content = content

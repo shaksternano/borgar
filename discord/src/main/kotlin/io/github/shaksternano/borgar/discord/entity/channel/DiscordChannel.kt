@@ -2,6 +2,7 @@ package io.github.shaksternano.borgar.discord.entity.channel
 
 import io.github.shaksternano.borgar.core.util.ChannelEnvironment
 import io.github.shaksternano.borgar.discord.DiscordManager
+import io.github.shaksternano.borgar.discord.entity.DiscordGroup
 import io.github.shaksternano.borgar.discord.entity.DiscordGuild
 import io.github.shaksternano.borgar.messaging.BotManager
 import io.github.shaksternano.borgar.messaging.entity.BaseEntity
@@ -11,9 +12,11 @@ import io.github.shaksternano.borgar.messaging.entity.channel.Channel
 import net.dv8tion.jda.api.entities.channel.concrete.GroupChannel
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
+import net.dv8tion.jda.api.interactions.InteractionContextType
 
 open class DiscordChannel protected constructor(
-    val discordChannel: net.dv8tion.jda.api.entities.channel.Channel
+    val discordChannel: net.dv8tion.jda.api.entities.channel.Channel,
+    context: InteractionContextType = InteractionContextType.UNKNOWN,
 ) : Channel, BaseEntity() {
 
     companion object {
@@ -29,10 +32,15 @@ open class DiscordChannel protected constructor(
     override val environment: ChannelEnvironment = when (discordChannel) {
         is GuildChannel -> ChannelEnvironment.GUILD
         is GroupChannel -> ChannelEnvironment.GROUP
-        else -> ChannelEnvironment.DIRECT_MESSAGE
+        else -> when (context) {
+            InteractionContextType.BOT_DM -> ChannelEnvironment.DIRECT_MESSAGE
+            else -> ChannelEnvironment.PRIVATE
+        }
     }
     override val asMention: String = discordChannel.asMention
     override val asBasicMention: String = "#${discordChannel.name}"
+    protected val isDetached: Boolean = (discordChannel is GuildChannel && discordChannel.guild.isDetached)
+        || context == InteractionContextType.PRIVATE_CHANNEL
 
     override suspend fun getGuild(): Guild? {
         return if (discordChannel is GuildChannel) {
@@ -42,5 +50,10 @@ open class DiscordChannel protected constructor(
         }
     }
 
-    override suspend fun getGroup(): Group? = null
+    override suspend fun getGroup(): Group? =
+        if (discordChannel is GroupChannel) {
+            DiscordGroup(discordChannel)
+        } else {
+            null
+        }
 }

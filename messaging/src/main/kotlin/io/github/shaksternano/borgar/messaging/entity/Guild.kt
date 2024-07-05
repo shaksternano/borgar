@@ -8,7 +8,7 @@ interface Guild : ChatRoom {
     val bannerUrl: String?
     val splashUrl: String?
     val maxFileSize: Long
-    val publicRole: Role
+    val publicRole: Role?
     val customEmojis: Flow<CustomEmoji>
 
     suspend fun getMember(userId: String): Member?

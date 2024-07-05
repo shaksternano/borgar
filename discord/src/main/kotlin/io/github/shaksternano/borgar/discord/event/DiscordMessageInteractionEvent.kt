@@ -31,7 +31,10 @@ class DiscordMessageInteractionEvent(
 
     private val user: User = DiscordUser(discordEvent.user)
     private val member: Member? = discordEvent.member?.let { DiscordMember(it) }
-    private val channel: MessageChannel = DiscordMessageChannel(discordEvent.target.channel)
+    private val channel: MessageChannel = DiscordMessageChannel(
+        discordEvent.target.channel,
+        discordEvent.context,
+    )
     private val guild: Guild? = discordEvent.guild?.let { DiscordGuild(it) }
 
     override var ephemeralReply: Boolean = false

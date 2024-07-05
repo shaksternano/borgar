@@ -5,8 +5,17 @@ enum class ChannelEnvironment(
     val entityType: String,
 ) {
     GUILD("Guild", "guild"),
-    GROUP("Group", "group"),
+
+    /**
+     * Direct message with this bot.
+     */
     DIRECT_MESSAGE("Direct Message", "user"),
+
+    /**
+     * Direct message between two other users, not with this bot.
+     */
+    PRIVATE("Direct Message", "private"),
+    GROUP("Group", "group"),
     ;
 
     companion object {

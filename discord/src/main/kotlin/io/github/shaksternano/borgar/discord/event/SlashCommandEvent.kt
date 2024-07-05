@@ -5,10 +5,7 @@ import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.util.ChannelEnvironment
 import io.github.shaksternano.borgar.discord.DiscordManager
 import io.github.shaksternano.borgar.discord.await
-import io.github.shaksternano.borgar.discord.entity.DiscordGuild
-import io.github.shaksternano.borgar.discord.entity.DiscordMember
-import io.github.shaksternano.borgar.discord.entity.DiscordMessage
-import io.github.shaksternano.borgar.discord.entity.DiscordUser
+import io.github.shaksternano.borgar.discord.entity.*
 import io.github.shaksternano.borgar.discord.entity.channel.DiscordMessageChannel
 import io.github.shaksternano.borgar.discord.toFileUpload
 import io.github.shaksternano.borgar.messaging.BotManager
@@ -22,6 +19,7 @@ import io.github.shaksternano.borgar.messaging.entity.channel.MessageChannel
 import io.github.shaksternano.borgar.messaging.event.CommandEvent
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
+import net.dv8tion.jda.api.entities.channel.concrete.GroupChannel
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback
 import net.dv8tion.jda.api.interactions.commands.OptionType
@@ -29,19 +27,22 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateData
 import java.time.OffsetDateTime
 
 class SlashCommandEvent(
-    private val event: SlashCommandInteractionEvent
+    private val discordEvent: SlashCommandInteractionEvent
 ) : CommandEvent {
 
-    override val manager: BotManager = DiscordManager[event.jda]
-    override val id: String = event.id
-    override val authorId: String = event.user.id
-    override val timeCreated: OffsetDateTime = event.timeCreated
+    override val manager: BotManager = DiscordManager[discordEvent.jda]
+    override val id: String = discordEvent.id
+    override val authorId: String = discordEvent.user.id
+    override val timeCreated: OffsetDateTime = discordEvent.timeCreated
     override val referencedMessages: Flow<Message> = emptyFlow()
 
-    private val user: User = DiscordUser(event.user)
-    private val member: Member? = event.member?.let { DiscordMember(it) }
-    private val channel: MessageChannel = DiscordMessageChannel(event.channel)
-    private val guild: Guild? = event.guild?.let { DiscordGuild(it) }
+    private val user: User = DiscordUser(discordEvent.user)
+    private val member: Member? = discordEvent.member?.let { DiscordMember(it) }
+    private val channel: MessageChannel = DiscordMessageChannel(
+        discordEvent.channel,
+        discordEvent.context,
+    )
+    private val guild: Guild? = discordEvent.guild?.let { DiscordGuild(it) }
 
     override var ephemeralReply: Boolean = false
     private var deferReply: Boolean = false
@@ -57,10 +58,17 @@ class SlashCommandEvent(
 
     override suspend fun getGuild(): Guild? = guild
 
-    override suspend fun getGroup(): Group? = null
+    override suspend fun getGroup(): Group? = run {
+        val discordChannel = discordEvent.channel
+        if (discordChannel is GroupChannel) {
+            DiscordGroup(discordChannel)
+        } else {
+            null
+        }
+    }
 
     override suspend fun deferReply() {
-        event.deferReply(ephemeralReply).await()
+        discordEvent.deferReply(ephemeralReply).await()
         deferReply = true
     }
 
@@ -70,13 +78,13 @@ class SlashCommandEvent(
             files = response.files.map(DataSource::toFileUpload),
         ).build()
         return if (replied) {
-            val discordResponseMessage = event.channel.sendMessage(message)
+            val discordResponseMessage = discordEvent.channel.sendMessage(message)
                 .setSuppressEmbeds(response.suppressEmbeds)
                 .await()
             DiscordMessage(discordResponseMessage)
         } else {
             replied = true
-            event.reply(
+            discordEvent.reply(
                 message,
                 deferReply,
                 ephemeralReply,
@@ -91,7 +99,7 @@ class SlashCommandEvent(
             override val authorId: String = this@SlashCommandEvent.authorId
             override val manager: BotManager = this@SlashCommandEvent.manager
             override val content: String = arguments.getDefaultStringOrEmpty()
-            override val attachments: List<Attachment> = event.getOptionsByType(OptionType.ATTACHMENT).map {
+            override val attachments: List<Attachment> = discordEvent.getOptionsByType(OptionType.ATTACHMENT).map {
                 val attachment = it.asAttachment
                 Attachment(
                     id = attachment.id,

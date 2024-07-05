@@ -42,8 +42,12 @@ data class DiscordMessage(
 
     private val author: User = DiscordUser(discordMessage.author)
     private val member: Member? = discordMessage.member?.let { DiscordMember(it) }
-    private val channel: MessageChannel = DiscordMessageChannel(discordMessage.channel)
-    private val guild: Guild? = if (discordMessage.isFromGuild) {
+    private val channel: MessageChannel? = if (discordMessage.hasChannel()) {
+        DiscordMessageChannel(discordMessage.channel)
+    } else {
+        null
+    }
+    private val guild: Guild? = if (discordMessage.hasGuild()) {
         DiscordGuild(discordMessage.guild)
     } else {
         null
@@ -73,11 +77,12 @@ data class DiscordMessage(
 
     override suspend fun getAuthorMember(): Member? = member
 
-    override suspend fun getChannel(): MessageChannel = channel
+    override suspend fun getChannel(): MessageChannel? = channel
 
     override suspend fun getGuild(): Guild? = guild
 
-    override suspend fun getGroup(): Group? = null
+    override suspend fun getGroup(): Group? =
+        getChannel()?.getGroup()
 
     override suspend fun getEmbeds(): List<MessageEmbed> {
         if (fetchEmbeds) {

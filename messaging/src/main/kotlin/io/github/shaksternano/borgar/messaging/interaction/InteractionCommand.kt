@@ -1,13 +1,14 @@
 package io.github.shaksternano.borgar.messaging.interaction
 
+import io.github.shaksternano.borgar.core.util.ChannelEnvironment
 import io.github.shaksternano.borgar.core.util.Named
 import io.github.shaksternano.borgar.messaging.entity.Message
 import io.github.shaksternano.borgar.messaging.event.InteractionEvent
 
 interface InteractionCommand<T : InteractionEvent> : Named {
 
-    val guildOnly: Boolean
-        get() = false
+    val environment: Set<ChannelEnvironment>
+        get() = ChannelEnvironment.ALL
     val deferReply: Boolean
     val ephemeralReply: Boolean
         get() = false

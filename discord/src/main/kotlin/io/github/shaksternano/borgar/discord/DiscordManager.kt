@@ -67,7 +67,8 @@ class DiscordManager(
     override suspend fun getGuild(id: String): Guild? =
         jda.getGuildById(id)?.let { DiscordGuild(it) }
 
-    override suspend fun getGroup(id: String): Group? = null
+    override suspend fun getGroup(id: String): Group? =
+        getChannel(id)?.getGroup()
 
     override suspend fun getGuildCount(): Int =
         jda.guildCache.size().toInt()

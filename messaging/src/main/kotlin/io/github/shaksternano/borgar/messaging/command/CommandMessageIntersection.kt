@@ -4,6 +4,7 @@ import io.github.shaksternano.borgar.messaging.entity.*
 import io.github.shaksternano.borgar.messaging.entity.channel.Channel
 import io.github.shaksternano.borgar.messaging.entity.channel.MessageChannel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 
 interface CommandMessageIntersection : Entity {
 
@@ -21,14 +22,14 @@ interface CommandMessageIntersection : Entity {
 
     suspend fun getAuthorMember(): Member?
 
-    suspend fun getChannel(): MessageChannel
+    suspend fun getChannel(): MessageChannel?
 
     suspend fun getGuild(): Guild?
 
     suspend fun getGroup(): Group?
 
     suspend fun getPreviousMessages(): Flow<Message> =
-        getChannel().getPreviousMessages(id)
+        getChannel()?.getPreviousMessages(id) ?: emptyFlow()
 
     suspend fun getEmbeds(): List<MessageEmbed>
 }

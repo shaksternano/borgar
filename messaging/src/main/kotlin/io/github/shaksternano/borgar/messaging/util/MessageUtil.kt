@@ -223,10 +223,12 @@ suspend fun CommandEvent.getEntityId(): String =
         getAuthor()
     }
 
-suspend fun Message.getEntityId(): String =
-    getEntityId(getChannel()) {
+suspend fun Message.getEntityId(): String {
+    val channel = getChannel() ?: error("Message channel not found")
+    return getEntityId(channel) {
         getAuthor()
     }
+}
 
 private suspend inline fun getEntityId(
     channel: Channel,
@@ -235,8 +237,9 @@ private suspend inline fun getEntityId(
     val environment = channel.environment
     return when (environment) {
         ChannelEnvironment.GUILD -> channel.getGuild()?.id
-        ChannelEnvironment.GROUP -> channel.getGroup()?.id
         ChannelEnvironment.DIRECT_MESSAGE -> authorSupplier().id
+        ChannelEnvironment.PRIVATE -> authorSupplier().id
+        ChannelEnvironment.GROUP -> channel.getGroup()?.id
     } ?: error("Entity ID not found in environment $environment")
 }
 
@@ -258,6 +261,10 @@ suspend inline fun checkEntityIdBelongs(
                 }
             }
 
+            ChannelEnvironment.DIRECT_MESSAGE -> return onDoesNotBelong()
+
+            ChannelEnvironment.PRIVATE -> return onDoesNotBelong()
+
             ChannelEnvironment.GROUP -> {
                 val group = manager.getGroup(toCheckEntityId)
                 val belongsToGroup = group == null || group.isMember(authorId)
@@ -265,8 +272,6 @@ suspend inline fun checkEntityIdBelongs(
                     onDoesNotBelong()
                 }
             }
-
-            ChannelEnvironment.DIRECT_MESSAGE -> return onDoesNotBelong()
         }
     }
 }

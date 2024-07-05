@@ -108,7 +108,7 @@ data class RevoltMessage(
     override suspend fun getGuild(): RevoltGuild? =
         getChannel().getGuild()
 
-    override suspend fun getGroup(): Group? =
+    override suspend fun getGroup(): RevoltGroup? =
         getChannel().getGroup()
 
     override suspend fun getEmbeds(): List<MessageEmbed> = embeds
