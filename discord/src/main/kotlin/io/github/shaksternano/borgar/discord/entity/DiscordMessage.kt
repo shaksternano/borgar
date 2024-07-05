@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
+import net.dv8tion.jda.api.entities.channel.concrete.GroupChannel
 import net.dv8tion.jda.api.utils.messages.MessageEditData
 import java.time.OffsetDateTime
 
@@ -52,6 +53,15 @@ data class DiscordMessage(
     } else {
         null
     }
+    private val group: Group? = run {
+        if (discordMessage.hasChannel()) {
+            val discordChannel = discordMessage.channel
+            if (discordChannel is GroupChannel) {
+                return@run DiscordGroup(discordChannel)
+            }
+        }
+        null
+    }
 
     override val mentionedUsers: Flow<User> = discordMessage.mentions
         .users
@@ -81,8 +91,7 @@ data class DiscordMessage(
 
     override suspend fun getGuild(): Guild? = guild
 
-    override suspend fun getGroup(): Group? =
-        getChannel()?.getGroup()
+    override suspend fun getGroup(): Group? = group
 
     override suspend fun getEmbeds(): List<MessageEmbed> {
         if (fetchEmbeds) {

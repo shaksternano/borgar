@@ -43,6 +43,14 @@ class SlashCommandEvent(
         discordEvent.context,
     )
     private val guild: Guild? = discordEvent.guild?.let { DiscordGuild(it) }
+    private val group: Group? = run {
+        val discordChannel = discordEvent.channel
+        if (discordChannel is GroupChannel) {
+            DiscordGroup(discordChannel)
+        } else {
+            null
+        }
+    }
 
     override var ephemeralReply: Boolean = false
     private var deferReply: Boolean = false
@@ -58,14 +66,7 @@ class SlashCommandEvent(
 
     override suspend fun getGuild(): Guild? = guild
 
-    override suspend fun getGroup(): Group? = run {
-        val discordChannel = discordEvent.channel
-        if (discordChannel is GroupChannel) {
-            DiscordGroup(discordChannel)
-        } else {
-            null
-        }
-    }
+    override suspend fun getGroup(): Group? = group
 
     override suspend fun deferReply() {
         discordEvent.deferReply(ephemeralReply).await()
@@ -78,7 +79,8 @@ class SlashCommandEvent(
             files = response.files.map(DataSource::toFileUpload),
         ).build()
         return if (replied) {
-            val discordResponseMessage = discordEvent.channel.sendMessage(message)
+            val discordResponseMessage = discordEvent.hook.sendMessage(message)
+                .setEphemeral(ephemeralReply)
                 .setSuppressEmbeds(response.suppressEmbeds)
                 .await()
             DiscordMessage(discordResponseMessage)
@@ -139,6 +141,7 @@ suspend fun IReplyCallback.reply(
 ): Message {
     val discordResponse = if (deferReply) {
         hook.sendMessage(message)
+            .setEphemeral(ephemeralReply)
             .setSuppressEmbeds(suppressEmbeds)
     } else {
         reply(message)
