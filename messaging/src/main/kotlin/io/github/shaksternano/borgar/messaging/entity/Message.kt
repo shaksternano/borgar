@@ -6,6 +6,8 @@ import io.github.shaksternano.borgar.messaging.command.CommandMessageIntersectio
 
 interface Message : CommandMessageIntersection, TimeStamped {
 
+    val link: String
+
     suspend fun reply(content: String): Message = reply {
         this.content = content
     }

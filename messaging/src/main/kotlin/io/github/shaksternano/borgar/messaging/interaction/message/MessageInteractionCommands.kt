@@ -14,13 +14,15 @@ import kotlinx.coroutines.launch
 val MESSAGE_INTERACTION_COMMANDS: Map<String, MessageInteractionCommand> = registerCommands(
     "message interaction command",
     DownloadInteractionCommand,
+    SelectMessageCommand,
 )
 
 suspend fun handleMessageInteraction(event: MessageInteractionEvent) {
     val commandName = event.name
     val command = MESSAGE_INTERACTION_COMMANDS[commandName]
     if (command == null) {
-        logger.error("No message interaction command with the name ${event.name} found")
+        logger.error("Unknown message interaction command: $commandName")
+        event.reply("Unknown command!")
         return
     }
     handleInteractionCommand(command, event)

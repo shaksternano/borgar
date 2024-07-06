@@ -108,13 +108,13 @@ private fun UserContextInteractionEvent.convert(): UserInteractionEvent =
     DiscordUserInteractionEvent(this)
 
 private suspend fun handleCommand(event: SlashCommandInteractionEvent) {
-    val name = event.name
-    val command = COMMANDS[name] ?: run {
+    val commandName = event.name
+    val command = COMMANDS[commandName] ?: run {
         val entityId = event.guild?.id ?: event.user.id
-        TemplateRepository.read(name, entityId)?.let(::TemplateCommand)
+        TemplateRepository.read(commandName, entityId)?.let(::TemplateCommand)
     }
     if (command == null) {
-        logger.error("Unknown command: $name")
+        logger.error("Unknown command: $commandName")
         event.reply("Unknown command!").await()
         return
     }

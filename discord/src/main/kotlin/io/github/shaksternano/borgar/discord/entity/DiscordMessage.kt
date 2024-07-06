@@ -24,8 +24,8 @@ data class DiscordMessage(
     private val discordMessage: net.dv8tion.jda.api.entities.Message,
 ) : Message, BaseEntity() {
 
-    override val manager: BotManager = DiscordManager[discordMessage.jda]
     override val id: String = discordMessage.id
+    override val manager: BotManager = DiscordManager[discordMessage.jda]
     override val authorId: String = discordMessage.author.id
     override val timeCreated: OffsetDateTime = discordMessage.timeCreated
     override val content: String = discordMessage.contentRaw
@@ -40,6 +40,7 @@ data class DiscordMessage(
     override val referencedMessages: Flow<Message> = discordMessage.referencedMessage
         ?.let { flowOf(DiscordMessage(it)) }
         ?: emptyFlow()
+    override val link: String = discordMessage.jumpUrl
 
     private val author: User = DiscordUser(discordMessage.author)
     private val member: Member? = discordMessage.member?.let { DiscordMember(it) }

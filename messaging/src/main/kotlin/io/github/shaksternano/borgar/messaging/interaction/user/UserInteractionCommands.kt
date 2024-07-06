@@ -16,7 +16,8 @@ suspend fun handleUserInteraction(event: UserInteractionEvent) {
     val commandName = event.name
     val command = USER_INTERACTION_COMMANDS[commandName]
     if (command == null) {
-        logger.error("No user interaction command with the name ${event.name} found")
+        logger.error("Unknown user interaction command: $commandName")
+        event.reply("Unknown command!")
         return
     }
     handleInteractionCommand(command, event)

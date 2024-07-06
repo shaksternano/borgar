@@ -21,6 +21,7 @@ import io.github.shaksternano.borgar.messaging.entity.User
 import io.github.shaksternano.borgar.messaging.entity.channel.Channel
 import io.github.shaksternano.borgar.messaging.entity.getContent
 import io.github.shaksternano.borgar.messaging.event.CommandEvent
+import io.github.shaksternano.borgar.messaging.interaction.message.SelectMessageCommand
 import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.coroutines.flow.firstOrNull
@@ -167,6 +168,7 @@ suspend fun CommandMessageIntersection.getEmojiUrls(): Map<String, String> {
 suspend fun <T> CommandMessageIntersection.search(find: suspend (CommandMessageIntersection) -> T?): T? =
     searchVisitors(
         find,
+        CommandMessageIntersection::searchSelectedMessage,
         CommandMessageIntersection::searchSelf,
         CommandMessageIntersection::searchReferencedMessages,
         CommandMessageIntersection::searchPreviousMessages,
@@ -175,6 +177,7 @@ suspend fun <T> CommandMessageIntersection.search(find: suspend (CommandMessageI
 suspend fun <T> CommandMessageIntersection.searchExceptSelf(find: suspend (CommandMessageIntersection) -> T?): T? =
     searchVisitors(
         find,
+        CommandMessageIntersection::searchSelectedMessage,
         CommandMessageIntersection::searchReferencedMessages,
         CommandMessageIntersection::searchPreviousMessages,
     )
@@ -196,7 +199,27 @@ private suspend fun <T> CommandMessageIntersection.searchVisitors(
     it(find)
 }
 
-private suspend fun <T> CommandMessageIntersection.searchReferencedMessages(find: suspend (CommandMessageIntersection) -> T?): T? =
+private suspend fun <T> CommandMessageIntersection.searchSelectedMessage(
+    find: suspend (CommandMessageIntersection) -> T?,
+): T? =
+    getChannel()?.let { channel ->
+        SelectMessageCommand.getAndExpireSelectedMessage(
+            authorId,
+            channel.id,
+            manager.platform,
+        )
+    }?.let {
+        find(it)
+    }
+
+private suspend fun <T> CommandMessageIntersection.searchSelf(
+    find: suspend (CommandMessageIntersection) -> T?,
+): T? =
+    find(this)
+
+private suspend fun <T> CommandMessageIntersection.searchReferencedMessages(
+    find: suspend (CommandMessageIntersection) -> T?,
+): T? =
     referencedMessages
         .map {
             find(it)
@@ -205,10 +228,9 @@ private suspend fun <T> CommandMessageIntersection.searchReferencedMessages(find
             it != null
         }
 
-private suspend fun <T> CommandMessageIntersection.searchSelf(find: suspend (CommandMessageIntersection) -> T?): T? =
-    find(this)
-
-private suspend fun <T> CommandMessageIntersection.searchPreviousMessages(find: suspend (CommandMessageIntersection) -> T?): T? =
+private suspend fun <T> CommandMessageIntersection.searchPreviousMessages(
+    find: suspend (CommandMessageIntersection) -> T?,
+): T? =
     getPreviousMessages()
         .take(MAX_PAST_MESSAGES_TO_CHECK)
         .map {

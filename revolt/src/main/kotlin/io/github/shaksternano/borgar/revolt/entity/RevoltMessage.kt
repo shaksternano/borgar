@@ -63,6 +63,8 @@ data class RevoltMessage(
     override val mentionedChannels: Flow<Channel> = emptyFlow()
     override val mentionedRoles: Flow<Role> = emptyFlow()
 
+    override val link: String = "${manager.appDomain}/channel/$channelId/$id"
+
     private var setAuthorMember: Boolean = authorMember != null
     private lateinit var channel: RevoltMessageChannel
 

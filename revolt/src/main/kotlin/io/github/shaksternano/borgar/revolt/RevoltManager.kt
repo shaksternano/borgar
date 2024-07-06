@@ -36,9 +36,6 @@ import kotlinx.serialization.Serializable
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-private const val REVOLT_API_DOMAIN = "https://api.revolt.chat"
-private const val REVOLT_CDN_DOMAIN = "https://autumn.revolt.chat"
-
 private const val REVOLT_TOKEN_HEADER = "x-bot-token"
 
 private val USER_MENTION_REGEX: Regex = "<@[A-Za-z0-9]+>".toRegex()
@@ -59,8 +56,9 @@ class RevoltManager(
     override val typingDuration: Duration = 1.seconds
 
     val webSocket: RevoltWebSocketClient = RevoltWebSocketClient(token, this)
-    val apiDomain: String = REVOLT_API_DOMAIN
-    val cdnDomain: String = REVOLT_CDN_DOMAIN
+    val apiDomain: String = "https://api.revolt.chat"
+    val cdnDomain: String = "https://autumn.revolt.chat"
+    val appDomain: String = "https://app.revolt.chat"
 
     private val systemUser: RevoltUser = RevoltUser(
         manager = this,

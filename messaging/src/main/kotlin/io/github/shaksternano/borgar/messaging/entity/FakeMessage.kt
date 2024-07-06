@@ -28,6 +28,8 @@ data class FakeMessage(
     override val customEmojis: Flow<CustomEmoji> = manager.getCustomEmojis(content)
     override val stickers: Flow<Sticker> = emptyFlow()
 
+    override val link: String = ""
+
     override suspend fun getAuthor(): User = author
 
     override suspend fun getAuthorMember(): Member? = getGuild()?.getMember(author)
