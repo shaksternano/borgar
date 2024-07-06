@@ -115,7 +115,9 @@ private suspend fun handleCommand(event: SlashCommandInteractionEvent) {
     }
     if (command == null) {
         logger.error("Unknown command: $commandName")
-        event.reply("Unknown command!").await()
+        event.reply("Unknown command!")
+            .setEphemeral(true)
+            .await()
         return
     }
     val arguments = OptionCommandArguments(event, command.defaultArgumentKey)

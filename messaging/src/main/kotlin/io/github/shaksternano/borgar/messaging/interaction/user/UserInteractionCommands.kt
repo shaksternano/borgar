@@ -17,6 +17,7 @@ suspend fun handleUserInteraction(event: UserInteractionEvent) {
     val command = USER_INTERACTION_COMMANDS[commandName]
     if (command == null) {
         logger.error("Unknown user interaction command: $commandName")
+        event.ephemeralReply = true
         event.reply("Unknown command!")
         return
     }

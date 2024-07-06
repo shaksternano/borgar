@@ -22,6 +22,7 @@ suspend fun handleMessageInteraction(event: MessageInteractionEvent) {
     val command = MESSAGE_INTERACTION_COMMANDS[commandName]
     if (command == null) {
         logger.error("Unknown message interaction command: $commandName")
+        event.ephemeralReply = true
         event.reply("Unknown command!")
         return
     }
