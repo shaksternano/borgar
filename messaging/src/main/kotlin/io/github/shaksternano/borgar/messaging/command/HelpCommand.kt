@@ -18,7 +18,6 @@ object HelpCommand : NonChainableCommand() {
 
     override val name: String = "help"
     override val description: String = "Lists all commands."
-
     override val argumentInfo: Set<CommandArgumentInfo<*>> = setOf(
         CommandArgumentInfo(
             key = "command",
@@ -27,6 +26,7 @@ object HelpCommand : NonChainableCommand() {
             required = false,
         )
     )
+    override val ephemeralReply: Boolean = true
 
     private val cachedCommandInfos: Cache<String, String> = CacheBuilder.newBuilder()
         .maximumSize(1000)
