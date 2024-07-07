@@ -39,8 +39,6 @@ open class DiscordChannel protected constructor(
     }
     override val asMention: String = discordChannel.asMention
     override val asBasicMention: String = "#${discordChannel.name}"
-    protected val isDetached: Boolean = (discordChannel is GuildChannel && discordChannel.guild.isDetached)
-        || context == InteractionContextType.PRIVATE_CHANNEL
 
     override suspend fun getGuild(): Guild? {
         return if (discordChannel is GuildChannel) {

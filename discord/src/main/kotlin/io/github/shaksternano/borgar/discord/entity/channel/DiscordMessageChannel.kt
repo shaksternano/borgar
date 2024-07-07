@@ -31,7 +31,7 @@ class DiscordMessageChannel(
     override val cancellableTyping: Boolean = false
 
     override suspend fun sendTyping() {
-        if (isDetached) {
+        if (discordMessageChannel.isDetached) {
             throw UnsupportedOperationException("Cannot send typing as a user app")
         }
         discordMessageChannel.sendTyping().await()
@@ -40,7 +40,7 @@ class DiscordMessageChannel(
     override suspend fun stopTyping() = Unit
 
     override suspend fun createMessage(block: MessageCreateBuilder.() -> Unit): Message {
-        if (isDetached) {
+        if (discordMessageChannel.isDetached) {
             throw UnsupportedOperationException("Cannot send messages as a user app")
         }
         val builder = MessageCreateBuilder().apply(block)
@@ -132,7 +132,7 @@ class DiscordMessageChannel(
     }
 
     override fun getPreviousMessages(beforeId: String): Flow<Message> =
-        if (isDetached) {
+        if (discordMessageChannel.isDetached) {
             emptyFlow()
         } else {
             discordMessageChannel.iterableHistory
