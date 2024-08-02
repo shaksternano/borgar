@@ -3,6 +3,7 @@ package io.github.shaksternano.borgar.messaging.command
 import io.github.shaksternano.borgar.core.io.task.DemotivateTask
 import io.github.shaksternano.borgar.core.io.task.FileTask
 import io.github.shaksternano.borgar.messaging.event.CommandEvent
+import io.github.shaksternano.borgar.messaging.exception.MissingArgumentException
 import io.github.shaksternano.borgar.messaging.util.getEmojiAndUrlDrawables
 
 object DemotivateCommand : FileCommand(
@@ -10,6 +11,7 @@ object DemotivateCommand : FileCommand(
         key = "text",
         description = "The text to put on the image",
         type = CommandArgumentType.String,
+        required = false,
     ),
     CommandArgumentInfo(
         key = "subtext",
@@ -26,6 +28,9 @@ object DemotivateCommand : FileCommand(
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {
         val text = arguments.getDefaultStringOrEmpty()
         val subText = arguments.getStringOrEmpty("subtext")
+        if (text.isBlank() && subText.isBlank()) {
+            throw MissingArgumentException("No text was provided.")
+        }
         val messageIntersection = event.asMessageIntersection(arguments)
         return DemotivateTask(
             text = formatMentions(text, messageIntersection),
