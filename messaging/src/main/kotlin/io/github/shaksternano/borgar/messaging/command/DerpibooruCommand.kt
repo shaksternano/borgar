@@ -77,7 +77,7 @@ class DerpibooruCommand(
         suspend fun loadTags() {
             val tagsFile = Path("derpibooru_tags.txt")
             tags = if (tagsFile.isRegularFile()) {
-                tagsFile.readLines().distinct()
+                tagsFile.readLines()
             } else {
                 val tagsUrl = getEnvVar("DERPIBOORU_TAGS_URL") ?: return
                 val filteredTagsUrl = getEnvVar("DERPIBOORU_FILTERED_TAGS_URL")
@@ -98,11 +98,11 @@ class DerpibooruCommand(
                 tempFile.forEachLine { line ->
                     val split = line.split(",", limit = 3)
                     val tag = split.getOrElse(0) { return@forEachLine }
-                    val tagsAndAliases = mutableSetOf(tag)
+                    val tagsAndAliases = mutableSetOf(tag.lowercase())
                     val aliases = split.getOrNull(2)
                     aliases?.removeSurrounding("\"")?.split(",")?.forEach {
                         if (it.isNotBlank()) {
-                            tagsAndAliases.add(it)
+                            tagsAndAliases.add(it.lowercase())
                         }
                     }
                     val hasFiltered = tagsAndAliases.any { tagOrAlias ->
