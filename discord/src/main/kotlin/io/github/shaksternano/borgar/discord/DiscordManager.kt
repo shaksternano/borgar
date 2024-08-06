@@ -1,5 +1,6 @@
 package io.github.shaksternano.borgar.discord
 
+import dev.minn.jda.ktx.coroutines.await
 import dev.minn.jda.ktx.generics.getChannel
 import io.github.shaksternano.borgar.discord.entity.DiscordCustomEmoji
 import io.github.shaksternano.borgar.discord.entity.DiscordGuild
@@ -27,7 +28,7 @@ import kotlin.time.Duration.Companion.seconds
 
 class DiscordManager(
     private val jda: JDA,
-    override val ownerId: String
+    override val ownerId: String,
 ) : BotManager {
 
     companion object {

@@ -1,9 +1,9 @@
 package io.github.shaksternano.borgar.discord.entity
 
+import dev.minn.jda.ktx.coroutines.await
 import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.util.getUrls
 import io.github.shaksternano.borgar.discord.DiscordManager
-import io.github.shaksternano.borgar.discord.await
 import io.github.shaksternano.borgar.discord.entity.channel.DiscordChannel
 import io.github.shaksternano.borgar.discord.entity.channel.DiscordMessageChannel
 import io.github.shaksternano.borgar.discord.toFileUpload

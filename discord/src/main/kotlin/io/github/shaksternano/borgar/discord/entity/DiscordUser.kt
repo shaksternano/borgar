@@ -1,13 +1,13 @@
 package io.github.shaksternano.borgar.discord.entity
 
+import dev.minn.jda.ktx.coroutines.await
 import io.github.shaksternano.borgar.discord.DiscordManager
-import io.github.shaksternano.borgar.discord.await
 import io.github.shaksternano.borgar.messaging.BotManager
 import io.github.shaksternano.borgar.messaging.entity.BaseEntity
 import io.github.shaksternano.borgar.messaging.entity.User
 
 data class DiscordUser(
-    private val discordUser: net.dv8tion.jda.api.entities.User
+    private val discordUser: net.dv8tion.jda.api.entities.User,
 ) : User, BaseEntity() {
 
     override val id: String = discordUser.id

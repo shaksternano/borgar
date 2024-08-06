@@ -1,8 +1,8 @@
 package io.github.shaksternano.borgar.discord.event
 
+import dev.minn.jda.ktx.coroutines.await
 import dev.minn.jda.ktx.messages.MessageCreateBuilder
 import io.github.shaksternano.borgar.discord.DiscordManager
-import io.github.shaksternano.borgar.discord.await
 import io.github.shaksternano.borgar.discord.entity.DiscordGuild
 import io.github.shaksternano.borgar.discord.entity.DiscordMember
 import io.github.shaksternano.borgar.discord.entity.DiscordMessage

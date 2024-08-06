@@ -4,10 +4,10 @@ val jdaKtxVersion: String by project
 dependencies {
     api(project(":messaging"))
 
-    implementation("com.github.freya022:JDA:76cbe5d25f") {
+    implementation("com.github.freya022:JDA:$jdaVersion") {
         exclude(module = "opus-java")
     }
-    implementation("com.github.minndevelopment:jda-ktx:${jdaKtxVersion}")
+    implementation("club.minnced:jda-ktx:$jdaKtxVersion")
 
     testImplementation(kotlin("test"))
 }

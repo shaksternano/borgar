@@ -1,10 +1,10 @@
 package io.github.shaksternano.borgar.discord.event
 
+import dev.minn.jda.ktx.coroutines.await
 import dev.minn.jda.ktx.messages.MessageCreateBuilder
 import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.util.ChannelEnvironment
 import io.github.shaksternano.borgar.discord.DiscordManager
-import io.github.shaksternano.borgar.discord.await
 import io.github.shaksternano.borgar.discord.entity.*
 import io.github.shaksternano.borgar.discord.entity.channel.DiscordMessageChannel
 import io.github.shaksternano.borgar.discord.toFileUpload

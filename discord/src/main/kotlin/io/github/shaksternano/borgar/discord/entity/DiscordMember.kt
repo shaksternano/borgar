@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.emptyFlow
 import java.time.OffsetDateTime
 
 data class DiscordMember(
-    private val discordMember: net.dv8tion.jda.api.entities.Member
+    private val discordMember: net.dv8tion.jda.api.entities.Member,
 ) : Member, DiscordPermissionHolder(discordMember) {
 
     override val id: String = discordMember.id

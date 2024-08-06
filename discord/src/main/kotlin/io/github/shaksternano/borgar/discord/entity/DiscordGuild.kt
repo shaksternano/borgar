@@ -1,7 +1,7 @@
 package io.github.shaksternano.borgar.discord.entity
 
+import dev.minn.jda.ktx.coroutines.await
 import io.github.shaksternano.borgar.discord.DiscordManager
-import io.github.shaksternano.borgar.discord.await
 import io.github.shaksternano.borgar.discord.command.toSlash
 import io.github.shaksternano.borgar.discord.ifDetachedOrElse
 import io.github.shaksternano.borgar.messaging.BotManager
@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.flow
 import net.dv8tion.jda.api.entities.Message
 
 data class DiscordGuild(
-    private val discordGuild: net.dv8tion.jda.api.entities.Guild
+    private val discordGuild: net.dv8tion.jda.api.entities.Guild,
 ) : Guild, BaseEntity() {
 
     override val manager: BotManager = DiscordManager[discordGuild.jda]

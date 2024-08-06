@@ -1,7 +1,7 @@
 package io.github.shaksternano.borgar.discord.entity
 
+import dev.minn.jda.ktx.coroutines.await
 import io.github.shaksternano.borgar.discord.DiscordManager
-import io.github.shaksternano.borgar.discord.await
 import io.github.shaksternano.borgar.messaging.BotManager
 import io.github.shaksternano.borgar.messaging.entity.BaseEntity
 import io.github.shaksternano.borgar.messaging.entity.Group

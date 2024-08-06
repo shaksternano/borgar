@@ -15,9 +15,6 @@ import io.github.shaksternano.borgar.messaging.BOT_STATUS
 import io.github.shaksternano.borgar.messaging.event.MessageReceiveEvent
 import io.github.shaksternano.borgar.messaging.util.onMessageReceived
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.future.await
 import kotlinx.coroutines.launch
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.Activity
@@ -27,8 +24,6 @@ import net.dv8tion.jda.api.entities.emoji.Emoji
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.events.session.ReadyEvent
 import net.dv8tion.jda.api.requests.GatewayIntent
-import net.dv8tion.jda.api.requests.RestAction
-import net.dv8tion.jda.api.requests.restaction.pagination.PaginationAction
 import net.dv8tion.jda.api.utils.FileUpload
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -109,34 +104,4 @@ private fun JDA.createDiscordLogger(): DiscordLogger? {
         return null
     }
     return DiscordLogger(logger, logChannelId, this)
-}
-
-/**
- * Awaits the result of this RestAction
- *
- * @return Result
- */
-suspend fun <T> RestAction<T>.await(): T = submit().await()
-
-/**
- * Converts this PaginationAction to a [Flow]
- *
- * This is the same as
- * ```kotlin
- * flow {
- *   emitAll(produce())
- * }
- * ```
- *
- * @return[Flow] instance
- */
-fun <T, M : PaginationAction<T, M>> M.asFlow(): Flow<T> = flow {
-    cache(false)
-    var elements = await()
-    while (elements.isNotEmpty()) {
-        elements.forEach {
-            emit(it)
-        }
-        elements = await()
-    }
 }

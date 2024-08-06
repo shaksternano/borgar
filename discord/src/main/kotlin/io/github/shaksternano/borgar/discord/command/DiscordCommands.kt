@@ -1,12 +1,12 @@
 package io.github.shaksternano.borgar.discord.command
 
+import dev.minn.jda.ktx.coroutines.await
 import dev.minn.jda.ktx.events.listener
 import dev.minn.jda.ktx.interactions.commands.Command
 import dev.minn.jda.ktx.interactions.commands.updateCommands
 import io.github.shaksternano.borgar.core.data.repository.TemplateRepository
 import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.core.util.*
-import io.github.shaksternano.borgar.discord.await
 import io.github.shaksternano.borgar.discord.entity.DiscordUser
 import io.github.shaksternano.borgar.discord.entity.channel.DiscordMessageChannel
 import io.github.shaksternano.borgar.discord.event.DiscordMessageInteractionEvent

@@ -18,7 +18,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionType
 
 class OptionCommandArguments(
     private val interaction: CommandInteractionPayload,
-    override val defaultKey: String?
+    override val defaultKey: String?,
 ) : CommandArguments {
 
     override val typedForm: String = interaction.options
