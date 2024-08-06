@@ -7,6 +7,7 @@ import dev.minn.jda.ktx.interactions.commands.updateCommands
 import io.github.shaksternano.borgar.core.data.repository.TemplateRepository
 import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.core.util.*
+import io.github.shaksternano.borgar.discord.DiscordManager
 import io.github.shaksternano.borgar.discord.entity.DiscordUser
 import io.github.shaksternano.borgar.discord.entity.channel.DiscordMessageChannel
 import io.github.shaksternano.borgar.discord.event.DiscordMessageInteractionEvent
@@ -27,6 +28,7 @@ import io.github.shaksternano.borgar.messaging.interaction.user.handleUserIntera
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import net.dv8tion.jda.api.JDA
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.UserContextInteractionEvent
@@ -46,12 +48,16 @@ suspend fun JDA.registerCommands() {
     listener<SlashCommandInteractionEvent> {
         handleCommand(it)
     }
+    listener<CommandAutoCompleteInteractionEvent> {
+        handleCommandAutoComplete(it)
+    }
     listener<MessageContextInteractionEvent> {
         handleMessageInteraction(it.convert())
     }
     listener<UserContextInteractionEvent> {
         handleUserInteraction(it.convert())
     }
+    registerAutoCompleteHandlers()
     updateCommands {
         val slashCommands = COMMANDS.values
             .map(Command::toSlash)
@@ -79,6 +85,21 @@ fun Command.toSlash(): SlashCommandData = Command(name, description) {
             false,
         ),
     )
+}
+
+fun registerAutoCompleteHandlers() {
+    COMMANDS.values
+        .flatMap { command ->
+            command.argumentInfo.associateBy { command.name to it.key }.entries
+        }
+        .mapNotNull { (key, argumentInfo) ->
+            argumentInfo.autoCompleteHandler?.let { handler ->
+                Triple(key.first, key.second, handler)
+            }
+        }
+        .forEach { (command, option, handler) ->
+            registerAutoCompleteHandler(command, option, handler)
+        }
 }
 
 private fun MessageInteractionCommand.toDiscord(): CommandData =
@@ -123,6 +144,55 @@ private suspend fun handleCommand(event: SlashCommandInteractionEvent) {
     val arguments = OptionCommandArguments(event, command.defaultArgumentKey)
     val commandEvent = SlashCommandEvent(event)
     executeCommand(command, arguments, commandEvent, event)
+}
+
+private suspend fun handleCommandAutoComplete(event: CommandAutoCompleteInteractionEvent) {
+    val command = event.name
+    val argument = event.focusedOption.name
+    val handler = getAutoCompleteHandler(command, argument) ?: return
+    val currentValue = event.focusedOption.value
+    val manager = DiscordManager[event.jda]
+    when (handler) {
+        is CommandAutoCompleteHandler.Long -> {
+            val longValue = currentValue.toLongOrNull()
+            if (longValue == null) {
+                logger.error("Invalid long value: $currentValue")
+                return
+            }
+            val values = handler.handleAutoComplete(
+                command,
+                argument,
+                longValue,
+                manager,
+            )
+            event.replyChoiceLongs(values).await()
+        }
+
+        is CommandAutoCompleteHandler.Double -> {
+            val doubleValue = currentValue.toDoubleOrNull()
+            if (doubleValue == null) {
+                logger.error("Invalid double value: $currentValue")
+                return
+            }
+            val values = handler.handleAutoComplete(
+                command,
+                argument,
+                doubleValue,
+                manager,
+            )
+            event.replyChoiceDoubles(values).await()
+        }
+
+        is CommandAutoCompleteHandler.String -> {
+            val values = handler.handleAutoComplete(
+                command,
+                argument,
+                currentValue,
+                manager,
+            )
+            event.replyChoiceStrings(values).await()
+        }
+    }
 }
 
 private suspend fun executeCommand(
@@ -195,11 +265,13 @@ private fun CommandArgumentInfo<*>.toOption(): OptionData {
     val description = description + (defaultValue?.let {
         " Default value: ${it.formatted}"
     } ?: "")
+    val hasAutoComplete = autoCompleteHandler != null
     val optionData = OptionData(
         type.toOptionType(),
         key,
         description,
         required,
+        hasAutoComplete,
     )
     optionData.setRequiredRange(validator)
     optionData.setMinValue(validator)

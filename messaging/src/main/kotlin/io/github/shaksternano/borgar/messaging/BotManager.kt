@@ -21,6 +21,7 @@ interface BotManager {
     val maxFilesPerMessage: Int
     val emojiTypedRegex: Regex
     val typingDuration: Duration
+    val commandAutoCompleteMaxSuggestions: Int
 
     suspend fun getSelf(): User
 

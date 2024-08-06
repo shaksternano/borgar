@@ -10,6 +10,7 @@ data class CommandArgumentInfo<T>(
     val required: Boolean = true,
     val defaultValue: T? = null,
     val validator: Validator<T> = allowAllValidator(),
+    val autoCompleteHandler: CommandAutoCompleteHandler<T>? = null,
 ) {
 
     override fun equals(other: Any?): Boolean {

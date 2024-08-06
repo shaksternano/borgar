@@ -33,3 +33,4 @@ bin/
 *.mapdb
 *.mapdb.wal.0
 templates/
+derpibooru_tags.txt

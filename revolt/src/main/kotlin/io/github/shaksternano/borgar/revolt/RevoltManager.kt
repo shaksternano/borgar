@@ -54,6 +54,7 @@ class RevoltManager(
     override val maxFilesPerMessage: Int = 5
     override val emojiTypedRegex: Regex = ":[A-Za-z0-9]+:".toRegex()
     override val typingDuration: Duration = 1.seconds
+    override val commandAutoCompleteMaxSuggestions: Int = 0
 
     val webSocket: RevoltWebSocketClient = RevoltWebSocketClient(token, this)
     val apiDomain: String = "https://api.revolt.chat"

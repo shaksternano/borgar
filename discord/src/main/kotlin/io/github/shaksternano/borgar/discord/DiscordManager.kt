@@ -54,6 +54,7 @@ class DiscordManager(
     override val maxFilesPerMessage: Int = Message.MAX_FILE_AMOUNT
     override val emojiTypedRegex: Regex = ":[A-Za-z0-9]+:".toRegex()
     override val typingDuration: Duration = 5.seconds
+    override val commandAutoCompleteMaxSuggestions: Int = 25
 
     override suspend fun getSelf(): User =
         DiscordUser(jda.selfUser)

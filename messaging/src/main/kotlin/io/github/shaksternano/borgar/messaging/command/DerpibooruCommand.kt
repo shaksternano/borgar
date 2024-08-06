@@ -1,8 +1,18 @@
 package io.github.shaksternano.borgar.messaging.command
 
+import io.github.shaksternano.borgar.core.io.createTemporaryFile
+import io.github.shaksternano.borgar.core.io.deleteSilently
+import io.github.shaksternano.borgar.core.io.download
 import io.github.shaksternano.borgar.core.io.task.DerpibooruTask
 import io.github.shaksternano.borgar.core.io.task.FileTask
+import io.github.shaksternano.borgar.core.io.useHttpClient
+import io.github.shaksternano.borgar.core.util.WHITESPACE_REGEX
+import io.github.shaksternano.borgar.core.util.getEnvVar
+import io.github.shaksternano.borgar.messaging.BotManager
 import io.github.shaksternano.borgar.messaging.event.CommandEvent
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import kotlin.io.path.*
 
 class DerpibooruCommand(
     override val name: String,
@@ -15,6 +25,7 @@ class DerpibooruCommand(
         type = CommandArgumentType.String,
         required = false,
         defaultValue = "safe",
+        autoCompleteHandler = TagAutoCompleteHandler,
     ),
     CommandArgumentInfo(
         key = "searchall",
@@ -60,6 +71,54 @@ class DerpibooruCommand(
             description = "Sends a bunch of random pony images.",
             fileCount = 10,
         )
+
+        private var tags: List<String> = listOf()
+
+        suspend fun loadTags() {
+            val tagsFile = Path("derpibooru_tags.txt")
+            tags = if (tagsFile.isRegularFile()) {
+                tagsFile.readLines().distinct()
+            } else {
+                val tagsUrl = getEnvVar("DERPIBOORU_TAGS_URL") ?: return
+                val filteredTagsUrl = getEnvVar("DERPIBOORU_FILTERED_TAGS_URL")
+                val filteredTags = if (filteredTagsUrl == null) {
+                    listOf()
+                } else {
+                    useHttpClient { client ->
+                        val response = client.get(filteredTagsUrl)
+                        response.bodyAsText()
+                            .lines()
+                            .filter { it.isNotBlank() }
+                            .distinct()
+                    }
+                }
+                val tempFile = createTemporaryFile("derpibooru_tags.csv")
+                download(tagsUrl, tempFile)
+                val uniqueTags = mutableSetOf<String>()
+                tempFile.forEachLine { line ->
+                    val split = line.split(",", limit = 3)
+                    val tag = split.getOrElse(0) { return@forEachLine }
+                    val tagsAndAliases = mutableSetOf(tag)
+                    val aliases = split.getOrNull(2)
+                    aliases?.removeSurrounding("\"")?.split(",")?.forEach {
+                        if (it.isNotBlank()) {
+                            tagsAndAliases.add(it)
+                        }
+                    }
+                    val hasFiltered = tagsAndAliases.any { tagOrAlias ->
+                        filteredTags.any { filtered ->
+                            tagOrAlias.contains(filtered, ignoreCase = true)
+                        }
+                    }
+                    if (!hasFiltered) {
+                        uniqueTags.addAll(tagsAndAliases)
+                    }
+                }
+                tempFile.deleteSilently()
+                tagsFile.writeLines(uniqueTags)
+                uniqueTags.toList()
+            }
+        }
     }
 
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {
@@ -85,5 +144,40 @@ class DerpibooruCommand(
             fileCount = fileCount,
             maxFileSize = maxFileSize,
         )
+    }
+
+    private data object TagAutoCompleteHandler : CommandAutoCompleteHandler.String {
+
+        override suspend fun handleAutoComplete(
+            command: String,
+            argument: String,
+            currentValue: String,
+            manager: BotManager,
+        ): List<String> {
+            if (currentValue.isBlank()) {
+                return emptyList()
+            }
+            val lastCommaPosition = currentValue.lastIndexOf(',')
+            val lastTagStart = if (lastCommaPosition == -1) {
+                0
+            } else {
+                val whiteSpaceEnd = WHITESPACE_REGEX.find(currentValue, startIndex = lastCommaPosition)
+                    ?.range
+                    ?.last
+                    ?: lastCommaPosition
+                if (whiteSpaceEnd >= currentValue.length - 1) {
+                    return emptyList()
+                }
+                whiteSpaceEnd + 1
+            }
+            val lastTag = currentValue.substring(lastTagStart)
+            return tags.asSequence()
+                .filter { it.contains(lastTag, ignoreCase = true) }
+                .take(manager.commandAutoCompleteMaxSuggestions)
+                .map {
+                    currentValue.substring(0, lastTagStart).trim() + " " + it.trim()
+                }
+                .toList()
+        }
     }
 }
