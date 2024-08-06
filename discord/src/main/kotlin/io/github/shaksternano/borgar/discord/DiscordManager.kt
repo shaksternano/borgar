@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.emptyFlow
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.Mentions
 import net.dv8tion.jda.api.entities.Message
+import net.dv8tion.jda.api.interactions.commands.build.OptionData
 import net.dv8tion.jda.api.utils.data.DataArray
 import net.dv8tion.jda.internal.JDAImpl
 import net.dv8tion.jda.internal.entities.MessageMentionsImpl
@@ -54,7 +55,7 @@ class DiscordManager(
     override val maxFilesPerMessage: Int = Message.MAX_FILE_AMOUNT
     override val emojiTypedRegex: Regex = ":[A-Za-z0-9]+:".toRegex()
     override val typingDuration: Duration = 5.seconds
-    override val commandAutoCompleteMaxSuggestions: Int = 25
+    override val commandAutoCompleteMaxSuggestions: Int = OptionData.MAX_CHOICES
 
     override suspend fun getSelf(): User =
         DiscordUser(jda.selfUser)
