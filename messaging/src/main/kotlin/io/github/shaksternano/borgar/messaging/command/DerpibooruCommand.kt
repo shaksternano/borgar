@@ -170,7 +170,7 @@ class DerpibooruCommand(
                 }
                 whiteSpaceEnd + 1
             }
-            val lastTag = currentValue.substring(lastTagStart)
+            val lastTag = currentValue.substring(lastTagStart).trim()
             return tags.asSequence()
                 .filter { it.contains(lastTag, ignoreCase = true) }
                 .take(manager.commandAutoCompleteMaxSuggestions)
