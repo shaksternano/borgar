@@ -20,6 +20,8 @@ private val VIDEO_QUALITIES: List<Int> = listOf(
     144,
 )
 
+private const val COBALT_API_DEFAULT_DOMAIN = "https://api.cobalt.tools"
+
 class DownloadTask(
     private val url: String,
     private val audioOnly: Boolean = false,
@@ -98,7 +100,7 @@ class DownloadTask(
         audioOnly: Boolean,
         fileIndex: Int?,
     ): List<String> {
-        val cobaltApiDomain = getEnvVar("COBALT_API_DOMAIN") ?: "https://co.wuk.sh"
+        val cobaltApiDomain = getEnvVar("COBALT_API_DOMAIN") ?: COBALT_API_DEFAULT_DOMAIN
         val requestUrl = "$cobaltApiDomain/api/json"
         val requestBody = CobaltRequestBody(
             url,
