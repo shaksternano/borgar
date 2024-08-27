@@ -1,5 +1,5 @@
 plugins {
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("com.gradleup.shadow") version "8.3.0"
     application
 }
 
@@ -12,6 +12,8 @@ dependencies {
     testImplementation(kotlin("test"))
 }
 
+val mainClassFullName = "${project.group}.borgar.app.AppKt"
+
 tasks {
     jar {
         enabled = false
@@ -23,7 +25,7 @@ tasks {
         manifest {
             attributes(
                 mapOf(
-                    "Main-Class" to "${project.group}.app.AppKt",
+                    "Main-Class" to mainClassFullName,
                 )
             )
         }
@@ -42,6 +44,6 @@ tasks {
 }
 
 application {
-    mainClass.set("${project.group}.app.AppKt")
+    mainClass.set(mainClassFullName)
     tasks.run.get().workingDir = rootProject.projectDir
 }

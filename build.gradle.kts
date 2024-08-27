@@ -3,7 +3,7 @@ plugins {
 }
 
 allprojects {
-    group = "io.github.shaksternano.borgar"
+    group = "io.github.shaksternano"
     version = "1.0.0"
 
     apply(plugin = "kotlin")
