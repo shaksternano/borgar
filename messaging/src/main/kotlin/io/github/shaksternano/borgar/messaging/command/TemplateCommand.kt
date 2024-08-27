@@ -1,10 +1,10 @@
 package io.github.shaksternano.borgar.messaging.command
 
-import io.github.shaksternano.borgar.core.io.task.FileTask
-import io.github.shaksternano.borgar.core.io.task.TemplateTask
 import io.github.shaksternano.borgar.core.media.template.CustomTemplate
 import io.github.shaksternano.borgar.core.media.template.ResourceTemplate
 import io.github.shaksternano.borgar.core.media.template.Template
+import io.github.shaksternano.borgar.core.task.FileTask
+import io.github.shaksternano.borgar.core.task.TemplateTask
 import io.github.shaksternano.borgar.core.util.ChannelEnvironment
 import io.github.shaksternano.borgar.messaging.event.CommandEvent
 import io.github.shaksternano.borgar.messaging.util.getEmojiAndUrlDrawables

@@ -1,7 +1,7 @@
 package io.github.shaksternano.borgar.messaging.command
 
-import io.github.shaksternano.borgar.core.io.task.FileTask
-import io.github.shaksternano.borgar.core.io.task.TranscodeTask
+import io.github.shaksternano.borgar.core.task.FileTask
+import io.github.shaksternano.borgar.core.task.TranscodeTask
 import io.github.shaksternano.borgar.core.util.startsWithVowel
 import io.github.shaksternano.borgar.messaging.event.CommandEvent
 

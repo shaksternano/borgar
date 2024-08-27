@@ -1,8 +1,8 @@
 package io.github.shaksternano.borgar.messaging.interaction.message
 
-import io.github.shaksternano.borgar.core.io.task.DownloadTask
-import io.github.shaksternano.borgar.core.io.task.FileTask
-import io.github.shaksternano.borgar.core.io.task.run
+import io.github.shaksternano.borgar.core.task.DownloadTask
+import io.github.shaksternano.borgar.core.task.FileTask
+import io.github.shaksternano.borgar.core.task.run
 import io.github.shaksternano.borgar.core.util.getUrls
 import io.github.shaksternano.borgar.messaging.entity.Message
 import io.github.shaksternano.borgar.messaging.event.MessageInteractionEvent

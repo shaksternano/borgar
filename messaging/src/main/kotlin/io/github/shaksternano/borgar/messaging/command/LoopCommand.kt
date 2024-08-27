@@ -1,7 +1,7 @@
 package io.github.shaksternano.borgar.messaging.command
 
-import io.github.shaksternano.borgar.core.io.task.FileTask
-import io.github.shaksternano.borgar.core.io.task.LoopTask
+import io.github.shaksternano.borgar.core.task.FileTask
+import io.github.shaksternano.borgar.core.task.LoopTask
 import io.github.shaksternano.borgar.messaging.event.CommandEvent
 
 object LoopCommand : FileCommand(

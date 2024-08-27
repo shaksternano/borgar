@@ -3,10 +3,10 @@ package io.github.shaksternano.borgar.messaging.command
 import io.github.shaksternano.borgar.core.collect.addAll
 import io.github.shaksternano.borgar.core.io.SuspendCloseable
 import io.github.shaksternano.borgar.core.io.UrlInfo
-import io.github.shaksternano.borgar.core.io.task.FileTask
-import io.github.shaksternano.borgar.core.io.task.MediaProcessingTask
-import io.github.shaksternano.borgar.core.io.task.TranscodeTask
 import io.github.shaksternano.borgar.core.logger
+import io.github.shaksternano.borgar.core.task.FileTask
+import io.github.shaksternano.borgar.core.task.MediaProcessingTask
+import io.github.shaksternano.borgar.core.task.TranscodeTask
 import io.github.shaksternano.borgar.core.util.asSingletonList
 import io.github.shaksternano.borgar.core.util.retrieveTenorMediaUrl
 import io.github.shaksternano.borgar.messaging.entity.getContent

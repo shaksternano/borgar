@@ -1,8 +1,8 @@
 package io.github.shaksternano.borgar.messaging.command
 
 import io.github.shaksternano.borgar.core.exception.ErrorResponseException
-import io.github.shaksternano.borgar.core.io.task.DownloadTask
-import io.github.shaksternano.borgar.core.io.task.FileTask
+import io.github.shaksternano.borgar.core.task.DownloadTask
+import io.github.shaksternano.borgar.core.task.FileTask
 import io.github.shaksternano.borgar.core.util.getUrls
 import io.github.shaksternano.borgar.messaging.event.CommandEvent
 import io.github.shaksternano.borgar.messaging.util.searchExceptSelf
