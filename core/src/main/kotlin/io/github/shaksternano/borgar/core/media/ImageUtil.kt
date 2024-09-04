@@ -12,6 +12,9 @@ import java.awt.image.ColorConvertOp
 import kotlin.math.*
 import kotlin.time.Duration
 
+val BufferedImage.rgb: IntArray
+    get() = getRGB(0, 0, width, height, null, 0, width)
+
 val BufferedImage.typeNoCustom: Int
     get() =
         if (type < BufferedImage.TYPE_INT_RGB || type > BufferedImage.TYPE_BYTE_INDEXED)

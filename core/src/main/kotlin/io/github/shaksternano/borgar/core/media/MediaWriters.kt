@@ -7,7 +7,7 @@ import kotlin.time.Duration
 
 private val writerFactories: Map<String, MediaWriterFactory> = buildMap {
     registerFactory(JavaxImageWriter.Factory)
-    registerFactory(ScrimageGifWriter.Factory)
+    registerFactory(GifWriter.Factory)
     registerFactory(Image4jIcoWriter.Factory)
 }
 
