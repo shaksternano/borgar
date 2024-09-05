@@ -21,6 +21,7 @@ import io.github.shaksternano.borgar.messaging.exception.FileTooLargeException
 import io.github.shaksternano.borgar.messaging.exception.MissingArgumentException
 import io.github.shaksternano.borgar.messaging.util.checkEntityIdBelongs
 import io.github.shaksternano.borgar.messaging.util.getEntityId
+import io.github.shaksternano.borgar.messaging.util.setLowPrioritySelectedMessage
 import io.ktor.util.logging.*
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -50,12 +51,12 @@ suspend fun parseAndExecuteCommand(event: MessageReceiveEvent) {
             commandEvent,
         ).also { (responses, executable) ->
             if (cancellableTyping) {
-                sendResponses(responses, executable, commandEvent)
+                sendResponses(responses, executable, commandEvent, channel)
             }
         }
     }
     if (!cancellableTyping) {
-        sendResponses(responses, executable, commandEvent)
+        sendResponses(responses, executable, commandEvent, channel)
     }
 }
 
@@ -128,11 +129,20 @@ suspend fun sendResponses(
     responses: List<CommandResponse>,
     executable: Executable?,
     commandEvent: CommandEvent,
+    channel: MessageChannel,
 ) {
     var sendHandleResponseErrorMessage = true
     responses.forEachIndexed { index, response ->
         try {
             val sent = commandEvent.reply(response)
+            if (index == responses.size - 1) {
+                setLowPrioritySelectedMessage(
+                    userId = commandEvent.authorId,
+                    channelId = channel.id,
+                    platform = commandEvent.manager.platform,
+                    message = sent,
+                )
+            }
             runCatching {
                 executable?.onResponseSend(
                     response,

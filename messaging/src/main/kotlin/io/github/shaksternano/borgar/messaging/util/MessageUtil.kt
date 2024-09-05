@@ -21,7 +21,6 @@ import io.github.shaksternano.borgar.messaging.entity.User
 import io.github.shaksternano.borgar.messaging.entity.channel.Channel
 import io.github.shaksternano.borgar.messaging.entity.getContent
 import io.github.shaksternano.borgar.messaging.event.CommandEvent
-import io.github.shaksternano.borgar.messaging.interaction.message.SelectMessageCommand
 import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.coroutines.flow.firstOrNull
@@ -172,6 +171,7 @@ suspend fun <T> CommandMessageIntersection.search(find: suspend (CommandMessageI
         CommandMessageIntersection::searchSelf,
         CommandMessageIntersection::searchReferencedMessages,
         CommandMessageIntersection::searchPreviousMessages,
+        CommandMessageIntersection::searchLowPrioritySelectedMessage,
     )
 
 suspend fun <T> CommandMessageIntersection.searchExceptSelf(find: suspend (CommandMessageIntersection) -> T?): T? =
@@ -180,6 +180,7 @@ suspend fun <T> CommandMessageIntersection.searchExceptSelf(find: suspend (Comma
         CommandMessageIntersection::searchSelectedMessage,
         CommandMessageIntersection::searchReferencedMessages,
         CommandMessageIntersection::searchPreviousMessages,
+        CommandMessageIntersection::searchLowPrioritySelectedMessage,
     )
 
 suspend fun <T> CommandMessageIntersection.searchOrThrow(
@@ -203,7 +204,7 @@ private suspend fun <T> CommandMessageIntersection.searchSelectedMessage(
     find: suspend (CommandMessageIntersection) -> T?,
 ): T? =
     getChannel()?.let { channel ->
-        SelectMessageCommand.getAndExpireSelectedMessage(
+        getAndExpireSelectedMessage(
             authorId,
             channel.id,
             manager.platform,
@@ -239,6 +240,19 @@ private suspend fun <T> CommandMessageIntersection.searchPreviousMessages(
         .firstOrNull {
             it != null
         }
+
+private suspend fun <T> CommandMessageIntersection.searchLowPrioritySelectedMessage(
+    find: suspend (CommandMessageIntersection) -> T?,
+): T? =
+    getChannel()?.let { channel ->
+        getAndExpireLowPrioritySelectedMessage(
+            authorId,
+            channel.id,
+            manager.platform,
+        )
+    }?.let {
+        find(it)
+    }
 
 suspend fun CommandEvent.getEntityId(): String =
     getEntityId(getChannel()) {

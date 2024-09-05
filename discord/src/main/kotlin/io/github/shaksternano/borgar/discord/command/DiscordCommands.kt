@@ -226,7 +226,8 @@ private suspend fun executeCommand(
     } else {
         slashCommandConfig
     }
-    val environment = commandEvent.getChannel().environment
+    val channel = commandEvent.getChannel()
+    val environment = channel.environment
     commandEvent.ephemeralReply = commandConfigs.any { it.command.ephemeralReply }
     val (responses, executable) = coroutineScope {
         val anyDefer = commandConfigs.any { it.command.deferReply }
@@ -235,7 +236,7 @@ private suspend fun executeCommand(
         }
         executeCommands(commandConfigs, environment, commandEvent)
     }
-    sendResponses(responses, executable, commandEvent)
+    sendResponses(responses, executable, commandEvent, channel)
 }
 
 private suspend fun getAfterCommandConfigs(
