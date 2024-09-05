@@ -2,6 +2,7 @@ package io.github.shaksternano.borgar.messaging.util
 
 import com.google.common.cache.Cache
 import com.google.common.cache.CacheBuilder
+import io.github.shaksternano.borgar.core.collect.getAndInvalidate
 import io.github.shaksternano.borgar.messaging.MessagingPlatform
 import io.github.shaksternano.borgar.messaging.entity.Message
 import java.time.Duration
@@ -36,9 +37,7 @@ fun getAndExpireSelectedMessage(
     platform: MessagingPlatform,
 ): Message? {
     val key = SelectedMessageKey(userId, channelId, platform)
-    return selectedMessages.getIfPresent(key).also {
-        selectedMessages.invalidate(key)
-    }
+    return selectedMessages.getAndInvalidate(key)
 }
 
 fun setLowPrioritySelectedMessage(userId: String, channelId: String, platform: MessagingPlatform, message: Message) {
@@ -58,7 +57,5 @@ fun getAndExpireLowPrioritySelectedMessage(
     platform: MessagingPlatform,
 ): Message? {
     val key = SelectedMessageKey(userId, channelId, platform)
-    return lowPrioritySelectedMessages.getIfPresent(key).also {
-        lowPrioritySelectedMessages.invalidate(key)
-    }
+    return lowPrioritySelectedMessages.getAndInvalidate(key)
 }

@@ -58,3 +58,8 @@ inline fun <K : Any, V : Any> Cache<K, V>.getOrPut(key: K, defaultValue: () -> V
         ?: defaultValue().also {
             put(key, it)
         }
+
+fun <K : Any, V : Any> Cache<K, V>.getAndInvalidate(key: K): V? =
+    getIfPresent(key).also {
+        invalidate(key)
+    }
