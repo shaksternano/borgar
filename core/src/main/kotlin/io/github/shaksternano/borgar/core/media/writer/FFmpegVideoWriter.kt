@@ -2,7 +2,9 @@ package io.github.shaksternano.borgar.core.media.writer
 
 import io.github.shaksternano.borgar.core.io.SuspendCloseable
 import io.github.shaksternano.borgar.core.io.closeAll
-import io.github.shaksternano.borgar.core.media.*
+import io.github.shaksternano.borgar.core.media.AudioFrame
+import io.github.shaksternano.borgar.core.media.ImageFrame
+import io.github.shaksternano.borgar.core.media.MediaWriterFactory
 import io.github.shaksternano.borgar.core.util.getEnvVar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -13,8 +15,6 @@ import java.awt.image.BufferedImage
 import java.nio.file.Path
 import kotlin.time.Duration
 
-// 720p
-private const val MAX_DIMENSION = 1280
 private const val MAX_AUDIO_FRAME_RATE = 1000
 
 class FFmpegVideoWriter(
@@ -36,8 +36,6 @@ class FFmpegVideoWriter(
 
     override suspend fun writeImageFrame(frame: ImageFrame) {
         val image = frame.content
-            .bound(MAX_DIMENSION)
-            .convertType(BufferedImage.TYPE_3BYTE_BGR)
         if (!::recorder.isInitialized) {
             val fps = 1000000.0 / frame.duration.inWholeMicroseconds
             recorder = createFFmpegRecorder(
@@ -192,8 +190,15 @@ class FFmpegVideoWriter(
         bitrate * duration.inWholeSeconds / 8
 
     object Factory : MediaWriterFactory {
+
         // Default media writer
         override val supportedFormats: Set<String> = setOf()
+
+        /**
+         * 720p
+         */
+        override val maxImageDimension: Int = 1280
+        override val requiredImageType: Int = BufferedImage.TYPE_3BYTE_BGR
 
         override suspend fun create(
             output: Path,

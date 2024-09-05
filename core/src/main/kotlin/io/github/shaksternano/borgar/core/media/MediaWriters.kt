@@ -2,6 +2,8 @@ package io.github.shaksternano.borgar.core.media
 
 import io.github.shaksternano.borgar.core.collect.putAllKeys
 import io.github.shaksternano.borgar.core.media.writer.*
+import io.github.shaksternano.borgar.core.util.then
+import java.awt.image.BufferedImage
 import java.nio.file.Path
 import kotlin.time.Duration
 
@@ -32,7 +34,7 @@ suspend fun createWriter(
     maxDuration: Duration,
 ): MediaWriter {
     val factory = writerFactories.getOrDefault(outputFormat, FFmpegVideoWriter.Factory)
-    return factory.create(
+    val writer = factory.create(
         output,
         outputFormat,
         loopCount,
@@ -42,4 +44,20 @@ suspend fun createWriter(
         maxFileSize,
         maxDuration,
     )
+    var preProcessing: ((BufferedImage) -> BufferedImage)? = null
+    if (factory.maxImageDimension > 0) {
+        preProcessing = { it.bound(factory.maxImageDimension) }
+    }
+    if (factory.requiredImageType > 0) {
+        preProcessing = preProcessing.then { it.convertType(factory.requiredImageType) }
+    }
+    return if (preProcessing == null) {
+        writer
+    } else {
+        PreProcessingWriter(
+            writer = writer,
+            maxConcurrency = MAX_WRITER_CONCURRENCY,
+            preProcessImage = preProcessing,
+        )
+    }
 }

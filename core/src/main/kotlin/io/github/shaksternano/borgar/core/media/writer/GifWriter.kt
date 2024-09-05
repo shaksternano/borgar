@@ -1,8 +1,8 @@
 package io.github.shaksternano.borgar.core.media.writer
 
 import io.github.shaksternano.borgar.core.media.ImageFrame
+import io.github.shaksternano.borgar.core.media.MAX_WRITER_CONCURRENCY
 import io.github.shaksternano.borgar.core.media.MediaWriterFactory
-import io.github.shaksternano.borgar.core.media.bound
 import io.github.shaksternano.borgar.core.media.rgb
 import io.github.shaksternano.gifcodec.ParallelGifEncoder
 import kotlinx.coroutines.Dispatchers
@@ -12,10 +12,6 @@ import kotlinx.io.files.SystemFileSystem
 import java.nio.file.Path
 import kotlin.time.Duration
 
-// 480p
-private const val MAX_DIMENSION: Int = 854
-private val MAX_CONCURRENCY: Int = Runtime.getRuntime().availableProcessors() * 2
-
 class GifWriter(
     private val encoder: ParallelGifEncoder,
 ) : NoAudioWriter() {
@@ -23,7 +19,7 @@ class GifWriter(
     override val isStatic: Boolean = false
 
     override suspend fun writeImageFrame(frame: ImageFrame) {
-        val image = frame.content.bound(MAX_DIMENSION)
+        val image = frame.content
         val rgb = image.rgb
         encoder.writeFrame(
             rgb,
@@ -40,6 +36,11 @@ class GifWriter(
     object Factory : MediaWriterFactory {
 
         override val supportedFormats: Set<String> = setOf("gif")
+
+        /**
+         * 480p
+         */
+        override val maxImageDimension: Int = 854
 
         override suspend fun create(
             output: Path,
@@ -62,7 +63,7 @@ class GifWriter(
                 transparencyColorTolerance = 0.01,
                 quantizedTransparencyColorTolerance = 0.02,
                 comment = "GIF created with https://github.com/shaksternano/borgar",
-                maxConcurrency = MAX_CONCURRENCY,
+                maxConcurrency = MAX_WRITER_CONCURRENCY,
             )
             return GifWriter(encoder)
         }

@@ -7,6 +7,10 @@ import kotlin.time.Duration
 interface MediaWriterFactory {
 
     val supportedFormats: Set<String>
+    val maxImageDimension: Int
+        get() = 0
+    val requiredImageType: Int
+        get() = 0
 
     suspend fun create(
         output: Path,
