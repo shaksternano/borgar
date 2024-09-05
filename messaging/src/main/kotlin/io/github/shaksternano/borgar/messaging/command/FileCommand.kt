@@ -9,6 +9,7 @@ import io.github.shaksternano.borgar.core.task.MediaProcessingTask
 import io.github.shaksternano.borgar.core.task.TranscodeTask
 import io.github.shaksternano.borgar.core.util.asSingletonList
 import io.github.shaksternano.borgar.core.util.retrieveTenorMediaUrl
+import io.github.shaksternano.borgar.messaging.entity.Attachment
 import io.github.shaksternano.borgar.messaging.entity.getContent
 import io.github.shaksternano.borgar.messaging.event.CommandEvent
 import io.github.shaksternano.borgar.messaging.util.getUrlsExceptSelf
@@ -27,7 +28,7 @@ abstract class FileCommand(
             buildSet {
                 addAll(argumentInfo)
                 addAll(
-                    ATTACHMENT_ARGUMENT_INFO,
+                    FILE_ARGUMENT_INFO,
                     URL_ARGUMENT_INFO,
                 )
             }
@@ -66,14 +67,14 @@ enum class InputRequirement {
     NONE,
 }
 
-private val ATTACHMENT_ARGUMENT_INFO = CommandArgumentInfo(
-    key = "attachment",
-    description = "The attachment to use.",
+private val FILE_ARGUMENT_INFO: CommandArgumentInfo<Attachment> = CommandArgumentInfo(
+    key = "file",
+    description = "The file to use.",
     type = CommandArgumentType.Attachment,
     required = false,
 )
 
-private val URL_ARGUMENT_INFO = CommandArgumentInfo(
+private val URL_ARGUMENT_INFO: CommandArgumentInfo<String> = CommandArgumentInfo(
     key = "url",
     description = "The URL to use.",
     type = CommandArgumentType.String,
