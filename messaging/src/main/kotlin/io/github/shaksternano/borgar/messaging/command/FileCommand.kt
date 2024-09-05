@@ -67,14 +67,14 @@ enum class InputRequirement {
     NONE,
 }
 
-private val FILE_ARGUMENT_INFO: CommandArgumentInfo<Attachment> = CommandArgumentInfo(
+val FILE_ARGUMENT_INFO: CommandArgumentInfo<Attachment> = CommandArgumentInfo(
     key = "file",
     description = "The file to use.",
     type = CommandArgumentType.Attachment,
     required = false,
 )
 
-private val URL_ARGUMENT_INFO: CommandArgumentInfo<String> = CommandArgumentInfo(
+val URL_ARGUMENT_INFO: CommandArgumentInfo<String> = CommandArgumentInfo(
     key = "url",
     description = "The URL to use.",
     type = CommandArgumentType.String,

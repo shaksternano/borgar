@@ -20,6 +20,8 @@ fun CommandArguments.getDefaultStringOrEmpty(): String =
 fun CommandArguments.getStringOrEmpty(key: String): String =
     this[key, CommandArgumentType.String] ?: ""
 
-fun CommandArguments.getDefaultAttachment(): Attachment? = this["file", CommandArgumentType.Attachment]
+fun CommandArguments.getDefaultAttachment(): Attachment? =
+    this[FILE_ARGUMENT_INFO.key, CommandArgumentType.Attachment]
 
-fun CommandArguments.getDefaultUrl(): String? = this["url", CommandArgumentType.String]
+fun CommandArguments.getDefaultUrl(): String? =
+    this[URL_ARGUMENT_INFO.key, CommandArgumentType.String]
