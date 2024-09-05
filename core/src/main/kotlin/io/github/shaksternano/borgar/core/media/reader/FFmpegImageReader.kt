@@ -1,8 +1,6 @@
 package io.github.shaksternano.borgar.core.media.reader
 
 import io.github.shaksternano.borgar.core.io.DataSource
-import io.github.shaksternano.borgar.core.io.SuspendCloseable
-import io.github.shaksternano.borgar.core.io.closeAll
 import io.github.shaksternano.borgar.core.media.ImageFrame
 import io.github.shaksternano.borgar.core.media.ImageReaderFactory
 import kotlinx.coroutines.Dispatchers
@@ -30,7 +28,6 @@ class FFmpegImageReader(
     grabber,
 ) {
 
-    private val converter: Java2DFrameConverter = Java2DFrameConverter()
     override val audioChannels: Int = 0
     override val audioSampleRate: Int = 0
     override val audioBitrate: Int = 0
@@ -47,20 +44,27 @@ class FFmpegImageReader(
         if (isInvalidImageChannels(frame.imageChannels)) {
             frame.imageChannels = 3
         }
+        /*
+         * Sharing one frame converter instance for every
+         * frame conversion can sometimes produce corrupted
+         * frames when reading too quickly. Instead, a new
+         * instance is created for every frame.
+         */
+        val image = Java2DFrameConverter().use {
+            it.convert(frame)
+        }
         return ImageFrame(
-            converter.convert(frame),
+            image,
             frameDuration,
-            frame.timestamp.microseconds
+            frame.timestamp.microseconds,
         )
     }
 
     private fun isInvalidImageChannels(imageChannels: Int): Boolean =
         imageChannels != 1 && imageChannels != 3 && imageChannels != 4
 
-    override suspend fun close() = closeAll(
-        { super.close() },
-        SuspendCloseable(converter),
-    )
+    override suspend fun close() =
+        super.close()
 
     object Factory : ImageReaderFactory {
 
