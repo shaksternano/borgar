@@ -21,7 +21,10 @@ data class RevoltUser(
     override val asMention: String = "<@$id>"
     override val asBasicMention: String = "@$effectiveName"
 
-    override suspend fun getBannerUrl(): String? = null
+    override suspend fun getBannerUrl(): String? = runCatching {
+        val response = manager.request<RevoltUserProfileResponse>("/users/$id/profile")
+        response.background.getUrl(manager)
+    }.getOrNull()
 }
 
 @Serializable
@@ -34,7 +37,6 @@ data class RevoltUserResponse(
     val avatar: RevoltAvatarBody? = null,
     val bot: RevoltBotBody? = null,
 ) {
-
     fun convert(manager: RevoltManager): RevoltUser =
         RevoltUser(
             manager = manager,
@@ -54,7 +56,6 @@ data class RevoltAvatarBody(
     val id: String,
     val filename: String,
 ) {
-
     fun getUrl(manager: RevoltManager): String =
         "${manager.cdnDomain}/avatars/$id/${filename.replaceUrlSpaces()}"
 }
@@ -64,3 +65,18 @@ data class RevoltBotBody(
     @SerialName("owner")
     val ownerId: String,
 )
+
+@Serializable
+data class RevoltUserProfileResponse(
+    val background: RevoltUserProfileBackgroundBody,
+)
+
+@Serializable
+data class RevoltUserProfileBackgroundBody(
+    @SerialName("_id")
+    val id: String,
+    val filename: String,
+) {
+    fun getUrl(manager: RevoltManager): String =
+        "${manager.cdnDomain}/backgrounds/$id/${filename.replaceUrlSpaces()}"
+}
