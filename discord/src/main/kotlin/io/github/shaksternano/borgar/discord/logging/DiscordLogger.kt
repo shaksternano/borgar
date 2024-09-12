@@ -36,7 +36,7 @@ class DiscordLogger(
         formattedMessage = formattedMessage.trim()
         val messageAction = if (formattedMessage.length > MAX_MESSAGE_LENGTH) {
             val bytes = formattedMessage.toByteArray()
-            logChannel.sendFiles(FileUpload.fromData(bytes, "message.log"))
+            logChannel.sendFiles(FileUpload.fromData(bytes, "message.txt"))
         } else {
             logChannel.sendMessage("```\n$formattedMessage\n```")
         }
