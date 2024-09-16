@@ -1,6 +1,5 @@
 package io.github.shaksternano.borgar.revolt.websocket
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder
 import io.github.shaksternano.borgar.core.io.httpClient
 import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.core.util.JSON
@@ -58,48 +57,48 @@ class RevoltWebSocketClient(
         registerHandlers()
 
         // Create a custom dispatcher to use non-daemon threads
-        val threadCount = Runtime.getRuntime().availableProcessors()
-        val threadFactory = ThreadFactoryBuilder().setNameFormat("revolt-websocket-%d").build()
-        val threadPool = Executors.newFixedThreadPool(threadCount, threadFactory)
+        val threadPool = Executors.newSingleThreadExecutor()
         val dispatcher = threadPool.asCoroutineDispatcher()
         CoroutineScope(dispatcher).launch {
-            httpClient {
-                install(WebSockets)
-            }.use { client ->
-                while (open) {
-                    runCatching {
-                        client.webSocket(
-                            host = REVOLT_WEBSOCKET_URL,
-                            path = "?version=1&format=json&token=$token",
-                            request = {
-                                url {
-                                    protocol = URLProtocol.WSS
+            withContext(Dispatchers.Default) {
+                httpClient {
+                    install(WebSockets)
+                }.use { client ->
+                    while (open) {
+                        runCatching {
+                            client.webSocket(
+                                host = REVOLT_WEBSOCKET_URL,
+                                path = "?version=1&format=json&token=$token",
+                                request = {
+                                    url {
+                                        protocol = URLProtocol.WSS
+                                    }
+                                },
+                            ) {
+                                session = this
+                                val pingJob = launch {
+                                    sendPings()
                                 }
-                            },
-                        ) {
-                            session = this
-                            val pingJob = launch {
-                                sendPings()
+                                handleMessages()
+                                pingJob.cancel()
                             }
-                            handleMessages()
-                            pingJob.cancel()
-                        }
-                        logger.info("Disconnected from Revolt WebSocket, reconnecting...")
-                    }.onFailure {
-                        when (it) {
-                            // No internet connection
-                            is UnresolvedAddressException -> logger.error(
-                                "Failed to connect to Revolt WebSocket, trying again in $RETRY_CONNECT_INTERVAL",
-                            )
+                            logger.info("Disconnected from Revolt WebSocket, reconnecting...")
+                        }.onFailure {
+                            when (it) {
+                                // No internet connection
+                                is UnresolvedAddressException -> logger.error(
+                                    "Failed to connect to Revolt WebSocket, trying again in $RETRY_CONNECT_INTERVAL",
+                                )
 
-                            else -> logger.error(
-                                "Error with Revolt WebSocket, reconnecting in $RETRY_CONNECT_INTERVAL",
-                                it,
-                            )
+                                else -> logger.error(
+                                    "Error with Revolt WebSocket, reconnecting in $RETRY_CONNECT_INTERVAL",
+                                    it,
+                                )
+                            }
+                            delay(RETRY_CONNECT_INTERVAL)
                         }
-                        delay(RETRY_CONNECT_INTERVAL)
+                        session = null
                     }
-                    session = null
                 }
             }
         }
