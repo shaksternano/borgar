@@ -1,13 +1,16 @@
 package io.github.shaksternano.borgar.core.media.reader
 
+import io.github.shaksternano.borgar.core.AVAILABLE_PROCESSORS
 import io.github.shaksternano.borgar.core.io.SuspendCloseable
 import io.github.shaksternano.borgar.core.io.closeAll
 import io.github.shaksternano.borgar.core.media.AudioFrame
 import io.github.shaksternano.borgar.core.media.ImageFrame
 import io.github.shaksternano.borgar.core.media.ImageProcessor
 import io.github.shaksternano.borgar.core.media.VideoFrame
+import io.github.shaksternano.gifcodec.AsyncExecutor
+import io.github.shaksternano.gifcodec.use
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.channelFlow
 import kotlin.time.Duration
 
 interface MediaReader<T : VideoFrame<*>> : SuspendCloseable {
@@ -98,10 +101,22 @@ private class TransformedImageReader<T : Any>(
         return originalFrame.copy(content = transformedImage)
     }
 
-    override fun asFlow(): Flow<ImageFrame> = flow.map {
-        initConstantData(it)
-        val transformedImage = processor.transformImage(it, constantData)
-        it.copy(content = transformedImage)
+    override fun asFlow(): Flow<ImageFrame> = channelFlow {
+        AsyncExecutor<ImageFrame, ImageFrame>(
+            maxConcurrency = AVAILABLE_PROCESSORS,
+            task = {
+                initConstantData(it)
+                val transformedImage = processor.transformImage(it, constantData)
+                it.copy(content = transformedImage)
+            },
+            onOutput = {
+                send(it)
+            },
+        ).use { executor ->
+            flow.collect {
+                executor.submit(it)
+            }
+        }
     }
 
     private suspend fun initConstantData(frame: ImageFrame) {

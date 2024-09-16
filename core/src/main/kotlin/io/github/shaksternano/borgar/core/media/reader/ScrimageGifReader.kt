@@ -53,6 +53,7 @@ class ScrimageGifReader(
     override suspend fun close() = Unit
 
     object Factory : ImageReaderFactory {
+
         override val supportedFormats: Set<String> = setOf("gif")
 
         override suspend fun create(input: DataSource): ImageReader {

@@ -29,8 +29,8 @@ class FFmpegAudioReader(
     audioBitrate: Int,
 ) : FFmpegMediaReader<AudioFrame>(
     input,
-    isTempFile,
     grabber,
+    isTempFile,
 ) {
 
     override val audioBitrate: Int = if (audioChannels > 0 && audioBitrate == 0) {
@@ -41,7 +41,7 @@ class FFmpegAudioReader(
     override val width: Int = 0
     override val height: Int = 0
 
-    override suspend fun setTimestamp(timestamp: Duration, grabber: FFmpegFrameGrabber) = withContext(Dispatchers.IO) {
+    override suspend fun setTimestamp(timestamp: Duration) = withContext(Dispatchers.IO) {
         grabber.setAudioTimestamp(timestamp.inWholeMicroseconds)
     }
 

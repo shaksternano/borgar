@@ -8,6 +8,8 @@ import io.github.shaksternano.borgar.core.util.circular
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.awt.image.BufferedImage
 import javax.imageio.ImageIO
@@ -27,7 +29,10 @@ class WebPImageReader(
     override val width: Int
     override val height: Int
     override val loopCount: Int = 0
+
     private val frameInfos: List<FrameInfo>
+    private val mutex: Mutex = Mutex()
+
 
     init {
         val webPReaderClass = Class.forName("com.twelvemonkeys.imageio.plugins.webp.WebPImageReader")
@@ -88,8 +93,10 @@ class WebPImageReader(
     }
 
     private suspend fun read(index: Int): BufferedImage {
-        val image = withContext(Dispatchers.IO) {
-            reader.read(index)
+        val image = mutex.withLock {
+            withContext(Dispatchers.IO) {
+                reader.read(index)
+            }
         }
         // Remove alpha as sometimes frames are completely transparent.
         image.forEachPixel { x, y ->

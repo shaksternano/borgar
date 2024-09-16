@@ -97,6 +97,7 @@ suspend fun processMedia(
     val outputName = config.outputName.ifBlank {
         fileInput.filenameWithoutExtension
     }
+    val time = System.currentTimeMillis()
     val output = processMedia(
         config.transformImageReader(imageReader, outputFormat),
         config.transformAudioReader(audioReader, outputFormat),
@@ -104,6 +105,7 @@ suspend fun processMedia(
         outputFormat,
         maxFileSize,
     )
+    println("Processing took ${System.currentTimeMillis() - time} ms")
     val filename = filename(outputName, outputFormat)
     DataSource.fromFile(
         output,

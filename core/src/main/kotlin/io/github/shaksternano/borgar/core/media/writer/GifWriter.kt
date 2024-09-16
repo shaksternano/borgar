@@ -1,7 +1,7 @@
 package io.github.shaksternano.borgar.core.media.writer
 
+import io.github.shaksternano.borgar.core.AVAILABLE_PROCESSORS
 import io.github.shaksternano.borgar.core.media.ImageFrame
-import io.github.shaksternano.borgar.core.media.MAX_WRITER_CONCURRENCY
 import io.github.shaksternano.borgar.core.media.MediaWriterFactory
 import io.github.shaksternano.borgar.core.media.rgb
 import io.github.shaksternano.gifcodec.ParallelGifEncoder
@@ -63,7 +63,7 @@ class GifWriter(
                 transparencyColorTolerance = 0.01,
                 quantizedTransparencyColorTolerance = 0.02,
                 comment = "GIF created with https://github.com/shaksternano/borgar",
-                maxConcurrency = MAX_WRITER_CONCURRENCY,
+                maxConcurrency = AVAILABLE_PROCESSORS,
             )
             return GifWriter(encoder)
         }

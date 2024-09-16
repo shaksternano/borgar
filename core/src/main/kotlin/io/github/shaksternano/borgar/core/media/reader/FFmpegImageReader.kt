@@ -24,15 +24,15 @@ class FFmpegImageReader(
     override val height: Int,
 ) : FFmpegMediaReader<ImageFrame>(
     input,
-    isTempFile,
     grabber,
+    isTempFile,
 ) {
 
     override val audioChannels: Int = 0
     override val audioSampleRate: Int = 0
     override val audioBitrate: Int = 0
 
-    override suspend fun setTimestamp(timestamp: Duration, grabber: FFmpegFrameGrabber) = withContext(Dispatchers.IO) {
+    override suspend fun setTimestamp(timestamp: Duration) = withContext(Dispatchers.IO) {
         grabber.setVideoTimestamp(timestamp.inWholeMicroseconds)
     }
 

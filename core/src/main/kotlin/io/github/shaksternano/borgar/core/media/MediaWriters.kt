@@ -1,5 +1,6 @@
 package io.github.shaksternano.borgar.core.media
 
+import io.github.shaksternano.borgar.core.AVAILABLE_PROCESSORS
 import io.github.shaksternano.borgar.core.collect.putAllKeys
 import io.github.shaksternano.borgar.core.media.writer.*
 import io.github.shaksternano.borgar.core.util.then
@@ -56,7 +57,7 @@ suspend fun createWriter(
     } else {
         PreProcessingWriter(
             writer = writer,
-            maxConcurrency = MAX_WRITER_CONCURRENCY,
+            maxConcurrency = AVAILABLE_PROCESSORS,
             preProcessImage = preProcessing,
         )
     }

@@ -12,6 +12,8 @@ import io.github.shaksternano.borgar.core.media.ImageReaderFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.apache.pdfbox.Loader
 import org.apache.pdfbox.pdmodel.PDDocument
@@ -38,6 +40,7 @@ class PdfReader(
     private val imageCache: Cache<Int, BufferedImage> = CacheBuilder.newBuilder()
         .maximumSize(10)
         .build()
+    private val mutex: Mutex = Mutex()
 
     override suspend fun readFrame(timestamp: Duration): ImageFrame {
         val page = (timestamp / frameDuration).toInt()
@@ -56,7 +59,9 @@ class PdfReader(
 
     private suspend fun getImage(page: Int): BufferedImage =
         imageCache.getOrPut(page) {
-            pdfRenderer.getImage(page)
+            mutex.withLock {
+                pdfRenderer.getImage(page)
+            }
         }
 
     override suspend fun close() = closeAll(

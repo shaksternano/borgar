@@ -9,6 +9,8 @@ import io.github.shaksternano.borgar.core.media.VideoFrame
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.bytedeco.javacv.FFmpegFrameGrabber
 import org.bytedeco.javacv.Frame
@@ -21,28 +23,28 @@ import kotlin.time.Duration.Companion.seconds
 
 abstract class FFmpegMediaReader<T : VideoFrame<*>>(
     protected val input: Path,
+    protected val grabber: FFmpegFrameGrabber,
     private val isTempFile: Boolean,
-    private val grabber: FFmpegFrameGrabber,
 ) : BaseMediaReader<T>() {
 
-    final override val loopCount: Int = 0
+    override val loopCount: Int = 0
 
-    override suspend fun readFrame(timestamp: Duration): T = readFrame(timestamp, grabber)
+    private val mutex: Mutex = Mutex()
 
-    protected suspend fun readFrame(timestamp: Duration, grabber: FFmpegFrameGrabber): T {
+    override suspend fun readFrame(timestamp: Duration): T {
         val circularTimestamp =
             if (timestamp == duration) timestamp
             else (timestamp.inWholeMicroseconds % max(duration.inWholeMicroseconds, 1)).microseconds
-        return readFrameNonCircular(circularTimestamp, grabber)
+        return readFrameNonCircular(circularTimestamp)
     }
 
-    private suspend fun readFrameNonCircular(timestamp: Duration, grabber: FFmpegFrameGrabber): T {
-        val frame = findFrame(timestamp, grabber)
+    private suspend fun readFrameNonCircular(timestamp: Duration): T {
+        val frame = findFrame(timestamp)
         return convertFrame(frame)
     }
 
-    private suspend fun findFrame(timestamp: Duration, grabber: FFmpegFrameGrabber): Frame {
-        setTimestamp(timestamp, grabber)
+    private suspend fun findFrame(timestamp: Duration): Frame = mutex.withLock {
+        setTimestamp(timestamp)
         val frame = grabFrame(grabber)
             ?: throw NoSuchElementException("No frame at timestamp $timestamp")
         // The next call to grabFrame() will overwrite the current frame object, so we need to clone it
@@ -62,14 +64,9 @@ abstract class FFmpegMediaReader<T : VideoFrame<*>>(
         return correctFrame
     }
 
-    protected abstract suspend fun setTimestamp(timestamp: Duration, grabber: FFmpegFrameGrabber)
+    protected abstract suspend fun setTimestamp(timestamp: Duration)
 
     protected abstract suspend fun grabFrame(grabber: FFmpegFrameGrabber): Frame?
-
-    private suspend fun grabConvertedFrame(grabber: FFmpegFrameGrabber): T? {
-        val frame = grabFrame(grabber) ?: return null
-        return convertFrame(frame)
-    }
 
     protected abstract fun convertFrame(frame: Frame): T
 
@@ -94,6 +91,11 @@ abstract class FFmpegMediaReader<T : VideoFrame<*>>(
                 emit(it)
             }
         }
+    }
+
+    private suspend fun grabConvertedFrame(grabber: FFmpegFrameGrabber): T? {
+        val frame = grabFrame(grabber) ?: return null
+        return convertFrame(frame)
     }
 }
 

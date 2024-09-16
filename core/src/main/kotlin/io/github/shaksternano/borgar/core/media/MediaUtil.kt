@@ -11,8 +11,6 @@ import kotlin.math.max
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
-val MAX_WRITER_CONCURRENCY: Int = Runtime.getRuntime().availableProcessors()
-
 suspend fun mediaFormat(path: Path): String? = mediaFormatImpl(path.toFile())
 
 suspend fun mediaFormat(inputStream: InputStream): String? {
