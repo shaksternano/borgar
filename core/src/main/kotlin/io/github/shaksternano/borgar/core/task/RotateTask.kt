@@ -1,8 +1,6 @@
 package io.github.shaksternano.borgar.core.task
 
 import io.github.shaksternano.borgar.core.media.*
-import io.github.shaksternano.borgar.core.media.reader.ImageReader
-import io.github.shaksternano.borgar.core.media.reader.transform
 import kotlinx.coroutines.flow.Flow
 import java.awt.Color
 import java.awt.image.BufferedImage
@@ -17,17 +15,12 @@ class RotateTask(
 }
 
 private class RotateConfig(
-    private val degrees: Double,
-    private val backgroundColor: Color?,
-) : MediaProcessingConfig {
-
-    override val outputName: String = "rotated"
-
-    override suspend fun transformImageReader(imageReader: ImageReader, outputFormat: String): ImageReader =
-        imageReader.transform(
-            RotateProcessor(degrees, backgroundColor),
-            outputFormat,
-        )
+    degrees: Double,
+    backgroundColor: Color?,
+) : SimpleMediaProcessingConfig(
+    RotateProcessor(degrees, backgroundColor),
+    "rotated",
+) {
 
     override fun transformOutputFormat(inputFormat: String): String =
         equivalentTransparentFormat(inputFormat)

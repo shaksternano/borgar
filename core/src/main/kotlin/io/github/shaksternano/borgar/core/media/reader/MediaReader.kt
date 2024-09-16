@@ -3,10 +3,7 @@ package io.github.shaksternano.borgar.core.media.reader
 import io.github.shaksternano.borgar.core.AVAILABLE_PROCESSORS
 import io.github.shaksternano.borgar.core.io.SuspendCloseable
 import io.github.shaksternano.borgar.core.io.closeAll
-import io.github.shaksternano.borgar.core.media.AudioFrame
-import io.github.shaksternano.borgar.core.media.ImageFrame
-import io.github.shaksternano.borgar.core.media.ImageProcessor
-import io.github.shaksternano.borgar.core.media.VideoFrame
+import io.github.shaksternano.borgar.core.media.*
 import io.github.shaksternano.gifcodec.AsyncExecutor
 import io.github.shaksternano.gifcodec.use
 import kotlinx.coroutines.flow.Flow
@@ -74,8 +71,13 @@ suspend fun <E, T : VideoFrame<E>> MediaReader<T>.firstContent(): E =
 suspend fun <E, T : VideoFrame<E>> MediaReader<T>.readContent(timestamp: Duration): E =
     readFrame(timestamp).content
 
-fun ImageReader.transform(processor: ImageProcessor<*>, outputFormat: String): ImageReader =
-    TransformedImageReader(this, processor, outputFormat)
+fun ImageReader.transform(processor: ImageProcessor<*>, outputFormat: String): ImageReader {
+    return if (processor is IdentityImageProcessor) {
+        this
+    } else {
+        TransformedImageReader(this, processor, outputFormat)
+    }
+}
 
 private class TransformedImageReader<T : Any>(
     private val reader: ImageReader,

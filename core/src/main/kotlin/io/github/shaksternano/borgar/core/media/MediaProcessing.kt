@@ -22,10 +22,11 @@ interface MediaProcessingConfig {
     suspend fun transformAudioReader(audioReader: AudioReader, outputFormat: String): AudioReader = audioReader
 
     fun transformOutputFormat(inputFormat: String): String = inputFormat
-}
 
-infix fun MediaProcessingConfig.then(after: MediaProcessingConfig): MediaProcessingConfig =
-    ChainedMediaProcessingConfig(this, after)
+    infix fun then(after: MediaProcessingConfig): MediaProcessingConfig {
+        return ChainedMediaProcessingConfig(this, after)
+    }
+}
 
 private class ChainedMediaProcessingConfig(
     private val first: MediaProcessingConfig,
@@ -50,9 +51,13 @@ private class ChainedMediaProcessingConfig(
         val firstFormat = first.transformOutputFormat(inputFormat)
         return second.transformOutputFormat(firstFormat)
     }
+
+    override fun toString(): String {
+        return "ChainedMediaProcessingConfig(first=$first, second=$second, outputName='$outputName')"
+    }
 }
 
-class SimpleMediaProcessingConfig(
+open class SimpleMediaProcessingConfig(
     private val processor: ImageProcessor<*>,
     override val outputName: String,
 ) : MediaProcessingConfig {
@@ -65,8 +70,27 @@ class SimpleMediaProcessingConfig(
         outputName,
     )
 
-    override suspend fun transformImageReader(imageReader: ImageReader, outputFormat: String): ImageReader =
-        imageReader.transform(processor, outputFormat)
+    override suspend fun transformImageReader(imageReader: ImageReader, outputFormat: String): ImageReader {
+        return imageReader.transform(processor, outputFormat)
+    }
+
+    override fun then(after: MediaProcessingConfig): MediaProcessingConfig {
+        return if (after is SimpleMediaProcessingConfig) {
+            val newOutputName: String = after.outputName.ifBlank {
+                outputName
+            }
+            SimpleMediaProcessingConfig(
+                processor then after.processor,
+                newOutputName,
+            )
+        } else {
+            super.then(after)
+        }
+    }
+
+    override fun toString(): String {
+        return "SimpleMediaProcessingConfig(processor=$processor, outputName='$outputName')"
+    }
 }
 
 private val ANIMATED_FORMAT_MAPPING: Map<String, String> = mapOf(
@@ -97,7 +121,6 @@ suspend fun processMedia(
     val outputName = config.outputName.ifBlank {
         fileInput.filenameWithoutExtension
     }
-    val time = System.currentTimeMillis()
     val output = processMedia(
         config.transformImageReader(imageReader, outputFormat),
         config.transformAudioReader(audioReader, outputFormat),
@@ -105,7 +128,6 @@ suspend fun processMedia(
         outputFormat,
         maxFileSize,
     )
-    println("Processing took ${System.currentTimeMillis() - time} ms")
     val filename = filename(outputName, outputFormat)
     DataSource.fromFile(
         output,
