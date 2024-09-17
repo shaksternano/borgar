@@ -1,8 +1,6 @@
 package io.github.shaksternano.borgar.core.task
 
-import io.github.shaksternano.borgar.core.media.IdentityImageProcessor
 import io.github.shaksternano.borgar.core.media.MediaProcessingConfig
-import io.github.shaksternano.borgar.core.media.SimpleMediaProcessingConfig
 
 class TranscodeTask(
     format: String,
@@ -14,10 +12,9 @@ class TranscodeTask(
 
 private class TranscodeConfig(
     private val format: String,
-) : SimpleMediaProcessingConfig(
-    IdentityImageProcessor,
-    outputName = "",
-) {
+) : MediaProcessingConfig {
+
+    override val outputName: String = ""
 
     override fun transformOutputFormat(inputFormat: String): String = format
 }

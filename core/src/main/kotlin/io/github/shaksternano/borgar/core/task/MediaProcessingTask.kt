@@ -3,13 +3,12 @@ package io.github.shaksternano.borgar.core.task
 import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.media.MediaProcessingConfig
 import io.github.shaksternano.borgar.core.media.processMedia
-import io.github.shaksternano.borgar.core.media.then
 
 abstract class MediaProcessingTask(
-    private val maxFileSize: Long,
+    protected val maxFileSize: Long,
 ) : MappedFileTask() {
 
-    protected abstract val config: MediaProcessingConfig
+    abstract val config: MediaProcessingConfig
 
     final override suspend fun process(input: DataSource): DataSource =
         processMedia(input, config, maxFileSize)
@@ -19,11 +18,22 @@ abstract class MediaProcessingTask(
             throw UnsupportedOperationException("The task after this one must require input")
         }
         return if (after is MediaProcessingTask) {
-            object : MediaProcessingTask(maxFileSize) {
-                override val config: MediaProcessingConfig = this@MediaProcessingTask.config then after.config
-            }
+            ChainedMediaProcessingTask(this, after, maxFileSize)
         } else {
             super.then(after)
         }
+    }
+}
+
+private class ChainedMediaProcessingTask(
+    first: MediaProcessingTask,
+    second: MediaProcessingTask,
+    maxFileSize: Long,
+) : MediaProcessingTask(maxFileSize) {
+
+    override val config: MediaProcessingConfig = first.config then second.config
+
+    override fun toString(): String {
+        return "ChainedMediaProcessingTask(maxFileSize=$maxFileSize, config=$config)"
     }
 }

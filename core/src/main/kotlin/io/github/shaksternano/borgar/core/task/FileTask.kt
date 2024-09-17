@@ -21,23 +21,32 @@ interface FileTask : SuspendCloseable {
         if (!after.requireInput) {
             throw UnsupportedOperationException("The task after this one must require input")
         }
-        return object : FileTask {
-
-            override val requireInput: Boolean = this@FileTask.requireInput
-
-            override suspend fun run(input: List<DataSource>): List<DataSource> {
-                val firstOutput = this@FileTask.run(input)
-                return after.run(firstOutput)
-            }
-
-            override suspend fun close() = closeAll(
-                this@FileTask,
-                after,
-            )
-        }
+        return ChainedFileTask(this, after)
     }
 
     override suspend fun close() = Unit
+}
+
+private class ChainedFileTask(
+    private val first: FileTask,
+    private val second: FileTask,
+) : FileTask {
+
+    override val requireInput: Boolean = first.requireInput
+
+    override suspend fun run(input: List<DataSource>): List<DataSource> {
+        val firstOutput = first.run(input)
+        return second.run(firstOutput)
+    }
+
+    override suspend fun close() = closeAll(
+        first,
+        second,
+    )
+
+    override fun toString(): String {
+        return "ChainedFileTask(first=$first, second=$second, requireInput=$requireInput)"
+    }
 }
 
 suspend fun FileTask.run(): List<DataSource> =
