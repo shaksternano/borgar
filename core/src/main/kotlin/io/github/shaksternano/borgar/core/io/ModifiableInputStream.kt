@@ -1,6 +1,6 @@
 package io.github.shaksternano.borgar.core.io
 
-import io.ktor.utils.io.errors.*
+import kotlinx.io.EOFException
 import java.io.InputStream
 
 class ModifiableInputStream(

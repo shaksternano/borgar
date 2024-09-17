@@ -16,12 +16,12 @@ import io.github.shaksternano.borgar.revolt.util.RevoltPermissionValue
 import io.ktor.client.request.forms.*
 import io.ktor.http.*
 import io.ktor.util.collections.*
-import io.ktor.utils.io.errors.*
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
+import kotlinx.io.IOException
 import kotlinx.serialization.Serializable
 import ulid.ULID
 

@@ -9,7 +9,7 @@ import io.github.shaksternano.borgar.core.media.ImageReaderFactory
 import io.github.shaksternano.borgar.core.media.frameAtTime
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
-import java.io.IOException
+import kotlinx.io.IOException
 import kotlin.time.Duration
 import kotlin.time.toKotlinDuration
 

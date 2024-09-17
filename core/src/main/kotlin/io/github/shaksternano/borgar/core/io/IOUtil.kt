@@ -14,11 +14,12 @@ import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
-import io.ktor.utils.io.core.*
-import io.ktor.utils.io.errors.*
+import io.ktor.utils.io.*
 import io.ktor.utils.io.jvm.javaio.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.io.IOException
+import kotlinx.io.readByteArray
 import org.apache.commons.io.FileUtils
 import org.reflections.Reflections
 import org.reflections.scanners.Scanners
@@ -29,7 +30,6 @@ import java.nio.file.Path
 import java.nio.file.StandardOpenOption
 import java.util.regex.Pattern
 import kotlin.io.path.*
-import kotlin.io.use
 import kotlin.random.Random
 import kotlin.random.nextULong
 
@@ -194,8 +194,8 @@ private suspend inline fun HttpResponse.readBytes(block: (ByteArray) -> Unit) {
     val channel = bodyAsChannel()
     while (!channel.isClosedForRead) {
         val packet = channel.readRemaining(DEFAULT_BUFFER_SIZE.toLong())
-        while (!packet.isEmpty) {
-            val bytes = packet.readBytes()
+        while (!packet.exhausted()) {
+            val bytes = packet.readByteArray()
             block(bytes)
         }
     }

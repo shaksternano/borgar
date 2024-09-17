@@ -2,7 +2,7 @@ package io.github.shaksternano.borgar.messaging.exception
 
 import io.github.shaksternano.borgar.messaging.command.CommandConfig
 import io.ktor.http.*
-import io.ktor.utils.io.errors.*
+import kotlinx.io.IOException
 
 class CommandException(
     val commandConfigs: List<CommandConfig>,

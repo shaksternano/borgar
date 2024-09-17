@@ -1,4 +1,5 @@
-val kotlinCoroutinesVersion: String by project
+val kotlinxCoroutinesVersion: String by project
+val kotlinxIoVersion: String by project
 val ktorVersion: String by project
 val logbackVersion: String by project
 val guavaVersion: String by project
@@ -22,7 +23,8 @@ plugins {
 dependencies {
     api("ch.qos.logback:logback-classic:$logbackVersion")
 
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion")
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion")
+    api("org.jetbrains.kotlinx:kotlinx-io-core:$kotlinxIoVersion")
 
     api("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
@@ -70,7 +72,7 @@ dependencies {
     runtimeOnly("org.postgresql:postgresql:$postgreSqlVersion")
 
     testImplementation(kotlin("test"))
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinCoroutinesVersion")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinxCoroutinesVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
 }

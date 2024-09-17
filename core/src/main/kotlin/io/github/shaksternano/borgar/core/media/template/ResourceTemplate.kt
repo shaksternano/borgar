@@ -11,10 +11,10 @@ import io.github.shaksternano.borgar.core.media.reader.AudioReader
 import io.github.shaksternano.borgar.core.media.reader.ImageReader
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.io.IOException
 import java.awt.Color
 import java.awt.Font
 import java.awt.Shape
-import java.io.IOException
 import java.io.ObjectInputStream
 
 enum class ResourceTemplate(

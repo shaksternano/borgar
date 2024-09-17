@@ -16,7 +16,7 @@ class HttpByteReadChannel(
         return response.bodyAsChannel()
     }
 
-    override fun cancel(cause: Throwable?): Boolean {
+    override fun cancel(cause: Throwable?) {
         httpClient.close()
         return super.cancel(cause)
     }
