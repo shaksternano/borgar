@@ -25,9 +25,10 @@ class SpinTask(
 private val SPIN_FRAME_DURATION = 20.milliseconds
 private const val BASE_FRAMES_PER_ROTATION = 150.0
 
-private class SpinConfig(
+private data class SpinConfig(
     private val spinSpeed: Double,
     private val backgroundColor: Color?,
+    private val afterProcessor: ImageProcessor<*>? = null,
 ) : MediaProcessingConfig {
 
     private val rotationDuration: Duration = run {
@@ -45,19 +46,28 @@ private class SpinConfig(
         val mediaDuration = imageReader.duration
         val rotations = ceil(mediaDuration / rotationDuration)
         val totalDuration = rotationDuration * rotations
+        val processor = SpinProcessor(
+            spinSpeed,
+            rotationDuration,
+            backgroundColor,
+        ) then afterProcessor
         return ConstantFrameDurationMediaReader(imageReader, SPIN_FRAME_DURATION, totalDuration).transform(
-            SpinProcessor(
-                spinSpeed,
-                rotationDuration,
-                backgroundColor,
-            ),
-            outputFormat
+            processor,
+            outputFormat,
         )
     }
 
     override fun transformOutputFormat(inputFormat: String): String =
         if (isStaticOnly(inputFormat)) "gif"
         else inputFormat
+
+    override fun then(after: MediaProcessingConfig): MediaProcessingConfig {
+        return if (after is SimpleMediaProcessingConfig) {
+            copy(afterProcessor = afterProcessor then after.processor)
+        } else {
+            super.then(after)
+        }
+    }
 }
 
 private class SpinProcessor(

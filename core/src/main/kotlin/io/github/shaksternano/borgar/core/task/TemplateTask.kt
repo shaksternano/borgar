@@ -28,10 +28,11 @@ class TemplateTask(
     override val config: MediaProcessingConfig = TemplateConfig(template, text, nonTextParts)
 }
 
-private class TemplateConfig(
+private data class TemplateConfig(
     private val template: Template,
     private val text: String?,
     private val nonTextParts: Map<String, Drawable>,
+    private val afterProcessor: ImageProcessor<*>? = null,
 ) : MediaProcessingConfig {
 
     override val outputName: String = template.resultName
@@ -40,9 +41,11 @@ private class TemplateConfig(
         if (text.isNullOrBlank()) {
             val templateReader = template.getImageReader()
             val zipped = ZippedImageReader(imageReader, templateReader)
-            zipped.transform(TemplateImageContentProcessor(template), outputFormat)
+            val processor = TemplateImageContentProcessor(template) then afterProcessor
+            zipped.transform(processor, outputFormat)
         } else {
-            imageReader.transform(TemplateTextContentProcessor(text, nonTextParts, template), outputFormat)
+            val processor = TemplateTextContentProcessor(text, nonTextParts, template) then afterProcessor
+            imageReader.transform(processor, outputFormat)
         }
 
     override fun transformOutputFormat(inputFormat: String): String =
@@ -53,6 +56,14 @@ private class TemplateConfig(
         } else {
             inputFormat
         }
+
+    override fun then(after: MediaProcessingConfig): MediaProcessingConfig {
+        return if (after is SimpleMediaProcessingConfig) {
+            copy(afterProcessor = afterProcessor then after.processor)
+        } else {
+            super.then(after)
+        }
+    }
 }
 
 private class TemplateImageContentProcessor(

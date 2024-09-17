@@ -4,94 +4,12 @@ import io.github.shaksternano.borgar.core.io.*
 import io.github.shaksternano.borgar.core.media.reader.AudioReader
 import io.github.shaksternano.borgar.core.media.reader.ImageReader
 import io.github.shaksternano.borgar.core.media.reader.first
-import io.github.shaksternano.borgar.core.media.reader.transform
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.withContext
-import java.awt.image.BufferedImage
 import java.nio.file.Path
 import kotlin.io.path.fileSize
 import kotlin.math.min
-
-interface MediaProcessingConfig {
-
-    val outputName: String
-
-    suspend fun transformImageReader(imageReader: ImageReader, outputFormat: String): ImageReader = imageReader
-
-    suspend fun transformAudioReader(audioReader: AudioReader, outputFormat: String): AudioReader = audioReader
-
-    fun transformOutputFormat(inputFormat: String): String = inputFormat
-
-    infix fun then(after: MediaProcessingConfig): MediaProcessingConfig {
-        return ChainedMediaProcessingConfig(this, after)
-    }
-}
-
-private class ChainedMediaProcessingConfig(
-    private val first: MediaProcessingConfig,
-    private val second: MediaProcessingConfig,
-) : MediaProcessingConfig {
-
-    override val outputName: String = second.outputName.ifBlank {
-        first.outputName
-    }
-
-    override suspend fun transformImageReader(imageReader: ImageReader, outputFormat: String): ImageReader {
-        val firstReader = first.transformImageReader(imageReader, outputFormat)
-        return second.transformImageReader(firstReader, outputFormat)
-    }
-
-    override suspend fun transformAudioReader(audioReader: AudioReader, outputFormat: String): AudioReader {
-        val firstReader = first.transformAudioReader(audioReader, outputFormat)
-        return second.transformAudioReader(firstReader, outputFormat)
-    }
-
-    override fun transformOutputFormat(inputFormat: String): String {
-        val firstFormat = first.transformOutputFormat(inputFormat)
-        return second.transformOutputFormat(firstFormat)
-    }
-
-    override fun toString(): String {
-        return "ChainedMediaProcessingConfig(first=$first, second=$second, outputName='$outputName')"
-    }
-}
-
-open class SimpleMediaProcessingConfig(
-    private val processor: ImageProcessor<*>,
-    override val outputName: String,
-) : MediaProcessingConfig {
-
-    constructor(
-        outputName: String,
-        transform: (ImageFrame) -> BufferedImage,
-    ) : this(
-        SimpleImageProcessor(transform),
-        outputName,
-    )
-
-    override suspend fun transformImageReader(imageReader: ImageReader, outputFormat: String): ImageReader {
-        return imageReader.transform(processor, outputFormat)
-    }
-
-    override fun then(after: MediaProcessingConfig): MediaProcessingConfig {
-        return if (after is SimpleMediaProcessingConfig) {
-            val newOutputName: String = after.outputName.ifBlank {
-                outputName
-            }
-            SimpleMediaProcessingConfig(
-                processor then after.processor,
-                newOutputName,
-            )
-        } else {
-            super.then(after)
-        }
-    }
-
-    override fun toString(): String {
-        return "SimpleMediaProcessingConfig(processor=$processor, outputName='$outputName')"
-    }
-}
 
 private val ANIMATED_FORMAT_MAPPING: Map<String, String> = mapOf(
     "pdf" to "mp4",
