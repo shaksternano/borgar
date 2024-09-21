@@ -51,7 +51,7 @@ class DiscordManager(
     override val platform: MessagingPlatform = MessagingPlatform.DISCORD
     override val selfId: String = jda.selfUser.id
     override val maxMessageContentLength: Int = Message.MAX_CONTENT_LENGTH
-    override val maxFileSize: Long = Message.MAX_FILE_SIZE.toLong()
+    override val maxFileSize: Long = 10 * 1024 * 1024
     override val maxFilesPerMessage: Int = Message.MAX_FILE_AMOUNT
     override val emojiTypedRegex: Regex = ":[A-Za-z0-9]+:".toRegex()
     override val typingDuration: Duration = 5.seconds
