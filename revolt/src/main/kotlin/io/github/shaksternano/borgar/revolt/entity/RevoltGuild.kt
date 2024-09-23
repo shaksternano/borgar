@@ -27,11 +27,9 @@ data class RevoltGuild(
     override val maxFileSize: Long = manager.maxFileSize
     override val customEmojis: Flow<CustomEmoji> = flow {
         val response = manager.request<List<RevoltEmojiResponse>>("/servers/$id/emojis")
-        val emojis = response.map {
-            it.convert(manager)
-        }
-        emojis.forEach {
-            emit(it)
+        response.forEach {
+            val emoji = it.convert(manager)
+            emit(emoji)
         }
     }
 
