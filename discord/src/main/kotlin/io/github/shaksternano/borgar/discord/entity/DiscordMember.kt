@@ -1,7 +1,7 @@
 package io.github.shaksternano.borgar.discord.entity
 
 import io.github.shaksternano.borgar.discord.DiscordManager
-import io.github.shaksternano.borgar.discord.ifDetachedOrElse
+import io.github.shaksternano.borgar.discord.ifNotDetachedOrElse
 import io.github.shaksternano.borgar.messaging.BotManager
 import io.github.shaksternano.borgar.messaging.entity.Guild
 import io.github.shaksternano.borgar.messaging.entity.Member
@@ -19,7 +19,7 @@ data class DiscordMember(
     override val id: String = discordMember.id
     override val manager: BotManager = DiscordManager[discordMember.jda]
     override val user: User = DiscordUser(discordMember.user)
-    override val roles: Flow<Role> = discordMember.ifDetachedOrElse(emptyFlow()) {
+    override val roles: Flow<Role> = discordMember.ifNotDetachedOrElse(emptyFlow()) {
         discordMember.roles.map { DiscordRole(it) }.asFlow()
     }
     override val timeoutEnd: OffsetDateTime? = discordMember.timeOutEnd
