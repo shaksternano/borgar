@@ -30,7 +30,6 @@ class DemotivateTask(
             subText,
             nonTextParts,
         ),
-        outputName = "demotivated"
     )
 }
 

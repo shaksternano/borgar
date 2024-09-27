@@ -6,6 +6,7 @@ import io.github.shaksternano.borgar.core.media.reader.ImageReader
 interface MediaProcessingConfig {
 
     val outputName: String
+        get() = ""
 
     suspend fun transformImageReader(imageReader: ImageReader, outputFormat: String): ImageReader = imageReader
 

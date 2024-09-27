@@ -44,7 +44,6 @@ object StretchCommand : FileCommand(
             heightMultiplier = heightMultiplier,
             raw = raw,
             maxFileSize = maxFileSize,
-            outputName = "stretched",
         )
     }
 }

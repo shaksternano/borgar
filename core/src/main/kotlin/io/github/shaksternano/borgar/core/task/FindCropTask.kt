@@ -13,9 +13,9 @@ import java.awt.image.BufferedImage
 
 abstract class FindCropTask(
     onlyCheckFirst: Boolean,
-    outputName: String,
     maxFileSize: Long,
     failureMessage: String,
+    outputName: String = "",
 ) : MediaProcessingTask(maxFileSize) {
 
     override val config: MediaProcessingConfig = SimpleMediaProcessingConfig(

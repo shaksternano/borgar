@@ -40,7 +40,6 @@ private data class SpinConfig(
         }
         SPIN_FRAME_DURATION * framesPerRotation
     }
-    override val outputName: String = "spun"
 
     override suspend fun transformImageReader(imageReader: ImageReader, outputFormat: String): ImageReader {
         val mediaDuration = imageReader.duration

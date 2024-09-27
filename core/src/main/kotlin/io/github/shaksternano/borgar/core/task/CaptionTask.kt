@@ -27,7 +27,6 @@ class CaptionTask(
             isBottom,
             nonTextParts,
         ),
-        outputName = "captioned",
     )
 }
 

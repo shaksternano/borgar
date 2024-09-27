@@ -11,7 +11,6 @@ class UncaptionTask(
     maxFileSize: Long,
 ) : FindCropTask(
     onlyCheckFirst,
-    "uncaptioned",
     maxFileSize,
     "Couldn't detect caption!",
 ) {

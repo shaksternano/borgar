@@ -7,7 +7,7 @@ import io.github.shaksternano.borgar.core.media.reader.ImageReader
 class SpeedTask(
     speed: Double,
     maxFileSize: Long,
-    outputName: String = "speed",
+    outputName: String = "",
 ) : MediaProcessingTask(maxFileSize) {
 
     override val config: MediaProcessingConfig = SpeedConfig(speed, outputName)

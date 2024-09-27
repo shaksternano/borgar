@@ -16,8 +16,6 @@ private class ReduceFpsConfig(
     private val fpsReductionRatio: Double,
 ) : MediaProcessingConfig {
 
-    override val outputName: String = "reduced_fps"
-
     override suspend fun transformImageReader(imageReader: ImageReader, outputFormat: String): ImageReader {
         val frameDuration = imageReader.frameDuration * fpsReductionRatio
         return ConstantFrameDurationMediaReader(imageReader, frameDuration)

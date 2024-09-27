@@ -6,11 +6,11 @@ import java.awt.image.BufferedImage
 
 open class SimpleMediaProcessingConfig(
     val processor: ImageProcessor<*>,
-    override val outputName: String,
+    override val outputName: String = "",
 ) : MediaProcessingConfig {
 
     constructor(
-        outputName: String,
+        outputName: String = "",
         transform: (ImageFrame) -> BufferedImage,
     ) : this(
         SimpleImageProcessor(transform),

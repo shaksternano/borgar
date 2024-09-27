@@ -17,8 +17,7 @@ class SpeechBubbleTask(
 ) : MediaProcessingTask(maxFileSize) {
 
     override val config: MediaProcessingConfig = SimpleMediaProcessingConfig(
-        SpeechBubbleProcessor(cutout, flipped, opaque),
-        "speech_bubbled",
+        processor = SpeechBubbleProcessor(cutout, flipped, opaque),
     )
 }
 

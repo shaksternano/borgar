@@ -10,7 +10,7 @@ class FlipTask(
     maxFileSize: Long,
 ) : MediaProcessingTask(maxFileSize) {
 
-    override val config: MediaProcessingConfig = SimpleMediaProcessingConfig("flipped") {
+    override val config: MediaProcessingConfig = SimpleMediaProcessingConfig {
         val image = it.content
         if (vertical) {
             image.flipY()

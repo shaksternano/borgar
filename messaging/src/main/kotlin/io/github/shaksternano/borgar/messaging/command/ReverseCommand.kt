@@ -13,6 +13,5 @@ object ReverseCommand : FileCommand() {
         SpeedTask(
             speed = -1.0,
             maxFileSize = maxFileSize,
-            outputName = "reversed"
         )
 }

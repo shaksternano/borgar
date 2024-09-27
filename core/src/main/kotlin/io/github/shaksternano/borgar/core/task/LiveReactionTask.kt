@@ -12,7 +12,6 @@ class LiveReactionTask(
 
     override val config: MediaProcessingConfig = SimpleMediaProcessingConfig(
         processor = LiveReactionProcessor,
-        outputName = "live_reaction",
     )
 }
 

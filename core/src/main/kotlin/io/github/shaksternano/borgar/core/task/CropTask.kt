@@ -24,7 +24,6 @@ class CropTask(
             rightRatio,
             bottomRatio,
         ),
-        outputName = "captioned"
     )
 }
 

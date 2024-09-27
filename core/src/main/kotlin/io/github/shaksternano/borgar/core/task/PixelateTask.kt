@@ -9,7 +9,7 @@ class PixelateTask(
     maxFileSize: Long,
 ) : MediaProcessingTask(maxFileSize) {
 
-    override val config: MediaProcessingConfig = SimpleMediaProcessingConfig("pixelated") {
+    override val config: MediaProcessingConfig = SimpleMediaProcessingConfig {
         val image = it.content
         image.stretch(
             (image.width / pixelationMultiplier).toInt(),

@@ -30,7 +30,6 @@ class MemeTask(
             bottomText,
             nonTextParts,
         ),
-        outputName = "meme"
     )
 }
 

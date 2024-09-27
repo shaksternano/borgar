@@ -18,8 +18,7 @@ private class RotateConfig(
     degrees: Double,
     backgroundColor: Color?,
 ) : SimpleMediaProcessingConfig(
-    RotateProcessor(degrees, backgroundColor),
-    "rotated",
+    processor = RotateProcessor(degrees, backgroundColor),
 ) {
 
     override fun transformOutputFormat(inputFormat: String): String =

@@ -15,7 +15,6 @@ class SubwaySurfersTask(
 
     override val config: MediaProcessingConfig = SimpleMediaProcessingConfig(
         processor = SubwaySurfersProcessor,
-        outputName = "subway_surfers",
     )
 }
 

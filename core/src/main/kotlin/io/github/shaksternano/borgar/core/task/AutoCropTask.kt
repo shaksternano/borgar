@@ -16,7 +16,6 @@ class AutoCropTask(
     maxFileSize: Long,
 ) : FindCropTask(
     onlyCheckFirst,
-    "cropped",
     maxFileSize,
     "Couldn't find area to crop!",
 ) {
