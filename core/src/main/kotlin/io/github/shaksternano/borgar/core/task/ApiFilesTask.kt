@@ -54,7 +54,7 @@ abstract class ApiFilesTask(
                     extension.lowercase()
                 }
                 val filename = "$filePrefix-${it.id}.${fixedExtension}"
-                val bytes = fileResponse.readBytes()
+                val bytes = fileResponse.readRawBytes()
                 DataSource.fromBytes(filename, bytes)
             }
             .filterNotNull()

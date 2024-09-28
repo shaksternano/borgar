@@ -9,6 +9,7 @@ import io.github.shaksternano.borgar.core.io.closeAll
 import io.github.shaksternano.borgar.core.io.deleteSilently
 import io.github.shaksternano.borgar.core.media.ImageFrame
 import io.github.shaksternano.borgar.core.media.ImageReaderFactory
+import io.github.shaksternano.borgar.core.media.resize
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -61,6 +62,19 @@ class PdfReader(
         imageCache.getOrPut(page) {
             mutex.withLock {
                 pdfRenderer.getImage(page)
+            }.let {
+                if (it.width != width || it.height != height) {
+                    val resized = it.resize(width, height)
+                    val result = BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)
+                    val x = (width - resized.width) / 2
+                    val y = (height - resized.height) / 2
+                    val graphics = result.createGraphics()
+                    graphics.drawImage(resized, x, y, null)
+                    graphics.dispose()
+                    result
+                } else {
+                    it
+                }
             }
         }
 
@@ -81,13 +95,19 @@ class PdfReader(
             return withContext(Dispatchers.IO) {
                 val pdfDocument = Loader.loadPDF(path.toFile())
                 val renderer = PDFRenderer(pdfDocument)
-                val firstImage = renderer.getImage(0)
+                var maxWidth = 0
+                var maxHeight = 0
+                repeat(pdfDocument.numberOfPages) {
+                    val image = renderer.getImage(it)
+                    maxWidth = maxOf(maxWidth, image.width)
+                    maxHeight = maxOf(maxHeight, image.height)
+                }
                 PdfReader(
                     pdfDocument,
                     renderer,
-                    firstImage.width,
-                    firstImage.height,
-                    if (isTempFile) path else null
+                    maxWidth,
+                    maxHeight,
+                    if (isTempFile) path else null,
                 )
             }
         }

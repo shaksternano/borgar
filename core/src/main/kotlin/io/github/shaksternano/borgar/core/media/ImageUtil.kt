@@ -68,13 +68,16 @@ fun BufferedImage.resize(resizeMultiplier: Double, raw: Boolean): BufferedImage 
     }
 
 fun BufferedImage.resize(maxWidth: Int, maxHeight: Int): BufferedImage =
-    ImmutableImage.wrapAwt(this).max(maxWidth, maxHeight).awt()
+    if (width == maxWidth && height == maxHeight) this
+    else ImmutableImage.wrapAwt(this).max(maxWidth, maxHeight).awt()
 
 fun BufferedImage.resizeWidth(width: Int): BufferedImage =
-    ImmutableImage.wrapAwt(this).scaleToWidth(width).awt()
+    if (this.width == width) this
+    else ImmutableImage.wrapAwt(this).scaleToWidth(width).awt()
 
 fun BufferedImage.resizeHeight(height: Int): BufferedImage =
-    ImmutableImage.wrapAwt(this).scaleToHeight(height).awt()
+    if (this.height == height) this
+    else ImmutableImage.wrapAwt(this).scaleToHeight(height).awt()
 
 /**
  * Stretches an image.
@@ -127,6 +130,8 @@ fun BufferedImage.rotate(
     newWidth: Int? = null,
     newHeight: Int? = null,
 ): BufferedImage {
+    if (radians == 0.0) return this
+
     val sin = abs(sin(radians))
     val cos = abs(cos(radians))
 

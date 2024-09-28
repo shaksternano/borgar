@@ -116,7 +116,7 @@ class DiscordMessageChannel(
         if (ownWebhook != null) return ownWebhook
         val avatarUrl = selfUser.effectiveAvatarUrl
         val avatarBytes = useHttpClient {
-            it.get(avatarUrl).readBytes()
+            it.get(avatarUrl).readRawBytes()
         }
         val icon = Icon.from(avatarBytes)
         return webhookContainer.createWebhook(selfUser.name)
