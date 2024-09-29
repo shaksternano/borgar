@@ -130,8 +130,6 @@ fun BufferedImage.rotate(
     newWidth: Int? = null,
     newHeight: Int? = null,
 ): BufferedImage {
-    if (radians == 0.0) return this
-
     val sin = abs(sin(radians))
     val cos = abs(cos(radians))
 
