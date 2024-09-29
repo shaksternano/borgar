@@ -52,6 +52,7 @@ private data class SpinConfig(
         return ConstantFrameDurationMediaReader(imageReader, SPIN_FRAME_DURATION, totalDuration).transform(
             processor,
             outputFormat,
+            loopCount = 0,
         )
     }
 

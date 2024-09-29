@@ -73,13 +73,22 @@ suspend fun <E, T : VideoFrame<E>> MediaReader<T>.firstContent(): E =
 suspend fun <E, T : VideoFrame<E>> MediaReader<T>.readContent(timestamp: Duration): E =
     readFrame(timestamp).content
 
-fun ImageReader.transform(processor: ImageProcessor<*>, outputFormat: String): ImageReader {
+fun ImageReader.transform(
+    processor: ImageProcessor<*>,
+    outputFormat: String,
+    loopCount: Int = this.loopCount,
+): ImageReader {
     return if (processor is IdentityImageProcessor) {
         this
     } else if (this is TransformedImageReader<*>) {
-        this then processor
+        then(processor, loopCount)
     } else {
-        TransformedImageReader(this, processor, outputFormat)
+        TransformedImageReader(
+            this,
+            processor,
+            outputFormat,
+            loopCount,
+        )
     }
 }
 
@@ -87,6 +96,7 @@ private class TransformedImageReader<T : Any>(
     private val reader: ImageReader,
     private val processor: ImageProcessor<T>,
     private val outputFormat: String,
+    override val loopCount: Int,
 ) : BaseImageReader() {
 
     override val frameCount: Int = reader.frameCount
@@ -95,7 +105,6 @@ private class TransformedImageReader<T : Any>(
     override val frameDuration: Duration = reader.frameDuration
     override val width: Int = reader.width
     override val height: Int = reader.height
-    override val loopCount: Int = reader.loopCount
 
     private val flow: Flow<ImageFrame> = reader.asFlow()
     private val mutex: Mutex = Mutex()
@@ -135,11 +144,11 @@ private class TransformedImageReader<T : Any>(
         }
     }
 
-    infix fun then(after: ImageProcessor<*>): TransformedImageReader<*> {
+    fun then(after: ImageProcessor<*>, loopCount: Int): TransformedImageReader<*> {
         return if (after is IdentityImageProcessor) {
             this
         } else {
-            TransformedImageReader(reader, processor then after, outputFormat)
+            TransformedImageReader(reader, processor then after, outputFormat, loopCount)
         }
     }
 
