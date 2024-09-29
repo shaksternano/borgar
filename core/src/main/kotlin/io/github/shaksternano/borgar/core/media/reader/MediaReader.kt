@@ -8,6 +8,8 @@ import io.github.shaksternano.gifcodec.AsyncExecutor
 import io.github.shaksternano.gifcodec.use
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlin.time.Duration
 
 interface MediaReader<T : VideoFrame<*>> : SuspendCloseable {
@@ -74,6 +76,8 @@ suspend fun <E, T : VideoFrame<E>> MediaReader<T>.readContent(timestamp: Duratio
 fun ImageReader.transform(processor: ImageProcessor<*>, outputFormat: String): ImageReader {
     return if (processor is IdentityImageProcessor) {
         this
+    } else if (this is TransformedImageReader<*>) {
+        this then processor
     } else {
         TransformedImageReader(this, processor, outputFormat)
     }
@@ -94,6 +98,7 @@ private class TransformedImageReader<T : Any>(
     override val loopCount: Int = reader.loopCount
 
     private val flow: Flow<ImageFrame> = reader.asFlow()
+    private val mutex: Mutex = Mutex()
     private lateinit var constantData: T
 
     override suspend fun readFrame(timestamp: Duration): ImageFrame {
@@ -122,8 +127,19 @@ private class TransformedImageReader<T : Any>(
     }
 
     private suspend fun initConstantData(frame: ImageFrame) {
-        if (!::constantData.isInitialized) {
-            constantData = processor.constantData(frame, flow, outputFormat)
+        if (::constantData.isInitialized) return
+        mutex.withLock {
+            if (!::constantData.isInitialized) {
+                constantData = processor.constantData(frame, flow, outputFormat)
+            }
+        }
+    }
+
+    infix fun then(after: ImageProcessor<*>): TransformedImageReader<*> {
+        return if (after is IdentityImageProcessor) {
+            this
+        } else {
+            TransformedImageReader(reader, processor then after, outputFormat)
         }
     }
 
@@ -131,4 +147,17 @@ private class TransformedImageReader<T : Any>(
         reader,
         processor,
     )
+
+    override fun toString(): String {
+        return "TransformedImageReader(" +
+            "reader=$reader" +
+            ", processor=$processor" +
+            ", outputFormat='$outputFormat'" +
+            ", mutex=$mutex" +
+            ", constantData=${
+                if (::constantData.isInitialized) constantData.toString()
+                else "[not initialized]"
+            }" +
+            ")"
+    }
 }

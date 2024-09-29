@@ -50,4 +50,12 @@ class ConstantFrameDurationMediaReader<T : VideoFrame<*>>(
     }
 
     override suspend fun close() = reader.close()
+
+    override fun toString(): String {
+        return "ConstantFrameDurationMediaReader(" +
+            "reader=$reader" +
+            ", frameDuration=$frameDuration" +
+            ", frameCount=$frameCount" +
+            ")"
+    }
 }

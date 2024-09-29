@@ -78,6 +78,13 @@ private class ReversedReader<T : VideoFrame<*>>(
     override suspend fun reversed(): MediaReader<T> = reader
 
     override suspend fun close() = reader.close()
+
+    override fun toString(): String {
+        return "ReversedReader(" +
+            "reader=$reader" +
+            ", reversedFrameInfo=$reversedFrameInfo" +
+            ")"
+    }
 }
 
 private data class ReversedFrameInfo(
@@ -126,6 +133,13 @@ open class ChangedSpeedReader<T : VideoFrame<*>>(
             }
 
     override suspend fun close() = reader.close()
+
+    override fun toString(): String {
+        return "ChangedSpeedReader(" +
+            "reader=$reader" +
+            ", speedMultiplier=$speedMultiplier" +
+            ")"
+    }
 }
 
 abstract class BaseImageReader : BaseMediaReader<ImageFrame>() {

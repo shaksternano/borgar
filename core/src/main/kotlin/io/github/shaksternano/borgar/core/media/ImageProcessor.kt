@@ -15,15 +15,13 @@ interface ImageProcessor<T : Any> : SuspendCloseable {
     override suspend fun close() = Unit
 }
 
-infix fun <T : Any, U : Any> ImageProcessor<T>?.then(after: ImageProcessor<U>?): ImageProcessor<*> {
-    return if (this == null && after != null) {
+infix fun <T : Any, U : Any> ImageProcessor<T>.then(after: ImageProcessor<U>): ImageProcessor<*> {
+    return if (this is IdentityImageProcessor) {
         after
-    } else if (this != null && after == null) {
+    } else if (after is IdentityImageProcessor) {
         this
-    } else if (this != null && after != null) {
-        ChainedImageProcessor(this, after)
     } else {
-        throw IllegalArgumentException("Both processors are null")
+        ChainedImageProcessor(this, after)
     }
 }
 

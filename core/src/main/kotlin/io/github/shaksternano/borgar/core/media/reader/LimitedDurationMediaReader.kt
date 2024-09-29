@@ -38,6 +38,14 @@ class LimitedDurationMediaReader<T : VideoFrame<*>> internal constructor(
     }
 
     override suspend fun close() = reader.close()
+
+    override fun toString(): String {
+        return "LimitedDurationMediaReader(" +
+            "reader=$reader" +
+            ", frameCount=$frameCount" +
+            ", duration=$duration" +
+            ")"
+    }
 }
 
 @Suppress("FunctionName")
@@ -69,7 +77,10 @@ private suspend fun readerInfo(reader: MediaReader<*>, maxDuration: Duration): R
     return ReaderInfo(frameCount, totalDuration)
 }
 
-internal data class ReaderInfo(val frameCount: Int, val duration: Duration) {
+data class ReaderInfo(
+    val frameCount: Int,
+    val duration: Duration
+) {
     constructor(reader: MediaReader<*>) : this(
         reader.frameCount,
         reader.duration,

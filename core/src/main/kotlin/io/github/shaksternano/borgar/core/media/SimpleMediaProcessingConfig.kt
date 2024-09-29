@@ -21,20 +21,6 @@ open class SimpleMediaProcessingConfig(
         return imageReader.transform(processor, outputFormat)
     }
 
-    override fun then(after: MediaProcessingConfig): MediaProcessingConfig {
-        return if (after is SimpleMediaProcessingConfig) {
-            val newOutputName: String = after.outputName.ifBlank {
-                outputName
-            }
-            SimpleMediaProcessingConfig(
-                processor then after.processor,
-                newOutputName,
-            )
-        } else {
-            super.then(after)
-        }
-    }
-
     override fun toString(): String {
         return "SimpleMediaProcessingConfig(processor=$processor, outputName='$outputName')"
     }

@@ -75,4 +75,12 @@ class ZippedImageReader(
         ZippedImageReader(firstReader.changeSpeed(speedMultiplier), secondReader.changeSpeed(speedMultiplier))
 
     override suspend fun close() = closeAll(firstReader, secondReader)
+
+    override fun toString(): String {
+        return "ZippedImageReader(" +
+            "firstReader=$firstReader" +
+            ", secondReader=$secondReader" +
+            ", firstControlling=$firstControlling" +
+            ")"
+    }
 }
