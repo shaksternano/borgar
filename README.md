@@ -29,7 +29,7 @@ Discord bot that provides fun image editing commands, such as image captioning. 
 
 ## How to export and run this project as a JAR file
 1. Run in a terminal from the same directory as the project directory `./gradlew build` on GNU/Linux and Mac, or `gradlew build` on Windows.
-2. Alternatively, in IntelliJ IDEA, open the Gradle tab on the right and execute build under `Tasks` → `Build`. After this is done once, the build task should appear in the run configurations.
+2. Alternatively, in IntelliJ IDEA, open the Gradle tab on the right and execute build under `Tasks` → `build`. After this is done once, the build task should appear in the run configurations.
 3. The JAR should appear in `${projectDir}/build/libs`, and should be called `borgar-VERSION.jar`.
 4. To execute the jar, run the command `java -jar borgar-{VERSION}.jar DISCORD_BOT_TOKEN={TOKEN}`. For example, `java -jar borgar-1.0.0.jar DISCORD_BOT_TOKEN=123456789`.
 ## Available Commands
