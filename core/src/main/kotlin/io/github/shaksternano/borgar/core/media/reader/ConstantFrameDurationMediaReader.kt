@@ -38,7 +38,8 @@ class ConstantFrameDurationMediaReader<T : VideoFrame<*>>(
 
     override fun asFlow(): Flow<T> = flow {
         var currentTimestamp = Duration.ZERO
-        while (currentTimestamp < duration) {
+        // Use do-while loop in case duration is 0
+        do {
             @Suppress("UNCHECKED_CAST")
             val frame = reader.readFrame(currentTimestamp).copy(
                 duration = frameDuration,
@@ -46,7 +47,7 @@ class ConstantFrameDurationMediaReader<T : VideoFrame<*>>(
             ) as T
             emit(frame)
             currentTimestamp += frameDuration
-        }
+        } while (currentTimestamp < duration)
     }
 
     override suspend fun close() = reader.close()

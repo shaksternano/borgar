@@ -24,7 +24,7 @@ class ZippedImageReader(
     override val frameDuration: Duration =
         ifFirstControllingOrElse(firstReader.frameDuration, secondReader.frameDuration)
     override val frameCount: Int = ifEmptyOrElse(0) {
-        (duration / frameDuration).toInt()
+        (duration / frameDuration).toInt().coerceAtLeast(1)
     }
     override val width: Int = ifFirstControllingOrElse(firstReader.width, secondReader.width)
     override val height: Int = ifFirstControllingOrElse(firstReader.height, secondReader.height)
@@ -52,7 +52,8 @@ class ZippedImageReader(
         val controllingReader = if (firstControlling) firstReader else secondReader
         val otherReader = if (firstControlling) secondReader else firstReader
         var totalDuration = Duration.ZERO
-        while (totalDuration < otherReader.duration) {
+        // Use do-while loop in case duration is 0
+        do {
             controllingReader.asFlow().collect {
                 val timestamp = it.timestamp + totalDuration
                 val other = otherReader.readFrame(timestamp)
@@ -65,7 +66,7 @@ class ZippedImageReader(
                 emit(zippedFrame)
             }
             totalDuration += controllingReader.duration
-        }
+        } while (totalDuration < otherReader.duration)
     }
 
     override suspend fun reversed(): ImageReader =

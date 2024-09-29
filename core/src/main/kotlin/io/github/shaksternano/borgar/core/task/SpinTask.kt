@@ -42,7 +42,7 @@ private data class SpinConfig(
 
     override suspend fun transformImageReader(imageReader: ImageReader, outputFormat: String): ImageReader {
         val mediaDuration = imageReader.duration
-        val rotations = ceil(mediaDuration / rotationDuration)
+        val rotations = ceil(mediaDuration / rotationDuration).toInt().coerceAtLeast(1)
         val totalDuration = rotationDuration * rotations
         val processor = SpinProcessor(
             spinSpeed,

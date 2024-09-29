@@ -16,7 +16,6 @@ import org.bytedeco.javacv.FFmpegFrameGrabber
 import org.bytedeco.javacv.Frame
 import java.nio.file.Path
 import kotlin.io.path.deleteIfExists
-import kotlin.math.max
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.microseconds
 import kotlin.time.Duration.Companion.seconds
@@ -34,7 +33,7 @@ abstract class FFmpegMediaReader<T : VideoFrame<*>>(
     override suspend fun readFrame(timestamp: Duration): T {
         val circularTimestamp =
             if (timestamp == duration) timestamp
-            else (timestamp.inWholeMicroseconds % max(duration.inWholeMicroseconds, 1)).microseconds
+            else (timestamp.inWholeMicroseconds % duration.inWholeMicroseconds.coerceAtLeast(1)).microseconds
         return readFrameNonCircular(circularTimestamp)
     }
 

@@ -60,7 +60,6 @@ private suspend fun processMedia(
     outputFormat: String,
     maxFileSize: Long,
 ): Path = useAllIgnored(imageReader, audioReader) {
-    println(imageReader)
     var outputSize: Long
     var resizeRatio = 1.0
     val maxResizeAttempts = 3

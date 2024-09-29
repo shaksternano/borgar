@@ -6,7 +6,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlin.math.abs
-import kotlin.math.max
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -55,7 +54,8 @@ private class ReversedReader<T : VideoFrame<*>>(
     override val loopCount: Int = reader.loopCount
 
     override suspend fun readFrame(timestamp: Duration): T {
-        val circularTimestamp = (timestamp.inWholeMilliseconds % max(duration.inWholeMilliseconds, 1)).milliseconds
+        val circularTimestamp =
+            (timestamp.inWholeMilliseconds % duration.inWholeMilliseconds.coerceAtLeast(1)).milliseconds
         val index = findIndex(circularTimestamp, reversedFrameInfo.map(ReversedFrameInfo::reversedTimestamp))
         val frameInfo = reversedFrameInfo[index]
         val frame = reader.readFrame(frameInfo.actualTimestamp)

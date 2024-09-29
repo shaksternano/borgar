@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.io.IOException
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.toKotlinDuration
 
 class ScrimageGifReader(
@@ -32,7 +33,7 @@ class ScrimageGifReader(
         var shortestDuration = Duration.INFINITE
         duration = (0 until frameCount).fold(Duration.ZERO) { total, i ->
             val image = gif.getFrame(i).awt()
-            val frameDuration = gif.getDelay(i).toKotlinDuration()
+            val frameDuration = gif.getDelay(i).toKotlinDuration().coerceAtLeast(1.milliseconds)
             if (frameDuration < shortestDuration) shortestDuration = frameDuration
             frames.add(ImageFrame(image, frameDuration, total))
             total + frameDuration
