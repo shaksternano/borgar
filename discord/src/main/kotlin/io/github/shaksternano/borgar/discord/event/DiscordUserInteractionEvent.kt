@@ -27,7 +27,7 @@ class DiscordUserInteractionEvent(
 
     override val user: User = DiscordUser(discordEvent.target)
     private val member: Member? = discordEvent.member?.let { DiscordMember(it) }
-    private val channel: Channel? = discordEvent.channel?.let { DiscordChannel.create(it) }
+    private val channel: Channel? = discordEvent.channel?.let { DiscordChannel.create(it, discordEvent.context) }
     private val guild: Guild? = discordEvent.guild?.let { DiscordGuild(it) }
 
     private var deferReply: Boolean = false

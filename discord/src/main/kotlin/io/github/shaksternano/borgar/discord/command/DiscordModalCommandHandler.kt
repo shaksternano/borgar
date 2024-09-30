@@ -69,7 +69,7 @@ suspend fun handleModalCommand(event: ModalInteractionEvent) {
             return
         }
     runCatching {
-        val channel = DiscordMessageChannel(event.channel)
+        val channel = DiscordMessageChannel(event.channel, event.context)
         val message = FakeMessage(
             id = event.id,
             content = content,

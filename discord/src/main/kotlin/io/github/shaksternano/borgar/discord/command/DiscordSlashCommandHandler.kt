@@ -101,7 +101,7 @@ private suspend fun getAfterCommandConfigs(
             commandEvent.id,
             afterCommands,
             DiscordUser(slashEvent.user),
-            DiscordMessageChannel(slashEvent.channel),
+            DiscordMessageChannel(slashEvent.channel, slashEvent.context),
         ),
     )
     if (configs.isEmpty()) {

@@ -20,9 +20,12 @@ open class DiscordChannel protected constructor(
 ) : Channel, BaseEntity() {
 
     companion object {
-        fun create(jdaChannel: net.dv8tion.jda.api.entities.channel.Channel): DiscordChannel = when (jdaChannel) {
-            is MessageChannel -> DiscordMessageChannel(jdaChannel)
-            else -> DiscordChannel(jdaChannel)
+        fun create(
+            discordChannel: net.dv8tion.jda.api.entities.channel.Channel,
+            context: InteractionContextType = InteractionContextType.UNKNOWN,
+        ): DiscordChannel = when (discordChannel) {
+            is MessageChannel -> DiscordMessageChannel(discordChannel, context)
+            else -> DiscordChannel(discordChannel, context)
         }
     }
 

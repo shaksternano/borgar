@@ -66,7 +66,7 @@ class DiscordOptionCommandArguments(
 
             CommandArgumentType.Channel -> runCatching {
                 val channel = optionMapping.asChannel
-                DiscordChannel.create(channel)
+                DiscordChannel.create(channel, interaction.context)
             }.getOrNull()
 
             CommandArgumentType.Role -> runCatching {
@@ -76,7 +76,7 @@ class DiscordOptionCommandArguments(
 
             CommandArgumentType.Mentionable -> runCatching {
                 val mentionable = optionMapping.asMentionable
-                DiscordMentionable.create(mentionable, interaction.jda)
+                DiscordMentionable.create(mentionable, interaction.jda, interaction.context)
             }.getOrNull()
 
             CommandArgumentType.Attachment -> runCatching {
