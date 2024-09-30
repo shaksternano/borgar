@@ -18,7 +18,7 @@ val MESSAGE_INTERACTION_COMMANDS: Map<String, MessageInteractionCommand> = regis
 )
 
 suspend fun handleMessageInteraction(event: MessageInteractionEvent) {
-    val commandName = event.name
+    val commandName = event.name.lowercase()
     val command = MESSAGE_INTERACTION_COMMANDS[commandName]
     if (command == null) {
         logger.error("Unknown message interaction command: $commandName")

@@ -13,7 +13,7 @@ val USER_INTERACTION_COMMANDS: Map<String, UserInteractionCommand> = registerCom
 )
 
 suspend fun handleUserInteraction(event: UserInteractionEvent) {
-    val commandName = event.name
+    val commandName = event.name.lowercase()
     val command = USER_INTERACTION_COMMANDS[commandName]
     if (command == null) {
         logger.error("Unknown user interaction command: $commandName")
