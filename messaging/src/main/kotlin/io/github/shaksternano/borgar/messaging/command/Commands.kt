@@ -85,14 +85,15 @@ val COMMANDS_AND_ALIASES: Map<String, Command> = buildMap {
 
 fun <T : Named> registerCommands(commandType: String, vararg commands: T): Map<String, T> = buildMap {
     commands.forEach {
-        if (it.name in this) {
+        val commandName = it.name.lowercase()
+        if (commandName in this) {
             var errorMessage = "A"
             if (commandType.startsWithVowel()) {
                 errorMessage += "n"
             }
-            errorMessage += " $commandType with the name ${it.name} already exists. Existing command: ${this[it.name]}. New command: $it"
+            errorMessage += " $commandType with the name $commandName already exists. Existing command: ${this[commandName]}. New command: $it"
             throw IllegalArgumentException(errorMessage)
         }
-        this[it.name] = it
+        this[commandName] = it
     }
 }

@@ -299,7 +299,7 @@ suspend fun parseCommands(messageContent: String, message: Message): List<Comman
 internal fun parseRawCommands(message: String): List<RawCommandConfig> {
     return parseCommandStrings(message).map { commandString ->
         val commandEndIndex = commandString.endOfWord(COMMAND_PREFIX.length)
-        val command = commandString.substring(COMMAND_PREFIX.length, commandEndIndex)
+        val command = commandString.substring(COMMAND_PREFIX.length, commandEndIndex).lowercase()
         val argumentPrefixIndexes = commandString.indicesOfPrefix(ARGUMENT_PREFIX)
         val arguments = commandString.split(argumentPrefixIndexes)
             .associate {
