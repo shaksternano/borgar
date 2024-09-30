@@ -16,7 +16,7 @@ import io.github.shaksternano.borgar.messaging.entity.Attachment
 import net.dv8tion.jda.api.interactions.commands.CommandInteractionPayload
 import net.dv8tion.jda.api.interactions.commands.OptionType
 
-class OptionCommandArguments(
+class DiscordOptionCommandArguments(
     private val interaction: CommandInteractionPayload,
     override val defaultKey: String?,
 ) : CommandArguments {
@@ -101,7 +101,7 @@ class OptionCommandArguments(
         if (this === other) return true
         if (kClass != other?.kClass) return false
 
-        other as OptionCommandArguments
+        other as DiscordOptionCommandArguments
 
         if (interaction != other.interaction) return false
         if (defaultKey != other.defaultKey) return false

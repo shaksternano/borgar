@@ -19,32 +19,35 @@ import io.github.shaksternano.borgar.messaging.entity.channel.MessageChannel
 import io.github.shaksternano.borgar.messaging.event.CommandEvent
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flowOf
 import net.dv8tion.jda.api.entities.channel.concrete.GroupChannel
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
+import net.dv8tion.jda.api.interactions.Interaction
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback
-import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.utils.messages.MessageCreateData
 import java.time.OffsetDateTime
 
-class SlashCommandEvent(
-    private val discordEvent: SlashCommandInteractionEvent
-) : CommandEvent {
+class DiscordInteractionCommandEvent<T>(
+    private val discordEvent: T,
+    discordChannel: net.dv8tion.jda.api.entities.channel.middleman.MessageChannel,
+    private val attachments: List<Attachment> = emptyList(),
+    referencedMessage: Message? = null,
+) : CommandEvent where T : Interaction, T : IReplyCallback {
 
     override val manager: BotManager = DiscordManager[discordEvent.jda]
     override val id: String = discordEvent.id
     override val authorId: String = discordEvent.user.id
     override val timeCreated: OffsetDateTime = discordEvent.timeCreated
-    override val referencedMessages: Flow<Message> = emptyFlow()
+    override val referencedMessages: Flow<Message> =
+        referencedMessage?.let { flowOf(it) } ?: emptyFlow()
 
     private val user: User = DiscordUser(discordEvent.user)
     private val member: Member? = discordEvent.member?.let { DiscordMember(it) }
     private val channel: MessageChannel = DiscordMessageChannel(
-        discordEvent.channel,
+        discordChannel,
         discordEvent.context,
     )
     private val guild: Guild? = discordEvent.guild?.let { DiscordGuild(it) }
     private val group: Group? = run {
-        val discordChannel = discordEvent.channel
         if (discordChannel is GroupChannel) {
             DiscordGroup(discordChannel)
         } else {
@@ -97,37 +100,27 @@ class SlashCommandEvent(
 
     override fun asMessageIntersection(arguments: CommandArguments): CommandMessageIntersection =
         object : CommandMessageIntersection {
-            override val id: String = this@SlashCommandEvent.id
-            override val authorId: String = this@SlashCommandEvent.authorId
-            override val manager: BotManager = this@SlashCommandEvent.manager
+            override val id: String = this@DiscordInteractionCommandEvent.id
+            override val authorId: String = this@DiscordInteractionCommandEvent.authorId
+            override val manager: BotManager = this@DiscordInteractionCommandEvent.manager
             override val content: String = arguments.getDefaultStringOrEmpty()
-            override val attachments: List<Attachment> = discordEvent.getOptionsByType(OptionType.ATTACHMENT).map {
-                val attachment = it.asAttachment
-                Attachment(
-                    id = attachment.id,
-                    url = attachment.url,
-                    proxyUrl = attachment.proxyUrl,
-                    filename = attachment.fileName,
-                    manager = manager,
-                    ephemeral = true,
-                )
-            }
+            override val attachments: List<Attachment> = this@DiscordInteractionCommandEvent.attachments
             override val customEmojis: Flow<CustomEmoji> = manager.getCustomEmojis(content)
             override val stickers: Flow<Sticker> = emptyFlow()
-            override val referencedMessages: Flow<Message> = emptyFlow()
+            override val referencedMessages: Flow<Message> = this@DiscordInteractionCommandEvent.referencedMessages
             override val mentionedUsers: Flow<User> = emptyFlow()
             override val mentionedChannels: Flow<Channel> = emptyFlow()
             override val mentionedRoles: Flow<Role> = emptyFlow()
 
-            override suspend fun getAuthor(): User = this@SlashCommandEvent.getAuthor()
+            override suspend fun getAuthor(): User = this@DiscordInteractionCommandEvent.getAuthor()
 
-            override suspend fun getAuthorMember(): Member? = this@SlashCommandEvent.getAuthorMember()
+            override suspend fun getAuthorMember(): Member? = this@DiscordInteractionCommandEvent.getAuthorMember()
 
-            override suspend fun getChannel(): MessageChannel = this@SlashCommandEvent.getChannel()
+            override suspend fun getChannel(): MessageChannel = this@DiscordInteractionCommandEvent.getChannel()
 
-            override suspend fun getGuild(): Guild? = this@SlashCommandEvent.getGuild()
+            override suspend fun getGuild(): Guild? = this@DiscordInteractionCommandEvent.getGuild()
 
-            override suspend fun getGroup(): Group? = this@SlashCommandEvent.getGroup()
+            override suspend fun getGroup(): Group? = this@DiscordInteractionCommandEvent.getGroup()
 
             override suspend fun getEmbeds(): List<MessageEmbed> = emptyList()
         }

@@ -4,19 +4,13 @@ import dev.minn.jda.ktx.coroutines.await
 import dev.minn.jda.ktx.events.listener
 import dev.minn.jda.ktx.interactions.commands.Command
 import dev.minn.jda.ktx.interactions.commands.updateCommands
-import io.github.shaksternano.borgar.core.data.repository.TemplateRepository
 import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.core.util.*
-import io.github.shaksternano.borgar.discord.DiscordManager
-import io.github.shaksternano.borgar.discord.entity.DiscordUser
-import io.github.shaksternano.borgar.discord.entity.channel.DiscordMessageChannel
 import io.github.shaksternano.borgar.discord.event.DiscordMessageInteractionEvent
 import io.github.shaksternano.borgar.discord.event.DiscordUserInteractionEvent
-import io.github.shaksternano.borgar.discord.event.SlashCommandEvent
 import io.github.shaksternano.borgar.discord.util.toDiscord
 import io.github.shaksternano.borgar.messaging.command.*
 import io.github.shaksternano.borgar.messaging.entity.*
-import io.github.shaksternano.borgar.messaging.event.CommandEvent
 import io.github.shaksternano.borgar.messaging.event.MessageInteractionEvent
 import io.github.shaksternano.borgar.messaging.event.UserInteractionEvent
 import io.github.shaksternano.borgar.messaging.interaction.message.MESSAGE_INTERACTION_COMMANDS
@@ -25,9 +19,8 @@ import io.github.shaksternano.borgar.messaging.interaction.message.handleMessage
 import io.github.shaksternano.borgar.messaging.interaction.user.USER_INTERACTION_COMMANDS
 import io.github.shaksternano.borgar.messaging.interaction.user.UserInteractionCommand
 import io.github.shaksternano.borgar.messaging.interaction.user.handleUserInteraction
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
 import net.dv8tion.jda.api.JDA
+import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
@@ -51,11 +44,23 @@ suspend fun JDA.registerCommands() {
     listener<CommandAutoCompleteInteractionEvent> {
         handleCommandAutoComplete(it)
     }
+    val commandModalInteractionName = "Run command"
     listener<MessageContextInteractionEvent> {
-        handleMessageInteraction(it.convert())
+        if (it.name == commandModalInteractionName) {
+            createCommandModal(it)
+        } else {
+            handleMessageInteraction(it.convert())
+        }
     }
     listener<UserContextInteractionEvent> {
         handleUserInteraction(it.convert())
+    }
+    listener<ModalInteractionEvent> {
+        if (it.modalId == "command") {
+            handleModalCommand(it)
+        } else {
+            logger.error("Unknown modal ID: ${it.modalId}")
+        }
     }
     registerAutoCompleteHandlers()
     updateCommands {
@@ -68,6 +73,10 @@ suspend fun JDA.registerCommands() {
         val userInteractionCommands = USER_INTERACTION_COMMANDS.values
             .map(UserInteractionCommand::toDiscord)
         addCommands(userInteractionCommands)
+        val commandModalInteraction = Commands.message(commandModalInteractionName)
+            .setContexts(InteractionContextType.ALL)
+            .setIntegrationTypes(IntegrationType.ALL)
+        addCommands(commandModalInteraction)
     }.await()
 }
 
@@ -85,21 +94,6 @@ fun Command.toSlash(): SlashCommandData = Command(name, description) {
             false,
         ),
     )
-}
-
-fun registerAutoCompleteHandlers() {
-    COMMANDS.values
-        .flatMap { command ->
-            command.argumentInfo.associateBy { command.name to it.key }.entries
-        }
-        .mapNotNull { (key, argumentInfo) ->
-            argumentInfo.autoCompleteHandler?.let { handler ->
-                Triple(key.first, key.second, handler)
-            }
-        }
-        .forEach { (command, option, handler) ->
-            registerAutoCompleteHandler(command, option, handler)
-        }
 }
 
 private fun MessageInteractionCommand.toDiscord(): CommandData =
@@ -127,140 +121,6 @@ private fun MessageContextInteractionEvent.convert(): MessageInteractionEvent =
 
 private fun UserContextInteractionEvent.convert(): UserInteractionEvent =
     DiscordUserInteractionEvent(this)
-
-private suspend fun handleCommand(event: SlashCommandInteractionEvent) {
-    val commandName = event.name
-    val command = COMMANDS[commandName] ?: run {
-        val entityId = event.guild?.id ?: event.user.id
-        TemplateRepository.read(commandName, entityId)?.let(::TemplateCommand)
-    }
-    if (command == null) {
-        logger.error("Unknown command: $commandName")
-        event.reply("Unknown command!")
-            .setEphemeral(true)
-            .await()
-        return
-    }
-    val arguments = OptionCommandArguments(event, command.defaultArgumentKey)
-    val commandEvent = SlashCommandEvent(event)
-    executeCommand(command, arguments, commandEvent, event)
-}
-
-private suspend fun handleCommandAutoComplete(event: CommandAutoCompleteInteractionEvent) {
-    val command = event.name
-    val argument = event.focusedOption.name
-    val handler = getAutoCompleteHandler(command, argument) ?: return
-    val currentValue = event.focusedOption.value
-    val manager = DiscordManager[event.jda]
-    when (handler) {
-        is CommandAutoCompleteHandler.Long -> {
-            val longValue = currentValue.toLongOrNull()
-            if (longValue == null) {
-                logger.error("Invalid long value: $currentValue")
-                return
-            }
-            val values = handler.handleAutoComplete(
-                command,
-                argument,
-                longValue,
-                manager,
-            )
-            event.replyChoiceLongs(values).await()
-        }
-
-        is CommandAutoCompleteHandler.Double -> {
-            val doubleValue = currentValue.toDoubleOrNull()
-            if (doubleValue == null) {
-                logger.error("Invalid double value: $currentValue")
-                return
-            }
-            val values = handler.handleAutoComplete(
-                command,
-                argument,
-                doubleValue,
-                manager,
-            )
-            event.replyChoiceDoubles(values).await()
-        }
-
-        is CommandAutoCompleteHandler.String -> {
-            val values = handler.handleAutoComplete(
-                command,
-                argument,
-                currentValue,
-                manager,
-            )
-            event.replyChoiceStrings(values).await()
-        }
-    }
-}
-
-private suspend fun executeCommand(
-    command: Command,
-    arguments: CommandArguments,
-    commandEvent: CommandEvent,
-    slashEvent: SlashCommandInteractionEvent,
-) {
-    if (command.guildOnly && slashEvent.guild == null) {
-        logger.error("Guild only slash command $command used outside of a guild")
-        slashEvent.reply("${command.nameWithPrefix} can only be used in a server!")
-            .setEphemeral(true)
-            .await()
-        return
-    }
-    val afterCommands = arguments.getStringOrEmpty(AFTER_COMMANDS_ARGUMENT).let {
-        if (it.isBlank()) it
-        else if (!it.startsWith(COMMAND_PREFIX)) "$COMMAND_PREFIX$it"
-        else it
-    }
-    val slashCommandConfig = CommandConfig(command, arguments).asSingletonList()
-    val commandConfigs = if (afterCommands.isNotBlank()) {
-        try {
-            slashCommandConfig + getAfterCommandConfigs(afterCommands, commandEvent, slashEvent)
-        } catch (e: CommandNotFoundException) {
-            slashEvent.reply("The command **$COMMAND_PREFIX${e.command}** does not exist!")
-                .setEphemeral(true)
-                .await()
-            return
-        }
-    } else {
-        slashCommandConfig
-    }
-    val channel = commandEvent.getChannel()
-    val environment = channel.environment
-    commandEvent.ephemeralReply = commandConfigs.any { it.command.ephemeralReply }
-    val (responses, executable) = coroutineScope {
-        val anyDefer = commandConfigs.any { it.command.deferReply }
-        if (anyDefer) launch {
-            commandEvent.deferReply()
-        }
-        executeCommands(commandConfigs, environment, commandEvent)
-    }
-    sendResponses(responses, executable, commandEvent, channel)
-}
-
-private suspend fun getAfterCommandConfigs(
-    afterCommands: String,
-    commandEvent: CommandEvent,
-    slashEvent: SlashCommandInteractionEvent,
-): List<CommandConfig> {
-    val configs = parseCommands(
-        afterCommands,
-        FakeMessage(
-            commandEvent.id,
-            afterCommands,
-            DiscordUser(slashEvent.user),
-            DiscordMessageChannel(slashEvent.channel),
-        ),
-    )
-    if (configs.isEmpty()) {
-        val firstCommand = afterCommands.splitWords(limit = 2)
-            .first()
-            .substring(1)
-        throw CommandNotFoundException(firstCommand)
-    }
-    return configs
-}
 
 private fun CommandArgumentInfo<*>.toOption(): OptionData {
     val description = description + (defaultValue?.let {
