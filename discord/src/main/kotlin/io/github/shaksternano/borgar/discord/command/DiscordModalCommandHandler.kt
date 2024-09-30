@@ -27,7 +27,7 @@ suspend fun createCommandModal(event: MessageContextInteractionEvent) {
     val command = TextInput(
         id = "command",
         label = "Command",
-        style = TextInputStyle.PARAGRAPH,
+        style = TextInputStyle.SHORT,
     ) {
         placeholder = "Enter the command you want to execute on this message"
         builder.minLength = 1
