@@ -24,7 +24,7 @@ import net.dv8tion.jda.api.interactions.components.ActionRow
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle
 
 const val COMMAND_MODAL_ID = "command"
-const val COMMAND_MODAL_TEXT_INPUT_ID = "command"
+private const val COMMAND_MODAL_TEXT_INPUT_ID = "command"
 
 suspend fun createCommandModal(event: MessageContextInteractionEvent) {
     val command = TextInput(
