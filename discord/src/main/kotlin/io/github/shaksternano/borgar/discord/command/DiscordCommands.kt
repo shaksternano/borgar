@@ -44,7 +44,7 @@ suspend fun JDA.registerCommands() {
     listener<CommandAutoCompleteInteractionEvent> {
         handleCommandAutoComplete(it)
     }
-    val commandModalInteractionName = "Run command"
+    val commandModalInteractionName = "Run Command"
     listener<MessageContextInteractionEvent> {
         if (it.name == commandModalInteractionName) {
             createCommandModal(it)
@@ -56,7 +56,7 @@ suspend fun JDA.registerCommands() {
         handleUserInteraction(it.convert())
     }
     listener<ModalInteractionEvent> {
-        if (it.modalId == "command") {
+        if (it.modalId == COMMAND_MODAL_ID) {
             handleModalCommand(it)
         } else {
             logger.error("Unknown modal ID: ${it.modalId}")

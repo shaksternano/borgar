@@ -23,9 +23,12 @@ import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionE
 import net.dv8tion.jda.api.interactions.components.ActionRow
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle
 
+const val COMMAND_MODAL_ID = "command"
+const val COMMAND_MODAL_TEXT_INPUT_ID = "command"
+
 suspend fun createCommandModal(event: MessageContextInteractionEvent) {
     val command = TextInput(
-        id = "command",
+        id = COMMAND_MODAL_TEXT_INPUT_ID,
         label = "Command",
         style = TextInputStyle.SHORT,
     ) {
@@ -33,8 +36,8 @@ suspend fun createCommandModal(event: MessageContextInteractionEvent) {
         builder.minLength = 1
     }
     val modal = Modal(
-        id = "command",
-        title = "Run command",
+        id = COMMAND_MODAL_ID,
+        title = "Run Command",
     ) {
         components += ActionRow.of(command)
     }
@@ -51,7 +54,7 @@ suspend fun createCommandModal(event: MessageContextInteractionEvent) {
 }
 
 suspend fun handleModalCommand(event: ModalInteractionEvent) {
-    val content = event.getValue("command")
+    val content = event.getValue(COMMAND_MODAL_TEXT_INPUT_ID)
         ?.asString
         ?.trim()
         ?.let {
