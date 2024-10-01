@@ -3,6 +3,7 @@ package io.github.shaksternano.borgar.messaging.command
 import io.github.shaksternano.borgar.core.collect.parallelForEach
 import io.github.shaksternano.borgar.core.data.repository.TemplateRepository
 import io.github.shaksternano.borgar.core.exception.ErrorResponseException
+import io.github.shaksternano.borgar.core.exception.FileTooLargeException
 import io.github.shaksternano.borgar.core.exception.UnreadableFileException
 import io.github.shaksternano.borgar.core.io.deleteSilently
 import io.github.shaksternano.borgar.core.logger
@@ -17,7 +18,6 @@ import io.github.shaksternano.borgar.messaging.event.CommandEvent
 import io.github.shaksternano.borgar.messaging.event.MessageCommandEvent
 import io.github.shaksternano.borgar.messaging.event.MessageReceiveEvent
 import io.github.shaksternano.borgar.messaging.exception.CommandException
-import io.github.shaksternano.borgar.messaging.exception.FileTooLargeException
 import io.github.shaksternano.borgar.messaging.exception.MissingArgumentException
 import io.github.shaksternano.borgar.messaging.util.checkEntityIdBelongs
 import io.github.shaksternano.borgar.messaging.util.getEntityId

@@ -134,12 +134,7 @@ fun configuredHttpClient(json: Boolean = true): HttpClient = httpClient {
 }
 
 inline fun <T> useHttpClient(json: Boolean = true, block: (HttpClient) -> T): T =
-    configuredHttpClient(json).runCatching {
-        use(block)
-    }.getOrElse {
-        // Wrap exception because HttpClient errors don't have helpful stack traces
-        throw IOException("Error using HttpClient", it)
-    }
+    configuredHttpClient(json).use(block)
 
 inline fun <T> HttpResponse.ifSuccessful(block: (HttpResponse) -> T): T =
     if (status.isSuccess()) {

@@ -1,5 +1,6 @@
 package io.github.shaksternano.borgar.revolt
 
+import io.github.shaksternano.borgar.core.exception.HttpException
 import io.github.shaksternano.borgar.core.io.useHttpClient
 import io.github.shaksternano.borgar.core.util.prettyPrintJsonCatching
 import io.github.shaksternano.borgar.messaging.BOT_STATUS
@@ -10,7 +11,6 @@ import io.github.shaksternano.borgar.messaging.entity.CustomEmoji
 import io.github.shaksternano.borgar.messaging.entity.Role
 import io.github.shaksternano.borgar.messaging.entity.User
 import io.github.shaksternano.borgar.messaging.entity.channel.Channel
-import io.github.shaksternano.borgar.messaging.exception.HttpException
 import io.github.shaksternano.borgar.revolt.entity.*
 import io.github.shaksternano.borgar.revolt.entity.channel.RevoltChannel
 import io.github.shaksternano.borgar.revolt.entity.channel.RevoltChannelResponse

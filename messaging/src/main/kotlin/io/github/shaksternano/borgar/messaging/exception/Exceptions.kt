@@ -1,8 +1,6 @@
 package io.github.shaksternano.borgar.messaging.exception
 
 import io.github.shaksternano.borgar.messaging.command.CommandConfig
-import io.ktor.http.*
-import kotlinx.io.IOException
 
 class CommandException(
     val commandConfigs: List<CommandConfig>,
@@ -13,12 +11,3 @@ class CommandException(
 class MissingArgumentException(
     override val message: String,
 ) : Exception(message)
-
-class HttpException(
-    override val message: String,
-    val status: HttpStatusCode,
-) : IOException(message)
-
-class FileTooLargeException(
-    override val cause: Throwable? = null,
-) : Exception(cause)
