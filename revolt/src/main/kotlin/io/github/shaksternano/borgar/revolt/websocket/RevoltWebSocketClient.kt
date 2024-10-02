@@ -27,8 +27,6 @@ import kotlin.coroutines.suspendCoroutine
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-private const val REVOLT_WEBSOCKET_URL = "ws.revolt.chat"
-
 private val PING_JSON: String =
     JsonObject(mapOf(
         "type" to JsonPrimitive("Ping"),
@@ -66,7 +64,7 @@ class RevoltWebSocketClient(
                             install(WebSockets)
                         }.use { client ->
                             client.wss(
-                                host = REVOLT_WEBSOCKET_URL,
+                                host = manager.webSocketDomain,
                                 path = "?version=1&format=json&token=$token",
                             ) {
                                 session = this

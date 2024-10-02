@@ -1,7 +1,7 @@
 package io.github.shaksternano.borgar.revolt.entity
 
 import io.github.shaksternano.borgar.core.io.useHttpClient
-import io.github.shaksternano.borgar.core.util.replaceUrlSpaces
+import io.github.shaksternano.borgar.core.util.encodeUrl
 import io.github.shaksternano.borgar.messaging.entity.BaseEntity
 import io.github.shaksternano.borgar.messaging.entity.CustomEmoji
 import io.github.shaksternano.borgar.revolt.RevoltManager
@@ -48,7 +48,7 @@ data class RevoltEmojiResponse(
             manager = manager,
             id = id,
             name = name,
-            imageUrl = "$url/${name.replaceUrlSpaces()}.$extension"
+            imageUrl = "$url/${name.encodeUrl()}.$extension"
         )
     }
 }

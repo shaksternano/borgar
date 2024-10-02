@@ -42,6 +42,11 @@ private val USER_MENTION_REGEX: Regex = "<@[A-Za-z0-9]+>".toRegex()
 
 class RevoltManager(
     private val token: String,
+    val apiDomain: String = "https://api.revolt.chat",
+    val webSocketDomain: String = "ws.revolt.chat",
+    val cdnDomain: String = "https://autumn.revolt.chat",
+    val appDomain: String = "https://app.revolt.chat",
+    val proxyDomain: String = "https://jan.revolt.chat",
 ) : BotManager {
 
     override val platform: MessagingPlatform = MessagingPlatform.REVOLT
@@ -57,9 +62,6 @@ class RevoltManager(
     override val commandAutoCompleteMaxSuggestions: Int = 0
 
     val webSocket: RevoltWebSocketClient = RevoltWebSocketClient(token, this)
-    val apiDomain: String = "https://api.revolt.chat"
-    val cdnDomain: String = "https://autumn.revolt.chat"
-    val appDomain: String = "https://app.revolt.chat"
 
     private val systemUser: RevoltUser = RevoltUser(
         manager = this,

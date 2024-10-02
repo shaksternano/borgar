@@ -1,6 +1,7 @@
 package io.github.shaksternano.borgar.core.util
 
 import net.dv8tion.jda.api.utils.SplitUtil
+import java.net.URLEncoder
 
 val VOWELS: Set<Char> = setOf('a', 'e', 'i', 'o', 'u')
 
@@ -79,8 +80,8 @@ fun CharSequence.splitCamelCase(): String =
         " ",
     )
 
-fun parseTags(tags: String): Set<String> {
-    return tags
+fun parseTags(tags: String): Set<String> =
+    tags
         .split(',')
         .map {
             it.trim()
@@ -89,7 +90,6 @@ fun parseTags(tags: String): Set<String> {
             it.isNotEmpty()
         }
         .toSet()
-}
 
-fun String.replaceUrlSpaces(): String =
-    replace(" ", "%20")
+fun String.encodeUrl(): String =
+    URLEncoder.encode(this, Charsets.UTF_8)

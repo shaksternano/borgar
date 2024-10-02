@@ -1,6 +1,6 @@
 package io.github.shaksternano.borgar.revolt.entity
 
-import io.github.shaksternano.borgar.core.util.replaceUrlSpaces
+import io.github.shaksternano.borgar.core.util.encodeUrl
 import io.github.shaksternano.borgar.messaging.entity.BaseEntity
 import io.github.shaksternano.borgar.messaging.entity.User
 import io.github.shaksternano.borgar.revolt.RevoltManager
@@ -57,7 +57,7 @@ data class RevoltAvatarBody(
     val filename: String,
 ) {
     fun getUrl(manager: RevoltManager): String =
-        "${manager.cdnDomain}/avatars/$id/${filename.replaceUrlSpaces()}"
+        "${manager.cdnDomain}/avatars/$id/${filename.encodeUrl()}"
 }
 
 @Serializable
@@ -78,5 +78,5 @@ data class RevoltUserProfileBackgroundBody(
     val filename: String,
 ) {
     fun getUrl(manager: RevoltManager): String =
-        "${manager.cdnDomain}/backgrounds/$id/${filename.replaceUrlSpaces()}"
+        "${manager.cdnDomain}/backgrounds/$id/${filename.encodeUrl()}"
 }

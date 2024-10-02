@@ -2,6 +2,7 @@ package io.github.shaksternano.borgar.revolt.entity
 
 import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.core.util.JSON
+import io.github.shaksternano.borgar.core.util.encodeUrl
 import io.github.shaksternano.borgar.messaging.builder.MessageEditBuilder
 import io.github.shaksternano.borgar.messaging.entity.*
 import io.github.shaksternano.borgar.messaging.entity.channel.Channel
@@ -147,7 +148,7 @@ data class RevoltMessageResponse(
             authorId = authorId,
             content = content,
             attachments = attachments.map { it.convert(manager) },
-            embeds = embeds.map { it.convert() },
+            embeds = embeds.map { it.convert(manager) },
             channelId = channelId,
             referencedMessageIds = referencedMessageIds,
             mentionedUserIds = mentionedUserIds,
@@ -171,21 +172,21 @@ data class RevoltMessageEmbedBody(
     val video: RevoltMessageEmbedVideoBody? = null,
 ) {
 
-    fun convert(): MessageEmbed = when (type) {
+    fun convert(manager: RevoltManager): MessageEmbed = when (type) {
         "Website" -> MessageEmbed(
             url = url,
-            image = image?.convert(),
-            video = video?.convert(),
+            image = image?.convert(manager),
+            video = video?.convert(manager),
         )
 
         "Image" -> MessageEmbed(
             url = url,
-            image = url?.let { MessageEmbed.ImageInfo(it, null) },
+            image = url?.toImageInfo(manager),
         )
 
         "Video" -> MessageEmbed(
             url = url,
-            video = url?.let { MessageEmbed.VideoInfo(it, null) },
+            video = url?.toVideoInfo(manager),
         )
 
         else -> MessageEmbed(
@@ -199,8 +200,8 @@ data class RevoltMessageEmbedImageBody(
     val url: String,
 ) {
 
-    fun convert(): MessageEmbed.ImageInfo =
-        MessageEmbed.ImageInfo(url, null)
+    fun convert(manager: RevoltManager): MessageEmbed.ImageInfo =
+        url.toImageInfo(manager)
 }
 
 @Serializable
@@ -208,9 +209,18 @@ data class RevoltMessageEmbedVideoBody(
     val url: String,
 ) {
 
-    fun convert(): MessageEmbed.VideoInfo =
-        MessageEmbed.VideoInfo(url, null)
+    fun convert(manager: RevoltManager): MessageEmbed.VideoInfo =
+        url.toVideoInfo(manager)
 }
+
+private fun String.toImageInfo(manager: RevoltManager): MessageEmbed.ImageInfo =
+    MessageEmbed.ImageInfo(this, toProxyUrl(manager))
+
+private fun String.toVideoInfo(manager: RevoltManager): MessageEmbed.VideoInfo =
+    MessageEmbed.VideoInfo(this, toProxyUrl(manager))
+
+private fun String.toProxyUrl(manager: RevoltManager): String =
+    "${manager.proxyDomain}/proxy?url=${encodeUrl()}"
 
 private fun RevoltAttachmentBody.convert(manager: RevoltManager): Attachment {
     return Attachment(
