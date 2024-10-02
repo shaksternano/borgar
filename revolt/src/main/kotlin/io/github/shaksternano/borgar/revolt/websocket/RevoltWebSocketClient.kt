@@ -11,7 +11,6 @@ import io.github.shaksternano.borgar.revolt.entity.channel.RevoltChannelResponse
 import io.github.shaksternano.borgar.revolt.entity.channel.RevoltChannelType
 import io.github.shaksternano.borgar.revolt.entity.createMessage
 import io.ktor.client.plugins.websocket.*
-import io.ktor.http.*
 import io.ktor.util.network.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.*
@@ -60,52 +59,43 @@ class RevoltWebSocketClient(
         val threadPool = Executors.newSingleThreadExecutor()
         val dispatcher = threadPool.asCoroutineDispatcher()
         CoroutineScope(dispatcher).launch {
-            runCatching {
-                withContext(Dispatchers.Default) {
-                    httpClient {
-                        install(WebSockets)
-                    }.use { client ->
-                        while (open) {
-                            runCatching {
-                                client.webSocket(
-                                    host = REVOLT_WEBSOCKET_URL,
-                                    path = "?version=1&format=json&token=$token",
-                                    request = {
-                                        url {
-                                            protocol = URLProtocol.WSS
-                                        }
-                                    },
-                                ) {
-                                    session = this
-                                    val pingJob = launch {
-                                        sendPings()
-                                    }
-                                    handleMessages()
-                                    pingJob.cancel()
+            withContext(Dispatchers.Default) {
+                while (open) {
+                    runCatching {
+                        httpClient {
+                            install(WebSockets)
+                        }.use { client ->
+                            client.wss(
+                                host = REVOLT_WEBSOCKET_URL,
+                                path = "?version=1&format=json&token=$token",
+                            ) {
+                                session = this
+                                val pingJob = launch {
+                                    sendPings()
                                 }
-                                logger.info("Disconnected from Revolt WebSocket, reconnecting...")
-                            }.onFailure {
-                                when (it) {
-                                    // No internet connection
-                                    is UnresolvedAddressException -> logger.error(
-                                        "Failed to connect to Revolt WebSocket, trying again in $RETRY_CONNECT_INTERVAL",
-                                    )
-
-                                    else -> logger.error(
-                                        "Error with Revolt WebSocket, reconnecting in $RETRY_CONNECT_INTERVAL",
-                                        it,
-                                    )
-                                }
-                                delay(RETRY_CONNECT_INTERVAL)
+                                handleMessages()
+                                pingJob.cancelAndJoin()
                             }
-                            session = null
+                            logger.info("Disconnected from Revolt WebSocket, reconnecting...")
                         }
+                    }.onFailure {
+                        when (it) {
+                            // No internet connection
+                            is UnresolvedAddressException -> logger.error(
+                                "Failed to connect to Revolt WebSocket, trying again in $RETRY_CONNECT_INTERVAL",
+                            )
+
+                            else -> logger.error(
+                                "Error with Revolt WebSocket, reconnecting in $RETRY_CONNECT_INTERVAL",
+                                it,
+                            )
+                        }
+                        delay(RETRY_CONNECT_INTERVAL)
                     }
+                    session = null
                 }
-            }.getOrElse {
-                logger.error("Error with Revolt WebSocket", it)
+                logger.error("Revolt WebSocket client stopped")
             }
-            logger.error("Revolt WebSocket client stopped")
         }
     }
 
