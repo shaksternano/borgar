@@ -3,7 +3,10 @@ package io.github.shaksternano.borgar.core.media.reader
 import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.io.SuspendCloseable
 import io.github.shaksternano.borgar.core.io.closeAll
-import io.github.shaksternano.borgar.core.media.*
+import io.github.shaksternano.borgar.core.media.FrameInfo
+import io.github.shaksternano.borgar.core.media.ImageFrame
+import io.github.shaksternano.borgar.core.media.ImageReaderFactory
+import io.github.shaksternano.borgar.core.media.findIndex
 import io.github.shaksternano.borgar.core.util.circular
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -92,22 +95,10 @@ class WebPImageReader(
         }
     }
 
-    private suspend fun read(index: Int): BufferedImage {
-        val image = mutex.withLock {
-            withContext(Dispatchers.IO) {
-                reader.read(index)
-            }
+    private suspend fun read(index: Int): BufferedImage = mutex.withLock {
+        withContext(Dispatchers.IO) {
+            reader.read(index)
         }
-        // Remove alpha as sometimes frames are completely transparent.
-        image.forEachPixel { x, y ->
-            val rgb = image.getRGB(x, y)
-            val alpha = rgb shr 24 and 0xFF
-            if (alpha == 0 && rgb != 0 && rgb != 0xFFFFFF) {
-                val noAlpha = rgb or -0x1000000
-                image.setRGB(x, y, noAlpha)
-            }
-        }
-        return image
     }
 
     override suspend fun close() = closeAll(
