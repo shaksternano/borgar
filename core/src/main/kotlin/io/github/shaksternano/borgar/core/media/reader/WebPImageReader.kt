@@ -36,7 +36,6 @@ class WebPImageReader(
     private val frameInfos: List<FrameInfo>
     private val mutex: Mutex = Mutex()
 
-
     init {
         val webPReaderClass = Class.forName("com.twelvemonkeys.imageio.plugins.webp.WebPImageReader")
         val animationFrameClass = Class.forName("com.twelvemonkeys.imageio.plugins.webp.AnimationFrame")
