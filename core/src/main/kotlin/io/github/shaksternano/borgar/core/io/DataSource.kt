@@ -8,6 +8,7 @@ import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import kotlinx.io.IOException
 import java.io.InputStream
 import java.nio.file.Path
 import kotlin.io.path.fileSize
@@ -172,7 +173,7 @@ data class UrlDataSource(
     override suspend fun toByteArray(): ByteArray =
         httpGet<ByteArray>(url)
 
-    override suspend fun size(): Long? {
+    override suspend fun size(): Long? = runCatching {
         if (setSize) {
             return size
         }
@@ -183,6 +184,9 @@ data class UrlDataSource(
             size = it
             setSize = true
         }
+    }.getOrElse {
+        // HttpClient exceptions do not contain complete stack traces
+        throw IOException("Failed to get file size", it)
     }
 
     override fun rename(newName: String): UrlDataSource = copy(
