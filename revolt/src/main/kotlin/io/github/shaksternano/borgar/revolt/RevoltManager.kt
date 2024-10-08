@@ -1,6 +1,7 @@
 package io.github.shaksternano.borgar.revolt
 
 import io.github.shaksternano.borgar.core.exception.HttpException
+import io.github.shaksternano.borgar.core.io.request
 import io.github.shaksternano.borgar.core.io.useHttpClient
 import io.github.shaksternano.borgar.core.util.prettyPrintJsonCatching
 import io.github.shaksternano.borgar.messaging.BOT_STATUS

@@ -1,11 +1,11 @@
 package io.github.shaksternano.borgar.revolt.entity
 
+import io.github.shaksternano.borgar.core.io.head
 import io.github.shaksternano.borgar.core.io.useHttpClient
 import io.github.shaksternano.borgar.core.util.encodeUrl
 import io.github.shaksternano.borgar.messaging.entity.BaseEntity
 import io.github.shaksternano.borgar.messaging.entity.CustomEmoji
 import io.github.shaksternano.borgar.revolt.RevoltManager
-import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

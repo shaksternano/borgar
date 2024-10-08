@@ -3,10 +3,10 @@ package io.github.shaksternano.borgar.core.task
 import io.github.shaksternano.borgar.core.collect.parallelMap
 import io.github.shaksternano.borgar.core.exception.ErrorResponseException
 import io.github.shaksternano.borgar.core.io.DataSource
+import io.github.shaksternano.borgar.core.io.get
 import io.github.shaksternano.borgar.core.io.useHttpClient
 import io.github.shaksternano.borgar.core.util.parseTags
 import io.ktor.client.*
-import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 

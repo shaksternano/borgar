@@ -8,6 +8,7 @@ import io.github.shaksternano.borgar.core.graphics.drawable.Drawable
 import io.github.shaksternano.borgar.core.graphics.drawable.ImageDrawable
 import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.io.UrlInfo
+import io.github.shaksternano.borgar.core.io.head
 import io.github.shaksternano.borgar.core.io.useHttpClient
 import io.github.shaksternano.borgar.core.util.ChannelEnvironment
 import io.github.shaksternano.borgar.core.util.TenorMediaType
@@ -21,7 +22,6 @@ import io.github.shaksternano.borgar.messaging.entity.User
 import io.github.shaksternano.borgar.messaging.entity.channel.Channel
 import io.github.shaksternano.borgar.messaging.entity.getContent
 import io.github.shaksternano.borgar.messaging.event.CommandEvent
-import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map

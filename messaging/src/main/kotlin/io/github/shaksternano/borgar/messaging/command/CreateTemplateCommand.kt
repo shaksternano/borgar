@@ -15,7 +15,6 @@ import io.github.shaksternano.borgar.core.util.splitCamelCase
 import io.github.shaksternano.borgar.messaging.event.CommandEvent
 import io.github.shaksternano.borgar.messaging.util.getEntityId
 import io.github.shaksternano.borgar.messaging.util.getUrlsExceptSelf
-import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers

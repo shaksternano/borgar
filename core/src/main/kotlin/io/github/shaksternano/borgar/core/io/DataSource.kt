@@ -3,12 +3,10 @@ package io.github.shaksternano.borgar.core.io
 import io.github.shaksternano.borgar.core.exception.UnreadableFileException
 import io.github.shaksternano.borgar.core.util.hash
 import io.github.shaksternano.borgar.core.util.kClass
-import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import kotlinx.io.IOException
 import java.io.InputStream
 import java.nio.file.Path
 import kotlin.io.path.fileSize
@@ -173,7 +171,7 @@ data class UrlDataSource(
     override suspend fun toByteArray(): ByteArray =
         httpGet<ByteArray>(url)
 
-    override suspend fun size(): Long? = runCatching {
+    override suspend fun size(): Long? {
         if (setSize) {
             return size
         }
@@ -184,9 +182,6 @@ data class UrlDataSource(
             size = it
             setSize = true
         }
-    }.getOrElse {
-        // HttpClient exceptions do not contain complete stack traces
-        throw IOException("Failed to get file size", it)
     }
 
     override fun rename(newName: String): UrlDataSource = copy(

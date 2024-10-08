@@ -9,7 +9,6 @@ import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -143,26 +142,16 @@ inline fun <T> HttpResponse.ifSuccessful(block: (HttpResponse) -> T): T =
         throw IOException("HTTP request failed: $status")
     }
 
-suspend inline fun <reified T> httpGet(url: String): T = runCatching {
-    useHttpClient { client ->
-        client.get(url).ifSuccessful {
-            it.body<T>()
-        }
+suspend inline fun <reified T> httpGet(url: String): T = useHttpClient { client ->
+    client.get(url).ifSuccessful {
+        it.body<T>()
     }
-}.getOrElse {
-    // HttpClient exceptions do not contain complete stack traces
-    throw IOException("Failed to perform HTTP GET request to $url", it)
 }
 
-suspend fun download(url: String, path: Path) = runCatching {
-    useHttpClient { client ->
-        client.get(url).ifSuccessful {
-            it.download(path)
-        }
+suspend fun download(url: String, path: Path) = useHttpClient { client ->
+    client.get(url).ifSuccessful {
+        it.download(path)
     }
-}.getOrElse {
-    // HttpClient exceptions do not contain complete stack traces
-    throw IOException("Failed to download from $url", it)
 }
 
 suspend fun HttpResponse.download(path: Path) {

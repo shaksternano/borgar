@@ -2,6 +2,8 @@ package io.github.shaksternano.borgar.core.task
 
 import io.github.shaksternano.borgar.core.exception.ErrorResponseException
 import io.github.shaksternano.borgar.core.io.*
+import io.github.shaksternano.borgar.core.io.head
+import io.github.shaksternano.borgar.core.io.post
 import io.github.shaksternano.borgar.core.util.JSON
 import io.github.shaksternano.borgar.core.util.asSingletonList
 import io.github.shaksternano.borgar.core.util.getEnvVar
