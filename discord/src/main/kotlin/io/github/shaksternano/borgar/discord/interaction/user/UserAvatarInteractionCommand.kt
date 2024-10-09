@@ -8,7 +8,7 @@ object UserAvatarInteractionCommand : DiscordUserInteractionCommand {
     override val name: String = "Get user avatar"
 
     override suspend fun respond(event: UserContextInteractionEvent): Any? {
-        event.reply(event.user.effectiveAvatarUrl)
+        event.reply(event.target.effectiveAvatarUrl)
             .setEphemeral(true)
             .await()
         return null

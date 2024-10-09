@@ -10,7 +10,7 @@ object MemberAvatarInteractionCommand : DiscordUserInteractionCommand {
     override val environment: Set<InteractionContextType> = setOf(InteractionContextType.GUILD)
 
     override suspend fun respond(event: UserContextInteractionEvent): Any? {
-        val user = event.user
+        val user = event.target
         val avatarUrl = event.guild?.getMember(user)?.effectiveAvatarUrl ?: user.effectiveAvatarUrl
         event.reply(avatarUrl)
             .setEphemeral(true)

@@ -9,7 +9,7 @@ object UserBannerInteractionCommand : DiscordUserInteractionCommand {
     override val name: String = "Get user banner"
 
     override suspend fun respond(event: UserContextInteractionEvent): Any? {
-        event.reply(event.user.getBannerUrl() ?: "User has no banner.")
+        event.reply(event.target.getBannerUrl() ?: "User has no banner.")
             .setEphemeral(true)
             .await()
         return null
