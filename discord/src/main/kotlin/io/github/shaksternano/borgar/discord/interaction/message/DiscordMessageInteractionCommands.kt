@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionE
 
 val MESSAGE_INTERACTION_COMMANDS: Map<String, DiscordMessageInteractionCommand> = registerCommands(
     "Discord message interaction command",
+    GifInteractionCommand,
     DownloadInteractionCommand,
     CommandModalInteractionCommand,
     SelectMessageInteractionCommand,
