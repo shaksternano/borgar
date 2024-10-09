@@ -416,7 +416,7 @@ data class TextDrawData(
     val font: Font,
 )
 
-fun getTextDrawData(
+suspend fun getTextDrawData(
     image: BufferedImage,
     text: String,
     nonTextParts: Map<String, Drawable>,

@@ -30,7 +30,7 @@ fun Graphics2D.configureTextDrawQuality() {
     )
 }
 
-fun Graphics2D.fitFontWidth(maxWidth: Int, text: Drawable): Int {
+suspend fun Graphics2D.fitFontWidth(maxWidth: Int, text: Drawable): Int {
     var font = this.font
     var textWidth = text.getWidth(this)
     while (textWidth > maxWidth) {
@@ -42,7 +42,7 @@ fun Graphics2D.fitFontWidth(maxWidth: Int, text: Drawable): Int {
     return textWidth
 }
 
-fun Graphics2D.fitFontHeight(maxHeight: Int, text: Drawable): Int {
+suspend fun Graphics2D.fitFontHeight(maxHeight: Int, text: Drawable): Int {
     var font = this.font
     var textHeight = text.getHeight(this)
     while (textHeight > maxHeight) {

@@ -25,7 +25,7 @@ class SimpleTextDrawable(
         }
     }
 
-    override fun getWidth(graphics: Graphics2D): Int =
+    override suspend fun getWidth(graphics: Graphics2D): Int =
         if (requireFallbackFont(graphics)) {
             val mainFont = graphics.font
             val fallbackFont = Font(DEFAULT_FONT_NAME, Font.PLAIN, mainFont.size)
@@ -35,7 +35,7 @@ class SimpleTextDrawable(
             graphics.fontMetrics.stringWidth(text)
         }
 
-    override fun getHeight(graphics: Graphics2D): Int {
+    override suspend fun getHeight(graphics: Graphics2D): Int {
         val mainMetrics = graphics.fontMetrics
         val mainHeight = mainMetrics.ascent + mainMetrics.descent
         return if (requireFallbackFont(graphics)) {

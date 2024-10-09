@@ -3,7 +3,6 @@ package io.github.shaksternano.borgar.core.graphics.drawable
 import io.github.shaksternano.borgar.core.graphics.TextAlignment
 import io.github.shaksternano.borgar.core.io.closeAll
 import io.github.shaksternano.borgar.core.util.*
-import kotlinx.coroutines.runBlocking
 import java.awt.Graphics2D
 import kotlin.math.max
 import kotlin.math.min
@@ -176,13 +175,11 @@ class ParagraphDrawable(
             else -> x
         }
 
-    override fun getWidth(graphics: Graphics2D): Int = runBlocking {
+    override suspend fun getWidth(graphics: Graphics2D): Int =
         drawAndGetSize(graphics, 0, 0, Duration.ZERO, false).first
-    }
 
-    override fun getHeight(graphics: Graphics2D): Int = runBlocking {
+    override suspend fun getHeight(graphics: Graphics2D): Int =
         drawAndGetSize(graphics, 0, 0, Duration.ZERO, false).second
-    }
 
     override fun resizeToHeight(height: Int): Drawable? = null
 

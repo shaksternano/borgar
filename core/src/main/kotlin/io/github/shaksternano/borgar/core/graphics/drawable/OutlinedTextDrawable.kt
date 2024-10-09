@@ -55,7 +55,7 @@ class OutlinedTextDrawable(
         graphics.setRenderingHints(originalHints)
     }
 
-    override fun getWidth(graphics: Graphics2D): Int {
+    override suspend fun getWidth(graphics: Graphics2D): Int {
         val originalFont = graphics.font
         val width = splitTextFallbackFont(graphics).sumOf { (substring, font) ->
             graphics.font = font
@@ -66,7 +66,7 @@ class OutlinedTextDrawable(
         return width.toInt()
     }
 
-    override fun getHeight(graphics: Graphics2D): Int {
+    override suspend fun getHeight(graphics: Graphics2D): Int {
         val originalFont = graphics.font
         val height = splitTextFallbackFont(graphics).maxOf { (substring, font) ->
             graphics.font = font

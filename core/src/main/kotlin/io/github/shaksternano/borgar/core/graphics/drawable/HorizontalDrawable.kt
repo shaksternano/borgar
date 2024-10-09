@@ -18,12 +18,12 @@ class HorizontalDrawable(
         }
     }
 
-    override fun getWidth(graphics: Graphics2D): Int =
+    override suspend fun getWidth(graphics: Graphics2D): Int =
         parts.fold(0) { width, part ->
             width + part.getWidth(graphics)
         }
 
-    override fun getHeight(graphics: Graphics2D): Int =
+    override suspend fun getHeight(graphics: Graphics2D): Int =
         parts.fold(0) { height, part ->
             max(height, part.getHeight(graphics))
         }
