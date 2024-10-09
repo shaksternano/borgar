@@ -21,11 +21,14 @@ data class DiscordUser(
     override val asBasicMention: String = "@${discordUser.effectiveName}"
 
     override suspend fun getBannerUrl(): String? =
-        discordUser.retrieveProfile()
-            .useCache(false)
-            .await()
-            .bannerUrl
-            ?.let {
-                "$it?size=1024"
-            }
+        discordUser.getBannerUrl()
 }
+
+suspend fun net.dv8tion.jda.api.entities.User.getBannerUrl(): String? =
+    retrieveProfile()
+        .useCache(false)
+        .await()
+        .bannerUrl
+        ?.let {
+            "$it?size=1024"
+        }

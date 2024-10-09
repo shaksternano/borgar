@@ -4,21 +4,17 @@ import dev.minn.jda.ktx.coroutines.await
 import dev.minn.jda.ktx.events.listener
 import dev.minn.jda.ktx.interactions.commands.Command
 import dev.minn.jda.ktx.interactions.commands.updateCommands
-import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.core.util.*
-import io.github.shaksternano.borgar.discord.event.DiscordMessageInteractionEvent
-import io.github.shaksternano.borgar.discord.event.DiscordUserInteractionEvent
+import io.github.shaksternano.borgar.discord.interaction.message.DiscordMessageInteractionCommand
+import io.github.shaksternano.borgar.discord.interaction.message.MESSAGE_INTERACTION_COMMANDS
+import io.github.shaksternano.borgar.discord.interaction.message.handleMessageInteraction
+import io.github.shaksternano.borgar.discord.interaction.modal.handleModalInteraction
+import io.github.shaksternano.borgar.discord.interaction.user.DiscordUserInteractionCommand
+import io.github.shaksternano.borgar.discord.interaction.user.USER_INTERACTION_COMMANDS
+import io.github.shaksternano.borgar.discord.interaction.user.handleUserInteraction
 import io.github.shaksternano.borgar.discord.util.toDiscord
 import io.github.shaksternano.borgar.messaging.command.*
 import io.github.shaksternano.borgar.messaging.entity.*
-import io.github.shaksternano.borgar.messaging.event.MessageInteractionEvent
-import io.github.shaksternano.borgar.messaging.event.UserInteractionEvent
-import io.github.shaksternano.borgar.messaging.interaction.message.MESSAGE_INTERACTION_COMMANDS
-import io.github.shaksternano.borgar.messaging.interaction.message.MessageInteractionCommand
-import io.github.shaksternano.borgar.messaging.interaction.message.handleMessageInteraction
-import io.github.shaksternano.borgar.messaging.interaction.user.USER_INTERACTION_COMMANDS
-import io.github.shaksternano.borgar.messaging.interaction.user.UserInteractionCommand
-import io.github.shaksternano.borgar.messaging.interaction.user.handleUserInteraction
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent
@@ -44,39 +40,28 @@ suspend fun JDA.registerCommands() {
     listener<CommandAutoCompleteInteractionEvent> {
         handleCommandAutoComplete(it)
     }
-    val commandModalInteractionName = "Run Command"
     listener<MessageContextInteractionEvent> {
-        if (it.name == commandModalInteractionName) {
-            createCommandModal(it)
-        } else {
-            handleMessageInteraction(it.convert())
-        }
+        handleMessageInteraction(it)
     }
     listener<UserContextInteractionEvent> {
-        handleUserInteraction(it.convert())
+        handleUserInteraction(it)
     }
     listener<ModalInteractionEvent> {
-        if (it.modalId == COMMAND_MODAL_ID) {
-            handleModalCommand(it)
-        } else {
-            logger.error("Unknown modal ID: ${it.modalId}")
-        }
+        handleModalInteraction(it)
     }
     registerAutoCompleteHandlers()
     updateCommands {
         val slashCommands = COMMANDS.values
             .map(Command::toSlash)
         addCommands(slashCommands)
+
         val messageInteractionCommands = MESSAGE_INTERACTION_COMMANDS.values
-            .map(MessageInteractionCommand::toDiscord)
+            .map(DiscordMessageInteractionCommand::toCommandData)
         addCommands(messageInteractionCommands)
+
         val userInteractionCommands = USER_INTERACTION_COMMANDS.values
-            .map(UserInteractionCommand::toDiscord)
+            .map(DiscordUserInteractionCommand::toCommandData)
         addCommands(userInteractionCommands)
-        val commandModalInteraction = Commands.message(commandModalInteractionName)
-            .setContexts(InteractionContextType.ALL)
-            .setIntegrationTypes(IntegrationType.ALL)
-        addCommands(commandModalInteraction)
     }.await()
 }
 
@@ -96,14 +81,14 @@ fun Command.toSlash(): SlashCommandData = Command(name, description) {
     )
 }
 
-private fun MessageInteractionCommand.toDiscord(): CommandData =
+private fun DiscordMessageInteractionCommand.toCommandData(): CommandData =
     Commands.message(name)
-        .setContexts(environment.toDiscord())
+        .setContexts(environment)
         .setIntegrationTypes(IntegrationType.ALL)
 
-private fun UserInteractionCommand.toDiscord(): CommandData =
+private fun DiscordUserInteractionCommand.toCommandData(): CommandData =
     Commands.user(name)
-        .setContexts(environment.toDiscord())
+        .setContexts(environment)
         .setIntegrationTypes(IntegrationType.ALL)
 
 private fun Iterable<ChannelEnvironment>.toDiscord(): List<InteractionContextType> =
@@ -115,12 +100,6 @@ private fun ChannelEnvironment.toDiscord(): InteractionContextType = when (this)
     ChannelEnvironment.PRIVATE -> InteractionContextType.PRIVATE_CHANNEL
     ChannelEnvironment.GROUP -> InteractionContextType.PRIVATE_CHANNEL
 }
-
-private fun MessageContextInteractionEvent.convert(): MessageInteractionEvent =
-    DiscordMessageInteractionEvent(this)
-
-private fun UserContextInteractionEvent.convert(): UserInteractionEvent =
-    DiscordUserInteractionEvent(this)
 
 private fun CommandArgumentInfo<*>.toOption(): OptionData {
     val description = description + (defaultValue?.let {

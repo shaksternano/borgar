@@ -169,8 +169,8 @@ suspend fun <T> CommandMessageIntersection.search(find: suspend (CommandMessageI
     searchVisitors(
         find,
         CommandMessageIntersection::searchSelf,
-        CommandMessageIntersection::searchSelectedMessage,
         CommandMessageIntersection::searchReferencedMessages,
+        CommandMessageIntersection::searchSelectedMessage,
         CommandMessageIntersection::searchPreviousMessages,
         CommandMessageIntersection::searchLowPrioritySelectedMessage,
     )
@@ -178,8 +178,8 @@ suspend fun <T> CommandMessageIntersection.search(find: suspend (CommandMessageI
 suspend fun <T> CommandMessageIntersection.searchExceptSelf(find: suspend (CommandMessageIntersection) -> T?): T? =
     searchVisitors(
         find,
-        CommandMessageIntersection::searchSelectedMessage,
         CommandMessageIntersection::searchReferencedMessages,
+        CommandMessageIntersection::searchSelectedMessage,
         CommandMessageIntersection::searchPreviousMessages,
         CommandMessageIntersection::searchLowPrioritySelectedMessage,
     )
