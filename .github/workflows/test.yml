@@ -28,7 +28,7 @@ jobs:
 
       - name: Run Docker Compose
         run: |
-          docker-compose up -d
+          docker compose up -d
 
       - name: Run tests
         run: ./gradlew test --stacktrace --parallel
