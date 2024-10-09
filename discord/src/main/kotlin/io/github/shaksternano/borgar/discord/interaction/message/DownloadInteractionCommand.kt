@@ -38,8 +38,8 @@ object DownloadInteractionCommand : DiscordMessageInteractionCommand {
             val output = downloadTask.run()
             val uploads = output.map { it.toFileUpload() }
             deferJob.join()
-            event.replyFiles(uploads).await()
-            DownloadResponseData(
+            event.hook.sendFiles(uploads).await()
+            ResponseData(
                 task = downloadTask,
                 files = output,
             )
@@ -47,7 +47,7 @@ object DownloadInteractionCommand : DiscordMessageInteractionCommand {
     }
 
     override suspend fun onResponseSend(responseData: Any?, event: MessageContextInteractionEvent) {
-        if (responseData !is DownloadResponseData) return
+        if (responseData !is ResponseData) return
         try {
             responseData.task.close()
         } finally {
@@ -57,7 +57,7 @@ object DownloadInteractionCommand : DiscordMessageInteractionCommand {
         }
     }
 
-    private data class DownloadResponseData(
+    private data class ResponseData(
         val task: FileTask,
         val files: List<DataSource>,
     )
