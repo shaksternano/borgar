@@ -8,7 +8,7 @@ import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionE
 
 object SelectMessageInteractionCommand : DiscordMessageInteractionCommand {
 
-    override val name: String = "Select Message"
+    override val name: String = "Select message"
 
     override suspend fun respond(event: MessageContextInteractionEvent): Any? {
         val message = event.target

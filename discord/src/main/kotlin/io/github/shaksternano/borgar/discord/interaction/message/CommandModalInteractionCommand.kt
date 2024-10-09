@@ -13,7 +13,7 @@ import net.dv8tion.jda.api.interactions.components.text.TextInputStyle
 
 object CommandModalInteractionCommand : DiscordMessageInteractionCommand {
 
-    override val name: String = "Run Command"
+    override val name: String = "Run command"
 
     override suspend fun respond(event: MessageContextInteractionEvent): Any? {
         val command = TextInput(
@@ -26,7 +26,7 @@ object CommandModalInteractionCommand : DiscordMessageInteractionCommand {
         }
         val modal = Modal(
             id = RunCommandInteractionCommand.name,
-            title = "Run Command",
+            title = name,
         ) {
             components += ActionRow.of(command)
         }
