@@ -3,6 +3,7 @@ package io.github.shaksternano.borgar.core.io
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
+import io.ktor.http.*
 import kotlinx.io.IOException
 
 /**
@@ -13,14 +14,18 @@ import kotlinx.io.IOException
 suspend inline fun HttpClient.request(
     urlString: String,
     block: HttpRequestBuilder.() -> Unit = {},
-): HttpResponse = runCatching {
-    request {
-        url(urlString)
-        block()
+): HttpResponse {
+    var method: HttpMethod = HttpMethod.Get
+    return runCatching {
+        request {
+            url(urlString)
+            block()
+            method = this.method
+        }
+    }.getOrElse {
+        // HttpClient exceptions don't contain complete stack traces
+        throw IOException("Failed to execute ${method.value} request to $urlString", it)
     }
-}.getOrElse {
-    // HttpClient exceptions don't contain complete stack traces
-    throw IOException(it)
 }
 
 /**
@@ -39,7 +44,7 @@ suspend inline fun HttpClient.get(
     }
 }.getOrElse {
     // HttpClient exceptions don't contain complete stack traces
-    throw IOException(it)
+    throw IOException("Failed to execute GET request to $urlString", it)
 }
 
 /**
@@ -58,7 +63,7 @@ suspend inline fun HttpClient.post(
     }
 }.getOrElse {
     // HttpClient exceptions don't contain complete stack traces
-    throw IOException(it)
+    throw IOException("Failed to execute POST request to $urlString", it)
 }
 
 /**
@@ -77,7 +82,7 @@ suspend inline fun HttpClient.put(
     }
 }.getOrElse {
     // HttpClient exceptions don't contain complete stack traces
-    throw IOException(it)
+    throw IOException("Failed to execute PUT request to $urlString", it)
 }
 
 /**
@@ -96,7 +101,7 @@ suspend inline fun HttpClient.delete(
     }
 }.getOrElse {
     // HttpClient exceptions don't contain complete stack traces
-    throw IOException(it)
+    throw IOException("Failed to execute DELETE request to $urlString", it)
 }
 
 /**
@@ -115,7 +120,7 @@ suspend inline fun HttpClient.options(
     }
 }.getOrElse {
     // HttpClient exceptions don't contain complete stack traces
-    throw IOException(it)
+    throw IOException("Failed to execute OPTIONS request to $urlString", it)
 }
 
 /**
@@ -134,7 +139,7 @@ suspend inline fun HttpClient.patch(
     }
 }.getOrElse {
     // HttpClient exceptions don't contain complete stack traces
-    throw IOException(it)
+    throw IOException("Failed to execute PATCH request to $urlString", it)
 }
 
 /**
@@ -153,5 +158,5 @@ suspend inline fun HttpClient.head(
     }
 }.getOrElse {
     // HttpClient exceptions don't contain complete stack traces
-    throw IOException(it)
+    throw IOException("Failed to execute HEAD request to $urlString", it)
 }
