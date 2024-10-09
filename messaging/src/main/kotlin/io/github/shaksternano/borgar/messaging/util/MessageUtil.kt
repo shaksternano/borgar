@@ -141,10 +141,11 @@ suspend fun CommandMessageIntersection.getEmojiUrls(): Map<String, String> {
             }
             compositeUnicodeBuilder.deleteCharAt(compositeUnicodeBuilder.length - 1)
 
-            if (isEmojiUnicode(compositeUnicodeBuilder.toString())) {
+            val compositeUnicode = compositeUnicodeBuilder.toString()
+            if (isEmojiUnicode(compositeUnicode)) {
                 val emojiCharactersBuilder = StringBuilder()
                 compositeCodePoints.forEach(emojiCharactersBuilder::appendCodePoint)
-                emojiUrls[emojiCharactersBuilder.toString()] = getEmojiUrl(compositeUnicodeBuilder.toString())
+                emojiUrls[emojiCharactersBuilder.toString()] = getEmojiUrl(compositeUnicode)
                 i += j - i
                 break
             }
@@ -167,8 +168,8 @@ suspend fun CommandMessageIntersection.getEmojiUrls(): Map<String, String> {
 suspend fun <T> CommandMessageIntersection.search(find: suspend (CommandMessageIntersection) -> T?): T? =
     searchVisitors(
         find,
-        CommandMessageIntersection::searchSelectedMessage,
         CommandMessageIntersection::searchSelf,
+        CommandMessageIntersection::searchSelectedMessage,
         CommandMessageIntersection::searchReferencedMessages,
         CommandMessageIntersection::searchPreviousMessages,
         CommandMessageIntersection::searchLowPrioritySelectedMessage,

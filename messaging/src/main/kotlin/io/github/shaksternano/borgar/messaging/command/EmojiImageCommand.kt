@@ -21,14 +21,21 @@ object EmojiImageCommand : FileCommand(
     override val description: String = "Gets the image of an emoji."
 
     override suspend fun createTask(arguments: CommandArguments, event: CommandEvent, maxFileSize: Long): FileTask {
-        val emojiUrls = event.asMessageIntersection(arguments)
-            .searchOrThrow("No emojis found.") {
-                it.getEmojiUrls()
-                    .values
-                    .ifEmpty {
-                        null
-                    }
+        val messageIntersection = event.asMessageIntersection(arguments)
+        val emojis = arguments.getDefaultStringOrEmpty()
+        val emojiUrls = messageIntersection.searchOrThrow("No emojis found.") { message ->
+            val urls = message.getEmojiUrls()
+            val filteredUrls = if (message == messageIntersection) {
+                urls.filter { (mention, _) ->
+                    emojis.contains(mention)
+                }
+            } else {
+                urls
             }
+            filteredUrls.values.ifEmpty {
+                null
+            }
+        }
         return UrlFileTask(emojiUrls)
     }
 }
