@@ -6,7 +6,7 @@ import io.github.shaksternano.borgar.messaging.MessagingPlatform
 import io.github.shaksternano.borgar.messaging.util.setSelectedMessage
 import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent
 
-object SelectMessageCommand : DiscordMessageInteractionCommand {
+object SelectMessageInteractionCommand : DiscordMessageInteractionCommand {
 
     override val name: String = "Select Message"
 

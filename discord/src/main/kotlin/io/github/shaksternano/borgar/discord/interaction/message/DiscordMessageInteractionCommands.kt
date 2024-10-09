@@ -10,7 +10,7 @@ val MESSAGE_INTERACTION_COMMANDS: Map<String, DiscordMessageInteractionCommand> 
     "Discord message interaction command",
     DownloadInteractionCommand,
     CommandModalInteractionCommand,
-    SelectMessageCommand,
+    SelectMessageInteractionCommand,
 )
 
 suspend fun handleMessageInteraction(event: MessageContextInteractionEvent) {
