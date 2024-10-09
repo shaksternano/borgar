@@ -195,14 +195,6 @@ val Color.isGreyScale: Boolean
             && abs((green - blue).toDouble()) <= tolerance
     }
 
-inline fun BufferedImage.forEachPixel(action: (x: Int, y: Int) -> Unit) {
-    for (y in 0..<height) {
-        for (x in 0..<width) {
-            action(x, y)
-        }
-    }
-}
-
 fun BufferedImage.fill(color: Color): BufferedImage {
     val filledImage = BufferedImage(width, height, typeNoCustom)
     val graphics = filledImage.createGraphics()

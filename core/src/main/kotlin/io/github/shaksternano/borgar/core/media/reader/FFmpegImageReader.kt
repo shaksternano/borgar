@@ -63,9 +63,6 @@ class FFmpegImageReader(
     private fun isInvalidImageChannels(imageChannels: Int): Boolean =
         imageChannels != 1 && imageChannels != 3 && imageChannels != 4
 
-    override suspend fun close() =
-        super.close()
-
     object Factory : ImageReaderFactory {
 
         // This is the default image reader factory
