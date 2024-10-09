@@ -7,6 +7,8 @@ interface MediaProcessingConfig {
 
     val outputName: String
         get() = ""
+    val outputExtension: String
+        get() = ""
 
     suspend fun transformImageReader(imageReader: ImageReader, outputFormat: String): ImageReader = imageReader
 
@@ -26,6 +28,9 @@ private class ChainedMediaProcessingConfig(
 
     override val outputName: String = second.outputName.ifBlank {
         first.outputName
+    }
+    override val outputExtension: String = second.outputExtension.ifBlank {
+        first.outputExtension
     }
 
     override suspend fun transformImageReader(imageReader: ImageReader, outputFormat: String): ImageReader {

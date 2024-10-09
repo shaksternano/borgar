@@ -39,14 +39,17 @@ suspend fun processMedia(
     val outputName = config.outputName.ifBlank {
         fileInput.filenameWithoutExtension
     }
+    val outputExtension = config.outputExtension.ifBlank {
+        outputFormat
+    }
     val output = processMedia(
         config.transformImageReader(imageReader, outputFormat),
         config.transformAudioReader(audioReader, outputFormat),
-        createTemporaryFile(outputName, outputFormat),
+        createTemporaryFile(outputName, outputExtension),
         outputFormat,
         maxFileSize,
     )
-    val filename = filename(outputName, outputFormat)
+    val filename = filename(outputName, outputExtension)
     DataSource.fromFile(
         output,
         filename,

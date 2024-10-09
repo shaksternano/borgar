@@ -12,7 +12,6 @@ class TranscodeCommand(
     companion object {
         val PNG: Command = TranscodeCommand("png")
         val JPG: Command = TranscodeCommand("jpg")
-        val GIF: Command = TranscodeCommand("gif")
         val MP4: Command = TranscodeCommand("mp4")
         val ICO: Command = TranscodeCommand("ico")
     }

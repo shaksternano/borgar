@@ -10,7 +10,7 @@ class TranscodeTask(
     override val config: MediaProcessingConfig = TranscodeConfig(format)
 }
 
-private class TranscodeConfig(
+class TranscodeConfig(
     private val format: String,
 ) : MediaProcessingConfig {
 
