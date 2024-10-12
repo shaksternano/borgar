@@ -37,6 +37,7 @@ object GifInteractionCommand : DiscordMessageInteractionCommand {
             val maxFileSize = event.guild?.let { DiscordGuild(it) }?.maxFileSize ?: DiscordManager[event.jda].maxFileSize
             val task = GifTask(
                 forceTranscode = false,
+                forceRename = false,
                 maxFileSize = maxFileSize,
             )
             val output = task.run(listOf(input))
