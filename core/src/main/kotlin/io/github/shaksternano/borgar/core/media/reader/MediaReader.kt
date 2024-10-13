@@ -8,8 +8,7 @@ import io.github.shaksternano.gifcodec.AsyncExecutor
 import io.github.shaksternano.gifcodec.use
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.flow.map
 import kotlin.time.Duration
 
 interface MediaReader<T : VideoFrame<*>> : SuspendCloseable {
@@ -107,7 +106,6 @@ private class TransformedImageReader<T : Any>(
     override val height: Int = reader.height
 
     private val flow: Flow<ImageFrame> = reader.asFlow()
-    private val mutex: Mutex = Mutex()
     private lateinit var constantData: T
 
     override suspend fun readFrame(timestamp: Duration): ImageFrame {
@@ -120,8 +118,8 @@ private class TransformedImageReader<T : Any>(
     override fun asFlow(): Flow<ImageFrame> = channelFlow {
         AsyncExecutor<ImageFrame, ImageFrame>(
             maxConcurrency = AVAILABLE_PROCESSORS,
+            scope = this,
             task = {
-                initConstantData(it)
                 val transformedImage = processor.transformImage(it, constantData)
                 it.copy(content = transformedImage)
             },
@@ -130,17 +128,17 @@ private class TransformedImageReader<T : Any>(
             },
         ).use { executor ->
             flow.collect {
+                initConstantData(it)
                 executor.submit(it)
             }
         }
+    }.map {
+        it.getOrThrow()
     }
 
     private suspend fun initConstantData(frame: ImageFrame) {
-        if (::constantData.isInitialized) return
-        mutex.withLock {
-            if (!::constantData.isInitialized) {
-                constantData = processor.constantData(frame, flow, outputFormat)
-            }
+        if (!::constantData.isInitialized) {
+            constantData = processor.constantData(frame, flow, outputFormat)
         }
     }
 
@@ -162,7 +160,6 @@ private class TransformedImageReader<T : Any>(
             "reader=$reader" +
             ", processor=$processor" +
             ", outputFormat='$outputFormat'" +
-            ", mutex=$mutex" +
             ", constantData=${
                 if (::constantData.isInitialized) constantData.toString()
                 else "[not initialized]"

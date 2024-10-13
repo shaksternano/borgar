@@ -1,5 +1,7 @@
 package io.github.shaksternano.borgar.core.media.writer
 
+import io.github.shaksternano.borgar.core.io.SuspendCloseable
+import io.github.shaksternano.borgar.core.io.closeAll
 import io.github.shaksternano.borgar.core.media.ImageFrame
 import io.github.shaksternano.gifcodec.ChannelOutputAsyncExecutor
 import io.github.shaksternano.gifcodec.forEach
@@ -31,7 +33,7 @@ class PreProcessingWriter(
         }
         while (preProcessJob.isActive) {
             preProcessExecutor.output.forEachCurrent {
-                writer.writeImageFrame(it)
+                writer.writeImageFrame(it.getOrThrow())
             }
         }
     }
@@ -39,11 +41,15 @@ class PreProcessingWriter(
     override suspend fun close() = coroutineScope {
         val writeJob = launch {
             preProcessExecutor.output.forEach {
-                writer.writeImageFrame(it)
+                writer.writeImageFrame(it.getOrThrow())
             }
         }
-        preProcessExecutor.close()
-        writeJob.join()
-        writer.close()
+        closeAll(
+            SuspendCloseable {
+                preProcessExecutor.close()
+                writeJob.join()
+            },
+            writer,
+        )
     }
 }
