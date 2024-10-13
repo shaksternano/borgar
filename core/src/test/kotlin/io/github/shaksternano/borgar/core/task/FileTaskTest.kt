@@ -12,7 +12,7 @@ class FileTaskTest {
     fun canChainTasks() = runTest {
         val task1 = StringConcatTask("b")
         val task2 = StringConcatTask("c")
-        val inputBytes = "a".toByteArray()
+        val inputBytes = "a".encodeToByteArray()
         val input = DataSource.fromBytes("input", inputBytes)
         val chained = task1 then task2
         val result = chained.run(listOf(input))
@@ -42,7 +42,7 @@ private class StringConcatTask(
         return input.map {
             val string = String(it.newStream().readAllBytes())
             val output = string + toConcat
-            DataSource.fromBytes("string", output.toByteArray())
+            DataSource.fromBytes("string", output.encodeToByteArray())
         }
     }
 }

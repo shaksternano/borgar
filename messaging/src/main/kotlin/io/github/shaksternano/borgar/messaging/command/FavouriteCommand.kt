@@ -154,7 +154,7 @@ object FavouriteCommand : NonChainableCommand() {
         maxFileSize: Long,
     ): FileDataSource {
         val url = removeQueryParams(dataSource.url)
-        val encodedUrl = Base64.getEncoder().encodeToString(url.toByteArray())
+        val encodedUrl = Base64.getEncoder().encodeToString(url.encodeToByteArray())
         val resultName = FAVOURITE_ALIAS_PREFIX + encodedUrl
         val avatarUrl = event.manager.getSelf().effectiveAvatarUrl
         val format = fileExtension(url)

@@ -9,8 +9,6 @@ import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
 import net.dv8tion.jda.api.utils.FileUpload
 import org.slf4j.Logger
 import org.slf4j.event.Level
-import java.io.PrintWriter
-import java.io.StringWriter
 
 private const val BACKTICK_AND_NEWLINE_LENGTH = 8
 private const val MAX_MESSAGE_LENGTH = Message.MAX_CONTENT_LENGTH - BACKTICK_AND_NEWLINE_LENGTH
@@ -30,12 +28,12 @@ class DiscordLogger(
             formattedMessage += "\n$messageWithArguments"
         }
         if (t != null) {
-            val stackTrace = getStacktrace(t)
+            val stackTrace = t.stackTraceToString()
             formattedMessage += "\n\nStacktrace:\n$stackTrace"
         }
         formattedMessage = formattedMessage.trim()
         val messageAction = if (formattedMessage.length > MAX_MESSAGE_LENGTH) {
-            val bytes = formattedMessage.toByteArray()
+            val bytes = formattedMessage.encodeToByteArray()
             logChannel.sendFiles(FileUpload.fromData(bytes, "message.txt"))
         } else {
             logChannel.sendMessage("```\n$formattedMessage\n```")
@@ -56,12 +54,5 @@ class DiscordLogger(
             messageWithArguments = messageWithArguments.replace(Regex.fromLiteral("{$i}"), stringArgument)
         }
         return messageWithArguments
-    }
-
-    private fun getStacktrace(t: Throwable): String {
-        val stringWriter = StringWriter()
-        val printWriter = PrintWriter(stringWriter)
-        t.printStackTrace(printWriter)
-        return stringWriter.toString()
     }
 }
