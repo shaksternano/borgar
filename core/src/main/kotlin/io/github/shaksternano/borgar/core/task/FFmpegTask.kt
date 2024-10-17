@@ -28,7 +28,7 @@ class FFmpegTask(
         val ffmpegArguments = splitArguments.filterIndexed { index, _ ->
             (index !in inputIndices && index - 1 !in inputIndices)
         }.ifEmpty {
-            listOf(inputPath.toString())
+            listOf(fileInput.filename)
         }
         val output = ffmpegArguments.last()
         if (fileExtension(output).isBlank()) {
@@ -36,7 +36,6 @@ class FFmpegTask(
         }
         val outputFilename = Path(output).filename
         val outputPath = getTemporaryFile(outputFilename)
-        outputPath.toFile().deleteOnExit()
         val ffmpegCommand = listOf(FFMPEG_PATH, "-i", inputPath.absolutePathString()) +
             ffmpegArguments.subList(0, ffmpegArguments.lastIndex) +
             outputPath.absolutePathString()
