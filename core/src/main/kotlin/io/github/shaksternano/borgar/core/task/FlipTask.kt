@@ -1,18 +1,18 @@
 package io.github.shaksternano.borgar.core.task
 
-import io.github.shaksternano.borgar.core.media.MediaProcessingConfig
-import io.github.shaksternano.borgar.core.media.SimpleMediaProcessingConfig
+import io.github.shaksternano.borgar.core.media.ImageFrame
 import io.github.shaksternano.borgar.core.media.flipX
 import io.github.shaksternano.borgar.core.media.flipY
+import java.awt.image.BufferedImage
 
 class FlipTask(
     private val vertical: Boolean,
     maxFileSize: Long,
-) : MediaProcessingTask(maxFileSize) {
+) : SimpleMediaProcessingTask(maxFileSize) {
 
-    override val config: MediaProcessingConfig = SimpleMediaProcessingConfig {
-        val image = it.content
-        if (vertical) {
+    override suspend fun transformImage(frame: ImageFrame): BufferedImage {
+        val image = frame.content
+        return if (vertical) {
             image.flipY()
         } else {
             image.flipX()

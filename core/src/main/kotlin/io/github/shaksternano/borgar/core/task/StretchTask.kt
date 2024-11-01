@@ -1,20 +1,19 @@
 package io.github.shaksternano.borgar.core.task
 
-import io.github.shaksternano.borgar.core.media.MediaProcessingConfig
-import io.github.shaksternano.borgar.core.media.SimpleMediaProcessingConfig
+import io.github.shaksternano.borgar.core.media.ImageFrame
 import io.github.shaksternano.borgar.core.media.stretch
+import java.awt.image.BufferedImage
 
 class StretchTask(
-    widthMultiplier: Double,
-    heightMultiplier: Double,
-    raw: Boolean,
+    private val widthMultiplier: Double,
+    private val heightMultiplier: Double,
+    private val raw: Boolean,
     maxFileSize: Long,
-    outputName: String = "",
-) : MediaProcessingTask(maxFileSize) {
+) : SimpleMediaProcessingTask(maxFileSize) {
 
-    override val config: MediaProcessingConfig = SimpleMediaProcessingConfig(outputName) {
-        val image = it.content
-        image.stretch(
+    override suspend fun transformImage(frame: ImageFrame): BufferedImage {
+        val image = frame.content
+        return image.stretch(
             (image.width * widthMultiplier).toInt(),
             (image.height * heightMultiplier).toInt(),
             raw,
