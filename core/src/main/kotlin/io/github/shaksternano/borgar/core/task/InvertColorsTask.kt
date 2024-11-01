@@ -1,6 +1,7 @@
 package io.github.shaksternano.borgar.core.task
 
-import io.github.shaksternano.borgar.core.media.*
+import io.github.shaksternano.borgar.core.media.ImageFrame
+import io.github.shaksternano.borgar.core.media.mapPixels
 import java.awt.image.BufferedImage
 
 class InvertColorsTask(
@@ -12,7 +13,7 @@ class InvertColorsTask(
             val red = rgb shr 16 and 0xFF
             val green = rgb shr 8 and 0xFF
             val blue = rgb and 0xFF
-            val alpha = rgb shr 24 and 0xFF
+            val alpha = rgb ushr 24
             val invertedRed = 255 - red
             val invertedGreen = 255 - green
             val invertedBlue = 255 - blue
