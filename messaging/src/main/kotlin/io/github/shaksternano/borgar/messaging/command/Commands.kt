@@ -21,6 +21,7 @@ val COMMANDS: Map<String, Command> = registerCommands(
     CropCommand,
     RotateCommand,
     FlipCommand,
+    InvertColorsCommand,
     PixelateCommand,
     StretchCommand,
     ResizeCommand,

@@ -12,14 +12,33 @@ import java.awt.image.ColorConvertOp
 import kotlin.math.*
 import kotlin.time.Duration
 
-val BufferedImage.rgb: IntArray
+var BufferedImage.rgb: IntArray
     get() = getRGB(0, 0, width, height, null, 0, width)
+    set(rgb) {
+        setRGB(0, 0, width, height, rgb, 0, width)
+    }
 
 val BufferedImage.typeNoCustom: Int
     get() =
         if (type < BufferedImage.TYPE_INT_RGB || type > BufferedImage.TYPE_BYTE_INDEXED)
             BufferedImage.TYPE_INT_ARGB
         else type
+
+inline fun BufferedImage.forEachPixel(action: (x: Int, y: Int, rgb: Int) -> Unit) {
+    for (y in 0 until height) {
+        for (x in 0 until width) {
+            action(x, y, getRGB(x, y))
+        }
+    }
+}
+
+inline fun BufferedImage.mapPixels(transform: (rgb: Int) -> Int): BufferedImage {
+    val newImage = copySize()
+    forEachPixel { x, y, rgb ->
+        newImage.setRGB(x, y, transform(rgb))
+    }
+    return newImage
+}
 
 fun BufferedImage.convertType(type: Int): BufferedImage =
     if (this.type == type) this
@@ -160,7 +179,7 @@ fun BufferedImage.copy(): BufferedImage {
     return copy
 }
 
-private fun BufferedImage.copySize(): BufferedImage =
+fun BufferedImage.copySize(): BufferedImage =
     BufferedImage(width, height, typeNoCustom)
 
 /**
