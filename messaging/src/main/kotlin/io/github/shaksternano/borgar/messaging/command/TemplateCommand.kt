@@ -49,12 +49,6 @@ class TemplateCommand(
             template = ResourceTemplate.SOYJAK_POINTING,
         )
 
-        val MUTA_SOY: Command = TemplateCommand(
-            name = "mutasoy",
-            description = "Mutahar soyjak pointing meme.",
-            template = ResourceTemplate.MUTA_SOY,
-        )
-
         val WALMART_WANTED: Command = TemplateCommand(
             name = "walmartwanted",
             aliases = setOf("wanted"),

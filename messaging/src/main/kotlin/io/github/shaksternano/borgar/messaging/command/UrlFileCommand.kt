@@ -24,12 +24,6 @@ class UrlFileCommand(
             description = "The best character in The Legend of Zelda: Breath of the Wild.",
             url = "https://autumn.revolt.chat/attachments/i5fZQ7mIeaBauXxtf8Vh-bM3nWSXlZ07XSVJd7cdCN/Tulin.gif",
         )
-
-        val SURE_BUD: Command = UrlFileCommand(
-            name = "surebud",
-            description = "Sure bud.",
-            url = "https://autumn.revolt.chat/attachments/UHIUrXhUl9bkhF1jGoZ6cA78MGvrcX0tf09iLEwQkN/Sure_bud.gif",
-        )
     }
 
     override val deferReply: Boolean = false
