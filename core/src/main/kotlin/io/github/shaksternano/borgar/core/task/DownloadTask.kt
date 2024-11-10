@@ -22,8 +22,6 @@ private val VIDEO_QUALITIES: List<Int> = listOf(
     144,
 )
 
-private const val COBALT_API_DEFAULT_DOMAIN = "https://api.cobalt.tools"
-
 class DownloadTask(
     private val url: String,
     private val audioOnly: Boolean = false,
@@ -102,16 +100,19 @@ class DownloadTask(
         audioOnly: Boolean,
         fileIndex: Int?,
     ): List<String> {
-        val cobaltApiDomain = getEnvVar("COBALT_API_DOMAIN") ?: COBALT_API_DEFAULT_DOMAIN
-        val requestUrl = "$cobaltApiDomain/api/json"
+        val cobaltApiDomain = getEnvVar("COBALT_API_DOMAIN")
+        if (cobaltApiDomain.isNullOrBlank()) {
+            throw ErrorResponseException("Cobalt API domain is not set!")
+        }
         val requestBody = CobaltRequestBody(
             url,
-            videoQuality,
-            audioOnly,
+            videoQuality.toString(),
+            filenameStyle = "basic",
+            downloadMode = if (audioOnly) "audio" else "auto",
             twitterGif = true,
         )
         val responseBodyString = useHttpClient { client ->
-            val response = client.post(requestUrl) {
+            val response = client.post(cobaltApiDomain) {
                 // The Accept header is set to application/json by default
                 header(HttpHeaders.ContentType, "application/json")
                 setBody(requestBody)
@@ -125,7 +126,7 @@ class DownloadTask(
             throw IllegalStateException("Invalid Cobalt response body:\n$prettyPrint", it)
         }
         if (responseBody.status == "error") {
-            throw CobaltException(responseBody.text)
+            throw CobaltException(responseBody.error?.code ?: responseBodyString)
         }
         return if (responseBody.url != null)
             if (fileIndex != null && fileIndex != 0) throw InvalidFileNumberException(1)
@@ -144,35 +145,28 @@ class DownloadTask(
     @Serializable
     private data class CobaltRequestBody(
         val url: String,
-        val vQuality: String,
-        val isAudioOnly: Boolean,
+        val videoQuality: String,
+        val filenameStyle: String,
+        val downloadMode: String,
         val twitterGif: Boolean,
-    ) {
-
-        constructor(
-            url: String,
-            vQuality: Int,
-            isAudioOnly: Boolean,
-            twitterGif: Boolean,
-        ) : this(
-            url,
-            vQuality.toString(),
-            isAudioOnly,
-            twitterGif,
-        )
-    }
+    )
 
     @Serializable
     private data class CobaltResponseBody(
         val status: String,
         val url: String? = null,
         val picker: List<CobaltPicker>? = null,
-        val text: String = "",
+        val error: CobaltError? = null,
     )
 
     @Serializable
     private data class CobaltPicker(
         val url: String,
+    )
+
+    @Serializable
+    private data class CobaltError(
+        val code: String,
     )
 
     private fun getFilename(headResponse: HttpResponse, url: String): String {

@@ -1,23 +1,66 @@
 version: "3.8"
 
 services:
-  db:
-    image: postgres
-    environment:
-      POSTGRES_USER: ${POSTGRESQL_USERNAME}
-      POSTGRES_PASSWORD: ${POSTGRESQL_PASSWORD}
-      PGDATA: /data/postgres
-    volumes:
-      - db:/data/postgres
-    ports:
-      - ${POSTGRESQL_PORTS}
-    networks:
-      - db
-    restart: unless-stopped
+    db:
+        image: postgres
+        environment:
+            POSTGRES_USER: ${POSTGRESQL_USERNAME}
+            POSTGRES_PASSWORD: ${POSTGRESQL_PASSWORD}
+            PGDATA: /data/postgres
+        volumes:
+            - db:/data/postgres
+        ports:
+            - ${POSTGRESQL_PORTS}
+        networks:
+            - db
+        restart: unless-stopped
+
+    cobalt-api:
+        image: ghcr.io/imputnet/cobalt:10
+
+        init: true
+        read_only: true
+        restart: unless-stopped
+        container_name: cobalt-api
+
+        ports:
+            - "9000:9000/tcp"
+            # if you use a reverse proxy (such as nginx),
+            # uncomment the next line and remove the one above (9000:9000/tcp):
+            # - 127.0.0.1:9000:9000
+
+        environment:
+            # replace https://api.url.example with your instance's url
+            # or else tunneling functionality won't work properly
+            API_URL: "http://localhost:9000"
+
+            # if you want to use cookies for fetching data from services,
+            # uncomment the next line & volumes section
+            # COOKIE_PATH: "/cookies.json"
+
+            # it's recommended to configure bot protection or api keys if the instance is public,
+            # see /docs/protect-an-instance.md for more info
+
+            # see /docs/run-an-instance.md for more variables that you can use here
+
+        labels:
+            - com.centurylinklabs.watchtower.scope=cobalt
+
+            # uncomment only if you use the COOKIE_PATH variable
+            # volumes:
+            # - ./cookies.json:/cookies.json
+
+    # watchtower updates the cobalt image automatically
+    watchtower:
+        image: ghcr.io/containrrr/watchtower
+        restart: unless-stopped
+        command: --cleanup --scope cobalt --interval 900 --include-restarting
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
 
 networks:
-  db:
-    driver: bridge
+    db:
+        driver: bridge
 
 volumes:
-  db:
+    db:
