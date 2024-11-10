@@ -1,6 +1,7 @@
 package io.github.shaksternano.borgar.core.task
 
 import io.github.shaksternano.borgar.core.exception.ErrorResponseException
+import io.github.shaksternano.borgar.core.exception.FileTooLargeException
 import io.github.shaksternano.borgar.core.io.*
 import io.github.shaksternano.borgar.core.io.head
 import io.github.shaksternano.borgar.core.io.post
@@ -74,24 +75,48 @@ class DownloadTask(
                 throw it
             }
         }
-        return downloadUrls.map { downloadUrl ->
-            val dataSource = useHttpClient { client ->
-                val headResponse = client.head(downloadUrl)
-                val filename = getFilename(headResponse, downloadUrl)
-                DataSource.fromUrl(downloadUrl, filename)
+        val files = mutableListOf<DataSource>()
+        downloadUrls.forEach { dataSource ->
+            val toSend: DataSource
+            val tooLarge: Boolean
+            val size = dataSource.size()
+            if (size == null) {
+                val fileDataSource = try {
+                    dataSource.getOrWriteFile(maxFileSize)
+                } catch (e: FileTooLargeException) {
+                    null
+                }
+                if (fileDataSource == null) {
+                    toSend = dataSource
+                    tooLarge = true
+                } else {
+                    toSend = fileDataSource
+                    tooLarge = false
+                }
+            } else {
+                toSend = dataSource
+                tooLarge = size > maxFileSize
             }
-            if (videoQualityIndex < VIDEO_QUALITIES.size - 1
-                && !dataSource.isWithinReportedSize(maxFileSize)
-            ) {
-                return download(
-                    url,
-                    videoQualityIndex + 1,
-                    audioOnly,
-                    fileIndex,
-                    maxFileSize,
-                )
-            } else dataSource
+            if (tooLarge) {
+                files.forEach {
+                    it.path?.deleteSilently()
+                }
+                if (videoQualityIndex < VIDEO_QUALITIES.size - 1) {
+                    return download(
+                        url,
+                        videoQualityIndex + 1,
+                        audioOnly,
+                        fileIndex,
+                        maxFileSize,
+                    )
+                } else {
+                    throw FileTooLargeException()
+                }
+            } else {
+                files.add(toSend)
+            }
         }
+        return files
     }
 
     private suspend fun getDownloadUrls(
@@ -99,10 +124,10 @@ class DownloadTask(
         videoQuality: Int,
         audioOnly: Boolean,
         fileIndex: Int?,
-    ): List<String> {
+    ): List<DataSource> {
         val cobaltApiDomain = getEnvVar("COBALT_API_DOMAIN")
         if (cobaltApiDomain.isNullOrBlank()) {
-            throw ErrorResponseException("Cobalt API domain is not set!")
+            throw IllegalStateException("Cobalt API domain is not set!")
         }
         val requestBody = CobaltRequestBody(
             url,
@@ -128,15 +153,36 @@ class DownloadTask(
         if (responseBody.status == "error") {
             throw CobaltException(responseBody.error?.code ?: responseBodyString)
         }
-        return if (responseBody.url != null)
-            if (fileIndex != null && fileIndex != 0) throw InvalidFileNumberException(1)
-            else responseBody.url.asSingletonList()
-        else if (responseBody.picker != null)
-            if (fileIndex != null)
-                if (fileIndex >= responseBody.picker.size) throw InvalidFileNumberException(responseBody.picker.size)
-                else responseBody.picker[fileIndex].url.asSingletonList()
-            else responseBody.picker.map { it.url }
-        else {
+        return if (responseBody.url.isNotBlank()) {
+            if (fileIndex != null && fileIndex != 0) {
+                throw InvalidFileNumberException(1)
+            } else {
+                val filename = responseBody.filename
+                    .replaceInvalidFilenameCharacters()
+                DataSource.fromUrl(responseBody.url, filename).asSingletonList()
+            }
+        } else if (responseBody.picker != null) {
+            if (fileIndex != null) {
+                if (fileIndex >= responseBody.picker.size) {
+                    throw InvalidFileNumberException(responseBody.picker.size)
+                } else {
+                    val fileUrl = responseBody.picker[fileIndex].url
+                    val filename = useHttpClient { client ->
+                        val headResponse = client.head(fileUrl)
+                        getFilename(headResponse, fileUrl)
+                    }.replaceInvalidFilenameCharacters()
+                    DataSource.fromUrl(fileUrl, filename).asSingletonList()
+                }
+            } else useHttpClient { client ->
+                responseBody.picker.map {
+                    val fileUrl = it.url
+                    val headResponse = client.head(fileUrl)
+                    val filename = getFilename(headResponse, fileUrl)
+                        .replaceInvalidFilenameCharacters()
+                    DataSource.fromUrl(fileUrl, filename)
+                }
+            }
+        } else {
             val prettyPrint = prettyPrintJsonCatching(responseBodyString)
             throw IllegalStateException("Missing url and picker fields. Response body:\n$prettyPrint")
         }
@@ -154,7 +200,8 @@ class DownloadTask(
     @Serializable
     private data class CobaltResponseBody(
         val status: String,
-        val url: String? = null,
+        val url: String = "",
+        val filename: String = "",
         val picker: List<CobaltPicker>? = null,
         val error: CobaltError? = null,
     )
@@ -192,8 +239,6 @@ class DownloadTask(
     private class CobaltException(
         override val message: String,
     ) : Exception(message)
-
-    private class FileTooLargeException : Exception()
 
     private class InvalidFileNumberException(
         val maxFiles: Int,

@@ -1,7 +1,7 @@
 package io.github.shaksternano.borgar.core.io
 
 import com.google.common.io.Closer
-import com.google.common.io.Files
+import io.github.shaksternano.borgar.core.exception.FileTooLargeException
 import io.github.shaksternano.borgar.core.media.mediaFormat
 import io.github.shaksternano.borgar.core.util.JSON
 import io.ktor.client.*
@@ -19,18 +19,21 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.io.IOException
 import kotlinx.io.readByteArray
-import org.apache.commons.io.FileUtils
+import org.apache.commons.io.input.BoundedInputStream
 import org.reflections.Reflections
 import org.reflections.scanners.Scanners
 import java.io.Closeable
 import java.io.FileNotFoundException
 import java.io.InputStream
+import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.StandardCopyOption
 import java.nio.file.StandardOpenOption
 import java.util.regex.Pattern
 import kotlin.io.path.*
 import kotlin.random.Random
 import kotlin.random.nextULong
+import com.google.common.io.Files as GuavaFiles
 
 private object IOUtil
 
@@ -44,6 +47,8 @@ val ALLOWED_DOMAINS: Set<String> = setOf(
     "pbs.twimg.com",
     "i.redd.it",
 )
+
+private val INVALID_FILENAME_CHARACTERS: Regex = "[^a-zA-Z0-9.,\\-_() ]".toRegex()
 
 suspend fun createTemporaryFile(filename: String): Path = createTemporaryFile(
     filenameWithoutExtension(filename),
@@ -148,14 +153,22 @@ suspend inline fun <reified T> httpGet(url: String): T = useHttpClient { client 
     }
 }
 
-suspend fun download(url: String, path: Path) = useHttpClient { client ->
+suspend fun download(
+    url: String,
+    path: Path,
+    limit: Long = 0,
+) = useHttpClient { client ->
     client.get(url).ifSuccessful {
-        it.download(path)
+        it.download(path, limit)
     }
 }
 
-suspend fun HttpResponse.download(path: Path) {
+suspend fun HttpResponse.download(
+    path: Path,
+    limit: Long = 0,
+) {
     var created = false
+    var bytesRead = 0L
     readBytes {
         withContext(Dispatchers.IO) {
             if (created) {
@@ -170,6 +183,12 @@ suspend fun HttpResponse.download(path: Path) {
                     StandardOpenOption.CREATE,
                 )
                 created = true
+            }
+        }
+        if (limit > 0) {
+            bytesRead += it.size
+            if (bytesRead > limit) {
+                throw FileTooLargeException()
             }
         }
     }
@@ -195,8 +214,24 @@ private suspend inline fun HttpResponse.readBytes(block: (ByteArray) -> Unit) {
     }
 }
 
-suspend fun Path.write(inputStream: InputStream) = withContext(Dispatchers.IO) {
-    FileUtils.copyInputStreamToFile(inputStream, toFile())
+suspend fun Path.write(
+    inputStream: InputStream,
+    limit: Long = 0,
+) = withContext(Dispatchers.IO) {
+    inputStream.use {
+        val bounded = limit > 0
+        val boundedInputStream = if (bounded) {
+            BoundedInputStream.builder()
+                .setInputStream(it)
+                .setMaxCount(limit)
+                .setPropagateClose(false)
+                .get()
+        } else it
+        Files.copy(boundedInputStream, this@write, StandardCopyOption.REPLACE_EXISTING)
+        if (bounded && boundedInputStream.read() != -1) {
+            throw FileTooLargeException()
+        }
+    }
 }
 
 suspend fun Path.inputStreamSuspend(): InputStream = withContext(Dispatchers.IO) {
@@ -237,10 +272,10 @@ fun filename(nameWithoutExtension: String, extension: String): String {
 }
 
 fun filenameWithoutExtension(fileName: String): String =
-    Files.getNameWithoutExtension(removeQueryParams(fileName))
+    GuavaFiles.getNameWithoutExtension(removeQueryParams(fileName))
 
 fun fileExtension(fileName: String): String =
-    Files.getFileExtension(removeQueryParams(fileName))
+    GuavaFiles.getFileExtension(removeQueryParams(fileName))
 
 val DataSource.filenameWithoutExtension: String
     get() = filenameWithoutExtension(filename)
@@ -284,3 +319,6 @@ suspend inline fun <R> DataSource.useFile(block: (FileDataSource) -> R): R {
         }
     }
 }
+
+fun String.replaceInvalidFilenameCharacters(): String =
+    replace(INVALID_FILENAME_CHARACTERS, "_")

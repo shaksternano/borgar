@@ -1,5 +1,6 @@
 package io.github.shaksternano.borgar.core.io
 
+import io.github.shaksternano.borgar.core.exception.FileTooLargeException
 import io.github.shaksternano.borgar.core.exception.UnreadableFileException
 import io.github.shaksternano.borgar.core.util.hash
 import io.github.shaksternano.borgar.core.util.kClass
@@ -37,25 +38,31 @@ interface DataSource : DataSourceConvertable {
     suspend fun isWithinReportedSize(maxSize: Long): Boolean =
         size()?.let { it <= maxSize } ?: true
 
-    suspend fun getOrWriteFile(): FileDataSource {
+    suspend fun getOrWriteFile(
+        limit: Long = 0,
+    ): FileDataSource {
         if (this is FileDataSource) return this
         val path = path ?: let {
             val newPath = createTemporaryFile(filename)
             runCatching {
-                writeToPath(newPath)
+                writeToPath(newPath, limit)
             }.onFailure {
                 newPath.deleteSilently()
-                throw UnreadableFileException(it)
+                throw if (it is FileTooLargeException) it
+                else UnreadableFileException(it)
             }
             newPath
         }
         return fromFile(path, filename, url)
     }
 
-    private suspend fun writeToPath(path: Path) {
+    private suspend fun writeToPath(
+        path: Path,
+        limit: Long = 0,
+    ) {
         url?.let {
-            download(it, path)
-        } ?: path.write(newStream())
+            download(it, path, limit)
+        } ?: path.write(newStream(), limit)
     }
 
     fun rename(newName: String): DataSource = object : DataSource {
