@@ -29,11 +29,7 @@ import kotlin.coroutines.suspendCoroutine
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-private val PING_JSON: String =
-    JsonObject(mapOf(
-        "type" to JsonPrimitive("Ping"),
-        "data" to JsonPrimitive(0),
-    )).toString()
+private const val PING_JSON: String = "{\"type\":\"Ping\",\"data\":0}"
 private val PING_INTERVAL: Duration = 10.seconds
 
 private val RETRY_CONNECT_INTERVAL: Duration = 10.seconds
