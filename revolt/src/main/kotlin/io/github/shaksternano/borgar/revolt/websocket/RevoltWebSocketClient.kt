@@ -64,7 +64,7 @@ class RevoltWebSocketClient(
                             install(WebSockets)
                         }.use { client ->
                             client.wss(
-                                host = manager.webSocketDomain,
+                                host = manager.webSocketUrl,
                                 path = "?version=1&format=json&token=$token",
                             ) {
                                 session = this

@@ -43,11 +43,11 @@ private val USER_MENTION_REGEX: Regex = "<@[A-Za-z0-9]+>".toRegex()
 
 class RevoltManager(
     private val token: String,
-    val apiDomain: String = "https://api.revolt.chat",
-    val webSocketDomain: String = "ws.revolt.chat",
-    val cdnDomain: String = "https://autumn.revolt.chat",
-    val appDomain: String = "https://app.revolt.chat",
-    val proxyDomain: String = "https://jan.revolt.chat",
+    val apiUrl: String = "https://api.revolt.chat",
+    val webSocketUrl: String = "ws.revolt.chat",
+    val cdnUrl: String = "https://autumn.revolt.chat",
+    val appUrl: String = "https://app.revolt.chat",
+    val proxyUrl: String = "https://jan.revolt.chat",
 ) : BotManager {
 
     override val platform: MessagingPlatform = MessagingPlatform.REVOLT
@@ -179,7 +179,7 @@ class RevoltManager(
         body: Any? = null,
         ignoreErrors: Boolean = false,
     ): HttpResponse {
-        val url = "$apiDomain$path"
+        val url = "$apiUrl$path"
         return runCatching {
             client.request(url) {
                 this.method = method
@@ -226,7 +226,7 @@ class RevoltManager(
         path: String,
         form: List<PartData>,
     ): HttpResponse {
-        val url = "$cdnDomain$path"
+        val url = "$cdnUrl$path"
         return runCatching {
             client.submitFormWithBinaryData(url, form) {
                 headers {

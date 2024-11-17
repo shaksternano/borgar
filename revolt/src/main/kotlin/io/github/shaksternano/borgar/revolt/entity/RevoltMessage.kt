@@ -64,7 +64,7 @@ data class RevoltMessage(
     override val mentionedChannels: Flow<Channel> = emptyFlow()
     override val mentionedRoles: Flow<Role> = emptyFlow()
 
-    override val link: String = "${manager.appDomain}/channel/$channelId/$id"
+    override val link: String = "${manager.appUrl}/channel/$channelId/$id"
 
     private var setAuthorMember: Boolean = authorMember != null
     private lateinit var channel: RevoltMessageChannel
@@ -220,12 +220,12 @@ private fun String.toVideoInfo(manager: RevoltManager): MessageEmbed.VideoInfo =
     MessageEmbed.VideoInfo(this, toProxyUrl(manager))
 
 private fun String.toProxyUrl(manager: RevoltManager): String =
-    "${manager.proxyDomain}/proxy?url=${encodeUrl()}"
+    "${manager.proxyUrl}/proxy?url=${encodeUrl()}"
 
 private fun RevoltAttachmentBody.convert(manager: RevoltManager): Attachment {
     return Attachment(
         id = id,
-        url = "${manager.cdnDomain}/attachments/$id/$filename",
+        url = "${manager.cdnUrl}/attachments/$id/$filename",
         proxyUrl = null,
         filename = filename,
         manager = manager,

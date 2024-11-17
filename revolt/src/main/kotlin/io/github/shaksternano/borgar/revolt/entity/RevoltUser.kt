@@ -44,7 +44,7 @@ data class RevoltUserResponse(
             name = username,
             effectiveName = displayName ?: username,
             effectiveAvatarUrl = avatar?.getUrl(manager)
-                ?: "${manager.apiDomain}/users/${id}/default_avatar",
+                ?: "${manager.apiUrl}/users/${id}/default_avatar",
             isBot = bot != null,
             ownerId = bot?.ownerId,
         )
@@ -57,7 +57,7 @@ data class RevoltAvatarBody(
     val filename: String,
 ) {
     fun getUrl(manager: RevoltManager): String =
-        "${manager.cdnDomain}/avatars/$id/${filename.encodeUrl()}"
+        "${manager.cdnUrl}/avatars/$id/${filename.encodeUrl()}"
 }
 
 @Serializable
@@ -78,5 +78,5 @@ data class RevoltUserProfileBackgroundBody(
     val filename: String,
 ) {
     fun getUrl(manager: RevoltManager): String =
-        "${manager.cdnDomain}/backgrounds/$id/${filename.encodeUrl()}"
+        "${manager.cdnUrl}/backgrounds/$id/${filename.encodeUrl()}"
 }

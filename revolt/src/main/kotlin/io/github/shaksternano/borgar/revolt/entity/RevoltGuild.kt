@@ -102,7 +102,7 @@ data class RevoltIconBody(
 ) {
 
     fun getUrl(manager: RevoltManager): String =
-        "${manager.cdnDomain}/icons/$id/${filename.encodeUrl()}"
+        "${manager.cdnUrl}/icons/$id/${filename.encodeUrl()}"
 }
 
 @Serializable
@@ -113,5 +113,5 @@ data class RevoltBannerBody(
 ) {
 
     fun getUrl(manager: RevoltManager): String =
-        "${manager.cdnDomain}/banners/$id/${filename.encodeUrl()}"
+        "${manager.cdnUrl}/banners/$id/${filename.encodeUrl()}"
 }

@@ -125,9 +125,9 @@ class DownloadTask(
         audioOnly: Boolean,
         fileIndex: Int?,
     ): List<DataSource> {
-        val cobaltApiDomain = getEnvVar("COBALT_API_DOMAIN")
-        if (cobaltApiDomain.isNullOrBlank()) {
-            throw IllegalStateException("Cobalt API domain is not set!")
+        val cobaltApiUrl = getEnvVar("COBALT_API_URL")
+        if (cobaltApiUrl.isNullOrBlank()) {
+            throw IllegalStateException("Cobalt API url is not set!")
         }
         val requestBody = CobaltRequestBody(
             url,
@@ -137,7 +137,7 @@ class DownloadTask(
             twitterGif = true,
         )
         val responseBodyString = useHttpClient { client ->
-            val response = client.post(cobaltApiDomain) {
+            val response = client.post(cobaltApiUrl) {
                 // The Accept header is set to application/json by default
                 header(HttpHeaders.ContentType, "application/json")
                 setBody(requestBody)

@@ -29,7 +29,7 @@ data class RevoltEmojiResponse(
     val animated: Boolean = false,
 ) {
     suspend fun convert(manager: RevoltManager): RevoltCustomEmoji {
-        val url = "${manager.cdnDomain}/emojis/$id"
+        val url = "${manager.cdnUrl}/emojis/$id"
         val extension = runCatching {
             useHttpClient { client ->
                 client.head(url)

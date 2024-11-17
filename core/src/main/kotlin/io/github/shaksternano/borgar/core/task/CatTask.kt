@@ -6,7 +6,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlin.random.Random
 
-private const val CAT_API_DOMAIN: String = "https://cataas.com"
+private const val CAT_API_URL: String = "https://cataas.com"
 private const val GIF_CHANCE: Double = 0.2
 
 class CatTask(
@@ -26,7 +26,7 @@ class CatTask(
             else if (tags.equalsAnyIgnoreCase("image")) false
             else Random.nextDouble() < GIF_CHANCE
         val path = if (isGif) "/cat/gif" else "/cat"
-        return "$CAT_API_DOMAIN$path?json=true"
+        return "$CAT_API_URL$path?json=true"
     }
 
     private fun Iterable<String>.equalsAnyIgnoreCase(string: String): Boolean =
@@ -34,7 +34,7 @@ class CatTask(
 
     override suspend fun parseResponse(response: HttpResponse): ApiResponse {
         val body = response.body<ResponseBody>()
-        val url = "${CAT_API_DOMAIN}/cat/${body.id}"
+        val url = "${CAT_API_URL}/cat/${body.id}"
         val extension = body.mimetype.split('/', limit = 2)[1]
         return ApiResponse(
             body.id,
