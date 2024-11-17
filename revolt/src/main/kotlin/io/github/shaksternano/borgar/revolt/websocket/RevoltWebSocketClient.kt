@@ -14,6 +14,8 @@ import io.ktor.client.plugins.websocket.*
 import io.ktor.util.network.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -101,16 +103,23 @@ class RevoltWebSocketClient(
         if (ready) return
         if (invalidToken) throw IllegalArgumentException("Invalid Revolt token")
         var resumed = false
+        val mutex = Mutex()
         suspendCoroutine { continuation ->
             handle(WebSocketMessageType.READY) {
                 if (resumed) return@handle
-                resumed = true
-                continuation.resume(Unit)
+                mutex.withLock {
+                    if (resumed) return@handle
+                    resumed = true
+                    continuation.resume(Unit)
+                }
             }
             handle(WebSocketMessageType.NOT_FOUND) {
                 if (resumed) return@handle
-                resumed = true
-                continuation.resumeWithException(IllegalArgumentException("Invalid Revolt token"))
+                mutex.withLock {
+                    if (resumed) return@handle
+                    resumed = true
+                    continuation.resumeWithException(IllegalArgumentException("Invalid Revolt token"))
+                }
             }
         }
     }
