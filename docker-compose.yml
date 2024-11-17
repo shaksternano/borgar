@@ -21,7 +21,6 @@ services:
         init: true
         read_only: true
         restart: unless-stopped
-        container_name: cobalt-api
 
         ports:
             - "9000:9000/tcp"
