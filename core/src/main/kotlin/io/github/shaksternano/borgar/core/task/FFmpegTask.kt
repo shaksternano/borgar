@@ -39,22 +39,28 @@ class FFmpegTask(
         val ffmpegCommand = listOf(FFMPEG_PATH, "-i", inputPath.absolutePathString()) +
             ffmpegArguments.subList(0, ffmpegArguments.lastIndex) +
             outputPath.absolutePathString()
+        val workingDirectory = createTemporaryDirectory("borgar-ffmpeg")
         val processBuilder = ProcessBuilder(ffmpegCommand)
+        processBuilder.directory(workingDirectory.toFile())
         withContext(Dispatchers.IO) {
-            val process = processBuilder.start()
-            val ffmpegErrorDeferred = async {
-                val lines = InputStreamReader(process.errorStream).readLines()
-                lines.joinToString("\n")
-            }
-            val exitCode = process.waitFor()
-            if (exitCode != 0) {
-                var errorMessage = "FFmpeg command failed with exit code $exitCode"
-                val ffmpegError = ffmpegErrorDeferred.await()
-                if (ffmpegError.isNotBlank()) {
-                    errorMessage += ". FFmpeg error:\n$ffmpegError"
+            try {
+                val process = processBuilder.start()
+                val ffmpegErrorDeferred = async {
+                    val lines = InputStreamReader(process.errorStream).readLines()
+                    lines.joinToString("\n")
                 }
-                logger.error(errorMessage)
-                throw ErrorResponseException("FFmpeg command failed!")
+                val exitCode = process.waitFor()
+                if (exitCode != 0) {
+                    var errorMessage = "FFmpeg command failed with exit code $exitCode"
+                    val ffmpegError = ffmpegErrorDeferred.await()
+                    if (ffmpegError.isNotBlank()) {
+                        errorMessage += ". FFmpeg error:\n$ffmpegError"
+                    }
+                    logger.error(errorMessage)
+                    throw ErrorResponseException("FFmpeg command failed!")
+                }
+            } finally {
+                workingDirectory.deleteSilently()
             }
         }
         DataSource.fromFile(outputPath, outputFilename)

@@ -64,6 +64,14 @@ suspend fun createTemporaryFile(filenameWithoutExtension: String, extension: Str
     return path
 }
 
+suspend fun createTemporaryDirectory(name: String): Path {
+    val path = withContext(Dispatchers.IO) {
+        createTempDirectory(name)
+    }
+    path.toFile().deleteOnExit()
+    return path
+}
+
 suspend fun getTemporaryFile(filename: String): Path = getTemporaryFile(
     filenameWithoutExtension(filename),
     fileExtension(filename),
