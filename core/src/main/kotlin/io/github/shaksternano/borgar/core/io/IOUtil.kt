@@ -13,6 +13,7 @@ import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
+import io.ktor.util.collections.*
 import io.ktor.utils.io.*
 import io.ktor.utils.io.jvm.javaio.*
 import kotlinx.coroutines.Dispatchers
@@ -35,7 +36,29 @@ import kotlin.random.Random
 import kotlin.random.nextULong
 import com.google.common.io.Files as GuavaFiles
 
-private object IOUtil
+private object IOUtil {
+
+    private val toDelete: MutableSet<Path> = ConcurrentSet()
+
+    init {
+        Runtime.getRuntime().addShutdownHook(Thread {
+            toDelete.forEach {
+                runCatching {
+                    @OptIn(ExperimentalPathApi::class)
+                    it.deleteRecursively()
+                }
+            }
+        })
+    }
+
+    fun deleteOnExit(path: Path) {
+        toDelete.add(path)
+    }
+
+    fun removeDeleteOnExit(path: Path) {
+        toDelete.remove(path)
+    }
+}
 
 private val TEMP_DIR: Path = Path(System.getProperty("java.io.tmpdir"))
 
@@ -60,7 +83,7 @@ suspend fun createTemporaryFile(filenameWithoutExtension: String, extension: Str
     val path = withContext(Dispatchers.IO) {
         createTempFile(filenameWithoutExtension, extensionWithDot)
     }
-    path.toFile().deleteOnExit()
+    IOUtil.deleteOnExit(path)
     return path
 }
 
@@ -68,7 +91,7 @@ suspend fun createTemporaryDirectory(name: String): Path {
     val path = withContext(Dispatchers.IO) {
         createTempDirectory(name)
     }
-    path.toFile().deleteOnExit()
+    IOUtil.deleteOnExit(path)
     return path
 }
 
@@ -85,7 +108,7 @@ suspend fun getTemporaryFile(filenameWithoutExtension: String, extension: String
         filename = filenameWithoutExtension + Random.nextULong() + "." + extension1
         path = TEMP_DIR.resolve(filename)
     }
-    path.toFile().deleteOnExit()
+    IOUtil.deleteOnExit(path)
     return path
 }
 
@@ -114,7 +137,7 @@ private suspend fun getResourcePaths(packageName: String): Set<String> = withCon
 }
 
 val Path.filename: String
-    get() = fileName?.toString() ?: throw IllegalArgumentException("Invalid path")
+    get() = fileName?.toString() ?: throw IllegalStateException("$this has no filename")
 
 suspend fun Path.deleteSilently() {
     runCatching {
@@ -122,6 +145,7 @@ suspend fun Path.deleteSilently() {
             @OptIn(ExperimentalPathApi::class)
             deleteRecursively()
         }
+        IOUtil.removeDeleteOnExit(this)
     }
 }
 
