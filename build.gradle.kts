@@ -8,9 +8,11 @@ allprojects {
     group = "io.github.shaksternano"
     version = "1.0.0"
 
-    apply(plugin = "kotlin")
-    apply(plugin = "kotlinx-serialization")
-    apply(plugin = "org.jetbrains.kotlinx.atomicfu")
+    applyPlugins(
+        "kotlin",
+        "kotlinx-serialization",
+        "org.jetbrains.kotlinx.atomicfu",
+    )
 
     repositories {
         mavenCentral()
@@ -21,6 +23,12 @@ allprojects {
         test {
             useJUnitPlatform()
         }
+    }
+}
+
+fun PluginAware.applyPlugins(vararg plugins: String) {
+    plugins.forEach {
+        apply(plugin = it)
     }
 }
 
