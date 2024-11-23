@@ -13,6 +13,8 @@ import io.github.shaksternano.borgar.revolt.entity.createMessage
 import io.ktor.client.plugins.websocket.*
 import io.ktor.util.network.*
 import io.ktor.websocket.*
+import kotlinx.atomicfu.AtomicInt
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -22,7 +24,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import java.util.concurrent.Executors
-import java.util.concurrent.atomic.AtomicInteger
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -39,9 +40,9 @@ class RevoltWebSocketClient(
     private val manager: RevoltManager,
 ) {
 
-    private val guildCountAtomic: AtomicInteger = AtomicInteger(0)
+    private var guildCountAtomic: AtomicInt = atomic(0)
     val guildCount: Int
-        get() = guildCountAtomic.get()
+        get() = guildCountAtomic.value
     private var session: DefaultClientWebSocketSession? = null
     private val messageHandlers: MutableMap<String, MutableList<WebSocketMessageHandler>> = mutableMapOf()
     private var ready: Boolean = false
@@ -153,7 +154,7 @@ class RevoltWebSocketClient(
             val groupCount = body.channels.count { response ->
                 response.type == RevoltChannelType.GROUP.apiName
             }
-            guildCountAtomic.set(guildCount + groupCount)
+            guildCountAtomic.value = guildCount + groupCount
         }
         handle(WebSocketMessageType.NOT_FOUND) {
             invalidToken = true

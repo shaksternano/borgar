@@ -1,5 +1,6 @@
 val kotlinxCoroutinesVersion: String by project
 val kotlinxIoVersion: String by project
+val kotlinxAtomicFuVersion: String by project
 val ktorVersion: String by project
 val logbackVersion: String by project
 val guavaVersion: String by project
@@ -16,15 +17,12 @@ val exposedVersion: String by project
 val postgreSqlVersion: String by project
 val junitVersion: String by project
 
-plugins {
-    kotlin("plugin.serialization")
-}
-
 dependencies {
     api("ch.qos.logback:logback-classic:$logbackVersion")
 
     api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion")
     api("org.jetbrains.kotlinx:kotlinx-io-core:$kotlinxIoVersion")
+    api("org.jetbrains.kotlinx:atomicfu:$kotlinxAtomicFuVersion")
 
     api("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-client-cio:$ktorVersion")

@@ -1,5 +1,7 @@
 plugins {
     kotlin("jvm")
+    kotlin("plugin.serialization")
+    id("org.jetbrains.kotlinx.atomicfu")
 }
 
 allprojects {
@@ -7,6 +9,8 @@ allprojects {
     version = "1.0.0"
 
     apply(plugin = "kotlin")
+    apply(plugin = "kotlinx-serialization")
+    apply(plugin = "org.jetbrains.kotlinx.atomicfu")
 
     repositories {
         mavenCentral()

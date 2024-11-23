@@ -4,10 +4,17 @@ pluginManagement {
     }
     resolutionStrategy {
         eachPlugin {
-            if (requested.id.id.startsWith("org.jetbrains.kotlin")) {
-                gradle.rootProject.extra["kotlinVersion"]?.let {
+            fun applyPluginVersion(property: String) {
+                gradle.rootProject.extra[property]?.let {
                     useVersion(it as String)
                 }
+            }
+
+            val pluginId = requested.id.id
+            if (pluginId == "org.jetbrains.kotlinx.atomicfu") {
+                applyPluginVersion("kotlinxAtomicFuVersion")
+            } else if (pluginId.startsWith("org.jetbrains.kotlin")) {
+                applyPluginVersion("kotlinVersion")
             }
         }
     }
