@@ -40,7 +40,7 @@ class RevoltWebSocketClient(
     private val manager: RevoltManager,
 ) {
 
-    private var guildCountAtomic: AtomicInt = atomic(0)
+    private val guildCountAtomic: AtomicInt = atomic(0)
     val guildCount: Int
         get() = guildCountAtomic.value
     private var session: DefaultClientWebSocketSession? = null
