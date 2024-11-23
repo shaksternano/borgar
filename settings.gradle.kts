@@ -2,14 +2,15 @@ pluginManagement {
     repositories {
         gradlePluginPortal()
     }
+
+    fun PluginResolveDetails.applyPluginVersion(property: String) {
+        gradle.rootProject.extra[property]?.let {
+            useVersion(it as String)
+        }
+    }
+
     resolutionStrategy {
         eachPlugin {
-            fun applyPluginVersion(property: String) {
-                gradle.rootProject.extra[property]?.let {
-                    useVersion(it as String)
-                }
-            }
-
             val pluginId = requested.id.id
             if (pluginId == "org.jetbrains.kotlinx.atomicfu") {
                 applyPluginVersion("kotlinxAtomicFuVersion")
