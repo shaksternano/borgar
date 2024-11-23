@@ -15,8 +15,9 @@ val AVAILABLE_PROCESSORS: Int = Runtime.getRuntime().availableProcessors()
 val START_TIME: TimeSource.Monotonic.ValueTimeMark = TimeSource.Monotonic.markNow()
 
 val baseLogger: Logger = LoggerFactory.getLogger("Borgar")
-var logger: Logger = baseLogger
-    private set
+private var mutableLogger: Logger = baseLogger
+val logger: Logger
+    get() = mutableLogger
 
 suspend fun initCore() {
     val envFileName = ".env"
@@ -28,7 +29,7 @@ suspend fun initCore() {
 }
 
 fun setLogger(logger: Logger) {
-    io.github.shaksternano.borgar.core.logger = logger
+    mutableLogger = logger
 }
 
 private fun connectToPostgreSql() {
