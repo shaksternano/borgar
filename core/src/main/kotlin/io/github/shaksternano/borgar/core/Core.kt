@@ -11,8 +11,8 @@ import org.slf4j.LoggerFactory
 import kotlin.io.path.Path
 import kotlin.time.TimeSource
 
-val AVAILABLE_PROCESSORS: Int = Runtime.getRuntime().availableProcessors()
 val START_TIME: TimeSource.Monotonic.ValueTimeMark = TimeSource.Monotonic.markNow()
+val AVAILABLE_PROCESSORS: Int = Runtime.getRuntime().availableProcessors()
 
 val baseLogger: Logger = LoggerFactory.getLogger("Borgar")
 private var mutableLogger: Logger = baseLogger
