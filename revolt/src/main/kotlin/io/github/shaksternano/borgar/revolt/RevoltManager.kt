@@ -24,14 +24,10 @@ import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.http.content.*
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.launch
 import kotlinx.io.IOException
 import kotlinx.serialization.Serializable
 import kotlin.time.Duration
@@ -75,8 +71,8 @@ class RevoltManager(
 
     private var ready: Boolean = false
 
-    @OptIn(DelicateCoroutinesApi::class)
-    private val setup: Job = GlobalScope.launch {
+    suspend fun init() {
+        if (ready) return
         val editUserBody = EditUserRequest(
             status = StatusBody(BOT_STATUS),
         )
@@ -89,11 +85,6 @@ class RevoltManager(
         ownerId = self.ownerId ?: error("Revolt bot owner ID not found")
         webSocket.awaitReady()
         ready = true
-    }
-
-    suspend fun awaitReady() {
-        if (ready) return
-        setup.join()
     }
 
     override suspend fun getSelf(): RevoltUser =
