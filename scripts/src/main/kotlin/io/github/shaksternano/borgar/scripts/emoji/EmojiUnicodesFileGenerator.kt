@@ -7,6 +7,8 @@ import io.github.shaksternano.borgar.scripts.util.listGitHubFiles
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import kotlin.io.path.*
+import kotlin.time.DurationUnit
+import kotlin.time.TimeSource
 
 private val emojiLogger: Logger = LoggerFactory.getLogger("Emoji Unicodes File Generator")
 
@@ -21,7 +23,7 @@ private const val EMOJI_UNICODES_FILE_NAME = "emoji_unicodes.txt"
  * The relative path of the generated file will be `src/main/resources/emoji/emoji_unicodes.txt`.
  */
 suspend fun main() {
-    val startTime = System.currentTimeMillis()
+    val startTime = TimeSource.Monotonic.markNow()
     emojiLogger.info("Starting!")
     val directory = Path(EMOJI_FILES_DIRECTORY)
     directory.createDirectories()
@@ -37,8 +39,10 @@ suspend fun main() {
             val emojiUnicodesPath = directory.resolve(EMOJI_UNICODES_FILE_NAME)
             runCatching {
                 emojiUnicodesPath.writeLines(emojiUnicodes)
-                val totalTime = System.currentTimeMillis() - startTime
-                emojiLogger.info("Created emoji unicodes file $emojiUnicodesPath in ${totalTime}ms")
+                val time = TimeSource.Monotonic.markNow()
+                val timeTaken = time - startTime
+                val timeTakenString = timeTaken.toString(DurationUnit.SECONDS, 3)
+                emojiLogger.info("Created emoji unicodes file $emojiUnicodesPath in $timeTakenString")
             }.onFailure {
                 emojiLogger.error("Failed to create emoji unicodes file under $emojiUnicodesPath", it)
             }

@@ -8,12 +8,14 @@ import io.ktor.client.statement.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import kotlin.io.path.*
+import kotlin.time.DurationUnit
+import kotlin.time.TimeSource
 
 private val emojiLogger: Logger = LoggerFactory.getLogger("Emoji Shortcodes File Generator")
 private const val EMOJI_SHORTCODES_FILE_NAME = "emojis.json"
 
 suspend fun main() {
-    val startTime = System.currentTimeMillis()
+    val startTime = TimeSource.Monotonic.markNow()
     emojiLogger.info("Starting!")
     val directory = Path(EMOJI_FILES_DIRECTORY)
     directory.createDirectories()
@@ -30,8 +32,10 @@ suspend fun main() {
             }
             val prettyPrintedJson = prettyPrintJson(emojiJsonString)
             emojiShortcodesFile.writeText(prettyPrintedJson + "\n")
-            val totalTime = System.currentTimeMillis() - startTime
-            emojiLogger.info("Created emoji shortcodes file $emojiShortcodesFile in ${totalTime}ms")
+            val time = TimeSource.Monotonic.markNow()
+            val timeTaken = time - startTime
+            val timeTakenString = timeTaken.toString(DurationUnit.SECONDS, 3)
+            emojiLogger.info("Created emoji shortcodes file $emojiShortcodesFile in $timeTakenString")
         }.onFailure {
             emojiLogger.error("Error downloading emoji shortcodes file", it)
         }
