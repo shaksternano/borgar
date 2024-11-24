@@ -64,7 +64,7 @@ class DiscordMessageChannel(
         if (discordMessageChannel is ThreadChannel) {
             messageAction.setThread(discordMessageChannel)
         }
-        messageAction.setSuppressEmbeds(messageBuilder.suppressEmbeds)
+        messageAction.isSuppressEmbeds = messageBuilder.suppressEmbeds
 
         val selfUser = discordMessageChannel.jda.selfUser
         var selfMember: Member? = null

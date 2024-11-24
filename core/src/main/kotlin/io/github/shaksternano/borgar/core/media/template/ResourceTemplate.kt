@@ -120,25 +120,6 @@ enum class ResourceTemplate(
         forceTransparency = true,
     ),
 
-    MUTA_SOY(
-        mediaPath = "media/containerimage/muta_soy.png",
-        resultName = "muta_soy",
-
-        contentContainerStartX = 400,
-        contentContainerStartY = 256,
-        contentContainerEndX = 800,
-        contentContainerEndY = 768,
-        contentContainerPadding = 0,
-        contentPosition = ContentPosition.CENTRE,
-        textContentAlignment = TextAlignment.CENTRE,
-
-        fontName = "Futura-CondensedExtraBold",
-        maxFontSize = 100,
-        textColor = Color.WHITE,
-        isBackground = false,
-        forceTransparency = true,
-    ),
-
     WALMART_WANTED(
         mediaPath = "media/containerimage/walmart_wanted.png",
         resultName = "walmart_wanted",

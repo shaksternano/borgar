@@ -36,7 +36,7 @@ interface DataSource : DataSourceConvertable {
     suspend fun size(): Long? = null
 
     suspend fun isWithinReportedSize(maxSize: Long): Boolean =
-        size()?.let { it <= maxSize } ?: true
+        size()?.let { it <= maxSize } != false
 
     suspend fun getOrWriteFile(
         limit: Long = 0,
@@ -48,8 +48,7 @@ interface DataSource : DataSourceConvertable {
                 writeToPath(newPath, limit)
             }.onFailure {
                 newPath.deleteSilently()
-                throw if (it is FileTooLargeException) it
-                else UnreadableFileException(it)
+                throw it as? FileTooLargeException ?: UnreadableFileException(it)
             }
             newPath
         }

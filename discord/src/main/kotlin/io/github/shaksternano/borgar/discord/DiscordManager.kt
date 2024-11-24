@@ -106,5 +106,5 @@ class DiscordManager(
     override fun emojiAsTyped(emoji: String): String = ":$emoji:"
 
     override fun getPermissionName(permission: Permission): String =
-        permission.toDiscord().getName()
+        permission.toDiscord().name
 }

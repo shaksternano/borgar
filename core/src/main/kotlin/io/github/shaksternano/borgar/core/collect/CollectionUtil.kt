@@ -24,11 +24,6 @@ suspend fun <T> Iterable<T>.parallelForEach(action: suspend (T) -> Unit) {
         parallelMap(action)
 }
 
-fun <T> Iterable<T>.indicesOf(element: T): List<Int> =
-    mapIndexedNotNull { index, element1 ->
-        index.takeIf { element1 == element }
-    }
-
 fun <K, V> MutableMap<K, V>.putAllKeys(keys: Iterable<K>, value: V) = keys.forEach {
     put(it, value)
 }

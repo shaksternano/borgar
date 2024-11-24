@@ -4,7 +4,9 @@ import dev.minn.jda.ktx.coroutines.await
 import dev.minn.jda.ktx.events.listener
 import dev.minn.jda.ktx.interactions.commands.Command
 import dev.minn.jda.ktx.interactions.commands.updateCommands
-import io.github.shaksternano.borgar.core.util.*
+import io.github.shaksternano.borgar.core.util.ChannelEnvironment
+import io.github.shaksternano.borgar.core.util.Displayed
+import io.github.shaksternano.borgar.core.util.formatted
 import io.github.shaksternano.borgar.discord.interaction.message.DiscordMessageInteractionCommand
 import io.github.shaksternano.borgar.discord.interaction.message.MESSAGE_INTERACTION_COMMANDS
 import io.github.shaksternano.borgar.discord.interaction.message.handleMessageInteraction
@@ -14,7 +16,6 @@ import io.github.shaksternano.borgar.discord.interaction.user.USER_INTERACTION_C
 import io.github.shaksternano.borgar.discord.interaction.user.handleUserInteraction
 import io.github.shaksternano.borgar.discord.util.toDiscord
 import io.github.shaksternano.borgar.messaging.command.*
-import io.github.shaksternano.borgar.messaging.entity.*
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent
