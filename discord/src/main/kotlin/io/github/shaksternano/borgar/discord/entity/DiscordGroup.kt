@@ -14,7 +14,7 @@ data class DiscordGroup(
     override val id: String = discordGroupChannel.id
     override val manager: BotManager = DiscordManager[discordGroupChannel.jda]
     override val name: String? = discordGroupChannel.name.ifBlank { null }
-    override val ownerId: String = discordGroupChannel.ownerId.id
+    override val ownerId: String = discordGroupChannel.ownerId
     override val iconUrl: String? = discordGroupChannel.iconUrl
 
     override suspend fun isMember(userId: String): Boolean =
