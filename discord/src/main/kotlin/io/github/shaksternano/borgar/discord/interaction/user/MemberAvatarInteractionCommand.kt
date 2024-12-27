@@ -13,10 +13,11 @@ object MemberAvatarInteractionCommand : DiscordUserInteractionCommand {
         val user = event.target
         val avatarUrl = event.guild
             ?.retrieveMember(user)
+            ?.useCache(false)
             ?.await()
             ?.effectiveAvatarUrl
             ?: user.effectiveAvatarUrl
-        event.reply(avatarUrl)
+        event.reply("$avatarUrl?size=1024")
             .setEphemeral(true)
             .await()
         return null
