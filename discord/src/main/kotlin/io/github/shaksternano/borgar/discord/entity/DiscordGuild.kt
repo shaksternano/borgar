@@ -34,7 +34,11 @@ data class DiscordGuild(
         discordGuild.splashUrl?.let { "$it?size=4096" }
     }
     override val maxFileSize: Long = discordGuild.ifNotDetachedOrElse(manager.maxFileSize) {
-        discordGuild.maxFileSize
+        when (discordGuild.boostTier.key) {
+            2 -> 50 shl 20
+            3 -> 100 shl 20
+            else -> manager.maxFileSize
+        }
     }
     override val publicRole: Role? = discordGuild.ifNotDetachedOrNull {
         DiscordRole(discordGuild.publicRole)
