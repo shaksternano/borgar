@@ -25,9 +25,9 @@ abstract class MediaProcessingTask(
     }
 }
 
-private class ChainedMediaProcessingTask(
-    first: MediaProcessingTask,
-    second: MediaProcessingTask,
+class ChainedMediaProcessingTask(
+    val first: MediaProcessingTask,
+    val second: MediaProcessingTask,
     maxFileSize: Long,
 ) : MediaProcessingTask(maxFileSize) {
 

@@ -3,6 +3,7 @@ package io.github.shaksternano.borgar.messaging.command
 import io.github.shaksternano.borgar.core.io.SuspendCloseable
 import io.github.shaksternano.borgar.core.io.UrlInfo
 import io.github.shaksternano.borgar.core.logger
+import io.github.shaksternano.borgar.core.task.ChainedMediaProcessingTask
 import io.github.shaksternano.borgar.core.task.FileTask
 import io.github.shaksternano.borgar.core.task.MediaProcessingTask
 import io.github.shaksternano.borgar.core.task.TranscodeTask
@@ -44,9 +45,14 @@ data class FileExecutable(
                 emptyList()
             }
 
-        val modifiedOutputFormatTask = if (gifv && task is MediaProcessingTask)
+        val modifiedOutputFormatTask = if (
+            gifv
+            && task is MediaProcessingTask
+            && task !is TranscodeTask
+            && (task !is ChainedMediaProcessingTask || task.second !is TranscodeTask)
+        ) {
             task then TranscodeTask("gif", maxFileSize)
-        else task
+        } else task
         val output = modifiedOutputFormatTask.run(input)
         if (output.isEmpty()) {
             logger.error("No files were outputted by ${commandConfigs.last().typedForm}")
@@ -101,7 +107,7 @@ data class FileExecutable(
                 taskSupplier = {
                     try {
                         taskSupplier() then after.taskSupplier()
-                    } catch (e: UnsupportedOperationException) {
+                    } catch (_: UnsupportedOperationException) {
                         throw NonChainableCommandException(commandConfigs.last(), after.commandConfigs.first())
                     }
                 },
