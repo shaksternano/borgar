@@ -52,7 +52,7 @@ suspend fun CommandMessageIntersection.getUrls(getGif: Boolean): List<UrlInfo> =
     )
     addAll(
         content.getUrls().mapNotNull {
-            if (isImageOrVideo(it)) {
+            if (isMedia(it)) {
                 UrlInfo(it)
             } else {
                 retrieveTenorMediaUrl(it, getGif)
@@ -82,7 +82,7 @@ private suspend fun CommandMessageIntersection.getUrlDrawables(): Map<String, Dr
                     checkContentType = false
                 }
                 ?: entry.key
-            if (checkContentType && !isImageOrVideo(url)) {
+            if (checkContentType && !isMedia(url)) {
                 return@mapNotNull null
             }
             val dataSource = DataSource.fromUrl(url)
@@ -92,13 +92,15 @@ private suspend fun CommandMessageIntersection.getUrlDrawables(): Map<String, Dr
         }.associate { it }
 }
 
-private suspend fun isImageOrVideo(url: String): Boolean {
+private suspend fun isMedia(url: String): Boolean {
     val contentType = runCatching {
         useHttpClient { client ->
             client.head(url).contentType()
         }
     }.getOrNull() ?: return false
-    return contentType.match(ContentType.Image.Any) || contentType.match(ContentType.Video.Any)
+    return contentType.match(ContentType.Image.Any)
+        || contentType.match(ContentType.Video.Any)
+        || contentType.match(ContentType.Application.Pdf)
 }
 
 suspend fun CommandMessageIntersection.getEmojiUrls(): Map<String, String> {
