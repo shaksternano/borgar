@@ -34,7 +34,7 @@ dependencies {
     implementation("commons-io:commons-io:$commonsIoVersion")
     implementation("org.reflections:reflections:$reflectionsVersion")
     // For utility classes such as SplitUtil
-    implementation("com.github.freya022:JDA:$jdaVersion") {
+    implementation("net.dv8tion:JDA:$jdaVersion") {
         exclude(module = "opus-java")
     }
 
