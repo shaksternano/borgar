@@ -15,7 +15,7 @@ import java.time.OffsetDateTime
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.Path
 
-object TemplateRepository : Repository<TemplateTable>() {
+object TemplateRepository : Repository() {
 
     const val COMMAND_NAME_MAX_LENGTH: Int = 32
     const val COMMAND_DESCRIPTION_MAX_LENGTH: Int = 100
@@ -67,7 +67,7 @@ object TemplateRepository : Repository<TemplateTable>() {
     suspend fun delete(commandName: String, entityId: String) {
         dbQuery {
             queryPrimaryKey(commandName, entityId).forEach {
-                Path(it[mediaPath]).deleteSilently()
+                Path(it[TemplateTable.mediaPath]).deleteSilently()
             }
             deleteWhere { primaryKeyPredicate(commandName, entityId) }
         }

@@ -4,7 +4,7 @@ import io.github.shaksternano.borgar.core.data.VarcharIdTable
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 
-object SavedUrlRepository : Repository<SavedUrlTable>() {
+object SavedUrlRepository : Repository() {
 
     override fun table(): SavedUrlTable = SavedUrlTable
 
@@ -17,7 +17,7 @@ object SavedUrlRepository : Repository<SavedUrlTable>() {
 
     suspend fun readAliasUrl(url: String): String? = dbQuery {
         selectAll().where { SavedUrlTable.url eq url }
-            .map { it[aliasUrl] }
+            .map { it[SavedUrlTable.aliasUrl] }
             .firstOrNull()
     }
 }

@@ -8,7 +8,7 @@ import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 
-abstract class Repository<T : Table> {
+abstract class Repository {
 
     init {
         try {
@@ -20,8 +20,8 @@ abstract class Repository<T : Table> {
         }
     }
 
-    protected abstract fun table(): T
+    protected abstract fun table(): Table
 
-    protected suspend fun <R> dbQuery(block: suspend T.() -> R): R =
+    protected suspend fun <R> dbQuery(block: suspend Table.() -> R): R =
         newSuspendedTransaction(Dispatchers.IO) { block(table()) }
 }
