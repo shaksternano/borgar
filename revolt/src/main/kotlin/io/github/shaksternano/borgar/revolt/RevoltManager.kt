@@ -39,7 +39,7 @@ private val USER_MENTION_REGEX: Regex = "<@[A-Za-z0-9]+>".toRegex()
 
 class RevoltManager(
     private val token: String,
-    val apiUrl: String = "https://api.revolt.chat",
+    val apiUrl: String = "https://api.revolt.chat/0.8",
     val webSocketUrl: String = "ws.revolt.chat",
     val cdnUrl: String = "https://autumn.revolt.chat",
     val appUrl: String = "https://app.revolt.chat",
