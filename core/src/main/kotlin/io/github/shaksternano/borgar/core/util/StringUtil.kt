@@ -91,5 +91,10 @@ fun parseTags(tags: String): Set<String> =
         }
         .toSet()
 
-fun String.encodeUrl(): String =
-    URLEncoder.encode(this, Charsets.UTF_8)
+fun String.encodeUrl(): String {
+    val spaceIndices = indicesOf(" ")
+    val encoded = URLEncoder.encode(this, Charsets.UTF_8)
+    return spaceIndices.asReversed().fold(StringBuilder(encoded)) { result, index ->
+        result.replace(index, index + 1, "%20")
+    }.toString()
+}
