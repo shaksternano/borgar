@@ -17,8 +17,8 @@ import kotlin.io.path.Path
 
 object TemplateRepository : Repository<TemplateTable>() {
 
-    const val COMMAND_NAME_MAX_LENGTH = 32
-    const val COMMAND_DESCRIPTION_MAX_LENGTH = 100
+    const val COMMAND_NAME_MAX_LENGTH: Int = 32
+    const val COMMAND_DESCRIPTION_MAX_LENGTH: Int = 100
 
     private val cache: MutableMap<String, CustomTemplate> = ConcurrentHashMap()
 

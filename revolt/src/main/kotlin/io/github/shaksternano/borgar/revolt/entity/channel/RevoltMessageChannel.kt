@@ -25,7 +25,7 @@ import kotlinx.io.IOException
 import kotlinx.serialization.Serializable
 import ulid.ULID
 
-private const val IDEMPOTENCY_KEY_HEADER = "Idempotency-Key"
+private const val IDEMPOTENCY_KEY_HEADER: String = "Idempotency-Key"
 
 class RevoltMessageChannel(
     manager: RevoltManager,

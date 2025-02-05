@@ -9,7 +9,7 @@ import net.ifok.image.image4j.codec.ico.ICOEncoder
 import java.nio.file.Path
 import kotlin.time.Duration
 
-private const val MAX_DIMENSION = 256
+private const val MAX_DIMENSION: Int = 256
 
 class Image4jIcoWriter(
     private val output: Path,

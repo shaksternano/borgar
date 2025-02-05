@@ -98,7 +98,7 @@ private suspend fun JDA.awaitReadySuspend() {
     }
 }
 
-private const val DISCORD_LOG_CHANNEL_ID_ENV_VAR = "DISCORD_LOG_CHANNEL_ID"
+private const val DISCORD_LOG_CHANNEL_ID_ENV_VAR: String = "DISCORD_LOG_CHANNEL_ID"
 
 private fun JDA.createDiscordLogger(): DiscordLogger? {
     val logChannelIdString = getEnvVar(DISCORD_LOG_CHANNEL_ID_ENV_VAR) ?: return null

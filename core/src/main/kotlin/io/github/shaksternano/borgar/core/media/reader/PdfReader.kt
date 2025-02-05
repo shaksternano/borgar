@@ -114,9 +114,9 @@ class PdfReader(
     }
 }
 
-private const val PDF_DPI: Float = 200F
+private const val PDF_DPI: Int = 200
 
 private suspend fun PDFRenderer.getImage(page: Int): BufferedImage =
     withContext(Dispatchers.IO) {
-        renderImageWithDPI(page, PDF_DPI)
+        renderImageWithDPI(page, PDF_DPI.toFloat())
     }

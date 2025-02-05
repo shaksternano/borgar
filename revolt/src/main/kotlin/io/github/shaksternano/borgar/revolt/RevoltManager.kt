@@ -33,7 +33,7 @@ import kotlinx.serialization.Serializable
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-private const val REVOLT_TOKEN_HEADER = "x-bot-token"
+private const val REVOLT_TOKEN_HEADER: String = "x-bot-token"
 
 private val USER_MENTION_REGEX: Regex = "<@[A-Za-z0-9]+>".toRegex()
 

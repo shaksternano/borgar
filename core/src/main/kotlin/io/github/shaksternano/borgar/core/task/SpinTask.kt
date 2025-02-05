@@ -23,7 +23,7 @@ class SpinTask(
 }
 
 private val SPIN_FRAME_DURATION = 20.milliseconds
-private const val BASE_FRAMES_PER_ROTATION = 150.0
+private const val BASE_FRAMES_PER_ROTATION: Int = 150
 
 private data class SpinConfig(
     private val spinSpeed: Double,
@@ -35,7 +35,7 @@ private data class SpinConfig(
         val framesPerRotation = if (absoluteSpeed > 1) {
             max(BASE_FRAMES_PER_ROTATION / absoluteSpeed, 1.0)
         } else {
-            BASE_FRAMES_PER_ROTATION
+            BASE_FRAMES_PER_ROTATION.toDouble()
         }
         SPIN_FRAME_DURATION * framesPerRotation
     }

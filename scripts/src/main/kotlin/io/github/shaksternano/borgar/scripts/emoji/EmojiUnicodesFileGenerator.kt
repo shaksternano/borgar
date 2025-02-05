@@ -12,10 +12,10 @@ import kotlin.time.TimeSource
 
 private val emojiLogger: Logger = LoggerFactory.getLogger("Emoji Unicodes File Generator")
 
-private const val REPOSITORY_OWNER = "twitter"
-private const val REPOSITORY_NAME = "twemoji"
+private const val REPOSITORY_OWNER: String = "twitter"
+private const val REPOSITORY_NAME: String = "twemoji"
 
-private const val EMOJI_UNICODES_FILE_NAME = "emoji_unicodes.txt"
+private const val EMOJI_UNICODES_FILE_NAME: String = "emoji_unicodes.txt"
 
 /**
  * Generates a file containing the unicodes of all the characters that have a

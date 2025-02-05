@@ -158,7 +158,7 @@ suspend fun sendResponses(
                     sendHandleResponseErrorMessage = false
                 }
             }
-        } catch (e: FileTooLargeException) {
+        } catch (_: FileTooLargeException) {
             commandEvent.reply("The file is too large to send!")
         } catch (t: Throwable) {
             logger.error("Failed to send response", t)
@@ -195,7 +195,8 @@ suspend fun formatMentions(content: String, message: CommandMessageIntersection)
     return stripped
 }
 
-private const val OUT_OF_MEMORY_ERROR_MESSAGE = "Ran out of memory! Please try again later, or use a smaller file."
+private const val OUT_OF_MEMORY_ERROR_MESSAGE: String =
+    "Ran out of memory! Please try again later, or use a smaller file."
 
 fun handleError(throwable: Throwable, manager: BotManager): String {
     val (unwrapped, commandConfigs) =

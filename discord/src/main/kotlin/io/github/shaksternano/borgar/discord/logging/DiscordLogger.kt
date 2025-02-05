@@ -10,8 +10,8 @@ import net.dv8tion.jda.api.utils.FileUpload
 import org.slf4j.Logger
 import org.slf4j.event.Level
 
-private const val BACKTICK_AND_NEWLINE_LENGTH = 8
-private const val MAX_MESSAGE_LENGTH = Message.MAX_CONTENT_LENGTH - BACKTICK_AND_NEWLINE_LENGTH
+private const val BACKTICK_AND_NEWLINE_LENGTH: Int = 8
+private const val MAX_MESSAGE_LENGTH: Int = Message.MAX_CONTENT_LENGTH - BACKTICK_AND_NEWLINE_LENGTH
 
 class DiscordLogger(
     delegate: Logger,

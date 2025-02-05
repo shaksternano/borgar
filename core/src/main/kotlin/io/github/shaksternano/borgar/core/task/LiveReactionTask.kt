@@ -15,21 +15,21 @@ class LiveReactionTask(
     )
 }
 
-private const val MAIN_TOP_LEFT_X = 15
-private const val MAIN_TOP_LEFT_Y = 163
-private const val MAIN_BOTTOM_RIGHT_X = 944
-private const val MAIN_BOTTOM_RIGHT_Y = 690
+private const val MAIN_TOP_LEFT_X: Int = 15
+private const val MAIN_TOP_LEFT_Y: Int = 163
+private const val MAIN_BOTTOM_RIGHT_X: Int = 944
+private const val MAIN_BOTTOM_RIGHT_Y: Int = 690
 
-private const val MAIN_WIDTH = MAIN_BOTTOM_RIGHT_X - MAIN_TOP_LEFT_X
-private const val MAIN_HEIGHT = MAIN_BOTTOM_RIGHT_Y - MAIN_TOP_LEFT_Y
+private const val MAIN_WIDTH: Int = MAIN_BOTTOM_RIGHT_X - MAIN_TOP_LEFT_X
+private const val MAIN_HEIGHT: Int = MAIN_BOTTOM_RIGHT_Y - MAIN_TOP_LEFT_Y
 
-private const val CAPTION_TOP_LEFT_X = 209
-private const val CAPTION_TOP_LEFT_Y = 25
-private const val CAPTION_BOTTOM_RIGHT_X = 515
-private const val CAPTION_BOTTOM_RIGHT_Y = 136
+private const val CAPTION_TOP_LEFT_X: Int = 209
+private const val CAPTION_TOP_LEFT_Y: Int = 25
+private const val CAPTION_BOTTOM_RIGHT_X: Int = 515
+private const val CAPTION_BOTTOM_RIGHT_Y: Int = 136
 
-private const val CAPTION_WIDTH = CAPTION_BOTTOM_RIGHT_X - CAPTION_TOP_LEFT_X
-private const val CAPTION_HEIGHT = CAPTION_BOTTOM_RIGHT_Y - CAPTION_TOP_LEFT_Y
+private const val CAPTION_WIDTH: Int = CAPTION_BOTTOM_RIGHT_X - CAPTION_TOP_LEFT_X
+private const val CAPTION_HEIGHT: Int = CAPTION_BOTTOM_RIGHT_Y - CAPTION_TOP_LEFT_Y
 
 private object LiveReactionProcessor : ImageProcessor<LiveReactionData> {
 

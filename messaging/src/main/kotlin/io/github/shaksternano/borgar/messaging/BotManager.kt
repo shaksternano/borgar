@@ -6,7 +6,7 @@ import io.github.shaksternano.borgar.messaging.entity.channel.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlin.time.Duration
 
-const val BOT_STATUS = "fortnite battle pass"
+const val BOT_STATUS: String = "fortnite battle pass"
 
 private val botManagersMutable: MutableList<BotManager> = mutableListOf()
 val BOT_MANAGERS: List<BotManager> = botManagersMutable

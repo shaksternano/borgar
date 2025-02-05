@@ -18,7 +18,7 @@ import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent
 object RunCommandInteractionCommand : DiscordModalInteractionCommand {
 
     override val name: String = "command"
-    const val TEXT_INPUT_ID = "command"
+    const val TEXT_INPUT_ID: String = "command"
 
     override suspend fun respond(event: ModalInteractionEvent): Any? {
         val content = event.getValue(TEXT_INPUT_ID)

@@ -10,8 +10,8 @@ import io.github.shaksternano.borgar.revolt.initRevolt
 import kotlin.time.DurationUnit
 import kotlin.time.TimeSource
 
-private const val DISCORD_BOT_TOKEN_ENV_VAR = "DISCORD_BOT_TOKEN"
-private const val REVOLT_BOT_TOKEN_ENV_VAR = "REVOLT_BOT_TOKEN"
+private const val DISCORD_BOT_TOKEN_ENV_VAR: String = "DISCORD_BOT_TOKEN"
+private const val REVOLT_BOT_TOKEN_ENV_VAR: String = "REVOLT_BOT_TOKEN"
 
 suspend fun main() {
     logger.info("Starting")

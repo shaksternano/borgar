@@ -12,7 +12,7 @@ import kotlin.time.DurationUnit
 import kotlin.time.TimeSource
 
 private val emojiLogger: Logger = LoggerFactory.getLogger("Emoji Shortcodes File Generator")
-private const val EMOJI_SHORTCODES_FILE_NAME = "emojis.json"
+private const val EMOJI_SHORTCODES_FILE_NAME: String = "emojis.json"
 
 suspend fun main() {
     val startTime = TimeSource.Monotonic.markNow()

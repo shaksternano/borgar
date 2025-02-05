@@ -32,7 +32,7 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands
 import net.dv8tion.jda.api.interactions.commands.build.OptionData
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 
-const val AFTER_COMMANDS_ARGUMENT = "aftercommands"
+const val AFTER_COMMANDS_ARGUMENT: String = "aftercommands"
 
 suspend fun JDA.registerCommands() {
     listener<SlashCommandInteractionEvent> {
