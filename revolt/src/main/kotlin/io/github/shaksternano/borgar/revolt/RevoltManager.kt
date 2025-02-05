@@ -33,18 +33,21 @@ import kotlinx.serialization.Serializable
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
+private const val REVOLT_API_VERSION: String = "0.8"
 private const val REVOLT_TOKEN_HEADER: String = "x-bot-token"
-
 private val USER_MENTION_REGEX: Regex = "<@[A-Za-z0-9]+>".toRegex()
 
 class RevoltManager(
     private val token: String,
-    val apiUrl: String = "https://api.revolt.chat/0.8",
+    apiUrl: String = "https://api.revolt.chat",
     val webSocketUrl: String = "ws.revolt.chat",
     val cdnUrl: String = "https://autumn.revolt.chat",
     val appUrl: String = "https://app.revolt.chat",
     val proxyUrl: String = "https://jan.revolt.chat",
 ) : BotManager {
+
+    val apiUrl: String = "$apiUrl/$REVOLT_API_VERSION"
+    val webSocket: RevoltWebSocketClient = RevoltWebSocketClient(token, this)
 
     override val platform: MessagingPlatform = MessagingPlatform.REVOLT
     override var selfId: String = ""
@@ -57,8 +60,6 @@ class RevoltManager(
     override val emojiTypedRegex: Regex = ":[A-Za-z0-9]+:".toRegex()
     override val typingDuration: Duration = 1.seconds
     override val commandAutoCompleteMaxSuggestions: Int = 0
-
-    val webSocket: RevoltWebSocketClient = RevoltWebSocketClient(token, this)
 
     private val systemUser: RevoltUser = RevoltUser(
         manager = this,
