@@ -29,7 +29,7 @@ data class RevoltEmojiResponse(
             manager = manager,
             id = id,
             name = name,
-            imageUrl = "${manager.cdnUrl}/emojis/$id"
+            imageUrl = "${manager.cdnUrl}/emojis/$id/original"
         )
     }
 }
