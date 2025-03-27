@@ -38,7 +38,7 @@ dependencies {
         exclude(module = "opus-java")
     }
 
-    implementation("org.bytedeco:javacv-platform:$javacvVersion") {
+    api("org.bytedeco:javacv-platform:$javacvVersion") {
         excludeJavaCpp(
             "artoolkitplus",
             "flandmark",
