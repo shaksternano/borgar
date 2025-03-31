@@ -31,7 +31,9 @@ open class DiscordChannel protected constructor(
 
     override val manager: BotManager = DiscordManager[discordChannel.jda]
     override val id: String = discordChannel.id
-    override val name: String = discordChannel.name
+
+    @Suppress("USELESS_ELVIS")
+    override val name: String = discordChannel.name ?: ""
     override val environment: ChannelEnvironment = when (discordChannel) {
         is GuildChannel -> ChannelEnvironment.GUILD
         is GroupChannel -> ChannelEnvironment.GROUP
