@@ -1,6 +1,6 @@
 # Borgar
 
-Discord bot that provides fun image editing commands, such as image captioning. View the list of commands with `/help`.
+Discord and Revolt bot that provides fun image editing commands, such as image captioning. View the list of commands with `/help`.
 
 ![Image captioning](images/image_caption_example.png)
 
@@ -23,9 +23,11 @@ Discord bot that provides fun image editing commands, such as image captioning. 
 1. Run `io.github.shaksternano.borgar.core.Main#main`
 2. It should fail to run the first time due to missing arguments such as the Discord bot token, so put those in the `Program arguments` field under the `Main` run configuration → `Edit Configurations...`.
 3. Add the required program argument:
-   ```
-   DISCORD_BOT_TOKEN=your-bot-token
-   ```
+```dotenv
+DISCORD_BOT_TOKEN=your-discord-bot-token
+# and/or
+REVOLT_BOT_TOKEN=your-revolt-bot-token
+```
 
 ## How to export and run this project as a JAR file
 1. Run in a terminal from the same directory as the project directory `./gradlew build` on GNU/Linux and Mac, or `gradlew build` on Windows.
@@ -43,9 +45,9 @@ Some of the fun commands provided by Borgar:
 
 ## Troubleshooting
 **Java version issues**: Ensure you're using Java 17 or higher. You can check this with:
-   ```
-   java -version
-   ```
+```bash
+java -version
+```
 **Bot Token Issues**: Make sure the bot token is correct and that the bot is invited to your server.
 
 **Build failures**: If you're experiencing slow build times, try switching IntelliJ to use its internal build system as outlined in the setup instructions.
