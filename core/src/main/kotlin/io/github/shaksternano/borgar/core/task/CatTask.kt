@@ -2,7 +2,6 @@ package io.github.shaksternano.borgar.core.task
 
 import io.ktor.client.call.*
 import io.ktor.client.statement.*
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlin.random.Random
 
@@ -34,19 +33,18 @@ class CatTask(
 
     override suspend fun parseResponse(response: HttpResponse): ApiResponse {
         val body = response.body<ResponseBody>()
-        val url = "${CAT_API_URL}/cat/${body.id}"
         val extension = body.mimetype.split('/', limit = 2)[1]
         return ApiResponse(
             body.id,
-            url,
+            body.url,
             extension,
         )
     }
 
     @Serializable
     private data class ResponseBody(
-        @SerialName("_id")
         val id: String,
+        val url: String,
         val mimetype: String,
     )
 }
