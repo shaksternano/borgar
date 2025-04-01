@@ -4,7 +4,8 @@ Discord and Revolt bot that provides fun image editing commands, such as image c
 
 <!--suppress HtmlDeprecatedAttribute -->
 <div align="center">
-  <img src="images/image_caption_example.png" alt="Image captioning"/>
+   <!--suppress CheckImageSize -->
+   <img src="images/image_caption_example.png" alt="Image captioning" width=400/>
 </div>
 
 ## Prerequisites
