@@ -2,41 +2,45 @@ name: Test
 on: [ push, pull_request ]
 
 jobs:
-  build:
-    runs-on: ubuntu-22.04
+    build:
+        runs-on: ubuntu-latest
 
-    env:
-      POSTGRESQL_URL: jdbc:postgresql://localhost:5432/postgres
-      POSTGRESQL_PORTS: 5432:5432
-      POSTGRESQL_USERNAME: root
-      POSTGRESQL_PASSWORD: password
+        env:
+            POSTGRESQL_URL: jdbc:postgresql://localhost:5432/postgres
+            POSTGRESQL_PORTS: 5432:5432
+            POSTGRESQL_USERNAME: root
+            POSTGRESQL_PASSWORD: password
 
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-java@v3
-        with:
-          distribution: "temurin"
-          java-version: 17
-          cache: "gradle"
+        steps:
+            -   name: Checkout sources
+                uses: actions/checkout@v4
 
-      - name: Create .env file for Docker Compose
-        run: |
-          touch .env
-          echo POSTGRESQL_PORTS=POSTGRESQL_PORTS >> .env
-          echo POSTGRESQL_USERNAME=$POSTGRESQL_USERNAME >> .env
-          echo POSTGRESQL_PASSWORD=$POSTGRESQL_PASSWORD >> .env
+            -   name: Setup Java
+                uses: actions/setup-java@v4
+                with:
+                    distribution: "temurin"
+                    java-version: 21
 
-      - name: Run Docker Compose
-        run: |
-          docker compose up -d
+            -   name: Setup Gradle
+                uses: gradle/actions/setup-gradle@v4
 
-      - name: Run tests
-        run: ./gradlew test --stacktrace --parallel
+            -   name: Create .env file for Docker Compose
+                run: |
+                    touch .env
+                    echo POSTGRESQL_PORTS=POSTGRESQL_PORTS >> .env
+                    echo POSTGRESQL_USERNAME=$POSTGRESQL_USERNAME >> .env
+                    echo POSTGRESQL_PASSWORD=$POSTGRESQL_PASSWORD >> .env
 
-      - name: Upload test report
-        if: success() || failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: Test Report
-          path: |
-            build/reports/tests/test/
+            -   name: Run Docker Compose
+                run: docker compose up -d
+
+            -   name: Run tests
+                run: ./gradlew test --stacktrace --parallel
+
+            -   name: Upload test report
+                if: success() || failure()
+                uses: actions/upload-artifact@v4
+                with:
+                    name: Test report
+                    path: |
+                        build/reports/tests/test/
