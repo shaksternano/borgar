@@ -11,6 +11,7 @@ import io.github.shaksternano.borgar.revolt.entity.channel.RevoltChannelResponse
 import io.github.shaksternano.borgar.revolt.entity.channel.RevoltChannelType
 import io.github.shaksternano.borgar.revolt.entity.createMessage
 import io.ktor.client.plugins.websocket.*
+import io.ktor.http.*
 import io.ktor.util.network.*
 import io.ktor.websocket.*
 import kotlinx.atomicfu.AtomicInt
@@ -49,7 +50,7 @@ class RevoltWebSocketClient(
     private var invalidToken: Boolean = false
     private var open: Boolean = true
 
-    init {
+    suspend fun init() {
         registerHandlers()
 
         // Create a custom dispatcher to use non-daemon threads
@@ -57,14 +58,17 @@ class RevoltWebSocketClient(
         val dispatcher = threadPool.asCoroutineDispatcher()
         CoroutineScope(dispatcher).launch {
             withContext(Dispatchers.Default) {
+                val websocketUrl = Url(manager.webSocketUrl)
+                val host = websocketUrl.host
+                val path = "${websocketUrl.encodedPath}?version=1&format=json&token=$token"
                 while (open) {
                     runCatching {
                         httpClient {
                             install(WebSockets)
                         }.use { client ->
                             client.wss(
-                                host = manager.webSocketUrl,
-                                path = "?version=1&format=json&token=$token",
+                                host = host,
+                                path = path,
                             ) {
                                 session = this
                                 val pingJob = launch {
@@ -94,9 +98,11 @@ class RevoltWebSocketClient(
                 logger.error("Revolt WebSocket client stopped")
             }
         }
+
+        awaitReady()
     }
 
-    suspend fun awaitReady() {
+    private suspend fun awaitReady() {
         if (ready) return
         if (invalidToken) throw IllegalArgumentException("Invalid Revolt token")
         var resumed = false

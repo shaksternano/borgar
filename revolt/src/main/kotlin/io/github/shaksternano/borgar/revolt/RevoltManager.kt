@@ -33,20 +33,23 @@ import kotlinx.serialization.Serializable
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-private const val REVOLT_API_VERSION: String = "0.8"
 private const val REVOLT_TOKEN_HEADER: String = "x-bot-token"
 private val USER_MENTION_REGEX: Regex = "<@[A-Za-z0-9]+>".toRegex()
 
 class RevoltManager(
     private val token: String,
-    apiUrl: String = "https://api.revolt.chat",
-    val webSocketUrl: String = "ws.revolt.chat",
-    val cdnUrl: String = "https://autumn.revolt.chat",
-    val appUrl: String = "https://app.revolt.chat",
-    val proxyUrl: String = "https://jan.revolt.chat",
+    val apiUrl: String = "https://api.revolt.chat/0.8",
 ) : BotManager {
 
-    val apiUrl: String = "$apiUrl/$REVOLT_API_VERSION"
+    lateinit var webSocketUrl: String
+        private set
+    lateinit var cdnUrl: String
+        private set
+    lateinit var proxyUrl: String
+        private set
+    lateinit var appUrl: String
+        private set
+
     val webSocket: RevoltWebSocketClient = RevoltWebSocketClient(token, this)
 
     override val platform: MessagingPlatform = MessagingPlatform.REVOLT
@@ -74,6 +77,16 @@ class RevoltManager(
 
     suspend fun init() {
         if (ready) return
+
+        val apiBody = useHttpClient { client ->
+            client.get(apiUrl).body<RevoltApiBody>()
+        }
+
+        webSocketUrl = apiBody.ws
+        cdnUrl = apiBody.features.autumn.url
+        proxyUrl = apiBody.features.january.url
+        appUrl = apiBody.app
+
         val editUserBody = EditUserRequest(
             status = StatusBody(BOT_STATUS),
         )
@@ -81,10 +94,12 @@ class RevoltManager(
             path = "/users/@me",
             method = HttpMethod.Patch,
             body = editUserBody,
-        ).convert(this@RevoltManager)
+        ).convert(this)
+
         selfId = self.id
         ownerId = self.ownerId ?: error("Revolt bot owner ID not found")
-        webSocket.awaitReady()
+
+        webSocket.init()
         ready = true
     }
 
@@ -236,6 +251,24 @@ class RevoltManager(
 
     private fun getUserId(typedUserMention: String): String =
         typedUserMention.removeSurrounding("<@", ">")
+
+    @Serializable
+    private data class RevoltApiBody(
+        val features: RevoltFeaturesBody,
+        val ws: String,
+        val app: String,
+    )
+
+    @Serializable
+    private data class RevoltFeaturesBody(
+        val autumn: RevoltFeatureBody,
+        val january: RevoltFeatureBody,
+    )
+
+    @Serializable
+    private data class RevoltFeatureBody(
+        val url: String,
+    )
 
     @Serializable
     private data class EditUserRequest(
