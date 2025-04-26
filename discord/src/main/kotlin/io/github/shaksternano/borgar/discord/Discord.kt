@@ -6,7 +6,6 @@ import dev.minn.jda.ktx.jdabuilder.default
 import dev.minn.jda.ktx.jdabuilder.intents
 import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.logger
-import io.github.shaksternano.borgar.core.setLogger
 import io.github.shaksternano.borgar.core.util.getEnvVar
 import io.github.shaksternano.borgar.discord.command.registerCommands
 import io.github.shaksternano.borgar.discord.entity.DiscordMessage
@@ -51,7 +50,7 @@ suspend fun initDiscord(token: String) {
             logger.warn("Discord log channel with ID $logChannelId not found!")
         } else {
             logger.info("Logging to Discord channel #${logChannel.name}!")
-            setLogger(discordLogger)
+            logger = discordLogger
         }
     }
     logger.info("Connected to Discord")

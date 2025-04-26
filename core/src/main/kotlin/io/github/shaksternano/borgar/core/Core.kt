@@ -15,9 +15,7 @@ val START_TIME: TimeSource.Monotonic.ValueTimeMark = TimeSource.Monotonic.markNo
 val AVAILABLE_PROCESSORS: Int = Runtime.getRuntime().availableProcessors()
 
 val baseLogger: Logger = LoggerFactory.getLogger("Borgar")
-private var mutableLogger: Logger = baseLogger
-val logger: Logger
-    get() = mutableLogger
+var logger: Logger = baseLogger
 
 suspend fun initCore() {
     val envFileName = ".env"
@@ -26,10 +24,6 @@ suspend fun initCore() {
     registerFonts()
     initEmojis()
     avutil.av_log_set_level(avutil.AV_LOG_PANIC)
-}
-
-fun setLogger(logger: Logger) {
-    mutableLogger = logger
 }
 
 private fun connectToPostgreSql() {
