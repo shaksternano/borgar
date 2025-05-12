@@ -4,7 +4,6 @@ import io.github.shaksternano.borgar.core.collect.parallelMap
 import io.github.shaksternano.borgar.core.exception.FileTooLargeException
 import io.github.shaksternano.borgar.core.exception.HttpException
 import io.github.shaksternano.borgar.core.io.toChannelProvider
-import io.github.shaksternano.borgar.core.io.useHttpClient
 import io.github.shaksternano.borgar.core.util.ChannelEnvironment
 import io.github.shaksternano.borgar.core.util.URL_REGEX
 import io.github.shaksternano.borgar.messaging.builder.MessageCreateBuilder
@@ -15,13 +14,10 @@ import io.github.shaksternano.borgar.revolt.entity.*
 import io.github.shaksternano.borgar.revolt.util.RevoltPermissionValue
 import io.ktor.client.request.forms.*
 import io.ktor.http.*
-import io.ktor.util.collections.*
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.launch
 import kotlinx.io.IOException
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import ulid.ULID
 
@@ -62,19 +58,8 @@ class RevoltMessageChannel(
         require(builder.content.isNotEmpty() || builder.files.isNotEmpty()) {
             "Revolt message content and files cannot both be empty"
         }
-        val requestBody = coroutineScope {
-            val attachmentIdsDeferred = async {
-                builder.uploadAttachments(manager)
-            }
-            builder.removeInvalidReferencedMessages(manager, id)
-            builder.toRequestBody(attachmentIdsDeferred.await())
-        }
-        return runCatching {
-            requestBody.send()
-        }.getOrElse {
-            val noReplies = requestBody.copy(replies = null)
-            noReplies.send()
-        }
+        val attachmentIds = builder.uploadAttachments(manager)
+        return builder.toRequestBody(attachmentIds).send()
     }
 
     private suspend fun MessageCreateRequest.send(): RevoltMessage {
@@ -122,7 +107,9 @@ class RevoltMessageChannel(
     }
 
     private suspend fun requestPreviousMessages(beforeId: String): RevoltPreviousMessagesResponse =
-        manager.request<RevoltPreviousMessagesResponse>("/channels/$id/messages?before=$beforeId&include_users=true")
+        manager.request<RevoltPreviousMessagesResponse>(
+            "/channels/$id/messages?before=$beforeId&include_users=true",
+        )
 }
 
 private suspend fun MessageCreateBuilder.uploadAttachments(manager: RevoltManager): List<String> =
@@ -147,36 +134,6 @@ private suspend fun MessageCreateBuilder.uploadAttachments(manager: RevoltManage
             }
         }.id
     }
-
-private suspend fun MessageCreateBuilder.removeInvalidReferencedMessages(manager: RevoltManager, channelId: String) {
-    if (referencedMessageIds.isEmpty()) return
-    val validReferencedMessageIds = ConcurrentSet<String>()
-    useHttpClient { client ->
-        coroutineScope {
-            referencedMessageIds.forEach {
-                launch {
-                    val response = manager.request(
-                        client = client,
-                        path = "/channels/$channelId/messages/$it",
-                        method = HttpMethod.Head,
-                        ignoreErrors = true,
-                    )
-                    val messageExists = response.status.isSuccess()
-                    if (messageExists) {
-                        validReferencedMessageIds.add(it)
-                    }
-                }
-            }
-        }
-    }
-    val referencedMessageIdsIterator = referencedMessageIds.iterator()
-    while (referencedMessageIdsIterator.hasNext()) {
-        val referencedMessageId = referencedMessageIdsIterator.next()
-        if (referencedMessageId !in validReferencedMessageIds) {
-            referencedMessageIdsIterator.remove()
-        }
-    }
-}
 
 private fun MessageCreateBuilder.toRequestBody(attachmentIds: List<String>): MessageCreateRequest =
     MessageCreateRequest(
@@ -204,7 +161,11 @@ private fun MessageCreateBuilder.toRequestBody(attachmentIds: List<String>): Mes
         }.ifEmpty { null },
         attachments = attachmentIds.ifEmpty { null },
         replies = referencedMessageIds.map {
-            ReplyBody(it, true)
+            ReplyBody(
+                id = it,
+                mention = true,
+                failIfNotExists = false,
+            )
         }.ifEmpty { null },
         masquerade = if (username != null || avatarUrl != null) {
             MasqueradeBody(username, avatarUrl)
@@ -225,6 +186,8 @@ private data class MessageCreateRequest(
 private data class ReplyBody(
     val id: String,
     val mention: Boolean,
+    @SerialName("fail_if_not_exists")
+    val failIfNotExists: Boolean,
 )
 
 @Serializable
