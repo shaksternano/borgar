@@ -87,19 +87,27 @@ class DiscordManager(
 
     override fun getCustomEmojis(content: String): Flow<CustomEmoji> =
         if (content.isBlank()) emptyFlow()
-        else getMentions(content).customEmojis.map { DiscordCustomEmoji(it, jda) }.asFlow()
+        else getMentions(content).customEmojis.map {
+            DiscordCustomEmoji(it, this)
+        }.asFlow()
 
     override fun getMentionedUsers(content: String): Flow<User> =
         if (content.isBlank()) emptyFlow()
-        else getMentions(content).users.map { DiscordUser(it) }.asFlow()
+        else getMentions(content).users.map {
+            DiscordUser(it)
+        }.asFlow()
 
     override fun getMentionedChannels(content: String): Flow<Channel> =
         if (content.isBlank()) emptyFlow()
-        else getMentions(content).channels.map { DiscordChannel.create(it) }.asFlow()
+        else getMentions(content).channels.map {
+            DiscordChannel.create(it)
+        }.asFlow()
 
     override fun getMentionedRoles(content: String): Flow<Role> =
         if (content.isBlank()) emptyFlow()
-        else getMentions(content).roles.map { DiscordRole(it) }.asFlow()
+        else getMentions(content).roles.map {
+            DiscordRole(it)
+        }.asFlow()
 
     override fun getEmojiName(typedEmoji: String): String = typedEmoji.removeSurrounding(":")
 

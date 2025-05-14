@@ -116,7 +116,7 @@ suspend fun CommandMessageIntersection.getEmojiUrls(): Map<String, String> {
         // Get undetected emojis, such as those requiring Discord nitro
         getGuild()?.let { guild ->
             val existingEmojis = customEmojis.map { it.name }.toSet()
-            guild.customEmojis.collect {
+            guild.getEmojis().collect {
                 if (!existingEmojis.contains(it.name)) {
                     val basicMention = it.asBasicMention
                     if (content.contains(basicMention)) {

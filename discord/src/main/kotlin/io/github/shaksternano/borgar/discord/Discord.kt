@@ -75,14 +75,14 @@ fun DataSource.toFileUpload(): FileUpload =
         newStreamBlocking()
     }
 
-fun <T> IDetachableEntity.ifNotDetachedOrElse(ifDetached: T, ifNotDetached: () -> T): T =
+inline fun <T> IDetachableEntity.ifNotDetachedOrElse(ifDetached: T, ifNotDetached: () -> T): T =
     if (isDetached) {
         ifDetached
     } else {
         ifNotDetached()
     }
 
-fun <T> IDetachableEntity.ifNotDetachedOrNull(ifNotDetached: () -> T): T? =
+inline fun <T> IDetachableEntity.ifNotDetachedOrNull(ifNotDetached: () -> T): T? =
     ifNotDetachedOrElse(null, ifNotDetached)
 
 private suspend fun JDA.awaitReadySuspend() {

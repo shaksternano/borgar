@@ -7,10 +7,10 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 data class RevoltCustomEmoji(
-    override val manager: RevoltManager,
     override val id: String,
     override val name: String,
     override val imageUrl: String,
+    override val manager: RevoltManager,
 ) : CustomEmoji, BaseEntity() {
 
     override val asMention: String = manager.emojiAsTyped(id)
@@ -26,10 +26,10 @@ data class RevoltEmojiResponse(
 ) {
     fun convert(manager: RevoltManager): RevoltCustomEmoji {
         return RevoltCustomEmoji(
-            manager = manager,
             id = id,
             name = name,
-            imageUrl = "${manager.cdnUrl}/emojis/$id/original"
+            imageUrl = "${manager.cdnUrl}/emojis/$id/original",
+            manager = manager,
         )
     }
 }

@@ -9,7 +9,6 @@ interface Guild : ChatRoom {
     val splashUrl: String?
     val maxFileSize: Long
     val publicRole: Role?
-    val customEmojis: Flow<CustomEmoji>
 
     suspend fun getMember(userId: String): Member?
 
@@ -17,6 +16,8 @@ interface Guild : ChatRoom {
 
     override suspend fun isMember(userId: String): Boolean =
         getMember(userId) != null
+
+    fun getEmojis(): Flow<CustomEmoji>
 
     suspend fun addCommand(command: Command)
 

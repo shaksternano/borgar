@@ -32,7 +32,7 @@ data class DiscordMessage(
     override val attachments: List<Attachment> = discordMessage.attachments.map { it.convert() }
     override val customEmojis: Flow<CustomEmoji> = discordMessage.mentions
         .customEmojis
-        .map { DiscordCustomEmoji(it, discordMessage.jda) }
+        .map { DiscordCustomEmoji(it, manager) }
         .asFlow()
     override val stickers: Flow<Sticker> = discordMessage.stickers
         .map { DiscordSticker(it, discordMessage.jda) }

@@ -14,24 +14,17 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 data class RevoltGuild(
-    override val manager: RevoltManager,
     override val id: String,
     override val name: String,
     override val ownerId: String,
     override val iconUrl: String?,
     override val bannerUrl: String?,
     override val publicRole: RevoltRole,
+    override val manager: RevoltManager,
 ) : Guild, BaseEntity() {
 
     override val splashUrl: String? = null
     override val maxFileSize: Long = manager.maxFileSize
-    override val customEmojis: Flow<CustomEmoji> = flow {
-        val response = manager.request<List<RevoltEmojiResponse>>("/servers/$id/emojis")
-        response.forEach {
-            val emoji = it.convert(manager)
-            emit(emoji)
-        }
-    }
 
     private val memberCache: MutableMap<String, RevoltMember> = mutableMapOf()
 
@@ -55,6 +48,16 @@ data class RevoltGuild(
         }
     }
 
+    override fun getEmojis(): Flow<CustomEmoji> {
+        return flow {
+            manager.request<List<RevoltEmojiResponse>>("/servers/$id/emojis")
+                .forEach {
+                    val emoji = it.convert(manager)
+                    emit(emoji)
+                }
+        }
+    }
+
     override suspend fun addCommand(command: Command) = Unit
 
     override suspend fun deleteCommand(commandName: String) = Unit
@@ -72,10 +75,8 @@ data class RevoltGuildResponse(
     @SerialName("default_permissions")
     val defaultPermissions: Long,
 ) {
-
     fun convert(manager: RevoltManager): RevoltGuild =
         RevoltGuild(
-            manager = manager,
             id = id,
             name = name,
             ownerId = ownerId,
@@ -91,6 +92,7 @@ data class RevoltGuildResponse(
                 ),
                 rank = Int.MAX_VALUE,
             ),
+            manager = manager,
         )
 }
 
@@ -100,7 +102,6 @@ data class RevoltIconBody(
     val id: String,
     val filename: String,
 ) {
-
     fun getUrl(manager: RevoltManager): String =
         "${manager.cdnUrl}/icons/$id/${filename.encodeUrl()}"
 }
@@ -111,7 +112,6 @@ data class RevoltBannerBody(
     val id: String,
     val filename: String,
 ) {
-
     fun getUrl(manager: RevoltManager): String =
         "${manager.cdnUrl}/banners/$id/${filename.encodeUrl()}"
 }

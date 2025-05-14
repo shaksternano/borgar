@@ -39,21 +39,25 @@ data class DiscordGuild(
     override val publicRole: Role? = discordGuild.ifNotDetachedOrNull {
         DiscordRole(discordGuild.publicRole)
     }
-    override val customEmojis: Flow<CustomEmoji> = discordGuild.ifNotDetachedOrElse(emptyFlow()) {
-        flow {
-            discordGuild.retrieveEmojis()
-                .await()
-                .forEach {
-                    val emoji = DiscordCustomEmoji(it, discordGuild.jda)
-                    emit(emoji)
-                }
-        }
-    }
 
-    override suspend fun getMember(userId: String): Member? =
-        discordGuild.runCatching {
+    override suspend fun getMember(userId: String): Member? {
+        return discordGuild.runCatching {
             DiscordMember(retrieveMemberById(userId).await())
         }.getOrNull()
+    }
+
+    override fun getEmojis(): Flow<CustomEmoji> {
+        return discordGuild.ifNotDetachedOrElse(emptyFlow()) {
+            flow {
+                discordGuild.retrieveEmojis()
+                    .await()
+                    .forEach {
+                        val emoji = DiscordCustomEmoji(it, manager)
+                        emit(emoji)
+                    }
+            }
+        }
+    }
 
     override suspend fun addCommand(command: Command) {
         discordGuild.upsertCommand(command.toSlash()).await()

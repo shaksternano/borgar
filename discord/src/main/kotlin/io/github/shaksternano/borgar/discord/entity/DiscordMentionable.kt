@@ -27,7 +27,7 @@ class DiscordMentionable(
             is Member -> DiscordMember(mentionable)
             is Channel -> DiscordChannel.create(mentionable, context)
             is Role -> DiscordRole(mentionable)
-            is CustomEmoji -> DiscordCustomEmoji(mentionable, jda)
+            is CustomEmoji -> DiscordCustomEmoji(mentionable, DiscordManager[jda])
             else -> DiscordMentionable(mentionable, jda)
         }
     }
