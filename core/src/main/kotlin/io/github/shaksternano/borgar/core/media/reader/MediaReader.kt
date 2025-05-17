@@ -116,7 +116,7 @@ private class TransformedImageReader<T : Any>(
     }
 
     override fun asFlow(): Flow<ImageFrame> = channelFlow {
-        AsyncExecutor<ImageFrame, ImageFrame>(
+        AsyncExecutor(
             maxConcurrency = AVAILABLE_PROCESSORS,
             scope = this,
             task = {
