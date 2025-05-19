@@ -34,9 +34,13 @@ private suspend fun mediaFormatImpl(input: Any): String? {
 }
 
 fun <E : VideoFrame<*>> frameAtTime(timestamp: Duration, frames: List<E>, duration: Duration): E {
-    val circularTimestamp = (timestamp.inWholeMilliseconds % max(duration.inWholeMilliseconds, 1)).milliseconds
+    val circularTimestamp = timestamp.getCircularTimestamp(duration)
     val index = findIndex(circularTimestamp, frames.map(VideoFrame<*>::timestamp))
     return frames[index]
+}
+
+fun Duration.getCircularTimestamp(duration: Duration): Duration {
+    return (this.inWholeMilliseconds % max(duration.inWholeMilliseconds, 1)).milliseconds
 }
 
 /**

@@ -4,7 +4,7 @@ import io.github.shaksternano.borgar.core.AVAILABLE_PROCESSORS
 import io.github.shaksternano.borgar.core.io.SuspendCloseable
 import io.github.shaksternano.borgar.core.io.closeAll
 import io.github.shaksternano.borgar.core.media.*
-import io.github.shaksternano.gifcodec.AsyncExecutor
+import io.github.shaksternano.gifcodec.internal.AsyncExecutor
 import io.github.shaksternano.gifcodec.use
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow

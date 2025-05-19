@@ -13,7 +13,7 @@ private val audioReaderFactories: MutableMap<String, AudioReaderFactory> = mutab
 @Suppress("unused")
 private val init: Unit = run {
     registerImageOnlyFactory(JavaxImageReader.Factory)
-    registerImageOnlyFactory(ScrimageGifReader.Factory)
+    registerImageOnlyFactory(GifReader.Factory)
     registerImageOnlyFactory(WebPImageReader.Factory)
     registerImageOnlyFactory(PdfReader.Factory)
 }
