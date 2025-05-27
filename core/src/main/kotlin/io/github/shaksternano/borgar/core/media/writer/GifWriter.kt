@@ -64,6 +64,7 @@ class GifWriter(
                 quantizedTransparencyColorTolerance = 0.02,
                 comment = "GIF created with https://github.com/shaksternano/borgar",
                 maxConcurrency = AVAILABLE_PROCESSORS,
+                ioContext = Dispatchers.IO,
             )
             return GifWriter(encoder)
         }
