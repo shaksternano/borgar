@@ -5,7 +5,6 @@ import io.github.shaksternano.borgar.core.exception.UnreadableFileException
 import io.github.shaksternano.borgar.core.util.hash
 import io.github.shaksternano.borgar.core.util.kClass
 import io.ktor.http.*
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.io.InputStream
@@ -28,7 +27,7 @@ interface DataSource : DataSourceConvertable {
     }
 
     suspend fun toByteArray(): ByteArray = newStream().use {
-        withContext(Dispatchers.IO) {
+        withContext(IO_DISPATCHER) {
             it.readAllBytes()
         }
     }
@@ -123,7 +122,7 @@ data class FileDataSource(
 
     override fun newStreamBlocking(): InputStream = path.inputStream()
 
-    override suspend fun toByteArray(): ByteArray = withContext(Dispatchers.IO) {
+    override suspend fun toByteArray(): ByteArray = withContext(IO_DISPATCHER) {
         path.readBytes()
     }
 
@@ -131,7 +130,7 @@ data class FileDataSource(
         size?.let {
             return it
         }
-        return withContext(Dispatchers.IO) {
+        return withContext(IO_DISPATCHER) {
             path.fileSize()
         }.also {
             size = it

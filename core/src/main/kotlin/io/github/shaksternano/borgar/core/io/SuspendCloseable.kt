@@ -1,6 +1,5 @@
 package io.github.shaksternano.borgar.core.io
 
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
@@ -10,13 +9,13 @@ fun interface SuspendCloseable {
 
     companion object {
         fun fromBlocking(closeable: AutoCloseable): SuspendCloseable = SuspendCloseable {
-            withContext(Dispatchers.IO) {
+            withContext(IO_DISPATCHER) {
                 closeable.close()
             }
         }
 
         fun fromBlocking(block: () -> Unit): SuspendCloseable = SuspendCloseable {
-            withContext(Dispatchers.IO) {
+            withContext(IO_DISPATCHER) {
                 block()
             }
         }

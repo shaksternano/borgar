@@ -1,6 +1,7 @@
 package io.github.shaksternano.borgar.core.media.reader
 
 import io.github.shaksternano.borgar.core.io.DataSource
+import io.github.shaksternano.borgar.core.io.IO_DISPATCHER
 import io.github.shaksternano.borgar.core.io.SuspendCloseable
 import io.github.shaksternano.borgar.core.io.closeAll
 import io.github.shaksternano.borgar.core.media.FrameInfo
@@ -8,7 +9,6 @@ import io.github.shaksternano.borgar.core.media.ImageFrame
 import io.github.shaksternano.borgar.core.media.ImageReaderFactory
 import io.github.shaksternano.borgar.core.media.findIndex
 import io.github.shaksternano.borgar.core.util.circular
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.sync.Mutex
@@ -95,7 +95,7 @@ class WebPImageReader(
     }
 
     private suspend fun read(index: Int): BufferedImage = mutex.withLock {
-        withContext(Dispatchers.IO) {
+        withContext(IO_DISPATCHER) {
             reader.read(index)
         }
     }
@@ -109,7 +109,7 @@ class WebPImageReader(
 
         override val supportedFormats: Set<String> = setOf("webp")
 
-        override suspend fun create(input: DataSource): ImageReader = withContext(Dispatchers.IO) {
+        override suspend fun create(input: DataSource): ImageReader = withContext(IO_DISPATCHER) {
             val imageInput = ImageIO.createImageInputStream(input.path?.toFile() ?: input.newStream())
             val readers = ImageIO.getImageReaders(imageInput)
             require(readers.hasNext()) { "No WebP reader found" }

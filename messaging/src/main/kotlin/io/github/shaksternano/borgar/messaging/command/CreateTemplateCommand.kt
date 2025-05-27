@@ -17,7 +17,6 @@ import io.github.shaksternano.borgar.messaging.util.getEntityId
 import io.github.shaksternano.borgar.messaging.util.getUrlsExceptSelf
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.*
 import java.awt.Color
@@ -323,7 +322,7 @@ object CreateTemplateCommand : NonChainableCommand() {
                 }
             runCatching {
                 val path = Path("templates/media")
-                withContext(Dispatchers.IO) {
+                withContext(IO_DISPATCHER) {
                     path.createDirectories()
                 }
                 path.resolve(
@@ -455,7 +454,7 @@ object CreateTemplateCommand : NonChainableCommand() {
         getAs(json, key, default) {
             val rgb = try {
                 it.jsonPrimitive.int
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 Integer.decode(it.jsonPrimitive.content)
             }
             Color(rgb)

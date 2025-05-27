@@ -4,12 +4,12 @@ import io.github.shaksternano.borgar.core.graphics.ContentPosition
 import io.github.shaksternano.borgar.core.graphics.TextAlignment
 import io.github.shaksternano.borgar.core.graphics.drawable.Drawable
 import io.github.shaksternano.borgar.core.io.DataSource
+import io.github.shaksternano.borgar.core.io.IO_DISPATCHER
 import io.github.shaksternano.borgar.core.io.fileExtension
 import io.github.shaksternano.borgar.core.media.createAudioReader
 import io.github.shaksternano.borgar.core.media.createImageReader
 import io.github.shaksternano.borgar.core.media.reader.AudioReader
 import io.github.shaksternano.borgar.core.media.reader.ImageReader
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.io.IOException
 import java.awt.Color
@@ -283,7 +283,7 @@ enum class ResourceTemplate(
         val dataSource = DataSource.fromResource(contentClipShapePath)
         return runCatching {
             val inputStream = dataSource.newStream()
-            val parsedObject = withContext(Dispatchers.IO) {
+            val parsedObject = withContext(IO_DISPATCHER) {
                 ObjectInputStream(inputStream).use {
                     it.readObject()
                 }

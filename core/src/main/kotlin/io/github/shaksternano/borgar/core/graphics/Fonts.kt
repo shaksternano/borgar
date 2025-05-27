@@ -1,8 +1,8 @@
 package io.github.shaksternano.borgar.core.graphics
 
+import io.github.shaksternano.borgar.core.io.IO_DISPATCHER
 import io.github.shaksternano.borgar.core.io.forEachResource
 import io.github.shaksternano.borgar.core.logger
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.awt.Font
 import java.awt.GraphicsEnvironment
@@ -14,7 +14,7 @@ suspend fun registerFonts() = forEachResource(
     "font"
 ) { resourcePath: String, inputStream: InputStream ->
     runCatching {
-        val font = withContext(Dispatchers.IO) {
+        val font = withContext(IO_DISPATCHER) {
             Font.createFont(Font.TRUETYPE_FONT, inputStream)
         }
         GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(font)

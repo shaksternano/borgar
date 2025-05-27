@@ -16,7 +16,8 @@ import io.ktor.serialization.kotlinx.json.*
 import io.ktor.util.collections.*
 import io.ktor.utils.io.*
 import io.ktor.utils.io.jvm.javaio.*
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.withContext
 import kotlinx.io.IOException
 import kotlinx.io.readByteArray
@@ -30,37 +31,13 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 import java.nio.file.StandardOpenOption
+import java.util.concurrent.Executors
 import java.util.regex.Pattern
 import kotlin.io.path.*
-import kotlin.random.Random
-import kotlin.random.nextULong
 import com.google.common.io.Files as GuavaFiles
 
-private object IOUtil {
-
-    private val toDelete: MutableSet<Path> = ConcurrentSet()
-
-    init {
-        Runtime.getRuntime().addShutdownHook(Thread {
-            toDelete.forEach {
-                runCatching {
-                    @OptIn(ExperimentalPathApi::class)
-                    it.deleteRecursively()
-                }
-            }
-        })
-    }
-
-    fun deleteOnExit(path: Path) {
-        toDelete.add(path)
-    }
-
-    fun removeDeleteOnExit(path: Path) {
-        toDelete.remove(path)
-    }
-}
-
-private val TEMP_DIR: Path = Path(System.getProperty("java.io.tmpdir"))
+val IO_DISPATCHER: CoroutineDispatcher = Executors.newVirtualThreadPerTaskExecutor()
+    .asCoroutineDispatcher()
 
 val ALLOWED_DOMAINS: Set<String> = setOf(
     "raw.githubusercontent.com",
@@ -80,40 +57,15 @@ suspend fun createTemporaryFile(filename: String): Path = createTemporaryFile(
 
 suspend fun createTemporaryFile(filenameWithoutExtension: String, extension: String): Path {
     val extensionWithDot = if (extension.isBlank()) "" else ".$extension"
-    val path = withContext(Dispatchers.IO) {
+    val path = withContext(IO_DISPATCHER) {
         createTempFile(filenameWithoutExtension, extensionWithDot)
     }
     IOUtil.deleteOnExit(path)
     return path
 }
 
-suspend fun createTemporaryDirectory(name: String): Path {
-    val path = withContext(Dispatchers.IO) {
-        createTempDirectory(name)
-    }
-    IOUtil.deleteOnExit(path)
-    return path
-}
-
-suspend fun getTemporaryFile(filename: String): Path = getTemporaryFile(
-    filenameWithoutExtension(filename),
-    fileExtension(filename),
-)
-
-suspend fun getTemporaryFile(filenameWithoutExtension: String, extension: String): Path {
-    val extension1 = extension.ifBlank { "tmp" }
-    var filename = ""
-    var path = TEMP_DIR.resolve(filename)
-    while (filename.isBlank() || withContext(Dispatchers.IO) { path.exists() }) {
-        filename = filenameWithoutExtension + Random.nextULong() + "." + extension1
-        path = TEMP_DIR.resolve(filename)
-    }
-    IOUtil.deleteOnExit(path)
-    return path
-}
-
 suspend fun getResource(resourcePath: String): InputStream =
-    withContext(Dispatchers.IO) {
+    withContext(IO_DISPATCHER) {
         IOUtil.javaClass.classLoader.getResourceAsStream(resourcePath)
     } ?: throw FileNotFoundException("Resource not found: $resourcePath")
 
@@ -131,7 +83,7 @@ suspend fun forEachResource(
     }
 }
 
-private suspend fun getResourcePaths(packageName: String): Set<String> = withContext(Dispatchers.IO) {
+private suspend fun getResourcePaths(packageName: String): Set<String> = withContext(IO_DISPATCHER) {
     val reflections = Reflections(packageName, Scanners.Resources)
     reflections.getResources("(.*?)")
 }
@@ -141,7 +93,7 @@ val Path.filename: String
 
 suspend fun Path.deleteSilently() {
     runCatching {
-        withContext(Dispatchers.IO) {
+        withContext(IO_DISPATCHER) {
             @OptIn(ExperimentalPathApi::class)
             deleteRecursively()
         }
@@ -202,7 +154,7 @@ suspend fun HttpResponse.download(
     var created = false
     var bytesRead = 0L
     readBytes {
-        withContext(Dispatchers.IO) {
+        withContext(IO_DISPATCHER) {
             if (created) {
                 path.writeBytes(
                     it,
@@ -249,7 +201,7 @@ private suspend inline fun HttpResponse.readBytes(block: (ByteArray) -> Unit) {
 suspend fun Path.write(
     inputStream: InputStream,
     limit: Long = 0,
-) = withContext(Dispatchers.IO) {
+) = withContext(IO_DISPATCHER) {
     inputStream.use {
         val bounded = limit > 0
         val boundedInputStream = if (bounded) {
@@ -266,7 +218,7 @@ suspend fun Path.write(
     }
 }
 
-suspend fun Path.inputStreamSuspend(): InputStream = withContext(Dispatchers.IO) {
+suspend fun Path.inputStreamSuspend(): InputStream = withContext(IO_DISPATCHER) {
     inputStream()
 }
 
@@ -328,15 +280,15 @@ fun closeAll(closeables: Iterable<Closeable?>) =
         }
     }
 
-suspend fun InputStream.readSuspend(): Int = withContext(Dispatchers.IO) {
+suspend fun InputStream.readSuspend(): Int = withContext(IO_DISPATCHER) {
     read()
 }
 
-suspend fun InputStream.readNBytesSuspend(n: Int): ByteArray = withContext(Dispatchers.IO) {
+suspend fun InputStream.readNBytesSuspend(n: Int): ByteArray = withContext(IO_DISPATCHER) {
     readNBytes(n)
 }
 
-suspend fun InputStream.skipNBytesSuspend(n: Long) = withContext(Dispatchers.IO) {
+suspend fun InputStream.skipNBytesSuspend(n: Long) = withContext(IO_DISPATCHER) {
     skipNBytes(n)
 }
 
@@ -354,3 +306,27 @@ suspend inline fun <R> DataSource.useFile(block: (FileDataSource) -> R): R {
 
 fun String.replaceInvalidFilenameCharacters(): String =
     replace(INVALID_FILENAME_CHARACTERS, "_")
+
+private object IOUtil {
+
+    private val toDelete: MutableSet<Path> = ConcurrentSet()
+
+    init {
+        Runtime.getRuntime().addShutdownHook(Thread {
+            toDelete.forEach {
+                runCatching {
+                    @OptIn(ExperimentalPathApi::class)
+                    it.deleteRecursively()
+                }
+            }
+        })
+    }
+
+    fun deleteOnExit(path: Path) {
+        toDelete.add(path)
+    }
+
+    fun removeDeleteOnExit(path: Path) {
+        toDelete.remove(path)
+    }
+}

@@ -1,10 +1,10 @@
 package io.github.shaksternano.borgar.core.media.reader
 
 import io.github.shaksternano.borgar.core.io.DataSource
+import io.github.shaksternano.borgar.core.io.IO_DISPATCHER
 import io.github.shaksternano.borgar.core.media.ImageFrame
 import io.github.shaksternano.borgar.core.media.ImageReaderFactory
 import io.github.shaksternano.borgar.core.media.addTransparency
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.withContext
@@ -54,7 +54,7 @@ class JavaxImageReader(
         )
 
         override suspend fun create(input: DataSource): ImageReader = input.newStream().use {
-            val image = withContext(Dispatchers.IO) {
+            val image = withContext(IO_DISPATCHER) {
                 ImageIO.read(it)
             } ?: throw IllegalArgumentException("Failed to read image")
             JavaxImageReader(image)

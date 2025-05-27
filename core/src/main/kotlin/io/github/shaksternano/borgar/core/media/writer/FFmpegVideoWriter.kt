@@ -1,12 +1,12 @@
 package io.github.shaksternano.borgar.core.media.writer
 
+import io.github.shaksternano.borgar.core.io.IO_DISPATCHER
 import io.github.shaksternano.borgar.core.io.SuspendCloseable
 import io.github.shaksternano.borgar.core.io.closeAll
 import io.github.shaksternano.borgar.core.media.AudioFrame
 import io.github.shaksternano.borgar.core.media.ImageFrame
 import io.github.shaksternano.borgar.core.media.MediaWriterFactory
 import io.github.shaksternano.borgar.core.util.getEnvVar
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.bytedeco.ffmpeg.global.avcodec
 import org.bytedeco.javacv.FFmpegFrameRecorder
@@ -50,7 +50,7 @@ class FFmpegVideoWriter(
                 maxFileSize,
                 maxDuration,
             )
-            withContext(Dispatchers.IO) {
+            withContext(IO_DISPATCHER) {
                 recorder.start()
             }
         }
@@ -64,7 +64,7 @@ class FFmpegVideoWriter(
         }
         // Prevent errors from occurring when the frame rate is too high.
         if (recorder.frameRate <= MAX_AUDIO_FRAME_RATE) {
-            withContext(Dispatchers.IO) {
+            withContext(IO_DISPATCHER) {
                 recorder.record(frame.content)
             }
         }

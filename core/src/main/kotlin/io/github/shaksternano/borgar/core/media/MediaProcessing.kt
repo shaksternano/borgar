@@ -4,7 +4,6 @@ import io.github.shaksternano.borgar.core.io.*
 import io.github.shaksternano.borgar.core.media.reader.AudioReader
 import io.github.shaksternano.borgar.core.media.reader.ImageReader
 import io.github.shaksternano.borgar.core.media.reader.first
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.withContext
 import java.nio.file.Path
@@ -94,7 +93,7 @@ private suspend fun processMedia(
                 audioReader.asFlow().collect(writer::writeAudioFrame)
             }
         }
-        outputSize = withContext(Dispatchers.IO) {
+        outputSize = withContext(IO_DISPATCHER) {
             output.fileSize()
         }
         resizeRatio = min((maxFileSize.toDouble() / outputSize), 0.8)

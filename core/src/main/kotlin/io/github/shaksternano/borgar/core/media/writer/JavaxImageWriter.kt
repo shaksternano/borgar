@@ -1,10 +1,10 @@
 package io.github.shaksternano.borgar.core.media.writer
 
+import io.github.shaksternano.borgar.core.io.IO_DISPATCHER
 import io.github.shaksternano.borgar.core.media.ImageFrame
 import io.github.shaksternano.borgar.core.media.MediaWriterFactory
 import io.github.shaksternano.borgar.core.media.convertType
 import io.github.shaksternano.borgar.core.media.supportsTransparency
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.awt.image.BufferedImage
 import java.nio.file.Path
@@ -28,7 +28,7 @@ class JavaxImageWriter(
             BufferedImage.TYPE_3BYTE_BGR
         }
         val image = frame.content.convertType(imageType)
-        val supportedFormat = withContext(Dispatchers.IO) {
+        val supportedFormat = withContext(IO_DISPATCHER) {
             ImageIO.write(image, outputFormat, output.toFile())
         }
         require(supportedFormat) { "Unsupported image format: $outputFormat" }

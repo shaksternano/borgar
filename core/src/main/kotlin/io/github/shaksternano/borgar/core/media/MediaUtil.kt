@@ -1,7 +1,7 @@
 package io.github.shaksternano.borgar.core.media
 
+import io.github.shaksternano.borgar.core.io.IO_DISPATCHER
 import io.github.shaksternano.borgar.core.util.equalsAnyIgnoreCase
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.awt.image.BufferedImage
 import java.io.InputStream
@@ -20,7 +20,7 @@ suspend fun mediaFormat(inputStream: InputStream): String? {
 }
 
 private suspend fun mediaFormatImpl(input: Any): String? {
-    return withContext(Dispatchers.IO) {
+    return withContext(IO_DISPATCHER) {
         ImageIO.createImageInputStream(input).use {
             if (it != null) {
                 val readers = ImageIO.getImageReaders(it)

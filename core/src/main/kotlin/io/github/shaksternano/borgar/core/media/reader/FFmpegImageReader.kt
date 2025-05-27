@@ -1,9 +1,9 @@
 package io.github.shaksternano.borgar.core.media.reader
 
 import io.github.shaksternano.borgar.core.io.DataSource
+import io.github.shaksternano.borgar.core.io.IO_DISPATCHER
 import io.github.shaksternano.borgar.core.media.ImageFrame
 import io.github.shaksternano.borgar.core.media.ImageReaderFactory
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.bytedeco.javacv.FFmpegFrameGrabber
 import org.bytedeco.javacv.Frame
@@ -32,11 +32,11 @@ class FFmpegImageReader(
     override val audioSampleRate: Int = 0
     override val audioBitrate: Int = 0
 
-    override suspend fun setTimestamp(timestamp: Duration) = withContext(Dispatchers.IO) {
+    override suspend fun setTimestamp(timestamp: Duration) = withContext(IO_DISPATCHER) {
         grabber.setVideoTimestamp(timestamp.inWholeMicroseconds)
     }
 
-    override suspend fun grabFrame(grabber: FFmpegFrameGrabber): Frame? = withContext(Dispatchers.IO) {
+    override suspend fun grabFrame(grabber: FFmpegFrameGrabber): Frame? = withContext(IO_DISPATCHER) {
         grabber.grabImage()
     }
 

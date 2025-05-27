@@ -1,12 +1,12 @@
 package io.github.shaksternano.borgar.core.media.reader
 
 import io.github.shaksternano.borgar.core.io.DataSource
+import io.github.shaksternano.borgar.core.io.IO_DISPATCHER
 import io.github.shaksternano.borgar.core.media.ImageFrame
 import io.github.shaksternano.borgar.core.media.ImageReaderFactory
 import io.github.shaksternano.borgar.core.media.getCircularTimestamp
 import io.github.shaksternano.borgar.core.media.rgb
 import io.github.shaksternano.gifcodec.GifDecoder
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.withContext
@@ -28,7 +28,7 @@ class GifReader(
 
     override suspend fun readFrame(timestamp: Duration): ImageFrame {
         val circularTimestamp = timestamp.getCircularTimestamp(duration)
-        val frame = withContext(Dispatchers.IO) {
+        val frame = withContext(IO_DISPATCHER) {
             decoder[circularTimestamp]
         }
         val image = BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)
@@ -41,7 +41,7 @@ class GifReader(
     }
 
     override fun asFlow(): Flow<ImageFrame> = channelFlow {
-        withContext(Dispatchers.IO) {
+        withContext(IO_DISPATCHER) {
             decoder.asSequence().forEach { frame ->
                 val image = BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)
                 image.rgb = frame.argb
@@ -57,7 +57,7 @@ class GifReader(
     }
 
     override suspend fun close() {
-        withContext(Dispatchers.IO) {
+        withContext(IO_DISPATCHER) {
             decoder.close()
         }
     }
@@ -69,7 +69,7 @@ class GifReader(
         override suspend fun create(input: DataSource): ImageReader {
             val fileInput = input.getOrWriteFile()
             val path = Path(fileInput.path.toString())
-            val decoder = withContext(Dispatchers.IO) {
+            val decoder = withContext(IO_DISPATCHER) {
                 GifDecoder(
                     path,
                     cacheFrameInterval = 20,

@@ -1,12 +1,8 @@
 package io.github.shaksternano.borgar.core.media.reader
 
 import io.github.shaksternano.borgar.core.collect.forEachNotNull
-import io.github.shaksternano.borgar.core.io.DataSource
-import io.github.shaksternano.borgar.core.io.SuspendCloseable
-import io.github.shaksternano.borgar.core.io.closeAll
-import io.github.shaksternano.borgar.core.io.use
+import io.github.shaksternano.borgar.core.io.*
 import io.github.shaksternano.borgar.core.media.VideoFrame
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.sync.Mutex
@@ -81,7 +77,7 @@ abstract class FFmpegMediaReader<T : VideoFrame<*>>(
     override fun asFlow(): Flow<T> = flow {
         val grabber = FFmpegFrameGrabber(input.toFile())
         SuspendCloseable.fromBlocking(grabber).use {
-            withContext(Dispatchers.IO) {
+            withContext(IO_DISPATCHER) {
                 grabber.start()
             }
             forEachNotNull({
@@ -112,19 +108,19 @@ suspend fun <T : FFmpegMediaReader<*>> createReader(
     val isTempFile = input.path == null
     val path = input.getOrWriteFile().path
     val grabber = FFmpegFrameGrabber(path.toFile())
-    withContext(Dispatchers.IO) {
+    withContext(IO_DISPATCHER) {
         grabber.start()
     }
     var frameCount = 0
     forEachNotNull({
-        withContext(Dispatchers.IO) {
+        withContext(IO_DISPATCHER) {
             grabber.grabImage()
         }
     }) {
         frameCount++
         it.close()
     }
-    val frameRate = withContext(Dispatchers.IO) {
+    val frameRate = withContext(IO_DISPATCHER) {
         grabber.frameRate
     }
     return factory(

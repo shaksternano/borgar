@@ -3,14 +3,10 @@ package io.github.shaksternano.borgar.core.media.reader
 import com.google.common.cache.Cache
 import com.google.common.cache.CacheBuilder
 import io.github.shaksternano.borgar.core.collect.getOrPut
-import io.github.shaksternano.borgar.core.io.DataSource
-import io.github.shaksternano.borgar.core.io.SuspendCloseable
-import io.github.shaksternano.borgar.core.io.closeAll
-import io.github.shaksternano.borgar.core.io.deleteSilently
+import io.github.shaksternano.borgar.core.io.*
 import io.github.shaksternano.borgar.core.media.ImageFrame
 import io.github.shaksternano.borgar.core.media.ImageReaderFactory
 import io.github.shaksternano.borgar.core.media.resize
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.sync.Mutex
@@ -80,7 +76,7 @@ class PdfReader(
 
     override suspend fun close() = closeAll(
         SuspendCloseable.fromBlocking(pdfDocument),
-        SuspendCloseable {
+        {
             toDelete?.deleteSilently()
         },
     )
@@ -92,7 +88,7 @@ class PdfReader(
         override suspend fun create(input: DataSource): ImageReader {
             val isTempFile = input.path == null
             val path = input.getOrWriteFile().path
-            return withContext(Dispatchers.IO) {
+            return withContext(IO_DISPATCHER) {
                 val pdfDocument = Loader.loadPDF(path.toFile())
                 val renderer = PDFRenderer(pdfDocument)
                 var maxWidth = 0
@@ -117,6 +113,6 @@ class PdfReader(
 private const val PDF_DPI: Int = 200
 
 private suspend fun PDFRenderer.getImage(page: Int): BufferedImage =
-    withContext(Dispatchers.IO) {
+    withContext(IO_DISPATCHER) {
         renderImageWithDPI(page, PDF_DPI.toFloat())
     }

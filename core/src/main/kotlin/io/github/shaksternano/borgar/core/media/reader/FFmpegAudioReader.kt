@@ -2,10 +2,10 @@ package io.github.shaksternano.borgar.core.media.reader
 
 import io.github.shaksternano.borgar.core.collect.forEachNotNull
 import io.github.shaksternano.borgar.core.io.DataSource
+import io.github.shaksternano.borgar.core.io.IO_DISPATCHER
 import io.github.shaksternano.borgar.core.media.AudioFrame
 import io.github.shaksternano.borgar.core.media.AudioReaderFactory
 import io.github.shaksternano.borgar.core.media.frameAtTime
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
@@ -41,11 +41,11 @@ class FFmpegAudioReader(
     override val width: Int = 0
     override val height: Int = 0
 
-    override suspend fun setTimestamp(timestamp: Duration) = withContext(Dispatchers.IO) {
+    override suspend fun setTimestamp(timestamp: Duration) = withContext(IO_DISPATCHER) {
         grabber.setAudioTimestamp(timestamp.inWholeMicroseconds)
     }
 
-    override suspend fun grabFrame(grabber: FFmpegFrameGrabber): Frame? = withContext(Dispatchers.IO) {
+    override suspend fun grabFrame(grabber: FFmpegFrameGrabber): Frame? = withContext(IO_DISPATCHER) {
         grabber.grabSamples()
     }
 

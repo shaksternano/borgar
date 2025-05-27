@@ -1,8 +1,8 @@
 package io.github.shaksternano.borgar.core.emoji
 
+import io.github.shaksternano.borgar.core.io.IO_DISPATCHER
 import io.github.shaksternano.borgar.core.io.getResource
 import io.github.shaksternano.borgar.core.logger
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import java.io.BufferedReader
@@ -21,7 +21,7 @@ suspend fun initEmojis() {
 
 private suspend fun initEmojiUnicodeSet() {
     runCatching {
-        val lines = withContext(Dispatchers.IO) {
+        val lines = withContext(IO_DISPATCHER) {
             BufferedReader(InputStreamReader(getResource("emoji/emoji_unicodes.txt"))).use {
                 it.readLines()
             }
@@ -36,7 +36,7 @@ private suspend fun initEmojiUnicodeSet() {
 
 private suspend fun initEmojiShortCodesToUrlsMap() {
     runCatching {
-        val jsonString = withContext(Dispatchers.IO) {
+        val jsonString = withContext(IO_DISPATCHER) {
             BufferedReader(InputStreamReader(getResource("emoji/emojis.json"))).use {
                 it.readText()
             }

@@ -1,8 +1,8 @@
 package io.github.shaksternano.borgar.core.data.repository
 
 import io.github.shaksternano.borgar.core.data.databaseConnection
+import io.github.shaksternano.borgar.core.io.IO_DISPATCHER
 import io.github.shaksternano.borgar.core.logger
-import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
@@ -23,5 +23,5 @@ abstract class Repository {
     protected abstract fun table(): Table
 
     protected suspend fun <R> dbQuery(block: suspend Table.() -> R): R =
-        newSuspendedTransaction(Dispatchers.IO) { block(table()) }
+        newSuspendedTransaction(IO_DISPATCHER) { block(table()) }
 }

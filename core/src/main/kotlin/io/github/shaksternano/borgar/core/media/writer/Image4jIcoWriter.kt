@@ -1,9 +1,9 @@
 package io.github.shaksternano.borgar.core.media.writer
 
+import io.github.shaksternano.borgar.core.io.IO_DISPATCHER
 import io.github.shaksternano.borgar.core.media.ImageFrame
 import io.github.shaksternano.borgar.core.media.MediaWriterFactory
 import io.github.shaksternano.borgar.core.media.bound
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ifok.image.image4j.codec.ico.ICOEncoder
 import java.nio.file.Path
@@ -22,7 +22,7 @@ class Image4jIcoWriter(
         if (written) return
         written = true
         val image = frame.content.bound(MAX_DIMENSION)
-        withContext(Dispatchers.IO) {
+        withContext(IO_DISPATCHER) {
             ICOEncoder.write(image, output.toFile())
         }
     }
