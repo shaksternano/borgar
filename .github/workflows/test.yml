@@ -34,7 +34,13 @@ jobs:
                 run: docker compose up -d
 
             -   name: Run tests
-                run: ./gradlew clean test --stacktrace --parallel
+                run: ./gradlew cleanTest test --stacktrace --parallel
+
+            -   name: Put all test reports into one directory
+                run: |
+                    mkdir -p build/reports/tests/
+                    cp -r core/build/reports/tests/test/* build/reports/tests/core/
+                    cp -r messaging/build/reports/tests/test/* build/reports/tests/messaging/
 
             -   name: Upload test report
                 if: success() || failure()
