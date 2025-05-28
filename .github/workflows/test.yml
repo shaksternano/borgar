@@ -2,15 +2,14 @@ name: Test
 on: [ push, pull_request ]
 
 jobs:
-    build:
+    test:
+        name: Run tests
         runs-on: ubuntu-latest
-
         env:
             POSTGRESQL_URL: jdbc:postgresql://localhost:5432/postgres
             POSTGRESQL_PORTS: 5432:5432
             POSTGRESQL_USERNAME: root
             POSTGRESQL_PASSWORD: password
-
         steps:
             -   name: Checkout sources
                 uses: actions/checkout@v4
