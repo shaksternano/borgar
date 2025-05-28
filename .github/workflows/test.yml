@@ -38,7 +38,8 @@ jobs:
 
             -   name: Put all test reports into one directory
                 run: |
-                    mkdir -p build/reports/tests/
+                    mkdir -p build/reports/tests/core
+                    mkdir -p build/reports/tests/messaging
                     cp -r core/build/reports/tests/test/* build/reports/tests/core/
                     cp -r messaging/build/reports/tests/test/* build/reports/tests/messaging/
 
@@ -47,5 +48,4 @@ jobs:
                 uses: actions/upload-artifact@v4
                 with:
                     name: Test report
-                    path: |
-                        build/reports/tests/test/
+                    path: build/reports/tests/
