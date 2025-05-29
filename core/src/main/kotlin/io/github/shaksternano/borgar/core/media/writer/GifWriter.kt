@@ -1,11 +1,11 @@
 package io.github.shaksternano.borgar.core.media.writer
 
+import com.shakster.gifkt.ParallelGifEncoder
 import io.github.shaksternano.borgar.core.AVAILABLE_PROCESSORS
 import io.github.shaksternano.borgar.core.io.IO_DISPATCHER
 import io.github.shaksternano.borgar.core.media.ImageFrame
 import io.github.shaksternano.borgar.core.media.MediaWriterFactory
 import io.github.shaksternano.borgar.core.media.rgb
-import io.github.shaksternano.gifcodec.ParallelGifEncoder
 import kotlinx.coroutines.withContext
 import kotlinx.io.buffered
 import kotlinx.io.files.SystemFileSystem

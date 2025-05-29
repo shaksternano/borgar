@@ -7,7 +7,7 @@ val guavaVersion: String by project
 val commonsIoVersion: String by project
 val javacvVersion: String by project
 val scrimageVersion: String by project
-val gifCodecVersion: String by project
+val gifKtVersion: String by project
 val twelveMonkeysVersion: String by project
 val image4jVersion: String by project
 val pdfBoxVersion: String by project
@@ -59,7 +59,7 @@ dependencies {
         exclude(group = "ch.qos.logback", module = "logback-classic")
         exclude(group = "ch.qos.logback", module = "logback-core")
     }
-    implementation("com.github.shaksternano:gifcodec:$gifCodecVersion")
+    implementation("com.shakster:gifkt:$gifKtVersion")
     implementation("com.twelvemonkeys.imageio:imageio-webp:$twelveMonkeysVersion")
     implementation("net.ifok.image:image4j:$image4jVersion")
     implementation("org.apache.pdfbox:pdfbox:$pdfBoxVersion")

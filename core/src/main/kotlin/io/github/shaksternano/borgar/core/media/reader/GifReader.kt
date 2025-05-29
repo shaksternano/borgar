@@ -1,16 +1,17 @@
 package io.github.shaksternano.borgar.core.media.reader
 
+import com.shakster.gifkt.GifDecoder
 import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.io.IO_DISPATCHER
 import io.github.shaksternano.borgar.core.media.ImageFrame
 import io.github.shaksternano.borgar.core.media.ImageReaderFactory
 import io.github.shaksternano.borgar.core.media.getCircularTimestamp
 import io.github.shaksternano.borgar.core.media.rgb
-import io.github.shaksternano.gifcodec.GifDecoder
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.withContext
 import kotlinx.io.files.Path
+import okio.FileSystem
 import java.awt.image.BufferedImage
 import kotlin.time.Duration
 
@@ -72,6 +73,7 @@ class GifReader(
             val decoder = withContext(IO_DISPATCHER) {
                 GifDecoder(
                     path,
+                    FileSystem.SYSTEM,
                     cacheFrameInterval = 20,
                 )
             }

@@ -1,8 +1,8 @@
 package io.github.shaksternano.borgar.core.media.writer
 
+import com.shakster.gifkt.internal.AsyncExecutor
 import io.github.shaksternano.borgar.core.io.closeAll
 import io.github.shaksternano.borgar.core.media.ImageFrame
-import io.github.shaksternano.gifcodec.internal.AsyncExecutor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.io.IOException
 import java.awt.image.BufferedImage
