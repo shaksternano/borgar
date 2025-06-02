@@ -2,7 +2,6 @@ package io.github.shaksternano.borgar.core.media.reader
 
 import com.shakster.gifkt.GifDecoder
 import com.shakster.gifkt.asRandomAccess
-import com.shakster.gifkt.toBufferedImage
 import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.io.IO_DISPATCHER
 import io.github.shaksternano.borgar.core.media.ImageFrame
