@@ -1,7 +1,6 @@
 package io.github.shaksternano.borgar.core.media.reader
 
 import com.shakster.gifkt.GifDecoder
-import com.shakster.gifkt.asRandomAccess
 import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.io.IO_DISPATCHER
 import io.github.shaksternano.borgar.core.media.ImageFrame
@@ -17,7 +16,8 @@ class GifReader(
 ) : BaseImageReader() {
 
     override val frameCount: Int = decoder.frameCount
-    override val frameDuration: Duration = decoder.frameInfos.minOf { it.duration }
+    override val frameDuration: Duration
+        get() = decoder.frameInfos.minOf { it.duration }
     override val duration: Duration = decoder.duration
     override val frameRate: Double = 1000.0 / frameDuration.inWholeMilliseconds
     override val width: Int = decoder.width
@@ -64,7 +64,7 @@ class GifReader(
             val fileInput = input.getOrWriteFile()
             val decoder = withContext(IO_DISPATCHER) {
                 GifDecoder(
-                    fileInput.path.asRandomAccess(),
+                    fileInput.path,
                     cacheFrameInterval = 20,
                 )
             }
