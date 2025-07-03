@@ -1,25 +1,29 @@
 package io.github.shaksternano.borgar.core.util
 
+import io.github.shaksternano.borgar.core.io.IO_DISPATCHER
 import io.github.shaksternano.borgar.core.logger
+import kotlinx.coroutines.withContext
 import java.nio.file.Path
 import kotlin.io.path.forEachLine
 import kotlin.system.exitProcess
 
 private val customEnvVars: MutableMap<String, String> = HashMap()
 
-fun loadEnv(path: Path) {
+suspend fun loadEnv(path: Path) {
     try {
-        path.forEachLine {
-            if (it.isNotBlank()) {
-                val envVar = it.split("=", limit = 2)
-                if (envVar.size == 2) {
-                    val key = envVar[0].trim()
-                    val value = envVar[1].trim()
-                    if (key.isNotBlank() && value.isNotBlank()) {
-                        setEnvVar(key, value)
+        withContext(IO_DISPATCHER) {
+            path.forEachLine {
+                if (it.isNotBlank()) {
+                    val envVar = it.split("=", limit = 2)
+                    if (envVar.size == 2) {
+                        val key = envVar[0].trim()
+                        val value = envVar[1].trim()
+                        if (key.isNotBlank() && value.isNotBlank()) {
+                            setEnvVar(key, value)
+                        }
+                    } else {
+                        logger.error("Invalid environment variable: $it")
                     }
-                } else {
-                    logger.error("Invalid environment variable: $it")
                 }
             }
         }
