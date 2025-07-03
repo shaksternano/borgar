@@ -15,6 +15,8 @@ import io.github.shaksternano.borgar.messaging.event.MessageReceiveEvent
 import io.github.shaksternano.borgar.messaging.util.onMessageReceived
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.Activity
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
@@ -88,11 +90,16 @@ inline fun <T> IDetachableEntity.ifNotDetachedOrNull(ifNotDetached: () -> T): T?
 private suspend fun JDA.awaitReadySuspend() {
     if (status == JDA.Status.CONNECTED) return
     var resumed = false
+    val mutex = Mutex()
     suspendCoroutine { continuation ->
         listener<ReadyEvent> {
             if (resumed) return@listener
-            resumed = true
-            continuation.resume(Unit)
+            mutex.withLock {
+                @Suppress("KotlinConstantConditions")
+                if (resumed) return@listener
+                resumed = true
+                continuation.resume(Unit)
+            }
         }
     }
 }
