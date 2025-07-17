@@ -87,20 +87,35 @@ class RevoltManager(
         proxyUrl = apiBody.features.january.url
         appUrl = apiBody.app
 
-        val editUserBody = EditUserRequest(
-            status = StatusBody(BOT_STATUS),
-        )
-        val self = request<RevoltUserResponse>(
-            path = "/users/@me",
-            method = HttpMethod.Patch,
-            body = editUserBody,
-        ).convert(this)
+        val self = updateStatusAndGetSelf()
 
         selfId = self.id
         ownerId = self.ownerId ?: error("Revolt bot owner ID not found")
 
         webSocket.init()
         ready = true
+    }
+
+    private suspend fun updateStatusAndGetSelf(): RevoltUser {
+        val editUserBody = EditUserRequest(
+            status = StatusBody(BOT_STATUS),
+        )
+        var throwable: Throwable? = null
+        val tries = 3
+        repeat(tries) {
+            try {
+                // Sometimes fails randomly, so we retry a few times
+                val self = request<RevoltUserResponse>(
+                    path = "/users/@me",
+                    method = HttpMethod.Patch,
+                    body = editUserBody,
+                ).convert(this)
+                return self
+            } catch (e: Throwable) {
+                throwable = e
+            }
+        }
+        throw IllegalStateException("Failed to update Revolt bot status after $tries attempts", throwable)
     }
 
     override suspend fun getSelf(): RevoltUser =
