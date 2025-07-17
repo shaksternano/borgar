@@ -5,7 +5,7 @@ import io.github.shaksternano.borgar.core.util.asSingletonList
 import io.github.shaksternano.borgar.messaging.BOT_MANAGERS
 import io.github.shaksternano.borgar.messaging.event.CommandEvent
 
-val MESSAGING_PLATFORM_TYPE: CommandArgumentType<MessagingPlatform> =
+private val MESSAGING_PLATFORM_TYPE: CommandArgumentType<MessagingPlatform> =
     CommandArgumentType.Enum<MessagingPlatform>("messaging platform")
 
 object GuildCountCommand : NonChainableCommand() {
