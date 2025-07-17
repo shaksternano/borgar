@@ -92,6 +92,7 @@ object HelpCommand : NonChainableCommand() {
                 add(CommandInfo(it.nameWithPrefix, it.description))
             }
         }
+        if (!TemplateRepository.connected) return@buildList
         val templates = try {
             TemplateRepository.readAll(entityId)
         } catch (t: Throwable) {
@@ -116,6 +117,7 @@ object HelpCommand : NonChainableCommand() {
             } else {
                 entityIdSplit[0] to entityIdSplit[1]
             }
+            if (!TemplateRepository.connected) return@run null
             val template = runCatching {
                 TemplateRepository.read(newCommandName, newEntityId)
             }.getOrNull() ?: return@run null

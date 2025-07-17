@@ -10,13 +10,17 @@ import org.jetbrains.exposed.sql.transactions.transaction
 
 abstract class Repository {
 
+    val connected: Boolean
+
     init {
-        try {
+        connected = try {
             transaction(databaseConnection()) {
                 SchemaUtils.create(table())
             }
+            true
         } catch (t: Throwable) {
             logger.error("Failed to create table", t)
+            false
         }
     }
 
