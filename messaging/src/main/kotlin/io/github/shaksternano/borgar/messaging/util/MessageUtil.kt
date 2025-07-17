@@ -10,12 +10,8 @@ import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.io.UrlInfo
 import io.github.shaksternano.borgar.core.io.head
 import io.github.shaksternano.borgar.core.io.useHttpClient
-import io.github.shaksternano.borgar.core.util.ChannelEnvironment
-import io.github.shaksternano.borgar.core.util.TenorMediaType
-import io.github.shaksternano.borgar.core.util.getUrls
-import io.github.shaksternano.borgar.core.util.retrieveTenorMediaUrl
+import io.github.shaksternano.borgar.core.util.*
 import io.github.shaksternano.borgar.messaging.BotManager
-import io.github.shaksternano.borgar.messaging.MessagingPlatform
 import io.github.shaksternano.borgar.messaging.command.CommandMessageIntersection
 import io.github.shaksternano.borgar.messaging.entity.Message
 import io.github.shaksternano.borgar.messaging.entity.User

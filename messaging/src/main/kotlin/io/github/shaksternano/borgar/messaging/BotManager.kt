@@ -1,5 +1,6 @@
 package io.github.shaksternano.borgar.messaging
 
+import io.github.shaksternano.borgar.core.util.MessagingPlatform
 import io.github.shaksternano.borgar.messaging.command.Permission
 import io.github.shaksternano.borgar.messaging.entity.*
 import io.github.shaksternano.borgar.messaging.entity.channel.Channel

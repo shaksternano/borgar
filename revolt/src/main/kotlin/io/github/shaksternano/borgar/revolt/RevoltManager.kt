@@ -3,10 +3,10 @@ package io.github.shaksternano.borgar.revolt
 import io.github.shaksternano.borgar.core.exception.HttpException
 import io.github.shaksternano.borgar.core.io.request
 import io.github.shaksternano.borgar.core.io.useHttpClient
+import io.github.shaksternano.borgar.core.util.MessagingPlatform
 import io.github.shaksternano.borgar.core.util.prettyPrintJsonCatching
 import io.github.shaksternano.borgar.messaging.BOT_STATUS
 import io.github.shaksternano.borgar.messaging.BotManager
-import io.github.shaksternano.borgar.messaging.MessagingPlatform
 import io.github.shaksternano.borgar.messaging.command.Permission
 import io.github.shaksternano.borgar.messaging.entity.CustomEmoji
 import io.github.shaksternano.borgar.messaging.entity.Role

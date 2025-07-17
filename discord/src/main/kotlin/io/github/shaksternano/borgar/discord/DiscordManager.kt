@@ -2,6 +2,7 @@ package io.github.shaksternano.borgar.discord
 
 import dev.minn.jda.ktx.coroutines.await
 import dev.minn.jda.ktx.generics.getChannel
+import io.github.shaksternano.borgar.core.util.MessagingPlatform
 import io.github.shaksternano.borgar.discord.entity.DiscordCustomEmoji
 import io.github.shaksternano.borgar.discord.entity.DiscordGuild
 import io.github.shaksternano.borgar.discord.entity.DiscordRole
@@ -9,7 +10,6 @@ import io.github.shaksternano.borgar.discord.entity.DiscordUser
 import io.github.shaksternano.borgar.discord.entity.channel.DiscordChannel
 import io.github.shaksternano.borgar.discord.util.toDiscord
 import io.github.shaksternano.borgar.messaging.BotManager
-import io.github.shaksternano.borgar.messaging.MessagingPlatform
 import io.github.shaksternano.borgar.messaging.command.Permission
 import io.github.shaksternano.borgar.messaging.entity.*
 import io.github.shaksternano.borgar.messaging.entity.channel.Channel

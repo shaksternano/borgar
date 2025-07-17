@@ -1,7 +1,4 @@
-package io.github.shaksternano.borgar.messaging
-
-import io.github.shaksternano.borgar.core.util.Displayed
-import io.github.shaksternano.borgar.core.util.Identified
+package io.github.shaksternano.borgar.core.util
 
 enum class MessagingPlatform(
     override val id: String,

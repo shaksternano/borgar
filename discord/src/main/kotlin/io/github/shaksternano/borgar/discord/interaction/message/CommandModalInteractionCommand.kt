@@ -3,9 +3,9 @@ package io.github.shaksternano.borgar.discord.interaction.message
 import dev.minn.jda.ktx.coroutines.await
 import dev.minn.jda.ktx.interactions.components.Modal
 import dev.minn.jda.ktx.interactions.components.TextInput
+import io.github.shaksternano.borgar.core.util.MessagingPlatform
 import io.github.shaksternano.borgar.discord.entity.DiscordMessage
 import io.github.shaksternano.borgar.discord.interaction.modal.RunCommandInteractionCommand
-import io.github.shaksternano.borgar.messaging.MessagingPlatform
 import io.github.shaksternano.borgar.messaging.util.setSelectedMessage
 import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent
 import net.dv8tion.jda.api.interactions.components.ActionRow

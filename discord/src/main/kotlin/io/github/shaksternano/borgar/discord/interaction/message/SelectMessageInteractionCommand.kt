@@ -1,8 +1,8 @@
 package io.github.shaksternano.borgar.discord.interaction.message
 
 import dev.minn.jda.ktx.coroutines.await
+import io.github.shaksternano.borgar.core.util.MessagingPlatform
 import io.github.shaksternano.borgar.discord.entity.DiscordMessage
-import io.github.shaksternano.borgar.messaging.MessagingPlatform
 import io.github.shaksternano.borgar.messaging.util.setSelectedMessage
 import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent
 

@@ -21,7 +21,6 @@ import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.Activity
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
 import net.dv8tion.jda.api.entities.detached.IDetachableEntity
-import net.dv8tion.jda.api.entities.emoji.Emoji
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.events.session.ReadyEvent
 import net.dv8tion.jda.api.requests.GatewayIntent
@@ -59,11 +58,6 @@ suspend fun initDiscord(token: String) {
 }
 
 private suspend fun handleMessage(event: MessageReceivedEvent) {
-    if (event.author.idLong == 1212465060077637722) {
-        runCatching {
-            event.message.addReaction(Emoji.fromUnicode("💀")).queue()
-        }
-    }
     onMessageReceived(event.convert())
 }
 

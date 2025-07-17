@@ -2,10 +2,10 @@ package io.github.shaksternano.borgar.discord.interaction.modal
 
 import dev.minn.jda.ktx.coroutines.await
 import io.github.shaksternano.borgar.core.logger
+import io.github.shaksternano.borgar.core.util.MessagingPlatform
 import io.github.shaksternano.borgar.discord.entity.DiscordUser
 import io.github.shaksternano.borgar.discord.entity.channel.DiscordMessageChannel
 import io.github.shaksternano.borgar.discord.event.DiscordInteractionCommandEvent
-import io.github.shaksternano.borgar.messaging.MessagingPlatform
 import io.github.shaksternano.borgar.messaging.command.COMMAND_PREFIX
 import io.github.shaksternano.borgar.messaging.command.CommandNotFoundException
 import io.github.shaksternano.borgar.messaging.command.isCorrectEnvironment
