@@ -208,9 +208,9 @@ abstract class NonChainableCommand : BaseCommand() {
             )
         }
 
-    abstract suspend fun run(arguments: CommandArguments, event: CommandEvent): List<CommandResponse>
+    protected abstract suspend fun run(arguments: CommandArguments, event: CommandEvent): List<CommandResponse>
 
-    open suspend fun onResponseSend(
+    protected open suspend fun onResponseSend(
         response: CommandResponse,
         responseNumber: Int,
         responseCount: Int,
