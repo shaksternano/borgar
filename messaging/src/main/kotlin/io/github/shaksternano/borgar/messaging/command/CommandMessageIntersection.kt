@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.emptyFlow
 interface CommandMessageIntersection : Entity {
 
     val authorId: String
+    val channelId: String
     val content: String
     val attachments: List<Attachment>
     val customEmojis: Flow<CustomEmoji>

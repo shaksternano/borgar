@@ -27,6 +27,7 @@ data class DiscordMessage(
     override val id: String = discordMessage.id
     override val manager: BotManager = DiscordManager[discordMessage.jda]
     override val authorId: String = discordMessage.author.id
+    override val channelId: String = discordMessage.channelId
     override val timeCreated: OffsetDateTime = discordMessage.timeCreated
     override val content: String = discordMessage.contentRaw
     override val attachments: List<Attachment> = discordMessage.attachments.map { it.convert() }

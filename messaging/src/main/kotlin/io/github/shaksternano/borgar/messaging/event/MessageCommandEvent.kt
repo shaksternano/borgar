@@ -17,6 +17,7 @@ data class MessageCommandEvent(
     override val manager: BotManager = event.manager
     override val id: String = event.messageId
     override val authorId: String = event.authorId
+    override val channelId: String = event.channelId
     override val timeCreated: OffsetDateTime = event.message.timeCreated
     override val referencedMessages: Flow<Message> = event.message.referencedMessages
     override var ephemeralReply: Boolean = false

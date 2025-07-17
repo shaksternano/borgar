@@ -36,6 +36,7 @@ class DiscordInteractionCommandEvent<T>(
     override val manager: BotManager = DiscordManager[discordEvent.jda]
     override val id: String = discordEvent.id
     override val authorId: String = discordEvent.user.id
+    override val channelId: String = discordChannel.id
     override val timeCreated: OffsetDateTime = discordEvent.timeCreated
     override val referencedMessages: Flow<Message> =
         referencedMessage?.let { flowOf(it) } ?: emptyFlow()
@@ -102,6 +103,7 @@ class DiscordInteractionCommandEvent<T>(
         object : CommandMessageIntersection {
             override val id: String = this@DiscordInteractionCommandEvent.id
             override val authorId: String = this@DiscordInteractionCommandEvent.authorId
+            override val channelId: String = this@DiscordInteractionCommandEvent.channelId
             override val manager: BotManager = this@DiscordInteractionCommandEvent.manager
             override val content: String = arguments.getDefaultStringOrEmpty()
             override val attachments: List<Attachment> = this@DiscordInteractionCommandEvent.attachments
