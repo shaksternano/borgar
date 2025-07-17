@@ -18,6 +18,10 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.commands.OptionType
 
 suspend fun handleCommand(event: SlashCommandInteractionEvent) {
+    handleBanned(event, "slash command") {
+        return
+    }
+
     val commandName = event.name
     val command = COMMANDS[commandName] ?: run {
         val entityId = event.guild?.id ?: event.user.id

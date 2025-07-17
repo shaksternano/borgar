@@ -182,6 +182,9 @@ class RevoltManager(
     override fun getPermissionName(permission: Permission): String =
         permission.toRevolt().displayName
 
+    override fun formatUserMention(userId: String): String =
+        "<@$userId>"
+
     suspend inline fun <reified T> request(
         path: String,
         method: HttpMethod = HttpMethod.Get,

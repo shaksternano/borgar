@@ -4,8 +4,12 @@ import dev.minn.jda.ktx.coroutines.await
 import dev.minn.jda.ktx.events.listener
 import dev.minn.jda.ktx.interactions.commands.Command
 import dev.minn.jda.ktx.interactions.commands.updateCommands
+import io.github.shaksternano.borgar.core.data.repository.BanRepository
+import io.github.shaksternano.borgar.core.data.repository.EntityType
+import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.core.util.ChannelEnvironment
 import io.github.shaksternano.borgar.core.util.Displayed
+import io.github.shaksternano.borgar.core.util.MessagingPlatform
 import io.github.shaksternano.borgar.core.util.formatted
 import io.github.shaksternano.borgar.discord.interaction.message.DiscordMessageInteractionCommand
 import io.github.shaksternano.borgar.discord.interaction.message.MESSAGE_INTERACTION_COMMANDS
@@ -23,6 +27,7 @@ import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionE
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.UserContextInteractionEvent
 import net.dv8tion.jda.api.interactions.IntegrationType
+import net.dv8tion.jda.api.interactions.Interaction
 import net.dv8tion.jda.api.interactions.InteractionContextType
 import net.dv8tion.jda.api.interactions.commands.Command.Choice
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions
@@ -64,6 +69,30 @@ suspend fun JDA.registerCommands() {
             .map(DiscordUserInteractionCommand::toCommandData)
         addCommands(userInteractionCommands)
     }.await()
+}
+
+inline fun handleBanned(event: Interaction, type: String, ifBanned: () -> Unit) {
+    val userId = event.user.id
+    if (BanRepository.exists(
+            userId,
+            EntityType.USER,
+            MessagingPlatform.DISCORD,
+        )
+    ) {
+        var message = "Ignoring $type from banned user \"${event.user.name}\" ($userId)"
+        val channelId = event.channelId
+        if (channelId != null) {
+            val channel = event.channel
+            message += if (channel == null) {
+                " sent in channel $channelId"
+            } else {
+                " sent in channel \"${channel.name}\" ($channelId)"
+            }
+        }
+        message += " on ${MessagingPlatform.DISCORD.displayName}"
+        logger.info(message)
+        ifBanned()
+    }
 }
 
 fun Command.toSlash(): SlashCommandData = Command(name, description) {

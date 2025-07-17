@@ -15,6 +15,9 @@ suspend fun sendFavouriteFile(event: MessageReceiveEvent) {
     val aliasUrl = removeQueryParams(urls.first())
     val fileName = filenameWithoutExtension(aliasUrl)
     if (!fileName.startsWith(FAVOURITE_ALIAS_PREFIX)) return
+    handleBanned(event, "favourite file") {
+        return
+    }
     val url = getUrl(aliasUrl) ?: return
     val author = event.getAuthorMember() ?: event.getAuthor()
     val channel = event.getChannel()

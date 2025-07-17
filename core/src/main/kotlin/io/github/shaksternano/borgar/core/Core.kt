@@ -1,6 +1,7 @@
 package io.github.shaksternano.borgar.core
 
 import io.github.shaksternano.borgar.core.data.connectToDatabase
+import io.github.shaksternano.borgar.core.data.repository.BanRepository
 import io.github.shaksternano.borgar.core.emoji.initEmojis
 import io.github.shaksternano.borgar.core.graphics.registerFonts
 import io.github.shaksternano.borgar.core.util.getEnvVar
@@ -18,12 +19,13 @@ val baseLogger: Logger = LoggerFactory.getLogger("Borgar")
 var logger: Logger = baseLogger
 
 suspend fun initCore() {
+    avutil.av_log_set_level(avutil.AV_LOG_PANIC)
     val envFileName = ".env"
     loadEnv(Path(envFileName))
     connectToPostgreSql()
     registerFonts()
     initEmojis()
-    avutil.av_log_set_level(avutil.AV_LOG_PANIC)
+    BanRepository.init()
 }
 
 private fun connectToPostgreSql() {

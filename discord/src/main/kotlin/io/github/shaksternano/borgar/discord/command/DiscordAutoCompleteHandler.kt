@@ -23,6 +23,10 @@ fun registerAutoCompleteHandlers() {
 }
 
 suspend fun handleCommandAutoComplete(event: CommandAutoCompleteInteractionEvent) {
+    handleBanned(event, "autocomplete request") {
+        return
+    }
+
     val command = event.name
     val argument = event.focusedOption.name
     val handler = getAutoCompleteHandler(command, argument) ?: return

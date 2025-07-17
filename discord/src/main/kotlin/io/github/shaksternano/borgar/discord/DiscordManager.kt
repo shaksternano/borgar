@@ -115,4 +115,7 @@ class DiscordManager(
 
     override fun getPermissionName(permission: Permission): String =
         permission.toDiscord().name
+
+    override fun formatUserMention(userId: String): String =
+        "<@$userId>"
 }

@@ -21,6 +21,7 @@ import io.github.shaksternano.borgar.messaging.exception.CommandException
 import io.github.shaksternano.borgar.messaging.exception.MissingArgumentException
 import io.github.shaksternano.borgar.messaging.util.checkEntityIdBelongs
 import io.github.shaksternano.borgar.messaging.util.getEntityId
+import io.github.shaksternano.borgar.messaging.util.handleBanned
 import io.github.shaksternano.borgar.messaging.util.setLowPrioritySelectedMessage
 import io.ktor.util.logging.*
 import kotlinx.coroutines.coroutineScope
@@ -31,6 +32,9 @@ import kotlinx.coroutines.launch
 suspend fun parseAndExecuteCommand(event: MessageReceiveEvent) {
     val content = event.message.content.trim()
     if (!content.startsWith(COMMAND_PREFIX)) return
+    handleBanned(event, "command") {
+        return
+    }
     val commandConfigs = try {
         parseCommands(content, event.message)
     } catch (e: CommandNotFoundException) {
@@ -73,6 +77,7 @@ private suspend fun <T> sendTypingUntilDone(
         }
     }
     block().also {
+        @Suppress("AssignedValueIsNeverRead")
         sendTyping = false
         typing.cancel()
         channel.stopTyping()

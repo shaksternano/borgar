@@ -49,6 +49,8 @@ interface BotManager {
     fun emojiAsTyped(emoji: String): String
 
     fun getPermissionName(permission: Permission): String
+
+    fun formatUserMention(userId: String): String
 }
 
 fun registerBotManager(botManager: BotManager) {
