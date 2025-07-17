@@ -2,6 +2,7 @@ package io.github.shaksternano.borgar.messaging.command
 
 import io.github.shaksternano.borgar.core.data.repository.BanRepository
 import io.github.shaksternano.borgar.core.data.repository.EntityType
+import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.core.util.asSingletonList
 import io.github.shaksternano.borgar.messaging.event.CommandEvent
 
@@ -27,6 +28,7 @@ object UnbanCommand : OwnerCommand() {
         val id = arguments.getRequired("id", CommandArgumentType.String)
         val platform = event.manager.platform
         BanRepository.delete(id, EntityType.USER, platform)
+        logger.info("Unbanned user $id on ${platform.displayName}")
         val userMention = event.manager.formatUserMention(id)
         return CommandResponse(
             "Unbanned $userMention ($id) from using this bot on ${platform.displayName}.",
