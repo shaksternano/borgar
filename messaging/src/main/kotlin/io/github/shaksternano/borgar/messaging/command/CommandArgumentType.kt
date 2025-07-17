@@ -54,7 +54,7 @@ sealed interface CommandArgumentType<T> {
 
         override suspend fun parse(
             value: kotlin.String,
-            message: Message
+            message: Message,
         ): io.github.shaksternano.borgar.messaging.entity.User? =
             message.mentionedUsers.firstOrNull {
                 value == it.asMention || value == it.asBasicMention
@@ -68,7 +68,7 @@ sealed interface CommandArgumentType<T> {
 
         override suspend fun parse(
             value: kotlin.String,
-            message: Message
+            message: Message,
         ): io.github.shaksternano.borgar.messaging.entity.channel.Channel? =
             message.mentionedChannels.firstOrNull {
                 value == it.asMention || value == it.asBasicMention
@@ -95,7 +95,7 @@ sealed interface CommandArgumentType<T> {
 
         override suspend fun parse(
             value: kotlin.String,
-            message: Message
+            message: Message,
         ): io.github.shaksternano.borgar.messaging.entity.Mentionable? {
             val mentions = message.mentionedUsers + message.mentionedChannels + message.mentionedRoles
             return mentions.firstOrNull {
@@ -110,14 +110,14 @@ sealed interface CommandArgumentType<T> {
 
         override fun parse(
             value: kotlin.String,
-            message: Message
+            message: Message,
         ): io.github.shaksternano.borgar.messaging.entity.Attachment? =
             message.attachments.firstOrNull()
     }
 
     class Enum<T>(
         private val type: KClass<T>,
-        override val name: kotlin.String
+        override val name: kotlin.String,
     ) : SimpleCommandArgumentType<T> where T : kotlin.Enum<T>, T : Identified {
 
         val values: List<T> = type.java.enumConstants.toList()
@@ -127,6 +127,14 @@ sealed interface CommandArgumentType<T> {
     }
 
     val name: kotlin.String
+
+    companion object
+}
+
+inline fun <reified T> CommandArgumentType.Companion.Enum(
+    name: String,
+): CommandArgumentType.Enum<T> where T : Enum<T>, T : Identified {
+    return CommandArgumentType.Enum(T::class, name)
 }
 
 sealed interface SimpleCommandArgumentType<T> : CommandArgumentType<T> {

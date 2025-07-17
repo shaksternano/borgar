@@ -10,7 +10,7 @@ import io.github.shaksternano.borgar.messaging.event.CommandEvent
 import io.github.shaksternano.borgar.messaging.util.searchExceptSelfOrThrow
 
 private val TENOR_MEDIA_TYPE: CommandArgumentType<TenorMediaType> =
-    CommandArgumentType.Enum(TenorMediaType::class, "Tenor media type")
+    CommandArgumentType.Enum<TenorMediaType>("Tenor media type")
 
 object TenorUrlCommand : FileCommand(
     CommandArgumentInfo(
