@@ -1,6 +1,7 @@
 package io.github.shaksternano.borgar.messaging.command
 
 import io.github.shaksternano.borgar.core.collect.plus
+import io.github.shaksternano.borgar.core.util.Displayed
 import io.github.shaksternano.borgar.core.util.Identified
 import io.github.shaksternano.borgar.messaging.entity.Message
 import kotlinx.coroutines.flow.firstOrNull
@@ -118,7 +119,7 @@ sealed interface CommandArgumentType<T> {
     class Enum<T>(
         private val type: KClass<T>,
         override val name: kotlin.String,
-    ) : SimpleCommandArgumentType<T> where T : kotlin.Enum<T>, T : Identified {
+    ) : SimpleCommandArgumentType<T> where T : kotlin.Enum<T>, T : Identified, T : Displayed {
 
         val values: List<T> = type.java.enumConstants.toList()
 
@@ -133,7 +134,7 @@ sealed interface CommandArgumentType<T> {
 
 inline fun <reified T> CommandArgumentType.Companion.Enum(
     name: String,
-): CommandArgumentType.Enum<T> where T : Enum<T>, T : Identified {
+): CommandArgumentType.Enum<T> where T : Enum<T>, T : Identified, T : Displayed {
     return CommandArgumentType.Enum(T::class, name)
 }
 

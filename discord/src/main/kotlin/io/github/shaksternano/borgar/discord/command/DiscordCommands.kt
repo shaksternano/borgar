@@ -8,7 +8,6 @@ import io.github.shaksternano.borgar.core.data.repository.BanRepository
 import io.github.shaksternano.borgar.core.data.repository.EntityType
 import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.core.util.ChannelEnvironment
-import io.github.shaksternano.borgar.core.util.Displayed
 import io.github.shaksternano.borgar.core.util.MessagingPlatform
 import io.github.shaksternano.borgar.core.util.formatted
 import io.github.shaksternano.borgar.discord.interaction.message.DiscordMessageInteractionCommand
@@ -148,7 +147,6 @@ private fun CommandArgumentInfo<*>.toOption(): OptionData {
     val argumentType = type
     if (argumentType is CommandArgumentType.Enum<*>) {
         val choices = argumentType.values.map {
-            it as Displayed
             Choice(it.displayName, it.ordinal.toLong())
         }
         optionData.addChoices(choices)
