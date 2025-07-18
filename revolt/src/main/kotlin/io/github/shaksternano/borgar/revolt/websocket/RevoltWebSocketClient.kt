@@ -5,6 +5,7 @@ import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.core.util.JSON
 import io.github.shaksternano.borgar.messaging.event.MessageReceiveEvent
 import io.github.shaksternano.borgar.messaging.util.onMessageReceived
+import io.github.shaksternano.borgar.revolt.RETRY_CONNECT_INTERVAL
 import io.github.shaksternano.borgar.revolt.RevoltManager
 import io.github.shaksternano.borgar.revolt.entity.RevoltGuildResponse
 import io.github.shaksternano.borgar.revolt.entity.channel.RevoltChannelResponse
@@ -33,8 +34,6 @@ import kotlin.time.Duration.Companion.seconds
 
 private const val PING_JSON: String = "{\"type\":\"Ping\",\"data\":0}"
 private val PING_INTERVAL: Duration = 10.seconds
-
-private val RETRY_CONNECT_INTERVAL: Duration = 10.seconds
 
 class RevoltWebSocketClient(
     private val token: String,

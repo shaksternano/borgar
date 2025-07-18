@@ -24,6 +24,7 @@ import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.http.content.*
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emptyFlow
@@ -35,6 +36,7 @@ import kotlin.time.Duration.Companion.seconds
 
 private const val REVOLT_TOKEN_HEADER: String = "x-bot-token"
 private val USER_MENTION_REGEX: Regex = "<@[A-Za-z0-9]+>".toRegex()
+val RETRY_CONNECT_INTERVAL: Duration = 10.seconds
 
 class RevoltManager(
     private val token: String,
@@ -100,22 +102,19 @@ class RevoltManager(
         val editUserBody = EditUserRequest(
             status = StatusBody(BOT_STATUS),
         )
-        var throwable: Throwable? = null
-        val tries = 3
-        repeat(tries) {
+        // Sometimes fails randomly, so we retry until it succeeds
+        while (true) {
             try {
-                // Sometimes fails randomly, so we retry a few times
                 val self = request<RevoltUserResponse>(
                     path = "/users/@me",
                     method = HttpMethod.Patch,
                     body = editUserBody,
                 ).convert(this)
                 return self
-            } catch (e: Throwable) {
-                throwable = e
+            } catch (_: Throwable) {
+                delay(RETRY_CONNECT_INTERVAL)
             }
         }
-        throw IllegalStateException("Failed to update Revolt bot status after $tries attempts", throwable)
     }
 
     override suspend fun getSelf(): RevoltUser =
