@@ -58,7 +58,7 @@ object BanRepository : Repository() {
     )
 }
 
-object BanRepositoryTable : Table("banned") {
+object BanRepositoryTable : Table("bans") {
 
     val entityId = varchar("entity_id", 50)
     val entityType = enumerationByName<EntityType>("entity_type", 20)
