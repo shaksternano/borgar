@@ -8,7 +8,7 @@ abstract class OwnerCommand : NonChainableCommand() {
         arguments: CommandArguments,
         event: CommandEvent,
     ): List<CommandResponse> {
-        return if (event.getAuthor().id == event.manager.ownerId) {
+        return if (event.authorId == event.manager.ownerId) {
             runAsOwner(arguments, event)
         } else {
             listOf(CommandResponse("You don't have permission to use this command."))
