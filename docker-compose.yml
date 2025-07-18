@@ -4,13 +4,13 @@ services:
     db:
         image: postgres
         environment:
-            POSTGRES_USER: ${POSTGRESQL_USERNAME}
-            POSTGRES_PASSWORD: ${POSTGRESQL_PASSWORD}
+            POSTGRES_USER: root
+            POSTGRES_PASSWORD: password
             PGDATA: /data/postgres
         volumes:
             - db:/data/postgres
         ports:
-            - ${POSTGRESQL_PORTS}
+            - "5232:5432"
         networks:
             - db
         restart: unless-stopped

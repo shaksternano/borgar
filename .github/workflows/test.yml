@@ -5,11 +5,6 @@ jobs:
     test:
         name: Run tests
         runs-on: ubuntu-latest
-        env:
-            POSTGRESQL_URL: jdbc:postgresql://localhost:5432/postgres
-            POSTGRESQL_PORTS: 5432:5432
-            POSTGRESQL_USERNAME: root
-            POSTGRESQL_PASSWORD: password
         steps:
             -   name: Checkout sources
                 uses: actions/checkout@v4
@@ -23,18 +18,11 @@ jobs:
             -   name: Setup Gradle
                 uses: gradle/actions/setup-gradle@v4
 
-            -   name: Create .env file for Docker Compose
-                run: |
-                    touch .env
-                    echo POSTGRESQL_PORTS=POSTGRESQL_PORTS >> .env
-                    echo POSTGRESQL_USERNAME=$POSTGRESQL_USERNAME >> .env
-                    echo POSTGRESQL_PASSWORD=$POSTGRESQL_PASSWORD >> .env
-
             -   name: Run Docker Compose
                 run: docker compose up -d
 
             -   name: Run tests
-                run: ./gradlew cleanTest test --refresh-dependencies --stacktrace --parallel
+                run: ./gradlew cleanTest test --refresh-dependencies --stacktrace
 
             -   name: Put all test reports into one directory
                 run: |

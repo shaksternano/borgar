@@ -1,32 +1,29 @@
 package io.github.shaksternano.borgar.app
 
+import io.github.shaksternano.borgar.core.BotConfig
 import io.github.shaksternano.borgar.core.START_TIME
 import io.github.shaksternano.borgar.core.initCore
 import io.github.shaksternano.borgar.core.logger
-import io.github.shaksternano.borgar.core.util.getEnvVar
 import io.github.shaksternano.borgar.discord.initDiscord
 import io.github.shaksternano.borgar.messaging.initMessaging
 import io.github.shaksternano.borgar.revolt.initRevolt
 import kotlin.time.DurationUnit
 import kotlin.time.TimeSource
 
-private const val DISCORD_BOT_TOKEN_ENV_VAR: String = "DISCORD_BOT_TOKEN"
-private const val REVOLT_BOT_TOKEN_ENV_VAR: String = "REVOLT_BOT_TOKEN"
-
 suspend fun main() {
     logger.info("Starting")
     initCore()
     initMessaging()
-    val discordToken = getEnvVar(DISCORD_BOT_TOKEN_ENV_VAR)
-    val revoltToken = getEnvVar(REVOLT_BOT_TOKEN_ENV_VAR)
-    if (discordToken == null && revoltToken == null) {
+    val discordToken = BotConfig.get().botTokens.discord
+    val revoltToken = BotConfig.get().botTokens.revolt
+    if (discordToken.isBlank() && revoltToken.isBlank()) {
         logger.error("No bot tokens found")
         return
     }
-    if (discordToken != null) {
+    if (discordToken.isNotBlank()) {
         initDiscord(discordToken)
     }
-    if (revoltToken != null) {
+    if (revoltToken.isNotBlank()) {
         initRevolt(revoltToken)
     }
     val time = TimeSource.Monotonic.markNow()

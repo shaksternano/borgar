@@ -30,7 +30,6 @@ bin/
 .kotlin/
 *.log
 .env
-*.mapdb
-*.mapdb.wal.0
+config.json
 templates/
 derpibooru_tags.txt

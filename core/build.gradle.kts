@@ -1,4 +1,5 @@
 val kotlinxCoroutinesVersion: String by project
+val kotlinxSerializationVersion: String by project
 val kotlinxIoVersion: String by project
 val kotlinxAtomicFuVersion: String by project
 val ktorVersion: String by project
@@ -21,6 +22,7 @@ dependencies {
     api("ch.qos.logback:logback-classic:$logbackVersion")
 
     api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion")
+    api("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion")
     api("org.jetbrains.kotlinx:kotlinx-io-core:$kotlinxIoVersion")
     api("org.jetbrains.kotlinx:atomicfu:$kotlinxAtomicFuVersion")
 

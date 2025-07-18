@@ -1,10 +1,10 @@
 package io.github.shaksternano.borgar.messaging.command
 
+import io.github.shaksternano.borgar.core.BotConfig
 import io.github.shaksternano.borgar.core.io.*
 import io.github.shaksternano.borgar.core.task.DerpibooruTask
 import io.github.shaksternano.borgar.core.task.FileTask
 import io.github.shaksternano.borgar.core.util.WHITESPACE_REGEX
-import io.github.shaksternano.borgar.core.util.getEnvVar
 import io.github.shaksternano.borgar.messaging.BotManager
 import io.github.shaksternano.borgar.messaging.event.CommandEvent
 import io.ktor.client.statement.*
@@ -75,9 +75,9 @@ class DerpibooruCommand(
             tags = if (tagsFile.isRegularFile()) {
                 tagsFile.readLines()
             } else {
-                val tagsUrl = getEnvVar("DERPIBOORU_TAGS_URL") ?: return
-                val filteredTagsUrl = getEnvVar("DERPIBOORU_FILTERED_TAGS_URL")
-                val filteredTags = if (filteredTagsUrl == null) {
+                val tagsUrl = BotConfig.get().derpibooru.tagsUrl.ifBlank { return }
+                val filteredTagsUrl = BotConfig.get().derpibooru.filteredTagsUrl
+                val filteredTags = if (filteredTagsUrl.isBlank()) {
                     listOf()
                 } else {
                     useHttpClient { client ->

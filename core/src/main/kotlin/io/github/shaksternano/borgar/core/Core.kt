@@ -4,8 +4,6 @@ import io.github.shaksternano.borgar.core.data.connectToDatabase
 import io.github.shaksternano.borgar.core.data.repository.BanRepository
 import io.github.shaksternano.borgar.core.emoji.initEmojis
 import io.github.shaksternano.borgar.core.graphics.registerFonts
-import io.github.shaksternano.borgar.core.util.getEnvVar
-import io.github.shaksternano.borgar.core.util.loadEnv
 import org.bytedeco.ffmpeg.global.avutil
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -20,31 +18,28 @@ var logger: Logger = baseLogger
 
 suspend fun initCore() {
     avutil.av_log_set_level(avutil.AV_LOG_PANIC)
-    val envFileName = ".env"
-    loadEnv(Path(envFileName))
-    connectToPostgreSql()
+    BotConfig.load(Path("config.json"))
+    connectToDatabase()
     registerFonts()
     initEmojis()
     BanRepository.init()
 }
 
-private fun connectToPostgreSql() {
-    val url = getEnvVar("POSTGRESQL_URL") ?: run {
-        logger.warn("POSTGRESQL_URL environment variable not found!")
+private fun connectToDatabase() {
+    val url = BotConfig.get().database.url.ifBlank {
+        logger.warn("Database URL not found")
         return
     }
-    val username = getEnvVar("POSTGRESQL_USERNAME") ?: run {
-        logger.warn("POSTGRESQL_USERNAME environment variable not found!")
+    val driver = BotConfig.get().database.driver.ifBlank {
+        logger.warn("Database driver not found")
         return
     }
-    val password = getEnvVar("POSTGRESQL_PASSWORD") ?: run {
-        logger.warn("POSTGRESQL_PASSWORD environment variable not found!")
-        return
-    }
+    val user = BotConfig.get().database.user
+    val password = BotConfig.get().database.password
     connectToDatabase(
         url,
-        username,
+        driver,
+        user,
         password,
-        "org.postgresql.Driver",
     )
 }

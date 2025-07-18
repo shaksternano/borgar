@@ -4,9 +4,9 @@ import dev.minn.jda.ktx.events.listener
 import dev.minn.jda.ktx.generics.getChannel
 import dev.minn.jda.ktx.jdabuilder.default
 import dev.minn.jda.ktx.jdabuilder.intents
+import io.github.shaksternano.borgar.core.BotConfig
 import io.github.shaksternano.borgar.core.io.DataSource
 import io.github.shaksternano.borgar.core.logger
-import io.github.shaksternano.borgar.core.util.getEnvVar
 import io.github.shaksternano.borgar.discord.command.registerCommands
 import io.github.shaksternano.borgar.discord.entity.DiscordMessage
 import io.github.shaksternano.borgar.discord.logging.DiscordLogger
@@ -101,7 +101,7 @@ private suspend fun JDA.awaitReadySuspend() {
 private const val DISCORD_LOG_CHANNEL_ID_ENV_VAR: String = "DISCORD_LOG_CHANNEL_ID"
 
 private fun JDA.createDiscordLogger(): DiscordLogger? {
-    val logChannelIdString = getEnvVar(DISCORD_LOG_CHANNEL_ID_ENV_VAR) ?: return null
+    val logChannelIdString = BotConfig.get().discordLogChannelId.ifBlank { return null }
     val logChannelId = logChannelIdString.toLongOrNull() ?: run {
         logger.warn("$DISCORD_LOG_CHANNEL_ID_ENV_VAR environment variable is not an integer")
         return null

@@ -1,12 +1,12 @@
 package io.github.shaksternano.borgar.core.media.writer
 
+import io.github.shaksternano.borgar.core.BotConfig
 import io.github.shaksternano.borgar.core.io.IO_DISPATCHER
 import io.github.shaksternano.borgar.core.io.SuspendCloseable
 import io.github.shaksternano.borgar.core.io.closeAll
 import io.github.shaksternano.borgar.core.media.AudioFrame
 import io.github.shaksternano.borgar.core.media.ImageFrame
 import io.github.shaksternano.borgar.core.media.MediaWriterFactory
-import io.github.shaksternano.borgar.core.util.getEnvVar
 import kotlinx.coroutines.withContext
 import org.bytedeco.ffmpeg.global.avcodec
 import org.bytedeco.javacv.FFmpegFrameRecorder
@@ -117,22 +117,22 @@ class FFmpegVideoWriter(
         var customVideoEncoder = false
         if (format == "webm") {
             // VP9 takes too long to encode. In one case it was over 4x slower than VP8.
-            val vp8Encoder = getEnvVar("VP8_ENCODER")
-            if (vp8Encoder == null) {
+            val encoder = BotConfig.get().encoder.ffmpegWebmEncoder
+            if (encoder.isBlank()) {
                 recorder.videoCodec = avcodec.AV_CODEC_ID_VP8
             } else {
-                recorder.videoCodecName = vp8Encoder
+                recorder.videoCodecName = encoder
                 customVideoEncoder = true
             }
 
             recorder.audioCodec = avcodec.AV_CODEC_ID_OPUS
             audioSampleRate1 = getWebmSampleRate(audioSampleRate1)
         } else {
-            val h264Encoder = getEnvVar("H264_ENCODER")
-            if (h264Encoder == null) {
+            val encoder = BotConfig.get().encoder.ffmpegMp4Encoder
+            if (encoder.isBlank()) {
                 recorder.videoCodec = avcodec.AV_CODEC_ID_H264
             } else {
-                recorder.videoCodecName = h264Encoder
+                recorder.videoCodecName = encoder
                 customVideoEncoder = true
             }
 

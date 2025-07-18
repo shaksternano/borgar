@@ -1,5 +1,6 @@
 package io.github.shaksternano.borgar.core.task
 
+import io.github.shaksternano.borgar.core.BotConfig
 import io.github.shaksternano.borgar.core.exception.ErrorResponseException
 import io.github.shaksternano.borgar.core.exception.FileTooLargeException
 import io.github.shaksternano.borgar.core.io.*
@@ -7,7 +8,6 @@ import io.github.shaksternano.borgar.core.io.head
 import io.github.shaksternano.borgar.core.io.post
 import io.github.shaksternano.borgar.core.util.JSON
 import io.github.shaksternano.borgar.core.util.asSingletonList
-import io.github.shaksternano.borgar.core.util.getEnvVar
 import io.github.shaksternano.borgar.core.util.prettyPrintJsonCatching
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -46,7 +46,7 @@ class DownloadTask(
                 message += "s"
             message += "!"
             throw ErrorResponseException(message)
-        } catch (e: FileTooLargeException) {
+        } catch (_: FileTooLargeException) {
             throw ErrorResponseException("File is too large!")
         } catch (e: Throwable) {
             throw ErrorResponseException("Error downloading file!", e)
@@ -83,7 +83,7 @@ class DownloadTask(
             if (size == null) {
                 val fileDataSource = try {
                     dataSource.getOrWriteFile(maxFileSize)
-                } catch (e: FileTooLargeException) {
+                } catch (_: FileTooLargeException) {
                     null
                 }
                 if (fileDataSource == null) {
@@ -125,8 +125,8 @@ class DownloadTask(
         audioOnly: Boolean,
         fileIndex: Int?,
     ): List<DataSource> {
-        val cobaltApiUrl = getEnvVar("COBALT_API_URL")
-        if (cobaltApiUrl.isNullOrBlank()) {
+        val cobaltApiUrl = BotConfig.get().cobaltApiUrl
+        if (cobaltApiUrl.isBlank()) {
             throw IllegalStateException("Cobalt API url is not set!")
         }
         val requestBody = CobaltRequestBody(
