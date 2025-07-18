@@ -8,7 +8,6 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.nio.file.Path
 import kotlin.io.path.*
-import kotlin.system.exitProcess
 
 @Serializable
 data class BotConfig(
@@ -29,8 +28,7 @@ data class BotConfig(
 
     @Serializable
     data class DatabaseConfig(
-        val url: String = "jdbc:postgresql://localhost:5232/postgres",
-        val driver: String = "org.postgresql.Driver",
+        val url: String = "jdbc:sqlite:sqlite.db",
         val user: String = "root",
         val password: String = "password",
     )
@@ -67,7 +65,7 @@ data class BotConfig(
                 path.writeText(json)
                 instance = defaultConfig
                 logger.info("Config file not found at ${path.absolute()}, created a new one.")
-                exitProcess(0)
+                return@withContext
             }
 
             if (!path.isRegularFile()) {

@@ -30,15 +30,10 @@ private fun connectToDatabase() {
         logger.warn("Database URL not found")
         return
     }
-    val driver = BotConfig.get().database.driver.ifBlank {
-        logger.warn("Database driver not found")
-        return
-    }
     val user = BotConfig.get().database.user
     val password = BotConfig.get().database.password
     connectToDatabase(
         url,
-        driver,
         user,
         password,
     )

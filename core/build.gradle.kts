@@ -15,7 +15,8 @@ val pdfBoxVersion: String by project
 val reflectionsVersion: String by project
 val jdaVersion: String by project
 val exposedVersion: String by project
-val postgreSqlVersion: String by project
+val postgresqlVersion: String by project
+val sqliteVersion: String by project
 val junitVersion: String by project
 
 dependencies {
@@ -69,7 +70,8 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-java-time:$exposedVersion")
-    runtimeOnly("org.postgresql:postgresql:$postgreSqlVersion")
+    runtimeOnly("org.postgresql:postgresql:$postgresqlVersion")
+    runtimeOnly("org.xerial:sqlite-jdbc:$sqliteVersion")
 
     testImplementation(kotlin("test"))
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinxCoroutinesVersion")

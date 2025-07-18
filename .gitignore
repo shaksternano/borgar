@@ -31,5 +31,6 @@ bin/
 *.log
 .env
 config.json
+*.db
 templates/
 derpibooru_tags.txt

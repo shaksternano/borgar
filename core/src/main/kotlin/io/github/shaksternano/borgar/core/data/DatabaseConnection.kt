@@ -4,12 +4,11 @@ import org.jetbrains.exposed.sql.Database
 
 private lateinit var connection: Database
 
-fun connectToDatabase(url: String, driver: String, user: String, password: String) {
+fun connectToDatabase(url: String, user: String, password: String) {
     if (!::connection.isInitialized) {
         connection = Database.connect(
             url = url,
             user = user,
-            driver = driver,
             password = password,
         )
     }
