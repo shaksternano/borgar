@@ -36,6 +36,16 @@ object BanRepository : Repository() {
         cache.add(BannedKey(entityId, entityType, platform))
     }
 
+    fun readAll(entityType: EntityType, platform: MessagingPlatform): Set<String> {
+        return buildSet {
+            cache.forEach {
+                if (it.entityType == entityType && it.platform == platform) {
+                    add(it.entityId)
+                }
+            }
+        }
+    }
+
     suspend fun delete(entityId: String, entityType: EntityType, platform: MessagingPlatform) {
         dbQuery {
             deleteWhere {

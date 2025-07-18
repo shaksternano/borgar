@@ -67,6 +67,7 @@ val COMMANDS: Map<String, Command> = registerCommands(
     ShutdownCommand,
     BanCommand,
     UnbanCommand,
+    BanListCommand,
 )
 
 val COMMANDS_AND_ALIASES: Map<String, Command> = buildMap {
