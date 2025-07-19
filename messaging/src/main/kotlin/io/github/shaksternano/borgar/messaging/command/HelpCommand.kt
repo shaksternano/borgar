@@ -61,8 +61,20 @@ object HelpCommand : NonChainableCommand() {
         }
     }
 
-    fun removeCachedMessage(entityId: String) =
-        cachedCommandInfos.invalidate(entityId)
+    fun removeCachedMessage(entityId: String) {
+        cachedCommandInfos.invalidate(
+            CommandInfoCacheKey(
+                entityId = entityId,
+                isOwner = false,
+            ),
+        )
+        cachedCommandInfos.invalidate(
+            CommandInfoCacheKey(
+                entityId = entityId,
+                isOwner = true,
+            ),
+        )
+    }
 
     private suspend fun getHelpMessages(
         entityId: String,
