@@ -32,6 +32,8 @@ interface Command : Named {
         get() = null
     val entityEnvironment: ChannelEnvironment?
         get() = null
+    val ownerOnly: Boolean
+        get() = false
 
     fun createExecutable(arguments: CommandArguments, event: CommandEvent): Executable
 }

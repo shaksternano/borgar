@@ -28,7 +28,7 @@ object HelpCommand : NonChainableCommand() {
     )
     override val ephemeralReply: Boolean = true
 
-    private val cachedCommandInfos: Cache<String, String> = CacheBuilder.newBuilder()
+    private val cachedCommandInfos: Cache<CommandInfoCacheKey, String> = CacheBuilder.newBuilder()
         .maximumSize(1000)
         .build()
 
@@ -45,6 +45,7 @@ object HelpCommand : NonChainableCommand() {
                 entityId,
                 environment,
                 event.manager.maxMessageContentLength,
+                event,
             ).map {
                 CommandResponse(it, suppressEmbeds = true)
             }
@@ -67,11 +68,17 @@ object HelpCommand : NonChainableCommand() {
         entityId: String,
         environment: ChannelEnvironment,
         maxContentLength: Int,
-    ): List<String> =
-        cachedCommandInfos.getOrPut(entityId) {
-            val commandInfos = getCommandInfo(entityId, environment)
+        event: CommandEvent,
+    ): List<String> {
+        val key = CommandInfoCacheKey(
+            entityId = entityId,
+            isOwner = event.authorId == event.manager.ownerId,
+        )
+        return cachedCommandInfos.getOrPut(key) {
+            val commandInfos = getCommandInfo(entityId, environment, event)
             createHelpMessage(commandInfos)
         }.splitChunks(maxContentLength)
+    }
 
     private fun createHelpMessage(commandInfo: Iterable<CommandInfo>): String {
         val commandDescriptions = commandInfo.sorted()
@@ -86,11 +93,17 @@ object HelpCommand : NonChainableCommand() {
     private suspend fun getCommandInfo(
         entityId: String,
         environment: ChannelEnvironment,
+        event: CommandEvent,
     ): List<CommandInfo> = buildList {
         COMMANDS.values.forEach {
-            if (it.isCorrectEnvironment(environment)) {
-                add(CommandInfo(it.nameWithPrefix, it.description))
+            println(it.ownerOnly && event.authorId != event.manager.ownerId)
+            if (it.ownerOnly && event.authorId != event.manager.ownerId) {
+                return@forEach
             }
+            if (!it.isCorrectEnvironment(environment)) {
+                return@forEach
+            }
+            add(CommandInfo(it.nameWithPrefix, it.description))
         }
         if (!TemplateRepository.connected) return@buildList
         val templates = try {
@@ -131,7 +144,10 @@ object HelpCommand : NonChainableCommand() {
                 return@run null
             }
             TemplateCommand(template)
-        } ?: return "Command **$commandName** not found!"
+        }
+        if (command == null || (command.ownerOnly && event.authorId != manager.ownerId)) {
+            return "Command **$commandName** not found!"
+        }
         return "**${command.nameWithPrefix}** - ${command.description}\n" +
             getCommandAliasesMessage(command) +
             getArgumentsMessage(command) +
@@ -247,6 +263,11 @@ object HelpCommand : NonChainableCommand() {
         }
         return extraInfo
     }
+
+    private data class CommandInfoCacheKey(
+        val entityId: String,
+        val isOwner: Boolean,
+    )
 
     private data class CommandInfo(
         val name: String,

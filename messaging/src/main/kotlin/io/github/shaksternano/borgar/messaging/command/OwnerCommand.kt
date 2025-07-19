@@ -4,6 +4,8 @@ import io.github.shaksternano.borgar.messaging.event.CommandEvent
 
 abstract class OwnerCommand : NonChainableCommand() {
 
+    override val ownerOnly: Boolean = true
+
     final override suspend fun run(
         arguments: CommandArguments,
         event: CommandEvent,
