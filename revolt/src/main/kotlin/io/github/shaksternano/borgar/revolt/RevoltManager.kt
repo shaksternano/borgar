@@ -3,6 +3,7 @@ package io.github.shaksternano.borgar.revolt
 import io.github.shaksternano.borgar.core.exception.HttpException
 import io.github.shaksternano.borgar.core.io.request
 import io.github.shaksternano.borgar.core.io.useHttpClient
+import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.core.util.MessagingPlatform
 import io.github.shaksternano.borgar.core.util.prettyPrintJsonCatching
 import io.github.shaksternano.borgar.messaging.BOT_STATUS
@@ -89,7 +90,12 @@ class RevoltManager(
         proxyUrl = apiBody.features.january.url
         appUrl = apiBody.app
 
-        val self = updateStatusAndGetSelf()
+        val self = try {
+            updateStatusAndGetSelf()
+        } catch (_: InvalidTokenException) {
+            logger.error("Invalid Revolt bot token, please check the config.json file")
+            return
+        }
 
         selfId = self.id
         ownerId = self.ownerId ?: error("Revolt bot owner ID not found")
@@ -103,7 +109,8 @@ class RevoltManager(
             status = StatusBody(BOT_STATUS),
         )
         // Sometimes fails randomly, so we retry until it succeeds
-        while (true) {
+        var retry = true
+        while (retry) {
             try {
                 val self = request<RevoltUserResponse>(
                     path = "/users/@me",
@@ -111,10 +118,13 @@ class RevoltManager(
                     body = editUserBody,
                 ).convert(this)
                 return self
+            } catch (_: InvalidTokenException) {
+                retry = false
             } catch (_: Throwable) {
                 delay(RETRY_CONNECT_INTERVAL)
             }
         }
+        throw InvalidTokenException()
     }
 
     override suspend fun getSelf(): RevoltUser =
@@ -223,7 +233,7 @@ class RevoltManager(
         }.also {
             val status = it.status
             if (status == HttpStatusCode.Unauthorized) {
-                throw IllegalArgumentException("Invalid token")
+                throw InvalidTokenException()
             }
             if (!ignoreErrors && !status.isSuccess()) {
                 val errorBody = runCatching {
@@ -296,4 +306,6 @@ class RevoltManager(
     private data class StatusBody(
         val text: String,
     )
+
+    private class InvalidTokenException() : IllegalArgumentException()
 }

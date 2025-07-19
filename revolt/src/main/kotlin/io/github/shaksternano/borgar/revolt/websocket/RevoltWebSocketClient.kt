@@ -46,8 +46,6 @@ class RevoltWebSocketClient(
     private var session: DefaultClientWebSocketSession? = null
     private val messageHandlers: MutableMap<String, MutableList<WebSocketMessageHandler>> = mutableMapOf()
     private var ready: Boolean = false
-    private var invalidToken: Boolean = false
-    private var open: Boolean = true
 
     suspend fun init() {
         registerHandlers()
@@ -60,7 +58,7 @@ class RevoltWebSocketClient(
                 val websocketUrl = Url(manager.webSocketUrl)
                 val host = websocketUrl.host
                 val path = "${websocketUrl.encodedPath}?version=1&format=json&token=$token"
-                while (open) {
+                while (true) {
                     runCatching {
                         httpClient {
                             install(WebSockets)
@@ -94,7 +92,6 @@ class RevoltWebSocketClient(
                     }
                     session = null
                 }
-                logger.error("Revolt WebSocket client stopped")
             }
         }
 
@@ -103,7 +100,6 @@ class RevoltWebSocketClient(
 
     private suspend fun awaitReady() {
         if (ready) return
-        if (invalidToken) throw IllegalArgumentException("Invalid Revolt token")
         var resumed = false
         val mutex = Mutex()
         suspendCoroutine { continuation ->
@@ -162,8 +158,6 @@ class RevoltWebSocketClient(
             guildCountAtomic.value = guildCount + groupCount
         }
         handle(WebSocketMessageType.NOT_FOUND) {
-            invalidToken = true
-            open = false
             logger.error("Invalid Revolt token")
         }
         handle(WebSocketMessageType.MESSAGE) {
@@ -207,33 +201,25 @@ class RevoltWebSocketClient(
     }
 
     private suspend fun WebSocketSession.sendPings() {
-        while (open) {
+        while (true) {
             send(PING_JSON)
             delay(PING_INTERVAL)
         }
     }
 
     private suspend fun WebSocketSession.handleMessages() {
-        if (!open) {
-            incoming.cancel()
-            return
-        }
         coroutineScope {
             for (message in incoming) {
-                if (!open) {
-                    incoming.cancel()
-                    return@coroutineScope
-                }
                 message as? Frame.Text ?: continue
                 val json = Json.parseToJsonElement(message.readText()) as? JsonObject ?: continue
                 val type = json["type"] as? JsonPrimitive ?: continue
                 val handlers = messageHandlers[type.content] ?: continue
-                handlers.forEach {
+                handlers.forEach { handler ->
                     launch {
                         runCatching {
-                            it.handleMessage(json)
-                        }.onFailure {
-                            logger.error("Error handling Revolt WebSocket message", it)
+                            handler.handleMessage(json)
+                        }.onFailure { throwable ->
+                            logger.error("Error handling Revolt WebSocket message", throwable)
                         }
                     }
                 }
