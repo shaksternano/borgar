@@ -1,3 +1,5 @@
+@file:Suppress("PackageDirectoryMismatch")
+
 package io.github.shaksternano.borgar.messaging.command
 
 import kotlin.test.Test

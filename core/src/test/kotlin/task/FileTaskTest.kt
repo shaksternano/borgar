@@ -1,3 +1,5 @@
+@file:Suppress("PackageDirectoryMismatch")
+
 package io.github.shaksternano.borgar.core.task
 
 import io.github.shaksternano.borgar.core.io.DataSource

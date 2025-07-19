@@ -1,3 +1,5 @@
+@file:Suppress("PackageDirectoryMismatch")
+
 package io.github.shaksternano.borgar.core.logging
 
 import org.junit.jupiter.api.Test
