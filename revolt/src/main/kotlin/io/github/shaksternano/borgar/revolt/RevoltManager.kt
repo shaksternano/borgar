@@ -109,8 +109,7 @@ class RevoltManager(
             status = StatusBody(BOT_STATUS),
         )
         // Sometimes fails randomly, so we retry until it succeeds
-        var retry = true
-        while (retry) {
+        while (true) {
             try {
                 val self = request<RevoltUserResponse>(
                     path = "/users/@me",
@@ -118,13 +117,12 @@ class RevoltManager(
                     body = editUserBody,
                 ).convert(this)
                 return self
-            } catch (_: InvalidTokenException) {
-                retry = false
+            } catch (e: InvalidTokenException) {
+                throw e
             } catch (_: Throwable) {
                 delay(RETRY_CONNECT_INTERVAL)
             }
         }
-        throw InvalidTokenException()
     }
 
     override suspend fun getSelf(): RevoltUser =
