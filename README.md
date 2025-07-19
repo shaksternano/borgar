@@ -10,58 +10,34 @@ Discord and Revolt bot that provides fun image editing commands, such as image c
 
 ## Prerequisites
 
-- **Java 17 SDK or higher**: Ensure you have the correct version of Java installed to build and run the bot.
-- **IntelliJ IDEA**: Recommended for project setup and development.
-- **Discord Bot Token**: You need a bot token from the [Discord Developer Portal](https://discord.com/developers/applications) to run Borgar.
+- Java 21 SDK or higher
+- Discord or Revolt Bot Token Bot Token
+   - You can get a Discord token from the [Discord Developer Portal](https://discord.com/developers/applications) or a
+     Revolt token from the [Revolt Bot Menu](https://app.revolt.chat/settings/bots).
 
-## How to import this project in IntelliJ IDEA
-1. In the IDEA main menu, select `Import Project` (or `File` → `Open…` if you already have a project open).
-2. Select the project's `build.gradle.kts` file to import the project.
-3. Go to `File` → `Project Structure` → `Project Settings` → `Project` and set `SDK` to a Java 17 or higher SDK.
-4. Optional, but recommended: By default, IntelliJ delegates to Gradle to build the project. This is unnecessary for this project and causes longer build times. To make it use the builtin compiler:
-   1. Open the `Gradle Settings` dialog from the Gradle tab.
-   2. Change the `Build and run using` and `Run tests using` fields to `IntelliJ IDEA`.
-   3. Go to `File` → `Project Structure` → `Project` and set `Project compiler output` to `$PROJECT_DIR$/out`.
+## Running the program
 
-## How to run this project in Intellij IDEA
-1. Run `io.github.shaksternano.borgar.core.Main#main`
-2. It should fail to run the first time due to missing arguments such as the Discord bot token, so put those in the `Program arguments` field under the `Main` run configuration → `Edit Configurations...`.
-3. Add the required program argument:
-```dotenv
-DISCORD_BOT_TOKEN=your-discord-bot-token
-# and/or
-REVOLT_BOT_TOKEN=your-revolt-bot-token
-```
+1. Run `./gradlew run`
+   - If using IntelliJ IDEA, you can also run `app/src/main/kotlin/Main.kt`
+2. Running the program for the first time should create a `config.json` file and then exit.
+3. Add your Discord or Revolt bot token to the `config.json` file and run the program again.
 
-## How to export and run this project as a JAR file
-1. Run in a terminal from the same directory as the project directory `./gradlew build` on GNU/Linux and Mac, or `gradlew build` on Windows.
-2. Alternatively, in IntelliJ IDEA, open the Gradle tab on the right and execute build under `Tasks` → `build`. After this is done once, the build task should appear in the run configurations.
-3. The JAR should appear in `${projectDir}/build/libs`, and should be called `borgar-VERSION.jar`.
-4. To execute the jar, run the command `java -jar borgar-{VERSION}.jar DISCORD_BOT_TOKEN={TOKEN}`. For example, `java -jar borgar-1.0.0.jar DISCORD_BOT_TOKEN=123456789`.
+## Exporting a JAR File
+
+1. Run `./gradlew build`.
+2. The JAR file will be located in `build/libs/`.
+3. The JAR file can be run with `java -jar borgar-X.X.X.jar`.
+
 ## Available Commands
+
 Some of the fun commands provided by Borgar:
 
-`%caption`: Add captions to an image.
+- `%caption`: add captions to an image.
+- `%rotate`: rotates an image.
+- `%speed`: speeds up or slows down a GIF or video.
 
-`%crop`: Crops an image.
-
-`%pixelate`: Pixelates an image.
-
-## Troubleshooting
-**Java version issues**: Ensure you're using Java 17 or higher. You can check this with:
-```bash
-java -version
+Commands can also be chained together. The following example captions an image and then rotates it by 90 degrees
+clockwise:
 ```
-**Bot Token Issues**: Make sure the bot token is correct and that the bot is invited to your server.
-
-**Build failures**: If you're experiencing slow build times, try switching IntelliJ to use its internal build system as outlined in the setup instructions.
-
-## Contributing
-Contributions to Borgar are welcome! To contribute:
-
-1. Fork the repository.
-2. Create a new branch for your feature or bug fix.
-3. Submit a pull request with a clear explanation of your changes.
-
-## License
-This project is licensed under the MIT License - see the LICENSE file for more details.
+%caption A caption %rotate 90
+```
