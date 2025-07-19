@@ -226,7 +226,7 @@ suspend fun DataSource.fileFormat(): String {
     val mediaFormat = runCatching {
         path?.let { mediaFormat(it) } ?: mediaFormat(newStream())
     }.getOrNull()
-    return mediaFormat ?: fileExtension
+    return (mediaFormat ?: fileExtension).lowercase()
 }
 
 suspend fun DataSource.toChannelProvider(): ChannelProvider =
