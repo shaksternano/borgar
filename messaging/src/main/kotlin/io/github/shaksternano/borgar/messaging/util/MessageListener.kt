@@ -5,6 +5,8 @@ import io.github.shaksternano.borgar.core.data.repository.EntityType
 import io.github.shaksternano.borgar.core.logger
 import io.github.shaksternano.borgar.messaging.command.parseAndExecuteCommand
 import io.github.shaksternano.borgar.messaging.event.MessageReceiveEvent
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 
 suspend fun onMessageReceived(event: MessageReceiveEvent) {
     runCatching {
@@ -23,10 +25,19 @@ suspend inline fun handleBanned(event: MessageReceiveEvent, type: String, ifBann
             event.manager.platform,
         )
     ) {
-        val message = "Ignoring $type from banned user \"${event.getAuthor().name}\" (${event.authorId})" +
-            " sent in channel \"${event.getChannel().name}\" (${event.channelId})" +
-            " on ${event.manager.platform.displayName}"
-        logger.info(message)
+        coroutineScope {
+            val guildDeferred = async {
+                event.getGuild()
+            }
+            var message = "Ignoring $type from banned user \"${event.getAuthor().name}\" (${event.authorId})" +
+                " sent in channel \"${event.getChannel().name}\" (${event.channelId})"
+            val guild = guildDeferred.await()
+            if (guild != null) {
+                message += " in server \"${guild.name}\" (${guild.id})"
+            }
+            message += " on ${event.manager.platform.displayName}"
+            logger.info(message)
+        }
         ifBanned()
     }
 }

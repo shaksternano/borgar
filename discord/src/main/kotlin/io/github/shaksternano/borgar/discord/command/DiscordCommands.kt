@@ -87,6 +87,10 @@ inline fun handleBanned(event: Interaction, type: String, ifBanned: () -> Unit) 
             } else {
                 " sent in channel \"${channel.name}\" ($channelId)"
             }
+            val guild = event.guild
+            if (guild != null) {
+                message += " in server \"${guild.name}\" (${guild.id})"
+            }
         }
         message += " on ${MessagingPlatform.DISCORD.displayName}"
         logger.info(message)
