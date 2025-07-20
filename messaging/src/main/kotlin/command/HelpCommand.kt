@@ -108,7 +108,6 @@ object HelpCommand : NonChainableCommand() {
         event: CommandEvent,
     ): List<CommandInfo> = buildList {
         COMMANDS.values.forEach {
-            println(it.ownerOnly && event.authorId != event.manager.ownerId)
             if (it.ownerOnly && event.authorId != event.manager.ownerId) {
                 return@forEach
             }
