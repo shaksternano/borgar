@@ -57,6 +57,7 @@ suspend fun JDA.registerCommands() {
     registerAutoCompleteHandlers()
     updateCommands {
         val slashCommands = COMMANDS.values
+            .filter { !it.ownerOnly }
             .map(Command::toSlash)
         addCommands(slashCommands)
 
