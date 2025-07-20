@@ -36,6 +36,8 @@ Some of the fun commands provided by Borgar:
 - `%rotate`: rotates an image.
 - `%speed`: speeds up or slows down a GIF or video.
 
+Run `%help` to see a full list of commands.
+
 Commands can also be chained together. The following example captions an image and then rotates it by 90 degrees
 clockwise:
 ```
