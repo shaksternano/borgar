@@ -49,7 +49,7 @@ object RunCommandInteractionCommand : DiscordModalInteractionCommand {
             )
 
             val commandConfigs = try {
-                parseCommands(content, message)
+                parseCommands(content, message, event.user.id)
             } catch (e: CommandNotFoundException) {
                 event.reply("The command **$COMMAND_PREFIX${e.command}** does not exist!")
                     .setEphemeral(true)

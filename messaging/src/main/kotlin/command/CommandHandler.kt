@@ -36,7 +36,7 @@ suspend fun parseAndExecuteCommand(event: MessageReceiveEvent) {
         return
     }
     val commandConfigs = try {
-        parseCommands(content, event.message)
+        parseCommands(content, event.message, event.authorId)
     } catch (e: CommandNotFoundException) {
         event.reply("The command **$COMMAND_PREFIX${e.command}** does not exist!")
         return
@@ -277,14 +277,18 @@ private fun Logger.commandError(commandConfigs: Collection<CommandConfig>, throw
 private suspend fun userDetails(user: User, guild: Guild?): DisplayedUser =
     guild?.getMember(user) ?: user
 
-suspend fun parseCommands(messageContent: String, message: Message): List<CommandConfig> {
+suspend fun parseCommands(
+    messageContent: String,
+    message: Message,
+    authorId: String,
+): List<CommandConfig> {
     return parseRawCommands(messageContent)
         .mapIndexed { index, (commandString, rawArguments, defaultArgumentValue) ->
             val command = COMMANDS_AND_ALIASES[commandString] ?: getCustomTemplateCommand(
                 commandString,
                 message,
             )
-            if (command == null) {
+            if (command == null || (command.ownerOnly && authorId != message.manager.ownerId)) {
                 if (index > 0) {
                     throw CommandNotFoundException(commandString)
                 } else {
