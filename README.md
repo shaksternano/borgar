@@ -43,3 +43,24 @@ clockwise:
 ```
 %caption A caption %rotate 90
 ```
+
+## Using PostgreSQL
+
+Borgar can use PostgreSQL instead of the default SQLite database. To use PostgreSQL, follow these steps:
+
+1. Install [Docker](https://docs.docker.com/get-started/get-docker) if you haven't already.
+2. Run the Docker compose file with `docker compose up -d`.
+3. Set the value of `database.url` in `config.json` to `jdbc:postgresql://localhost:5232/postgres`, adjusting the port
+   if changed in the docker-compose.yml file.
+4. Optionally, change the user and password values in the `docker-compose.yml` file and update the `config.json` file
+   accordingly.
+
+## Using Cobalt
+
+Borgar uses [Cobalt](https://github.com/imputnet/cobalt) for the `%download` command, which allows downloading media
+from various sites. To set up Cobalt, follow these steps:
+
+1. Install [Docker](https://docs.docker.com/get-started/get-docker) if you haven't already.
+2. Run the Docker compose file with `docker compose up -d`.
+3. Set the value of `cobaltApiUrl` in `config.json` to `http://localhost:9000`, adjusting the port if changed in the
+   docker-compose.yml file.
