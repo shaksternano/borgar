@@ -8,6 +8,23 @@ Discord and Revolt bot that provides fun image editing commands, such as image c
    <img src="images/image_caption_example.png" alt="Image captioning" width=400/>
 </div>
 
+## Available Commands
+
+Some of the fun commands provided by Borgar:
+
+- `%caption`: add captions to an image.
+- `%rotate`: rotates an image.
+- `%speed`: speeds up or slows down a GIF or video.
+
+Run `%help` to see a full list of commands.
+
+Commands can also be chained together. The following example captions an image and then rotates it by 90 degrees
+clockwise:
+
+```
+%caption A caption %rotate 90
+```
+
 ## Prerequisites
 
 - Java 21 SDK or higher
@@ -27,22 +44,6 @@ Discord and Revolt bot that provides fun image editing commands, such as image c
 1. Run `./gradlew build`.
 2. The JAR file will be located in `build/libs/`.
 3. The JAR file can be run with `java -jar borgar-X.X.X.jar`.
-
-## Available Commands
-
-Some of the fun commands provided by Borgar:
-
-- `%caption`: add captions to an image.
-- `%rotate`: rotates an image.
-- `%speed`: speeds up or slows down a GIF or video.
-
-Run `%help` to see a full list of commands.
-
-Commands can also be chained together. The following example captions an image and then rotates it by 90 degrees
-clockwise:
-```
-%caption A caption %rotate 90
-```
 
 ## Using PostgreSQL
 
