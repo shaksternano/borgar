@@ -1,6 +1,6 @@
 # Borgar
 
-Discord and Revolt bot that provides fun image editing commands, such as image captioning. View the list of commands with `/help`.
+Discord and Revolt bot that provides fun image editing commands, such as image captioning.
 
 <!--suppress HtmlDeprecatedAttribute -->
 <div align="center">
@@ -27,23 +27,34 @@ clockwise:
 
 ## Prerequisites
 
-- Java 21 SDK or higher
-- Discord or Revolt Bot Token Bot Token
+- Java 21 SDK or higher.
+- A Discord and/or Revolt Bot Token.
    - You can get a Discord token from the [Discord Developer Portal](https://discord.com/developers/applications) or a
      Revolt token from the [Revolt Bot Menu](https://app.revolt.chat/settings/bots).
 
-## Running the program
+## Getting Borgar
 
-1. Run `./gradlew run`
-   - If using IntelliJ IDEA, you can also run `app/src/main/kotlin/Main.kt`
+You can find release builds of Borgar on the [Releases page](https://github.com/shaksternano/borgar/releases).
+
+Builds from recent commits can be found on
+the [Actions page](https://github.com/shaksternano/borgar/actions/workflows/build.yml).
+
+## Running Borgar
+
+1. Run Borgar with `java -jar borgar-X.X.X.jar`.
+   - Replace `X.X.X` with the version number of the JAR file you downloaded.
 2. Running the program for the first time should create a `config.json` file and then exit.
-3. Add your Discord or Revolt bot token to the `config.json` file and run the program again.
+3. Add your Discord and/or Revolt bot token to the `config.json` file and run the program again.
 
-## Exporting a JAR File
+## Running the program from source
+
+1. Run `./gradlew run`.
+   - If using IntelliJ IDEA, you can also run `app/src/main/kotlin/Main.kt`.
+
+## Building a JAR File from source
 
 1. Run `./gradlew build`.
 2. The JAR file will be located in `build/libs/`.
-3. The JAR file can be run with `java -jar borgar-X.X.X.jar`.
 
 ## Using PostgreSQL
 
