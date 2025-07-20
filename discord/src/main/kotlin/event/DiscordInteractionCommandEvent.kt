@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.flowOf
 import net.dv8tion.jda.api.entities.channel.concrete.GroupChannel
 import net.dv8tion.jda.api.interactions.Interaction
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback
+import net.dv8tion.jda.api.interactions.commands.CommandInteractionPayload
 import net.dv8tion.jda.api.utils.messages.MessageCreateData
 import java.time.OffsetDateTime
 
@@ -102,6 +103,7 @@ class DiscordInteractionCommandEvent<T>(
     override fun asMessageIntersection(arguments: CommandArguments): CommandMessageIntersection =
         object : CommandMessageIntersection {
             override val id: String = this@DiscordInteractionCommandEvent.id
+            override val name: String? = (discordEvent as? CommandInteractionPayload)?.name
             override val authorId: String = this@DiscordInteractionCommandEvent.authorId
             override val channelId: String = this@DiscordInteractionCommandEvent.channelId
             override val manager: BotManager = this@DiscordInteractionCommandEvent.manager

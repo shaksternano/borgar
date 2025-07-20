@@ -3,14 +3,16 @@ package io.github.shaksternano.borgar.messaging.entity
 abstract class BaseEntity : Entity {
 
     override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other is Entity) return id == other.id
-        return false
+        return if (this === other) true
+        else if (other is Entity) id == other.id
+        else false
     }
 
-    override fun hashCode(): Int = id.hashCode()
+    override fun hashCode(): Int {
+        return id.hashCode()
+    }
 
     override fun toString(): String {
-        return "${this::class.simpleName ?: "Entity"}(id='$id')"
+        return "${this::class.simpleName ?: "Entity"}(id=\"$id\", name=\"$name\")"
     }
 }

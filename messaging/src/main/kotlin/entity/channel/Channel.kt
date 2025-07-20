@@ -7,7 +7,7 @@ import io.github.shaksternano.borgar.messaging.entity.Mentionable
 
 interface Channel : Mentionable {
 
-    val name: String
+    override val name: String
     val environment: ChannelEnvironment
 
     suspend fun getGuild(): Guild?

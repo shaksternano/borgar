@@ -2,7 +2,6 @@ package io.github.shaksternano.borgar.messaging.entity
 
 interface ChatRoom : Entity {
 
-    val name: String?
     val ownerId: String?
     val iconUrl: String?
 

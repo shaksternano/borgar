@@ -14,5 +14,7 @@ data class Attachment(
     val ephemeral: Boolean = false,
 ) : BaseEntity(), DataSourceConvertable {
 
+    override val name: String = filename
+
     override fun asDataSource(): UrlDataSource = DataSource.fromUrl(url, filename)
 }

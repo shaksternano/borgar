@@ -6,6 +6,8 @@ import java.time.OffsetDateTime
 interface Member : DisplayedUser, PermissionHolder {
 
     val user: User
+    override val name: String
+        get() = user.name
     val roles: Flow<Role>
     val timeoutEnd: OffsetDateTime?
 
