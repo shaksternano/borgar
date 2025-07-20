@@ -9,6 +9,7 @@ object PingCommand : NonChainableCommand() {
 
     override val name: String = "ping"
     override val description: String = "Checks the bot's latency."
+    override val ephemeralReply: Boolean = true
 
     override suspend fun run(arguments: CommandArguments, event: CommandEvent): List<CommandResponse> =
         CommandResponse("Ping: ...").asSingletonList()
