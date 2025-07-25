@@ -43,7 +43,9 @@ val ALLOWED_DOMAINS: Set<String> = setOf(
     "raw.githubusercontent.com",
     "cdn.discordapp.com",
     "media.discordapp.net",
+    "cdn.revoltusercontent.com",
     "autumn.revolt.chat",
+    "jan.revolt.chat",
     "pbs.twimg.com",
     "i.redd.it",
 )
