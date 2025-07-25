@@ -113,6 +113,7 @@ fun configuredHttpClient(json: Boolean = true): HttpClient = httpClient {
         maxRetries = 3
         retryIf { _, response ->
             response.status == HttpStatusCode.TooManyRequests
+                || response.status == HttpStatusCode.BadGateway
         }
         constantDelay(5000)
     }
