@@ -28,7 +28,7 @@ data class BotConfig(
 
     @Serializable
     data class DatabaseConfig(
-        val url: String = "jdbc:sqlite:sqlite.db",
+        val url: String = "jdbc:sqlite:borgar.sqlite",
         val user: String = "root",
         val password: String = "password",
     )

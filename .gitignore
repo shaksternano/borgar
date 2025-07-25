@@ -31,6 +31,6 @@ bin/
 *.log
 .env
 config.json
-*.db
+*.sqlite
 templates/
 derpibooru_tags.txt
