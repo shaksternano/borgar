@@ -130,7 +130,11 @@ private suspend fun MessageCreateBuilder.uploadAttachments(manager: RevoltManage
             throw if (t is HttpException && t.status == HttpStatusCode.PayloadTooLarge) {
                 FileTooLargeException(t)
             } else {
-                IOException("Failed to upload $filename to Revolt", t)
+                var message = "Failed to upload $filename to Revolt"
+                if (t is HttpException) {
+                    message += ": ${t.status.value} ${t.status.description}"
+                }
+                IOException(message, t)
             }
         }.id
     }
