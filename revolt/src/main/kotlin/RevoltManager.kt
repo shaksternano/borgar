@@ -72,7 +72,7 @@ class RevoltManager(
         id = "00000000000000000000000000",
         name = "System",
         effectiveName = "System",
-        effectiveAvatarUrl = "https://autumn.revolt.chat/attachments/7HzJPSqop6nEMrnlH3tpqiWe31gX8pmeQxiUxkGxPn/revolt.png",
+        effectiveAvatarUrl = "https://cdn.revoltusercontent.com/attachments/7HzJPSqop6nEMrnlH3tpqiWe31gX8pmeQxiUxkGxPn/revolt.png",
         isBot = false,
     )
 
