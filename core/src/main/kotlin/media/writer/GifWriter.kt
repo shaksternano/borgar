@@ -1,13 +1,15 @@
 package io.github.shaksternano.borgar.core.media.writer
 
-import com.shakster.gifkt.GifEncoder
 import com.shakster.gifkt.ParallelGifEncoder
 import io.github.shaksternano.borgar.core.AVAILABLE_PROCESSORS
 import io.github.shaksternano.borgar.core.io.IO_DISPATCHER
 import io.github.shaksternano.borgar.core.media.ImageFrame
 import io.github.shaksternano.borgar.core.media.MediaWriterFactory
 import kotlinx.coroutines.withContext
+import kotlinx.io.asSink
+import kotlinx.io.buffered
 import java.nio.file.Path
+import kotlin.io.path.outputStream
 import kotlin.time.Duration
 
 class GifWriter(
@@ -43,16 +45,18 @@ class GifWriter(
             maxFileSize: Long,
             maxDuration: Duration,
         ): MediaWriter {
-            val encoder = withContext(IO_DISPATCHER) {
-                GifEncoder.builder(output)
-            }.apply {
-                transparencyColorTolerance = 0.01
-                quantizedTransparencyColorTolerance = 0.02
-                this.loopCount = loopCount
-                comment = "GIF created with https://github.com/shaksternano/borgar"
-                maxConcurrency = AVAILABLE_PROCESSORS
-                ioContext = IO_DISPATCHER
-            }.buildParallel()
+            val sink = withContext(IO_DISPATCHER) {
+                output.outputStream().asSink().buffered()
+            }
+            val encoder = ParallelGifEncoder(
+                sink,
+                colorDifferenceTolerance = 0.01,
+                quantizedColorDifferenceTolerance = 0.02,
+                loopCount = loopCount,
+                comment = "GIF created with https://github.com/shaksternano/borgar",
+                maxConcurrency = AVAILABLE_PROCESSORS,
+                ioContext = IO_DISPATCHER,
+            )
             return GifWriter(encoder)
         }
     }
