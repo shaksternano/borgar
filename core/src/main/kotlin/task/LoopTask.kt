@@ -26,7 +26,7 @@ class LoopTask(
         }
         val gifInfo = try {
             locateGifComponents(dataSource.newStream())
-        } catch (e: IllegalArgumentException) {
+        } catch (_: IllegalArgumentException) {
             throw ErrorResponseException("File is not a GIF!")
         }
         val applicationExtension =

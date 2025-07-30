@@ -29,7 +29,7 @@ class ModifiableInputStream(
         if (removedLength != null) {
             try {
                 skipNBytes(removedLength)
-            } catch (e: EOFException) {
+            } catch (_: EOFException) {
                 return -1
             }
         }
