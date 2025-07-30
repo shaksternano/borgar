@@ -1,11 +1,11 @@
-package io.github.shaksternano.borgar.core.task
+package com.shakster.borgar.core.task
 
-import io.github.shaksternano.borgar.core.io.DataSource
-import io.github.shaksternano.borgar.core.io.fileExtension
-import io.github.shaksternano.borgar.core.io.filenameWithoutExtension
-import io.github.shaksternano.borgar.core.media.MediaProcessingConfig
-import io.github.shaksternano.borgar.core.media.isStaticOnly
-import io.github.shaksternano.borgar.core.media.processMedia
+import com.shakster.borgar.core.io.DataSource
+import com.shakster.borgar.core.io.fileExtension
+import com.shakster.borgar.core.io.filenameWithoutExtension
+import com.shakster.borgar.core.media.MediaProcessingConfig
+import com.shakster.borgar.core.media.isStaticOnly
+import com.shakster.borgar.core.media.processMedia
 
 class GifTask(
     private val forceTranscode: Boolean,

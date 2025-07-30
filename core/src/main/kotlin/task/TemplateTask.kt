@@ -1,14 +1,14 @@
-package io.github.shaksternano.borgar.core.task
+package com.shakster.borgar.core.task
 
-import io.github.shaksternano.borgar.core.graphics.ContentPosition
-import io.github.shaksternano.borgar.core.graphics.OverlayData
-import io.github.shaksternano.borgar.core.graphics.drawable.Drawable
-import io.github.shaksternano.borgar.core.io.DataSource
-import io.github.shaksternano.borgar.core.media.*
-import io.github.shaksternano.borgar.core.media.reader.ImageReader
-import io.github.shaksternano.borgar.core.media.reader.ZippedImageReader
-import io.github.shaksternano.borgar.core.media.reader.transform
-import io.github.shaksternano.borgar.core.media.template.Template
+import com.shakster.borgar.core.graphics.ContentPosition
+import com.shakster.borgar.core.graphics.OverlayData
+import com.shakster.borgar.core.graphics.drawable.Drawable
+import com.shakster.borgar.core.io.DataSource
+import com.shakster.borgar.core.media.*
+import com.shakster.borgar.core.media.reader.ImageReader
+import com.shakster.borgar.core.media.reader.ZippedImageReader
+import com.shakster.borgar.core.media.reader.transform
+import com.shakster.borgar.core.media.template.Template
 import kotlinx.coroutines.flow.Flow
 import java.awt.Color
 import java.awt.Shape

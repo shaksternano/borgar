@@ -1,10 +1,10 @@
-package io.github.shaksternano.borgar.core.media.writer
+package com.shakster.borgar.core.media.writer
 
-import io.github.shaksternano.borgar.core.io.IO_DISPATCHER
-import io.github.shaksternano.borgar.core.media.ImageFrame
-import io.github.shaksternano.borgar.core.media.MediaWriterFactory
-import io.github.shaksternano.borgar.core.media.convertType
-import io.github.shaksternano.borgar.core.media.supportsTransparency
+import com.shakster.borgar.core.io.IO_DISPATCHER
+import com.shakster.borgar.core.media.ImageFrame
+import com.shakster.borgar.core.media.MediaWriterFactory
+import com.shakster.borgar.core.media.convertType
+import com.shakster.borgar.core.media.supportsTransparency
 import kotlinx.coroutines.withContext
 import java.awt.image.BufferedImage
 import java.nio.file.Path

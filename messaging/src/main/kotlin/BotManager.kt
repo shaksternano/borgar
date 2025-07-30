@@ -1,9 +1,9 @@
-package io.github.shaksternano.borgar.messaging
+package com.shakster.borgar.messaging
 
-import io.github.shaksternano.borgar.core.util.MessagingPlatform
-import io.github.shaksternano.borgar.messaging.command.Permission
-import io.github.shaksternano.borgar.messaging.entity.*
-import io.github.shaksternano.borgar.messaging.entity.channel.Channel
+import com.shakster.borgar.core.util.MessagingPlatform
+import com.shakster.borgar.messaging.command.Permission
+import com.shakster.borgar.messaging.entity.*
+import com.shakster.borgar.messaging.entity.channel.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlin.time.Duration
 

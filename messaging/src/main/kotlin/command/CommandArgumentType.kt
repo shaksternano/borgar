@@ -1,9 +1,9 @@
-package io.github.shaksternano.borgar.messaging.command
+package com.shakster.borgar.messaging.command
 
-import io.github.shaksternano.borgar.core.collect.plus
-import io.github.shaksternano.borgar.core.util.Displayed
-import io.github.shaksternano.borgar.core.util.Identified
-import io.github.shaksternano.borgar.messaging.entity.Message
+import com.shakster.borgar.core.collect.plus
+import com.shakster.borgar.core.util.Displayed
+import com.shakster.borgar.core.util.Identified
+import com.shakster.borgar.messaging.entity.Message
 import kotlinx.coroutines.flow.firstOrNull
 import kotlin.reflect.KClass
 
@@ -49,55 +49,55 @@ sealed interface CommandArgumentType<T> {
             value.lowercase().toBooleanStrictOrNull()
     }
 
-    data object User : SuspendingCommandArgumentType<io.github.shaksternano.borgar.messaging.entity.User> {
+    data object User : SuspendingCommandArgumentType<com.shakster.borgar.messaging.entity.User> {
 
         override val name: kotlin.String = "user"
 
         override suspend fun parse(
             value: kotlin.String,
             message: Message,
-        ): io.github.shaksternano.borgar.messaging.entity.User? =
+        ): com.shakster.borgar.messaging.entity.User? =
             message.mentionedUsers.firstOrNull {
                 value == it.asMention || value == it.asBasicMention
             }
     }
 
     data object Channel :
-        SuspendingCommandArgumentType<io.github.shaksternano.borgar.messaging.entity.channel.Channel> {
+        SuspendingCommandArgumentType<com.shakster.borgar.messaging.entity.channel.Channel> {
 
         override val name: kotlin.String = "channel"
 
         override suspend fun parse(
             value: kotlin.String,
             message: Message,
-        ): io.github.shaksternano.borgar.messaging.entity.channel.Channel? =
+        ): com.shakster.borgar.messaging.entity.channel.Channel? =
             message.mentionedChannels.firstOrNull {
                 value == it.asMention || value == it.asBasicMention
             }
     }
 
-    data object Role : SuspendingCommandArgumentType<io.github.shaksternano.borgar.messaging.entity.Role> {
+    data object Role : SuspendingCommandArgumentType<com.shakster.borgar.messaging.entity.Role> {
 
         override val name: kotlin.String = "role"
 
         override suspend fun parse(
             value: kotlin.String,
             message: Message
-        ): io.github.shaksternano.borgar.messaging.entity.Role? =
+        ): com.shakster.borgar.messaging.entity.Role? =
             message.mentionedRoles.firstOrNull {
                 value == it.asMention || value == it.asBasicMention
             }
     }
 
     data object Mentionable :
-        SuspendingCommandArgumentType<io.github.shaksternano.borgar.messaging.entity.Mentionable> {
+        SuspendingCommandArgumentType<com.shakster.borgar.messaging.entity.Mentionable> {
 
         override val name: kotlin.String = "mentionable"
 
         override suspend fun parse(
             value: kotlin.String,
             message: Message,
-        ): io.github.shaksternano.borgar.messaging.entity.Mentionable? {
+        ): com.shakster.borgar.messaging.entity.Mentionable? {
             val mentions = message.mentionedUsers + message.mentionedChannels + message.mentionedRoles
             return mentions.firstOrNull {
                 value == it.asMention || value == it.asBasicMention
@@ -105,14 +105,14 @@ sealed interface CommandArgumentType<T> {
         }
     }
 
-    data object Attachment : SimpleCommandArgumentType<io.github.shaksternano.borgar.messaging.entity.Attachment> {
+    data object Attachment : SimpleCommandArgumentType<com.shakster.borgar.messaging.entity.Attachment> {
 
         override val name: kotlin.String = "attachment"
 
         override fun parse(
             value: kotlin.String,
             message: Message,
-        ): io.github.shaksternano.borgar.messaging.entity.Attachment? =
+        ): com.shakster.borgar.messaging.entity.Attachment? =
             message.attachments.firstOrNull()
     }
 

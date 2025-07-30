@@ -1,9 +1,9 @@
-package io.github.shaksternano.borgar.core.io
+package com.shakster.borgar.core.io
 
 import com.google.common.io.Closer
-import io.github.shaksternano.borgar.core.exception.FileTooLargeException
-import io.github.shaksternano.borgar.core.media.mediaFormat
-import io.github.shaksternano.borgar.core.util.JSON
+import com.shakster.borgar.core.exception.FileTooLargeException
+import com.shakster.borgar.core.media.mediaFormat
+import com.shakster.borgar.core.util.JSON
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*

@@ -1,14 +1,14 @@
-package io.github.shaksternano.borgar.core.media.reader
+package com.shakster.borgar.core.media.reader
 
-import io.github.shaksternano.borgar.core.io.DataSource
-import io.github.shaksternano.borgar.core.io.IO_DISPATCHER
-import io.github.shaksternano.borgar.core.io.SuspendCloseable
-import io.github.shaksternano.borgar.core.io.closeAll
-import io.github.shaksternano.borgar.core.media.FrameInfo
-import io.github.shaksternano.borgar.core.media.ImageFrame
-import io.github.shaksternano.borgar.core.media.ImageReaderFactory
-import io.github.shaksternano.borgar.core.media.findIndex
-import io.github.shaksternano.borgar.core.util.circular
+import com.shakster.borgar.core.io.DataSource
+import com.shakster.borgar.core.io.IO_DISPATCHER
+import com.shakster.borgar.core.io.SuspendCloseable
+import com.shakster.borgar.core.io.closeAll
+import com.shakster.borgar.core.media.FrameInfo
+import com.shakster.borgar.core.media.ImageFrame
+import com.shakster.borgar.core.media.ImageReaderFactory
+import com.shakster.borgar.core.media.findIndex
+import com.shakster.borgar.core.util.circular
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.sync.Mutex

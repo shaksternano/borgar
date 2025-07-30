@@ -1,4 +1,4 @@
-package io.github.shaksternano.borgar.messaging.entity
+package com.shakster.borgar.messaging.entity
 
 import kotlinx.coroutines.flow.Flow
 import java.time.OffsetDateTime

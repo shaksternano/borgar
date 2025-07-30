@@ -1,10 +1,10 @@
-package io.github.shaksternano.borgar.core.media
+package com.shakster.borgar.core.media
 
+import com.shakster.borgar.core.graphics.*
+import com.shakster.borgar.core.graphics.drawable.Drawable
+import com.shakster.borgar.core.graphics.drawable.ParagraphDrawable
+import com.shakster.borgar.core.media.template.Template
 import com.sksamuel.scrimage.ImmutableImage
-import io.github.shaksternano.borgar.core.graphics.*
-import io.github.shaksternano.borgar.core.graphics.drawable.Drawable
-import io.github.shaksternano.borgar.core.graphics.drawable.ParagraphDrawable
-import io.github.shaksternano.borgar.core.media.template.Template
 import java.awt.*
 import java.awt.geom.RoundRectangle2D
 import java.awt.image.BufferedImage

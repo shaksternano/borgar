@@ -1,15 +1,15 @@
-package io.github.shaksternano.borgar.core.media.template
+package com.shakster.borgar.core.media.template
 
-import io.github.shaksternano.borgar.core.graphics.ContentPosition
-import io.github.shaksternano.borgar.core.graphics.TextAlignment
-import io.github.shaksternano.borgar.core.graphics.drawable.Drawable
-import io.github.shaksternano.borgar.core.io.DataSource
-import io.github.shaksternano.borgar.core.media.createAudioReader
-import io.github.shaksternano.borgar.core.media.createImageReader
-import io.github.shaksternano.borgar.core.media.reader.AudioReader
-import io.github.shaksternano.borgar.core.media.reader.ImageReader
-import io.github.shaksternano.borgar.core.media.supportsTransparency
-import io.github.shaksternano.borgar.core.util.ChannelEnvironment
+import com.shakster.borgar.core.graphics.ContentPosition
+import com.shakster.borgar.core.graphics.TextAlignment
+import com.shakster.borgar.core.graphics.drawable.Drawable
+import com.shakster.borgar.core.io.DataSource
+import com.shakster.borgar.core.media.createAudioReader
+import com.shakster.borgar.core.media.createImageReader
+import com.shakster.borgar.core.media.reader.AudioReader
+import com.shakster.borgar.core.media.reader.ImageReader
+import com.shakster.borgar.core.media.supportsTransparency
+import com.shakster.borgar.core.util.ChannelEnvironment
 import java.awt.Color
 import java.awt.Font
 import java.awt.Shape

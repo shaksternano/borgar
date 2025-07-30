@@ -1,9 +1,9 @@
-package io.github.shaksternano.borgar.messaging.entity
+package com.shakster.borgar.messaging.entity
 
-import io.github.shaksternano.borgar.core.io.UrlInfo
-import io.github.shaksternano.borgar.core.util.TenorMediaType
-import io.github.shaksternano.borgar.core.util.isTenorUrl
-import io.github.shaksternano.borgar.core.util.retrieveTenorMediaUrl
+import com.shakster.borgar.core.io.UrlInfo
+import com.shakster.borgar.core.util.TenorMediaType
+import com.shakster.borgar.core.util.isTenorUrl
+import com.shakster.borgar.core.util.retrieveTenorMediaUrl
 
 data class MessageEmbed(
     val url: String?,

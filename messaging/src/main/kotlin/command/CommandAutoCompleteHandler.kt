@@ -1,6 +1,6 @@
-package io.github.shaksternano.borgar.messaging.command
+package com.shakster.borgar.messaging.command
 
-import io.github.shaksternano.borgar.messaging.BotManager
+import com.shakster.borgar.messaging.BotManager
 
 sealed interface CommandAutoCompleteHandler<T> {
 

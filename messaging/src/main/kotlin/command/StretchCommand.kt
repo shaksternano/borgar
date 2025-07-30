@@ -1,8 +1,8 @@
-package io.github.shaksternano.borgar.messaging.command
+package com.shakster.borgar.messaging.command
 
-import io.github.shaksternano.borgar.core.task.FileTask
-import io.github.shaksternano.borgar.core.task.StretchTask
-import io.github.shaksternano.borgar.messaging.event.CommandEvent
+import com.shakster.borgar.core.task.FileTask
+import com.shakster.borgar.core.task.StretchTask
+import com.shakster.borgar.messaging.event.CommandEvent
 
 object StretchCommand : FileCommand(
     CommandArgumentInfo(

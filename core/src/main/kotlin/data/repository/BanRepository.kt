@@ -1,7 +1,7 @@
-package io.github.shaksternano.borgar.core.data.repository
+package com.shakster.borgar.core.data.repository
 
-import io.github.shaksternano.borgar.core.util.Identified
-import io.github.shaksternano.borgar.core.util.MessagingPlatform
+import com.shakster.borgar.core.util.Identified
+import com.shakster.borgar.core.util.MessagingPlatform
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import java.util.concurrent.ConcurrentHashMap

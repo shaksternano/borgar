@@ -1,12 +1,12 @@
-package io.github.shaksternano.borgar.messaging.event
+package com.shakster.borgar.messaging.event
 
-import io.github.shaksternano.borgar.messaging.BotManager
-import io.github.shaksternano.borgar.messaging.builder.MessageCreateBuilder
-import io.github.shaksternano.borgar.messaging.entity.Guild
-import io.github.shaksternano.borgar.messaging.entity.Member
-import io.github.shaksternano.borgar.messaging.entity.Message
-import io.github.shaksternano.borgar.messaging.entity.User
-import io.github.shaksternano.borgar.messaging.entity.channel.MessageChannel
+import com.shakster.borgar.messaging.BotManager
+import com.shakster.borgar.messaging.builder.MessageCreateBuilder
+import com.shakster.borgar.messaging.entity.Guild
+import com.shakster.borgar.messaging.entity.Member
+import com.shakster.borgar.messaging.entity.Message
+import com.shakster.borgar.messaging.entity.User
+import com.shakster.borgar.messaging.entity.channel.MessageChannel
 
 class MessageReceiveEvent(
     val message: Message,

@@ -1,9 +1,9 @@
-package io.github.shaksternano.borgar.messaging.entity
+package com.shakster.borgar.messaging.entity
 
-import io.github.shaksternano.borgar.messaging.BotManager
-import io.github.shaksternano.borgar.messaging.builder.MessageEditBuilder
-import io.github.shaksternano.borgar.messaging.entity.channel.Channel
-import io.github.shaksternano.borgar.messaging.entity.channel.MessageChannel
+import com.shakster.borgar.messaging.BotManager
+import com.shakster.borgar.messaging.builder.MessageEditBuilder
+import com.shakster.borgar.messaging.entity.channel.Channel
+import com.shakster.borgar.messaging.entity.channel.MessageChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import java.time.OffsetDateTime

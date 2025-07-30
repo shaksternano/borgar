@@ -1,9 +1,9 @@
-package io.github.shaksternano.borgar.messaging.command
+package com.shakster.borgar.messaging.command
 
-import io.github.shaksternano.borgar.core.logger
-import io.github.shaksternano.borgar.core.util.asSingletonList
-import io.github.shaksternano.borgar.messaging.entity.Message
-import io.github.shaksternano.borgar.messaging.event.CommandEvent
+import com.shakster.borgar.core.logger
+import com.shakster.borgar.core.util.asSingletonList
+import com.shakster.borgar.messaging.entity.Message
+import com.shakster.borgar.messaging.event.CommandEvent
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay

@@ -1,6 +1,6 @@
-package io.github.shaksternano.borgar.core.task
+package com.shakster.borgar.core.task
 
-import io.github.shaksternano.borgar.core.media.*
+import com.shakster.borgar.core.media.*
 import kotlinx.coroutines.flow.Flow
 import java.awt.Color
 import java.awt.image.BufferedImage

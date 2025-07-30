@@ -5,7 +5,7 @@ plugins {
 }
 
 allprojects {
-    group = "io.github.shaksternano"
+    group = "com.shakster"
     version = "1.0.0"
 
     applyPlugins(

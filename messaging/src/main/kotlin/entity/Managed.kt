@@ -1,6 +1,6 @@
-package io.github.shaksternano.borgar.messaging.entity
+package com.shakster.borgar.messaging.entity
 
-import io.github.shaksternano.borgar.messaging.BotManager
+import com.shakster.borgar.messaging.BotManager
 
 interface Managed {
 

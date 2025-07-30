@@ -1,12 +1,12 @@
-package io.github.shaksternano.borgar.core.media.writer
+package com.shakster.borgar.core.media.writer
 
-import io.github.shaksternano.borgar.core.BotConfig
-import io.github.shaksternano.borgar.core.io.IO_DISPATCHER
-import io.github.shaksternano.borgar.core.io.SuspendCloseable
-import io.github.shaksternano.borgar.core.io.closeAll
-import io.github.shaksternano.borgar.core.media.AudioFrame
-import io.github.shaksternano.borgar.core.media.ImageFrame
-import io.github.shaksternano.borgar.core.media.MediaWriterFactory
+import com.shakster.borgar.core.BotConfig
+import com.shakster.borgar.core.io.IO_DISPATCHER
+import com.shakster.borgar.core.io.SuspendCloseable
+import com.shakster.borgar.core.io.closeAll
+import com.shakster.borgar.core.media.AudioFrame
+import com.shakster.borgar.core.media.ImageFrame
+import com.shakster.borgar.core.media.MediaWriterFactory
 import kotlinx.coroutines.withContext
 import org.bytedeco.ffmpeg.global.avcodec
 import org.bytedeco.javacv.FFmpegFrameRecorder

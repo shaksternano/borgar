@@ -1,10 +1,10 @@
-package io.github.shaksternano.borgar.messaging.util
+package com.shakster.borgar.messaging.util
 
-import io.github.shaksternano.borgar.core.io.filenameWithoutExtension
-import io.github.shaksternano.borgar.core.io.removeQueryParams
-import io.github.shaksternano.borgar.core.util.getUrls
-import io.github.shaksternano.borgar.messaging.command.FAVOURITE_ALIAS_PREFIX
-import io.github.shaksternano.borgar.messaging.event.MessageReceiveEvent
+import com.shakster.borgar.core.io.filenameWithoutExtension
+import com.shakster.borgar.core.io.removeQueryParams
+import com.shakster.borgar.core.util.getUrls
+import com.shakster.borgar.messaging.command.FAVOURITE_ALIAS_PREFIX
+import com.shakster.borgar.messaging.event.MessageReceiveEvent
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import java.util.*

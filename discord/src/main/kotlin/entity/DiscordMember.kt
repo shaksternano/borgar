@@ -1,12 +1,12 @@
-package io.github.shaksternano.borgar.discord.entity
+package com.shakster.borgar.discord.entity
 
-import io.github.shaksternano.borgar.discord.DiscordManager
-import io.github.shaksternano.borgar.discord.ifNotDetachedOrElse
-import io.github.shaksternano.borgar.messaging.BotManager
-import io.github.shaksternano.borgar.messaging.entity.Guild
-import io.github.shaksternano.borgar.messaging.entity.Member
-import io.github.shaksternano.borgar.messaging.entity.Role
-import io.github.shaksternano.borgar.messaging.entity.User
+import com.shakster.borgar.discord.DiscordManager
+import com.shakster.borgar.discord.ifNotDetachedOrElse
+import com.shakster.borgar.messaging.BotManager
+import com.shakster.borgar.messaging.entity.Guild
+import com.shakster.borgar.messaging.entity.Member
+import com.shakster.borgar.messaging.entity.Role
+import com.shakster.borgar.messaging.entity.User
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emptyFlow

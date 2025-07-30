@@ -1,9 +1,9 @@
-package io.github.shaksternano.borgar.core
+package com.shakster.borgar.core
 
-import io.github.shaksternano.borgar.core.data.connectToDatabase
-import io.github.shaksternano.borgar.core.data.repository.BanRepository
-import io.github.shaksternano.borgar.core.emoji.initEmojis
-import io.github.shaksternano.borgar.core.graphics.registerFonts
+import com.shakster.borgar.core.data.connectToDatabase
+import com.shakster.borgar.core.data.repository.BanRepository
+import com.shakster.borgar.core.emoji.initEmojis
+import com.shakster.borgar.core.graphics.registerFonts
 import org.bytedeco.ffmpeg.global.avutil
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

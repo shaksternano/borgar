@@ -1,8 +1,8 @@
-package io.github.shaksternano.borgar.core.data.repository
+package com.shakster.borgar.core.data.repository
 
-import io.github.shaksternano.borgar.core.data.databaseConnection
-import io.github.shaksternano.borgar.core.io.IO_DISPATCHER
-import io.github.shaksternano.borgar.core.logger
+import com.shakster.borgar.core.data.databaseConnection
+import com.shakster.borgar.core.io.IO_DISPATCHER
+import com.shakster.borgar.core.logger
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction

@@ -1,6 +1,6 @@
-package io.github.shaksternano.borgar.core.graphics
+package com.shakster.borgar.core.graphics
 
-import io.github.shaksternano.borgar.core.graphics.drawable.Drawable
+import com.shakster.borgar.core.graphics.drawable.Drawable
 import java.awt.*
 import java.awt.font.LineBreakMeasurer
 import java.awt.font.TextAttribute

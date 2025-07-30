@@ -1,8 +1,8 @@
-package io.github.shaksternano.borgar.core.util
+package com.shakster.borgar.core.util
 
-import io.github.shaksternano.borgar.core.BotConfig
-import io.github.shaksternano.borgar.core.io.UrlInfo
-import io.github.shaksternano.borgar.core.io.httpGet
+import com.shakster.borgar.core.BotConfig
+import com.shakster.borgar.core.io.UrlInfo
+import com.shakster.borgar.core.io.httpGet
 import kotlinx.serialization.Serializable
 import java.net.URI
 

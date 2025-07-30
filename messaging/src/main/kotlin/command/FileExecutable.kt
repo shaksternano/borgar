@@ -1,17 +1,17 @@
-package io.github.shaksternano.borgar.messaging.command
+package com.shakster.borgar.messaging.command
 
-import io.github.shaksternano.borgar.core.io.SuspendCloseable
-import io.github.shaksternano.borgar.core.io.UrlInfo
-import io.github.shaksternano.borgar.core.logger
-import io.github.shaksternano.borgar.core.task.ChainedMediaProcessingTask
-import io.github.shaksternano.borgar.core.task.FileTask
-import io.github.shaksternano.borgar.core.task.MediaProcessingTask
-import io.github.shaksternano.borgar.core.task.TranscodeTask
-import io.github.shaksternano.borgar.core.util.asSingletonList
-import io.github.shaksternano.borgar.core.util.retrieveTenorMediaUrl
-import io.github.shaksternano.borgar.messaging.entity.getContent
-import io.github.shaksternano.borgar.messaging.event.CommandEvent
-import io.github.shaksternano.borgar.messaging.util.getUrlsExceptSelf
+import com.shakster.borgar.core.io.SuspendCloseable
+import com.shakster.borgar.core.io.UrlInfo
+import com.shakster.borgar.core.logger
+import com.shakster.borgar.core.task.ChainedMediaProcessingTask
+import com.shakster.borgar.core.task.FileTask
+import com.shakster.borgar.core.task.MediaProcessingTask
+import com.shakster.borgar.core.task.TranscodeTask
+import com.shakster.borgar.core.util.asSingletonList
+import com.shakster.borgar.core.util.retrieveTenorMediaUrl
+import com.shakster.borgar.messaging.entity.getContent
+import com.shakster.borgar.messaging.event.CommandEvent
+import com.shakster.borgar.messaging.util.getUrlsExceptSelf
 
 data class FileExecutable(
     override val commandConfigs: List<CommandConfig>,

@@ -1,14 +1,14 @@
-package io.github.shaksternano.borgar.core.graphics.drawable
+package com.shakster.borgar.core.graphics.drawable
 
-import io.github.shaksternano.borgar.core.io.DataSource
-import io.github.shaksternano.borgar.core.io.fileFormat
-import io.github.shaksternano.borgar.core.media.createImageReader
-import io.github.shaksternano.borgar.core.media.reader.ImageReader
-import io.github.shaksternano.borgar.core.media.reader.firstContent
-import io.github.shaksternano.borgar.core.media.reader.readContent
-import io.github.shaksternano.borgar.core.media.resizeHeight
-import io.github.shaksternano.borgar.core.util.hash
-import io.github.shaksternano.borgar.core.util.kClass
+import com.shakster.borgar.core.io.DataSource
+import com.shakster.borgar.core.io.fileFormat
+import com.shakster.borgar.core.media.createImageReader
+import com.shakster.borgar.core.media.reader.ImageReader
+import com.shakster.borgar.core.media.reader.firstContent
+import com.shakster.borgar.core.media.reader.readContent
+import com.shakster.borgar.core.media.resizeHeight
+import com.shakster.borgar.core.util.hash
+import com.shakster.borgar.core.util.kClass
 import java.awt.Graphics2D
 import java.awt.image.BufferedImage
 import kotlin.time.Duration

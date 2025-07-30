@@ -1,8 +1,8 @@
-package io.github.shaksternano.borgar.messaging.command
+package com.shakster.borgar.messaging.command
 
-import io.github.shaksternano.borgar.core.task.FileTask
-import io.github.shaksternano.borgar.core.task.SpeechBubbleTask
-import io.github.shaksternano.borgar.messaging.event.CommandEvent
+import com.shakster.borgar.core.task.FileTask
+import com.shakster.borgar.core.task.SpeechBubbleTask
+import com.shakster.borgar.messaging.event.CommandEvent
 
 val SPEECH_BUBBLE_FLIP_ARGUMENT: CommandArgumentInfo<*> = CommandArgumentInfo(
     key = "flip",

@@ -1,8 +1,8 @@
-package io.github.shaksternano.borgar.core.media.reader
+package com.shakster.borgar.core.media.reader
 
-import io.github.shaksternano.borgar.core.collect.forEachNotNull
-import io.github.shaksternano.borgar.core.io.*
-import io.github.shaksternano.borgar.core.media.VideoFrame
+import com.shakster.borgar.core.collect.forEachNotNull
+import com.shakster.borgar.core.io.*
+import com.shakster.borgar.core.media.VideoFrame
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.sync.Mutex

@@ -1,9 +1,9 @@
-package io.github.shaksternano.borgar.core.media
+package com.shakster.borgar.core.media
 
-import io.github.shaksternano.borgar.core.AVAILABLE_PROCESSORS
-import io.github.shaksternano.borgar.core.collect.putAllKeys
-import io.github.shaksternano.borgar.core.media.writer.*
-import io.github.shaksternano.borgar.core.util.then
+import com.shakster.borgar.core.AVAILABLE_PROCESSORS
+import com.shakster.borgar.core.collect.putAllKeys
+import com.shakster.borgar.core.media.writer.*
+import com.shakster.borgar.core.util.then
 import java.awt.image.BufferedImage
 import java.nio.file.Path
 import kotlin.time.Duration

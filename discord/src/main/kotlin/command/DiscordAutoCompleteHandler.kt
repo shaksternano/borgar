@@ -1,10 +1,10 @@
-package io.github.shaksternano.borgar.discord.command
+package com.shakster.borgar.discord.command
 
+import com.shakster.borgar.core.logger
+import com.shakster.borgar.discord.DiscordManager
+import com.shakster.borgar.messaging.command.COMMANDS
+import com.shakster.borgar.messaging.command.CommandAutoCompleteHandler
 import dev.minn.jda.ktx.coroutines.await
-import io.github.shaksternano.borgar.core.logger
-import io.github.shaksternano.borgar.discord.DiscordManager
-import io.github.shaksternano.borgar.messaging.command.COMMANDS
-import io.github.shaksternano.borgar.messaging.command.CommandAutoCompleteHandler
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent
 
 fun registerAutoCompleteHandlers() {

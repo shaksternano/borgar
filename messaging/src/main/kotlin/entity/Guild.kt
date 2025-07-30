@@ -1,6 +1,6 @@
-package io.github.shaksternano.borgar.messaging.entity
+package com.shakster.borgar.messaging.entity
 
-import io.github.shaksternano.borgar.messaging.command.Command
+import com.shakster.borgar.messaging.command.Command
 import kotlinx.coroutines.flow.Flow
 
 interface Guild : ChatRoom {

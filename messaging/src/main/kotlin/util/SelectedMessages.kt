@@ -1,10 +1,10 @@
-package io.github.shaksternano.borgar.messaging.util
+package com.shakster.borgar.messaging.util
 
 import com.google.common.cache.Cache
 import com.google.common.cache.CacheBuilder
-import io.github.shaksternano.borgar.core.collect.getAndInvalidate
-import io.github.shaksternano.borgar.core.util.MessagingPlatform
-import io.github.shaksternano.borgar.messaging.entity.Message
+import com.shakster.borgar.core.collect.getAndInvalidate
+import com.shakster.borgar.core.util.MessagingPlatform
+import com.shakster.borgar.messaging.entity.Message
 import java.time.Duration
 
 private data class SelectedMessageKey(

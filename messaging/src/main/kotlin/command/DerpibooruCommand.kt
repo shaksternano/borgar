@@ -1,12 +1,12 @@
-package io.github.shaksternano.borgar.messaging.command
+package com.shakster.borgar.messaging.command
 
-import io.github.shaksternano.borgar.core.BotConfig
-import io.github.shaksternano.borgar.core.io.*
-import io.github.shaksternano.borgar.core.task.DerpibooruTask
-import io.github.shaksternano.borgar.core.task.FileTask
-import io.github.shaksternano.borgar.core.util.WHITESPACE_REGEX
-import io.github.shaksternano.borgar.messaging.BotManager
-import io.github.shaksternano.borgar.messaging.event.CommandEvent
+import com.shakster.borgar.core.BotConfig
+import com.shakster.borgar.core.io.*
+import com.shakster.borgar.core.task.DerpibooruTask
+import com.shakster.borgar.core.task.FileTask
+import com.shakster.borgar.core.util.WHITESPACE_REGEX
+import com.shakster.borgar.messaging.BotManager
+import com.shakster.borgar.messaging.event.CommandEvent
 import io.ktor.client.statement.*
 import kotlin.io.path.*
 

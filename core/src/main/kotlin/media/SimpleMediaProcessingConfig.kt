@@ -1,7 +1,7 @@
-package io.github.shaksternano.borgar.core.media
+package com.shakster.borgar.core.media
 
-import io.github.shaksternano.borgar.core.media.reader.ImageReader
-import io.github.shaksternano.borgar.core.media.reader.transform
+import com.shakster.borgar.core.media.reader.ImageReader
+import com.shakster.borgar.core.media.reader.transform
 
 open class SimpleMediaProcessingConfig(
     val processor: ImageProcessor<*>,

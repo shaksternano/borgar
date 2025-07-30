@@ -1,4 +1,4 @@
-package io.github.shaksternano.borgar.core.task
+package com.shakster.borgar.core.task
 
 import io.ktor.client.call.*
 import io.ktor.client.statement.*

@@ -1,12 +1,12 @@
-package io.github.shaksternano.borgar.messaging.event
+package com.shakster.borgar.messaging.event
 
-import io.github.shaksternano.borgar.core.util.ChannelEnvironment
-import io.github.shaksternano.borgar.messaging.BotManager
-import io.github.shaksternano.borgar.messaging.command.CommandArguments
-import io.github.shaksternano.borgar.messaging.command.CommandMessageIntersection
-import io.github.shaksternano.borgar.messaging.command.CommandResponse
-import io.github.shaksternano.borgar.messaging.entity.*
-import io.github.shaksternano.borgar.messaging.entity.channel.MessageChannel
+import com.shakster.borgar.core.util.ChannelEnvironment
+import com.shakster.borgar.messaging.BotManager
+import com.shakster.borgar.messaging.command.CommandArguments
+import com.shakster.borgar.messaging.command.CommandMessageIntersection
+import com.shakster.borgar.messaging.command.CommandResponse
+import com.shakster.borgar.messaging.entity.*
+import com.shakster.borgar.messaging.entity.channel.MessageChannel
 import kotlinx.coroutines.flow.Flow
 import java.time.OffsetDateTime
 

@@ -1,4 +1,4 @@
-package io.github.shaksternano.borgar.core.media
+package com.shakster.borgar.core.media
 
 import kotlin.time.Duration
 

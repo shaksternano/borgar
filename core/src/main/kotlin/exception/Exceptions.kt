@@ -1,4 +1,4 @@
-package io.github.shaksternano.borgar.core.exception
+package com.shakster.borgar.core.exception
 
 import io.ktor.http.*
 import kotlinx.io.IOException

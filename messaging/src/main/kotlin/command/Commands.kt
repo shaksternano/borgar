@@ -1,7 +1,7 @@
-package io.github.shaksternano.borgar.messaging.command
+package com.shakster.borgar.messaging.command
 
-import io.github.shaksternano.borgar.core.util.Named
-import io.github.shaksternano.borgar.core.util.startsWithVowel
+import com.shakster.borgar.core.util.Named
+import com.shakster.borgar.core.util.startsWithVowel
 
 const val COMMAND_PREFIX: String = "%"
 const val ARGUMENT_PREFIX: String = "--"

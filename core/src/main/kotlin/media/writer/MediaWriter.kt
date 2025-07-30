@@ -1,8 +1,8 @@
-package io.github.shaksternano.borgar.core.media.writer
+package com.shakster.borgar.core.media.writer
 
-import io.github.shaksternano.borgar.core.io.SuspendCloseable
-import io.github.shaksternano.borgar.core.media.AudioFrame
-import io.github.shaksternano.borgar.core.media.ImageFrame
+import com.shakster.borgar.core.io.SuspendCloseable
+import com.shakster.borgar.core.media.AudioFrame
+import com.shakster.borgar.core.media.ImageFrame
 
 interface MediaWriter : SuspendCloseable {
 

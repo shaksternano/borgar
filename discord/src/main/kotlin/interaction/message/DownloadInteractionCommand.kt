@@ -1,15 +1,15 @@
-package io.github.shaksternano.borgar.discord.interaction.message
+package com.shakster.borgar.discord.interaction.message
 
+import com.shakster.borgar.core.io.DataSource
+import com.shakster.borgar.core.io.deleteSilently
+import com.shakster.borgar.core.task.DownloadTask
+import com.shakster.borgar.core.task.FileTask
+import com.shakster.borgar.core.task.run
+import com.shakster.borgar.core.util.getUrls
+import com.shakster.borgar.discord.DiscordManager
+import com.shakster.borgar.discord.entity.DiscordGuild
+import com.shakster.borgar.discord.toFileUpload
 import dev.minn.jda.ktx.coroutines.await
-import io.github.shaksternano.borgar.core.io.DataSource
-import io.github.shaksternano.borgar.core.io.deleteSilently
-import io.github.shaksternano.borgar.core.task.DownloadTask
-import io.github.shaksternano.borgar.core.task.FileTask
-import io.github.shaksternano.borgar.core.task.run
-import io.github.shaksternano.borgar.core.util.getUrls
-import io.github.shaksternano.borgar.discord.DiscordManager
-import io.github.shaksternano.borgar.discord.entity.DiscordGuild
-import io.github.shaksternano.borgar.discord.toFileUpload
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent

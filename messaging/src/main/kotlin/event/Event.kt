@@ -1,5 +1,5 @@
-package io.github.shaksternano.borgar.messaging.event
+package com.shakster.borgar.messaging.event
 
-import io.github.shaksternano.borgar.messaging.entity.Managed
+import com.shakster.borgar.messaging.entity.Managed
 
 interface Event : Managed

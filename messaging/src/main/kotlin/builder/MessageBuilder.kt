@@ -1,7 +1,7 @@
-package io.github.shaksternano.borgar.messaging.builder
+package com.shakster.borgar.messaging.builder
 
-import io.github.shaksternano.borgar.core.io.DataSource
-import io.github.shaksternano.borgar.messaging.command.CommandResponse
+import com.shakster.borgar.core.io.DataSource
+import com.shakster.borgar.messaging.command.CommandResponse
 
 data class MessageCreateBuilder(
     var content: String = "",

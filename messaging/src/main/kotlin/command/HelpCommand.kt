@@ -1,18 +1,18 @@
-package io.github.shaksternano.borgar.messaging.command
+package com.shakster.borgar.messaging.command
 
 import com.google.common.cache.Cache
 import com.google.common.cache.CacheBuilder
-import io.github.shaksternano.borgar.core.collect.getOrPut
-import io.github.shaksternano.borgar.core.data.repository.TemplateRepository
-import io.github.shaksternano.borgar.core.logger
-import io.github.shaksternano.borgar.core.util.ChannelEnvironment
-import io.github.shaksternano.borgar.core.util.Identified
-import io.github.shaksternano.borgar.core.util.formatted
-import io.github.shaksternano.borgar.core.util.splitChunks
-import io.github.shaksternano.borgar.messaging.BotManager
-import io.github.shaksternano.borgar.messaging.event.CommandEvent
-import io.github.shaksternano.borgar.messaging.util.checkEntityIdBelongs
-import io.github.shaksternano.borgar.messaging.util.getEntityId
+import com.shakster.borgar.core.collect.getOrPut
+import com.shakster.borgar.core.data.repository.TemplateRepository
+import com.shakster.borgar.core.logger
+import com.shakster.borgar.core.util.ChannelEnvironment
+import com.shakster.borgar.core.util.Identified
+import com.shakster.borgar.core.util.formatted
+import com.shakster.borgar.core.util.splitChunks
+import com.shakster.borgar.messaging.BotManager
+import com.shakster.borgar.messaging.event.CommandEvent
+import com.shakster.borgar.messaging.util.checkEntityIdBelongs
+import com.shakster.borgar.messaging.util.getEntityId
 
 object HelpCommand : NonChainableCommand() {
 

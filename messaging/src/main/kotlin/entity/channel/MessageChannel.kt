@@ -1,7 +1,7 @@
-package io.github.shaksternano.borgar.messaging.entity.channel
+package com.shakster.borgar.messaging.entity.channel
 
-import io.github.shaksternano.borgar.messaging.builder.MessageCreateBuilder
-import io.github.shaksternano.borgar.messaging.entity.Message
+import com.shakster.borgar.messaging.builder.MessageCreateBuilder
+import com.shakster.borgar.messaging.entity.Message
 import kotlinx.coroutines.flow.Flow
 
 interface MessageChannel : Channel {

@@ -1,6 +1,6 @@
-package io.github.shaksternano.borgar.core.media.reader
+package com.shakster.borgar.core.media.reader
 
-import io.github.shaksternano.borgar.core.media.*
+import com.shakster.borgar.core.media.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map

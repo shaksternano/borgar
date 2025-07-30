@@ -1,6 +1,6 @@
-package io.github.shaksternano.borgar.messaging.command
+package com.shakster.borgar.messaging.command
 
-import io.github.shaksternano.borgar.messaging.entity.Attachment
+import com.shakster.borgar.messaging.entity.Attachment
 
 interface CommandArguments {
 

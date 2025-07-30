@@ -1,8 +1,8 @@
-package io.github.shaksternano.borgar.core.media.writer
+package com.shakster.borgar.core.media.writer
 
-import io.github.shaksternano.borgar.core.io.closeAll
-import io.github.shaksternano.borgar.core.media.ImageFrame
-import io.github.shaksternano.borgar.core.util.AsyncExecutor
+import com.shakster.borgar.core.io.closeAll
+import com.shakster.borgar.core.media.ImageFrame
+import com.shakster.borgar.core.util.AsyncExecutor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.io.IOException
 import java.awt.image.BufferedImage

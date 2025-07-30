@@ -1,4 +1,4 @@
-package io.github.shaksternano.borgar.core.collect
+package com.shakster.borgar.core.collect
 
 import com.google.common.cache.Cache
 import kotlinx.coroutines.async

@@ -1,9 +1,9 @@
-package io.github.shaksternano.borgar.core.task
+package com.shakster.borgar.core.task
 
-import io.github.shaksternano.borgar.core.media.*
-import io.github.shaksternano.borgar.core.media.reader.ConstantFrameDurationMediaReader
-import io.github.shaksternano.borgar.core.media.reader.ImageReader
-import io.github.shaksternano.borgar.core.media.reader.transform
+import com.shakster.borgar.core.media.*
+import com.shakster.borgar.core.media.reader.ConstantFrameDurationMediaReader
+import com.shakster.borgar.core.media.reader.ImageReader
+import com.shakster.borgar.core.media.reader.transform
 import kotlinx.coroutines.flow.Flow
 import java.awt.Color
 import java.awt.image.BufferedImage

@@ -1,8 +1,8 @@
-package io.github.shaksternano.borgar.messaging.command
+package com.shakster.borgar.messaging.command
 
-import io.github.shaksternano.borgar.core.data.repository.TemplateRepository
-import io.github.shaksternano.borgar.core.util.asSingletonList
-import io.github.shaksternano.borgar.messaging.event.CommandEvent
+import com.shakster.borgar.core.data.repository.TemplateRepository
+import com.shakster.borgar.core.util.asSingletonList
+import com.shakster.borgar.messaging.event.CommandEvent
 
 object DeleteTemplateCommand : NonChainableCommand() {
 

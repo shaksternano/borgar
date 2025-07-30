@@ -1,8 +1,8 @@
-package io.github.shaksternano.borgar.messaging.entity
+package com.shakster.borgar.messaging.entity
 
-import io.github.shaksternano.borgar.messaging.builder.MessageCreateBuilder
-import io.github.shaksternano.borgar.messaging.builder.MessageEditBuilder
-import io.github.shaksternano.borgar.messaging.command.CommandMessageIntersection
+import com.shakster.borgar.messaging.builder.MessageCreateBuilder
+import com.shakster.borgar.messaging.builder.MessageEditBuilder
+import com.shakster.borgar.messaging.command.CommandMessageIntersection
 
 interface Message : CommandMessageIntersection, TimeStamped {
 

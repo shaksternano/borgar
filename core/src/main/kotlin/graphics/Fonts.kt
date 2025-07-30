@@ -1,8 +1,8 @@
-package io.github.shaksternano.borgar.core.graphics
+package com.shakster.borgar.core.graphics
 
-import io.github.shaksternano.borgar.core.io.IO_DISPATCHER
-import io.github.shaksternano.borgar.core.io.forEachResource
-import io.github.shaksternano.borgar.core.logger
+import com.shakster.borgar.core.io.IO_DISPATCHER
+import com.shakster.borgar.core.io.forEachResource
+import com.shakster.borgar.core.logger
 import kotlinx.coroutines.withContext
 import java.awt.Font
 import java.awt.GraphicsEnvironment

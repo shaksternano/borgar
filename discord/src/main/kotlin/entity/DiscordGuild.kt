@@ -1,13 +1,13 @@
-package io.github.shaksternano.borgar.discord.entity
+package com.shakster.borgar.discord.entity
 
+import com.shakster.borgar.discord.DiscordManager
+import com.shakster.borgar.discord.command.toSlash
+import com.shakster.borgar.discord.ifNotDetachedOrElse
+import com.shakster.borgar.discord.ifNotDetachedOrNull
+import com.shakster.borgar.messaging.BotManager
+import com.shakster.borgar.messaging.command.Command
+import com.shakster.borgar.messaging.entity.*
 import dev.minn.jda.ktx.coroutines.await
-import io.github.shaksternano.borgar.discord.DiscordManager
-import io.github.shaksternano.borgar.discord.command.toSlash
-import io.github.shaksternano.borgar.discord.ifNotDetachedOrElse
-import io.github.shaksternano.borgar.discord.ifNotDetachedOrNull
-import io.github.shaksternano.borgar.messaging.BotManager
-import io.github.shaksternano.borgar.messaging.command.Command
-import io.github.shaksternano.borgar.messaging.entity.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flow

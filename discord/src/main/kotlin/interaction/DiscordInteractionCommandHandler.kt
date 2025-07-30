@@ -1,8 +1,8 @@
-package io.github.shaksternano.borgar.discord.interaction
+package com.shakster.borgar.discord.interaction
 
+import com.shakster.borgar.discord.DiscordManager
+import com.shakster.borgar.messaging.command.handleError
 import dev.minn.jda.ktx.coroutines.await
-import io.github.shaksternano.borgar.discord.DiscordManager
-import io.github.shaksternano.borgar.messaging.command.handleError
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback
 
 suspend fun <T : IReplyCallback> handleInteractionCommand(command: DiscordInteractionCommand<T>, event: T) =

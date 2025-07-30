@@ -1,9 +1,9 @@
-package io.github.shaksternano.borgar.revolt.entity
+package com.shakster.borgar.revolt.entity
 
-import io.github.shaksternano.borgar.core.util.encodeUrl
-import io.github.shaksternano.borgar.messaging.entity.BaseEntity
-import io.github.shaksternano.borgar.messaging.entity.User
-import io.github.shaksternano.borgar.revolt.RevoltManager
+import com.shakster.borgar.core.util.encodeUrl
+import com.shakster.borgar.messaging.entity.BaseEntity
+import com.shakster.borgar.messaging.entity.User
+import com.shakster.borgar.revolt.RevoltManager
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

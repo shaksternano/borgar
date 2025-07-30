@@ -1,7 +1,7 @@
-package io.github.shaksternano.borgar.messaging.command
+package com.shakster.borgar.messaging.command
 
-import io.github.shaksternano.borgar.core.task.CatTask
-import io.github.shaksternano.borgar.core.task.FileTask
+import com.shakster.borgar.core.task.CatTask
+import com.shakster.borgar.core.task.FileTask
 
 class CatCommand(
     override val name: String,

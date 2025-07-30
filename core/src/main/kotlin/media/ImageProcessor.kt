@@ -1,7 +1,7 @@
-package io.github.shaksternano.borgar.core.media
+package com.shakster.borgar.core.media
 
-import io.github.shaksternano.borgar.core.io.SuspendCloseable
-import io.github.shaksternano.borgar.core.io.closeAll
+import com.shakster.borgar.core.io.SuspendCloseable
+import com.shakster.borgar.core.io.closeAll
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.awt.image.BufferedImage

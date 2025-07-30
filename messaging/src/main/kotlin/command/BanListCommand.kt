@@ -1,10 +1,10 @@
-package io.github.shaksternano.borgar.messaging.command
+package com.shakster.borgar.messaging.command
 
-import io.github.shaksternano.borgar.core.data.repository.BanRepository
-import io.github.shaksternano.borgar.core.data.repository.EntityType
-import io.github.shaksternano.borgar.core.util.asSingletonList
-import io.github.shaksternano.borgar.core.util.splitChunks
-import io.github.shaksternano.borgar.messaging.event.CommandEvent
+import com.shakster.borgar.core.data.repository.BanRepository
+import com.shakster.borgar.core.data.repository.EntityType
+import com.shakster.borgar.core.util.asSingletonList
+import com.shakster.borgar.core.util.splitChunks
+import com.shakster.borgar.messaging.event.CommandEvent
 
 object BanListCommand : OwnerCommand() {
 

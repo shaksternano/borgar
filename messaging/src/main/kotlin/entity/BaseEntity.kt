@@ -1,4 +1,4 @@
-package io.github.shaksternano.borgar.messaging.entity
+package com.shakster.borgar.messaging.entity
 
 abstract class BaseEntity : Entity {
 

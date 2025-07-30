@@ -1,6 +1,6 @@
-package io.github.shaksternano.borgar.core.task
+package com.shakster.borgar.core.task
 
-import io.github.shaksternano.borgar.core.media.MediaProcessingConfig
+import com.shakster.borgar.core.media.MediaProcessingConfig
 
 class TranscodeTask(
     format: String,

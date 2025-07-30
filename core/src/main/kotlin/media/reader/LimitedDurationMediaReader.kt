@@ -1,7 +1,7 @@
-package io.github.shaksternano.borgar.core.media.reader
+package com.shakster.borgar.core.media.reader
 
-import io.github.shaksternano.borgar.core.media.VideoFrame
-import io.github.shaksternano.borgar.core.util.circular
+import com.shakster.borgar.core.media.VideoFrame
+import com.shakster.borgar.core.util.circular
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.takeWhile

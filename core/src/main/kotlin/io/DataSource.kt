@@ -1,9 +1,9 @@
-package io.github.shaksternano.borgar.core.io
+package com.shakster.borgar.core.io
 
-import io.github.shaksternano.borgar.core.exception.FileTooLargeException
-import io.github.shaksternano.borgar.core.exception.UnreadableFileException
-import io.github.shaksternano.borgar.core.util.hash
-import io.github.shaksternano.borgar.core.util.kClass
+import com.shakster.borgar.core.exception.FileTooLargeException
+import com.shakster.borgar.core.exception.UnreadableFileException
+import com.shakster.borgar.core.util.hash
+import com.shakster.borgar.core.util.kClass
 import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext

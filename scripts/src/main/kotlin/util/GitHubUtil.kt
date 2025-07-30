@@ -1,6 +1,6 @@
-package io.github.shaksternano.borgar.scripts.util
+package com.shakster.borgar.scripts.util
 
-import io.github.shaksternano.borgar.core.io.httpGet
+import com.shakster.borgar.core.io.httpGet
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

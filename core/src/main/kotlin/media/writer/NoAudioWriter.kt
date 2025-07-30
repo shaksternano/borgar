@@ -1,6 +1,6 @@
-package io.github.shaksternano.borgar.core.media.writer
+package com.shakster.borgar.core.media.writer
 
-import io.github.shaksternano.borgar.core.media.AudioFrame
+import com.shakster.borgar.core.media.AudioFrame
 
 abstract class NoAudioWriter : MediaWriter {
 

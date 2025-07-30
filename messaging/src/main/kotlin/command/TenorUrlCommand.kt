@@ -1,13 +1,13 @@
-package io.github.shaksternano.borgar.messaging.command
+package com.shakster.borgar.messaging.command
 
-import io.github.shaksternano.borgar.core.task.FileTask
-import io.github.shaksternano.borgar.core.task.UrlFileTask
-import io.github.shaksternano.borgar.core.util.TenorMediaType
-import io.github.shaksternano.borgar.core.util.getUrls
-import io.github.shaksternano.borgar.core.util.isTenorUrl
-import io.github.shaksternano.borgar.core.util.retrieveTenorMediaUrl
-import io.github.shaksternano.borgar.messaging.event.CommandEvent
-import io.github.shaksternano.borgar.messaging.util.searchExceptSelfOrThrow
+import com.shakster.borgar.core.task.FileTask
+import com.shakster.borgar.core.task.UrlFileTask
+import com.shakster.borgar.core.util.TenorMediaType
+import com.shakster.borgar.core.util.getUrls
+import com.shakster.borgar.core.util.isTenorUrl
+import com.shakster.borgar.core.util.retrieveTenorMediaUrl
+import com.shakster.borgar.messaging.event.CommandEvent
+import com.shakster.borgar.messaging.util.searchExceptSelfOrThrow
 
 private val TENOR_MEDIA_TYPE: CommandArgumentType<TenorMediaType> =
     CommandArgumentType.Enum<TenorMediaType>("Tenor media type")

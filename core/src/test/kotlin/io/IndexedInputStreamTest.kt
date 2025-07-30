@@ -1,6 +1,6 @@
 @file:Suppress("PackageDirectoryMismatch")
 
-package io.github.shaksternano.borgar.core.io
+package com.shakster.borgar.core.io
 
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayInputStream

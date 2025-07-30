@@ -1,18 +1,18 @@
-package io.github.shaksternano.borgar.discord.interaction.modal
+package com.shakster.borgar.discord.interaction.modal
 
+import com.shakster.borgar.core.logger
+import com.shakster.borgar.core.util.MessagingPlatform
+import com.shakster.borgar.discord.entity.DiscordUser
+import com.shakster.borgar.discord.entity.channel.DiscordMessageChannel
+import com.shakster.borgar.discord.event.DiscordInteractionCommandEvent
+import com.shakster.borgar.messaging.command.COMMAND_PREFIX
+import com.shakster.borgar.messaging.command.CommandNotFoundException
+import com.shakster.borgar.messaging.command.isCorrectEnvironment
+import com.shakster.borgar.messaging.command.parseCommands
+import com.shakster.borgar.messaging.entity.FakeMessage
+import com.shakster.borgar.messaging.executeAndRespond
+import com.shakster.borgar.messaging.util.getAndExpireSelectedMessage
 import dev.minn.jda.ktx.coroutines.await
-import io.github.shaksternano.borgar.core.logger
-import io.github.shaksternano.borgar.core.util.MessagingPlatform
-import io.github.shaksternano.borgar.discord.entity.DiscordUser
-import io.github.shaksternano.borgar.discord.entity.channel.DiscordMessageChannel
-import io.github.shaksternano.borgar.discord.event.DiscordInteractionCommandEvent
-import io.github.shaksternano.borgar.messaging.command.COMMAND_PREFIX
-import io.github.shaksternano.borgar.messaging.command.CommandNotFoundException
-import io.github.shaksternano.borgar.messaging.command.isCorrectEnvironment
-import io.github.shaksternano.borgar.messaging.command.parseCommands
-import io.github.shaksternano.borgar.messaging.entity.FakeMessage
-import io.github.shaksternano.borgar.messaging.executeAndRespond
-import io.github.shaksternano.borgar.messaging.util.getAndExpireSelectedMessage
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent
 
 object RunCommandInteractionCommand : DiscordModalInteractionCommand {

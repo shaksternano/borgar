@@ -1,7 +1,7 @@
-package io.github.shaksternano.borgar.core.media
+package com.shakster.borgar.core.media
 
-import io.github.shaksternano.borgar.core.io.IO_DISPATCHER
-import io.github.shaksternano.borgar.core.util.equalsAnyIgnoreCase
+import com.shakster.borgar.core.io.IO_DISPATCHER
+import com.shakster.borgar.core.util.equalsAnyIgnoreCase
 import kotlinx.coroutines.withContext
 import java.awt.image.BufferedImage
 import java.io.InputStream

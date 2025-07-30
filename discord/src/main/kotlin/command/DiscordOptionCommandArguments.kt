@@ -1,18 +1,18 @@
-package io.github.shaksternano.borgar.discord.command
+package com.shakster.borgar.discord.command
 
-import io.github.shaksternano.borgar.core.util.formatted
-import io.github.shaksternano.borgar.core.util.hash
-import io.github.shaksternano.borgar.core.util.kClass
-import io.github.shaksternano.borgar.discord.DiscordManager
-import io.github.shaksternano.borgar.discord.entity.DiscordMentionable
-import io.github.shaksternano.borgar.discord.entity.DiscordRole
-import io.github.shaksternano.borgar.discord.entity.DiscordUser
-import io.github.shaksternano.borgar.discord.entity.channel.DiscordChannel
-import io.github.shaksternano.borgar.messaging.command.ARGUMENT_PREFIX
-import io.github.shaksternano.borgar.messaging.command.CommandArgumentType
-import io.github.shaksternano.borgar.messaging.command.CommandArguments
-import io.github.shaksternano.borgar.messaging.command.SimpleCommandArgumentType
-import io.github.shaksternano.borgar.messaging.entity.Attachment
+import com.shakster.borgar.core.util.formatted
+import com.shakster.borgar.core.util.hash
+import com.shakster.borgar.core.util.kClass
+import com.shakster.borgar.discord.DiscordManager
+import com.shakster.borgar.discord.entity.DiscordMentionable
+import com.shakster.borgar.discord.entity.DiscordRole
+import com.shakster.borgar.discord.entity.DiscordUser
+import com.shakster.borgar.discord.entity.channel.DiscordChannel
+import com.shakster.borgar.messaging.command.ARGUMENT_PREFIX
+import com.shakster.borgar.messaging.command.CommandArgumentType
+import com.shakster.borgar.messaging.command.CommandArguments
+import com.shakster.borgar.messaging.command.SimpleCommandArgumentType
+import com.shakster.borgar.messaging.entity.Attachment
 import net.dv8tion.jda.api.interactions.commands.CommandInteractionPayload
 import net.dv8tion.jda.api.interactions.commands.OptionType
 

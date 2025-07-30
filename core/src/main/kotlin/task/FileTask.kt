@@ -1,11 +1,11 @@
-package io.github.shaksternano.borgar.core.task
+package com.shakster.borgar.core.task
 
-import io.github.shaksternano.borgar.core.collect.parallelForEach
-import io.github.shaksternano.borgar.core.collect.parallelMap
-import io.github.shaksternano.borgar.core.io.DataSource
-import io.github.shaksternano.borgar.core.io.SuspendCloseable
-import io.github.shaksternano.borgar.core.io.closeAll
-import io.github.shaksternano.borgar.core.io.deleteSilently
+import com.shakster.borgar.core.collect.parallelForEach
+import com.shakster.borgar.core.collect.parallelMap
+import com.shakster.borgar.core.io.DataSource
+import com.shakster.borgar.core.io.SuspendCloseable
+import com.shakster.borgar.core.io.closeAll
+import com.shakster.borgar.core.io.deleteSilently
 import java.nio.file.Path
 import java.util.concurrent.ConcurrentLinkedQueue
 

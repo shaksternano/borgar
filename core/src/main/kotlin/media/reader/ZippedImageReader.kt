@@ -1,8 +1,8 @@
-package io.github.shaksternano.borgar.core.media.reader
+package com.shakster.borgar.core.media.reader
 
-import io.github.shaksternano.borgar.core.io.closeAll
-import io.github.shaksternano.borgar.core.media.DualBufferedImage
-import io.github.shaksternano.borgar.core.media.ImageFrame
+import com.shakster.borgar.core.io.closeAll
+import com.shakster.borgar.core.media.DualBufferedImage
+import com.shakster.borgar.core.media.ImageFrame
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlin.math.max

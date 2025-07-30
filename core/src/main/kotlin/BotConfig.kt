@@ -1,7 +1,7 @@
-package io.github.shaksternano.borgar.core
+package com.shakster.borgar.core
 
-import io.github.shaksternano.borgar.core.io.IO_DISPATCHER
-import io.github.shaksternano.borgar.core.util.DEFAULT_TENOR_API_KEY
+import com.shakster.borgar.core.io.IO_DISPATCHER
+import com.shakster.borgar.core.util.DEFAULT_TENOR_API_KEY
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable

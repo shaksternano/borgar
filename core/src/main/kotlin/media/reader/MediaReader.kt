@@ -1,11 +1,11 @@
-package io.github.shaksternano.borgar.core.media.reader
+package com.shakster.borgar.core.media.reader
 
+import com.shakster.borgar.core.AVAILABLE_PROCESSORS
+import com.shakster.borgar.core.io.SuspendCloseable
+import com.shakster.borgar.core.io.closeAll
+import com.shakster.borgar.core.media.*
+import com.shakster.borgar.core.util.AsyncExecutor
 import com.shakster.gifkt.use
-import io.github.shaksternano.borgar.core.AVAILABLE_PROCESSORS
-import io.github.shaksternano.borgar.core.io.SuspendCloseable
-import io.github.shaksternano.borgar.core.io.closeAll
-import io.github.shaksternano.borgar.core.media.*
-import io.github.shaksternano.borgar.core.util.AsyncExecutor
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.map

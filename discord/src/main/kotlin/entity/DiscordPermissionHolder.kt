@@ -1,11 +1,11 @@
-package io.github.shaksternano.borgar.discord.entity
+package com.shakster.borgar.discord.entity
 
-import io.github.shaksternano.borgar.discord.entity.channel.DiscordChannel
-import io.github.shaksternano.borgar.discord.util.toDiscord
-import io.github.shaksternano.borgar.messaging.command.Permission
-import io.github.shaksternano.borgar.messaging.entity.BaseEntity
-import io.github.shaksternano.borgar.messaging.entity.PermissionHolder
-import io.github.shaksternano.borgar.messaging.entity.channel.Channel
+import com.shakster.borgar.discord.entity.channel.DiscordChannel
+import com.shakster.borgar.discord.util.toDiscord
+import com.shakster.borgar.messaging.command.Permission
+import com.shakster.borgar.messaging.entity.BaseEntity
+import com.shakster.borgar.messaging.entity.PermissionHolder
+import com.shakster.borgar.messaging.entity.channel.Channel
 import net.dv8tion.jda.api.entities.IPermissionHolder
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel
 import net.dv8tion.jda.api.entities.detached.IDetachableEntity

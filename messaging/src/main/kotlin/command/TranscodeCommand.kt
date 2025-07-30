@@ -1,9 +1,9 @@
-package io.github.shaksternano.borgar.messaging.command
+package com.shakster.borgar.messaging.command
 
-import io.github.shaksternano.borgar.core.task.FileTask
-import io.github.shaksternano.borgar.core.task.TranscodeTask
-import io.github.shaksternano.borgar.core.util.startsWithVowel
-import io.github.shaksternano.borgar.messaging.event.CommandEvent
+import com.shakster.borgar.core.task.FileTask
+import com.shakster.borgar.core.task.TranscodeTask
+import com.shakster.borgar.core.util.startsWithVowel
+import com.shakster.borgar.messaging.event.CommandEvent
 
 class TranscodeCommand(
     private val format: String,

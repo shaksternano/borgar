@@ -1,12 +1,8 @@
-package io.github.shaksternano.borgar.core.util
+package com.shakster.borgar.core.util
 
 import com.shakster.gifkt.SuspendClosable
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.async
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlin.coroutines.EmptyCoroutineContext
 

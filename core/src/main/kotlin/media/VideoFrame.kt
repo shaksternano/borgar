@@ -1,4 +1,4 @@
-package io.github.shaksternano.borgar.core.media
+package com.shakster.borgar.core.media
 
 import org.bytedeco.javacv.Frame
 import java.awt.image.BufferedImage

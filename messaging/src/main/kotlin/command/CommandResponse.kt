@@ -1,6 +1,6 @@
-package io.github.shaksternano.borgar.messaging.command
+package com.shakster.borgar.messaging.command
 
-import io.github.shaksternano.borgar.core.io.DataSource
+import com.shakster.borgar.core.io.DataSource
 
 data class CommandResponse(
     val content: String = "",

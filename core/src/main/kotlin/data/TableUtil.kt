@@ -1,4 +1,4 @@
-package io.github.shaksternano.borgar.core.data
+package com.shakster.borgar.core.data
 
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IdTable

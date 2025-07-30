@@ -1,10 +1,10 @@
-package io.github.shaksternano.borgar.core.media.reader
+package com.shakster.borgar.core.media.reader
 
-import io.github.shaksternano.borgar.core.io.DataSource
-import io.github.shaksternano.borgar.core.io.IO_DISPATCHER
-import io.github.shaksternano.borgar.core.media.ImageFrame
-import io.github.shaksternano.borgar.core.media.ImageReaderFactory
-import io.github.shaksternano.borgar.core.media.addTransparency
+import com.shakster.borgar.core.io.DataSource
+import com.shakster.borgar.core.io.IO_DISPATCHER
+import com.shakster.borgar.core.media.ImageFrame
+import com.shakster.borgar.core.media.ImageReaderFactory
+import com.shakster.borgar.core.media.addTransparency
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.withContext

@@ -1,9 +1,9 @@
-package io.github.shaksternano.borgar.discord.entity
+package com.shakster.borgar.discord.entity
 
-import io.github.shaksternano.borgar.discord.DiscordManager
-import io.github.shaksternano.borgar.discord.entity.channel.DiscordChannel
-import io.github.shaksternano.borgar.messaging.BotManager
-import io.github.shaksternano.borgar.messaging.entity.Mentionable
+import com.shakster.borgar.discord.DiscordManager
+import com.shakster.borgar.discord.entity.channel.DiscordChannel
+import com.shakster.borgar.messaging.BotManager
+import com.shakster.borgar.messaging.entity.Mentionable
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.Role

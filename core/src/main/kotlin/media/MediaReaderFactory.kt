@@ -1,9 +1,9 @@
-package io.github.shaksternano.borgar.core.media
+package com.shakster.borgar.core.media
 
-import io.github.shaksternano.borgar.core.io.DataSource
-import io.github.shaksternano.borgar.core.media.reader.AudioReader
-import io.github.shaksternano.borgar.core.media.reader.ImageReader
-import io.github.shaksternano.borgar.core.media.reader.MediaReader
+import com.shakster.borgar.core.io.DataSource
+import com.shakster.borgar.core.media.reader.AudioReader
+import com.shakster.borgar.core.media.reader.ImageReader
+import com.shakster.borgar.core.media.reader.MediaReader
 
 interface MediaReaderFactory<T : VideoFrame<*>> {
 

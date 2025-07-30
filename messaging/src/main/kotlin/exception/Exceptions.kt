@@ -1,6 +1,6 @@
-package io.github.shaksternano.borgar.messaging.exception
+package com.shakster.borgar.messaging.exception
 
-import io.github.shaksternano.borgar.messaging.command.CommandConfig
+import com.shakster.borgar.messaging.command.CommandConfig
 
 class CommandException(
     val commandConfigs: List<CommandConfig>,

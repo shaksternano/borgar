@@ -1,8 +1,8 @@
-package io.github.shaksternano.borgar.core.emoji
+package com.shakster.borgar.core.emoji
 
-import io.github.shaksternano.borgar.core.io.IO_DISPATCHER
-import io.github.shaksternano.borgar.core.io.getResource
-import io.github.shaksternano.borgar.core.logger
+import com.shakster.borgar.core.io.IO_DISPATCHER
+import com.shakster.borgar.core.io.getResource
+import com.shakster.borgar.core.logger
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import java.io.BufferedReader

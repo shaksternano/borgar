@@ -1,4 +1,4 @@
-package io.github.shaksternano.borgar.core.util
+package com.shakster.borgar.core.util
 
 import net.dv8tion.jda.api.utils.SplitUtil
 import java.net.URLEncoder

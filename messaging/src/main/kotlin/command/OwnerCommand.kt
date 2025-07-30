@@ -1,6 +1,6 @@
-package io.github.shaksternano.borgar.messaging.command
+package com.shakster.borgar.messaging.command
 
-import io.github.shaksternano.borgar.messaging.event.CommandEvent
+import com.shakster.borgar.messaging.event.CommandEvent
 
 abstract class OwnerCommand : NonChainableCommand() {
 

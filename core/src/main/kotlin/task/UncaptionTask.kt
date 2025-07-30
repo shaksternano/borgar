@@ -1,7 +1,7 @@
-package io.github.shaksternano.borgar.core.task
+package com.shakster.borgar.core.task
 
-import io.github.shaksternano.borgar.core.media.distanceTo
-import io.github.shaksternano.borgar.core.media.isGreyScale
+import com.shakster.borgar.core.media.distanceTo
+import com.shakster.borgar.core.media.isGreyScale
 import java.awt.Color
 import java.awt.Rectangle
 import java.awt.image.BufferedImage

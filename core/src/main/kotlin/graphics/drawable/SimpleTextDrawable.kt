@@ -1,9 +1,9 @@
-package io.github.shaksternano.borgar.core.graphics.drawable
+package com.shakster.borgar.core.graphics.drawable
 
-import io.github.shaksternano.borgar.core.graphics.DEFAULT_FONT_NAME
-import io.github.shaksternano.borgar.core.graphics.attributedStringBounds
-import io.github.shaksternano.borgar.core.graphics.createFallbackFontString
-import io.github.shaksternano.borgar.core.util.kClass
+import com.shakster.borgar.core.graphics.DEFAULT_FONT_NAME
+import com.shakster.borgar.core.graphics.attributedStringBounds
+import com.shakster.borgar.core.graphics.createFallbackFontString
+import com.shakster.borgar.core.util.kClass
 import java.awt.Font
 import java.awt.Graphics2D
 import kotlin.math.max

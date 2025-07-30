@@ -1,9 +1,9 @@
-package io.github.shaksternano.borgar.core.task
+package com.shakster.borgar.core.task
 
-import io.github.shaksternano.borgar.core.media.ImageFrame
-import io.github.shaksternano.borgar.core.media.ImageProcessor
-import io.github.shaksternano.borgar.core.media.MediaProcessingConfig
-import io.github.shaksternano.borgar.core.media.SimpleMediaProcessingConfig
+import com.shakster.borgar.core.media.ImageFrame
+import com.shakster.borgar.core.media.ImageProcessor
+import com.shakster.borgar.core.media.MediaProcessingConfig
+import com.shakster.borgar.core.media.SimpleMediaProcessingConfig
 import kotlinx.coroutines.flow.Flow
 import java.awt.image.BufferedImage
 import kotlin.math.max

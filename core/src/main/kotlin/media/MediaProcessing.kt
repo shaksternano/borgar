@@ -1,9 +1,9 @@
-package io.github.shaksternano.borgar.core.media
+package com.shakster.borgar.core.media
 
-import io.github.shaksternano.borgar.core.io.*
-import io.github.shaksternano.borgar.core.media.reader.AudioReader
-import io.github.shaksternano.borgar.core.media.reader.ImageReader
-import io.github.shaksternano.borgar.core.media.reader.first
+import com.shakster.borgar.core.io.*
+import com.shakster.borgar.core.media.reader.AudioReader
+import com.shakster.borgar.core.media.reader.ImageReader
+import com.shakster.borgar.core.media.reader.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.withContext
 import java.nio.file.Path

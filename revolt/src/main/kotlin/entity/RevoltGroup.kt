@@ -1,8 +1,8 @@
-package io.github.shaksternano.borgar.revolt.entity
+package com.shakster.borgar.revolt.entity
 
-import io.github.shaksternano.borgar.messaging.entity.BaseEntity
-import io.github.shaksternano.borgar.messaging.entity.Group
-import io.github.shaksternano.borgar.revolt.RevoltManager
+import com.shakster.borgar.messaging.entity.BaseEntity
+import com.shakster.borgar.messaging.entity.Group
+import com.shakster.borgar.revolt.RevoltManager
 
 data class RevoltGroup(
     override val manager: RevoltManager,

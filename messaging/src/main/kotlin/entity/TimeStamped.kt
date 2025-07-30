@@ -1,4 +1,4 @@
-package io.github.shaksternano.borgar.messaging.entity
+package com.shakster.borgar.messaging.entity
 
 import java.time.OffsetDateTime
 

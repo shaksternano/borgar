@@ -1,6 +1,6 @@
-package io.github.shaksternano.borgar.core.media
+package com.shakster.borgar.core.media
 
-import io.github.shaksternano.borgar.core.media.writer.MediaWriter
+import com.shakster.borgar.core.media.writer.MediaWriter
 import java.nio.file.Path
 import kotlin.time.Duration
 

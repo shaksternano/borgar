@@ -1,12 +1,12 @@
-package io.github.shaksternano.borgar.core.media.reader
+package com.shakster.borgar.core.media.reader
 
 import com.google.common.cache.Cache
 import com.google.common.cache.CacheBuilder
-import io.github.shaksternano.borgar.core.collect.getOrPut
-import io.github.shaksternano.borgar.core.io.*
-import io.github.shaksternano.borgar.core.media.ImageFrame
-import io.github.shaksternano.borgar.core.media.ImageReaderFactory
-import io.github.shaksternano.borgar.core.media.resize
+import com.shakster.borgar.core.collect.getOrPut
+import com.shakster.borgar.core.io.*
+import com.shakster.borgar.core.media.ImageFrame
+import com.shakster.borgar.core.media.ImageReaderFactory
+import com.shakster.borgar.core.media.resize
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.sync.Mutex

@@ -1,14 +1,14 @@
-package io.github.shaksternano.borgar.core.task
+package com.shakster.borgar.core.task
 
-import io.github.shaksternano.borgar.core.graphics.Position
-import io.github.shaksternano.borgar.core.graphics.TextAlignment
-import io.github.shaksternano.borgar.core.graphics.configureTextDrawQuality
-import io.github.shaksternano.borgar.core.graphics.drawable.Drawable
-import io.github.shaksternano.borgar.core.graphics.drawable.ParagraphDrawable
-import io.github.shaksternano.borgar.core.graphics.drawable.draw
-import io.github.shaksternano.borgar.core.graphics.fillRect
-import io.github.shaksternano.borgar.core.io.closeAll
-import io.github.shaksternano.borgar.core.media.*
+import com.shakster.borgar.core.graphics.Position
+import com.shakster.borgar.core.graphics.TextAlignment
+import com.shakster.borgar.core.graphics.configureTextDrawQuality
+import com.shakster.borgar.core.graphics.drawable.Drawable
+import com.shakster.borgar.core.graphics.drawable.ParagraphDrawable
+import com.shakster.borgar.core.graphics.drawable.draw
+import com.shakster.borgar.core.graphics.fillRect
+import com.shakster.borgar.core.io.closeAll
+import com.shakster.borgar.core.media.*
 import kotlinx.coroutines.flow.Flow
 import java.awt.Color
 import java.awt.Font

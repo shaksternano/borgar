@@ -1,7 +1,7 @@
-package io.github.shaksternano.borgar.core.task
+package com.shakster.borgar.core.task
 
-import io.github.shaksternano.borgar.core.media.ImageFrame
-import io.github.shaksternano.borgar.core.media.mapPixels
+import com.shakster.borgar.core.media.ImageFrame
+import com.shakster.borgar.core.media.mapPixels
 import java.awt.image.BufferedImage
 
 class InvertColorsTask(

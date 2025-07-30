@@ -1,10 +1,10 @@
-package io.github.shaksternano.borgar.messaging.command
+package com.shakster.borgar.messaging.command
 
-import io.github.shaksternano.borgar.core.collect.addAll
-import io.github.shaksternano.borgar.core.task.FileTask
-import io.github.shaksternano.borgar.core.util.asSingletonList
-import io.github.shaksternano.borgar.messaging.entity.Attachment
-import io.github.shaksternano.borgar.messaging.event.CommandEvent
+import com.shakster.borgar.core.collect.addAll
+import com.shakster.borgar.core.task.FileTask
+import com.shakster.borgar.core.util.asSingletonList
+import com.shakster.borgar.messaging.entity.Attachment
+import com.shakster.borgar.messaging.event.CommandEvent
 
 abstract class FileCommand(
     vararg argumentInfo: CommandArgumentInfo<*>,

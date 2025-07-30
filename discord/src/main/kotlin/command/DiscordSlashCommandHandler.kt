@@ -1,19 +1,19 @@
-package io.github.shaksternano.borgar.discord.command
+package com.shakster.borgar.discord.command
 
+import com.shakster.borgar.core.data.repository.TemplateRepository
+import com.shakster.borgar.core.logger
+import com.shakster.borgar.core.util.asSingletonList
+import com.shakster.borgar.core.util.splitWords
+import com.shakster.borgar.discord.DiscordManager
+import com.shakster.borgar.discord.entity.DiscordUser
+import com.shakster.borgar.discord.entity.channel.DiscordMessageChannel
+import com.shakster.borgar.discord.event.DiscordInteractionCommandEvent
+import com.shakster.borgar.messaging.command.*
+import com.shakster.borgar.messaging.entity.Attachment
+import com.shakster.borgar.messaging.entity.FakeMessage
+import com.shakster.borgar.messaging.event.CommandEvent
+import com.shakster.borgar.messaging.executeAndRespond
 import dev.minn.jda.ktx.coroutines.await
-import io.github.shaksternano.borgar.core.data.repository.TemplateRepository
-import io.github.shaksternano.borgar.core.logger
-import io.github.shaksternano.borgar.core.util.asSingletonList
-import io.github.shaksternano.borgar.core.util.splitWords
-import io.github.shaksternano.borgar.discord.DiscordManager
-import io.github.shaksternano.borgar.discord.entity.DiscordUser
-import io.github.shaksternano.borgar.discord.entity.channel.DiscordMessageChannel
-import io.github.shaksternano.borgar.discord.event.DiscordInteractionCommandEvent
-import io.github.shaksternano.borgar.messaging.command.*
-import io.github.shaksternano.borgar.messaging.entity.Attachment
-import io.github.shaksternano.borgar.messaging.entity.FakeMessage
-import io.github.shaksternano.borgar.messaging.event.CommandEvent
-import io.github.shaksternano.borgar.messaging.executeAndRespond
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.interactions.commands.OptionType
 

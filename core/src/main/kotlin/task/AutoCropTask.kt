@@ -1,4 +1,4 @@
-package io.github.shaksternano.borgar.core.task
+package com.shakster.borgar.core.task
 
 import com.sksamuel.scrimage.ImmutableImage
 import com.sksamuel.scrimage.pixels.Pixel

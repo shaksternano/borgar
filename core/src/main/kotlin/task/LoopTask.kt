@@ -1,7 +1,7 @@
-package io.github.shaksternano.borgar.core.task
+package com.shakster.borgar.core.task
 
-import io.github.shaksternano.borgar.core.exception.ErrorResponseException
-import io.github.shaksternano.borgar.core.io.*
+import com.shakster.borgar.core.exception.ErrorResponseException
+import com.shakster.borgar.core.io.*
 import kotlinx.io.EOFException
 import java.io.InputStream
 import kotlin.math.pow

@@ -1,6 +1,6 @@
 @file:Suppress("PackageDirectoryMismatch")
 
-package io.github.shaksternano.borgar.messaging.command
+package com.shakster.borgar.messaging.command
 
 import kotlin.test.Test
 import kotlin.test.assertEquals

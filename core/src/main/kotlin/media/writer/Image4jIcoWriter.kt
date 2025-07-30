@@ -1,9 +1,9 @@
-package io.github.shaksternano.borgar.core.media.writer
+package com.shakster.borgar.core.media.writer
 
-import io.github.shaksternano.borgar.core.io.IO_DISPATCHER
-import io.github.shaksternano.borgar.core.media.ImageFrame
-import io.github.shaksternano.borgar.core.media.MediaWriterFactory
-import io.github.shaksternano.borgar.core.media.bound
+import com.shakster.borgar.core.io.IO_DISPATCHER
+import com.shakster.borgar.core.media.ImageFrame
+import com.shakster.borgar.core.media.MediaWriterFactory
+import com.shakster.borgar.core.media.bound
 import kotlinx.coroutines.withContext
 import net.ifok.image.image4j.codec.ico.ICOEncoder
 import java.nio.file.Path

@@ -1,4 +1,4 @@
-package io.github.shaksternano.borgar.core.util
+package com.shakster.borgar.core.util
 
 enum class MessagingPlatform(
     override val id: String,

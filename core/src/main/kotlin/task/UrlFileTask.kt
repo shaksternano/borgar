@@ -1,6 +1,6 @@
-package io.github.shaksternano.borgar.core.task
+package com.shakster.borgar.core.task
 
-import io.github.shaksternano.borgar.core.io.DataSource
+import com.shakster.borgar.core.io.DataSource
 
 class UrlFileTask(
     urls: Iterable<String>,

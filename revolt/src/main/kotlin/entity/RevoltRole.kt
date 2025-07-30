@@ -1,15 +1,15 @@
-package io.github.shaksternano.borgar.revolt.entity
+package com.shakster.borgar.revolt.entity
 
-import io.github.shaksternano.borgar.messaging.command.Permission
-import io.github.shaksternano.borgar.messaging.entity.BaseEntity
-import io.github.shaksternano.borgar.messaging.entity.Role
-import io.github.shaksternano.borgar.messaging.entity.channel.Channel
-import io.github.shaksternano.borgar.revolt.RevoltManager
-import io.github.shaksternano.borgar.revolt.entity.channel.RevoltChannel
-import io.github.shaksternano.borgar.revolt.util.RevoltPermissionValue
-import io.github.shaksternano.borgar.revolt.util.bitwiseAndEq
-import io.github.shaksternano.borgar.revolt.util.getPermissionsValue
-import io.github.shaksternano.borgar.revolt.util.toValues
+import com.shakster.borgar.messaging.command.Permission
+import com.shakster.borgar.messaging.entity.BaseEntity
+import com.shakster.borgar.messaging.entity.Role
+import com.shakster.borgar.messaging.entity.channel.Channel
+import com.shakster.borgar.revolt.RevoltManager
+import com.shakster.borgar.revolt.entity.channel.RevoltChannel
+import com.shakster.borgar.revolt.util.RevoltPermissionValue
+import com.shakster.borgar.revolt.util.bitwiseAndEq
+import com.shakster.borgar.revolt.util.getPermissionsValue
+import com.shakster.borgar.revolt.util.toValues
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

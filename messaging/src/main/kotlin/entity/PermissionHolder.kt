@@ -1,7 +1,7 @@
-package io.github.shaksternano.borgar.messaging.entity
+package com.shakster.borgar.messaging.entity
 
-import io.github.shaksternano.borgar.messaging.command.Permission
-import io.github.shaksternano.borgar.messaging.entity.channel.Channel
+import com.shakster.borgar.messaging.command.Permission
+import com.shakster.borgar.messaging.entity.channel.Channel
 
 interface PermissionHolder : Entity {
 

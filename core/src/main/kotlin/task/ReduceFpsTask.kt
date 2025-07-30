@@ -1,8 +1,8 @@
-package io.github.shaksternano.borgar.core.task
+package com.shakster.borgar.core.task
 
-import io.github.shaksternano.borgar.core.media.MediaProcessingConfig
-import io.github.shaksternano.borgar.core.media.reader.ConstantFrameDurationMediaReader
-import io.github.shaksternano.borgar.core.media.reader.ImageReader
+import com.shakster.borgar.core.media.MediaProcessingConfig
+import com.shakster.borgar.core.media.reader.ConstantFrameDurationMediaReader
+import com.shakster.borgar.core.media.reader.ImageReader
 
 class ReduceFpsTask(
     fpsReductionRatio: Double,

@@ -1,7 +1,7 @@
-package io.github.shaksternano.borgar.core.graphics.drawable
+package com.shakster.borgar.core.graphics.drawable
 
-import io.github.shaksternano.borgar.core.graphics.Position
-import io.github.shaksternano.borgar.core.io.SuspendCloseable
+import com.shakster.borgar.core.graphics.Position
+import com.shakster.borgar.core.io.SuspendCloseable
 import java.awt.Graphics2D
 import kotlin.time.Duration
 

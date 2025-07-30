@@ -1,4 +1,4 @@
-package io.github.shaksternano.borgar.revolt.websocket
+package com.shakster.borgar.revolt.websocket
 
 enum class WebSocketMessageType(
     val apiName: String,

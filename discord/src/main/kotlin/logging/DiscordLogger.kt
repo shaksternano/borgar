@@ -1,8 +1,8 @@
-package io.github.shaksternano.borgar.discord.logging
+package com.shakster.borgar.discord.logging
 
+import com.shakster.borgar.core.baseLogger
+import com.shakster.borgar.core.logging.InterceptLogger
 import dev.minn.jda.ktx.generics.getChannel
-import io.github.shaksternano.borgar.core.baseLogger
-import io.github.shaksternano.borgar.core.logging.InterceptLogger
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel

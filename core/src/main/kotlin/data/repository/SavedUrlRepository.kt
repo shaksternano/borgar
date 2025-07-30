@@ -1,6 +1,6 @@
-package io.github.shaksternano.borgar.core.data.repository
+package com.shakster.borgar.core.data.repository
 
-import io.github.shaksternano.borgar.core.data.VarcharIdTable
+import com.shakster.borgar.core.data.VarcharIdTable
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 

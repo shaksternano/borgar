@@ -1,14 +1,14 @@
-package io.github.shaksternano.borgar.messaging.command
+package com.shakster.borgar.messaging.command
 
-import io.github.shaksternano.borgar.core.io.SuspendCloseable
-import io.github.shaksternano.borgar.core.util.ChannelEnvironment
-import io.github.shaksternano.borgar.core.util.Named
-import io.github.shaksternano.borgar.core.util.asSingletonList
-import io.github.shaksternano.borgar.core.util.startsWithVowel
-import io.github.shaksternano.borgar.messaging.entity.Message
-import io.github.shaksternano.borgar.messaging.entity.User
-import io.github.shaksternano.borgar.messaging.event.CommandEvent
-import io.github.shaksternano.borgar.messaging.exception.MissingArgumentException
+import com.shakster.borgar.core.io.SuspendCloseable
+import com.shakster.borgar.core.util.ChannelEnvironment
+import com.shakster.borgar.core.util.Named
+import com.shakster.borgar.core.util.asSingletonList
+import com.shakster.borgar.core.util.startsWithVowel
+import com.shakster.borgar.messaging.entity.Message
+import com.shakster.borgar.messaging.entity.User
+import com.shakster.borgar.messaging.event.CommandEvent
+import com.shakster.borgar.messaging.exception.MissingArgumentException
 import kotlinx.coroutines.flow.firstOrNull
 
 interface Command : Named {

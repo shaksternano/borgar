@@ -1,15 +1,15 @@
-package io.github.shaksternano.borgar.revolt.entity
+package com.shakster.borgar.revolt.entity
 
-import io.github.shaksternano.borgar.messaging.command.Permission
-import io.github.shaksternano.borgar.messaging.entity.BaseEntity
-import io.github.shaksternano.borgar.messaging.entity.Member
-import io.github.shaksternano.borgar.messaging.entity.User
-import io.github.shaksternano.borgar.messaging.entity.channel.Channel
-import io.github.shaksternano.borgar.revolt.RevoltManager
-import io.github.shaksternano.borgar.revolt.entity.channel.RevoltChannel
-import io.github.shaksternano.borgar.revolt.util.bitwiseAndEq
-import io.github.shaksternano.borgar.revolt.util.getPermissionsValue
-import io.github.shaksternano.borgar.revolt.util.toValues
+import com.shakster.borgar.messaging.command.Permission
+import com.shakster.borgar.messaging.entity.BaseEntity
+import com.shakster.borgar.messaging.entity.Member
+import com.shakster.borgar.messaging.entity.User
+import com.shakster.borgar.messaging.entity.channel.Channel
+import com.shakster.borgar.revolt.RevoltManager
+import com.shakster.borgar.revolt.entity.channel.RevoltChannel
+import com.shakster.borgar.revolt.util.bitwiseAndEq
+import com.shakster.borgar.revolt.util.getPermissionsValue
+import com.shakster.borgar.revolt.util.toValues
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.map

@@ -1,4 +1,4 @@
-package io.github.shaksternano.borgar.revolt.entity.channel
+package com.shakster.borgar.revolt.entity.channel
 
 enum class RevoltChannelType(
     val apiName: String,

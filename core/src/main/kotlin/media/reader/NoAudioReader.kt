@@ -1,8 +1,8 @@
-package io.github.shaksternano.borgar.core.media.reader
+package com.shakster.borgar.core.media.reader
 
-import io.github.shaksternano.borgar.core.io.DataSource
-import io.github.shaksternano.borgar.core.media.AudioFrame
-import io.github.shaksternano.borgar.core.media.AudioReaderFactory
+import com.shakster.borgar.core.io.DataSource
+import com.shakster.borgar.core.media.AudioFrame
+import com.shakster.borgar.core.media.AudioReaderFactory
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlin.time.Duration

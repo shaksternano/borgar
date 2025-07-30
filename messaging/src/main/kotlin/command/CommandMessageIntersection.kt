@@ -1,8 +1,8 @@
-package io.github.shaksternano.borgar.messaging.command
+package com.shakster.borgar.messaging.command
 
-import io.github.shaksternano.borgar.messaging.entity.*
-import io.github.shaksternano.borgar.messaging.entity.channel.Channel
-import io.github.shaksternano.borgar.messaging.entity.channel.MessageChannel
+import com.shakster.borgar.messaging.entity.*
+import com.shakster.borgar.messaging.entity.channel.Channel
+import com.shakster.borgar.messaging.entity.channel.MessageChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 

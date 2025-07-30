@@ -1,9 +1,9 @@
-package io.github.shaksternano.borgar.messaging.command
+package com.shakster.borgar.messaging.command
 
-import io.github.shaksternano.borgar.core.task.CaptionTask
-import io.github.shaksternano.borgar.core.task.FileTask
-import io.github.shaksternano.borgar.messaging.event.CommandEvent
-import io.github.shaksternano.borgar.messaging.util.getEmojiAndUrlDrawables
+import com.shakster.borgar.core.task.CaptionTask
+import com.shakster.borgar.core.task.FileTask
+import com.shakster.borgar.messaging.event.CommandEvent
+import com.shakster.borgar.messaging.util.getEmojiAndUrlDrawables
 
 sealed class CaptionCommand(
     override val name: String,

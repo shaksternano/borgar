@@ -1,7 +1,7 @@
-package io.github.shaksternano.borgar.discord.interaction.user
+package com.shakster.borgar.discord.interaction.user
 
+import com.shakster.borgar.discord.entity.getBannerUrl
 import dev.minn.jda.ktx.coroutines.await
-import io.github.shaksternano.borgar.discord.entity.getBannerUrl
 import net.dv8tion.jda.api.events.interaction.command.UserContextInteractionEvent
 
 object UserBannerInteractionCommand : DiscordUserInteractionCommand {

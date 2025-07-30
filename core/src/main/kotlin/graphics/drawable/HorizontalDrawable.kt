@@ -1,7 +1,7 @@
-package io.github.shaksternano.borgar.core.graphics.drawable
+package com.shakster.borgar.core.graphics.drawable
 
-import io.github.shaksternano.borgar.core.io.closeAll
-import io.github.shaksternano.borgar.core.util.kClass
+import com.shakster.borgar.core.io.closeAll
+import com.shakster.borgar.core.util.kClass
 import java.awt.Graphics2D
 import kotlin.math.max
 import kotlin.time.Duration

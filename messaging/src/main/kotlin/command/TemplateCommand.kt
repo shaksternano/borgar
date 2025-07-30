@@ -1,13 +1,13 @@
-package io.github.shaksternano.borgar.messaging.command
+package com.shakster.borgar.messaging.command
 
-import io.github.shaksternano.borgar.core.media.template.CustomTemplate
-import io.github.shaksternano.borgar.core.media.template.ResourceTemplate
-import io.github.shaksternano.borgar.core.media.template.Template
-import io.github.shaksternano.borgar.core.task.FileTask
-import io.github.shaksternano.borgar.core.task.TemplateTask
-import io.github.shaksternano.borgar.core.util.ChannelEnvironment
-import io.github.shaksternano.borgar.messaging.event.CommandEvent
-import io.github.shaksternano.borgar.messaging.util.getEmojiAndUrlDrawables
+import com.shakster.borgar.core.media.template.CustomTemplate
+import com.shakster.borgar.core.media.template.ResourceTemplate
+import com.shakster.borgar.core.media.template.Template
+import com.shakster.borgar.core.task.FileTask
+import com.shakster.borgar.core.task.TemplateTask
+import com.shakster.borgar.core.util.ChannelEnvironment
+import com.shakster.borgar.messaging.event.CommandEvent
+import com.shakster.borgar.messaging.util.getEmojiAndUrlDrawables
 
 class TemplateCommand(
     override val name: String,

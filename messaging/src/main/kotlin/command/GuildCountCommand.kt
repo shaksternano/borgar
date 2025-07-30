@@ -1,9 +1,9 @@
-package io.github.shaksternano.borgar.messaging.command
+package com.shakster.borgar.messaging.command
 
-import io.github.shaksternano.borgar.core.util.MessagingPlatform
-import io.github.shaksternano.borgar.core.util.asSingletonList
-import io.github.shaksternano.borgar.messaging.BOT_MANAGERS
-import io.github.shaksternano.borgar.messaging.event.CommandEvent
+import com.shakster.borgar.core.util.MessagingPlatform
+import com.shakster.borgar.core.util.asSingletonList
+import com.shakster.borgar.messaging.BOT_MANAGERS
+import com.shakster.borgar.messaging.event.CommandEvent
 
 private val MESSAGING_PLATFORM_TYPE: CommandArgumentType<MessagingPlatform> =
     CommandArgumentType.Enum<MessagingPlatform>("messaging platform")

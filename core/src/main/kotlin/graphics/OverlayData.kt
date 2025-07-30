@@ -1,4 +1,4 @@
-package io.github.shaksternano.borgar.core.graphics
+package com.shakster.borgar.core.graphics
 
 data class OverlayData(
     val overlaidWidth: Int,

@@ -1,9 +1,9 @@
-package io.github.shaksternano.borgar.messaging.command
+package com.shakster.borgar.messaging.command
 
-import io.github.shaksternano.borgar.core.exception.ErrorResponseException
-import io.github.shaksternano.borgar.core.task.FileTask
-import io.github.shaksternano.borgar.core.task.UrlFileTask
-import io.github.shaksternano.borgar.messaging.event.CommandEvent
+import com.shakster.borgar.core.exception.ErrorResponseException
+import com.shakster.borgar.core.task.FileTask
+import com.shakster.borgar.core.task.UrlFileTask
+import com.shakster.borgar.messaging.event.CommandEvent
 
 object UserBannerCommand : FileCommand(
     CommandArgumentInfo(

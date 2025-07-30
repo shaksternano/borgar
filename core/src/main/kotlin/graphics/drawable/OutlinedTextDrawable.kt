@@ -1,11 +1,11 @@
-package io.github.shaksternano.borgar.core.graphics.drawable
+package com.shakster.borgar.core.graphics.drawable
 
-import io.github.shaksternano.borgar.core.graphics.DEFAULT_FONT_NAME
-import io.github.shaksternano.borgar.core.graphics.bounds
-import io.github.shaksternano.borgar.core.graphics.configureTextDrawQuality
-import io.github.shaksternano.borgar.core.graphics.shape
-import io.github.shaksternano.borgar.core.util.hash
-import io.github.shaksternano.borgar.core.util.kClass
+import com.shakster.borgar.core.graphics.DEFAULT_FONT_NAME
+import com.shakster.borgar.core.graphics.bounds
+import com.shakster.borgar.core.graphics.configureTextDrawQuality
+import com.shakster.borgar.core.graphics.shape
+import com.shakster.borgar.core.util.hash
+import com.shakster.borgar.core.util.kClass
 import java.awt.BasicStroke
 import java.awt.Color
 import java.awt.Font

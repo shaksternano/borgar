@@ -1,4 +1,4 @@
-package io.github.shaksternano.borgar.core.io
+package com.shakster.borgar.core.io
 
 import kotlinx.io.EOFException
 import java.io.InputStream

@@ -1,13 +1,13 @@
-package io.github.shaksternano.borgar.revolt.entity
+package com.shakster.borgar.revolt.entity
 
-import io.github.shaksternano.borgar.core.logger
-import io.github.shaksternano.borgar.core.util.JSON
-import io.github.shaksternano.borgar.core.util.encodeUrl
-import io.github.shaksternano.borgar.messaging.builder.MessageEditBuilder
-import io.github.shaksternano.borgar.messaging.entity.*
-import io.github.shaksternano.borgar.messaging.entity.channel.Channel
-import io.github.shaksternano.borgar.revolt.RevoltManager
-import io.github.shaksternano.borgar.revolt.entity.channel.RevoltMessageChannel
+import com.shakster.borgar.core.logger
+import com.shakster.borgar.core.util.JSON
+import com.shakster.borgar.core.util.encodeUrl
+import com.shakster.borgar.messaging.builder.MessageEditBuilder
+import com.shakster.borgar.messaging.entity.*
+import com.shakster.borgar.messaging.entity.channel.Channel
+import com.shakster.borgar.revolt.RevoltManager
+import com.shakster.borgar.revolt.entity.channel.RevoltMessageChannel
 import io.ktor.http.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow

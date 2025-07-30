@@ -1,9 +1,9 @@
-package io.github.shaksternano.borgar.messaging.entity.channel
+package com.shakster.borgar.messaging.entity.channel
 
-import io.github.shaksternano.borgar.core.util.ChannelEnvironment
-import io.github.shaksternano.borgar.messaging.entity.Group
-import io.github.shaksternano.borgar.messaging.entity.Guild
-import io.github.shaksternano.borgar.messaging.entity.Mentionable
+import com.shakster.borgar.core.util.ChannelEnvironment
+import com.shakster.borgar.messaging.entity.Group
+import com.shakster.borgar.messaging.entity.Guild
+import com.shakster.borgar.messaging.entity.Mentionable
 
 interface Channel : Mentionable {
 

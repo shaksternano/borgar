@@ -1,10 +1,10 @@
-package io.github.shaksternano.borgar.core.data.repository
+package com.shakster.borgar.core.data.repository
 
-import io.github.shaksternano.borgar.core.graphics.ContentPosition
-import io.github.shaksternano.borgar.core.graphics.TextAlignment
-import io.github.shaksternano.borgar.core.io.deleteSilently
-import io.github.shaksternano.borgar.core.media.template.CustomTemplate
-import io.github.shaksternano.borgar.core.util.ChannelEnvironment
+import com.shakster.borgar.core.graphics.ContentPosition
+import com.shakster.borgar.core.graphics.TextAlignment
+import com.shakster.borgar.core.io.deleteSilently
+import com.shakster.borgar.core.media.template.CustomTemplate
+import com.shakster.borgar.core.util.ChannelEnvironment
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.javatime.timestampWithTimeZone

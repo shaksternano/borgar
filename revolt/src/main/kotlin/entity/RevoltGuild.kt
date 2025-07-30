@@ -1,13 +1,13 @@
-package io.github.shaksternano.borgar.revolt.entity
+package com.shakster.borgar.revolt.entity
 
-import io.github.shaksternano.borgar.core.util.encodeUrl
-import io.github.shaksternano.borgar.messaging.command.Command
-import io.github.shaksternano.borgar.messaging.entity.BaseEntity
-import io.github.shaksternano.borgar.messaging.entity.CustomEmoji
-import io.github.shaksternano.borgar.messaging.entity.Guild
-import io.github.shaksternano.borgar.messaging.entity.User
-import io.github.shaksternano.borgar.revolt.RevoltManager
-import io.github.shaksternano.borgar.revolt.util.RevoltPermissionValue
+import com.shakster.borgar.core.util.encodeUrl
+import com.shakster.borgar.messaging.command.Command
+import com.shakster.borgar.messaging.entity.BaseEntity
+import com.shakster.borgar.messaging.entity.CustomEmoji
+import com.shakster.borgar.messaging.entity.Guild
+import com.shakster.borgar.messaging.entity.User
+import com.shakster.borgar.revolt.RevoltManager
+import com.shakster.borgar.revolt.util.RevoltPermissionValue
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.SerialName

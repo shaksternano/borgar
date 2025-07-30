@@ -1,10 +1,10 @@
-package io.github.shaksternano.borgar.messaging.util
+package com.shakster.borgar.messaging.util
 
-import io.github.shaksternano.borgar.core.data.repository.BanRepository
-import io.github.shaksternano.borgar.core.data.repository.EntityType
-import io.github.shaksternano.borgar.core.logger
-import io.github.shaksternano.borgar.messaging.command.parseAndExecuteCommand
-import io.github.shaksternano.borgar.messaging.event.MessageReceiveEvent
+import com.shakster.borgar.core.data.repository.BanRepository
+import com.shakster.borgar.core.data.repository.EntityType
+import com.shakster.borgar.core.logger
+import com.shakster.borgar.messaging.command.parseAndExecuteCommand
+import com.shakster.borgar.messaging.event.MessageReceiveEvent
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 

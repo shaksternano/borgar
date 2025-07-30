@@ -1,10 +1,10 @@
-package io.github.shaksternano.borgar.discord.entity
+package com.shakster.borgar.discord.entity
 
+import com.shakster.borgar.discord.DiscordManager
+import com.shakster.borgar.messaging.BotManager
+import com.shakster.borgar.messaging.entity.BaseEntity
+import com.shakster.borgar.messaging.entity.Group
 import dev.minn.jda.ktx.coroutines.await
-import io.github.shaksternano.borgar.discord.DiscordManager
-import io.github.shaksternano.borgar.messaging.BotManager
-import io.github.shaksternano.borgar.messaging.entity.BaseEntity
-import io.github.shaksternano.borgar.messaging.entity.Group
 import net.dv8tion.jda.api.entities.channel.concrete.GroupChannel
 
 data class DiscordGroup(

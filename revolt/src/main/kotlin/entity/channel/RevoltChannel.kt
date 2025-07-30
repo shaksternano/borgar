@@ -1,11 +1,11 @@
-package io.github.shaksternano.borgar.revolt.entity.channel
+package com.shakster.borgar.revolt.entity.channel
 
-import io.github.shaksternano.borgar.core.util.ChannelEnvironment
-import io.github.shaksternano.borgar.messaging.entity.BaseEntity
-import io.github.shaksternano.borgar.messaging.entity.channel.Channel
-import io.github.shaksternano.borgar.revolt.RevoltManager
-import io.github.shaksternano.borgar.revolt.entity.*
-import io.github.shaksternano.borgar.revolt.util.RevoltPermissionValue
+import com.shakster.borgar.core.util.ChannelEnvironment
+import com.shakster.borgar.messaging.entity.BaseEntity
+import com.shakster.borgar.messaging.entity.channel.Channel
+import com.shakster.borgar.revolt.RevoltManager
+import com.shakster.borgar.revolt.entity.*
+import com.shakster.borgar.revolt.util.RevoltPermissionValue
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

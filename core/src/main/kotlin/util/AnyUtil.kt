@@ -1,4 +1,4 @@
-package io.github.shaksternano.borgar.core.util
+package com.shakster.borgar.core.util
 
 import java.text.DecimalFormat
 import kotlin.reflect.KClass

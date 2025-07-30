@@ -1,10 +1,10 @@
-package io.github.shaksternano.borgar.core.media
+package com.shakster.borgar.core.media
 
-import io.github.shaksternano.borgar.core.collect.putAllKeys
-import io.github.shaksternano.borgar.core.exception.UnreadableFileException
-import io.github.shaksternano.borgar.core.io.DataSource
-import io.github.shaksternano.borgar.core.io.fileFormat
-import io.github.shaksternano.borgar.core.media.reader.*
+import com.shakster.borgar.core.collect.putAllKeys
+import com.shakster.borgar.core.exception.UnreadableFileException
+import com.shakster.borgar.core.io.DataSource
+import com.shakster.borgar.core.io.fileFormat
+import com.shakster.borgar.core.media.reader.*
 
 private val imageReaderFactories: MutableMap<String, ImageReaderFactory> = mutableMapOf()
 

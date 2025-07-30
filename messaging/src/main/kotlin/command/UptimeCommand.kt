@@ -1,7 +1,7 @@
-package io.github.shaksternano.borgar.messaging.command
+package com.shakster.borgar.messaging.command
 
-import io.github.shaksternano.borgar.core.START_TIME
-import io.github.shaksternano.borgar.messaging.event.CommandEvent
+import com.shakster.borgar.core.START_TIME
+import com.shakster.borgar.messaging.event.CommandEvent
 import kotlin.time.TimeSource
 
 object UptimeCommand : NonChainableCommand() {

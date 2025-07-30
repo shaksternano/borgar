@@ -1,10 +1,10 @@
-package io.github.shaksternano.borgar.core.task
+package com.shakster.borgar.core.task
 
-import io.github.shaksternano.borgar.core.exception.ErrorResponseException
-import io.github.shaksternano.borgar.core.io.DataSource
-import io.github.shaksternano.borgar.core.io.httpGet
-import io.github.shaksternano.borgar.core.util.asSingletonList
-import io.github.shaksternano.borgar.core.util.parseTags
+import com.shakster.borgar.core.exception.ErrorResponseException
+import com.shakster.borgar.core.io.DataSource
+import com.shakster.borgar.core.io.httpGet
+import com.shakster.borgar.core.util.asSingletonList
+import com.shakster.borgar.core.util.parseTags
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlin.math.ceil

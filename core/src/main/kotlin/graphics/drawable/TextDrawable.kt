@@ -1,4 +1,4 @@
-package io.github.shaksternano.borgar.core.graphics.drawable
+package com.shakster.borgar.core.graphics.drawable
 
 interface TextDrawable : Drawable {
 

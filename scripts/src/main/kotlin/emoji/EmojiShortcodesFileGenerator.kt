@@ -1,9 +1,9 @@
-package io.github.shaksternano.borgar.scripts.emoji
+package com.shakster.borgar.scripts.emoji
 
-import io.github.shaksternano.borgar.core.emoji.EMOJI_FILES_DIRECTORY
-import io.github.shaksternano.borgar.core.io.get
-import io.github.shaksternano.borgar.core.io.useHttpClient
-import io.github.shaksternano.borgar.core.util.prettyPrintJson
+import com.shakster.borgar.core.emoji.EMOJI_FILES_DIRECTORY
+import com.shakster.borgar.core.io.get
+import com.shakster.borgar.core.io.useHttpClient
+import com.shakster.borgar.core.util.prettyPrintJson
 import io.ktor.client.statement.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

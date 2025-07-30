@@ -1,11 +1,11 @@
-package io.github.shaksternano.borgar.core.media.reader
+package com.shakster.borgar.core.media.reader
 
-import io.github.shaksternano.borgar.core.collect.forEachNotNull
-import io.github.shaksternano.borgar.core.io.DataSource
-import io.github.shaksternano.borgar.core.io.IO_DISPATCHER
-import io.github.shaksternano.borgar.core.media.AudioFrame
-import io.github.shaksternano.borgar.core.media.AudioReaderFactory
-import io.github.shaksternano.borgar.core.media.frameAtTime
+import com.shakster.borgar.core.collect.forEachNotNull
+import com.shakster.borgar.core.io.DataSource
+import com.shakster.borgar.core.io.IO_DISPATCHER
+import com.shakster.borgar.core.media.AudioFrame
+import com.shakster.borgar.core.media.AudioReaderFactory
+import com.shakster.borgar.core.media.frameAtTime
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext

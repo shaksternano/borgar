@@ -1,8 +1,8 @@
-package io.github.shaksternano.borgar.core.graphics.drawable
+package com.shakster.borgar.core.graphics.drawable
 
-import io.github.shaksternano.borgar.core.graphics.TextAlignment
-import io.github.shaksternano.borgar.core.io.closeAll
-import io.github.shaksternano.borgar.core.util.*
+import com.shakster.borgar.core.graphics.TextAlignment
+import com.shakster.borgar.core.io.closeAll
+import com.shakster.borgar.core.util.*
 import java.awt.Graphics2D
 import kotlin.math.max
 import kotlin.math.min

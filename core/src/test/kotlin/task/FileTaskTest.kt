@@ -1,8 +1,8 @@
 @file:Suppress("PackageDirectoryMismatch")
 
-package io.github.shaksternano.borgar.core.task
+package com.shakster.borgar.core.task
 
-import io.github.shaksternano.borgar.core.io.DataSource
+import com.shakster.borgar.core.io.DataSource
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.Test

@@ -1,10 +1,10 @@
-package io.github.shaksternano.borgar.discord.interaction.modal
+package com.shakster.borgar.discord.interaction.modal
 
+import com.shakster.borgar.core.logger
+import com.shakster.borgar.discord.command.handleBanned
+import com.shakster.borgar.discord.interaction.handleInteractionCommand
+import com.shakster.borgar.messaging.command.registerCommands
 import dev.minn.jda.ktx.coroutines.await
-import io.github.shaksternano.borgar.core.logger
-import io.github.shaksternano.borgar.discord.command.handleBanned
-import io.github.shaksternano.borgar.discord.interaction.handleInteractionCommand
-import io.github.shaksternano.borgar.messaging.command.registerCommands
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent
 
 val MODAL_INTERACTION_COMMANDS: Map<String, DiscordModalInteractionCommand> = registerCommands(

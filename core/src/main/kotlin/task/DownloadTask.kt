@@ -1,14 +1,14 @@
-package io.github.shaksternano.borgar.core.task
+package com.shakster.borgar.core.task
 
-import io.github.shaksternano.borgar.core.BotConfig
-import io.github.shaksternano.borgar.core.exception.ErrorResponseException
-import io.github.shaksternano.borgar.core.exception.FileTooLargeException
-import io.github.shaksternano.borgar.core.io.*
-import io.github.shaksternano.borgar.core.io.head
-import io.github.shaksternano.borgar.core.io.post
-import io.github.shaksternano.borgar.core.util.JSON
-import io.github.shaksternano.borgar.core.util.asSingletonList
-import io.github.shaksternano.borgar.core.util.prettyPrintJsonCatching
+import com.shakster.borgar.core.BotConfig
+import com.shakster.borgar.core.exception.ErrorResponseException
+import com.shakster.borgar.core.exception.FileTooLargeException
+import com.shakster.borgar.core.io.*
+import com.shakster.borgar.core.io.head
+import com.shakster.borgar.core.io.post
+import com.shakster.borgar.core.util.JSON
+import com.shakster.borgar.core.util.asSingletonList
+import com.shakster.borgar.core.util.prettyPrintJsonCatching
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*

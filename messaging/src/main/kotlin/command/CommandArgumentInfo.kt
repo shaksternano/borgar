@@ -1,6 +1,6 @@
-package io.github.shaksternano.borgar.messaging.command
+package com.shakster.borgar.messaging.command
 
-import io.github.shaksternano.borgar.core.util.kClass
+import com.shakster.borgar.core.util.kClass
 
 data class CommandArgumentInfo<T>(
     val key: String,

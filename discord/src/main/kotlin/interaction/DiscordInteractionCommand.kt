@@ -1,6 +1,6 @@
-package io.github.shaksternano.borgar.discord.interaction
+package com.shakster.borgar.discord.interaction
 
-import io.github.shaksternano.borgar.core.util.Named
+import com.shakster.borgar.core.util.Named
 import net.dv8tion.jda.api.interactions.InteractionContextType
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback
 

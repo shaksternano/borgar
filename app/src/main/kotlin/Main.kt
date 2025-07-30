@@ -1,12 +1,12 @@
-package io.github.shaksternano.borgar.app
+package com.shakster.borgar.app
 
-import io.github.shaksternano.borgar.core.BotConfig
-import io.github.shaksternano.borgar.core.START_TIME
-import io.github.shaksternano.borgar.core.initCore
-import io.github.shaksternano.borgar.core.logger
-import io.github.shaksternano.borgar.discord.initDiscord
-import io.github.shaksternano.borgar.messaging.initMessaging
-import io.github.shaksternano.borgar.revolt.initRevolt
+import com.shakster.borgar.core.BotConfig
+import com.shakster.borgar.core.START_TIME
+import com.shakster.borgar.core.initCore
+import com.shakster.borgar.core.logger
+import com.shakster.borgar.discord.initDiscord
+import com.shakster.borgar.messaging.initMessaging
+import com.shakster.borgar.revolt.initRevolt
 import kotlin.time.DurationUnit
 import kotlin.time.TimeSource
 

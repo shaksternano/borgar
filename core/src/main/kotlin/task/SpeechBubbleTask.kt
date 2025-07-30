@@ -1,10 +1,10 @@
-package io.github.shaksternano.borgar.core.task
+package com.shakster.borgar.core.task
 
-import io.github.shaksternano.borgar.core.exception.ErrorResponseException
-import io.github.shaksternano.borgar.core.graphics.OverlayData
-import io.github.shaksternano.borgar.core.io.DataSource
-import io.github.shaksternano.borgar.core.media.*
-import io.github.shaksternano.borgar.core.media.reader.firstContent
+import com.shakster.borgar.core.exception.ErrorResponseException
+import com.shakster.borgar.core.graphics.OverlayData
+import com.shakster.borgar.core.io.DataSource
+import com.shakster.borgar.core.media.*
+import com.shakster.borgar.core.media.reader.firstContent
 import kotlinx.coroutines.flow.Flow
 import java.awt.Color
 import java.awt.image.BufferedImage

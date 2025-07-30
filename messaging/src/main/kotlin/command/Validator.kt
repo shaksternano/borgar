@@ -1,6 +1,6 @@
-package io.github.shaksternano.borgar.messaging.command
+package com.shakster.borgar.messaging.command
 
-import io.github.shaksternano.borgar.core.util.formatted
+import com.shakster.borgar.core.util.formatted
 
 interface Validator<T> {
 

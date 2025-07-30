@@ -1,10 +1,10 @@
-package io.github.shaksternano.borgar.messaging
+package com.shakster.borgar.messaging
 
-import io.github.shaksternano.borgar.messaging.command.CommandConfig
-import io.github.shaksternano.borgar.messaging.command.DerpibooruCommand
-import io.github.shaksternano.borgar.messaging.command.executeCommands
-import io.github.shaksternano.borgar.messaging.command.sendResponses
-import io.github.shaksternano.borgar.messaging.event.CommandEvent
+import com.shakster.borgar.messaging.command.CommandConfig
+import com.shakster.borgar.messaging.command.DerpibooruCommand
+import com.shakster.borgar.messaging.command.executeCommands
+import com.shakster.borgar.messaging.command.sendResponses
+import com.shakster.borgar.messaging.event.CommandEvent
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 

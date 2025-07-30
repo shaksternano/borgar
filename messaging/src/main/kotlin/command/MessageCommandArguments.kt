@@ -1,8 +1,8 @@
-package io.github.shaksternano.borgar.messaging.command
+package com.shakster.borgar.messaging.command
 
-import io.github.shaksternano.borgar.core.util.hash
-import io.github.shaksternano.borgar.core.util.kClass
-import io.github.shaksternano.borgar.messaging.entity.Message
+import com.shakster.borgar.core.util.hash
+import com.shakster.borgar.core.util.kClass
+import com.shakster.borgar.messaging.entity.Message
 
 class MessageCommandArguments(
     arguments: Map<String, String>,

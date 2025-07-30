@@ -1,9 +1,9 @@
-package io.github.shaksternano.borgar.messaging.entity
+package com.shakster.borgar.messaging.entity
 
-import io.github.shaksternano.borgar.core.io.DataSource
-import io.github.shaksternano.borgar.core.io.DataSourceConvertable
-import io.github.shaksternano.borgar.core.io.UrlDataSource
-import io.github.shaksternano.borgar.messaging.BotManager
+import com.shakster.borgar.core.io.DataSource
+import com.shakster.borgar.core.io.DataSourceConvertable
+import com.shakster.borgar.core.io.UrlDataSource
+import com.shakster.borgar.messaging.BotManager
 
 data class Attachment(
     override val id: String,

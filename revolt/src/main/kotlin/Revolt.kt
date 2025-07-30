@@ -1,6 +1,6 @@
-package io.github.shaksternano.borgar.revolt
+package com.shakster.borgar.revolt
 
-import io.github.shaksternano.borgar.messaging.registerBotManager
+import com.shakster.borgar.messaging.registerBotManager
 
 suspend fun initRevolt(token: String) {
     val manager = RevoltManager(token)
