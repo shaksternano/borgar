@@ -22,7 +22,7 @@ jobs:
                 run: docker compose up -d
 
             -   name: Run tests
-                run: ./gradlew cleanTest test --refresh-dependencies --stacktrace
+                run: ./gradlew cleanTest test --stacktrace
 
             -   name: Put all test reports into one directory
                 run: |
