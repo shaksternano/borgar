@@ -2,8 +2,6 @@ package com.shakster.borgar.core.media.writer
 
 import com.shakster.borgar.core.BotConfig
 import com.shakster.borgar.core.io.IO_DISPATCHER
-import com.shakster.borgar.core.io.SuspendCloseable
-import com.shakster.borgar.core.io.closeAll
 import com.shakster.borgar.core.media.AudioFrame
 import com.shakster.borgar.core.media.ImageFrame
 import com.shakster.borgar.core.media.MediaWriterFactory
@@ -28,12 +26,11 @@ class FFmpegVideoWriter(
     private val maxDuration: Duration,
 ) : MediaWriter {
 
-    private lateinit var recorder: FFmpegFrameRecorder
-    private val converter: Java2DFrameConverter = Java2DFrameConverter()
-    private var closed: Boolean = false
-
     override val isStatic: Boolean = false
     override val supportsAudio: Boolean = true
+
+    private lateinit var recorder: FFmpegFrameRecorder
+    private var closed: Boolean = false
 
     override suspend fun writeImageFrame(frame: ImageFrame) {
         val image = frame.content
@@ -55,8 +52,13 @@ class FFmpegVideoWriter(
                 recorder.start()
             }
         }
-        val converted = converter.convert(image)
-        recorder.record(converted)
+        Java2DFrameConverter().use { converter ->
+            converter.convert(image).use { converted ->
+                withContext(IO_DISPATCHER) {
+                    recorder.record(converted)
+                }
+            }
+        }
     }
 
     override suspend fun writeAudioFrame(frame: AudioFrame) {
@@ -74,14 +76,11 @@ class FFmpegVideoWriter(
     override suspend fun close() {
         if (closed) return
         closed = true
-        closeAll(
-            SuspendCloseable.fromBlocking {
-                if (::recorder.isInitialized) {
-                    recorder.close()
-                }
-            },
-            SuspendCloseable(converter),
-        )
+        if (::recorder.isInitialized) {
+            withContext(IO_DISPATCHER) {
+                recorder.close()
+            }
+        }
     }
 
     private fun createFFmpegRecorder(
