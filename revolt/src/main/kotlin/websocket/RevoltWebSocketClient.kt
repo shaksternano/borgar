@@ -15,8 +15,6 @@ import io.ktor.client.plugins.websocket.*
 import io.ktor.http.*
 import io.ktor.util.network.*
 import io.ktor.websocket.*
-import kotlinx.atomicfu.AtomicInt
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -26,6 +24,10 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import java.util.concurrent.Executors
+import kotlin.concurrent.atomics.AtomicInt
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
+import kotlin.concurrent.atomics.decrementAndFetch
+import kotlin.concurrent.atomics.incrementAndFetch
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -35,14 +37,15 @@ import kotlin.time.Duration.Companion.seconds
 private const val PING_JSON: String = "{\"type\":\"Ping\",\"data\":0}"
 private val PING_INTERVAL: Duration = 10.seconds
 
+@OptIn(ExperimentalAtomicApi::class)
 class RevoltWebSocketClient(
     private val token: String,
     private val manager: RevoltManager,
 ) {
 
-    private val guildCountAtomic: AtomicInt = atomic(0)
+    private val guildCountAtomic: AtomicInt = AtomicInt(0)
     val guildCount: Int
-        get() = guildCountAtomic.value
+        get() = guildCountAtomic.load()
     private var session: DefaultClientWebSocketSession? = null
     private val messageHandlers: MutableMap<String, MutableList<WebSocketMessageHandler>> = mutableMapOf()
     private var ready: Boolean = false
@@ -155,7 +158,7 @@ class RevoltWebSocketClient(
             val groupCount = body.channels.count { response ->
                 response.type == RevoltChannelType.GROUP.apiName
             }
-            guildCountAtomic.value = guildCount + groupCount
+            guildCountAtomic.store(guildCount + groupCount)
         }
         handle(WebSocketMessageType.NOT_FOUND) {
             logger.error("Invalid Revolt token")
@@ -164,27 +167,27 @@ class RevoltWebSocketClient(
             handleMessage(it)
         }
         handle(WebSocketMessageType.SERVER_CREATE) {
-            guildCountAtomic.incrementAndGet()
+            guildCountAtomic.incrementAndFetch()
         }
         handle(WebSocketMessageType.SERVER_DELETE) {
-            guildCountAtomic.decrementAndGet()
+            guildCountAtomic.decrementAndFetch()
         }
         handle(WebSocketMessageType.SERVER_MEMBER_LEAVE) {
             val userId = it["user"] as? JsonPrimitive
             if (userId?.content == manager.selfId) {
-                guildCountAtomic.decrementAndGet()
+                guildCountAtomic.decrementAndFetch()
             }
         }
         handle(WebSocketMessageType.CHANNEL_CREATE) {
             val channelType = it["channel_type"] as? JsonPrimitive
             if (channelType?.content == "Group") {
-                guildCountAtomic.incrementAndGet()
+                guildCountAtomic.incrementAndFetch()
             }
         }
         handle(WebSocketMessageType.CHANNEL_GROUP_LEAVE) {
             val userId = it["user"] as? JsonPrimitive
             if (userId?.content == manager.selfId) {
-                guildCountAtomic.decrementAndGet()
+                guildCountAtomic.decrementAndFetch()
             }
         }
     }

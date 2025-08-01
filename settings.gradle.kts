@@ -12,9 +12,7 @@ pluginManagement {
     resolutionStrategy {
         eachPlugin {
             val pluginId = requested.id.id
-            if (pluginId == "org.jetbrains.kotlinx.atomicfu") {
-                applyPluginVersion("kotlinxAtomicFuVersion")
-            } else if (pluginId.startsWith("org.jetbrains.kotlin")) {
+            if (pluginId.startsWith("org.jetbrains.kotlin")) {
                 applyPluginVersion("kotlinVersion")
             }
         }

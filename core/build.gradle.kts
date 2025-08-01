@@ -1,7 +1,6 @@
 val kotlinxCoroutinesVersion: String by project
 val kotlinxSerializationVersion: String by project
 val kotlinxIoVersion: String by project
-val kotlinxAtomicFuVersion: String by project
 val ktorVersion: String by project
 val logbackVersion: String by project
 val guavaVersion: String by project
@@ -25,7 +24,6 @@ dependencies {
     api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion")
     api("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion")
     api("org.jetbrains.kotlinx:kotlinx-io-core:$kotlinxIoVersion")
-    api("org.jetbrains.kotlinx:atomicfu:$kotlinxAtomicFuVersion")
 
     api("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
