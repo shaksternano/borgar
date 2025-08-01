@@ -14,6 +14,7 @@ import org.bytedeco.javacv.Java2DFrameConverter
 import java.awt.image.BufferedImage
 import java.nio.file.Path
 import kotlin.time.Duration
+import kotlin.time.DurationUnit
 
 private const val MAX_AUDIO_FRAME_RATE: Int = 1000
 
@@ -37,7 +38,7 @@ class FFmpegVideoWriter(
     override suspend fun writeImageFrame(frame: ImageFrame) {
         val image = frame.content
         if (!::recorder.isInitialized) {
-            val fps = 1000000.0 / frame.duration.inWholeMicroseconds
+            val fps = 1000000 / frame.duration.toDouble(DurationUnit.MICROSECONDS)
             recorder = createFFmpegRecorder(
                 output,
                 outputFormat,
