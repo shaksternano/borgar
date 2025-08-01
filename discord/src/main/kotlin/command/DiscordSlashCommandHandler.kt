@@ -1,5 +1,6 @@
 package com.shakster.borgar.discord.command
 
+import com.shakster.borgar.core.BotConfig
 import com.shakster.borgar.core.data.repository.TemplateRepository
 import com.shakster.borgar.core.logger
 import com.shakster.borgar.core.util.asSingletonList
@@ -73,9 +74,10 @@ private suspend fun executeSlashCommand(
             .await()
         return
     }
+    val commandPrefix = BotConfig.get().commandPrefix
     val afterCommands = arguments.getStringOrEmpty(AFTER_COMMANDS_ARGUMENT).let {
         if (it.isBlank()) it
-        else if (!it.startsWith(COMMAND_PREFIX)) "$COMMAND_PREFIX$it"
+        else if (!it.startsWith(commandPrefix)) "$commandPrefix$it"
         else it
     }
     val slashCommandConfig = CommandConfig(command, arguments).asSingletonList()
@@ -83,7 +85,7 @@ private suspend fun executeSlashCommand(
         try {
             slashCommandConfig + getAfterCommandConfigs(afterCommands, commandEvent, slashEvent)
         } catch (e: CommandNotFoundException) {
-            slashEvent.reply("The command **$COMMAND_PREFIX${e.command}** does not exist!")
+            slashEvent.reply("The command **$commandPrefix${e.command}** does not exist!")
                 .setEphemeral(true)
                 .await()
             return

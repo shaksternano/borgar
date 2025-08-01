@@ -2,6 +2,7 @@ package com.shakster.borgar.messaging.command
 
 import com.google.common.cache.Cache
 import com.google.common.cache.CacheBuilder
+import com.shakster.borgar.core.BotConfig
 import com.shakster.borgar.core.collect.getOrPut
 import com.shakster.borgar.core.data.repository.TemplateRepository
 import com.shakster.borgar.core.logger
@@ -37,8 +38,9 @@ object HelpCommand : NonChainableCommand() {
         event: CommandEvent
     ): List<CommandResponse> {
         val entityId = event.getEntityId()
+        val commandPrefix = BotConfig.get().commandPrefix
         val commandName = arguments.getDefaultStringOrEmpty()
-            .removePrefix(COMMAND_PREFIX)
+            .removePrefix(commandPrefix)
         return if (commandName.isBlank()) {
             val environment = event.getEnvironment()
             getHelpMessages(
@@ -123,8 +125,9 @@ object HelpCommand : NonChainableCommand() {
             logger.error("Failed to read templates", t)
             emptyList()
         }
+        val commandPrefix = BotConfig.get().commandPrefix
         templates.forEach {
-            add(CommandInfo(COMMAND_PREFIX + it.commandName, it.description))
+            add(CommandInfo(commandPrefix + it.commandName, it.description))
         }
     }
 

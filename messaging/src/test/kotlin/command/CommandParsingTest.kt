@@ -2,14 +2,24 @@
 
 package com.shakster.borgar.messaging.command
 
+import com.shakster.borgar.core.BotConfig
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class CommandParsingTest {
 
+    private inline val commandPrefix: String
+        get() = BotConfig.get().commandPrefix
+
+    @BeforeTest
+    fun before() {
+        BotConfig.set(BotConfig())
+    }
+
     @Test
     fun canParseCommandString() {
-        val command = "${COMMAND_PREFIX}caption"
+        val command = "${commandPrefix}caption"
         val commandStrings = parseCommandStrings(command)
         assertEquals(1, commandStrings.size)
         assertEquals(command, commandStrings[0])
@@ -17,7 +27,7 @@ class CommandParsingTest {
 
     @Test
     fun canParseCommandStringWithArguments() {
-        val command = "${COMMAND_PREFIX}caption Test"
+        val command = "${commandPrefix}caption Test"
         val commandStrings = parseCommandStrings(command)
         assertEquals(1, commandStrings.size)
         assertEquals(command, commandStrings[0])
@@ -25,7 +35,7 @@ class CommandParsingTest {
 
     @Test
     fun canParseCommandStringWithArgumentsAndCommandPrefix() {
-        val command = "${COMMAND_PREFIX}caption Test$COMMAND_PREFIX"
+        val command = "${commandPrefix}caption Test$commandPrefix"
         val commandStrings = parseCommandStrings(command)
         assertEquals(1, commandStrings.size)
         assertEquals(command, commandStrings[0])
@@ -33,9 +43,9 @@ class CommandParsingTest {
 
     @Test
     fun canParseMultipleCommandStrings() {
-        val command1 = "${COMMAND_PREFIX}caption"
-        val command2 = "${COMMAND_PREFIX}spin"
-        val command3 = "${COMMAND_PREFIX}gif"
+        val command1 = "${commandPrefix}caption"
+        val command2 = "${commandPrefix}spin"
+        val command3 = "${commandPrefix}gif"
         val chained = "$command1 $command2 $command3"
         val commandStrings = parseCommandStrings(chained)
         assertEquals(3, commandStrings.size)
@@ -46,9 +56,9 @@ class CommandParsingTest {
 
     @Test
     fun canParseMultipleCommandStringsWithArguments() {
-        val command1 = "${COMMAND_PREFIX}caption Test"
-        val command2 = "${COMMAND_PREFIX}spin 2"
-        val command3 = "${COMMAND_PREFIX}gif"
+        val command1 = "${commandPrefix}caption Test"
+        val command2 = "${commandPrefix}spin 2"
+        val command3 = "${commandPrefix}gif"
         val chained = "$command1 $command2 $command3"
         val commandStrings = parseCommandStrings(chained)
         assertEquals(3, commandStrings.size)
@@ -59,9 +69,9 @@ class CommandParsingTest {
 
     @Test
     fun canParseMultipleCommandStringsWithLargeSpaces() {
-        val command1 = "${COMMAND_PREFIX}caption Test   Test2"
-        val command2 = "${COMMAND_PREFIX}spin 2"
-        val command3 = "${COMMAND_PREFIX}gif"
+        val command1 = "${commandPrefix}caption Test   Test2"
+        val command2 = "${commandPrefix}spin 2"
+        val command3 = "${commandPrefix}gif"
         val chained = "$command1   $command2   $command3"
         val commandStrings = parseCommandStrings(chained)
         assertEquals(3, commandStrings.size)
@@ -72,7 +82,7 @@ class CommandParsingTest {
 
     @Test
     fun canParseCommandStringWithEntityId() {
-        val command = "${COMMAND_PREFIX}caption:964550080000565379"
+        val command = "${commandPrefix}caption:964550080000565379"
         val commandStrings = parseCommandStrings(command)
         assertEquals(1, commandStrings.size)
         assertEquals(command, commandStrings[0])
@@ -80,14 +90,14 @@ class CommandParsingTest {
 
     @Test
     fun onlyPrefixIsNotValid() {
-        val command = COMMAND_PREFIX
+        val command = commandPrefix
         val commandStrings = parseCommandStrings(command)
         assertEquals(0, commandStrings.size)
     }
 
     @Test
     fun noPrefixStartIsNotValid() {
-        val command = "a${COMMAND_PREFIX}caption"
+        val command = "a${commandPrefix}caption"
         val commandStrings = parseCommandStrings(command)
         assertEquals(0, commandStrings.size)
     }
@@ -101,7 +111,7 @@ class CommandParsingTest {
         val argumentName2 = "named2"
         val argumentValue2 = "Test3"
         val command =
-            "$COMMAND_PREFIX$commandName $arguments $ARGUMENT_PREFIX$argumentName1 $argumentValue1 $ARGUMENT_PREFIX$argumentName2 $argumentValue2"
+            "$commandPrefix$commandName $arguments $ARGUMENT_PREFIX$argumentName1 $argumentValue1 $ARGUMENT_PREFIX$argumentName2 $argumentValue2"
         val rawCommands = parseRawCommands(command)
         assertEquals(1, rawCommands.size)
         val rawCommand = rawCommands.first()
@@ -121,16 +131,16 @@ class CommandParsingTest {
         val argument1Name2 = "named2"
         val argument1Value2 = "Test3"
         val command1 =
-            "$COMMAND_PREFIX$command1Name $arguments1 $ARGUMENT_PREFIX$argument1Name1 $argument1Value1 $ARGUMENT_PREFIX$argument1Name2 $argument1Value2"
+            "$commandPrefix$command1Name $arguments1 $ARGUMENT_PREFIX$argument1Name1 $argument1Value1 $ARGUMENT_PREFIX$argument1Name2 $argument1Value2"
 
         val command2Name = "spin"
         val arguments2 = "2"
-        val command2 = "$COMMAND_PREFIX$command2Name $arguments2"
+        val command2 = "$commandPrefix$command2Name $arguments2"
 
         val command3Name = "gif"
         val argument3Name = "named"
         val argument3Value = "Test"
-        val command3 = "$COMMAND_PREFIX$command3Name $ARGUMENT_PREFIX$argument3Name $argument3Value"
+        val command3 = "$commandPrefix$command3Name $ARGUMENT_PREFIX$argument3Name $argument3Value"
 
         val chained = "$command1 $command2 $command3"
         val rawCommands = parseRawCommands(chained)

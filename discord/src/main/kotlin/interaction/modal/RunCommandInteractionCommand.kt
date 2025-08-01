@@ -1,11 +1,11 @@
 package com.shakster.borgar.discord.interaction.modal
 
+import com.shakster.borgar.core.BotConfig
 import com.shakster.borgar.core.logger
 import com.shakster.borgar.core.util.MessagingPlatform
 import com.shakster.borgar.discord.entity.DiscordUser
 import com.shakster.borgar.discord.entity.channel.DiscordMessageChannel
 import com.shakster.borgar.discord.event.DiscordInteractionCommandEvent
-import com.shakster.borgar.messaging.command.COMMAND_PREFIX
 import com.shakster.borgar.messaging.command.CommandNotFoundException
 import com.shakster.borgar.messaging.command.isCorrectEnvironment
 import com.shakster.borgar.messaging.command.parseCommands
@@ -21,14 +21,15 @@ object RunCommandInteractionCommand : DiscordModalInteractionCommand {
     const val TEXT_INPUT_ID: String = "command"
 
     override suspend fun respond(event: ModalInteractionEvent): Any? {
+        val commandPrefix = BotConfig.get().commandPrefix
         val content = event.getValue(TEXT_INPUT_ID)
             ?.asString
             ?.trim()
             ?.let {
-                if (it.startsWith(COMMAND_PREFIX)) {
+                if (it.startsWith(commandPrefix)) {
                     it
                 } else {
-                    "$COMMAND_PREFIX$it"
+                    "$commandPrefix$it"
                 }
             }
             ?: run {
@@ -51,7 +52,7 @@ object RunCommandInteractionCommand : DiscordModalInteractionCommand {
             val commandConfigs = try {
                 parseCommands(content, message, event.user.id)
             } catch (e: CommandNotFoundException) {
-                event.reply("The command **$COMMAND_PREFIX${e.command}** does not exist!")
+                event.reply("The command **$commandPrefix${e.command}** does not exist!")
                     .setEphemeral(true)
                     .await()
                 return null
@@ -67,7 +68,7 @@ object RunCommandInteractionCommand : DiscordModalInteractionCommand {
             val environment = channel.environment
             val firstCommand = commandConfigs.first().command
             if (!firstCommand.isCorrectEnvironment(environment)) {
-                event.reply("The command **$COMMAND_PREFIX${firstCommand.name}** cannot be used in a ${environment.displayName.lowercase()} channel!")
+                event.reply("The command **$commandPrefix${firstCommand.name}** cannot be used in a ${environment.displayName.lowercase()} channel!")
                     .setEphemeral(true)
                     .await()
                 return null

@@ -1,5 +1,6 @@
 package com.shakster.borgar.messaging.command
 
+import com.shakster.borgar.core.BotConfig
 import com.shakster.borgar.core.collect.parallelForEach
 import com.shakster.borgar.core.data.repository.TemplateRepository
 import com.shakster.borgar.core.exception.ErrorResponseException
@@ -31,14 +32,15 @@ import kotlinx.coroutines.launch
 
 suspend fun parseAndExecuteCommand(event: MessageReceiveEvent) {
     val content = event.message.content.trim()
-    if (!content.startsWith(COMMAND_PREFIX)) return
+    val commandPrefix = BotConfig.get().commandPrefix
+    if (!content.startsWith(commandPrefix)) return
     handleBanned(event, "command") {
         return
     }
     val commandConfigs = try {
         parseCommands(content, event.message, event.authorId)
     } catch (e: CommandNotFoundException) {
-        event.reply("The command **$COMMAND_PREFIX${e.command}** does not exist!")
+        event.reply("The command **$commandPrefix${e.command}** does not exist!")
         return
     }
     if (commandConfigs.isEmpty()) return
@@ -307,9 +309,10 @@ suspend fun parseCommands(
 }
 
 internal fun parseRawCommands(message: String): List<RawCommandConfig> {
+    val commandPrefix = BotConfig.get().commandPrefix
     return parseCommandStrings(message).map { commandString ->
-        val commandEndIndex = commandString.endOfWord(COMMAND_PREFIX.length)
-        val command = commandString.substring(COMMAND_PREFIX.length, commandEndIndex).lowercase()
+        val commandEndIndex = commandString.endOfWord(commandPrefix.length)
+        val command = commandString.substring(commandPrefix.length, commandEndIndex).lowercase()
         val argumentPrefixIndexes = commandString.indicesOfPrefix(ARGUMENT_PREFIX)
         val arguments = commandString.split(argumentPrefixIndexes)
             .associate {
@@ -330,7 +333,8 @@ internal fun parseRawCommands(message: String): List<RawCommandConfig> {
 }
 
 internal fun parseCommandStrings(message: String): List<String> {
-    val commandPrefixIndexes = message.indicesOfPrefix(COMMAND_PREFIX)
+    val commandPrefix = BotConfig.get().commandPrefix
+    val commandPrefixIndexes = message.indicesOfPrefix(commandPrefix)
     return message.split(commandPrefixIndexes).map { it.trim() }
 }
 
@@ -362,7 +366,7 @@ data class CommandConfig(
     val command: Command,
     val arguments: CommandArguments,
 ) {
-    val typedForm: String = "$COMMAND_PREFIX${command.name}" + run {
+    val typedForm: String = "${BotConfig.get().commandPrefix}${command.name}" + run {
         val argumentsTypedForm = arguments.typedForm
         if (argumentsTypedForm.isNotBlank()) " $argumentsTypedForm"
         else ""

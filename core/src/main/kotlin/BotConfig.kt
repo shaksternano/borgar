@@ -12,6 +12,7 @@ import kotlin.io.path.*
 @Serializable
 data class BotConfig(
     val botTokens: BotTokens = BotTokens(),
+    val commandPrefix: String = "%",
     val database: DatabaseConfig = DatabaseConfig(),
     val discordLogChannelId: String = "",
     val tenorApiKey: String = DEFAULT_TENOR_API_KEY,
@@ -86,6 +87,11 @@ data class BotConfig(
                 throw IllegalStateException("Config not loaded. Call load() first.")
             }
             return config
+        }
+
+        // For testing purposes
+        fun set(config: BotConfig) {
+            instance = config
         }
     }
 }

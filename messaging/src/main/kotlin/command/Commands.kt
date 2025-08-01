@@ -3,7 +3,6 @@ package com.shakster.borgar.messaging.command
 import com.shakster.borgar.core.util.Named
 import com.shakster.borgar.core.util.startsWithVowel
 
-const val COMMAND_PREFIX: String = "%"
 const val ARGUMENT_PREFIX: String = "--"
 const val ENTITY_ID_SEPARATOR: String = ":"
 

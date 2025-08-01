@@ -1,5 +1,6 @@
 package com.shakster.borgar.messaging.command
 
+import com.shakster.borgar.core.BotConfig
 import com.shakster.borgar.core.io.SuspendCloseable
 import com.shakster.borgar.core.util.ChannelEnvironment
 import com.shakster.borgar.core.util.Named
@@ -38,10 +39,10 @@ interface Command : Named {
     fun createExecutable(arguments: CommandArguments, event: CommandEvent): Executable
 }
 
-val Command.nameWithPrefix: String
-    get() = COMMAND_PREFIX + name
+inline val Command.nameWithPrefix: String
+    get() = BotConfig.get().commandPrefix + name
 
-val Command.guildOnly: Boolean
+inline val Command.guildOnly: Boolean
     get() = environment.let {
         it.size == 1 && it.contains(ChannelEnvironment.GUILD)
     }
