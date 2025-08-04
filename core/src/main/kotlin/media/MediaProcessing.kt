@@ -90,7 +90,11 @@ private suspend fun processMedia(
                 )
             }
             if (writer.supportsAudio) {
-                audioReader.asFlow().collect(writer::writeAudioFrame)
+                audioReader.asFlow().collect { audioFrame ->
+                    audioFrame.content.use {
+                        writer.writeAudioFrame(audioFrame)
+                    }
+                }
             }
         }
         outputSize = withContext(IO_DISPATCHER) {
