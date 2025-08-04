@@ -30,11 +30,14 @@ class FFmpegVideoWriter(
     override val supportsAudio: Boolean = true
 
     private lateinit var recorder: FFmpegFrameRecorder
+    private var frameDuration: Duration = Duration.ZERO
+    private var durationPointer: Duration = Duration.ZERO
     private var closed: Boolean = false
 
     override suspend fun writeImageFrame(frame: ImageFrame) {
         val image = frame.content
         if (!::recorder.isInitialized) {
+            frameDuration = frame.duration
             val fps = 1000000 / frame.duration.toDouble(DurationUnit.MICROSECONDS)
             recorder = createFFmpegRecorder(
                 output,
@@ -52,11 +55,36 @@ class FFmpegVideoWriter(
                 recorder.start()
             }
         }
-        Java2DFrameConverter().use { converter ->
-            converter.convert(image).use { converted ->
-                withContext(IO_DISPATCHER) {
-                    recorder.record(converted)
+
+        if (Duration.ZERO in durationPointer..<durationPointer + frame.duration) {
+            Java2DFrameConverter().use { converter ->
+                converter.convert(image).use { convertedFrame ->
+                    withContext(IO_DISPATCHER) {
+                        var remainingDuration = frame.duration
+                        val multiples = (frame.duration / frameDuration).toInt()
+                        repeat(multiples) {
+                            recorder.record(convertedFrame)
+                            remainingDuration -= frameDuration
+                        }
+                        if (remainingDuration > Duration.ZERO
+                            && Duration.ZERO in durationPointer..<durationPointer + remainingDuration
+                        ) {
+                            recorder.record(convertedFrame)
+                        }
+                    }
                 }
+            }
+        }
+        incrementDurationPointer(frame.duration)
+    }
+
+    private fun incrementDurationPointer(duration: Duration) {
+        durationPointer += duration
+        if (durationPointer >= frameDuration) {
+            val multiples = (durationPointer / frameDuration).toInt()
+            durationPointer -= frameDuration * multiples
+            if (durationPointer > Duration.ZERO) {
+                durationPointer -= frameDuration
             }
         }
     }
