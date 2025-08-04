@@ -1,6 +1,6 @@
 # Borgar
 
-Discord and Revolt bot that provides fun image editing commands, such as image captioning.
+A Discord and Revolt bot that provides fun image editing commands, such as image captioning.
 
 <!--suppress HtmlDeprecatedAttribute -->
 <div align="center">
@@ -8,7 +8,7 @@ Discord and Revolt bot that provides fun image editing commands, such as image c
    <img src="images/image_caption_example.png" alt="Image captioning" width=400/>
 </div>
 
-## Available Commands
+## Available commands
 
 Some of the fun commands provided by Borgar:
 
@@ -46,15 +46,17 @@ the [Actions page](https://github.com/shaksternano/borgar/actions/workflows/buil
 2. Running the program for the first time should create a `config.json` file and then exit.
 3. Add your Discord and/or Revolt bot token to the `config.json` file and run the program again.
 
-## Running the program from source
+## Required permissions
 
-1. Run `./gradlew run`.
-   - If using IntelliJ IDEA, you can also run `app/src/main/kotlin/Main.kt`.
+### Discord
 
-## Building a JAR File from source
+<!--suppress CheckImageSize -->
+<img src="images/discord_required_permissions.png" alt="Discord required permissions" width=500/>
 
-1. Run `./gradlew build`.
-2. The JAR file will be located in `build/libs/`.
+### Revolt
+
+<!--suppress CheckImageSize -->
+<img src="images/revolt_required_permissions.png" alt="Revolt required permissions" width=500/>
 
 ## Using PostgreSQL
 
@@ -76,3 +78,13 @@ from various sites. To set up Cobalt, follow these steps:
 2. Run the Docker compose file with `docker compose up -d`.
 3. Set the value of `cobaltApiUrl` in `config.json` to `http://localhost:9000`, adjusting the port if changed in the
    docker-compose.yml file.
+
+## Running the program from source
+
+1. Run `./gradlew run`.
+   - If using IntelliJ IDEA, you can also run `app/src/main/kotlin/Main.kt`.
+
+## Building a JAR File from source
+
+1. Run `./gradlew build`.
+2. The JAR file will be located in `build/libs`.
