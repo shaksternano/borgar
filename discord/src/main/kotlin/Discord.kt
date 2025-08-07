@@ -25,6 +25,8 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.events.session.ReadyEvent
 import net.dv8tion.jda.api.requests.GatewayIntent
 import net.dv8tion.jda.api.utils.FileUpload
+import kotlin.concurrent.atomics.AtomicBoolean
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -81,17 +83,17 @@ inline fun <T> IDetachableEntity.ifNotDetachedOrElse(ifDetached: T, ifNotDetache
 inline fun <T> IDetachableEntity.ifNotDetachedOrNull(ifNotDetached: () -> T): T? =
     ifNotDetachedOrElse(null, ifNotDetached)
 
+@OptIn(ExperimentalAtomicApi::class)
 private suspend fun JDA.awaitReadySuspend() {
     if (status == JDA.Status.CONNECTED) return
-    var resumed = false
+    val resumed = AtomicBoolean(false)
     val mutex = Mutex()
     suspendCoroutine { continuation ->
         listener<ReadyEvent> {
-            if (resumed) return@listener
+            if (resumed.load()) return@listener
             mutex.withLock {
-                @Suppress("KotlinConstantConditions")
-                if (resumed) return@listener
-                resumed = true
+                if (resumed.load()) return@listener
+                resumed.store(true)
                 continuation.resume(Unit)
             }
         }

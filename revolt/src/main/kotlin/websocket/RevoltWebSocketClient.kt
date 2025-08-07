@@ -24,10 +24,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import java.util.concurrent.Executors
-import kotlin.concurrent.atomics.AtomicInt
-import kotlin.concurrent.atomics.ExperimentalAtomicApi
-import kotlin.concurrent.atomics.decrementAndFetch
-import kotlin.concurrent.atomics.incrementAndFetch
+import kotlin.concurrent.atomics.*
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -103,22 +100,22 @@ class RevoltWebSocketClient(
 
     private suspend fun awaitReady() {
         if (ready) return
-        var resumed = false
+        val resumed = AtomicBoolean(false)
         val mutex = Mutex()
         suspendCoroutine { continuation ->
             handle(WebSocketMessageType.READY) {
-                if (resumed) return@handle
+                if (resumed.load()) return@handle
                 mutex.withLock {
-                    if (resumed) return@handle
-                    resumed = true
+                    if (resumed.load()) return@handle
+                    resumed.store(true)
                     continuation.resume(Unit)
                 }
             }
             handle(WebSocketMessageType.NOT_FOUND) {
-                if (resumed) return@handle
+                if (resumed.load()) return@handle
                 mutex.withLock {
-                    if (resumed) return@handle
-                    resumed = true
+                    if (resumed.load()) return@handle
+                    resumed.store(true)
                     continuation.resumeWithException(IllegalArgumentException("Invalid Revolt token"))
                 }
             }
