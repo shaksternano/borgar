@@ -145,7 +145,7 @@ class FFmpegVideoWriter(
         var customVideoEncoder = false
         if (format == "webm") {
             // VP9 takes too long to encode. In one case it was over 4x slower than VP8.
-            val encoder = BotConfig.get().encoder.ffmpegWebmEncoder
+            val encoder = BotConfig.get().ffmpeg.webmEncoder
             if (encoder.isBlank()) {
                 recorder.videoCodec = avcodec.AV_CODEC_ID_VP8
             } else {
@@ -156,7 +156,7 @@ class FFmpegVideoWriter(
             recorder.audioCodec = avcodec.AV_CODEC_ID_OPUS
             audioSampleRate1 = getWebmSampleRate(audioSampleRate1)
         } else {
-            val encoder = BotConfig.get().encoder.ffmpegMp4Encoder
+            val encoder = BotConfig.get().ffmpeg.mp4Encoder
             if (encoder.isBlank()) {
                 recorder.videoCodec = avcodec.AV_CODEC_ID_H264
             } else {

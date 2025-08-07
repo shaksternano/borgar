@@ -101,7 +101,7 @@ private suspend fun JDA.awaitReadySuspend() {
 private const val DISCORD_LOG_CHANNEL_ID_ENV_VAR: String = "DISCORD_LOG_CHANNEL_ID"
 
 private fun JDA.createDiscordLogger(): DiscordLogger? {
-    val logChannelIdString = BotConfig.get().discordLogChannelId.ifBlank { return null }
+    val logChannelIdString = BotConfig.get().discord.logChannelId.ifBlank { return null }
     val logChannelId = logChannelIdString.toLongOrNull() ?: run {
         logger.warn("$DISCORD_LOG_CHANNEL_ID_ENV_VAR environment variable is not an integer")
         return null

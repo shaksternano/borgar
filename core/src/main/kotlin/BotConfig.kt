@@ -11,20 +11,25 @@ import kotlin.io.path.*
 
 @Serializable
 data class BotConfig(
-    val botTokens: BotTokens = BotTokens(),
+    val discord: DiscordConfig = DiscordConfig(),
+    val revolt: RevoltConfig = RevoltConfig(),
     val commandPrefix: String = "%",
     val database: DatabaseConfig = DatabaseConfig(),
-    val discordLogChannelId: String = "",
     val tenorApiKey: String = DEFAULT_TENOR_API_KEY,
-    val encoder: EncoderConfig = EncoderConfig(),
     val cobaltApiUrl: String = "",
     val derpibooru: DerpibooruConfig = DerpibooruConfig(),
+    val ffmpeg: FFmpegConfig = FFmpegConfig(),
 ) {
 
     @Serializable
-    data class BotTokens(
-        val discord: String = "",
-        val revolt: String = "",
+    data class DiscordConfig(
+        val token: String = "",
+        val logChannelId: String = "",
+    )
+
+    @Serializable
+    data class RevoltConfig(
+        val token: String = "",
     )
 
     @Serializable
@@ -35,15 +40,15 @@ data class BotConfig(
     )
 
     @Serializable
-    data class EncoderConfig(
-        val ffmpegMp4Encoder: String = "",
-        val ffmpegWebmEncoder: String = "",
-    )
-
-    @Serializable
     data class DerpibooruConfig(
         val tagsUrl: String = "",
         val filteredTagsUrl: String = "",
+    )
+
+    @Serializable
+    data class FFmpegConfig(
+        val mp4Encoder: String = "",
+        val webmEncoder: String = "",
     )
 
     companion object {
