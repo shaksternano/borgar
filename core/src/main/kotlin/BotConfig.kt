@@ -30,6 +30,7 @@ data class BotConfig(
     @Serializable
     data class RevoltConfig(
         val token: String = "",
+        val apiUrl: String = "https://api.revolt.chat/0.8",
     )
 
     @Serializable

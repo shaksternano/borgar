@@ -1,5 +1,6 @@
 package com.shakster.borgar.revolt
 
+import com.shakster.borgar.core.BotConfig
 import com.shakster.borgar.core.exception.HttpException
 import com.shakster.borgar.core.io.request
 import com.shakster.borgar.core.io.useHttpClient
@@ -41,9 +42,9 @@ val RETRY_CONNECT_INTERVAL: Duration = 10.seconds
 
 class RevoltManager(
     private val token: String,
-    val apiUrl: String = "https://api.revolt.chat/0.8",
 ) : BotManager {
 
+    val apiUrl: String = BotConfig.get().revolt.apiUrl
     lateinit var webSocketUrl: String
         private set
     lateinit var cdnUrl: String
