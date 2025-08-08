@@ -44,7 +44,9 @@ class RevoltManager(
     private val token: String,
 ) : BotManager {
 
-    val apiUrl: String = BotConfig.get().revolt.apiUrl
+    val apiUrl: String = BotConfig.get().revolt.apiUrl.ifBlank {
+        "https://api.revolt.chat/0.8"
+    }
     lateinit var webSocketUrl: String
         private set
     lateinit var cdnUrl: String
