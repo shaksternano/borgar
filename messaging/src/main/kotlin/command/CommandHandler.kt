@@ -6,6 +6,7 @@ import com.shakster.borgar.core.data.repository.TemplateRepository
 import com.shakster.borgar.core.exception.ErrorResponseException
 import com.shakster.borgar.core.exception.FileTooLargeException
 import com.shakster.borgar.core.exception.UnreadableFileException
+import com.shakster.borgar.core.exception.UnsupportedMediaTypeException
 import com.shakster.borgar.core.io.deleteSilently
 import com.shakster.borgar.core.logger
 import com.shakster.borgar.core.util.*
@@ -79,7 +80,6 @@ private suspend fun <T> sendTypingUntilDone(
         }
     }
     block().also {
-        @Suppress("AssignedValueIsNeverRead")
         sendTyping = false
         typing.cancel()
         channel.stopTyping()
@@ -244,6 +244,8 @@ fun handleError(throwable: Throwable, manager: BotManager): String {
             logger.commandError(commandConfigs, unwrapped)
             "The file could not be read!"
         }
+
+        is UnsupportedMediaTypeException -> "The media type is not supported!"
 
         is OutOfMemoryError -> {
             logger.commandError(commandConfigs, unwrapped)

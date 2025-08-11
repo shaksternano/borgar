@@ -1,10 +1,10 @@
 package com.shakster.borgar.discord.interaction
 
-import com.shakster.borgar.core.util.Named
+import com.shakster.borgar.messaging.command.RegisterableCommand
 import net.dv8tion.jda.api.interactions.InteractionContextType
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback
 
-interface DiscordInteractionCommand<T : IReplyCallback> : Named {
+interface DiscordInteractionCommand<T : IReplyCallback> : RegisterableCommand {
 
     val environment: Set<InteractionContextType>
         get() = InteractionContextType.ALL

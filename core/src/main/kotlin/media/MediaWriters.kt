@@ -2,6 +2,8 @@ package com.shakster.borgar.core.media
 
 import com.shakster.borgar.core.AVAILABLE_PROCESSORS
 import com.shakster.borgar.core.collect.putAllKeys
+import com.shakster.borgar.core.exception.UnsupportedMediaTypeException
+import com.shakster.borgar.core.ffmpegAvailable
 import com.shakster.borgar.core.media.writer.*
 import com.shakster.borgar.core.util.then
 import java.awt.image.BufferedImage
@@ -34,7 +36,11 @@ suspend fun createWriter(
     maxFileSize: Long,
     maxDuration: Duration,
 ): MediaWriter {
-    val factory = writerFactories.getOrDefault(outputFormat, FFmpegVideoWriter.Factory)
+    val factory = writerFactories[outputFormat] ?: if (ffmpegAvailable) {
+        FFmpegVideoWriter.Factory
+    } else {
+        throw UnsupportedMediaTypeException()
+    }
     val writer = factory.create(
         output,
         outputFormat,

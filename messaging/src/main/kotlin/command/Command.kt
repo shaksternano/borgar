@@ -3,7 +3,6 @@ package com.shakster.borgar.messaging.command
 import com.shakster.borgar.core.BotConfig
 import com.shakster.borgar.core.io.SuspendCloseable
 import com.shakster.borgar.core.util.ChannelEnvironment
-import com.shakster.borgar.core.util.Named
 import com.shakster.borgar.core.util.asSingletonList
 import com.shakster.borgar.core.util.startsWithVowel
 import com.shakster.borgar.messaging.entity.Message
@@ -12,7 +11,7 @@ import com.shakster.borgar.messaging.event.CommandEvent
 import com.shakster.borgar.messaging.exception.MissingArgumentException
 import kotlinx.coroutines.flow.firstOrNull
 
-interface Command : Named {
+interface Command : RegisterableCommand {
 
     val aliases: Set<String>
         get() = emptySet()

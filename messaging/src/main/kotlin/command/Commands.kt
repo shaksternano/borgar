@@ -1,6 +1,5 @@
 package com.shakster.borgar.messaging.command
 
-import com.shakster.borgar.core.util.Named
 import com.shakster.borgar.core.util.startsWithVowel
 
 const val ARGUMENT_PREFIX: String = "--"
@@ -81,17 +80,18 @@ val COMMANDS_AND_ALIASES: Map<String, Command> = buildMap {
     }
 }
 
-fun <T : Named> registerCommands(commandType: String, vararg commands: T): Map<String, T> = buildMap {
-    commands.forEach {
-        val commandName = it.name.lowercase()
+fun <T : RegisterableCommand> registerCommands(commandType: String, vararg commands: T): Map<String, T> = buildMap {
+    for (command in commands) {
+        if (!command.register) continue
+        val commandName = command.name.lowercase()
         if (commandName in this) {
             var errorMessage = "A"
             if (commandType.startsWithVowel()) {
                 errorMessage += "n"
             }
-            errorMessage += " $commandType with the name $commandName already exists. Existing command: ${this[commandName]}. New command: $it"
+            errorMessage += " $commandType with the name $commandName already exists. Existing command: ${this[commandName]}. New command: $command"
             throw IllegalArgumentException(errorMessage)
         }
-        this[commandName] = it
+        this[commandName] = command
     }
 }

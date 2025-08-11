@@ -2,6 +2,7 @@ package com.shakster.borgar.core.media
 
 import com.shakster.borgar.core.collect.putAllKeys
 import com.shakster.borgar.core.exception.UnreadableFileException
+import com.shakster.borgar.core.ffmpegAvailable
 import com.shakster.borgar.core.io.DataSource
 import com.shakster.borgar.core.io.fileFormat
 import com.shakster.borgar.core.media.reader.*
@@ -42,7 +43,11 @@ suspend fun createImageReader(input: DataSource): ImageReader =
     createImageReader(input, input.fileFormat())
 
 suspend fun createImageReader(input: DataSource, format: String): ImageReader {
-    val factory = imageReaderFactories.getOrDefault(format, FFmpegImageReader.Factory)
+    val factory = imageReaderFactories[format] ?: if (ffmpegAvailable) {
+        FFmpegImageReader.Factory
+    } else {
+        throw UnreadableFileException()
+    }
     return try {
         factory.create(input)
     } catch (t: Throwable) {
@@ -54,7 +59,11 @@ suspend fun createAudioReader(input: DataSource): AudioReader =
     createAudioReader(input, input.fileFormat())
 
 suspend fun createAudioReader(input: DataSource, format: String): AudioReader {
-    val factory = audioReaderFactories.getOrDefault(format, FFmpegAudioReader.Factory)
+    val factory = audioReaderFactories[format] ?: if (ffmpegAvailable) {
+        FFmpegAudioReader.Factory
+    } else {
+        throw UnreadableFileException()
+    }
     return try {
         factory.create(input)
     } catch (t: Throwable) {

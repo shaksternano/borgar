@@ -14,14 +14,21 @@ val START_TIME: TimeSource.Monotonic.ValueTimeMark = TimeSource.Monotonic.markNo
 val AVAILABLE_PROCESSORS: Int = Runtime.getRuntime().availableProcessors()
 
 val logger: InterceptLogger = InterceptLogger(LoggerFactory.getLogger("Borgar"))
+var ffmpegAvailable: Boolean = true
+    private set
 
 suspend fun initCore() {
-    avutil.av_log_set_level(avutil.AV_LOG_PANIC)
     BotConfig.load(Path("config.json"))
     connectToDatabase()
     registerFonts()
     initEmojis()
     BanRepository.init()
+    try {
+        avutil.av_log_set_level(avutil.AV_LOG_PANIC)
+    } catch (t: Throwable) {
+        logger.warn("FFmpeg is unavailable", t)
+        ffmpegAvailable = false
+    }
 }
 
 private fun connectToDatabase() {
