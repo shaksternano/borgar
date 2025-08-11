@@ -7,6 +7,7 @@ import com.shakster.borgar.messaging.logToChannel
 import com.shakster.borgar.messaging.registerBotManager
 
 suspend fun initRevolt(token: String) {
+    logger.info("Connecting to Revolt...")
     val manager = RevoltManager(token)
     try {
         manager.init()

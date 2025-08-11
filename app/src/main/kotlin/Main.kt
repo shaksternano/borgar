@@ -14,7 +14,7 @@ import kotlin.time.DurationUnit
 import kotlin.time.TimeSource
 
 suspend fun main() {
-    logger.info("Starting")
+    logger.info("Starting...")
     initCore()
     initMessaging()
     val discordToken = BotConfig.get().discord.token

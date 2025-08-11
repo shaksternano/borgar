@@ -81,11 +81,11 @@ class RevoltWebSocketClient(
                         when (it) {
                             // No internet connection
                             is UnresolvedAddressException -> logger.error(
-                                "Failed to connect to Revolt WebSocket, trying again in $RETRY_CONNECT_INTERVAL",
+                                "Failed to connect to Revolt WebSocket, trying again in $RETRY_CONNECT_INTERVAL...",
                             )
 
                             else -> logger.error(
-                                "Error with Revolt WebSocket, reconnecting in $RETRY_CONNECT_INTERVAL",
+                                "Error with Revolt WebSocket, reconnecting in $RETRY_CONNECT_INTERVAL...",
                                 it,
                             )
                         }

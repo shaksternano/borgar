@@ -29,6 +29,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 suspend fun initDiscord(token: String) {
+    logger.info("Connecting to Discord...")
     val jda = default(token, enableCoroutines = true) {
         intents += GatewayIntent.MESSAGE_CONTENT
     }
