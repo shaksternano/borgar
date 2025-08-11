@@ -7,10 +7,7 @@ import com.shakster.borgar.core.exception.ErrorResponseException
 import com.shakster.borgar.core.ffmpegAvailable
 import com.shakster.borgar.core.graphics.drawable.Drawable
 import com.shakster.borgar.core.graphics.drawable.ImageDrawable
-import com.shakster.borgar.core.io.DataSource
-import com.shakster.borgar.core.io.UrlInfo
-import com.shakster.borgar.core.io.head
-import com.shakster.borgar.core.io.useHttpClient
+import com.shakster.borgar.core.io.*
 import com.shakster.borgar.core.util.*
 import com.shakster.borgar.messaging.BotManager
 import com.shakster.borgar.messaging.command.CommandMessageIntersection
@@ -24,6 +21,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toSet
+import java.net.URI
 import kotlin.math.min
 
 private const val MAX_PAST_MESSAGES_TO_CHECK: Int = 100
@@ -44,14 +42,20 @@ suspend fun CommandMessageIntersection.getUrls(getGif: Boolean): List<UrlInfo> =
     )
     val urls = content.getUrls()
     val embedUrls = mutableListOf<String>()
+    val nonEmbedUrls = mutableListOf<String>()
     val tenorUrls = mutableListOf<String>()
     urls.forEach { url ->
         if (isTenorUrl(url)) {
             tenorUrls += url
+        } else if (URI(url).host in ALLOWED_DOMAINS) {
+            nonEmbedUrls += url
         } else {
             embedUrls += url
         }
     }
+    addAll(nonEmbedUrls.map {
+        UrlInfo(it)
+    })
     addAll(tenorUrls.mapNotNull {
         retrieveTenorMediaUrl(it, getGif)
     })
