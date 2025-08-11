@@ -10,9 +10,12 @@ class ErrorResponseException(
 
 class UnreadableFileException(
     override val cause: Throwable? = null,
+    val type: String = "",
 ) : IOException(cause)
 
-class UnsupportedMediaTypeException() : IOException()
+class UnsupportedMediaTypeException(
+    val type: String,
+) : IOException()
 
 class HttpException(
     override val message: String,

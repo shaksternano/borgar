@@ -39,7 +39,7 @@ suspend fun createWriter(
     val factory = writerFactories[outputFormat] ?: if (ffmpegAvailable) {
         FFmpegVideoWriter.Factory
     } else {
-        throw UnsupportedMediaTypeException()
+        throw UnsupportedMediaTypeException(outputFormat)
     }
     val writer = factory.create(
         output,

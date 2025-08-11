@@ -46,12 +46,12 @@ suspend fun createImageReader(input: DataSource, format: String): ImageReader {
     val factory = imageReaderFactories[format] ?: if (ffmpegAvailable) {
         FFmpegImageReader.Factory
     } else {
-        throw UnreadableFileException()
+        throw UnreadableFileException(type = format)
     }
     return try {
         factory.create(input)
     } catch (t: Throwable) {
-        throw UnreadableFileException(t)
+        throw UnreadableFileException(t, format)
     }
 }
 
@@ -62,11 +62,11 @@ suspend fun createAudioReader(input: DataSource, format: String): AudioReader {
     val factory = audioReaderFactories[format] ?: if (ffmpegAvailable) {
         FFmpegAudioReader.Factory
     } else {
-        throw UnreadableFileException()
+        throw UnreadableFileException(type = format)
     }
     return try {
         factory.create(input)
     } catch (t: Throwable) {
-        throw UnreadableFileException(t)
+        throw UnreadableFileException(t, format)
     }
 }

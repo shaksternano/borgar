@@ -242,10 +242,15 @@ fun handleError(throwable: Throwable, manager: BotManager): String {
 
         is UnreadableFileException -> {
             logger.commandError(commandConfigs, unwrapped)
-            "The file could not be read!"
+            val type = unwrapped.type
+            if (type.isBlank()) {
+                "The file could not be read!"
+            } else {
+                "The $type file could not be read!"
+            }
         }
 
-        is UnsupportedMediaTypeException -> "The media type is not supported!"
+        is UnsupportedMediaTypeException -> "The media type ${unwrapped.type} is not supported!"
 
         is OutOfMemoryError -> {
             logger.commandError(commandConfigs, unwrapped)
