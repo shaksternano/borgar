@@ -1,5 +1,3 @@
-@file:Suppress("PackageDirectoryMismatch")
-
 package com.shakster.borgar.core.io
 
 import org.junit.jupiter.api.Test

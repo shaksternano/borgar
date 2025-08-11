@@ -1,5 +1,3 @@
-@file:Suppress("PackageDirectoryMismatch")
-
 package com.shakster.borgar.messaging.command
 
 import com.shakster.borgar.core.BotConfig

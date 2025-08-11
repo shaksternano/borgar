@@ -1,5 +1,3 @@
-@file:Suppress("PackageDirectoryMismatch")
-
 package com.shakster.borgar.core.logging
 
 import org.junit.jupiter.api.Test
@@ -12,13 +10,15 @@ class InterceptLoggerTest {
 
     @Test
     fun testInterceptInfo() {
-        val testLogger = TestInterceptLogger(MockLogger)
+        val testLogger = InterceptLogger(MockLogger)
+        val hook = TestLoggerHook()
+        testLogger.addHook(hook)
 
         val message = "Test info message"
         testLogger.info(message)
 
-        assertEquals(1, testLogger.interceptedMessages.size)
-        val intercepted = testLogger.interceptedMessages.first()
+        assertEquals(1, hook.interceptedMessages.size)
+        val intercepted = hook.interceptedMessages.first()
         assertEquals(Level.INFO, intercepted.level)
         assertEquals(message, intercepted.message)
         assertEquals(null, intercepted.throwable)
@@ -27,14 +27,16 @@ class InterceptLoggerTest {
 
     @Test
     fun testInterceptError() {
-        val testLogger = TestInterceptLogger(MockLogger)
+        val testLogger = InterceptLogger(MockLogger)
+        val hook = TestLoggerHook()
+        testLogger.addHook(hook)
 
         val message = "Test error message"
         val throwable = RuntimeException("Test exception")
         testLogger.error(message, throwable)
 
-        assertEquals(1, testLogger.interceptedMessages.size)
-        val intercepted = testLogger.interceptedMessages.first()
+        assertEquals(1, hook.interceptedMessages.size)
+        val intercepted = hook.interceptedMessages.first()
         assertEquals(Level.ERROR, intercepted.level)
         assertEquals(message, intercepted.message)
         assertEquals(throwable, intercepted.throwable)
@@ -43,15 +45,17 @@ class InterceptLoggerTest {
 
     @Test
     fun testInterceptWithArguments() {
-        val testLogger = TestInterceptLogger(MockLogger)
+        val testLogger = InterceptLogger(MockLogger)
+        val hook = TestLoggerHook()
+        testLogger.addHook(hook)
 
         val format = "Test message with {} and {}"
         val arg1 = "arg1"
         val arg2 = 42
         testLogger.info(format, arg1, arg2)
 
-        assertEquals(1, testLogger.interceptedMessages.size)
-        val intercepted = testLogger.interceptedMessages.first()
+        assertEquals(1, hook.interceptedMessages.size)
+        val intercepted = hook.interceptedMessages.first()
         assertEquals(Level.INFO, intercepted.level)
         assertEquals(format, intercepted.message)
         assertEquals(null, intercepted.throwable)
@@ -60,7 +64,9 @@ class InterceptLoggerTest {
 
     @Test
     fun testInterceptWithMarker() {
-        val testLogger = TestInterceptLogger(MockLogger)
+        val testLogger = InterceptLogger(MockLogger)
+        val hook = TestLoggerHook()
+        testLogger.addHook(hook)
         val marker = object : Marker {
 
             override fun getName(): String = "TEST_MARKER"
@@ -69,6 +75,7 @@ class InterceptLoggerTest {
 
             override fun remove(reference: Marker?): Boolean = throw UnsupportedOperationException()
 
+            @Suppress("OVERRIDE_DEPRECATION")
             override fun hasChildren(): Boolean = throw UnsupportedOperationException()
 
             override fun hasReferences(): Boolean = throw UnsupportedOperationException()
@@ -83,8 +90,8 @@ class InterceptLoggerTest {
         val message = "Test message with marker"
         testLogger.info(marker, message)
 
-        assertEquals(1, testLogger.interceptedMessages.size)
-        val intercepted = testLogger.interceptedMessages.first()
+        assertEquals(1, hook.interceptedMessages.size)
+        val intercepted = hook.interceptedMessages.first()
         assertEquals(Level.INFO, intercepted.level)
         assertEquals(message, intercepted.message)
         assertEquals(null, intercepted.throwable)
@@ -92,23 +99,26 @@ class InterceptLoggerTest {
     }
 }
 
-private class TestInterceptLogger(
-    delegate: Logger,
-) : InterceptLogger(delegate) {
-
-    data class InterceptedMessage(
-        val level: Level,
-        val message: String?,
-        val throwable: Throwable?,
-        val arguments: List<Any?>,
-    )
+private class TestLoggerHook : LoggerHook {
 
     val interceptedMessages: MutableList<InterceptedMessage> = mutableListOf()
 
-    override fun intercept(level: Level, message: String?, t: Throwable?, vararg arguments: Any?) {
+    override fun onLog(
+        level: Level,
+        message: String?,
+        t: Throwable?,
+        vararg arguments: Any?,
+    ) {
         interceptedMessages.add(InterceptedMessage(level, message, t, arguments.toList()))
     }
 }
+
+data class InterceptedMessage(
+    val level: Level,
+    val message: String?,
+    val throwable: Throwable?,
+    val arguments: List<Any?>,
+)
 
 private object MockLogger : Logger {
 
