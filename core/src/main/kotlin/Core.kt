@@ -26,7 +26,7 @@ suspend fun initCore() {
     try {
         avutil.av_log_set_level(avutil.AV_LOG_PANIC)
     } catch (t: Throwable) {
-        logger.warn("FFmpeg is unavailable", t)
+        logger.warn("Failed to load FFmpeg, video processing will be unavailable", t)
         ffmpegAvailable = false
     }
 }
