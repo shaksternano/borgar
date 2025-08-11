@@ -7,6 +7,7 @@ import com.shakster.borgar.core.logger
 import com.shakster.borgar.discord.initDiscord
 import com.shakster.borgar.messaging.initMessaging
 import com.shakster.borgar.revolt.initRevolt
+import java.text.DecimalFormat
 import kotlin.time.DurationUnit
 import kotlin.time.TimeSource
 
@@ -28,6 +29,8 @@ suspend fun main() {
     }
     val time = TimeSource.Monotonic.markNow()
     val timeTaken = time - START_TIME
-    val timeTakenString = timeTaken.toString(DurationUnit.SECONDS, 3)
-    logger.info("Finished loading in $timeTakenString")
+    val seconds = timeTaken.toDouble(DurationUnit.SECONDS)
+    val format = DecimalFormat("#.###")
+    val timeTakenString = format.format(seconds)
+    logger.info("Finished loading in ${timeTakenString}s")
 }
