@@ -11,3 +11,5 @@ class CommandException(
 class MissingArgumentException(
     override val message: String,
 ) : Exception(message)
+
+class InvalidTokenException() : IllegalArgumentException()

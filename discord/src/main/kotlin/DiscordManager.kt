@@ -35,11 +35,12 @@ class DiscordManager(
     companion object {
         private val managers: MutableMap<JDA, BotManager> = mutableMapOf()
 
-        suspend fun create(jda: JDA) {
+        suspend fun create(jda: JDA): DiscordManager {
             val ownerId = jda.retrieveApplicationInfo().await().owner.id
             val manager = DiscordManager(jda, ownerId)
             managers[jda] = manager
             registerBotManager(manager)
+            return manager
         }
 
         operator fun get(jda: JDA): BotManager =

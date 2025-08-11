@@ -14,6 +14,7 @@ import com.shakster.borgar.messaging.entity.CustomEmoji
 import com.shakster.borgar.messaging.entity.Role
 import com.shakster.borgar.messaging.entity.User
 import com.shakster.borgar.messaging.entity.channel.Channel
+import com.shakster.borgar.messaging.exception.InvalidTokenException
 import com.shakster.borgar.revolt.entity.*
 import com.shakster.borgar.revolt.entity.channel.RevoltChannel
 import com.shakster.borgar.revolt.entity.channel.RevoltChannelResponse
@@ -307,6 +308,4 @@ class RevoltManager(
     private data class StatusBody(
         val text: String,
     )
-
-    private class InvalidTokenException() : IllegalArgumentException()
 }

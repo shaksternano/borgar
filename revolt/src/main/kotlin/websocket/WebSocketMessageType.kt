@@ -1,5 +1,6 @@
 package com.shakster.borgar.revolt.websocket
 
+@Suppress("unused")
 enum class WebSocketMessageType(
     val apiName: String,
 ) {

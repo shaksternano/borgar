@@ -29,8 +29,9 @@ data class BotConfig(
 
     @Serializable
     data class RevoltConfig(
-        val token: String = "",
         val apiUrl: String = "",
+        val token: String = "",
+        val logChannelId: String = "",
     )
 
     @Serializable

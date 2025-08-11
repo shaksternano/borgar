@@ -5,12 +5,12 @@ import com.shakster.borgar.core.io.DataSource
 import com.shakster.borgar.core.logger
 import com.shakster.borgar.discord.command.registerCommands
 import com.shakster.borgar.discord.entity.DiscordMessage
-import com.shakster.borgar.discord.logging.DiscordLogger
 import com.shakster.borgar.messaging.BOT_STATUS
+import com.shakster.borgar.messaging.BotManager
 import com.shakster.borgar.messaging.event.MessageReceiveEvent
+import com.shakster.borgar.messaging.logToChannel
 import com.shakster.borgar.messaging.util.onMessageReceived
 import dev.minn.jda.ktx.events.listener
-import dev.minn.jda.ktx.generics.getChannel
 import dev.minn.jda.ktx.jdabuilder.default
 import dev.minn.jda.ktx.jdabuilder.intents
 import kotlinx.coroutines.coroutineScope
@@ -19,7 +19,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.Activity
-import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
 import net.dv8tion.jda.api.entities.detached.IDetachableEntity
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.events.session.ReadyEvent
@@ -34,7 +33,7 @@ suspend fun initDiscord(token: String) {
     val jda = default(token, enableCoroutines = true) {
         intents += GatewayIntent.MESSAGE_CONTENT
     }
-    DiscordManager.create(jda)
+    val manager = DiscordManager.create(jda)
     jda.listener<MessageReceivedEvent> {
         handleMessage(it)
     }
@@ -45,17 +44,7 @@ suspend fun initDiscord(token: String) {
         }
         jda.awaitReadySuspend()
     }
-    val discordLogger = jda.createDiscordLogger()
-    if (discordLogger != null) {
-        val logChannelId = discordLogger.logChannelId
-        val logChannel = jda.getChannel<MessageChannel>(logChannelId)
-        if (logChannel == null) {
-            logger.warn("Discord log channel with ID $logChannelId not found!")
-        } else {
-            logger.info("Logging to Discord channel #${logChannel.name}!")
-            logger = discordLogger
-        }
-    }
+    logToDiscord(manager)
     logger.info("Connected to Discord")
 }
 
@@ -100,13 +89,9 @@ private suspend fun JDA.awaitReadySuspend() {
     }
 }
 
-private const val DISCORD_LOG_CHANNEL_ID_ENV_VAR: String = "DISCORD_LOG_CHANNEL_ID"
-
-private fun JDA.createDiscordLogger(): DiscordLogger? {
-    val logChannelIdString = BotConfig.get().discord.logChannelId.ifBlank { return null }
-    val logChannelId = logChannelIdString.toLongOrNull() ?: run {
-        logger.warn("$DISCORD_LOG_CHANNEL_ID_ENV_VAR environment variable is not an integer")
-        return null
+private suspend fun logToDiscord(manager: BotManager) {
+    val logChannelId = BotConfig.get().discord.logChannelId.ifBlank {
+        return
     }
-    return DiscordLogger(logger, logChannelId, this)
+    logToChannel(logChannelId, manager)
 }

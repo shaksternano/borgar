@@ -4,6 +4,7 @@ import com.shakster.borgar.core.io.httpClient
 import com.shakster.borgar.core.logger
 import com.shakster.borgar.core.util.JSON
 import com.shakster.borgar.messaging.event.MessageReceiveEvent
+import com.shakster.borgar.messaging.exception.InvalidTokenException
 import com.shakster.borgar.messaging.util.onMessageReceived
 import com.shakster.borgar.revolt.RETRY_CONNECT_INTERVAL
 import com.shakster.borgar.revolt.RevoltManager
@@ -116,7 +117,7 @@ class RevoltWebSocketClient(
                 mutex.withLock {
                     if (resumed.load()) return@handle
                     resumed.store(true)
-                    continuation.resumeWithException(IllegalArgumentException("Invalid Revolt token"))
+                    continuation.resumeWithException(InvalidTokenException())
                 }
             }
         }
@@ -145,9 +146,6 @@ class RevoltWebSocketClient(
     }
 
     private fun registerHandlers() {
-        handle(WebSocketMessageType.AUTHENTICATED) {
-            logger.info("Connected to Revolt")
-        }
         handle(WebSocketMessageType.READY) {
             ready = true
             val body = JSON.decodeFromJsonElement(ReadyBody.serializer(), it)
@@ -156,9 +154,6 @@ class RevoltWebSocketClient(
                 response.type == RevoltChannelType.GROUP.apiName
             }
             guildCountAtomic.store(guildCount + groupCount)
-        }
-        handle(WebSocketMessageType.NOT_FOUND) {
-            logger.error("Invalid Revolt token")
         }
         handle(WebSocketMessageType.MESSAGE) {
             handleMessage(it)

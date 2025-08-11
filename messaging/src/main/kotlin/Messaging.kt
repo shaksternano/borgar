@@ -1,5 +1,6 @@
 package com.shakster.borgar.messaging
 
+import com.shakster.borgar.core.logger
 import com.shakster.borgar.messaging.command.CommandConfig
 import com.shakster.borgar.messaging.command.DerpibooruCommand
 import com.shakster.borgar.messaging.command.executeCommands
@@ -8,8 +9,18 @@ import com.shakster.borgar.messaging.event.CommandEvent
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
+private val loggerHook: MessagingAppHook = MessagingAppHook(logger.delegate)
+
 suspend fun initMessaging() {
+    logger.addHook(loggerHook)
     DerpibooruCommand.loadTags()
+}
+
+suspend fun logToChannel(logChannelId: String, manager: BotManager) {
+    if (logChannelId.isBlank()) {
+        return
+    }
+    loggerHook.addChannel(logChannelId, manager)
 }
 
 suspend fun CommandEvent.executeAndRespond(commandConfigs: List<CommandConfig>) {
