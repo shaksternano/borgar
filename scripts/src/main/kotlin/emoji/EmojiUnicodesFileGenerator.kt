@@ -1,3 +1,5 @@
+@file:JvmName("EmojiUnicodesFileGenerator")
+
 package com.shakster.borgar.scripts.emoji
 
 import com.shakster.borgar.core.emoji.EMOJI_FILES_DIRECTORY

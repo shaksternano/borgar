@@ -12,7 +12,7 @@ dependencies {
     testImplementation(kotlin("test"))
 }
 
-val mainClassFullName = "${project.group}.borgar.app.MainKt"
+val mainClassFullName = "${project.group}.borgar.app.Main"
 
 tasks {
     jar {

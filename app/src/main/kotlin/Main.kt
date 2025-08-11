@@ -1,3 +1,5 @@
+@file:JvmName("Main")
+
 package com.shakster.borgar.app
 
 import com.shakster.borgar.core.BotConfig
