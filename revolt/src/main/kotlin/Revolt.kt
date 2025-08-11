@@ -15,13 +15,6 @@ suspend fun initRevolt(token: String) {
         return
     }
     registerBotManager(manager)
-    logToRevolt(manager)
+    logToChannel(BotConfig.get().revolt.logChannelId, manager)
     logger.info("Connected to Revolt")
-}
-
-private suspend fun logToRevolt(manager: RevoltManager) {
-    val logChannelId = BotConfig.get().revolt.logChannelId.ifBlank {
-        return
-    }
-    logToChannel(logChannelId, manager)
 }

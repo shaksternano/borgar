@@ -6,7 +6,6 @@ import com.shakster.borgar.core.logger
 import com.shakster.borgar.discord.command.registerCommands
 import com.shakster.borgar.discord.entity.DiscordMessage
 import com.shakster.borgar.messaging.BOT_STATUS
-import com.shakster.borgar.messaging.BotManager
 import com.shakster.borgar.messaging.event.MessageReceiveEvent
 import com.shakster.borgar.messaging.logToChannel
 import com.shakster.borgar.messaging.util.onMessageReceived
@@ -44,7 +43,7 @@ suspend fun initDiscord(token: String) {
         }
         jda.awaitReadySuspend()
     }
-    logToDiscord(manager)
+    logToChannel(BotConfig.get().discord.logChannelId, manager)
     logger.info("Connected to Discord")
 }
 
@@ -87,11 +86,4 @@ private suspend fun JDA.awaitReadySuspend() {
             }
         }
     }
-}
-
-private suspend fun logToDiscord(manager: BotManager) {
-    val logChannelId = BotConfig.get().discord.logChannelId.ifBlank {
-        return
-    }
-    logToChannel(logChannelId, manager)
 }

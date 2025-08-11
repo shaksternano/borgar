@@ -16,11 +16,11 @@ suspend fun initMessaging() {
     DerpibooruCommand.loadTags()
 }
 
-suspend fun logToChannel(logChannelId: String, manager: BotManager) {
-    if (logChannelId.isBlank()) {
+suspend fun logToChannel(channelId: String, manager: BotManager) {
+    if (channelId.isBlank()) {
         return
     }
-    loggerHook.addChannel(logChannelId, manager)
+    loggerHook.addChannel(channelId, manager)
 }
 
 suspend fun CommandEvent.executeAndRespond(commandConfigs: List<CommandConfig>) {
