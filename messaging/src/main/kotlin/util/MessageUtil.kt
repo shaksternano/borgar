@@ -4,6 +4,7 @@ import com.shakster.borgar.core.emoji.getEmojiUrl
 import com.shakster.borgar.core.emoji.getEmojiUrlFromShortcode
 import com.shakster.borgar.core.emoji.isEmojiUnicode
 import com.shakster.borgar.core.exception.ErrorResponseException
+import com.shakster.borgar.core.ffmpegAvailable
 import com.shakster.borgar.core.graphics.drawable.Drawable
 import com.shakster.borgar.core.graphics.drawable.ImageDrawable
 import com.shakster.borgar.core.io.DataSource
@@ -41,17 +42,30 @@ suspend fun CommandMessageIntersection.getUrls(getGif: Boolean): List<UrlInfo> =
             UrlInfo(attachment.url, attachment.filename)
         }
     )
+    val urls = content.getUrls()
+    val embedUrls = mutableListOf<String>()
+    val tenorUrls = mutableListOf<String>()
+    urls.forEach { url ->
+        if (isTenorUrl(url)) {
+            tenorUrls += url
+        } else {
+            embedUrls += url
+        }
+    }
+    addAll(tenorUrls.mapNotNull {
+        retrieveTenorMediaUrl(it, getGif)
+    })
     addAll(
         getEmbeds().mapNotNull {
             it.getContent(getGif)
         }
     )
     addAll(
-        content.getUrls().mapNotNull {
+        embedUrls.mapNotNull {
             if (isMedia(it)) {
                 UrlInfo(it)
             } else {
-                retrieveTenorMediaUrl(it, getGif)
+                null
             }
         }
     )
@@ -74,8 +88,15 @@ private suspend fun CommandMessageIntersection.getUrlDrawables(): Map<String, Dr
         .mapNotNull { entry ->
             var checkContentType = true
             val url = embeds[entry.key]?.getContent(false)?.url
-                ?: retrieveTenorMediaUrl(entry.key, TenorMediaType.MP4_NORMAL).also {
-                    checkContentType = false
+                ?: run {
+                    val mediaType = if (ffmpegAvailable) {
+                        TenorMediaType.MP4_NORMAL
+                    } else {
+                        TenorMediaType.GIF_LARGE
+                    }
+                    retrieveTenorMediaUrl(entry.key, mediaType).also {
+                        checkContentType = false
+                    }
                 }
                 ?: entry.key
             if (checkContentType && !isMedia(url)) {

@@ -1,6 +1,7 @@
 package com.shakster.borgar.core.util
 
 import com.shakster.borgar.core.BotConfig
+import com.shakster.borgar.core.ffmpegAvailable
 import com.shakster.borgar.core.io.UrlInfo
 import com.shakster.borgar.core.io.httpGet
 import kotlinx.serialization.Serializable
@@ -12,13 +13,14 @@ import java.net.URI
 const val DEFAULT_TENOR_API_KEY: String = "LIVDSRZULELA"
 
 suspend fun retrieveTenorMediaUrl(url: String, getGif: Boolean): UrlInfo? {
+    val gifv = !getGif && ffmpegAvailable
     val mediaType =
-        if (getGif) TenorMediaType.GIF_LARGE
-        else TenorMediaType.MP4_NORMAL
+        if (gifv) TenorMediaType.MP4_NORMAL
+        else TenorMediaType.GIF_LARGE
     val mediaUrl = retrieveTenorMediaUrl(url, mediaType) ?: return null
     return UrlInfo(
         url = mediaUrl,
-        gifv = !getGif,
+        gifv = gifv,
     )
 }
 
