@@ -4,7 +4,6 @@ import com.shakster.borgar.core.BotConfig
 import com.shakster.borgar.core.exception.HttpException
 import com.shakster.borgar.core.io.request
 import com.shakster.borgar.core.io.useHttpClient
-import com.shakster.borgar.core.logger
 import com.shakster.borgar.core.util.MessagingPlatform
 import com.shakster.borgar.core.util.prettyPrintJsonCatching
 import com.shakster.borgar.messaging.BOT_STATUS
@@ -94,13 +93,7 @@ class RevoltManager(
         proxyUrl = apiBody.features.january.url
         appUrl = apiBody.app
 
-        val self = try {
-            updateStatusAndGetSelf()
-        } catch (_: InvalidTokenException) {
-            logger.error("Invalid Revolt bot token, please check the config.json file")
-            return
-        }
-
+        val self = updateStatusAndGetSelf()
         selfId = self.id
         ownerId = self.ownerId ?: error("Revolt bot owner ID not found")
 

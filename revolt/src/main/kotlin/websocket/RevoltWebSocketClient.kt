@@ -17,18 +17,16 @@ import io.ktor.http.*
 import io.ktor.util.network.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.*
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import java.util.concurrent.Executors
-import kotlin.concurrent.atomics.*
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
+import kotlin.concurrent.atomics.AtomicInt
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
+import kotlin.concurrent.atomics.decrementAndFetch
+import kotlin.concurrent.atomics.incrementAndFetch
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
@@ -44,9 +42,9 @@ class RevoltWebSocketClient(
     private val guildCountAtomic: AtomicInt = AtomicInt(0)
     val guildCount: Int
         get() = guildCountAtomic.load()
-    private var session: DefaultClientWebSocketSession? = null
     private val messageHandlers: MutableMap<String, MutableList<WebSocketMessageHandler>> = mutableMapOf()
-    private var ready: Boolean = false
+    private var session: DefaultClientWebSocketSession? = null
+    private var readyJob: CompletableDeferred<Boolean> = CompletableDeferred()
 
     suspend fun init() {
         registerHandlers()
@@ -72,26 +70,28 @@ class RevoltWebSocketClient(
                                 val pingJob = launch {
                                     sendPings()
                                 }
+                                launch {
+                                    awaitReady()
+                                }
                                 handleMessages()
                                 pingJob.cancelAndJoin()
                             }
                             logger.info("Disconnected from Revolt WebSocket, reconnecting...")
                         }
                     }.onFailure {
-                        when (it) {
+                        val (logMessage, throwable) = when (it) {
                             // No internet connection
-                            is UnresolvedAddressException -> logger.error(
-                                "Failed to connect to Revolt WebSocket, trying again in $RETRY_CONNECT_INTERVAL...",
-                            )
+                            is UnresolvedAddressException -> "Failed to connect to Revolt WebSocket." to null
 
-                            else -> logger.error(
-                                "Error with Revolt WebSocket, reconnecting in $RETRY_CONNECT_INTERVAL...",
-                                it,
-                            )
+                            is InvalidTokenException -> "Failed to connect to Revolt WebSocket due to invalid token." to null
+
+                            else -> "Error with Revolt WebSocket." to it
                         }
+                        logger.error("$logMessage Reconnecting in $RETRY_CONNECT_INTERVAL...", throwable)
                         delay(RETRY_CONNECT_INTERVAL)
                     }
                     session = null
+                    readyJob = CompletableDeferred()
                 }
             }
         }
@@ -100,26 +100,9 @@ class RevoltWebSocketClient(
     }
 
     private suspend fun awaitReady() {
-        if (ready) return
-        val resumed = AtomicBoolean(false)
-        val mutex = Mutex()
-        suspendCoroutine { continuation ->
-            handle(WebSocketMessageType.READY) {
-                if (resumed.load()) return@handle
-                mutex.withLock {
-                    if (resumed.load()) return@handle
-                    resumed.store(true)
-                    continuation.resume(Unit)
-                }
-            }
-            handle(WebSocketMessageType.NOT_FOUND) {
-                if (resumed.load()) return@handle
-                mutex.withLock {
-                    if (resumed.load()) return@handle
-                    resumed.store(true)
-                    continuation.resumeWithException(InvalidTokenException())
-                }
-            }
+        val ready = readyJob.await()
+        if (!ready) {
+            throw InvalidTokenException()
         }
     }
 
@@ -146,14 +129,20 @@ class RevoltWebSocketClient(
     }
 
     private fun registerHandlers() {
+        handle(WebSocketMessageType.AUTHENTICATED) {
+            logger.info("Connected to Revolt")
+        }
         handle(WebSocketMessageType.READY) {
-            ready = true
+            readyJob.complete(true)
             val body = JSON.decodeFromJsonElement(ReadyBody.serializer(), it)
             val guildCount = body.guilds.size
             val groupCount = body.channels.count { response ->
                 response.type == RevoltChannelType.GROUP.apiName
             }
             guildCountAtomic.store(guildCount + groupCount)
+        }
+        handle(WebSocketMessageType.NOT_FOUND) {
+            readyJob.complete(false)
         }
         handle(WebSocketMessageType.MESSAGE) {
             handleMessage(it)
@@ -221,11 +210,11 @@ class RevoltWebSocketClient(
             }
         }
     }
-}
 
-@Serializable
-private data class ReadyBody(
-    @SerialName("servers")
-    val guilds: List<RevoltGuildResponse>,
-    val channels: List<RevoltChannelResponse>,
-)
+    @Serializable
+    private data class ReadyBody(
+        @SerialName("servers")
+        val guilds: List<RevoltGuildResponse>,
+        val channels: List<RevoltChannelResponse>,
+    )
+}
