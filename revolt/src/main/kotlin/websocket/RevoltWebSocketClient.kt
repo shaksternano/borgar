@@ -55,6 +55,11 @@ class RevoltWebSocketClient(
         CoroutineScope(dispatcher).launch {
             withContext(Dispatchers.Default) {
                 val websocketUrl = Url(manager.webSocketUrl)
+                val protocol = if (websocketUrl.protocol == URLProtocol.WSS) {
+                    URLProtocol.WSS
+                } else {
+                    URLProtocol.WS
+                }
                 val host = websocketUrl.host
                 val path = "${websocketUrl.encodedPath}?version=1&format=json&token=$token"
                 while (true) {
@@ -62,9 +67,12 @@ class RevoltWebSocketClient(
                         httpClient {
                             install(WebSockets)
                         }.use { client ->
-                            client.wss(
+                            client.webSocket(
                                 host = host,
                                 path = path,
+                                request = {
+                                    url.protocol = protocol
+                                },
                             ) {
                                 session = this
                                 val pingJob = launch {
