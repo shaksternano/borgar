@@ -7,7 +7,10 @@ import com.shakster.borgar.core.exception.ErrorResponseException
 import com.shakster.borgar.core.ffmpegAvailable
 import com.shakster.borgar.core.graphics.drawable.Drawable
 import com.shakster.borgar.core.graphics.drawable.ImageDrawable
-import com.shakster.borgar.core.io.*
+import com.shakster.borgar.core.io.DataSource
+import com.shakster.borgar.core.io.UrlInfo
+import com.shakster.borgar.core.io.head
+import com.shakster.borgar.core.io.useHttpClient
 import com.shakster.borgar.core.util.*
 import com.shakster.borgar.messaging.BotManager
 import com.shakster.borgar.messaging.command.CommandMessageIntersection
@@ -25,6 +28,15 @@ import java.net.URI
 import kotlin.math.min
 
 private const val MAX_PAST_MESSAGES_TO_CHECK: Int = 100
+
+private val NON_EMBED_HOSTS: Set<String> = setOf(
+    "raw.githubusercontent.com",
+    "cdn.revoltusercontent.com",
+    "autumn.revolt.chat",
+    "jan.revolt.chat",
+    "pbs.twimg.com",
+    "i.redd.it",
+)
 
 suspend fun CommandMessageIntersection.getUrlsExceptSelf(getGif: Boolean): List<UrlInfo> =
     searchExceptSelf {
@@ -47,7 +59,7 @@ suspend fun CommandMessageIntersection.getUrls(getGif: Boolean): List<UrlInfo> =
     urls.forEach { url ->
         if (isTenorUrl(url)) {
             tenorUrls += url
-        } else if (URI(url).host in ALLOWED_DOMAINS) {
+        } else if (URI(url).host in NON_EMBED_HOSTS) {
             nonEmbedUrls += url
         } else {
             embedUrls += url
