@@ -39,7 +39,7 @@ import com.google.common.io.Files as GuavaFiles
 val IO_DISPATCHER: CoroutineDispatcher = Executors.newVirtualThreadPerTaskExecutor()
     .asCoroutineDispatcher()
 
-val ALLOWED_DOMAINS: Set<String> = setOf(
+val ALLOWED_HOSTS: Set<String> = setOf(
     "raw.githubusercontent.com",
     "cdn.discordapp.com",
     "media.discordapp.net",

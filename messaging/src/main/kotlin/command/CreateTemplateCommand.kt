@@ -281,9 +281,9 @@ object CreateTemplateCommand : NonChainableCommand() {
         }.getOrElse {
             throw InvalidTemplateException("URL $url is invalid!")
         }
-        val domain = uri.host ?: throw InvalidTemplateException("URL $url is invalid!")
-        if (domain !in ALLOWED_DOMAINS) {
-            throw InvalidTemplateException("Domain $domain is not allowed!")
+        val host = uri.host ?: throw InvalidTemplateException("URL $url is invalid!")
+        if (host !in ALLOWED_HOSTS) {
+            throw InvalidTemplateException("Domain $host is not allowed!")
         }
     }
 
