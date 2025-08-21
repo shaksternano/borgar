@@ -68,8 +68,9 @@ interface Executable : SuspendCloseable {
         event: CommandEvent,
     ) = Unit
 
-    infix fun then(after: Executable): Executable =
-        throw NonChainableCommandException(commandConfigs.last(), commandConfigs.first())
+    infix fun then(after: Executable): Executable {
+        throw NonChainableCommandException(commandConfigs.last(), after.commandConfigs.first())
+    }
 
     override suspend fun close() = Unit
 }
@@ -209,6 +210,10 @@ abstract class NonChainableCommand : BaseCommand() {
                 sent,
                 event,
             )
+
+            override fun toString(): String {
+                return "NonChainableExecutable(commandConfigs=$commandConfigs)"
+            }
         }
 
     protected abstract suspend fun run(arguments: CommandArguments, event: CommandEvent): List<CommandResponse>
