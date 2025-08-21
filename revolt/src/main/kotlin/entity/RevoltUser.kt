@@ -20,6 +20,7 @@ data class RevoltUser(
     override val isSelf: Boolean = manager.selfId == id
     override val asMention: String = "<@$id>"
     override val asBasicMention: String = "@$effectiveName"
+    override val asSilentMention: String = "<\\@$id>"
 
     override suspend fun getBannerUrl(): String? = runCatching {
         val response = manager.request<RevoltUserProfileResponse>("/users/$id/profile")

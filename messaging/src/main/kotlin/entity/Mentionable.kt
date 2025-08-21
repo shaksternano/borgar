@@ -4,4 +4,6 @@ interface Mentionable : Entity {
 
     val asMention: String
     val asBasicMention: String
+    val asSilentMention: String
+        get() = ""
 }

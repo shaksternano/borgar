@@ -58,7 +58,9 @@ sealed interface CommandArgumentType<T> {
             message: Message,
         ): com.shakster.borgar.messaging.entity.User? =
             message.mentionedUsers.firstOrNull {
-                value == it.asMention || value == it.asBasicMention
+                value == it.asMention
+                    || value == it.asBasicMention
+                    || value == it.asSilentMention
             }
     }
 

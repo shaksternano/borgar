@@ -50,7 +50,12 @@ data class RevoltMessage(
     }
 
     override val mentionedUsers: Flow<User> = flow {
-        for (userId in mentionedUserIds) {
+        val regex = """<\\@[a-zA-Z0-9]+>""".toRegex()
+        val matches = regex.findAll(content)
+        val userIds = mentionedUserIds + matches.map { match ->
+            match.value.substring(3 until match.value.length - 1)
+        }
+        for (userId in userIds) {
             val user =
                 if (userId == authorId) getAuthor()
                 else manager.getUser(userId)
