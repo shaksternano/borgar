@@ -13,6 +13,8 @@ import com.shakster.borgar.messaging.command.*
 import com.shakster.borgar.messaging.entity.Attachment
 import com.shakster.borgar.messaging.entity.FakeMessage
 import com.shakster.borgar.messaging.event.CommandEvent
+import com.shakster.borgar.messaging.exception.CommandNotFoundException
+import com.shakster.borgar.messaging.exception.TooManyCommandsException
 import com.shakster.borgar.messaging.executeAndRespond
 import dev.minn.jda.ktx.coroutines.await
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
@@ -86,6 +88,11 @@ private suspend fun executeSlashCommand(
             slashCommandConfig + getAfterCommandConfigs(afterCommands, commandEvent, slashEvent)
         } catch (e: CommandNotFoundException) {
             slashEvent.reply("The command **$commandPrefix${e.command}** does not exist!")
+                .setEphemeral(true)
+                .await()
+            return
+        } catch (_: TooManyCommandsException) {
+            slashEvent.reply("You cannot chain more than ${BotConfig.get().maxChainedCommands} commands!")
                 .setEphemeral(true)
                 .await()
             return

@@ -6,10 +6,11 @@ import com.shakster.borgar.core.util.MessagingPlatform
 import com.shakster.borgar.discord.entity.DiscordUser
 import com.shakster.borgar.discord.entity.channel.DiscordMessageChannel
 import com.shakster.borgar.discord.event.DiscordInteractionCommandEvent
-import com.shakster.borgar.messaging.command.CommandNotFoundException
 import com.shakster.borgar.messaging.command.isCorrectEnvironment
 import com.shakster.borgar.messaging.command.parseCommands
 import com.shakster.borgar.messaging.entity.FakeMessage
+import com.shakster.borgar.messaging.exception.CommandNotFoundException
+import com.shakster.borgar.messaging.exception.TooManyCommandsException
 import com.shakster.borgar.messaging.executeAndRespond
 import com.shakster.borgar.messaging.util.getAndExpireSelectedMessage
 import dev.minn.jda.ktx.coroutines.await
@@ -53,6 +54,11 @@ object RunCommandInteractionCommand : DiscordModalInteractionCommand {
                 parseCommands(content, message, event.user.id)
             } catch (e: CommandNotFoundException) {
                 event.reply("The command **$commandPrefix${e.command}** does not exist!")
+                    .setEphemeral(true)
+                    .await()
+                return null
+            } catch (_: TooManyCommandsException) {
+                event.reply("You cannot chain more than ${BotConfig.get().maxChainedCommands} commands!")
                     .setEphemeral(true)
                     .await()
                 return null

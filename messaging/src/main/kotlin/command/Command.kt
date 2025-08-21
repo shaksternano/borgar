@@ -9,6 +9,7 @@ import com.shakster.borgar.messaging.entity.Message
 import com.shakster.borgar.messaging.entity.User
 import com.shakster.borgar.messaging.event.CommandEvent
 import com.shakster.borgar.messaging.exception.MissingArgumentException
+import com.shakster.borgar.messaging.exception.NonChainableCommandException
 import kotlinx.coroutines.flow.firstOrNull
 
 interface Command : RegisterableCommand {

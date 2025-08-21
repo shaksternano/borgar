@@ -19,8 +19,7 @@ import com.shakster.borgar.messaging.entity.channel.MessageChannel
 import com.shakster.borgar.messaging.event.CommandEvent
 import com.shakster.borgar.messaging.event.MessageCommandEvent
 import com.shakster.borgar.messaging.event.MessageReceiveEvent
-import com.shakster.borgar.messaging.exception.CommandException
-import com.shakster.borgar.messaging.exception.MissingArgumentException
+import com.shakster.borgar.messaging.exception.*
 import com.shakster.borgar.messaging.util.checkEntityIdBelongs
 import com.shakster.borgar.messaging.util.getEntityId
 import com.shakster.borgar.messaging.util.handleBanned
@@ -42,6 +41,9 @@ suspend fun parseAndExecuteCommand(event: MessageReceiveEvent) {
         parseCommands(content, event.message, event.authorId)
     } catch (e: CommandNotFoundException) {
         event.reply("The command **$commandPrefix${e.command}** does not exist!")
+        return
+    } catch (_: TooManyCommandsException) {
+        event.reply("You cannot chain more than ${BotConfig.get().maxChainedCommands} commands!")
         return
     }
     if (commandConfigs.isEmpty()) return
@@ -291,28 +293,32 @@ suspend fun parseCommands(
     message: Message,
     authorId: String,
 ): List<CommandConfig> {
-    return parseRawCommands(messageContent)
-        .mapIndexed { index, (commandString, rawArguments, defaultArgumentValue) ->
-            val command = COMMANDS_AND_ALIASES[commandString] ?: getCustomTemplateCommand(
-                commandString,
-                message,
-            )
-            if (command == null || (command.ownerOnly && authorId != message.manager.ownerId)) {
-                if (index > 0) {
-                    throw CommandNotFoundException(commandString)
-                } else {
-                    return emptyList()
-                }
+    val rawCommands = parseRawCommands(messageContent)
+    val maxChainedCommands = BotConfig.get().maxChainedCommands
+    if (maxChainedCommands > 0 && rawCommands.size > maxChainedCommands) {
+        throw TooManyCommandsException()
+    }
+    return rawCommands.mapIndexed { index, (commandString, rawArguments, defaultArgumentValue) ->
+        val command = COMMANDS_AND_ALIASES[commandString] ?: getCustomTemplateCommand(
+            commandString,
+            message,
+        )
+        if (command == null || (command.ownerOnly && authorId != message.manager.ownerId)) {
+            if (index > 0) {
+                throw CommandNotFoundException(commandString)
+            } else {
+                return emptyList()
             }
-            val arguments = MessageCommandArguments(
-                rawArguments,
-                command.defaultArgumentKey,
-                defaultArgumentValue,
-                command.argumentInfo,
-                message,
-            )
-            CommandConfig(command, arguments)
         }
+        val arguments = MessageCommandArguments(
+            rawArguments,
+            command.defaultArgumentKey,
+            defaultArgumentValue,
+            command.argumentInfo,
+            message,
+        )
+        CommandConfig(command, arguments)
+    }
 }
 
 internal fun parseRawCommands(message: String): List<RawCommandConfig> {
@@ -385,24 +391,3 @@ internal data class RawCommandConfig(
     val arguments: Map<String, String>,
     val defaultArgument: String,
 )
-
-class CommandNotFoundException(
-    val command: String,
-) : Exception()
-
-class NonChainableCommandException(
-    commandConfig1: CommandConfig,
-    commandConfig2: CommandConfig,
-) : Exception() {
-    override val message: String = "Cannot chain **${commandConfig1.typedForm}** with **${commandConfig2.typedForm}**!"
-}
-
-class IncorrectChannelEnvironmentException(
-    val command: Command,
-    val environment: ChannelEnvironment,
-) : Exception()
-
-class InsufficientPermissionsException(
-    val command: Command,
-    val requiredPermissions: Iterable<Permission>,
-) : Exception()

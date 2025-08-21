@@ -11,6 +11,7 @@ import com.shakster.borgar.core.util.asSingletonList
 import com.shakster.borgar.core.util.retrieveTenorMediaUrl
 import com.shakster.borgar.messaging.entity.getContent
 import com.shakster.borgar.messaging.event.CommandEvent
+import com.shakster.borgar.messaging.exception.NonChainableCommandException
 import com.shakster.borgar.messaging.util.getUrlsExceptSelf
 
 data class FileExecutable(
