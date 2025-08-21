@@ -36,8 +36,10 @@ import kotlinx.serialization.Serializable
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
+private const val REVOLT_OFFICIAL_API_URL: String = "https://api.revolt.chat/0.8"
 private const val REVOLT_TOKEN_HEADER: String = "x-bot-token"
 private val USER_MENTION_REGEX: Regex = "<@[A-Za-z0-9]+>".toRegex()
+val USER_SILENT_MENTION_REGEX: Regex = """<\\@[a-zA-Z0-9]+>""".toRegex()
 val RETRY_CONNECT_INTERVAL: Duration = 10.seconds
 
 class RevoltManager(
@@ -45,7 +47,7 @@ class RevoltManager(
 ) : BotManager {
 
     val apiUrl: String = BotConfig.get().revolt.apiUrl.ifBlank {
-        "https://api.revolt.chat/0.8"
+        REVOLT_OFFICIAL_API_URL
     }
     lateinit var webSocketUrl: String
         private set
@@ -163,15 +165,19 @@ class RevoltManager(
                 }.getOrNull()
             }
 
-    override fun getMentionedUsers(content: String): Flow<User> =
-        USER_MENTION_REGEX.findAll(content)
+    override fun getMentionedUsers(content: String): Flow<User> {
+        val mentionedUserIds = USER_MENTION_REGEX.findAll(content)
             .map {
-                getUserId(it.value)
+                it.value.removeSurrounding("<@", ">")
+            } + USER_SILENT_MENTION_REGEX.findAll(content)
+            .map {
+                it.value.removeSurrounding("<\\@", ">")
             }
-            .asFlow()
+        return mentionedUserIds.asFlow()
             .mapNotNull {
                 getUser(it)
             }
+    }
 
     override fun getMentionedChannels(content: String): Flow<Channel> = emptyFlow()
 
@@ -270,9 +276,6 @@ class RevoltManager(
             }
         }
     }
-
-    private fun getUserId(typedUserMention: String): String =
-        typedUserMention.removeSurrounding("<@", ">")
 
     @Serializable
     private data class RevoltApiBody(

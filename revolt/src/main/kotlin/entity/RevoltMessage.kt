@@ -7,6 +7,7 @@ import com.shakster.borgar.messaging.builder.MessageEditBuilder
 import com.shakster.borgar.messaging.entity.*
 import com.shakster.borgar.messaging.entity.channel.Channel
 import com.shakster.borgar.revolt.RevoltManager
+import com.shakster.borgar.revolt.USER_SILENT_MENTION_REGEX
 import com.shakster.borgar.revolt.entity.channel.RevoltMessageChannel
 import io.ktor.http.*
 import kotlinx.coroutines.flow.Flow
@@ -50,10 +51,9 @@ data class RevoltMessage(
     }
 
     override val mentionedUsers: Flow<User> = flow {
-        val regex = """<\\@[a-zA-Z0-9]+>""".toRegex()
-        val matches = regex.findAll(content)
+        val matches = USER_SILENT_MENTION_REGEX.findAll(content)
         val userIds = mentionedUserIds + matches.map { match ->
-            match.value.substring(3 until match.value.length - 1)
+            match.value.removeSurrounding("<\\@", ">")
         }
         for (userId in userIds) {
             val user =
