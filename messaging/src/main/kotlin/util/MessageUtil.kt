@@ -20,10 +20,7 @@ import com.shakster.borgar.messaging.entity.channel.Channel
 import com.shakster.borgar.messaging.entity.getContent
 import com.shakster.borgar.messaging.event.CommandEvent
 import io.ktor.http.*
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.take
-import kotlinx.coroutines.flow.toSet
+import kotlinx.coroutines.flow.*
 import java.net.URI
 import kotlin.math.min
 
@@ -84,6 +81,11 @@ suspend fun CommandMessageIntersection.getUrls(getGif: Boolean): List<UrlInfo> =
                 null
             }
         }
+    )
+    addAll(
+        stickers.map {
+            UrlInfo(it.imageUrl)
+        }.toList()
     )
 }
 
