@@ -77,13 +77,13 @@ class RevoltWebSocketClient(
                                         url.protocol = protocol
                                     },
                                 ) {
-                                    timeout = false
                                     session = this
                                     val pingJob = launch {
                                         sendPings()
                                     }
                                     launch {
                                         awaitReady()
+                                        timeout = false
                                     }
                                     handleMessages()
                                     pingJob.cancelAndJoin()
