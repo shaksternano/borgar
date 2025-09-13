@@ -30,6 +30,7 @@ import kotlin.concurrent.atomics.incrementAndFetch
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
+private val WEBSOCKET_CONNECT_TIMEOUT: Duration = 10.seconds
 private const val PING_JSON: String = "{\"type\":\"Ping\",\"data\":0}"
 private val PING_INTERVAL: Duration = 10.seconds
 
@@ -67,29 +68,42 @@ class RevoltWebSocketClient(
                         httpClient {
                             install(WebSockets)
                         }.use { client ->
-                            client.webSocket(
-                                host = host,
-                                path = path,
-                                request = {
-                                    url.protocol = protocol
-                                },
-                            ) {
-                                session = this
-                                val pingJob = launch {
-                                    sendPings()
+                            var timeout = true
+                            val webSocketJob = launch {
+                                client.webSocket(
+                                    host = host,
+                                    path = path,
+                                    request = {
+                                        url.protocol = protocol
+                                    },
+                                ) {
+                                    timeout = false
+                                    session = this
+                                    val pingJob = launch {
+                                        sendPings()
+                                    }
+                                    launch {
+                                        awaitReady()
+                                    }
+                                    handleMessages()
+                                    pingJob.cancelAndJoin()
                                 }
-                                launch {
-                                    awaitReady()
-                                }
-                                handleMessages()
-                                pingJob.cancelAndJoin()
                             }
-                            logger.info("Disconnected from Revolt WebSocket, reconnecting...")
+                            delay(WEBSOCKET_CONNECT_TIMEOUT)
+                            if (timeout) {
+                                webSocketJob.cancelAndJoin()
+                                throw WebSocketTimeoutException()
+                            } else {
+                                webSocketJob.join()
+                                logger.info("Disconnected from Revolt WebSocket, reconnecting...")
+                            }
                         }
                     }.onFailure {
                         val (logMessage, throwable) = when (it) {
                             // No internet connection
                             is UnresolvedAddressException -> "Failed to connect to Revolt WebSocket." to null
+
+                            is WebSocketTimeoutException -> "Failed to connect to Revolt WebSocket within $WEBSOCKET_CONNECT_TIMEOUT." to null
 
                             is InvalidTokenException -> "Failed to connect to Revolt WebSocket due to invalid token." to null
 
@@ -218,6 +232,8 @@ class RevoltWebSocketClient(
             }
         }
     }
+
+    private class WebSocketTimeoutException() : Exception()
 
     @Serializable
     private data class ReadyBody(
