@@ -1,6 +1,6 @@
 package com.shakster.borgar.core.data
 
-import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.v1.jdbc.Database
 
 private lateinit var connection: Database
 
@@ -14,9 +14,10 @@ fun connectToDatabase(url: String, user: String, password: String) {
     }
 }
 
-fun databaseConnection(): Database =
-    if (::connection.isInitialized) {
+fun databaseConnection(): Database {
+    return if (::connection.isInitialized) {
         connection
     } else {
         throw IllegalStateException("Database connection not initialized")
     }
+}

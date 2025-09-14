@@ -1,8 +1,9 @@
 package com.shakster.borgar.core.data.repository
 
 import com.shakster.borgar.core.data.VarcharIdTable
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.selectAll
 
 object SavedUrlRepository : Repository() {
 

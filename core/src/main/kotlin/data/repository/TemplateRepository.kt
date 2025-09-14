@@ -5,10 +5,13 @@ import com.shakster.borgar.core.graphics.TextAlignment
 import com.shakster.borgar.core.io.deleteSilently
 import com.shakster.borgar.core.media.template.CustomTemplate
 import com.shakster.borgar.core.util.ChannelEnvironment
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.javatime.timestampWithTimeZone
-import org.jetbrains.exposed.sql.statements.UpdateBuilder
+import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.core.statements.UpdateBuilder
+import org.jetbrains.exposed.v1.javatime.timestampWithTimeZone
+import org.jetbrains.exposed.v1.jdbc.Query
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.selectAll
 import java.awt.Color
 import java.awt.Font
 import java.time.OffsetDateTime
@@ -66,10 +69,12 @@ object TemplateRepository : Repository() {
 
     suspend fun delete(commandName: String, entityId: String) {
         dbQuery {
-            queryPrimaryKey(commandName, entityId).forEach {
-                Path(it[TemplateTable.mediaPath]).deleteSilently()
-            }
             deleteWhere { primaryKeyPredicate(commandName, entityId) }
+            queryPrimaryKey(commandName, entityId).map {
+                Path(it[TemplateTable.mediaPath])
+            }
+        }.forEach {
+            it.deleteSilently()
         }
         cache.remove(commandName)
     }

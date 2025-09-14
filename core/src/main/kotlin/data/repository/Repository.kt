@@ -3,10 +3,10 @@ package com.shakster.borgar.core.data.repository
 import com.shakster.borgar.core.data.databaseConnection
 import com.shakster.borgar.core.io.IO_DISPATCHER
 import com.shakster.borgar.core.logger
-import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
-import org.jetbrains.exposed.sql.transactions.transaction
+import kotlinx.coroutines.withContext
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.jdbc.SchemaUtils
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 abstract class Repository {
 
@@ -26,6 +26,11 @@ abstract class Repository {
 
     protected abstract fun table(): Table
 
-    protected suspend fun <R> dbQuery(block: suspend Table.() -> R): R =
-        newSuspendedTransaction(IO_DISPATCHER) { block(table()) }
+    protected suspend fun <R> dbQuery(block: Table.() -> R): R {
+        return withContext(IO_DISPATCHER) {
+            transaction {
+                block(table())
+            }
+        }
+    }
 }

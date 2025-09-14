@@ -2,8 +2,12 @@ package com.shakster.borgar.core.data.repository
 
 import com.shakster.borgar.core.util.Identified
 import com.shakster.borgar.core.util.MessagingPlatform
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.selectAll
 import java.util.concurrent.ConcurrentHashMap
 
 object BanRepository : Repository() {
