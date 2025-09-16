@@ -194,10 +194,8 @@ private suspend inline fun HttpResponse.readBytes(block: (ByteArray) -> Unit) {
     val channel = bodyAsChannel()
     while (!channel.isClosedForRead) {
         val packet = channel.readRemaining(DEFAULT_BUFFER_SIZE.toLong())
-        while (!packet.exhausted()) {
-            val bytes = packet.readByteArray()
-            block(bytes)
-        }
+        val bytes = packet.readByteArray()
+        block(bytes)
     }
 }
 
