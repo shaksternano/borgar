@@ -17,6 +17,10 @@ allprojects {
         maven("https://jitpack.io")
     }
 
+    kotlin {
+        jvmToolchain(21)
+    }
+
     tasks {
         test {
             useJUnitPlatform()
