@@ -65,37 +65,39 @@ class RevoltWebSocketClient(
                 val path = "${websocketUrl.encodedPath}?version=1&format=json&token=$token"
                 while (true) {
                     runCatching {
-                        httpClient {
-                            install(WebSockets)
-                        }.use { client ->
-                            var timeout = true
-                            val webSocketJob = launch {
-                                client.webSocket(
-                                    host = host,
-                                    path = path,
-                                    request = {
-                                        url.protocol = protocol
-                                    },
-                                ) {
-                                    session = this
-                                    val pingJob = launch {
-                                        sendPings()
+                        coroutineScope {
+                            httpClient {
+                                install(WebSockets)
+                            }.use { client ->
+                                var timeout = true
+                                val webSocketJob = launch {
+                                    client.webSocket(
+                                        host = host,
+                                        path = path,
+                                        request = {
+                                            url.protocol = protocol
+                                        },
+                                    ) {
+                                        session = this
+                                        val pingJob = launch {
+                                            sendPings()
+                                        }
+                                        launch {
+                                            awaitReady()
+                                            timeout = false
+                                        }
+                                        handleMessages()
+                                        pingJob.cancelAndJoin()
                                     }
-                                    launch {
-                                        awaitReady()
-                                        timeout = false
-                                    }
-                                    handleMessages()
-                                    pingJob.cancelAndJoin()
                                 }
-                            }
-                            delay(WEBSOCKET_CONNECT_TIMEOUT)
-                            if (timeout) {
-                                webSocketJob.cancelAndJoin()
-                                throw WebSocketTimeoutException()
-                            } else {
-                                webSocketJob.join()
-                                logger.info("Disconnected from Revolt WebSocket, reconnecting...")
+                                delay(WEBSOCKET_CONNECT_TIMEOUT)
+                                if (timeout) {
+                                    webSocketJob.cancelAndJoin()
+                                    throw WebSocketTimeoutException()
+                                } else {
+                                    webSocketJob.join()
+                                    logger.info("Disconnected from Revolt WebSocket, reconnecting...")
+                                }
                             }
                         }
                     }.onFailure {
