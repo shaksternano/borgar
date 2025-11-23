@@ -5,7 +5,7 @@ plugins {
 
 allprojects {
     group = "com.shakster"
-    version = "1.1.0"
+    version = "1.1.1"
 
     applyPlugins(
         "kotlin",
