@@ -2,38 +2,38 @@ name: Test
 on: [ push, pull_request, workflow_dispatch ]
 
 jobs:
-    test:
-        name: Run tests
-        runs-on: ubuntu-latest
-        steps:
-            -   name: Checkout sources
-                uses: actions/checkout@v4
+  test:
+    name: Run tests
+    runs-on: ubuntu-latest
+    steps:
+      -   name: Checkout sources
+          uses: actions/checkout@v4
 
-            -   name: Setup Java
-                uses: actions/setup-java@v4
-                with:
-                    distribution: "graalvm"
-                    java-version: 21
+      -   name: Setup Java
+          uses: actions/setup-java@v4
+          with:
+            distribution: "graalvm"
+            java-version: 21
 
-            -   name: Setup Gradle
-                uses: gradle/actions/setup-gradle@v4
+      -   name: Setup Gradle
+          uses: gradle/actions/setup-gradle@v4
 
-            -   name: Run Docker Compose
-                run: docker compose up -d
+      -   name: Run Docker Compose
+          run: docker compose up -d
 
-            -   name: Run tests
-                run: ./gradlew cleanTest test --stacktrace
+      -   name: Run tests
+          run: ./gradlew cleanTest test --stacktrace
 
-            -   name: Put all test reports into one directory
-                run: |
-                    mkdir -p build/reports/tests/core
-                    mkdir -p build/reports/tests/messaging
-                    cp -r core/build/reports/tests/test/* build/reports/tests/core/
-                    cp -r messaging/build/reports/tests/test/* build/reports/tests/messaging/
+      -   name: Put all test reports into one directory
+          run: |
+            mkdir -p build/reports/tests/core
+            mkdir -p build/reports/tests/messaging
+            cp -r core/build/reports/tests/test/* build/reports/tests/core/
+            cp -r messaging/build/reports/tests/test/* build/reports/tests/messaging/
 
-            -   name: Upload test report
-                if: success() || failure()
-                uses: actions/upload-artifact@v4
-                with:
-                    name: Test report
-                    path: build/reports/tests/
+      -   name: Upload test report
+          if: success() || failure()
+          uses: actions/upload-artifact@v4
+          with:
+            name: Test report
+            path: build/reports/tests/
