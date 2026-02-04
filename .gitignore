@@ -34,3 +34,4 @@ config.json
 *.sqlite
 templates/
 derpibooru_tags.txt
+postgres/

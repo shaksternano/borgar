@@ -125,7 +125,7 @@ class DownloadTask(
         audioOnly: Boolean,
         fileIndex: Int?,
     ): List<DataSource> {
-        val cobaltApiUrl = BotConfig.get().cobaltApiUrl
+        val cobaltApiUrl = BotConfig.get().cobalt.apiUrl
         if (cobaltApiUrl.isBlank()) {
             throw IllegalStateException("Cobalt API url is not set!")
         }
@@ -134,12 +134,16 @@ class DownloadTask(
             videoQuality.toString(),
             filenameStyle = "basic",
             downloadMode = if (audioOnly) "audio" else "auto",
-            twitterGif = true,
+            convertGif = true,
         )
+        val cobaltApiKey = BotConfig.get().cobalt.apiKey
         val responseBodyString = useHttpClient { client ->
             val response = client.post(cobaltApiUrl) {
                 // The Accept header is set to application/json by default
                 header(HttpHeaders.ContentType, "application/json")
+                if (cobaltApiKey.isNotBlank()) {
+                    header(HttpHeaders.Authorization, "Api-Key $cobaltApiKey")
+                }
                 setBody(requestBody)
             }
             response.bodyAsText()
@@ -194,7 +198,7 @@ class DownloadTask(
         val videoQuality: String,
         val filenameStyle: String,
         val downloadMode: String,
-        val twitterGif: Boolean,
+        val convertGif: Boolean,
     )
 
     @Serializable
