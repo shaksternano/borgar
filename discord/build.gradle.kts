@@ -6,6 +6,7 @@ dependencies {
 
     implementation("net.dv8tion:JDA:$jdaVersion") {
         exclude(module = "opus-java")
+        exclude(module = "tink")
     }
     implementation("club.minnced:jda-ktx:$jdaKtxVersion")
 
