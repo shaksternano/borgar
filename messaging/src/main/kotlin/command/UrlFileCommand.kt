@@ -16,7 +16,7 @@ class UrlFileCommand(
         val TULIN: Command = UrlFileCommand(
             name = "tulin",
             description = "The best character in The Legend of Zelda: Breath of the Wild.",
-            url = "https://cdn.revoltusercontent.com/attachments/i5fZQ7mIeaBauXxtf8Vh-bM3nWSXlZ07XSVJd7cdCN/Tulin.gif",
+            url = "https://cdn.stoatusercontent.com/attachments/i5fZQ7mIeaBauXxtf8Vh-bM3nWSXlZ07XSVJd7cdCN/Tulin.gif",
         )
     }
 

@@ -60,7 +60,7 @@ data class RevoltMessage(
                 if (userId == authorId) getAuthor()
                 else manager.getUser(userId)
             if (user == null) {
-                logger.error("Revolt user $userId not found")
+                logger.error("Stoat user $userId not found")
                 continue
             }
             emit(user)
@@ -92,7 +92,7 @@ data class RevoltMessage(
         author?.let { return it }
         return manager.getUser(authorId)?.also {
             author = it
-        } ?: error("Revolt message author $authorId not found")
+        } ?: error("Stoat message author $authorId not found")
     }
 
     override suspend fun getAuthorMember(): RevoltMember? {
@@ -107,7 +107,7 @@ data class RevoltMessage(
         if (::channel.isInitialized) return channel
         val channel = manager.getChannel(channelId) ?: error("Channel $channelId not found")
         if (channel !is RevoltMessageChannel) {
-            error("Revolt channel $channelId is not a message channel, but a ${channel.type.apiName}")
+            error("Stoat channel $channelId is not a message channel, but a ${channel.type.apiName}")
         }
         this.channel = channel
         return channel

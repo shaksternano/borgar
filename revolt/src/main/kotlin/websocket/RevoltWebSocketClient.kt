@@ -96,20 +96,20 @@ class RevoltWebSocketClient(
                                     throw WebSocketTimeoutException()
                                 } else {
                                     webSocketJob.join()
-                                    logger.info("Disconnected from Revolt WebSocket, reconnecting...")
+                                    logger.info("Disconnected from Stoat WebSocket, reconnecting...")
                                 }
                             }
                         }
                     }.onFailure {
                         val (logMessage, throwable) = when (it) {
                             // No internet connection
-                            is UnresolvedAddressException -> "Failed to connect to Revolt WebSocket." to null
+                            is UnresolvedAddressException -> "Failed to connect to Stoat WebSocket." to null
 
-                            is WebSocketTimeoutException -> "Failed to connect to Revolt WebSocket within $WEBSOCKET_CONNECT_TIMEOUT." to null
+                            is WebSocketTimeoutException -> "Failed to connect to Stoat WebSocket within $WEBSOCKET_CONNECT_TIMEOUT." to null
 
-                            is InvalidTokenException -> "Failed to connect to Revolt WebSocket due to invalid token." to null
+                            is InvalidTokenException -> "Failed to connect to Stoat WebSocket due to invalid token." to null
 
-                            else -> "Error with Revolt WebSocket." to it
+                            else -> "Error with Stoat WebSocket." to it
                         }
                         logger.error("$logMessage Reconnecting in $RETRY_CONNECT_INTERVAL...", throwable)
                         delay(RETRY_CONNECT_INTERVAL)
@@ -154,7 +154,7 @@ class RevoltWebSocketClient(
 
     private fun registerHandlers() {
         handle(WebSocketMessageType.AUTHENTICATED) {
-            logger.info("Connected to Revolt")
+            logger.info("Connected to Stoat")
         }
         handle(WebSocketMessageType.READY) {
             readyJob.complete(true)
@@ -227,7 +227,7 @@ class RevoltWebSocketClient(
                         runCatching {
                             handler.handleMessage(json)
                         }.onFailure { throwable ->
-                            logger.error("Error handling Revolt WebSocket message", throwable)
+                            logger.error("Error handling Stoat WebSocket message", throwable)
                         }
                     }
                 }

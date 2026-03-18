@@ -7,12 +7,12 @@ import com.shakster.borgar.messaging.logToChannel
 import com.shakster.borgar.messaging.registerBotManager
 
 suspend fun initRevolt(token: String) {
-    logger.info("Connecting to Revolt...")
+    logger.info("Connecting to Stoat...")
     val manager = RevoltManager(token)
     try {
         manager.init()
     } catch (_: InvalidTokenException) {
-        logger.error("Invalid Revolt token")
+        logger.error("Invalid Stoat token")
         return
     }
     registerBotManager(manager)

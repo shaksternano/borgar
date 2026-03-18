@@ -77,7 +77,7 @@ class RevoltManager(
         id = "00000000000000000000000000",
         name = "System",
         effectiveName = "System",
-        effectiveAvatarUrl = "https://cdn.revoltusercontent.com/attachments/7HzJPSqop6nEMrnlH3tpqiWe31gX8pmeQxiUxkGxPn/revolt.png",
+        effectiveAvatarUrl = "https://cdn.stoatusercontent.com/attachments/7HzJPSqop6nEMrnlH3tpqiWe31gX8pmeQxiUxkGxPn/revolt.png",
         isBot = false,
     )
 
@@ -97,7 +97,7 @@ class RevoltManager(
 
         val self = updateStatusAndGetSelf()
         selfId = self.id
-        ownerId = self.ownerId ?: error("Revolt bot owner ID not found")
+        ownerId = self.ownerId ?: error("Stoat bot owner ID not found")
 
         webSocket.init()
         ready = true
@@ -128,7 +128,7 @@ class RevoltManager(
         runCatching {
             request<RevoltUserResponse>("/users/@me")
         }.getOrElse {
-            throw IllegalStateException("Failed to get Revolt self user", it)
+            throw IllegalStateException("Failed to get Stoat self user", it)
         }.convert(this)
 
     override suspend fun getChannel(id: String): RevoltChannel? =

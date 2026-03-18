@@ -56,7 +56,7 @@ class RevoltMessageChannel(
     override suspend fun createMessage(block: MessageCreateBuilder.() -> Unit): RevoltMessage {
         val builder = MessageCreateBuilder().apply(block)
         require(builder.content.isNotEmpty() || builder.files.isNotEmpty()) {
-            "Revolt message content and files cannot both be empty"
+            "Stoat message content and files cannot both be empty"
         }
         val attachmentIds = builder.uploadAttachments(manager)
         return builder.toRequestBody(attachmentIds).send()
@@ -130,7 +130,7 @@ private suspend fun MessageCreateBuilder.uploadAttachments(manager: RevoltManage
             throw if (t is HttpException && t.status == HttpStatusCode.PayloadTooLarge) {
                 FileTooLargeException(t)
             } else {
-                var message = "Failed to upload $filename to Revolt"
+                var message = "Failed to upload $filename to Stoat"
                 if (t is HttpException) {
                     message += ": ${t.status.value} ${t.status.description}"
                 }
