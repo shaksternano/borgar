@@ -30,6 +30,6 @@ include(
     "core",
     "discord",
     "messaging",
-    "revolt",
+    "stoat",
     "scripts",
 )
