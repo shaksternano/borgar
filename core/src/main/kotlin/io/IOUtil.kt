@@ -44,6 +44,7 @@ val ALLOWED_HOSTS: Set<String> = setOf(
     "cdn.discordapp.com",
     "media.discordapp.net",
     "cdn.stoatusercontent.com",
+    "proxy.stoatusercontent.com",
     "external.stoatusercontent.com",
     "cdn.revoltusercontent.com",
     "autumn.revolt.chat",
