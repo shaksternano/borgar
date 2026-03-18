@@ -38,13 +38,14 @@ private val NON_EMBED_HOSTS: Set<String> = setOf(
     "i.redd.it",
 )
 
-suspend fun CommandMessageIntersection.getUrlsExceptSelf(getGif: Boolean): List<UrlInfo> =
-    searchExceptSelf {
+suspend fun CommandMessageIntersection.getUrlsExceptSelf(getGif: Boolean): List<UrlInfo> {
+    return searchExceptSelf {
         val urls = it.getUrls(getGif)
         urls.ifEmpty {
             null
         }
     } ?: emptyList()
+}
 
 suspend fun CommandMessageIntersection.getUrls(getGif: Boolean): List<UrlInfo> = buildList {
     addAll(
@@ -92,15 +93,17 @@ suspend fun CommandMessageIntersection.getUrls(getGif: Boolean): List<UrlInfo> =
     )
 }
 
-suspend fun CommandMessageIntersection.getEmojiAndUrlDrawables(): Map<String, Drawable> =
-    if (content.isBlank()) emptyMap()
+suspend fun CommandMessageIntersection.getEmojiAndUrlDrawables(): Map<String, Drawable> {
+    return if (content.isBlank()) emptyMap()
     else getEmojiDrawables() + getUrlDrawables()
+}
 
-private suspend fun CommandMessageIntersection.getEmojiDrawables(): Map<String, Drawable> =
-    getEmojiUrls().mapValues {
+private suspend fun CommandMessageIntersection.getEmojiDrawables(): Map<String, Drawable> {
+    return getEmojiUrls().mapValues {
         val dataSource = DataSource.fromUrl(url = it.value)
         ImageDrawable(dataSource)
     }
+}
 
 private suspend fun CommandMessageIntersection.getUrlDrawables(): Map<String, Drawable> {
     val embeds = getEmbeds().associateBy { it.url }
@@ -205,8 +208,8 @@ suspend fun CommandMessageIntersection.getEmojiUrls(): Map<String, String> {
     return emojiUrls
 }
 
-suspend fun <T> CommandMessageIntersection.search(find: suspend (CommandMessageIntersection) -> T?): T? =
-    searchVisitors(
+suspend fun <T> CommandMessageIntersection.search(find: suspend (CommandMessageIntersection) -> T?): T? {
+    return searchVisitors(
         find,
         CommandMessageIntersection::searchSelf,
         CommandMessageIntersection::searchReferencedMessages,
@@ -214,91 +217,111 @@ suspend fun <T> CommandMessageIntersection.search(find: suspend (CommandMessageI
         CommandMessageIntersection::searchPreviousMessages,
         CommandMessageIntersection::searchLowPrioritySelectedMessage,
     )
+}
 
-suspend fun <T> CommandMessageIntersection.searchExceptSelf(find: suspend (CommandMessageIntersection) -> T?): T? =
-    searchVisitors(
+suspend fun <T> CommandMessageIntersection.searchExceptSelf(find: suspend (CommandMessageIntersection) -> T?): T? {
+    return searchVisitors(
         find,
         CommandMessageIntersection::searchReferencedMessages,
         CommandMessageIntersection::searchSelectedMessage,
         CommandMessageIntersection::searchPreviousMessages,
         CommandMessageIntersection::searchLowPrioritySelectedMessage,
     )
+}
 
 suspend fun <T> CommandMessageIntersection.searchOrThrow(
     errorMessage: String,
     find: suspend (CommandMessageIntersection) -> T?,
-): T = search(find) ?: throw ErrorResponseException(errorMessage)
+): T {
+    return search(find) ?: throw ErrorResponseException(errorMessage)
+}
 
 suspend fun <T> CommandMessageIntersection.searchExceptSelfOrThrow(
     errorMessage: String,
     find: suspend (CommandMessageIntersection) -> T?,
-): T = searchExceptSelf(find) ?: throw ErrorResponseException(errorMessage)
+): T {
+    return searchExceptSelf(find) ?: throw ErrorResponseException(errorMessage)
+}
 
 private suspend fun <T> CommandMessageIntersection.searchVisitors(
     find: suspend (CommandMessageIntersection) -> T?,
     vararg messageVisitors: suspend CommandMessageIntersection.(suspend (CommandMessageIntersection) -> T?) -> T?,
-): T? = messageVisitors.firstNotNullOfOrNull {
-    it(find)
+): T? {
+    return messageVisitors.firstNotNullOfOrNull {
+        it(find)
+    }
+}
+
+private suspend fun <T> CommandMessageIntersection.searchSelf(
+    find: suspend (CommandMessageIntersection) -> T?,
+): T? {
+    return searchMessageOrForwardedMessages(find)
+}
+
+private suspend fun <T> CommandMessageIntersection.searchReferencedMessages(
+    find: suspend (CommandMessageIntersection) -> T?,
+): T? {
+    return referencedMessages
+        .map {
+            it.searchMessageOrForwardedMessages(find)
+        }
+        .firstOrNull {
+            it != null
+        }
 }
 
 private suspend fun <T> CommandMessageIntersection.searchSelectedMessage(
     find: suspend (CommandMessageIntersection) -> T?,
-): T? =
-    getChannel()?.let { channel ->
+): T? {
+    return getChannel()?.let { channel ->
         getAndExpireSelectedMessage(
             authorId,
             channel.id,
             manager.platform,
         )
-    }?.let {
-        find(it)
-    }
-
-private suspend fun <T> CommandMessageIntersection.searchSelf(
-    find: suspend (CommandMessageIntersection) -> T?,
-): T? =
-    find(this)
-
-private suspend fun <T> CommandMessageIntersection.searchReferencedMessages(
-    find: suspend (CommandMessageIntersection) -> T?,
-): T? =
-    referencedMessages
-        .map {
-            find(it)
-        }
-        .firstOrNull {
-            it != null
-        }
+    }?.searchMessageOrForwardedMessages(find)
+}
 
 private suspend fun <T> CommandMessageIntersection.searchPreviousMessages(
     find: suspend (CommandMessageIntersection) -> T?,
-): T? =
-    getPreviousMessages()
+): T? {
+    return getPreviousMessages()
         .take(MAX_PAST_MESSAGES_TO_CHECK)
         .map {
-            find(it)
+            it.searchMessageOrForwardedMessages(find)
         }
         .firstOrNull {
             it != null
         }
+}
 
 private suspend fun <T> CommandMessageIntersection.searchLowPrioritySelectedMessage(
     find: suspend (CommandMessageIntersection) -> T?,
-): T? =
-    getChannel()?.let { channel ->
+): T? {
+    return getChannel()?.let { channel ->
         getAndExpireLowPrioritySelectedMessage(
             authorId,
             channel.id,
             manager.platform,
         )
-    }?.let {
-        find(it)
-    }
+    }?.searchMessageOrForwardedMessages(find)
+}
 
-suspend fun CommandEvent.getEntityId(): String =
-    getEntityId(getChannel()) {
+private suspend fun <T> CommandMessageIntersection.searchMessageOrForwardedMessages(
+    find: suspend (CommandMessageIntersection) -> T?,
+): T? {
+    return find(this) ?: forwardedMessages.map {
+        find(it)
+    }.firstOrNull {
+        it != null
+    }
+}
+
+suspend fun CommandEvent.getEntityId(): String {
+    return getEntityId(getChannel()) {
         getAuthor()
     }
+}
 
 suspend fun Message.getEntityId(): String {
     val channel = getChannel() ?: error("Message channel not found")

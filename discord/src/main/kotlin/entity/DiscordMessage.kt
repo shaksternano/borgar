@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flow
+import net.dv8tion.jda.api.entities.MessageReference
 import net.dv8tion.jda.api.entities.channel.concrete.GroupChannel
 import net.dv8tion.jda.api.utils.messages.MessageEditData
 import java.time.OffsetDateTime
@@ -38,13 +39,9 @@ data class DiscordMessage(
     override val stickers: Flow<Sticker> = discordMessage.stickers
         .map { DiscordSticker(it, discordMessage.jda) }
         .asFlow()
-    override val referencedMessages: Flow<Message> = discordMessage.messageReference
-        ?.let {
-            flow {
-                emit(DiscordMessage(it.resolve().await()))
-            }
-        }
-        ?: emptyFlow()
+    override val referencedMessages: Flow<Message> =
+        getReferencedMessages(MessageReference.MessageReferenceType.DEFAULT)
+    override val forwardedMessages: Flow<Message> = getReferencedMessages(MessageReference.MessageReferenceType.FORWARD)
     override val link: String = discordMessage.jumpUrl
 
     private val author: User = DiscordUser(discordMessage.author)
@@ -159,5 +156,24 @@ data class DiscordMessage(
         content?.let { builder.setContent(it) }
         files?.let { builder.setFiles(it.map(DataSource::toFileUpload)) }
         return builder.build()
+    }
+
+    private fun getReferencedMessages(type: MessageReference.MessageReferenceType): Flow<Message> {
+        return discordMessage.messageReference
+            ?.let {
+                if (it.type == type) {
+                    flow {
+                        val message = it.message ?: runCatching {
+                            it.resolve().await()
+                        }.getOrNull()
+                        if (message != null) {
+                            emit(DiscordMessage(message))
+                        }
+                    }
+                } else {
+                    null
+                }
+            }
+            ?: emptyFlow()
     }
 }

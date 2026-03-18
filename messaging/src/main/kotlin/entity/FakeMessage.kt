@@ -20,6 +20,7 @@ data class FakeMessage(
     override val authorId: String = author.id
     override val channelId: String = channel.id
     override val referencedMessages: Flow<Message> = emptyFlow()
+    override val forwardedMessages: Flow<Message> = emptyFlow()
 
     override val mentionedUsers: Flow<User> = manager.getMentionedUsers(content)
     override val mentionedChannels: Flow<Channel> = manager.getMentionedChannels(content)

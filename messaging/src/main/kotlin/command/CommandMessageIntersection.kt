@@ -15,6 +15,7 @@ interface CommandMessageIntersection : Entity {
     val customEmojis: Flow<CustomEmoji>
     val stickers: Flow<Sticker>
     val referencedMessages: Flow<Message>
+    val forwardedMessages: Flow<Message>
     val mentionedUsers: Flow<User>
     val mentionedChannels: Flow<Channel>
     val mentionedRoles: Flow<Role>

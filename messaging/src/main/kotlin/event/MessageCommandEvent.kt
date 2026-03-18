@@ -20,6 +20,7 @@ data class MessageCommandEvent(
     override val channelId: String = event.channelId
     override val timeCreated: OffsetDateTime = event.message.timeCreated
     override val referencedMessages: Flow<Message> = event.message.referencedMessages
+    override val forwardedMessages: Flow<Message> = event.message.forwardedMessages
     override var ephemeralReply: Boolean = false
     private var replied: Boolean = false
 

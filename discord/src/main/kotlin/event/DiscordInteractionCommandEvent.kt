@@ -41,6 +41,7 @@ class DiscordInteractionCommandEvent<T>(
     override val timeCreated: OffsetDateTime = discordEvent.timeCreated
     override val referencedMessages: Flow<Message> =
         referencedMessage?.let { flowOf(it) } ?: emptyFlow()
+    override val forwardedMessages: Flow<Message> = emptyFlow()
 
     private val user: User = DiscordUser(discordEvent.user)
     private val member: Member? = discordEvent.member?.let { DiscordMember(it) }
@@ -112,6 +113,7 @@ class DiscordInteractionCommandEvent<T>(
             override val customEmojis: Flow<CustomEmoji> = manager.getCustomEmojis(content)
             override val stickers: Flow<Sticker> = emptyFlow()
             override val referencedMessages: Flow<Message> = this@DiscordInteractionCommandEvent.referencedMessages
+            override val forwardedMessages: Flow<Message> = this@DiscordInteractionCommandEvent.forwardedMessages
             override val mentionedUsers: Flow<User> = emptyFlow()
             override val mentionedChannels: Flow<Channel> = emptyFlow()
             override val mentionedRoles: Flow<Role> = emptyFlow()

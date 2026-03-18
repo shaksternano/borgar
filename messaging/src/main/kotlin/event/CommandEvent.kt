@@ -14,6 +14,7 @@ interface CommandEvent : Managed, TimeStamped {
     val authorId: String
     val channelId: String
     val referencedMessages: Flow<Message>
+    val forwardedMessages: Flow<Message>
     var ephemeralReply: Boolean
 
     suspend fun getAuthor(): User

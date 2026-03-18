@@ -49,6 +49,7 @@ data class StoatMessage(
             emit(referencedMessage)
         }
     }
+    override val forwardedMessages: Flow<Message> = emptyFlow()
 
     override val mentionedUsers: Flow<User> = flow {
         val matches = USER_SILENT_MENTION_REGEX.findAll(content)
