@@ -43,6 +43,8 @@ val ALLOWED_HOSTS: Set<String> = setOf(
     "raw.githubusercontent.com",
     "cdn.discordapp.com",
     "media.discordapp.net",
+    "cdn.stoatusercontent.com",
+    "external.stoatusercontent.com",
     "cdn.revoltusercontent.com",
     "autumn.revolt.chat",
     "jan.revolt.chat",
