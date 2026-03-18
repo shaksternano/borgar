@@ -36,7 +36,7 @@ import kotlinx.serialization.Serializable
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-private const val STOAT_API_URL: String = "https://api.stoat.chat/0.8"
+private const val STOAT_API_URL: String = "https://api.stoat.chat"
 private const val STOAT_TOKEN_HEADER: String = "x-bot-token"
 private val USER_MENTION_REGEX: Regex = "<@[A-Za-z0-9]+>".toRegex()
 val USER_SILENT_MENTION_REGEX: Regex = """<\\@[a-zA-Z0-9]+>""".toRegex()
