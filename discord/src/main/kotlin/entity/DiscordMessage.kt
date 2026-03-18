@@ -15,7 +15,7 @@ import dev.minn.jda.ktx.coroutines.await
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.flow
 import net.dv8tion.jda.api.entities.channel.concrete.GroupChannel
 import net.dv8tion.jda.api.utils.messages.MessageEditData
 import java.time.OffsetDateTime
@@ -38,8 +38,12 @@ data class DiscordMessage(
     override val stickers: Flow<Sticker> = discordMessage.stickers
         .map { DiscordSticker(it, discordMessage.jda) }
         .asFlow()
-    override val referencedMessages: Flow<Message> = discordMessage.referencedMessage
-        ?.let { flowOf(DiscordMessage(it)) }
+    override val referencedMessages: Flow<Message> = discordMessage.messageReference
+        ?.let {
+            flow {
+                emit(DiscordMessage(it.resolve().await()))
+            }
+        }
         ?: emptyFlow()
     override val link: String = discordMessage.jumpUrl
 
