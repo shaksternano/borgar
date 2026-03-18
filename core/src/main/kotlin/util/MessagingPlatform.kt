@@ -5,5 +5,5 @@ enum class MessagingPlatform(
     override val displayName: String
 ) : Identified, Displayed {
     DISCORD("discord", "Discord"),
-    REVOLT("revolt", "Revolt"),
+    STOAT("stoat", "Stoat"),
 }

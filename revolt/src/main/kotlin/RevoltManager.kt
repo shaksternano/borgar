@@ -60,7 +60,7 @@ class RevoltManager(
 
     val webSocket: RevoltWebSocketClient = RevoltWebSocketClient(token, this)
 
-    override val platform: MessagingPlatform = MessagingPlatform.REVOLT
+    override val platform: MessagingPlatform = MessagingPlatform.STOAT
     override var selfId: String = ""
         private set
     override var ownerId: String = ""
