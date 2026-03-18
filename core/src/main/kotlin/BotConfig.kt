@@ -11,7 +11,7 @@ import kotlin.io.path.*
 @Serializable
 data class BotConfig(
     val discord: DiscordConfig = DiscordConfig(),
-    val revolt: RevoltConfig = RevoltConfig(),
+    val stoat: StoatConfig = StoatConfig(),
     val commandPrefix: String = "%",
     val maxChainedCommands: Int = 10,
     val database: DatabaseConfig = DatabaseConfig(),
@@ -28,7 +28,7 @@ data class BotConfig(
     )
 
     @Serializable
-    data class RevoltConfig(
+    data class StoatConfig(
         val apiUrl: String = "",
         val token: String = "",
         val logChannelId: String = "",

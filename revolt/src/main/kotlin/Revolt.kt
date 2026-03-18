@@ -16,5 +16,5 @@ suspend fun initRevolt(token: String) {
         return
     }
     registerBotManager(manager)
-    logToChannel(BotConfig.get().revolt.logChannelId, manager)
+    logToChannel(BotConfig.get().stoat.logChannelId, manager)
 }

@@ -46,7 +46,7 @@ class RevoltManager(
     private val token: String,
 ) : BotManager {
 
-    val apiUrl: String = BotConfig.get().revolt.apiUrl.ifBlank {
+    val apiUrl: String = BotConfig.get().stoat.apiUrl.ifBlank {
         REVOLT_OFFICIAL_API_URL
     }
     lateinit var webSocketUrl: String

@@ -18,7 +18,7 @@ suspend fun main() {
     initCore()
     initMessaging()
     val discordToken = BotConfig.get().discord.token
-    val revoltToken = BotConfig.get().revolt.token
+    val revoltToken = BotConfig.get().stoat.token
     if (discordToken.isBlank() && revoltToken.isBlank()) {
         logger.error("No bot tokens found")
         return
