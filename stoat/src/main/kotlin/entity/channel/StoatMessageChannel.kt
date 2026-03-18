@@ -9,9 +9,9 @@ import com.shakster.borgar.core.util.URL_REGEX
 import com.shakster.borgar.messaging.builder.MessageCreateBuilder
 import com.shakster.borgar.messaging.entity.Message
 import com.shakster.borgar.messaging.entity.channel.MessageChannel
-import com.shakster.borgar.stoat.RevoltManager
+import com.shakster.borgar.stoat.StoatManager
 import com.shakster.borgar.stoat.entity.*
-import com.shakster.borgar.stoat.util.RevoltPermissionValue
+import com.shakster.borgar.stoat.util.StoatPermissionValue
 import io.ktor.client.request.forms.*
 import io.ktor.http.*
 import kotlinx.coroutines.flow.Flow
@@ -23,17 +23,17 @@ import ulid.ULID
 
 private const val IDEMPOTENCY_KEY_HEADER: String = "Idempotency-Key"
 
-class RevoltMessageChannel(
-    manager: RevoltManager,
+class StoatMessageChannel(
+    manager: StoatManager,
     id: String,
     name: String,
     environment: ChannelEnvironment,
-    type: RevoltChannelType,
+    type: StoatChannelType,
     guildId: String?,
-    group: RevoltGroup?,
-    defaultPermissions: RevoltPermissionValue?,
-    rolePermissions: Map<String, RevoltPermissionValue>,
-) : MessageChannel, RevoltChannel(
+    group: StoatGroup?,
+    defaultPermissions: StoatPermissionValue?,
+    rolePermissions: Map<String, StoatPermissionValue>,
+) : MessageChannel, StoatChannel(
     manager,
     id,
     name,
@@ -53,7 +53,7 @@ class RevoltMessageChannel(
     override suspend fun stopTyping() =
         manager.webSocket.stopTyping(id)
 
-    override suspend fun createMessage(block: MessageCreateBuilder.() -> Unit): RevoltMessage {
+    override suspend fun createMessage(block: MessageCreateBuilder.() -> Unit): StoatMessage {
         val builder = MessageCreateBuilder().apply(block)
         require(builder.content.isNotEmpty() || builder.files.isNotEmpty()) {
             "Stoat message content and files cannot both be empty"
@@ -62,9 +62,9 @@ class RevoltMessageChannel(
         return builder.toRequestBody(attachmentIds).send()
     }
 
-    private suspend fun MessageCreateRequest.send(): RevoltMessage {
+    private suspend fun MessageCreateRequest.send(): StoatMessage {
         val ulid = ULID.randomULID()
-        val response = manager.request<RevoltMessageResponse>(
+        val response = manager.request<StoatMessageResponse>(
             path = "/channels/$id/messages",
             method = HttpMethod.Post,
             headers = mapOf(
@@ -106,13 +106,13 @@ class RevoltMessageChannel(
         }
     }
 
-    private suspend fun requestPreviousMessages(beforeId: String): RevoltPreviousMessagesResponse =
-        manager.request<RevoltPreviousMessagesResponse>(
+    private suspend fun requestPreviousMessages(beforeId: String): StoatPreviousMessagesResponse =
+        manager.request<StoatPreviousMessagesResponse>(
             "/channels/$id/messages?before=$beforeId&include_users=true",
         )
 }
 
-private suspend fun MessageCreateBuilder.uploadAttachments(manager: RevoltManager): List<String> =
+private suspend fun MessageCreateBuilder.uploadAttachments(manager: StoatManager): List<String> =
     files.parallelMap {
         val filename = it.filename
         val channelProvider = it.toChannelProvider()
@@ -206,8 +206,8 @@ private data class AttachmentResponse(
 )
 
 @Serializable
-private data class RevoltPreviousMessagesResponse(
-    val messages: List<RevoltMessageResponse>,
-    val users: List<RevoltUserResponse>,
-    val members: List<RevoltMemberResponse> = emptyList(),
+private data class StoatPreviousMessagesResponse(
+    val messages: List<StoatMessageResponse>,
+    val users: List<StoatUserResponse>,
+    val members: List<StoatMemberResponse> = emptyList(),
 )

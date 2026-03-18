@@ -7,10 +7,10 @@ import com.shakster.borgar.messaging.event.MessageReceiveEvent
 import com.shakster.borgar.messaging.exception.InvalidTokenException
 import com.shakster.borgar.messaging.util.onMessageReceived
 import com.shakster.borgar.stoat.RETRY_CONNECT_INTERVAL
-import com.shakster.borgar.stoat.RevoltManager
-import com.shakster.borgar.stoat.entity.RevoltGuildResponse
-import com.shakster.borgar.stoat.entity.channel.RevoltChannelResponse
-import com.shakster.borgar.stoat.entity.channel.RevoltChannelType
+import com.shakster.borgar.stoat.StoatManager
+import com.shakster.borgar.stoat.entity.StoatGuildResponse
+import com.shakster.borgar.stoat.entity.channel.StoatChannelResponse
+import com.shakster.borgar.stoat.entity.channel.StoatChannelType
 import com.shakster.borgar.stoat.entity.createMessage
 import io.ktor.client.plugins.websocket.*
 import io.ktor.http.*
@@ -35,9 +35,9 @@ private const val PING_JSON: String = "{\"type\":\"Ping\",\"data\":0}"
 private val PING_INTERVAL: Duration = 10.seconds
 
 @OptIn(ExperimentalAtomicApi::class)
-class RevoltWebSocketClient(
+class StoatWebSocketClient(
     private val token: String,
-    private val manager: RevoltManager,
+    private val manager: StoatManager,
 ) {
 
     private val guildCountAtomic: AtomicInt = AtomicInt(0)
@@ -161,7 +161,7 @@ class RevoltWebSocketClient(
             val body = JSON.decodeFromJsonElement(ReadyBody.serializer(), it)
             val guildCount = body.guilds.size
             val groupCount = body.channels.count { response ->
-                response.type == RevoltChannelType.GROUP.apiName
+                response.type == StoatChannelType.GROUP.apiName
             }
             guildCountAtomic.store(guildCount + groupCount)
         }
@@ -240,7 +240,7 @@ class RevoltWebSocketClient(
     @Serializable
     private data class ReadyBody(
         @SerialName("servers")
-        val guilds: List<RevoltGuildResponse>,
-        val channels: List<RevoltChannelResponse>,
+        val guilds: List<StoatGuildResponse>,
+        val channels: List<StoatChannelResponse>,
     )
 }

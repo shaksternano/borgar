@@ -6,29 +6,29 @@ import com.shakster.borgar.messaging.entity.BaseEntity
 import com.shakster.borgar.messaging.entity.CustomEmoji
 import com.shakster.borgar.messaging.entity.Guild
 import com.shakster.borgar.messaging.entity.User
-import com.shakster.borgar.stoat.RevoltManager
-import com.shakster.borgar.stoat.util.RevoltPermissionValue
+import com.shakster.borgar.stoat.StoatManager
+import com.shakster.borgar.stoat.util.StoatPermissionValue
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-data class RevoltGuild(
+data class StoatGuild(
     override val id: String,
     override val name: String,
     override val ownerId: String,
     override val iconUrl: String?,
     override val bannerUrl: String?,
-    override val publicRole: RevoltRole,
-    override val manager: RevoltManager,
+    override val publicRole: StoatRole,
+    override val manager: StoatManager,
 ) : Guild, BaseEntity() {
 
     override val splashUrl: String? = null
     override val maxFileSize: Long = manager.maxFileSize
 
-    private val memberCache: MutableMap<String, RevoltMember> = mutableMapOf()
+    private val memberCache: MutableMap<String, StoatMember> = mutableMapOf()
 
-    override suspend fun getMember(userId: String): RevoltMember? {
+    override suspend fun getMember(userId: String): StoatMember? {
         memberCache[userId]?.let {
             return it
         }
@@ -36,13 +36,13 @@ data class RevoltGuild(
         return getMember(user)
     }
 
-    override suspend fun getMember(user: User): RevoltMember? {
+    override suspend fun getMember(user: User): StoatMember? {
         val userId = user.id
         memberCache[userId]?.let {
             return it
         }
         return runCatching {
-            manager.request<RevoltMemberResponse>("/servers/$id/members/$userId")
+            manager.request<StoatMemberResponse>("/servers/$id/members/$userId")
         }.getOrNull()?.convert(manager, user, this)?.also {
             memberCache[userId] = it
         }
@@ -50,7 +50,7 @@ data class RevoltGuild(
 
     override fun getEmojis(): Flow<CustomEmoji> {
         return flow {
-            manager.request<List<RevoltEmojiResponse>>("/servers/$id/emojis")
+            manager.request<List<StoatEmojiResponse>>("/servers/$id/emojis")
                 .forEach {
                     val emoji = it.convert(manager)
                     emit(emoji)
@@ -64,29 +64,29 @@ data class RevoltGuild(
 }
 
 @Serializable
-data class RevoltGuildResponse(
+data class StoatGuildResponse(
     @SerialName("_id")
     val id: String,
     val name: String,
     @SerialName("owner")
     val ownerId: String,
-    val icon: RevoltIconBody? = null,
-    val banner: RevoltBannerBody? = null,
+    val icon: StoatIconBody? = null,
+    val banner: StoatBannerBody? = null,
     @SerialName("default_permissions")
     val defaultPermissions: Long,
 ) {
-    fun convert(manager: RevoltManager): RevoltGuild =
-        RevoltGuild(
+    fun convert(manager: StoatManager): StoatGuild =
+        StoatGuild(
             id = id,
             name = name,
             ownerId = ownerId,
             iconUrl = icon?.getUrl(manager),
             bannerUrl = banner?.getUrl(manager),
-            publicRole = RevoltRole(
+            publicRole = StoatRole(
                 manager = manager,
                 id = id,
                 name = "everyone",
-                permissionsValue = RevoltPermissionValue(
+                permissionsValue = StoatPermissionValue(
                     allowed = defaultPermissions,
                     denied = 0,
                 ),
@@ -97,21 +97,21 @@ data class RevoltGuildResponse(
 }
 
 @Serializable
-data class RevoltIconBody(
+data class StoatIconBody(
     @SerialName("_id")
     val id: String,
     val filename: String,
 ) {
-    fun getUrl(manager: RevoltManager): String =
+    fun getUrl(manager: StoatManager): String =
         "${manager.cdnUrl}/icons/$id/${filename.encodeUrl()}"
 }
 
 @Serializable
-data class RevoltBannerBody(
+data class StoatBannerBody(
     @SerialName("_id")
     val id: String,
     val filename: String,
 ) {
-    fun getUrl(manager: RevoltManager): String =
+    fun getUrl(manager: StoatManager): String =
         "${manager.cdnUrl}/banners/$id/${filename.encodeUrl()}"
 }

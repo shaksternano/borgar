@@ -6,9 +6,9 @@ import com.shakster.borgar.core.util.encodeUrl
 import com.shakster.borgar.messaging.builder.MessageEditBuilder
 import com.shakster.borgar.messaging.entity.*
 import com.shakster.borgar.messaging.entity.channel.Channel
-import com.shakster.borgar.stoat.RevoltManager
+import com.shakster.borgar.stoat.StoatManager
 import com.shakster.borgar.stoat.USER_SILENT_MENTION_REGEX
-import com.shakster.borgar.stoat.entity.channel.RevoltMessageChannel
+import com.shakster.borgar.stoat.entity.channel.StoatMessageChannel
 import io.ktor.http.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
@@ -21,8 +21,8 @@ import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
-data class RevoltMessage(
-    override val manager: RevoltManager,
+data class StoatMessage(
+    override val manager: StoatManager,
     override val id: String,
     override val authorId: String,
     override val channelId: String,
@@ -31,8 +31,8 @@ data class RevoltMessage(
     private val embeds: List<MessageEmbed>,
     private val referencedMessageIds: List<String>,
     private val mentionedUserIds: List<String>,
-    private var author: RevoltUser? = null,
-    private var authorMember: RevoltMember? = null,
+    private var author: StoatUser? = null,
+    private var authorMember: StoatMember? = null,
 ) : Message, BaseEntity() {
 
     override val timeCreated: OffsetDateTime = run {
@@ -44,7 +44,7 @@ data class RevoltMessage(
     override val stickers: Flow<Sticker> = emptyFlow()
     override val referencedMessages: Flow<Message> = flow {
         referencedMessageIds.forEach {
-            val response = manager.request<RevoltMessageResponse>("/channels/$channelId/messages/$it")
+            val response = manager.request<StoatMessageResponse>("/channels/$channelId/messages/$it")
             val referencedMessage = response.convert(manager)
             emit(referencedMessage)
         }
@@ -72,12 +72,12 @@ data class RevoltMessage(
     override val link: String = "${manager.appUrl}/channel/$channelId/$id"
 
     private var setAuthorMember: Boolean = authorMember != null
-    private lateinit var channel: RevoltMessageChannel
+    private lateinit var channel: StoatMessageChannel
 
     override suspend fun edit(block: MessageEditBuilder.() -> Unit): Message {
         val builder = MessageEditBuilder().apply(block)
         val requestBody = builder.toRequestBody() ?: return this
-        val response = manager.request<RevoltMessageResponse>(
+        val response = manager.request<StoatMessageResponse>(
             path = "/channels/$channelId/messages/$id",
             method = HttpMethod.Patch,
             body = requestBody,
@@ -88,14 +88,14 @@ data class RevoltMessage(
     override suspend fun delete() =
         manager.request<Unit>("/channels/$channelId/messages/$id", HttpMethod.Delete)
 
-    override suspend fun getAuthor(): RevoltUser {
+    override suspend fun getAuthor(): StoatUser {
         author?.let { return it }
         return manager.getUser(authorId)?.also {
             author = it
         } ?: error("Stoat message author $authorId not found")
     }
 
-    override suspend fun getAuthorMember(): RevoltMember? {
+    override suspend fun getAuthorMember(): StoatMember? {
         if (setAuthorMember) return authorMember
         return getGuild()?.getMember(authorId)?.also {
             authorMember = it
@@ -103,30 +103,30 @@ data class RevoltMessage(
         }
     }
 
-    override suspend fun getChannel(): RevoltMessageChannel {
+    override suspend fun getChannel(): StoatMessageChannel {
         if (::channel.isInitialized) return channel
         val channel = manager.getChannel(channelId) ?: error("Channel $channelId not found")
-        if (channel !is RevoltMessageChannel) {
+        if (channel !is StoatMessageChannel) {
             error("Stoat channel $channelId is not a message channel, but a ${channel.type.apiName}")
         }
         this.channel = channel
         return channel
     }
 
-    override suspend fun getGuild(): RevoltGuild? =
+    override suspend fun getGuild(): StoatGuild? =
         getChannel().getGuild()
 
-    override suspend fun getGroup(): RevoltGroup? =
+    override suspend fun getGroup(): StoatGroup? =
         getChannel().getGroup()
 
     override suspend fun getEmbeds(): List<MessageEmbed> = embeds
 }
 
-fun createMessage(body: JsonElement, manager: RevoltManager): RevoltMessage =
-    JSON.decodeFromJsonElement(RevoltMessageResponse.serializer(), body).convert(manager)
+fun createMessage(body: JsonElement, manager: StoatManager): StoatMessage =
+    JSON.decodeFromJsonElement(StoatMessageResponse.serializer(), body).convert(manager)
 
 @Serializable
-data class RevoltMessageResponse(
+data class StoatMessageResponse(
     @SerialName("_id")
     val id: String,
     val content: String = "",
@@ -134,8 +134,8 @@ data class RevoltMessageResponse(
     val authorId: String,
     @SerialName("channel")
     val channelId: String,
-    val attachments: List<RevoltAttachmentBody> = emptyList(),
-    val embeds: List<RevoltMessageEmbedBody> = emptyList(),
+    val attachments: List<StoatAttachmentBody> = emptyList(),
+    val embeds: List<StoatMessageEmbedBody> = emptyList(),
     @SerialName("replies")
     val referencedMessageIds: List<String> = emptyList(),
     @SerialName("mentions")
@@ -143,11 +143,11 @@ data class RevoltMessageResponse(
 ) {
 
     fun convert(
-        manager: RevoltManager,
-        author: RevoltUser? = null,
-        authorMember: RevoltMember? = null,
-    ): RevoltMessage =
-        RevoltMessage(
+        manager: StoatManager,
+        author: StoatUser? = null,
+        authorMember: StoatMember? = null,
+    ): StoatMessage =
+        StoatMessage(
             manager = manager,
             id = id,
             authorId = authorId,
@@ -163,21 +163,21 @@ data class RevoltMessageResponse(
 }
 
 @Serializable
-data class RevoltAttachmentBody(
+data class StoatAttachmentBody(
     @SerialName("_id")
     val id: String,
     val filename: String,
 )
 
 @Serializable
-data class RevoltMessageEmbedBody(
+data class StoatMessageEmbedBody(
     val type: String,
     val url: String? = null,
-    val image: RevoltMessageEmbedImageBody? = null,
-    val video: RevoltMessageEmbedVideoBody? = null,
+    val image: StoatMessageEmbedImageBody? = null,
+    val video: StoatMessageEmbedVideoBody? = null,
 ) {
 
-    fun convert(manager: RevoltManager): MessageEmbed = when (type) {
+    fun convert(manager: StoatManager): MessageEmbed = when (type) {
         "Website" -> MessageEmbed(
             url = url,
             image = image?.convert(manager),
@@ -201,33 +201,33 @@ data class RevoltMessageEmbedBody(
 }
 
 @Serializable
-data class RevoltMessageEmbedImageBody(
+data class StoatMessageEmbedImageBody(
     val url: String,
 ) {
 
-    fun convert(manager: RevoltManager): MessageEmbed.ImageInfo =
+    fun convert(manager: StoatManager): MessageEmbed.ImageInfo =
         url.toImageInfo(manager)
 }
 
 @Serializable
-data class RevoltMessageEmbedVideoBody(
+data class StoatMessageEmbedVideoBody(
     val url: String,
 ) {
 
-    fun convert(manager: RevoltManager): MessageEmbed.VideoInfo =
+    fun convert(manager: StoatManager): MessageEmbed.VideoInfo =
         url.toVideoInfo(manager)
 }
 
-private fun String.toImageInfo(manager: RevoltManager): MessageEmbed.ImageInfo =
+private fun String.toImageInfo(manager: StoatManager): MessageEmbed.ImageInfo =
     MessageEmbed.ImageInfo(this, toProxyUrl(manager))
 
-private fun String.toVideoInfo(manager: RevoltManager): MessageEmbed.VideoInfo =
+private fun String.toVideoInfo(manager: StoatManager): MessageEmbed.VideoInfo =
     MessageEmbed.VideoInfo(this, toProxyUrl(manager))
 
-private fun String.toProxyUrl(manager: RevoltManager): String =
+private fun String.toProxyUrl(manager: StoatManager): String =
     "${manager.proxyUrl}/proxy?url=${encodeUrl()}"
 
-private fun RevoltAttachmentBody.convert(manager: RevoltManager): Attachment {
+private fun StoatAttachmentBody.convert(manager: StoatManager): Attachment {
     return Attachment(
         id = id,
         url = "${manager.cdnUrl}/attachments/$id/$filename",

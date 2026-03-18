@@ -5,8 +5,8 @@ import com.shakster.borgar.messaging.entity.BaseEntity
 import com.shakster.borgar.messaging.entity.Member
 import com.shakster.borgar.messaging.entity.User
 import com.shakster.borgar.messaging.entity.channel.Channel
-import com.shakster.borgar.stoat.RevoltManager
-import com.shakster.borgar.stoat.entity.channel.RevoltChannel
+import com.shakster.borgar.stoat.StoatManager
+import com.shakster.borgar.stoat.entity.channel.StoatChannel
 import com.shakster.borgar.stoat.util.bitwiseAndEq
 import com.shakster.borgar.stoat.util.getPermissionsValue
 import com.shakster.borgar.stoat.util.toValues
@@ -17,21 +17,21 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import java.time.OffsetDateTime
 
-data class RevoltMember(
-    override val manager: RevoltManager,
+data class StoatMember(
+    override val manager: StoatManager,
     override val user: User,
     override val effectiveName: String,
     override val effectiveAvatarUrl: String,
     override val timeoutEnd: OffsetDateTime?,
     private val roleIds: List<String>,
     private val guildId: String,
-    private var guild: RevoltGuild? = null,
+    private var guild: StoatGuild? = null,
 ) : Member, BaseEntity() {
 
     override val id: String = user.id
-    override val roles: Flow<RevoltRole> = roleIds.asFlow()
+    override val roles: Flow<StoatRole> = roleIds.asFlow()
         .map {
-            val response = manager.request<RevoltRoleResponse>("/servers/$guildId/roles/$it")
+            val response = manager.request<StoatRoleResponse>("/servers/$guildId/roles/$it")
             response.convert(manager, it)
         }
     override val asMention: String = user.asMention
@@ -40,7 +40,7 @@ data class RevoltMember(
     val isTimedOut: Boolean
         get() = timeoutEnd?.isAfter(OffsetDateTime.now()) == true
 
-    override suspend fun getGuild(): RevoltGuild {
+    override suspend fun getGuild(): StoatGuild {
         guild?.let { return it }
         return manager.getGuild(guildId).also {
             guild = it
@@ -56,7 +56,7 @@ data class RevoltMember(
 
     override suspend fun hasPermission(permissions: Set<Permission>, channel: Channel): Boolean {
         if (permissions.isEmpty() || isOwner()) return true
-        if (channel !is RevoltChannel) return hasPermission(permissions)
+        if (channel !is StoatChannel) return hasPermission(permissions)
         val permissionsValue = getPermissionsValue(this, channel)
         val toCheck = permissions.toValues()
         return bitwiseAndEq(permissionsValue, toCheck)
@@ -64,22 +64,22 @@ data class RevoltMember(
 }
 
 @Serializable
-data class RevoltMemberResponse(
+data class StoatMemberResponse(
     @SerialName("_id")
-    val id: RevoltMemberIdBody,
+    val id: StoatMemberIdBody,
     val nickname: String? = null,
-    val avatar: RevoltAvatarBody? = null,
+    val avatar: StoatAvatarBody? = null,
     @SerialName("roles")
     val roleIds: List<String> = emptyList(),
     val timeout: String? = null,
 ) {
 
     fun convert(
-        manager: RevoltManager,
+        manager: StoatManager,
         user: User,
-        guild: RevoltGuild? = null,
-    ): RevoltMember =
-        RevoltMember(
+        guild: StoatGuild? = null,
+    ): StoatMember =
+        StoatMember(
             manager = manager,
             user = user,
             effectiveName = nickname ?: user.effectiveName,
@@ -92,7 +92,7 @@ data class RevoltMemberResponse(
 }
 
 @Serializable
-data class RevoltMemberIdBody(
+data class StoatMemberIdBody(
     val user: String,
     @SerialName("server")
     val guild: String,

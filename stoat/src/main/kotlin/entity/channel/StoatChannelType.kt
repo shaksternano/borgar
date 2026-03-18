@@ -1,6 +1,6 @@
 package com.shakster.borgar.stoat.entity.channel
 
-enum class RevoltChannelType(
+enum class StoatChannelType(
     val apiName: String,
 ) {
     SAVED_MESSAGES("SavedMessages"),
@@ -12,7 +12,7 @@ enum class RevoltChannelType(
     ;
 
     companion object {
-        fun fromApiName(apiName: String): RevoltChannelType =
+        fun fromApiName(apiName: String): StoatChannelType =
             entries.find { it.apiName == apiName } ?: UNKNOWN
     }
 

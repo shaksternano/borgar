@@ -3,42 +3,42 @@ package com.shakster.borgar.stoat.entity.channel
 import com.shakster.borgar.core.util.ChannelEnvironment
 import com.shakster.borgar.messaging.entity.BaseEntity
 import com.shakster.borgar.messaging.entity.channel.Channel
-import com.shakster.borgar.stoat.RevoltManager
+import com.shakster.borgar.stoat.StoatManager
 import com.shakster.borgar.stoat.entity.*
-import com.shakster.borgar.stoat.util.RevoltPermissionValue
+import com.shakster.borgar.stoat.util.StoatPermissionValue
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-open class RevoltChannel(
-    override val manager: RevoltManager,
+open class StoatChannel(
+    override val manager: StoatManager,
     final override val id: String,
     final override val name: String,
     override val environment: ChannelEnvironment,
-    val type: RevoltChannelType,
+    val type: StoatChannelType,
     private val guildId: String?,
-    private val group: RevoltGroup?,
-    val defaultPermissions: RevoltPermissionValue?,
-    val rolePermissions: Map<String, RevoltPermissionValue>,
+    private val group: StoatGroup?,
+    val defaultPermissions: StoatPermissionValue?,
+    val rolePermissions: Map<String, StoatPermissionValue>,
 ) : Channel, BaseEntity() {
 
     companion object {
         fun create(
-            manager: RevoltManager,
+            manager: StoatManager,
             id: String,
             name: String,
-            type: RevoltChannelType,
+            type: StoatChannelType,
             guildId: String?,
-            group: RevoltGroup?,
-            defaultPermissions: RevoltPermissionValue?,
-            rolePermissions: Map<String, RevoltPermissionValue>,
-        ): RevoltChannel {
+            group: StoatGroup?,
+            defaultPermissions: StoatPermissionValue?,
+            rolePermissions: Map<String, StoatPermissionValue>,
+        ): StoatChannel {
             val environment = when (type) {
-                RevoltChannelType.GROUP -> ChannelEnvironment.GROUP
-                RevoltChannelType.DIRECT_MESSAGE -> ChannelEnvironment.DIRECT_MESSAGE
+                StoatChannelType.GROUP -> ChannelEnvironment.GROUP
+                StoatChannelType.DIRECT_MESSAGE -> ChannelEnvironment.DIRECT_MESSAGE
                 else -> ChannelEnvironment.GUILD
             }
             return if (type.isMessage()) {
-                RevoltMessageChannel(
+                StoatMessageChannel(
                     manager,
                     id,
                     name,
@@ -50,7 +50,7 @@ open class RevoltChannel(
                     rolePermissions,
                 )
             } else {
-                RevoltChannel(
+                StoatChannel(
                     manager,
                     id,
                     name,
@@ -68,10 +68,10 @@ open class RevoltChannel(
     override val asMention: String = "<#${id}>"
     override val asBasicMention: String = "#$name"
 
-    private var guild: RevoltGuild? = null
+    private var guild: StoatGuild? = null
     private var setGuild: Boolean = false
 
-    override suspend fun getGuild(): RevoltGuild? {
+    override suspend fun getGuild(): StoatGuild? {
         if (setGuild) return guild
         return guildId?.let {
             manager.getGuild(it)
@@ -81,11 +81,11 @@ open class RevoltChannel(
         }
     }
 
-    override suspend fun getGroup(): RevoltGroup? = group
+    override suspend fun getGroup(): StoatGroup? = group
 }
 
 @Serializable
-data class RevoltChannelResponse(
+data class StoatChannelResponse(
     @SerialName("_id")
     val id: String,
     val name: String? = null,
@@ -99,21 +99,21 @@ data class RevoltChannelResponse(
     val ownerId: String? = null,
     @SerialName("recipients")
     val memberIds: List<String> = emptyList(),
-    val icon: RevoltIconBody? = null,
+    val icon: StoatIconBody? = null,
     @SerialName("default_permissions")
-    val defaultPermissions: RevoltRolePermissionsBody? = null,
+    val defaultPermissions: StoatRolePermissionsBody? = null,
     @SerialName("role_permissions")
-    val rolePermissions: Map<String, RevoltRolePermissionsBody> = emptyMap(),
+    val rolePermissions: Map<String, StoatRolePermissionsBody> = emptyMap(),
 ) {
 
-    fun convert(manager: RevoltManager, user: RevoltUser? = null): RevoltChannel =
-        RevoltChannel.create(
+    fun convert(manager: StoatManager, user: StoatUser? = null): StoatChannel =
+        StoatChannel.create(
             manager = manager,
             id = id,
             name = name ?: user?.name ?: "",
-            type = RevoltChannelType.fromApiName(type),
+            type = StoatChannelType.fromApiName(type),
             guildId = guildId,
-            group = if (type == RevoltChannelType.GROUP.apiName) RevoltGroup(
+            group = if (type == StoatChannelType.GROUP.apiName) StoatGroup(
                 manager = manager,
                 id = id,
                 name = name,

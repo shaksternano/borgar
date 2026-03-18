@@ -6,9 +6,9 @@ import com.shakster.borgar.messaging.exception.InvalidTokenException
 import com.shakster.borgar.messaging.logToChannel
 import com.shakster.borgar.messaging.registerBotManager
 
-suspend fun initRevolt(token: String) {
+suspend fun initStoat(token: String) {
     logger.info("Connecting to Stoat...")
-    val manager = RevoltManager(token)
+    val manager = StoatManager(token)
     try {
         manager.init()
     } catch (_: InvalidTokenException) {

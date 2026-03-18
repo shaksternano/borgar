@@ -2,12 +2,12 @@ package com.shakster.borgar.stoat.util
 
 import com.shakster.borgar.core.util.pow
 import com.shakster.borgar.messaging.command.Permission
-import com.shakster.borgar.stoat.entity.RevoltMember
-import com.shakster.borgar.stoat.entity.RevoltRole
-import com.shakster.borgar.stoat.entity.channel.RevoltChannel
+import com.shakster.borgar.stoat.entity.StoatMember
+import com.shakster.borgar.stoat.entity.StoatRole
+import com.shakster.borgar.stoat.entity.channel.StoatChannel
 import kotlinx.coroutines.flow.toList
 
-enum class RevoltPermission(
+enum class StoatPermission(
     val displayName: String,
     val value: Long,
 ) {
@@ -22,7 +22,7 @@ enum class RevoltPermission(
     }
 }
 
-data class RevoltPermissionValue(
+data class StoatPermissionValue(
     val allowed: Long,
     val denied: Long,
 ) {
@@ -31,15 +31,15 @@ data class RevoltPermissionValue(
     }
 }
 
-fun Permission.toRevolt(): RevoltPermission = when (this) {
-    Permission.MANAGE_GUILD_EXPRESSIONS -> RevoltPermission.MANAGE_CUSTOMISATION
+fun Permission.toStoat(): StoatPermission = when (this) {
+    Permission.MANAGE_GUILD_EXPRESSIONS -> StoatPermission.MANAGE_CUSTOMISATION
 }
 
 fun Iterable<Permission>.toValues(): List<Long> =
-    map { it.toRevolt().value }
+    map { it.toStoat().value }
 
-suspend fun getPermissionsValue(member: RevoltMember): Long {
-    if (member.isOwner()) return RevoltPermission.ALL_VALUE
+suspend fun getPermissionsValue(member: StoatMember): Long {
+    if (member.isOwner()) return StoatPermission.ALL_VALUE
 
     val guild = member.getGuild()
     var permissionsValue = guild.publicRole.permissionsValue.allowed
@@ -50,14 +50,14 @@ suspend fun getPermissionsValue(member: RevoltMember): Long {
     }
 
     if (member.isTimedOut) {
-        permissionsValue = permissionsValue and RevoltPermission.ALLOW_IN_TIMEOUT_VALUE
+        permissionsValue = permissionsValue and StoatPermission.ALLOW_IN_TIMEOUT_VALUE
     }
 
     return permissionsValue
 }
 
-suspend fun getPermissionsValue(member: RevoltMember, channel: RevoltChannel): Long {
-    if (member.isOwner()) return RevoltPermission.ALL_VALUE
+suspend fun getPermissionsValue(member: StoatMember, channel: StoatChannel): Long {
+    if (member.isOwner()) return StoatPermission.ALL_VALUE
 
     var permissionsValue = getPermissionsValue(member)
     channel.defaultPermissions?.let {
@@ -73,16 +73,16 @@ suspend fun getPermissionsValue(member: RevoltMember, channel: RevoltChannel): L
     }
 
     if (member.isTimedOut) {
-        permissionsValue = permissionsValue and RevoltPermission.ALLOW_IN_TIMEOUT_VALUE
+        permissionsValue = permissionsValue and StoatPermission.ALLOW_IN_TIMEOUT_VALUE
     }
 
     return permissionsValue
 }
 
-fun getPermissionsValue(role: RevoltRole): Long =
+fun getPermissionsValue(role: StoatRole): Long =
     role.permissionsValue.applyToValue(0)
 
-fun getPermissionsValue(role: RevoltRole, channel: RevoltChannel): Long {
+fun getPermissionsValue(role: StoatRole, channel: StoatChannel): Long {
     var permissionsValue = getPermissionsValue(role)
     channel.defaultPermissions?.let {
         permissionsValue = it.applyToValue(permissionsValue)

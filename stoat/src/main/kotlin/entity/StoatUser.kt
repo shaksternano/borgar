@@ -3,12 +3,12 @@ package com.shakster.borgar.stoat.entity
 import com.shakster.borgar.core.util.encodeUrl
 import com.shakster.borgar.messaging.entity.BaseEntity
 import com.shakster.borgar.messaging.entity.User
-import com.shakster.borgar.stoat.RevoltManager
+import com.shakster.borgar.stoat.StoatManager
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-data class RevoltUser(
-    override val manager: RevoltManager,
+data class StoatUser(
+    override val manager: StoatManager,
     override val id: String,
     override val name: String,
     override val effectiveName: String,
@@ -23,23 +23,23 @@ data class RevoltUser(
     override val asSilentMention: String = "<\\@$id>"
 
     override suspend fun getBannerUrl(): String? = runCatching {
-        val response = manager.request<RevoltUserProfileResponse>("/users/$id/profile")
+        val response = manager.request<StoatUserProfileResponse>("/users/$id/profile")
         response.background.getUrl(manager)
     }.getOrNull()
 }
 
 @Serializable
-data class RevoltUserResponse(
+data class StoatUserResponse(
     @SerialName("_id")
     val id: String,
     val username: String,
     @SerialName("display_name")
     val displayName: String? = null,
-    val avatar: RevoltAvatarBody? = null,
-    val bot: RevoltBotBody? = null,
+    val avatar: StoatAvatarBody? = null,
+    val bot: StoatBotBody? = null,
 ) {
-    fun convert(manager: RevoltManager): RevoltUser =
-        RevoltUser(
+    fun convert(manager: StoatManager): StoatUser =
+        StoatUser(
             manager = manager,
             id = id,
             name = username,
@@ -52,32 +52,32 @@ data class RevoltUserResponse(
 }
 
 @Serializable
-data class RevoltAvatarBody(
+data class StoatAvatarBody(
     @SerialName("_id")
     val id: String,
     val filename: String,
 ) {
-    fun getUrl(manager: RevoltManager): String =
+    fun getUrl(manager: StoatManager): String =
         "${manager.cdnUrl}/avatars/$id/${filename.encodeUrl()}"
 }
 
 @Serializable
-data class RevoltBotBody(
+data class StoatBotBody(
     @SerialName("owner")
     val ownerId: String,
 )
 
 @Serializable
-data class RevoltUserProfileResponse(
-    val background: RevoltUserProfileBackgroundBody,
+data class StoatUserProfileResponse(
+    val background: StoatUserProfileBackgroundBody,
 )
 
 @Serializable
-data class RevoltUserProfileBackgroundBody(
+data class StoatUserProfileBackgroundBody(
     @SerialName("_id")
     val id: String,
     val filename: String,
 ) {
-    fun getUrl(manager: RevoltManager): String =
+    fun getUrl(manager: StoatManager): String =
         "${manager.cdnUrl}/backgrounds/$id/${filename.encodeUrl()}"
 }

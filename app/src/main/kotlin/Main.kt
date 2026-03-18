@@ -8,7 +8,7 @@ import com.shakster.borgar.core.initCore
 import com.shakster.borgar.core.logger
 import com.shakster.borgar.discord.initDiscord
 import com.shakster.borgar.messaging.initMessaging
-import com.shakster.borgar.stoat.initRevolt
+import com.shakster.borgar.stoat.initStoat
 import java.text.DecimalFormat
 import kotlin.time.DurationUnit
 import kotlin.time.TimeSource
@@ -18,16 +18,16 @@ suspend fun main() {
     initCore()
     initMessaging()
     val discordToken = BotConfig.get().discord.token
-    val revoltToken = BotConfig.get().stoat.token
-    if (discordToken.isBlank() && revoltToken.isBlank()) {
+    val stoatToken = BotConfig.get().stoat.token
+    if (discordToken.isBlank() && stoatToken.isBlank()) {
         logger.error("No bot tokens found")
         return
     }
     if (discordToken.isNotBlank()) {
         initDiscord(discordToken)
     }
-    if (revoltToken.isNotBlank()) {
-        initRevolt(revoltToken)
+    if (stoatToken.isNotBlank()) {
+        initStoat(stoatToken)
     }
     val time = TimeSource.Monotonic.markNow()
     val timeTaken = time - START_TIME

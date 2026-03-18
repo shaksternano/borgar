@@ -15,10 +15,10 @@ import com.shakster.borgar.messaging.entity.User
 import com.shakster.borgar.messaging.entity.channel.Channel
 import com.shakster.borgar.messaging.exception.InvalidTokenException
 import com.shakster.borgar.stoat.entity.*
-import com.shakster.borgar.stoat.entity.channel.RevoltChannel
-import com.shakster.borgar.stoat.entity.channel.RevoltChannelResponse
-import com.shakster.borgar.stoat.util.toRevolt
-import com.shakster.borgar.stoat.websocket.RevoltWebSocketClient
+import com.shakster.borgar.stoat.entity.channel.StoatChannel
+import com.shakster.borgar.stoat.entity.channel.StoatChannelResponse
+import com.shakster.borgar.stoat.util.toStoat
+import com.shakster.borgar.stoat.websocket.StoatWebSocketClient
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
@@ -36,18 +36,18 @@ import kotlinx.serialization.Serializable
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-private const val REVOLT_OFFICIAL_API_URL: String = "https://api.stoat.chat/0.8"
-private const val REVOLT_TOKEN_HEADER: String = "x-bot-token"
+private const val STOAT_API_URL: String = "https://api.stoat.chat/0.8"
+private const val STOAT_TOKEN_HEADER: String = "x-bot-token"
 private val USER_MENTION_REGEX: Regex = "<@[A-Za-z0-9]+>".toRegex()
 val USER_SILENT_MENTION_REGEX: Regex = """<\\@[a-zA-Z0-9]+>""".toRegex()
 val RETRY_CONNECT_INTERVAL: Duration = 10.seconds
 
-class RevoltManager(
+class StoatManager(
     private val token: String,
 ) : BotManager {
 
     val apiUrl: String = BotConfig.get().stoat.apiUrl.ifBlank {
-        REVOLT_OFFICIAL_API_URL
+        STOAT_API_URL
     }
     lateinit var webSocketUrl: String
         private set
@@ -58,7 +58,7 @@ class RevoltManager(
     lateinit var appUrl: String
         private set
 
-    val webSocket: RevoltWebSocketClient = RevoltWebSocketClient(token, this)
+    val webSocket: StoatWebSocketClient = StoatWebSocketClient(token, this)
 
     override val platform: MessagingPlatform = MessagingPlatform.STOAT
     override var selfId: String = ""
@@ -72,7 +72,7 @@ class RevoltManager(
     override val typingDuration: Duration = 1.seconds
     override val commandAutoCompleteMaxSuggestions: Int = 0
 
-    private val systemUser: RevoltUser = RevoltUser(
+    private val systemUser: StoatUser = StoatUser(
         manager = this,
         id = "00000000000000000000000000",
         name = "System",
@@ -87,7 +87,7 @@ class RevoltManager(
         if (ready) return
 
         val apiBody = useHttpClient { client ->
-            client.get(apiUrl).body<RevoltApiBody>()
+            client.get(apiUrl).body<StoatApiBody>()
         }
 
         webSocketUrl = apiBody.ws
@@ -103,14 +103,14 @@ class RevoltManager(
         ready = true
     }
 
-    private suspend fun updateStatusAndGetSelf(): RevoltUser {
+    private suspend fun updateStatusAndGetSelf(): StoatUser {
         val editUserBody = EditUserRequest(
             status = StatusBody(BOT_STATUS),
         )
         // Sometimes fails randomly, so we retry until it succeeds
         while (true) {
             try {
-                val self = request<RevoltUserResponse>(
+                val self = request<StoatUserResponse>(
                     path = "/users/@me",
                     method = HttpMethod.Patch,
                     body = editUserBody,
@@ -124,30 +124,30 @@ class RevoltManager(
         }
     }
 
-    override suspend fun getSelf(): RevoltUser =
+    override suspend fun getSelf(): StoatUser =
         runCatching {
-            request<RevoltUserResponse>("/users/@me")
+            request<StoatUserResponse>("/users/@me")
         }.getOrElse {
             throw IllegalStateException("Failed to get Stoat self user", it)
         }.convert(this)
 
-    override suspend fun getChannel(id: String): RevoltChannel? =
+    override suspend fun getChannel(id: String): StoatChannel? =
         runCatching {
-            request<RevoltChannelResponse>("/channels/$id")
+            request<StoatChannelResponse>("/channels/$id")
         }.getOrNull()?.convert(this)
 
-    override suspend fun getGuild(id: String): RevoltGuild? =
+    override suspend fun getGuild(id: String): StoatGuild? =
         runCatching {
-            request<RevoltGuildResponse>("/servers/$id")
+            request<StoatGuildResponse>("/servers/$id")
         }.getOrNull()?.convert(this)
 
-    override suspend fun getGroup(id: String): RevoltGroup? =
+    override suspend fun getGroup(id: String): StoatGroup? =
         getChannel(id)?.getGroup()
 
-    override suspend fun getUser(id: String): RevoltUser? =
+    override suspend fun getUser(id: String): StoatUser? =
         if (id == systemUser.id) systemUser
         else runCatching {
-            request<RevoltUserResponse>("/users/$id")
+            request<StoatUserResponse>("/users/$id")
         }.getOrNull()?.convert(this)
 
     override suspend fun getGuildCount(): Int = webSocket.guildCount
@@ -160,8 +160,8 @@ class RevoltManager(
             .asFlow()
             .mapNotNull {
                 runCatching {
-                    val response = request<RevoltEmojiResponse>("/custom/emoji/$it")
-                    response.convert(this@RevoltManager)
+                    val response = request<StoatEmojiResponse>("/custom/emoji/$it")
+                    response.convert(this@StoatManager)
                 }.getOrNull()
             }
 
@@ -190,7 +190,7 @@ class RevoltManager(
         ":$emoji:"
 
     override fun getPermissionName(permission: Permission): String =
-        permission.toRevolt().displayName
+        permission.toStoat().displayName
 
     override fun formatUserMention(userId: String): String =
         "<@$userId>"
@@ -219,7 +219,7 @@ class RevoltManager(
             client.request(url) {
                 this.method = method
                 headers {
-                    append(REVOLT_TOKEN_HEADER, token)
+                    append(STOAT_TOKEN_HEADER, token)
                     headers.forEach { (key, value) ->
                         append(key, value)
                     }
@@ -265,7 +265,7 @@ class RevoltManager(
         return runCatching {
             client.submitFormWithBinaryData(url, form) {
                 headers {
-                    append(REVOLT_TOKEN_HEADER, token)
+                    append(STOAT_TOKEN_HEADER, token)
                 }
             }
         }.getOrElse {
@@ -278,20 +278,20 @@ class RevoltManager(
     }
 
     @Serializable
-    private data class RevoltApiBody(
-        val features: RevoltFeaturesBody,
+    private data class StoatApiBody(
+        val features: StoatFeaturesBody,
         val ws: String,
         val app: String,
     )
 
     @Serializable
-    private data class RevoltFeaturesBody(
-        val autumn: RevoltFeatureBody,
-        val january: RevoltFeatureBody,
+    private data class StoatFeaturesBody(
+        val autumn: StoatFeatureBody,
+        val january: StoatFeatureBody,
     )
 
     @Serializable
-    private data class RevoltFeatureBody(
+    private data class StoatFeatureBody(
         val url: String,
     )
 
