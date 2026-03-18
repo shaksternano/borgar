@@ -1,15 +1,15 @@
-package com.shakster.borgar.revolt.entity
+package com.shakster.borgar.stoat.entity
 
 import com.shakster.borgar.messaging.command.Permission
 import com.shakster.borgar.messaging.entity.BaseEntity
 import com.shakster.borgar.messaging.entity.Member
 import com.shakster.borgar.messaging.entity.User
 import com.shakster.borgar.messaging.entity.channel.Channel
-import com.shakster.borgar.revolt.RevoltManager
-import com.shakster.borgar.revolt.entity.channel.RevoltChannel
-import com.shakster.borgar.revolt.util.bitwiseAndEq
-import com.shakster.borgar.revolt.util.getPermissionsValue
-import com.shakster.borgar.revolt.util.toValues
+import com.shakster.borgar.stoat.RevoltManager
+import com.shakster.borgar.stoat.entity.channel.RevoltChannel
+import com.shakster.borgar.stoat.util.bitwiseAndEq
+import com.shakster.borgar.stoat.util.getPermissionsValue
+import com.shakster.borgar.stoat.util.toValues
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.map

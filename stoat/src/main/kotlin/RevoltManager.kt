@@ -1,4 +1,4 @@
-package com.shakster.borgar.revolt
+package com.shakster.borgar.stoat
 
 import com.shakster.borgar.core.BotConfig
 import com.shakster.borgar.core.exception.HttpException
@@ -14,11 +14,11 @@ import com.shakster.borgar.messaging.entity.Role
 import com.shakster.borgar.messaging.entity.User
 import com.shakster.borgar.messaging.entity.channel.Channel
 import com.shakster.borgar.messaging.exception.InvalidTokenException
-import com.shakster.borgar.revolt.entity.*
-import com.shakster.borgar.revolt.entity.channel.RevoltChannel
-import com.shakster.borgar.revolt.entity.channel.RevoltChannelResponse
-import com.shakster.borgar.revolt.util.toRevolt
-import com.shakster.borgar.revolt.websocket.RevoltWebSocketClient
+import com.shakster.borgar.stoat.entity.*
+import com.shakster.borgar.stoat.entity.channel.RevoltChannel
+import com.shakster.borgar.stoat.entity.channel.RevoltChannelResponse
+import com.shakster.borgar.stoat.util.toRevolt
+import com.shakster.borgar.stoat.websocket.RevoltWebSocketClient
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*

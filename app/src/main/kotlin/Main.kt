@@ -8,7 +8,7 @@ import com.shakster.borgar.core.initCore
 import com.shakster.borgar.core.logger
 import com.shakster.borgar.discord.initDiscord
 import com.shakster.borgar.messaging.initMessaging
-import com.shakster.borgar.revolt.initRevolt
+import com.shakster.borgar.stoat.initRevolt
 import java.text.DecimalFormat
 import kotlin.time.DurationUnit
 import kotlin.time.TimeSource

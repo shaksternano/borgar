@@ -1,4 +1,4 @@
-package com.shakster.borgar.revolt.entity.channel
+package com.shakster.borgar.stoat.entity.channel
 
 import com.shakster.borgar.core.collect.parallelMap
 import com.shakster.borgar.core.exception.FileTooLargeException
@@ -9,9 +9,9 @@ import com.shakster.borgar.core.util.URL_REGEX
 import com.shakster.borgar.messaging.builder.MessageCreateBuilder
 import com.shakster.borgar.messaging.entity.Message
 import com.shakster.borgar.messaging.entity.channel.MessageChannel
-import com.shakster.borgar.revolt.RevoltManager
-import com.shakster.borgar.revolt.entity.*
-import com.shakster.borgar.revolt.util.RevoltPermissionValue
+import com.shakster.borgar.stoat.RevoltManager
+import com.shakster.borgar.stoat.entity.*
+import com.shakster.borgar.stoat.util.RevoltPermissionValue
 import io.ktor.client.request.forms.*
 import io.ktor.http.*
 import kotlinx.coroutines.flow.Flow

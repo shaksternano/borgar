@@ -1,4 +1,4 @@
-package com.shakster.borgar.revolt
+package com.shakster.borgar.stoat
 
 import com.shakster.borgar.core.BotConfig
 import com.shakster.borgar.core.logger

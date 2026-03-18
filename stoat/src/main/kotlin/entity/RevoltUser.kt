@@ -1,9 +1,9 @@
-package com.shakster.borgar.revolt.entity
+package com.shakster.borgar.stoat.entity
 
 import com.shakster.borgar.core.util.encodeUrl
 import com.shakster.borgar.messaging.entity.BaseEntity
 import com.shakster.borgar.messaging.entity.User
-import com.shakster.borgar.revolt.RevoltManager
+import com.shakster.borgar.stoat.RevoltManager
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

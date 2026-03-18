@@ -1,4 +1,4 @@
-package com.shakster.borgar.revolt.entity
+package com.shakster.borgar.stoat.entity
 
 import com.shakster.borgar.core.util.encodeUrl
 import com.shakster.borgar.messaging.command.Command
@@ -6,8 +6,8 @@ import com.shakster.borgar.messaging.entity.BaseEntity
 import com.shakster.borgar.messaging.entity.CustomEmoji
 import com.shakster.borgar.messaging.entity.Guild
 import com.shakster.borgar.messaging.entity.User
-import com.shakster.borgar.revolt.RevoltManager
-import com.shakster.borgar.revolt.util.RevoltPermissionValue
+import com.shakster.borgar.stoat.RevoltManager
+import com.shakster.borgar.stoat.util.RevoltPermissionValue
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.SerialName

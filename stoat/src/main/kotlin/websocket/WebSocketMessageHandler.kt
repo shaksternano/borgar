@@ -1,4 +1,4 @@
-package com.shakster.borgar.revolt.websocket
+package com.shakster.borgar.stoat.websocket
 
 import kotlinx.serialization.json.JsonObject
 

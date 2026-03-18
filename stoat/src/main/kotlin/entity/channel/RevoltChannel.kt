@@ -1,11 +1,11 @@
-package com.shakster.borgar.revolt.entity.channel
+package com.shakster.borgar.stoat.entity.channel
 
 import com.shakster.borgar.core.util.ChannelEnvironment
 import com.shakster.borgar.messaging.entity.BaseEntity
 import com.shakster.borgar.messaging.entity.channel.Channel
-import com.shakster.borgar.revolt.RevoltManager
-import com.shakster.borgar.revolt.entity.*
-import com.shakster.borgar.revolt.util.RevoltPermissionValue
+import com.shakster.borgar.stoat.RevoltManager
+import com.shakster.borgar.stoat.entity.*
+import com.shakster.borgar.stoat.util.RevoltPermissionValue
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

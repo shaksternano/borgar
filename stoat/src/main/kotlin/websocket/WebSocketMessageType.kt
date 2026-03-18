@@ -1,4 +1,4 @@
-package com.shakster.borgar.revolt.websocket
+package com.shakster.borgar.stoat.websocket
 
 @Suppress("unused")
 enum class WebSocketMessageType(

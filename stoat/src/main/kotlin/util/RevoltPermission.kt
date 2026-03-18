@@ -1,10 +1,10 @@
-package com.shakster.borgar.revolt.util
+package com.shakster.borgar.stoat.util
 
 import com.shakster.borgar.core.util.pow
 import com.shakster.borgar.messaging.command.Permission
-import com.shakster.borgar.revolt.entity.RevoltMember
-import com.shakster.borgar.revolt.entity.RevoltRole
-import com.shakster.borgar.revolt.entity.channel.RevoltChannel
+import com.shakster.borgar.stoat.entity.RevoltMember
+import com.shakster.borgar.stoat.entity.RevoltRole
+import com.shakster.borgar.stoat.entity.channel.RevoltChannel
 import kotlinx.coroutines.flow.toList
 
 enum class RevoltPermission(

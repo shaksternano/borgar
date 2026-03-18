@@ -1,4 +1,4 @@
-package com.shakster.borgar.revolt.entity
+package com.shakster.borgar.stoat.entity
 
 import com.shakster.borgar.core.logger
 import com.shakster.borgar.core.util.JSON
@@ -6,9 +6,9 @@ import com.shakster.borgar.core.util.encodeUrl
 import com.shakster.borgar.messaging.builder.MessageEditBuilder
 import com.shakster.borgar.messaging.entity.*
 import com.shakster.borgar.messaging.entity.channel.Channel
-import com.shakster.borgar.revolt.RevoltManager
-import com.shakster.borgar.revolt.USER_SILENT_MENTION_REGEX
-import com.shakster.borgar.revolt.entity.channel.RevoltMessageChannel
+import com.shakster.borgar.stoat.RevoltManager
+import com.shakster.borgar.stoat.USER_SILENT_MENTION_REGEX
+import com.shakster.borgar.stoat.entity.channel.RevoltMessageChannel
 import io.ktor.http.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow

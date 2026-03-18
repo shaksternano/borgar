@@ -1,4 +1,4 @@
-package com.shakster.borgar.revolt.websocket
+package com.shakster.borgar.stoat.websocket
 
 import com.shakster.borgar.core.io.httpClient
 import com.shakster.borgar.core.logger
@@ -6,12 +6,12 @@ import com.shakster.borgar.core.util.JSON
 import com.shakster.borgar.messaging.event.MessageReceiveEvent
 import com.shakster.borgar.messaging.exception.InvalidTokenException
 import com.shakster.borgar.messaging.util.onMessageReceived
-import com.shakster.borgar.revolt.RETRY_CONNECT_INTERVAL
-import com.shakster.borgar.revolt.RevoltManager
-import com.shakster.borgar.revolt.entity.RevoltGuildResponse
-import com.shakster.borgar.revolt.entity.channel.RevoltChannelResponse
-import com.shakster.borgar.revolt.entity.channel.RevoltChannelType
-import com.shakster.borgar.revolt.entity.createMessage
+import com.shakster.borgar.stoat.RETRY_CONNECT_INTERVAL
+import com.shakster.borgar.stoat.RevoltManager
+import com.shakster.borgar.stoat.entity.RevoltGuildResponse
+import com.shakster.borgar.stoat.entity.channel.RevoltChannelResponse
+import com.shakster.borgar.stoat.entity.channel.RevoltChannelType
+import com.shakster.borgar.stoat.entity.createMessage
 import io.ktor.client.plugins.websocket.*
 import io.ktor.http.*
 import io.ktor.util.network.*
