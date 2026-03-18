@@ -28,6 +28,8 @@ private const val MAX_PAST_MESSAGES_TO_CHECK: Int = 100
 
 private val NON_EMBED_HOSTS: Set<String> = setOf(
     "raw.githubusercontent.com",
+    "cdn.stoatusercontent.com",
+    "external.stoatusercontent.com",
     "cdn.revoltusercontent.com",
     "autumn.revolt.chat",
     "jan.revolt.chat",
