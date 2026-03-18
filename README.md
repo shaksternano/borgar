@@ -1,6 +1,6 @@
 # Borgar
 
-A Discord and Revolt bot that provides fun image editing commands, such as image captioning.
+A [Discord](https://discord.com) and [Stoat](https://stoat.chat) bot that provides fun image editing commands, such as image captioning.
 
 <!--suppress HtmlDeprecatedAttribute -->
 <div align="center">
@@ -28,9 +28,9 @@ clockwise:
 ## Prerequisites
 
 - Java 21 SDK or higher.
-- A Discord and/or Revolt Bot Token.
+- A Discord and/or Stoat Bot Token.
    - You can get a Discord token from the [Discord Developer Portal](https://discord.com/developers/applications) or a
-     Revolt token from the [Revolt Bot Menu](https://app.revolt.chat/settings/bots).
+     Stoat token from the "My Bots" section of the [Stoat](https://stoat.chat/app) settings.
 
 ## Getting Borgar
 
@@ -44,7 +44,7 @@ the [Actions page](https://github.com/shaksternano/borgar/actions/workflows/buil
 1. Run Borgar with `java -jar borgar-X.X.X.jar`.
    - Replace `X.X.X` with the version number of the JAR file you downloaded.
 2. Running the program for the first time should create a `config.json` file and then exit.
-3. Add your Discord and/or Revolt bot token to the `config.json` file and run the program again.
+3. Add your Discord and/or Stoat bot token to the `config.json` file and run the program again.
 
 ## Required permissions
 
@@ -53,10 +53,10 @@ the [Actions page](https://github.com/shaksternano/borgar/actions/workflows/buil
 <!--suppress CheckImageSize -->
 <img src="images/discord_required_permissions.png" alt="Discord required permissions" width=500/>
 
-### Revolt
+### Stoat
 
 <!--suppress CheckImageSize -->
-<img src="images/revolt_required_permissions.png" alt="Revolt required permissions" width=500/>
+<img src="images/stoat_required_permissions.png" alt="Stoat required permissions" width=500/>
 
 ## Using PostgreSQL
 
