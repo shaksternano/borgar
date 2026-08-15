@@ -176,7 +176,7 @@ suspend fun sendResponses(
             }
         } finally {
             response.files.parallelForEach {
-                it.path?.deleteSilently()
+                it.content.path?.deleteSilently()
             }
         }
     }

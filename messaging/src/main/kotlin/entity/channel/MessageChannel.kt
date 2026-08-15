@@ -1,7 +1,7 @@
 package com.shakster.borgar.messaging.entity.channel
 
-import com.shakster.borgar.core.io.DataSource
 import com.shakster.borgar.messaging.builder.MessageCreateBuilder
+import com.shakster.borgar.messaging.entity.FileUpload
 import com.shakster.borgar.messaging.entity.Message
 import kotlinx.coroutines.flow.Flow
 
@@ -13,12 +13,16 @@ interface MessageChannel : Channel {
 
     suspend fun stopTyping()
 
-    suspend fun createMessage(content: String): Message = createMessage {
-        this.content = content
+    suspend fun createMessage(content: String): Message {
+        return createMessage {
+            this.content = content
+        }
     }
 
-    suspend fun createMessage(vararg files: DataSource): Message = createMessage {
-        this.files.addAll(files)
+    suspend fun createMessage(vararg files: FileUpload): Message {
+        return createMessage {
+            this.files.addAll(files)
+        }
     }
 
     suspend fun createMessage(block: MessageCreateBuilder.() -> Unit): Message

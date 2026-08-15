@@ -14,6 +14,7 @@ import dev.minn.jda.ktx.jdabuilder.default
 import dev.minn.jda.ktx.jdabuilder.intents
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.dv8tion.jda.api.JDA
@@ -26,7 +27,6 @@ import net.dv8tion.jda.api.utils.FileUpload
 import kotlin.concurrent.atomics.AtomicBoolean
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 suspend fun initDiscord(token: String) {
     logger.info("Connecting to Discord...")
@@ -57,10 +57,20 @@ private fun MessageReceivedEvent.convert(): MessageReceiveEvent {
     return MessageReceiveEvent(message)
 }
 
-fun DataSource.toFileUpload(): FileUpload =
-    FileUpload.fromStreamSupplier(filename) {
+fun DataSource.toFileUpload(): FileUpload {
+    return FileUpload.fromStreamSupplier(filename) {
         newStreamBlocking()
     }
+}
+
+fun com.shakster.borgar.messaging.entity.FileUpload.toDiscord(): FileUpload {
+    val fileUpload = content.toFileUpload()
+    return if (spoiler) {
+        fileUpload.asSpoiler()
+    } else {
+        fileUpload
+    }
+}
 
 inline fun <T> IDetachableEntity.ifNotDetachedOrElse(ifDetached: T, ifNotDetached: () -> T): T =
     if (isDetached) {
@@ -77,7 +87,7 @@ private suspend fun JDA.awaitReadySuspend() {
     if (status == JDA.Status.CONNECTED) return
     val resumed = AtomicBoolean(false)
     val mutex = Mutex()
-    suspendCoroutine { continuation ->
+    suspendCancellableCoroutine { continuation ->
         listener<ReadyEvent> {
             if (resumed.load()) return@listener
             mutex.withLock {

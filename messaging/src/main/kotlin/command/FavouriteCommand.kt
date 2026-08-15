@@ -18,6 +18,7 @@ import com.shakster.borgar.core.util.asSingletonList
 import com.shakster.borgar.core.util.equalsAnyIgnoreCase
 import com.shakster.borgar.core.util.getUrls
 import com.shakster.borgar.core.util.isTenorUrl
+import com.shakster.borgar.messaging.entity.FileUpload
 import com.shakster.borgar.messaging.entity.Message
 import com.shakster.borgar.messaging.entity.getContent
 import com.shakster.borgar.messaging.event.CommandEvent
@@ -62,7 +63,7 @@ object FavouriteCommand : NonChainableCommand() {
             val nameWithoutExtension = filenameWithoutExtension(fileUrl)
             val result = dataSource.rename("$nameWithoutExtension.gif")
             return CommandResponse(
-                files = listOf(result),
+                files = listOf(FileUpload(result)),
             ).asSingletonList()
         }
         return getOrCreateAliasGif(dataSource, fileUrl, event).asSingletonList()
@@ -111,7 +112,7 @@ object FavouriteCommand : NonChainableCommand() {
             return CommandResponse("The file is too large!")
         }
         return CommandResponse(
-            files = listOf(aliasGif),
+            files = listOf(FileUpload(aliasGif)),
             responseData = FavouriteResponseData(noQueryParams),
         )
     }

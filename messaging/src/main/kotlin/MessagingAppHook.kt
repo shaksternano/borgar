@@ -2,6 +2,7 @@ package com.shakster.borgar.messaging
 
 import com.shakster.borgar.core.io.DataSource
 import com.shakster.borgar.core.logging.LoggerHook
+import com.shakster.borgar.messaging.entity.FileUpload
 import com.shakster.borgar.messaging.entity.channel.MessageChannel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
@@ -90,7 +91,7 @@ class MessagingAppHook(
         val maxMessageLength = channel.manager.maxMessageContentLength - BACKTICK_AND_NEWLINE_LENGTH
         if (message.length > maxMessageLength) {
             val bytes = message.encodeToByteArray()
-            channel.createMessage(DataSource.fromBytes("message.txt", bytes))
+            channel.createMessage(FileUpload(DataSource.fromBytes("message.txt", bytes)))
         } else {
             channel.createMessage("```\n$message\n```")
         }

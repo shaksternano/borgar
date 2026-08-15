@@ -30,6 +30,14 @@ object DownloadCommand : FileCommand(
         required = false,
         validator = PositiveIntValidator,
     ),
+    CommandArgumentInfo(
+        key = "spoiler",
+        aliases = setOf("s"),
+        description = "Whether to mark the downloaded file as a spoiler.",
+        type = CommandArgumentType.Boolean,
+        required = false,
+        defaultValue = false,
+    ),
     inputRequirement = InputRequirement.NONE,
 ) {
 
@@ -47,5 +55,28 @@ object DownloadCommand : FileCommand(
         val audioOnly = arguments.getRequired("audioonly", CommandArgumentType.Boolean)
         val fileNumber = arguments.getOptional("filenumber", CommandArgumentType.Integer)
         return DownloadTask(url, audioOnly, fileNumber, maxFileSize)
+    }
+
+    override suspend fun createExecutable(
+        arguments: CommandArguments,
+        event: CommandEvent
+    ): Executable {
+        val spoiler = arguments.getRequired("spoiler", CommandArgumentType.Boolean)
+        val executable = super.createExecutable(arguments, event)
+        if (spoiler) {
+            return object : Executable by executable {
+                override suspend fun run(): List<CommandResponse> {
+                    return executable.run().map {
+                        it.copy(
+                            files = it.files.map { fileUpload ->
+                                fileUpload.copy(spoiler = true)
+                            }
+                        )
+                    }
+                }
+            }
+        } else {
+            return executable
+        }
     }
 }

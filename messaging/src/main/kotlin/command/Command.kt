@@ -36,7 +36,7 @@ interface Command : RegisterableCommand {
     val ownerOnly: Boolean
         get() = false
 
-    fun createExecutable(arguments: CommandArguments, event: CommandEvent): Executable
+    suspend fun createExecutable(arguments: CommandArguments, event: CommandEvent): Executable
 }
 
 inline val Command.nameWithPrefix: String
@@ -189,7 +189,7 @@ abstract class NonChainableCommand : BaseCommand() {
     override val chainable: Boolean = false
     override val deferReply: Boolean = false
 
-    final override fun createExecutable(arguments: CommandArguments, event: CommandEvent): Executable =
+    final override suspend fun createExecutable(arguments: CommandArguments, event: CommandEvent): Executable =
         object : Executable {
 
             override val commandConfigs: List<CommandConfig> =

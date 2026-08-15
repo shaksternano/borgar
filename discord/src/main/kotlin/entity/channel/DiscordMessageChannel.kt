@@ -1,11 +1,11 @@
 package com.shakster.borgar.discord.entity.channel
 
-import com.shakster.borgar.core.io.DataSource
 import com.shakster.borgar.core.io.get
 import com.shakster.borgar.core.io.useHttpClient
 import com.shakster.borgar.discord.entity.DiscordMessage
-import com.shakster.borgar.discord.toFileUpload
+import com.shakster.borgar.discord.toDiscord
 import com.shakster.borgar.messaging.builder.MessageCreateBuilder
+import com.shakster.borgar.messaging.entity.FileUpload
 import com.shakster.borgar.messaging.entity.Message
 import com.shakster.borgar.messaging.entity.channel.MessageChannel
 import dev.minn.jda.ktx.coroutines.asFlow
@@ -127,7 +127,7 @@ class DiscordMessageChannel(
     private fun MessageCreateBuilder.convert(): MessageCreateData {
         val builder = net.dv8tion.jda.api.utils.messages.MessageCreateBuilder()
         builder.setContent(content)
-        builder.setFiles(files.map(DataSource::toFileUpload))
+        builder.setFiles(files.map(FileUpload::toDiscord))
         return builder.build()
     }
 

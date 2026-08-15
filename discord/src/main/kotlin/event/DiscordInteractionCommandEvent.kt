@@ -1,11 +1,10 @@
 package com.shakster.borgar.discord.event
 
-import com.shakster.borgar.core.io.DataSource
 import com.shakster.borgar.core.util.ChannelEnvironment
 import com.shakster.borgar.discord.DiscordManager
 import com.shakster.borgar.discord.entity.*
 import com.shakster.borgar.discord.entity.channel.DiscordMessageChannel
-import com.shakster.borgar.discord.toFileUpload
+import com.shakster.borgar.discord.toDiscord
 import com.shakster.borgar.messaging.BotManager
 import com.shakster.borgar.messaging.command.CommandArguments
 import com.shakster.borgar.messaging.command.CommandMessageIntersection
@@ -82,7 +81,7 @@ class DiscordInteractionCommandEvent<T>(
     override suspend fun reply(response: CommandResponse): Message {
         val message = MessageCreateBuilder(
             content = response.content,
-            files = response.files.map(DataSource::toFileUpload),
+            files = response.files.map(FileUpload::toDiscord),
         ).build()
         return if (replied) {
             val discordResponseMessage = discordEvent.hook.sendMessage(message)

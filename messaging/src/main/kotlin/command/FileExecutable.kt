@@ -9,6 +9,7 @@ import com.shakster.borgar.core.task.MediaProcessingTask
 import com.shakster.borgar.core.task.TranscodeTask
 import com.shakster.borgar.core.util.asSingletonList
 import com.shakster.borgar.core.util.retrieveTenorMediaUrl
+import com.shakster.borgar.messaging.entity.FileUpload
 import com.shakster.borgar.messaging.entity.getContent
 import com.shakster.borgar.messaging.event.CommandEvent
 import com.shakster.borgar.messaging.exception.NonChainableCommandException
@@ -67,7 +68,7 @@ data class FileExecutable(
                 it.sendUrl && it.url != null
             }
             val urls = partitioned.first.joinToString("\n") { it.url!! }
-            val attachments = partitioned.second
+            val attachments = partitioned.second.map { FileUpload(it) }
             CommandResponse(
                 content = when {
                     index == 0 && canUpload.size < output.size -> "Some files are too large to upload."

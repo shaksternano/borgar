@@ -114,8 +114,9 @@ class StoatMessageChannel(
 
 private suspend fun MessageCreateBuilder.uploadAttachments(manager: StoatManager): List<String> =
     files.parallelMap {
-        val filename = it.filename
-        val channelProvider = it.toChannelProvider()
+        val datasource = it.content
+        val filename = datasource.filename
+        val channelProvider = datasource.toChannelProvider()
         val form = formData {
             append("file", channelProvider, headers {
                 append(HttpHeaders.ContentDisposition, "filename=\"$filename\"")

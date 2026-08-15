@@ -1,11 +1,10 @@
 package com.shakster.borgar.discord.entity
 
-import com.shakster.borgar.core.io.DataSource
 import com.shakster.borgar.core.util.getUrls
 import com.shakster.borgar.discord.DiscordManager
 import com.shakster.borgar.discord.entity.channel.DiscordChannel
 import com.shakster.borgar.discord.entity.channel.DiscordMessageChannel
-import com.shakster.borgar.discord.toFileUpload
+import com.shakster.borgar.discord.toDiscord
 import com.shakster.borgar.messaging.BotManager
 import com.shakster.borgar.messaging.builder.MessageEditBuilder
 import com.shakster.borgar.messaging.entity.*
@@ -154,7 +153,7 @@ data class DiscordMessage(
     private fun MessageEditBuilder.convert(): MessageEditData {
         val builder = net.dv8tion.jda.api.utils.messages.MessageEditBuilder()
         content?.let { builder.setContent(it) }
-        files?.let { builder.setFiles(it.map(DataSource::toFileUpload)) }
+        files?.let { builder.setFiles(it.map(FileUpload::toDiscord)) }
         return builder.build()
     }
 

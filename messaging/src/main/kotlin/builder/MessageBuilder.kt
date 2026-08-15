@@ -1,11 +1,11 @@
 package com.shakster.borgar.messaging.builder
 
-import com.shakster.borgar.core.io.DataSource
 import com.shakster.borgar.messaging.command.CommandResponse
+import com.shakster.borgar.messaging.entity.FileUpload
 
 data class MessageCreateBuilder(
     var content: String = "",
-    val files: MutableList<DataSource> = mutableListOf(),
+    val files: MutableList<FileUpload> = mutableListOf(),
     val referencedMessageIds: MutableList<String> = mutableListOf(),
     var suppressEmbeds: Boolean = false,
     var username: String? = null,
@@ -21,5 +21,5 @@ data class MessageCreateBuilder(
 
 data class MessageEditBuilder(
     var content: String? = null,
-    val files: MutableList<DataSource>? = mutableListOf(),
+    val files: MutableList<FileUpload>? = mutableListOf(),
 )

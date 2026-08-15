@@ -31,7 +31,7 @@ abstract class FileCommand(
         if (takesInput && this.argumentInfo.size == 2) "url"
         else super.defaultArgumentKey
 
-    final override fun createExecutable(arguments: CommandArguments, event: CommandEvent): Executable =
+    override suspend fun createExecutable(arguments: CommandArguments, event: CommandEvent): Executable =
         FileExecutable(
             commandConfigs = CommandConfig(this, arguments).asSingletonList(),
             arguments,
