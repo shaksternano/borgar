@@ -4,6 +4,7 @@ import com.shakster.borgar.core.io.DataSource
 import com.shakster.borgar.core.io.IO_DISPATCHER
 import com.shakster.borgar.core.media.ImageFrame
 import com.shakster.borgar.core.media.ImageReaderFactory
+import com.shakster.borgar.core.media.rotate
 import kotlinx.coroutines.withContext
 import org.bytedeco.javacv.FFmpegFrameGrabber
 import org.bytedeco.javacv.Frame
@@ -32,6 +33,8 @@ class FFmpegImageReader(
     override val audioSampleRate: Int = 0
     override val audioBitrate: Int = 0
 
+    private val displayRotationRadians: Double = Math.toRadians(-grabber.displayRotation)
+
     override suspend fun setTimestamp(timestamp: Duration) = withContext(IO_DISPATCHER) {
         grabber.setVideoTimestamp(timestamp.inWholeMicroseconds)
     }
@@ -51,7 +54,7 @@ class FFmpegImageReader(
          * instance is created for every frame.
          */
         val image = Java2DFrameConverter().use {
-            it.convert(frame)
+            it.convert(frame).rotate(displayRotationRadians)
         }
         return ImageFrame(
             image,
