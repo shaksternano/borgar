@@ -75,17 +75,20 @@ class DownloadTask(
                 throw it
             }
         }
+
         val files = mutableListOf<DataSource>()
         downloadUrls.forEach { dataSource ->
             val toSend: DataSource
             val tooLarge: Boolean
             val size = dataSource.size()
+
             if (size == null) {
                 val fileDataSource = try {
                     dataSource.getOrWriteFile(maxFileSize)
                 } catch (_: FileTooLargeException) {
                     null
                 }
+
                 if (fileDataSource == null) {
                     toSend = dataSource
                     tooLarge = true
@@ -97,11 +100,13 @@ class DownloadTask(
                 toSend = dataSource
                 tooLarge = size > maxFileSize
             }
+
             if (tooLarge) {
-                files.forEach {
-                    it.path?.deleteSilently()
-                }
                 if (videoQualityIndex < VIDEO_QUALITIES.size - 1) {
+                    files.forEach {
+                        it.path?.deleteSilently()
+                    }
+
                     return download(
                         url,
                         videoQualityIndex + 1,
@@ -109,12 +114,16 @@ class DownloadTask(
                         fileIndex,
                         maxFileSize,
                     )
-                } else {
+                } else if (!toSend.sendUrl) {
+                    files.forEach {
+                        it.path?.deleteSilently()
+                    }
+
                     throw FileTooLargeException()
                 }
-            } else {
-                files.add(toSend)
             }
+
+            files.add(toSend)
         }
         return files
     }
@@ -163,7 +172,11 @@ class DownloadTask(
             } else {
                 val filename = responseBody.filename
                     .replaceInvalidFilenameCharacters()
-                DataSource.fromUrl(responseBody.url, filename).asSingletonList()
+                DataSource.fromUrl(
+                    url = responseBody.url,
+                    filename = filename,
+                    sendUrl = responseBody.status == "redirect",
+                ).asSingletonList()
             }
         } else if (responseBody.picker != null) {
             if (fileIndex != null) {
